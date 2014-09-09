@@ -1,0 +1,90 @@
+/* General header. */
+header {
+    color: #fff;
+    background: #f71;
+    padding: 0.5em 0;
+    margin-bottom: 1em;
+}
+header a {
+    color: #fff;
+}
+header a:hover {
+    color: #fff;
+}
+header .links {
+    font-weight: bold;
+    padding-top: 0.2em;
+    text-align: right;
+}
+header #title {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+header #title a:hover {
+    text-decoration: none;
+}
+
+/* Header on home page */
+header.home #links {
+    text-align: center;
+    font-weight: bold;
+}
+
+header.home #title {
+    font-size: 2em;
+    text-align: center;
+    margin-top: 1em;
+    padding-bottom: 0.25em;
+    font-weight: bold;
+}
+header.home #subtitle {
+    font-size: 1.5em;
+    text-align: center;
+    margin-bottom: 2em;
+    font-weight: bold;
+}
+
+header.home form.search {
+    margin-bottom: 2em;
+}
+
+/* Search */
+.search-result {
+    padding-bottom: 0.5em;
+    margin-bottom: 0.5em;
+    border-bottom: 1px solid #ddd;
+}
+.search-result .name {
+    font-weight: bold;
+}
+.search-result .status {
+    text-align: right;
+    font-size: 0.8em;
+    color: #666;
+}
+.search-result img {
+    width: 100%;
+}
+
+/* Accomodation */
+.owner {
+    margin-bottom: 1em;
+}
+.owner img {
+    width: 100%;
+}
+.register {
+    text-align: center;
+}
+.register h4 {
+    margin-top: 0;
+}
+p.tip {
+    font-size: 0.8em;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding-top: 3em;
+}
