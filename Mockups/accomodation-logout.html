@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Pasporta Servo</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="css/pasportaservo.css">
+        <script src="js/jquery.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <header class="container-fluid">
+            <div class="row">
+                <div class="col-xs-6 col-md-12" id="title">
+                    <a href="index.html">Pasporta Servo</a>
+                </div>
+                <div class="hidden-xs col-md-12" id="subtitle">Blah blah blah</div>
+                <div class="col-md-6 col-xs-3 links">
+                    <a href="#">log in</a>
+                </div>
+                <div class="col-md-6 col-xs-3 links">
+                    <a href="#">register</a>
+                </div>
+            </div>
+        </header>
+        
+        <div id="page" class="container-fluid">
+            <div class="row owner">
+                <div class="col-xs-3">
+                    <img src="img/avatar.png" />
+                </div>
+                <div class="col-xs-5 name">
+                    <a href="accomodation-logout.html">John D</a>
+                </div>
+                <div class="col-xs-4 status">
+                    available
+                </div>
+                <div class="col-xs-9 address">
+                    Liverpool street, London
+                </div>
+            </div>
+            
+            <div class="row well register">
+                <h4>Register</h4>
+                <p class="tip">
+                    You must register to book this accomodation.
+                </p>
+                <form class="form" method="GET" action="accomodation-login.html">
+                    <div class="col-xs-12 col-md-12">
+                        <div class="form-group">
+                            <input class="form-control" name="email" type="text" placeholder="Email address">
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-12">
+                        <div class="form-group">
+                            <input class="form-control" name="phone" type="text" placeholder="Phone number">
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-12">
+                        <div class="form-group">
+                            <input class="form-control" name="password" type="text" placeholder="Password">
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-12">
+                        <div class="form-group">
+                            <input class="form-control" name="password2" type="text" placeholder="Confirm password">
+                        </div>
+                    </div>
+                    <p>
+                        <button type="submit" class="btn btn-primary">register</button>
+                    </p>
+                </form>
+            </div>
+        </div>
+        
+        <footer  class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    Footer
+                </div>
+            </div>
+        </footer>
+    </body>
+</html>

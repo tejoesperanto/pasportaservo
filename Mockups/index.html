@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Pasporta Servo</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="css/pasportaservo.css">
+        <script src="js/jquery.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <header class="container-fluid home">
+            <div class="row" id="links">
+                <div class="col-md-6 col-xs-6">
+                    <a href="#">log in</a>
+                </div>
+                <div class="col-md-6 col-xs-6">
+                    <a href="#">register</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12" id="title">Pasporta Servo</div>
+                <div class="col-md-12" id="subtitle">Blah blah blah</div>
+            </div>
+            
+            <form class="form-inline row search" role="form" method="GET" action="search.html">
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input class="form-control" type="text" placeholder="Paris, London, etc.">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" id="gps">
+                                    <span class="glyphicon glyphicon-map-marker"></span>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </header>
+        
+        <div id="page" class="container-fluid">
+            
+        </div>
+        
+        <footer class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    Footer
+                </div>
+            </div>
+        </footer>
+    </body>
+</html>
