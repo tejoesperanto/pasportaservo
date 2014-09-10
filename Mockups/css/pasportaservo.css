@@ -23,11 +23,13 @@ header #title {
 header #title a:hover {
     text-decoration: none;
 }
+header #subtitle {
+    padding-top: 0.2em;
+}
 
 /* Header on home page */
-header.home #links {
+header.home .links {
     text-align: center;
-    font-weight: bold;
 }
 
 header.home #title {
@@ -62,8 +64,12 @@ header.home form.search {
     font-size: 0.8em;
     color: #666;
 }
-.search-result img {
+.search-result .avatar {
+    text-align: center;
+}
+.search-result .avatar img {
     width: 100%;
+    max-width: 100px;
 }
 
 /* Accomodation */
@@ -87,4 +93,28 @@ p.tip {
 footer {
     text-align: center;
     padding-top: 3em;
+}
+
+/* SM */
+@media (min-width: 768px) {
+}
+/* MD */
+@media (min-width: 992px) {
+    header.home form.search {
+        margin-bottom: 4em;
+    }
+    header.home #title {
+        margin-top: 2em;
+        padding-bottom: 0.5em;
+    }
+}
+/* LG */
+@media (min-width: 1170px) {
+    header.home form.search {
+        margin-bottom: 6em;
+    }
+    header.home #title {
+        margin-top: 4em;
+        padding-bottom: 1em;
+    }
 }
