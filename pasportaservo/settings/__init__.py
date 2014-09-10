@@ -27,7 +27,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = (os.path.join(PROJECT_DIR, "static"), )
 
-TEMPLATE_DIRS = (os.path.join(PROJECT_DIR, 'templates'), )
+TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'), )
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
@@ -104,6 +104,10 @@ USE_TZ = True
 
 
 AUTH_PROFILE_MODULE = 'hosting.Profile'
+
+LOGIN_URL = '/login/'
+LOGOUT_URL = '/'
+LOGIN_REDIRECT_URL = '/'
 
 # Helps entering phone numbers with "00" instead of "+"
 # This means: Interpret phone number as dialed in Poland

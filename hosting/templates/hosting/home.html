@@ -1,0 +1,9 @@
+{% load i18n %}
+<form action="" method="post">
+    <input type="text" name="q" id="id_q" placeholder="{% trans 'City: Budapest, London, Bilbao...' %}" />
+    <input type="submit" value="" />
+</form>
+
+{% if user.is_authenticated %} {{ user.username }}
+{% else %}log in
+{% endif %}
