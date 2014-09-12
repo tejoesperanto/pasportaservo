@@ -1,4 +1,7 @@
+import geopy
+
 from django.views import generic
+from django.conf import settings
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
@@ -10,6 +13,8 @@ from braces.views import AnonymousRequiredMixin, LoginRequiredMixin
 
 from .models import Profile, Place, Phone, Condition
 from .forms import UserRegistrationForm, ProfileForm
+
+lang = settings.LANGUAGE_CODE
 
 
 class HomeView(generic.TemplateView):
@@ -57,3 +62,37 @@ class ProfileDetailView(LoginRequiredMixin, generic.DetailView):
         return self.request.user.profile
 
 profile_detail = ProfileDetailView.as_view()
+
+
+class SearchView(generic.ListView):
+    model = Place
+
+    def get(self, request, *args, **kwargs):
+        self.query = request.GET.get('q')
+        if self.query:
+            try:
+                geocoder = geopy.geocoders.Nominatim(timeout=5)
+                self.location = geocoder.geocode(self.query, language=lang,
+                        exactly_one=True, addressdetails=True)
+            except geopy.exc.GeocoderTimedOut:
+                self.location = None
+                self.timedout = True
+        return super(SearchView, self).get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        if not self.query or not self.location:
+            return Place.objects.none()
+        bbox = self.location.raw['boundingbox']
+        lats, lngs = bbox[:2], bbox[2:]
+        qs = Place.objects.filter(available=True)
+        return qs.filter(latitude__range=lats, longitude__range=lngs)
+
+    def get_context_data(self, **kwargs):
+        context = super(SearchView, self).get_context_data(**kwargs)
+        context['query'] = self.query
+        if self.query:
+            context['location'] = getattr(self.location, 'raw', '')
+            context['timedout'] = getattr(self, 'timedout', False)
+        return context
+
+search = SearchView.as_view()
