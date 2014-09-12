@@ -10,7 +10,7 @@ urlpatterns = patterns('',
     # url(r'^pasportaservo/', include('pasportaservo.foo.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
-    url(_(r'^login/'), login, name='login'),
-    url(_(r'^logout/'), logout, name='logout'),
+    url(_(r'^login/$'), login, name='login'),
+    url(_(r'^logout/$'), logout, {'next_page':'/'}, name='logout'),
     url(r'', include('hosting.urls')),
 )
