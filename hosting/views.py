@@ -12,7 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 from braces.views import AnonymousRequiredMixin, LoginRequiredMixin
 
 from .models import Profile, Place, Phone, Condition
-from .forms import UserRegistrationForm, ProfileForm
+from .forms import UserRegistrationForm, ProfileForm, PlaceForm
 
 lang = settings.LANGUAGE_CODE
 
@@ -62,6 +62,36 @@ class ProfileDetailView(LoginRequiredMixin, generic.DetailView):
         return self.request.user.profile
 
 profile_detail = ProfileDetailView.as_view()
+
+
+class PlaceCreateView(LoginRequiredMixin, generic.CreateView):
+    model = Place
+    form_class = PlaceForm
+    success_url = reverse_lazy('profile_detail')
+
+    def get_form_kwargs(self):
+        kwargs = super(PlaceCreateView, self).get_form_kwargs()
+        kwargs['profile'] = self.request.user.profile
+        return kwargs
+
+place_create = PlaceCreateView.as_view()
+
+
+class PlaceUpdateView(LoginRequiredMixin, generic.UpdateView):
+    success_url = reverse_lazy('profile_detail')
+
+    def get_object(self, queryset=None):
+        pk = self.kwargs['pk']
+        profile = self.request.user.profile
+        return get_object_or_404(Place, pk=pk, profile=profile)
+
+place_update = PlaceUpdateView.as_view()
+
+
+class PlaceDetailView(generic.DetailView):
+    model = Place
+
+place_detail = PlaceDetailView.as_view()
 
 
 class SearchView(generic.ListView):

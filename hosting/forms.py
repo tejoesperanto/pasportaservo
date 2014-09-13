@@ -48,7 +48,6 @@ class ProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
-        print self.user
         super(ProfileForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
@@ -57,3 +56,17 @@ class ProfileForm(forms.ModelForm):
         if commit:
             profile.save()
         return profile
+
+
+class PlaceForm(forms.ModelForm):
+    class Meta:
+        model = Place
+
+    def __init__(self, *args, **kwargs):
+        self.profile = kwargs.pop('profile')
+        super(PlaceForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        place = super(PlaceForm, self).save()
+        self.profile.places.add(place)
+        return place
