@@ -1,0 +1,9 @@
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form.as_ul }}
+    <input type="submit" value="" />
+</form>
+
+{% if user.is_authenticated %} {{ user.username }}
+{% else %}log in
+{% endif %}
