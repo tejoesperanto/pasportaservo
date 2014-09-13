@@ -7,7 +7,7 @@ This project is using Python 2.7 and Django 1.7 for the moment. See requirements
 
 You will need, PostgreSQL, PIP and Virtualenv:
 
-    sudo apt-get install postgresql-9.1 postgresql-client-9.1 postgresql-client-common libpq5 libpq-dev python-dev
+    sudo apt-get install postgresql postgresql-client postgresql-client-common libpq5 libpq-dev python-dev
     sudo apt-get install mercurial
     sudo apt-get install python-setuptools
     easy_install --user pip
