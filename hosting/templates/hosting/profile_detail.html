@@ -1,0 +1,11 @@
+{{ profile.birth_date }}
+{{ profile.title }}
+<br />
+<ul>
+    {% for place in profile.places.all %}
+        <li><a href="{% url 'place_update' place.pk %}">{{ place }}</a></li>
+    {% endfor %}
+</ul>
+<a href="{% url 'place_create' %}">Add a place</a>
+<br />
+{{ profile.phones.all|join:', ' }}

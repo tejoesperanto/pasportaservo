@@ -1,0 +1,9 @@
+{% load i18n %}
+<form action="{% url 'search' %}" method="get">
+    <input type="text" name="q" id="id_q" placeholder="{% trans 'City: Budapest, London, Bilbao...' %}" />
+    <input type="submit" value="Search" />
+</form>
+
+{% if user.is_authenticated %} <a href="{% url 'logout' %}">{{ user.username }}</a>
+{% else %}<a href="{% url 'login' %}">log in</a>
+{% endif %}
