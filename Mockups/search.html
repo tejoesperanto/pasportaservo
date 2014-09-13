@@ -25,7 +25,22 @@
             </div>
         </header>
         
-        <div id="page" class="container">
+        <div id="page" class="container search">
+            
+            <form class="form-inline row search" role="form" method="GET" action="search.html">
+                <div class="form-group" style="width: 100%">
+                    <div class="input-group" style="width: 100%">
+                        <input class="form-control" type="search" placeholder="Paris, London, etc.">
+                        <span class="input-group-btn" style="width: 20%">
+                            <button class="btn btn-default" type="button" id="gps" style="min-width: 40px; width: 100%;">
+                                <span class="glyphicon glyphicon-map-marker"></span>
+                                <span class="hidden-xs">my location</span>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </form>
+            
             <div class="row search-result">
                 <div class="col-xs-3 col-sm-2 col-md-1 avatar">
                     <a href="accomodation-logout.html">

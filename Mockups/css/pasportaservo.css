@@ -51,6 +51,9 @@ header.home form.search {
 }
 
 /* Search */
+#page.search form.search{
+    margin-bottom: 1em;
+}
 .search-result {
     padding-bottom: 0.5em;
     margin-bottom: 0.5em;
@@ -81,12 +84,19 @@ header.home form.search {
 }
 .register {
     text-align: center;
+    margin-top: 1em;
 }
 .register h4 {
     margin-top: 0;
 }
 p.tip {
     font-size: 0.8em;
+}
+.map iframe {
+    height: 150px;
+}
+.description-small {
+    margin-top: 1em;
 }
 
 /* Footer */
@@ -97,6 +107,10 @@ footer {
 
 /* SM */
 @media (min-width: 768px) {
+    .map iframe {
+        border-radius: 4px;
+        height: 300px;
+    }
 }
 /* MD */
 @media (min-width: 992px) {
@@ -106,6 +120,10 @@ footer {
     header.home #title {
         margin-top: 2em;
         padding-bottom: 0.5em;
+    }
+    .map iframe {
+        border-radius: 4px;
+        height: 500px;
     }
 }
 /* LG */
