@@ -1,3 +1,91 @@
+{% extends 'hosting/base.html' %}
+{% load i18n static %}
+{% load firstof from future %}{% comment %}To be removed with Django 1.8{% endcomment %}
+
+{% block page %}
+    <div class="row">
+        <div class="col-xs-12 col-md-6 owner">
+            <div class="row">
+                {% with profile=place.profile_set.first %}
+                    <div class="col-xs-3">
+                        <img src="{% static 'img/avatar.png' %}" />
+                    </div>
+                    <div class="col-xs-9">
+                        <div class="row">
+                            <div class="col-xs-5 name">
+                                {{ profile.anonymous_name }}
+                            </div>
+                            <div class="col-xs-4 status">
+                                {% if place.booked %}
+                                    {% trans "unavailable" %}
+                                {% else %}
+                                    {% trans "available" %}
+                                {% endif %}
+                            </div>
+                            <div class="col-xs-9 address">
+                                {% firstof place.public_address place.address %},
+                                {{ place.city }}
+                            </div>
+                        </div>
+
+                        {% if user.is_authenticated %}
+                            <div class="row">
+                                <div class="col-xs-5">{% trans "Address" %}</div>
+                                <p class="col-xs-7">
+                                    {{ place.address }}<br>
+                                    {{ place.city }} {{ place.country }}-{{ place.postcode }}
+                                </p>
+                                <div class="col-xs-5">{% trans "Phone number" %}</div>
+                                <p class="col-xs-7">
+                                    {{ profile.phones.all|join:"<br/>" }}
+                                </p>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endwith %}
+            </div>
+
+            <div class="row">
+            {% if user.is_authenticated %}
+                <div class="col-md-12 hidden-xs hidden-sm">
+                    <h4>{% trans "Description:" %}</h4>
+                    {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_host max_night=place.max_night %}
+                </div>
+            {% else %}
+                {% include 'hosting/snippets/registration.html' %}
+            {% endif %}
+            </div>
+        </div>
+        
+        <div class="map col-xs-12 col-md-6">
+                <iframe width="100%"
+                    frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
+                    src="http://www.openstreetmap.org/export/embed.html?bbox={{ place.bbox }}&amp;layer=hot{% if user.is_authenticated %}&amp;marker={{ place.latitude|stringformat:"f" }},{{ place.longitude|stringformat:"f" }}{% endif %}">
+                </iframe>
+        </div>
+
+        {% if user.is_authenticated %}
+            <div class="col-xs-12 hidden-md hidden-lg description-small">
+                {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_host max_night=place.max_night %}
+            </div>
+        {% endif %}
+
+        {% if user.is_authenticated and user.profile in place.profile_set.all %}
+            <div>
+                <div class="">{% trans "Short description" %}</div>
+                <p class="">{{ place.small_description }}</p>
+                <div class="">{% trans "Booked" %}</div>
+                <p class="">{{ place.booked|yesno }}</p>
+                <div class="">{% trans "Available" %}</div>
+                <p class="">{{ place.available|yesno }}</p>
+                <div class="">{% trans "Print in book" %}</div>
+                <p class="">{{ place.print_in_book|yesno }}</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock page %}
+
+
 {{ place.address }}<br/>
 {{ place.city }}<br/>
 {{ place.postcode }}<br/>
