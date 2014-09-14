@@ -12,7 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 from braces.views import AnonymousRequiredMixin, LoginRequiredMixin
 
 from .models import Profile, Place, Phone, Condition
-from .forms import UserRegistrationForm, ProfileForm, PlaceForm
+from .forms import UserRegistrationForm, ProfileForm, PlaceForm, PhoneForm
 from .utils import extend_bbox
 
 lang = settings.LANGUAGE_CODE
@@ -93,6 +93,41 @@ class PlaceDetailView(generic.DetailView):
     model = Place
 
 place_detail = PlaceDetailView.as_view()
+
+
+class PhoneCreateView(LoginRequiredMixin, generic.CreateView):
+    model = Phone
+    form_class = PhoneForm
+    success_url = reverse_lazy('profile_detail')
+
+    def get_form_kwargs(self):
+        kwargs = super(PhoneCreateView, self).get_form_kwargs()
+        kwargs['profile'] = self.request.user.profile
+        return kwargs
+
+phone_create = PhoneCreateView.as_view()
+
+
+class PhoneUpdateView(LoginRequiredMixin, generic.UpdateView):
+    success_url = reverse_lazy('profile_detail')
+
+    def get_object(self, queryset=None):
+        number = '+' + self.kwargs['num']
+        profile = self.request.user.profile
+        return get_object_or_404(Phone, number=number, profile=profile)
+
+phone_update = PhoneUpdateView.as_view()
+
+
+class PhoneDeleteView(LoginRequiredMixin, generic.DeleteView):
+    success_url = reverse_lazy('profile_detail')
+
+    def get_object(self, queryset=None):
+        number = '+' + self.kwargs['num']
+        profile = self.request.user.profile
+        return get_object_or_404(Phone, number=number, profile=profile)
+
+phone_delete = PhoneDeleteView.as_view()
 
 
 class SearchView(generic.ListView):
