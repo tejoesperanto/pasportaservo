@@ -1,0 +1,33 @@
+{% load i18n %}
+
+<div class="col-xs-12 well register">
+    <h4>{% trans "Registration" %}</h4>
+    <p class="tip">
+        {% trans "You must register to book this accomodation." %}
+    </p>
+    <form class="form" method="GET" action="{% url 'register' %}?next={{ request.get_full_path|urlencode }}">
+        <div class="col-xs-12 col-md-12">
+            <div class="form-group">
+                <input class="form-control" name="username" type="text" placeholder="{% trans "Username" %}">
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-12">
+            <div class="form-group">
+                <input class="form-control" name="email" type="text" placeholder="{% trans "Email address" %}">
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-12">
+            <div class="form-group">
+                <input class="form-control" name="password" type="text" placeholder="{% trans "Password" %}">
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-12">
+            <div class="form-group">
+                <input class="form-control" name="password2" type="text" placeholder="{% trans "Password confirmation" %}">
+            </div>
+        </div>
+        <p>
+            <button type="submit" class="btn btn-primary">{% trans "register" %}</button>
+        </p>
+    </form>
+</div>
