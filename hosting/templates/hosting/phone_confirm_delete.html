@@ -1,0 +1,10 @@
+{% load i18n %}
+
+{% blocktrans with number=phone.number.as_international trimmed %}
+    Are you sure to want to really for ever delete this number: {{ number }}
+{% endblocktrans %}
+<form action="" method="post">
+    {% csrf_token %}
+    <input type="submit" value="{% trans "Confirm" %}" />
+    <a href="#" onclick="history.go(-1)">{% trans "Cancel" %}</a>
+</form>

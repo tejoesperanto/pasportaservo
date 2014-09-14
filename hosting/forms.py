@@ -61,6 +61,18 @@ class ProfileForm(forms.ModelForm):
 class PlaceForm(forms.ModelForm):
     class Meta:
         model = Place
+        fields = [
+            'address',
+            'city',
+            'postcode',
+            'country',
+            'latitude', 'longitude',
+            'max_host', 'max_night', 'contact_before',
+            'description', 'small_description',
+            'booked', 'available',
+            'in_book',
+            'conditions',
+        ]
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
@@ -70,3 +82,18 @@ class PlaceForm(forms.ModelForm):
         place = super(PlaceForm, self).save()
         self.profile.places.add(place)
         return place
+
+
+class PhoneForm(forms.ModelForm):
+    class Meta:
+        model = Phone
+        fields = ['number', 'type']
+
+    def __init__(self, *args, **kwargs):
+        self.profile = kwargs.pop('profile')
+        super(PhoneForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        phone = super(PhoneForm, self).save()
+        self.profile.phones.add(phone)
+        return phone

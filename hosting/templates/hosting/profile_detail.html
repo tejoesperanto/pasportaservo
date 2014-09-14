@@ -1,5 +1,6 @@
 {{ profile.birth_date }}
 {{ profile.title }}
+{{ profile }}
 <br />
 <ul>
     {% for place in profile.places.all %}
@@ -8,4 +9,9 @@
 </ul>
 <a href="{% url 'place_create' %}">Add a place</a>
 <br />
-{{ profile.phones.all|join:', ' }}
+<ul>
+    {% for phone in profile.phones.all %}
+        <li>{{ phone.number.as_international }} | <a href="{% url 'phone_update' phone.number.as_e164|cut:"+" %}">Update</a> | <a href="{% url 'phone_delete' phone.number.as_e164|cut:"+" %}">Delete</a></li>
+    {% endfor %}
+</ul>
+<a href="{% url 'phone_create' %}">Add a phone</a>
