@@ -1,3 +1,8 @@
+@font-face {
+    font-family: Geotica;
+    src: url("../fonts/Geotica_Three-webfont.woff");
+}
+
 /* General header. */
 header {
     color: #fff;
@@ -17,7 +22,7 @@ header .links {
     text-align: right;
 }
 header #title {
-    font-weight: bold;
+    font-family: Geotica, sans-serif;
     font-size: 1.2em;
 }
 header #title a:hover {
@@ -37,7 +42,6 @@ header.home #title {
     text-align: center;
     margin-top: 1em;
     padding-bottom: 0.25em;
-    font-weight: bold;
 }
 header.home #subtitle {
     font-size: 1.5em;
