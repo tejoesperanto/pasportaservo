@@ -13,6 +13,7 @@ from braces.views import AnonymousRequiredMixin, LoginRequiredMixin
 
 from .models import Profile, Place, Phone, Condition
 from .forms import UserRegistrationForm, ProfileForm, PlaceForm
+from .utils import extend_bbox
 
 lang = settings.LANGUAGE_CODE
 
@@ -110,12 +111,24 @@ class SearchView(generic.ListView):
         return super(SearchView, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
+        """Find location by bounding box. Filters also by country,
+        because some bbox for some countres are huge (e.g. France, USA).
+        """
         if not self.query or not self.location:
             return Place.objects.none()
         bbox = self.location.raw['boundingbox']
+        country_code = self.location.raw['address'].get('country_code')
         lats, lngs = bbox[:2], bbox[2:]
         qs = Place.objects.filter(available=True)
-        return qs.filter(latitude__range=lats, longitude__range=lngs)
+        qs = qs.filter(latitude__range=lats, longitude__range=lngs)
+        qs = qs.filter(country=country_code.upper()) if country_code else qs
+        if not qs.count():
+            """If there is no result, extends the bbox."""
+            bbox = extend_bbox(bbox)
+            lats, lngs = bbox[:2], bbox[2:]
+            qs = Place.objects.filter(available=True)
+            qs = qs.filter(latitude__range=lats, longitude__range=lngs)
+        return qs
 
     def get_context_data(self, **kwargs):
         context = super(SearchView, self).get_context_data(**kwargs)
