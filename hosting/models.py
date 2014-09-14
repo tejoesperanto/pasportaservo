@@ -68,6 +68,13 @@ class Place(TimeStampedModel):
         verbose_name = _("place")
         verbose_name_plural = _("places")
 
+    @property
+    def bbox(self):
+        dx, dy = 0.007, 0.003  # Delta x and delta y around point
+        lat, lng = self.latitude, self.longitude
+        boundingbox = (lng - dx, lat - dy, lng + dx, lat + dy)
+        return ",".join([str(coord) for coord in boundingbox])
+
     def __unicode__(self):
         return self.city
 
