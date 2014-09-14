@@ -35,6 +35,10 @@ class Profile(TimeStampedModel):
         verbose_name = _("profile")
         verbose_name_plural = _("profiles")
 
+    @property
+    def anonymous_name(self):
+        return " ".join((self.user.first_name, self.user.last_name[0]))
+
     def __unicode__(self):
         full_name = self.user.get_full_name()
         return full_name if full_name else self.user.username

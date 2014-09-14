@@ -1,3 +1,62 @@
+{% extends 'hosting/base.html' %}
+{% load i18n static %}
+
+{% block page_class %} search{% endblock %}
+
+{% block page %}
+    <form class="form-inline row search" role="form" method="GET" action="">
+        <div class="form-group" style="width: 100%">
+            <div class="input-group" style="width: 100%">
+                <input class="form-control" type="search" name="q" value="{{ request.GET.q|title }}" placeholder="Paris, London, etc.">
+                <span class="input-group-btn" style="width: 20%">
+                    <button class="btn btn-default" type="button" id="gps" style="min-width: 40px; width: 100%;">
+                        <span class="glyphicon glyphicon-map-marker"></span>
+                        <span class="hidden-xs">my location</span>
+                    </button>
+                </span>
+            </div>
+        </div>
+    </form>
+    
+    <div class="row search-result">
+        <div class="col-xs-3 col-sm-2 col-md-1 avatar">
+            <a href="accomodation-logout.html">
+                <img src="{% static 'img/avatar.png' %}" />
+            </a>
+        </div>
+        <div class="col-xs-5 col-sm-6 col-md-7 name">
+            <a href="accomodation-logout.html">Anakin S</a>
+        </div>
+        <div class="col-xs-4 status">
+            available
+        </div>
+        <div class="col-xs-9 col-sm-10 col-md-11 address">
+            Death Star, Galaxy
+        </div>
+    </div>
+    
+    {% for place in place_list %}
+        <div class="row search-result">
+            <div class="col-xs-3 col-sm-2 col-md-1 avatar">
+                <a href="{% url 'place_detail' place.pk %}">
+                    <img src="{% static 'img/avatar2.png' %}" />
+                </a>
+            </div>
+            <div class="col-xs-5 col-sm-6 col-md-7 name">
+                <a href="{% url 'place_detail' place.pk %}">{{ place.profile_set.first.anonymous_name }}</a>
+            </div>
+            <div class="col-xs-4 status">
+                {% if booked or not available %}unavailable{% endif %}
+            </div>
+            <div class="col-xs-9 col-sm-10 col-md-11 address">
+                {{ place.address }}, {{ place.city }}
+            </div>
+        </div>
+    {% endfor %}
+{% endblock page %}
+
+
+
 {% if location %}
     <h1>{% firstof location.address.city location.address.state location.address.country %}</h1>
 {% elif query == None %}
@@ -9,7 +68,7 @@
 {% endif %}
 
 <form action="" method="get">
-    <input type="text" name="q" value="{{ request.GET.q }}" id="id_q" autofocus />
+    <input type="text" name="q" value="{{ request.GET.q|title }}" id="id_q" autofocus />
     <input type="submit" value="Search" />
 </form>
 
