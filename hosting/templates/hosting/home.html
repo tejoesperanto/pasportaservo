@@ -7,16 +7,16 @@
     <div class="row links">
         <div class="col-sm-4 col-sm-offset-2 col-md-3 col-md-offset-3 col-lg-2 col-lg-offset-4 col-xs-6">
             {% if user.is_authenticated %}
-                <a href="{% url 'logout' %}">{% trans "log out" %}</a>
+                <a href="{% url 'logout' %}?next={{ request.get_full_path|urlencode }}">{% trans "log out" %}</a>
             {% else %}
-                <a href="{% url 'login' %}">{% trans "log in" %}</a>
+                <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">{% trans "log in" %}</a>
             {% endif %}
         </div>
         <div class="col-sm-4 col-md-3 col-xs-6 col-lg-2">
             {% if user.is_authenticated %}
                 <a href="{% url 'profile_detail' %}">{{ user.username }}</a>
             {% else %}
-                <a href="{% url 'register' %}">{% trans "register" %}</a>
+                <a href="{% url 'register' %}?next={{ request.get_full_path|urlencode }}">{% trans "register" %}</a>
             {% endif %}
         </div>
     </div>

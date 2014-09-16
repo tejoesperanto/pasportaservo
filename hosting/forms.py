@@ -44,7 +44,7 @@ class UserRegistrationForm(UserCreationForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['title', 'birth_date', 'places', 'phones']
+        fields = ['title', 'birth_date']
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')

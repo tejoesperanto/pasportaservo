@@ -5,7 +5,8 @@
     <p class="tip">
         {% trans "You must register to book this accomodation." %}
     </p>
-    <form class="form" method="GET" action="{% url 'register' %}?next={{ request.get_full_path|urlencode }}">
+    <form class="form" method="POST" action="{% url 'register' %}?next={{ request.get_full_path|urlencode }}">
+        {% csrf_token %}
         <div class="col-xs-12 col-md-12">
             <div class="form-group">
                 <input class="form-control" name="username" type="text" placeholder="{% trans "Username" %}">
@@ -18,12 +19,12 @@
         </div>
         <div class="col-xs-12 col-md-12">
             <div class="form-group">
-                <input class="form-control" name="password" type="text" placeholder="{% trans "Password" %}">
+                <input class="form-control" id="id_password1" name="password1" type="password" placeholder="{% trans "Password" %}">
             </div>
         </div>
         <div class="col-xs-12 col-md-12">
             <div class="form-group">
-                <input class="form-control" name="password2" type="text" placeholder="{% trans "Password confirmation" %}">
+                <input class="form-control" id="id_password2" name="password2" type="password" placeholder="{% trans "Password confirmation" %}">
             </div>
         </div>
         <p>
