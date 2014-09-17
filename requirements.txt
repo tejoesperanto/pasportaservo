@@ -8,4 +8,4 @@ django-wpadmin==1.6.1
 django-debug-toolbar==1.2.1
 psycopg2==2.5.4
 geopy==1.1.5
-
+sqlparse==0.1.11

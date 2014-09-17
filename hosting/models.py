@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -22,7 +24,7 @@ PHONE_TYPE_CHOICES = (
     (WORK, _("Work")),
 )
 
-
+@python_2_unicode_compatible
 class Profile(TimeStampedModel):
     TITLE_CHOICES = TITLE_CHOICES
     user = models.OneToOneField(settings.AUTH_USER_MODEL)
@@ -39,11 +41,11 @@ class Profile(TimeStampedModel):
     def anonymous_name(self):
         return " ".join((self.user.first_name, self.user.last_name[0]))
 
-    def __unicode__(self):
+    def __str__(self):
         full_name = self.user.get_full_name()
         return full_name if full_name else self.user.username
 
-
+@python_2_unicode_compatible
 class Place(TimeStampedModel):
     address = models.CharField(_("address"), max_length=255)
     city = models.CharField(_("city"), max_length=255)
@@ -75,10 +77,10 @@ class Place(TimeStampedModel):
         boundingbox = (lng - dx, lat - dy, lng + dx, lat + dy)
         return ",".join([str(coord) for coord in boundingbox])
 
-    def __unicode__(self):
+    def __str__(self):
         return self.city
 
-
+@python_2_unicode_compatible
 class Phone(TimeStampedModel):
     PHONE_TYPE_CHOICES = PHONE_TYPE_CHOICES
     number = PhoneNumberField()
@@ -89,7 +91,7 @@ class Phone(TimeStampedModel):
         verbose_name = _("phone")
         verbose_name_plural = _("phones")
 
-    def __unicode__(self):
+    def __str__(self):
         """ as_e164             '+31104361044'
             as_international    '+31 10 436 1044'
             as_national         '010 436 1044'
@@ -97,7 +99,7 @@ class Phone(TimeStampedModel):
         """
         return self.number.as_international
 
-
+@python_2_unicode_compatible
 class Condition(TimeStampedModel):
     """Hosting condition (e.g. bringing sleeping bag, no smoking...)."""
     name = models.CharField(_("name"), max_length=255)
@@ -106,5 +108,5 @@ class Condition(TimeStampedModel):
         verbose_name = _("condition")
         verbose_name_plural = _("conditions")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
