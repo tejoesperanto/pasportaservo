@@ -1,4 +1,5 @@
-{% load i18n %}
+{% load i18n bootstrap %}
+
 
 <div class="col-xs-12 well register">
     <h4>{% trans "Registration" %}</h4>
@@ -6,29 +7,12 @@
         {% trans "You must register to book this accomodation." %}
     </p>
     <form class="form" method="POST" action="{% url 'register' %}?next={{ request.get_full_path|urlencode }}">
-        {% csrf_token %}
-        <div class="col-xs-12 col-md-12">
-            <div class="form-group">
-                <input class="form-control" name="username" type="text" placeholder="{% trans "Username" %}">
-            </div>
+        <div class="col-md-10 col-md-offset-1">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <p>
+                <button type="submit" class="btn btn-primary">{% trans "Register" %}</button>
+            </p>
         </div>
-        <div class="col-xs-12 col-md-12">
-            <div class="form-group">
-                <input class="form-control" name="email" type="text" placeholder="{% trans "Email address" %}">
-            </div>
-        </div>
-        <div class="col-xs-12 col-md-12">
-            <div class="form-group">
-                <input class="form-control" id="id_password1" name="password1" type="password" placeholder="{% trans "Password" %}">
-            </div>
-        </div>
-        <div class="col-xs-12 col-md-12">
-            <div class="form-group">
-                <input class="form-control" id="id_password2" name="password2" type="password" placeholder="{% trans "Password confirmation" %}">
-            </div>
-        </div>
-        <p>
-            <button type="submit" class="btn btn-primary">{% trans "register" %}</button>
-        </p>
     </form>
 </div>

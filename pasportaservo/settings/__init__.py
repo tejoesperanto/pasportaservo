@@ -55,8 +55,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_extensions',
     'phonenumber_field',
-    'hosting',
+    'bootstrapform',
     'debug_toolbar',
+
+    'hosting',
 )
 
 MIDDLEWARE_CLASSES = (

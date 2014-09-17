@@ -92,6 +92,11 @@ place_update = PlaceUpdateView.as_view()
 class PlaceDetailView(generic.DetailView):
     model = Place
 
+    def get_context_data(self, **kwargs):
+        context = super(PlaceDetailView, self).get_context_data(**kwargs)
+        context['form'] = UserRegistrationForm
+        return context
+
 place_detail = PlaceDetailView.as_view()
 
 
