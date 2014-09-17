@@ -86,12 +86,19 @@ header.home form.search {
 .owner img {
     width: 100%;
 }
-.register {
+.register, .login {
     text-align: center;
     margin-top: 1em;
 }
-.register h4 {
+.register label, .login label {
+    display: none;
+}
+.register h4, .login h4 {
     margin-top: 0;
+}
+.register .form-group:last-of-type {  /* Hiding honeypot */
+    position: absolute;
+    top: -10000px;
 }
 p.tip {
     font-size: 0.8em;

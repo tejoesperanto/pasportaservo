@@ -17,8 +17,9 @@ class UserRegistrationForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super(UserRegistrationForm, self).__init__(*args, **kwargs)
         User._meta.get_field('email')._unique = True
-        for fieldname in ['username', 'password1', 'password2']:
+        for fieldname in ['username', 'password1', 'password2', 'email']:
             self.fields[fieldname].help_text = None
+            self.fields[fieldname].widget.attrs['placeholder'] = self.fields[fieldname].label
 
     def clean_email(self):
         email = self.cleaned_data['email']
