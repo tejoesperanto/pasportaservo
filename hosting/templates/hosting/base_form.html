@@ -1,0 +1,20 @@
+{% extends 'hosting/base.html' %}
+{% load i18n bootstrap %}
+
+{% block page %}
+    <div class="{% block form_container_class %}col-md-6 col-md-offset-3{% endblock %}">
+        <div class="col-xs-12 well{% block form_block_class %}{% endblock %}">
+            <h4>{% block form_title %}{% endblock %}</h4>
+            <p class="tip">{% block form_tip %}{% endblock %}</p>
+            <form class="form" method="POST" action="{% block form_action %}{% endblock %}">
+                <div class="col-md-10 col-md-offset-1">
+                    {% csrf_token %}
+                    {{ form|bootstrap }}
+                    <p>
+                        <button type="submit" class="btn btn-primary">{% block form_sumbit_button %}{% trans "Submit" %}{% endblock %}</button>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
