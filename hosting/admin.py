@@ -7,7 +7,7 @@ from .models import Profile, Place, Phone, Condition
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('title', '__unicode__', 'birth_date')
+    list_display = ('title', '__str__', 'birth_date')
 
 
 @admin.register(Place)

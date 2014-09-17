@@ -3,11 +3,11 @@ Pasporta Servo 3.0
 
 **This repository contains the codebase that runs the pasportaservo.org website in near future.**
 
-This project is using Python 2.7 and Django 1.7 for the moment. See requirements.txt.
+This project is using and Django 1.7. See requirements.txt.
 
-You will need, PostgreSQL, PIP and Virtualenv:
+You will need Python 2.7 or 3.4, PostgreSQL, PIP and Virtualenv:
 
-    sudo apt-get install postgresql postgresql-client postgresql-client-common libpq5 libpq-dev python-dev
+    sudo apt-get install postgresql postgresql-client postgresql-client-common libpq5 libpq-dev python3 python3-dev
     sudo apt-get install mercurial
     sudo apt-get install python-setuptools
     easy_install --user pip
