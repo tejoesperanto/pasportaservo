@@ -33,13 +33,15 @@ class RegisterView(AnonymousRequiredMixin, generic.CreateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        # Log user in
+        # Keeping this on ice; it interferes with the inline login, probably by wiping the session vars.
+        result = super(RegisterView, self).form_valid(form)
+        # Log in user
         user = authenticate(
             username=form.cleaned_data['username'],
             password=form.cleaned_data['password1'])
         login(self.request, user)
         messages.success(self.request, "You are logged in.")
-        return super(RegisterView, self).form_valid(form)
+        return result
 
 register = RegisterView.as_view()
 

@@ -11,7 +11,7 @@
                     {% csrf_token %}
                     {{ form|bootstrap }}
                     <p>
-                        <button type="submit" class="btn btn-primary">{% block form_sumbit_button %}{% trans "Submit" %}{% endblock %}</button>
+                        <button type="submit" class="btn btn-primary">{% block form_submit_button %}{% trans "Submit" %}{% endblock %}</button>
                     </p>
                 </div>
             </form>
