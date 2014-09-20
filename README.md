@@ -32,7 +32,7 @@ or
     cd pasportaservo
     virtualenv env --system-site-packages
     source env/bin/activate
-    pip install -r requirements.txt
+    pip install -r requirements.txt  # or requirements/dev.txt
     python manage.py migrate
 
     cd pasportaservo/settings
