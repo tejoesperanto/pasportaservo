@@ -58,23 +58,23 @@ header.home form.search {
 #page.search form.search{
     margin-bottom: 1em;
 }
-.search-result {
+.place-list {
     padding-bottom: 0.5em;
     margin-bottom: 0.5em;
     border-bottom: 1px solid #ddd;
 }
-.search-result .name {
+.place-list .name {
     font-weight: bold;
 }
-.search-result .status {
+.place-list .status {
     text-align: right;
     font-size: 0.8em;
     color: #666;
 }
-.search-result .avatar {
+.place-list .avatar {
     text-align: center;
 }
-.search-result .avatar img {
+.place-list .avatar img {
     width: 100%;
     max-width: 100px;
 }
