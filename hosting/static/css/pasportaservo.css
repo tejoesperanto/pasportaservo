@@ -18,18 +18,18 @@ header a:hover {
 }
 header .links {
     font-weight: bold;
-    padding-top: 0.2em;
+    padding-top: 0.5em;
     text-align: right;
 }
 header #title {
     font-family: Geotica, sans-serif;
-    font-size: 1.2em;
+    font-size: 1.6em;
 }
 header #title a:hover {
     text-decoration: none;
 }
 header #subtitle {
-    padding-top: 0.2em;
+    padding-top: 0.5em;
 }
 
 /* Header on home page */
@@ -38,9 +38,9 @@ header.home .links {
 }
 
 header.home #title {
-    font-size: 2em;
+    font-size: 5em;
     text-align: center;
-    margin-top: 1em;
+    margin-top: 1rem;
     padding-bottom: 0.25em;
 }
 header.home #subtitle {
@@ -143,7 +143,7 @@ footer {
         margin-bottom: 6em;
     }
     header.home #title {
-        margin-top: 4em;
+        margin-top: 1.6em;
         padding-bottom: 1em;
     }
 }
