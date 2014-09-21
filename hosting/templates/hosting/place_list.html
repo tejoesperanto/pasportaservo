@@ -17,26 +17,9 @@
             </div>
         </div>
     </form>
-    
-    <div class="row search-result">
-        <div class="col-xs-3 col-sm-2 col-md-1 avatar">
-            <a href="accomodation-logout.html">
-                <img src="{% static 'img/avatar.png' %}" />
-            </a>
-        </div>
-        <div class="col-xs-5 col-sm-6 col-md-7 name">
-            <a href="accomodation-logout.html">Anakin S</a>
-        </div>
-        <div class="col-xs-4 status">
-            available
-        </div>
-        <div class="col-xs-9 col-sm-10 col-md-11 address">
-            Death Star, Galaxy
-        </div>
-    </div>
-    
+
     {% for place in place_list %}
-        <div class="row search-result">
+        <div class="row place-list">
             <div class="col-xs-3 col-sm-2 col-md-1 avatar">
                 <a href="{% url 'place_detail' place.pk %}">
                     <img src="{% static 'img/avatar2.png' %}" />
