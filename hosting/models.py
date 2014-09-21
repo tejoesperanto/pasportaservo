@@ -83,6 +83,7 @@ class Place(TimeStampedModel):
 @python_2_unicode_compatible
 class Phone(TimeStampedModel):
     PHONE_TYPE_CHOICES = PHONE_TYPE_CHOICES
+    MOBILE, HOME, WORK = 'm', 'h', 'w'
     number = PhoneNumberField()
     type = models.CharField(_("phone type"), max_length=3,
         choices=PHONE_TYPE_CHOICES, default=MOBILE)
