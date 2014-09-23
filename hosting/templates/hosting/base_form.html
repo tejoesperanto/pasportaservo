@@ -2,6 +2,7 @@
 {% load i18n bootstrap %}
 
 {% block page %}
+    {% block form_before %}{% endblock %}
     <div class="{% block form_container_class %}col-md-6 col-md-offset-3{% endblock %}">
         <div class="col-xs-12 well{% block form_block_class %}{% endblock %}">
             <h4>{% block form_title %}{% endblock %}</h4>
@@ -17,4 +18,5 @@
             </form>
         </div>
     </div>
+    {% block form_after %}{% endblock %}
 {% endblock %}
