@@ -23,6 +23,7 @@ class PhoneAdmin(admin.ModelAdmin):
 @admin.register(Condition)
 class ConditionAdmin(admin.ModelAdmin):
     list_display = ('name', )
+    prepopulated_fields = {'slug': ("name",)}
 
 
 admin.site.site_header = _("Pasporta Servo administration")
