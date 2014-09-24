@@ -45,7 +45,14 @@ class UserRegistrationForm(UserCreationForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['title', 'birth_date']
+        fields = [
+            'title',
+            'first_name',
+            'last_name',
+            'birth_date',
+            'description',
+            'avatar',
+        ]
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
@@ -67,12 +74,14 @@ class PlaceForm(forms.ModelForm):
             'city',
             'postcode',
             'country',
-            'latitude', 'longitude',
+            'closest_city',
             'max_host', 'max_night', 'contact_before',
-            'description', 'small_description',
+            'description', 'short_description',
             'booked', 'available',
+            'tour_guide', 'have_a_drink',
             'in_book',
             'conditions',
+            'latitude', 'longitude',
         ]
 
     def __init__(self, *args, **kwargs):
