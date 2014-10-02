@@ -7,11 +7,11 @@
     <form class="form-inline row search" role="form" method="GET" action="">
         <div class="form-group" style="width: 100%">
             <div class="input-group" style="width: 100%">
-                <input class="form-control" type="search" name="q" value="{{ request.GET.q|title }}" placeholder="Budapest, London, Bilbao, etc.">
+                <input class="form-control" type="search" name="q" value="{{ request.GET.q|title }}" placeholder="{% trans "Budapest, London, Bilbao, etc." %}">
                 <span class="input-group-btn" style="width: 20%">
                     <button class="btn btn-default" type="button" id="gps" style="min-width: 40px; width: 100%;">
                         <span class="glyphicon glyphicon-map-marker"></span>
-                        <span class="hidden-xs">my location</span>
+                        <span class="hidden-xs">{% trans "Search location" %}</span>
                     </button>
                 </span>
             </div>
@@ -29,10 +29,10 @@
                 <a href="{% url 'place_detail' place.pk %}">{{ place.profile_set.first.anonymous_name }}</a>
             </div>
             <div class="col-xs-4 status">
-                {% if booked or not available %}unavailable{% endif %}
+                {% if booked or not available %}{% trans "unavailable" %}{% endif %}
             </div>
             <div class="col-xs-9 col-sm-10 col-md-11 address">
-                {{ place.address }}, {{ place.city }}
+                {{ place.city }}, {{ place.country.name }}
             </div>
         </div>
     {% endfor %}

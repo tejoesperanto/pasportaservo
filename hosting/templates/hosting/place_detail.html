@@ -1,6 +1,5 @@
 {% extends 'hosting/base.html' %}
 {% load i18n static %}
-{% load firstof from future %}{% comment %}To be removed with Django 1.8{% endcomment %}
 
 {% block page %}
     <div class="row">
@@ -23,8 +22,7 @@
                                 {% endif %}
                             </div>
                             <div class="col-xs-9 address">
-                                {% firstof place.public_address place.address %},
-                                {{ place.city }}
+                                {{ place.city }}, {{ place.country.name }}
                             </div>
                         </div>
 

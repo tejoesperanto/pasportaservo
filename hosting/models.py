@@ -18,9 +18,9 @@ TITLE_CHOICES = (
 
 MOBILE, HOME, WORK = 'm', 'h', 'w'
 PHONE_TYPE_CHOICES = (
-    (MOBILE, _("Mobile")),
-    (HOME, _("Home")),
-    (WORK, _("Work")),
+    (MOBILE, _("mobile")),
+    (HOME, _("home")),
+    (WORK, _("work")),
 )
 
 
