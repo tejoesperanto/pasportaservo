@@ -4,6 +4,7 @@
 {% block page %}
     <h1><small>{{ profile.get_title_display }}</small> {{ profile }}</h1>
     <p>{{ profile.birth_date }}</p>
+    <p><a href="{% url 'profile_update' %}" class="btn btn-default">{% trans "Update" %}</a></p>
 
     <h2>{% trans "Places" %}</h2>
     {% for place in profile.places.all %}

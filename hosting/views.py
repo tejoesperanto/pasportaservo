@@ -58,6 +58,20 @@ class ProfileCreateView(LoginRequiredMixin, generic.CreateView):
 profile_create = ProfileCreateView.as_view()
 
 
+class ProfileUpdateView(LoginRequiredMixin, generic.UpdateView):
+    form_class = ProfileForm
+    success_url = reverse_lazy('profile_detail')
+
+    def get_object(self):
+        return Profile.objects.get(user=self.request.user)
+
+    def get_form(self, form_class):
+        user = self.request.user
+        return form_class(user=user, **self.get_form_kwargs())
+
+profile_update = ProfileUpdateView.as_view()
+
+
 class ProfileDetailView(LoginRequiredMixin, generic.DetailView):
     model = Profile
 
