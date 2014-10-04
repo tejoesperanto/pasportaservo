@@ -5,16 +5,19 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 import phonenumbers
-
+from phonenumber_field.modelfields import PhoneNumberField
 from django_extensions.db.models import TimeStampedModel
 from django_countries.fields import CountryField
-from phonenumber_field.modelfields import PhoneNumberField
+
+from .validators import validate_no_allcaps, validate_not_to_much_caps
+
 
 MRS, MR = 'Mrs', 'Mr'
 TITLE_CHOICES = (
     (MRS, _("Mrs")),
     (MR, _("Mr")),
 )
+
 
 MOBILE, HOME, WORK = 'm', 'h', 'w'
 PHONE_TYPE_CHOICES = (
@@ -29,8 +32,10 @@ class Profile(TimeStampedModel):
     TITLE_CHOICES = TITLE_CHOICES
     user = models.OneToOneField(settings.AUTH_USER_MODEL)
     title = models.CharField(_("title"), max_length=5, choices=TITLE_CHOICES)
-    first_name = models.CharField(_("first name"), max_length=255, blank=True)
-    last_name = models.CharField(_("last name"), max_length=255, blank=True)
+    first_name = models.CharField(_("first name"), max_length=255, blank=True,
+        validators = [validate_no_allcaps, validate_not_to_much_caps])
+    last_name = models.CharField(_("last name"), max_length=255, blank=True,
+        validators = [validate_no_allcaps, validate_not_to_much_caps])
     birth_date = models.DateField(_("birth date"), blank=True, null=True)
     description = models.TextField(_("description"), help_text=_("All about yourself."), blank=True)
     avatar = models.ImageField(_("avatar"), upload_to="avatars", blank=True)
@@ -58,9 +63,11 @@ class Place(TimeStampedModel):
     address = models.CharField(_("address"), max_length=255,
         help_text=_("e.g.: Nieuwe Binnenweg 176"))
     city = models.CharField(_("city"), max_length=255,
-        help_text=_("e.g.: Rotterdam"))
+        help_text=_("e.g.: Rotterdam"),
+        validators = [validate_no_allcaps, validate_not_to_much_caps])
     closest_city = models.CharField(_("closest big city"), max_length=255, blank=True,
-        help_text=_("If you place is in a town near a bigger city."))
+        help_text=_("If you place is in a town near a bigger city."),
+        validators = [validate_no_allcaps, validate_not_to_much_caps])
     postcode = models.CharField(_("postcode"), max_length=10)
     country = CountryField(_("country"))
     latitude = models.FloatField(_("latitude"), null=True, blank=True)
