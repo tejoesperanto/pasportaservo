@@ -1,0 +1,14 @@
+Django==1.7
+psycopg2==2.5.4
+Pillow==2.5.3
+
+django-extensions==1.3.3
+django-braces==1.4.0
+django-phonenumber-field==0.6
+django-wpadmin==1.6.1
+django-bootstrap-form==3.1
+django-leaflet==0.14.1
+geopy==1.1.5
+sqlparse==0.1.11
+
+-e git+https://github.com/SmileyChris/django-countries.git@8e22ddee5675c877e547e03a8e0c8fe3f6694590#egg=django_countries

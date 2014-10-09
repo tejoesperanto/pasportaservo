@@ -1,0 +1,45 @@
+{% extends 'hosting/base.html' %}
+{% load i18n static %}
+
+{% block page %}
+    <h1><small>{{ profile.get_title_display }}</small> {{ profile }}</h1>
+    <p>{{ profile.birth_date }}</p>
+    <p><a href="{% url 'profile_update' %}" class="btn btn-default">{% trans "Update" %}</a></p>
+
+    <h2>{% trans "Places" %}</h2>
+    {% for place in profile.places.all %}
+        <div class="row place-list">
+            <div class="col-xs-3 col-sm-2 col-md-1 avatar">
+                <a href="{% url 'place_update' place.pk %}">
+                    <img src="{% static 'img/avatar2.png' %}" />
+                </a>
+            </div>
+            <div class="col-xs-5 col-sm-6 col-md-7 name">
+                <a href="{% url 'place_update' place.pk %}">{{ place.profile_set.first.anonymous_name }}</a>
+            </div>
+            <div class="col-xs-4 status">
+                {% if booked or not available %}{% trans "unavailable" %}{% endif %}
+            </div>
+            <div class="col-xs-9 col-sm-10 col-md-11 address">
+                {{ place.address }}, {{ place.city }}, {{ place.country.name }}
+            </div>
+        </div>
+    {% endfor %}
+
+    <a class="btn btn-primary" href="{% url 'place_create' %}">{% trans "Add a place" %}</a>
+
+    <h2>{% trans "Phones" %}</h2>
+    <ul class="list-group">
+        {% for phone in profile.phones.all %}
+            <li class="list-group-item">
+                <span class="glyphicon glyphicon-{% if phone.type = phone.HOME %}ear{% endif %}phone{% if phone.type = phone.WORK %}-alt{% endif %}"></span>
+                <strong>{{ phone.number.as_international }}</strong>
+                <div class="btn-group-xs pull-right">
+                    <a href="{% url 'phone_update' phone.number.as_e164|cut:"+" %}" class="btn btn-default">{% trans "Update" %}</a>
+                    <a href="{% url 'phone_delete' phone.number.as_e164|cut:"+" %}" class="btn btn-danger">{% trans "Delete" %}</a>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+    <a class="btn btn-primary" href="{% url 'phone_create' %}">{% trans "Add a phone" %}</a>
+{% endblock page %}
