@@ -57,7 +57,7 @@ def migrate():
                 username = user['mail']
         newuser = User(
                 id=user['uid'],
-                password=user['pass'],
+                password="md5$1$${0}".format(user['pass']),
                 last_login=u2dt(user['login']),
                 is_superuser=False,
                 username=username,
