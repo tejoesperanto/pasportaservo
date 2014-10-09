@@ -6,6 +6,9 @@
     <p>{{ profile.birth_date }}</p>
     <p><a href="{% url 'profile_update' %}" class="btn btn-default">{% trans "Update" %}</a></p>
 
+    <h2>{% trans "About me" %}</h2>
+    {{ profile.description|linebreaks }}
+
     <h2>{% trans "Places" %}</h2>
     {% for place in profile.places.all %}
         <div class="row place-list">
