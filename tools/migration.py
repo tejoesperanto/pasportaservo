@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 import os, sys
+import re
 import pprint
 import pytz
 import pymysql as mdb
 import hashlib
-from datetime import datetime
+from datetime import datetime, date
 
 import django
 from django.utils.timezone import make_aware
@@ -16,9 +17,33 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'pasportaservo.settings'
 
 
 def u2dt(timestamp):
-    """A convenience function to easily convert unix timestamps to datetime strings."""
-    # return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+    """A convenience function to easily convert unix timestamps to datetime TZ aware."""
     return make_aware(datetime.fromtimestamp(timestamp), pytz.timezone('UTC'))
+
+def get_title(sekso):
+    if sekso == 'Ina':
+        return 'Mrs'
+    if sekso == 'Vira':
+        return 'Mr'
+    return ''
+
+
+def get_birth_date(year):
+    if year:
+        year = year.strip(' .-')
+        if len(year) == 4:
+            return date(int(year), 1, 1)
+        if len(year) == 2 and int(year) > 30:
+            return date(int('19'+year), 1, 1)
+        if '/' in year:
+            day, month, y = year.split('/')
+            if len(y) == 2:
+                return date(int('19'+y), int(month), int(day))
+            elif len(y) == 4:
+                return date(int(y), int(month), int(day))
+        else:
+            print('Non valid year:', year)
+    return None
 
 
 @transaction.atomic
@@ -42,6 +67,7 @@ def migrate():
     user = users.fetchone()
 
     from django.contrib.auth.models import User
+    from hosting.models import Profile
     django.setup()
 
     while user is not None:
@@ -55,27 +81,38 @@ def migrate():
                     username = h.digest()
             else:
                 username = user['mail']
-        newuser = User(
+        new_user = User(
                 id=user['uid'],
                 password=user['pass'],
                 last_login=u2dt(user['login']),
                 is_superuser=False,
                 username=username,
-                first_name=user['field_persona_nomo_value'],
-                last_name=user['field_familia_nomo_value'],
                 email=user['mail'],
                 is_staff=False,
                 is_active=True,
                 date_joined=u2dt(user['created'])
             )
-        newuser.save()
+        new_user.save()
+
+        new_profile = Profile(
+                user=new_user,
+                title=get_title(user['field_sekso_value']),
+                first_name=user['field_persona_nomo_value'],
+                last_name=user['field_familia_nomo_value'],
+                birth_date=get_birth_date(user['field_naskijaro_value']),
+                description=user['field_pri_mi_value'],
+        )
+        new_profile.save()
+
         user = users.fetchone()
 
     users.close()
     dr.close()
 
+
 if __name__ == '__main__':
     migrate()
+
 
 # Open a cursor to perform database operations
 #cur = dj.cursor()
