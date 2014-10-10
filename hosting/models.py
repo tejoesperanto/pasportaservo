@@ -68,7 +68,7 @@ class Place(TimeStampedModel):
     closest_city = models.CharField(_("closest big city"), max_length=255, blank=True,
         help_text=_("If you place is in a town near a bigger city."),
         validators = [validate_no_allcaps, validate_not_to_much_caps])
-    postcode = models.CharField(_("postcode"), max_length=10)
+    postcode = models.CharField(_("postcode"), max_length=11)
     country = CountryField(_("country"))
     latitude = models.FloatField(_("latitude"), null=True, blank=True)
     longitude = models.FloatField(_("longitude"), null=True, blank=True)

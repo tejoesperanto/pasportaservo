@@ -7,12 +7,20 @@ from .models import Profile, Place, Phone, Condition
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('title', '__str__', 'birth_date')
+    list_display = ('__str__', 'title', 'first_name', 'last_name', 'birth_date', 'avatar', 'description', 'user__email', 'user')
+
+    def user__email(self, obj):
+        return obj.user.email
 
 
 @admin.register(Place)
 class PlaceAdmin(admin.ModelAdmin):
-    list_display = ('address', 'city', 'postcode', 'country', 'max_host', 'max_night', 'contact_before', 'booked', 'available', 'in_book')
+    list_display = (
+        'address', 'city', 'postcode', 'country',
+        'latitude', 'longitude',
+        'max_host', 'max_night', 'contact_before',
+        'booked', 'available', 'in_book'
+    )
 
 
 @admin.register(Phone)
