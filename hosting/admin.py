@@ -1,8 +1,26 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin
 
 from wpadmin.menu import menus, items
 from .models import Profile, Place, Phone, Condition
+
+admin.site.unregister(User)
+@admin.register(User)
+class CustomUserAdmin(UserAdmin):
+    list_display = (
+        'username', 'email', 'password_algorithm',
+        'last_login', 'date_joined',
+        'is_active', 'is_staff', 'is_superuser',
+    )
+
+    def password_algorithm(self, obj):
+        if len(obj.password) == 32:
+            return _("MD5 (weak)")
+        if obj.password[:13] == 'pbkdf2_sha256':
+            return 'PBKDF2 SHA256'
+    password_algorithm.short_description = _("Password algorithm")
 
 
 @admin.register(Profile)
