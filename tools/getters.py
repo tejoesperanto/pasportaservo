@@ -40,12 +40,12 @@ def get_birth_date(year):
             elif len(y) == 4:
                 return date(int(y), int(month), int(day))
         else:
-            print('Invalid birth year:', year)
+            print('  Invalid birth year:', year)
     return None
 
 
 def get_postcode(string):
-    postcode = string.strip()
+    postcode = '' if not string else string.strip()
     if len(postcode) > 11:
         if ' TX, ' in postcode:
             # Just for one postcode, cutting the begining where is 4 digit house number
@@ -54,7 +54,7 @@ def get_postcode(string):
         if matches:
             postcode = matches.group()
         else:
-            print('Invalid postcode:', postcode)
+            print('  Invalid postcode:', postcode)
             return ''
     elif len(postcode.strip('.-')) == 0:
         return ''
@@ -63,3 +63,33 @@ def get_postcode(string):
 
 def get_avatar(path):
     return re.sub('files/pictures/', 'avatars/', path)
+
+
+def get_truefalse(jesno):
+    return True if jesno == 'Jes' else False
+
+
+def get_int_or_none(string):
+    if not string:
+        return None
+    if string.strip(' -'):
+        try:
+            return int(string)
+        except ValueError:
+            print('  Invalid integer for max host/night:', string)
+    return None
+
+
+def get_in_book(string):
+    valid = [
+        "Mi aperu en la listo de membroj kaj en la libro",
+        "Mi ne volas aperi en la listo sed jes en la libro"
+    ]
+    invalid = [
+        "Mi aperu en la listo, sed ne en la libro",
+        "Mi ne volas aperi en la listo nek en la libro"
+    ]
+    if string in valid:
+        return True
+    return False
+

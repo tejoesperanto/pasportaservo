@@ -42,6 +42,7 @@ def migrate():
         LEFT JOIN location
             ON location_instance.lid = location.lid
         WHERE u.uid > 1
+            AND u.name <> 'testuser'
             AND ( (field_lando_value = 'Albanio' AND field_urbo_value is not NULL)
                 OR (field_lando_value <> 'Albanio'))
             AND field_familia_nomo_value <> 12
@@ -54,6 +55,8 @@ def migrate():
     from hosting.utils import title_with_particule
     from hosting.models import Profile, Place
     django.setup()
+
+    print('Ignoring:')
 
     while user is not None:
         new_user = User(
@@ -82,16 +85,27 @@ def migrate():
         new_profile.save()
 
         address = user['field_adreso_value']
-        if address is not None and address.strip():
+        details = user['field_detaloj_kaj_rimarkoj_value']
+        closest_city = user['field_proksima_granda_urbo_value']
+        city = user['field_urbo_value']
+        if address or user['latitude']:
             new_place = Place(
-                    address=address.strip(),
-                    description=user['field_detaloj_kaj_rimarkoj_value'].strip(),
-                    city=title_with_particule(user['field_urbo_value'].strip()),
-                    closest_city=title_with_particule(user['field_proksima_granda_urbo_value'].strip()),
+                    id=user['uid'],
+                    address='' if not address else address.strip(),
+                    description='' if not details else details.strip(),
+                    city='' if not city else title_with_particule(city.strip()),
+                    closest_city='' if not closest_city else title_with_particule(closest_city.strip()),
                     postcode=g.get_postcode(user['field_posxtokodo_logxadreso_value']),
-                    country=COUNTRIES.get(user['field_lando_value']),
-                    latitude = user['latitude'],
-                    longitude = user['longitude'],
+                    country=COUNTRIES.get(user['field_lando_value'], ''),
+                    latitude=None if not user['latitude'] else float(user['latitude']),
+                    longitude=None if not user['longitude'] else float(user['longitude']),
+                    max_host=g.get_int_or_none(user['field_maksimuma_gastoj_value']),
+                    max_night=g.get_int_or_none(user['field_maksimuma_noktoj_value']),
+                    available=g.get_truefalse(user['field_mi_pretas_gastigi_value']),
+                    tour_guide=g.get_truefalse(user['field_mi_pretas_cxicxeroni_value']),
+                    have_a_drink=g.get_truefalse(user['field_mi_pretas_cxicxeroni_value']),
+                    in_book=g.get_in_book(user['field_mia_profilo_videbla_en_la_value']),
+                    contact_before=g.get_int_or_none(user['field_bonvolu_kontakti_min_value']),
             )
             new_place.save()
             new_profile.places.add(new_place)
@@ -100,6 +114,8 @@ def migrate():
 
     users.close()
     dr.close()
+
+    print('Success!')
 
 
 if __name__ == '__main__':
