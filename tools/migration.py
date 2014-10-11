@@ -11,7 +11,7 @@ import django
 from django.utils.timezone import make_aware
 from django.db import transaction
 
-from countries import COUNTRIES
+from countries import COUNTRIES, PHONE_CODES
 import getters as g
 
 
@@ -30,10 +30,11 @@ def migrate():
     passwd = getpass("MySQL password for 'root': ")
     dr = mdb.connect('localhost', 'root', passwd, 'pasportaservo', charset='utf8')
 
-    # First of all, users.
     users = dr.cursor(mdb.cursors.DictCursor)
     users.execute("""
-        SELECT *
+        SELECT *,
+            GROUP_CONCAT(DISTINCT content_field_telefono1estas.field_telefono1estas_value) tel1_type,
+            GROUP_CONCAT(DISTINCT content_field_telefono2estas.field_telefono2estas_value) tel2_type
         FROM users u
         INNER JOIN node n ON n.uid=u.uid AND n.type='profilo'
         INNER JOIN content_type_profilo p ON p.nid=n.nid
@@ -41,6 +42,10 @@ def migrate():
             ON u.uid = location_instance.uid
         LEFT JOIN location
             ON location_instance.lid = location.lid
+        LEFT JOIN content_field_telefono1estas
+            ON n.nid = content_field_telefono1estas.nid
+        LEFT JOIN content_field_telefono2estas
+            ON n.nid = content_field_telefono2estas.nid
         WHERE u.uid > 1
             AND u.name <> 'testuser'
             AND ( (field_lando_value = 'Albanio' AND field_urbo_value is not NULL)
@@ -53,12 +58,14 @@ def migrate():
 
     from django.contrib.auth.models import User
     from hosting.utils import title_with_particule
-    from hosting.models import Profile, Place
+    from hosting.models import Profile, Place, Phone
     django.setup()
 
     print('Ignoring:')
 
     while user is not None:
+
+        # User
         new_user = User(
                 id=user['uid'],
                 password=user['pass'],
@@ -72,6 +79,7 @@ def migrate():
             )
         new_user.save()
 
+        # Profile
         new_profile = Profile(
                 id=user['uid'],
                 user=new_user,
@@ -84,10 +92,12 @@ def migrate():
         )
         new_profile.save()
 
+        # Place
         address = user['field_adreso_value']
         details = user['field_detaloj_kaj_rimarkoj_value']
         closest_city = user['field_proksima_granda_urbo_value']
         city = user['field_urbo_value']
+        country = COUNTRIES.get(user['field_lando_value'], '')
         if address or user['latitude']:
             new_place = Place(
                     id=user['uid'],
@@ -96,7 +106,7 @@ def migrate():
                     city='' if not city else title_with_particule(city.strip()),
                     closest_city='' if not closest_city else title_with_particule(closest_city.strip()),
                     postcode=g.get_postcode(user['field_posxtokodo_logxadreso_value']),
-                    country=COUNTRIES.get(user['field_lando_value'], ''),
+                    country=country,
                     latitude=None if not user['latitude'] else float(user['latitude']),
                     longitude=None if not user['longitude'] else float(user['longitude']),
                     max_host=g.get_int_or_none(user['field_maksimuma_gastoj_value']),
@@ -110,12 +120,36 @@ def migrate():
             new_place.save()
             new_profile.places.add(new_place)
 
+        # Phone number
+        raw_number = user['field_telefono1_value']
+        number = g.get_phone_number(raw_number, country) if raw_number else ''
+        if number:
+            new_number = Phone(
+                    number=number,
+                    country=country if country else PHONE_CODES.get(number.country_code, ''),
+                    type=g.get_phone_type(user['tel1_type']),
+            )
+            new_number.save()
+            new_profile.phones.add(new_number)
+
+        # Phone number 2
+        raw_number2 = user['field_telefono2_value']
+        number2 = g.get_phone_number(raw_number2, country) if raw_number2 else ''
+        if number2:
+            new_number2 = Phone(
+                    number=number2,
+                    country=country if country else PHONE_CODES.get(number2.country_code, ''),
+                    type=g.get_phone_type(user['tel2_type']),
+            )
+            new_number2.save()
+            new_profile.phones.add(new_number2)
+
         user = users.fetchone()
 
     users.close()
     dr.close()
 
-    print('Success!')
+    print(r'Success! \o/')
 
 
 if __name__ == '__main__':

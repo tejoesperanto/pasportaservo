@@ -3,6 +3,8 @@ import re
 import hashlib
 from datetime import date
 
+from phonenumber_field.phonenumber import PhoneNumber
+from phonenumbers.phonenumberutil import NumberParseException
 
 def get_username(name, mail):
     username = name.strip()
@@ -93,3 +95,46 @@ def get_in_book(string):
         return True
     return False
 
+
+def get_phone_number(raw_number, country):
+    # Dealing with exceptions
+    raw_number = re.sub(r'^\+00', '+', raw_number)
+    raw_number = re.sub(r'^\+42 602 ', '+420 602 ', raw_number)
+    raw_number = re.sub(r'(^\+01 |^00-1-|^00 1 )', '+1 ', raw_number)  # US
+    raw_number = re.sub(r'^045 ', '+45 ', raw_number)  # DK
+    raw_number = re.sub(r'(^80|^380\+|^\+38-|^38-)', '+380 ', raw_number)  # UA
+    raw_number = re.sub(r'(^55|^00 55|^055)', '+55 ', raw_number) if country == 'BR' else raw_number
+    raw_number = re.sub(r'^0041 ', '+41 ', raw_number)  # CH
+    raw_number = re.sub(r'(^0086\-|^86)', '+86 ', raw_number)  # CN
+    raw_number = re.sub(r'(^\+098 |^0)', '+98 ', raw_number) if country == 'IR' else raw_number
+    raw_number = re.sub(r'^\+69 ', '+49 69 ', raw_number)
+    raw_number = re.sub(r'^\+80 ', '+81 ', raw_number)
+    raw_number = re.sub(r'^54\+011\+', '+54 011 ', raw_number)
+    raw_number = re.sub(r'( \(eksterlande$| \(enlande\)$)', '', raw_number)
+    raw_number = re.sub(r' \(nur en Japanio\)$', '', raw_number)
+    raw_number = re.sub(r' \(p\.3257\)$', '', raw_number)
+    raw_number = re.sub(r'\(20\-23h UTC\)', '', raw_number)
+    raw_number = re.sub(r'\(0\)', '', raw_number)  # Remove (0)
+    raw_number = re.sub(r'(\(|\))', '', raw_number)  # Remove parenthesis
+    raw_number = re.sub(r'(\-|\.)', ' ', raw_number)  # Remove '-' and '.'
+    raw_number = raw_number.lower().strip('ifmnty oi zs')
+    if raw_number and len(raw_number) > 3:
+        _country = [country] if country else []
+        try:
+            phone_number = PhoneNumber.from_string(raw_number, *_country)
+            return phone_number.as_e164
+        except NumberParseException as e:
+            print('  Invalid phone number:', country, raw_number, ' Error', e)
+    return ''
+
+def get_phone_type(string):
+    if string:
+        if 'Poŝtelefona' in string:
+            return 'm'
+        if 'Hejma' in string:
+            return 'h'
+        if 'Labora' in string:
+            return 'w'
+        if 'Faksilo' in string:
+            return 'h'
+    return ''
