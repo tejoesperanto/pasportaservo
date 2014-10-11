@@ -127,6 +127,7 @@ def migrate():
         closest_city = user['field_proksima_granda_urbo_value']
         city = user['field_urbo_value']
         country = COUNTRIES.get(user['field_lando_value'], '')
+        state_province = g.get_state_province(user['field_sxtato_provinco_value'], country)
         if address or user['latitude']:
             new_place = Place(
                     id=user['uid'],
@@ -136,6 +137,7 @@ def migrate():
                     closest_city='' if not closest_city else title_with_particule(closest_city.strip()),
                     postcode=g.get_postcode(user['field_posxtokodo_logxadreso_value']),
                     country=country,
+                    state_province=state_province,
                     latitude=None if not user['latitude'] else float(user['latitude']),
                     longitude=None if not user['longitude'] else float(user['longitude']),
                     max_host=g.get_int_or_none(user['field_maksimuma_gastoj_value']),
