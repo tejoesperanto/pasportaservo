@@ -130,11 +130,20 @@ def get_phone_number(raw_number, country):
 def get_phone_type(string):
     if string:
         if 'Poŝtelefona' in string:
-            return 'm'
+            return 'm'  # Mobile
         if 'Hejma' in string:
-            return 'h'
+            return 'h'  # Home
         if 'Labora' in string:
-            return 'w'
+            return 'w'  # Work
         if 'Faksilo' in string:
-            return 'h'
+            return 'h'  # Home
+    return ''
+
+
+def get_state_province(string, country):
+    if string and country not in ('FR', 'NL', 'SK'):
+        if len(string) < 70:
+            return string.strip()
+        else:
+            print('  Invalid state or province:', string)
     return ''
