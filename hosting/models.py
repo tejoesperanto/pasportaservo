@@ -60,7 +60,7 @@ class Profile(TimeStampedModel):
 
 @python_2_unicode_compatible
 class Place(TimeStampedModel):
-    address = models.CharField(_("address"), max_length=255,
+    address = models.TextField(_("address"), blank=True,
         help_text=_("e.g.: Nieuwe Binnenweg 176"))
     city = models.CharField(_("city"), max_length=255,
         help_text=_("e.g.: Rotterdam"),
@@ -68,8 +68,9 @@ class Place(TimeStampedModel):
     closest_city = models.CharField(_("closest big city"), max_length=255, blank=True,
         help_text=_("If you place is in a town near a bigger city."),
         validators = [validate_no_allcaps, validate_not_to_much_caps])
-    postcode = models.CharField(_("postcode"), max_length=11)
+    postcode = models.CharField(_("postcode"), max_length=11, blank=True)
     country = CountryField(_("country"))
+    state_province = models.CharField(_("State / Province"), max_length=70, blank=True)
     latitude = models.FloatField(_("latitude"), null=True, blank=True)
     longitude = models.FloatField(_("longitude"), null=True, blank=True)
     max_host = models.PositiveSmallIntegerField(_("maximum number of host"), blank=True, null=True)
@@ -91,6 +92,9 @@ class Place(TimeStampedModel):
     have_a_drink = models.BooleanField(_("have a drink"), default=False,
         help_text=_("If you are ready to have a coffee or beer with visitors."))
     conditions = models.ManyToManyField('hosting.Condition', verbose_name=_("conditions"), blank=True, null=True)
+
+    checked = models.BooleanField(_("checked"), default=False)
+    deleted = models.BooleanField(_("deleted"), default=False)
 
     class Meta:
         verbose_name = _("place")
