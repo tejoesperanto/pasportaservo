@@ -141,7 +141,6 @@ class Condition(TimeStampedModel):
     abbr = models.CharField(_("name"), max_length=20,
         help_text=_("Official abbreviation as used in the book. E.g.: 'Nef.'"))
     slug = models.SlugField()
-    
 
     class Meta:
         verbose_name = _("condition")

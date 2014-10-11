@@ -9,6 +9,7 @@ from getpass import getpass
 
 import django
 from django.utils.timezone import make_aware
+from django.utils.translation import ugettext_lazy as _
 from django.db import transaction
 
 from countries import COUNTRIES, PHONE_CODES
@@ -33,6 +34,7 @@ def migrate():
     users = dr.cursor(mdb.cursors.DictCursor)
     users.execute("""
         SELECT *,
+            GROUP_CONCAT(DISTINCT content_field_kondicxoj.field_kondicxoj_value) conditions,
             GROUP_CONCAT(DISTINCT content_field_telefono1estas.field_telefono1estas_value) tel1_type,
             GROUP_CONCAT(DISTINCT content_field_telefono2estas.field_telefono2estas_value) tel2_type
         FROM users u
@@ -42,6 +44,8 @@ def migrate():
             ON u.uid = location_instance.uid
         LEFT JOIN location
             ON location_instance.lid = location.lid
+        LEFT JOIN content_field_kondicxoj
+            ON n.nid = content_field_kondicxoj.nid
         LEFT JOIN content_field_telefono1estas
             ON n.nid = content_field_telefono1estas.nid
         LEFT JOIN content_field_telefono2estas
@@ -58,10 +62,35 @@ def migrate():
 
     from django.contrib.auth.models import User
     from hosting.utils import title_with_particule
-    from hosting.models import Profile, Place, Phone
+    from hosting.models import Profile, Place, Phone, Condition
+
     django.setup()
 
+    # Starting...
     print('Ignoring:')
+
+    # Condition objects
+    sleeping_bag = Condition(
+            name=_("Sleeping bag"),
+            abbr=_("sleeping bag"),
+            slug="sleeping-bag",
+    )
+    sleeping_bag.save()
+
+    one_room = Condition(
+            name=_("One room"),
+            abbr=_("one room"),
+            slug="one-room",
+    )
+    one_room.save()
+
+    dont_smoke = Condition(
+            name=_("Don't smoke"),
+            abbr=_("dont smoke"),
+            slug="dont-smoke",
+    )
+    dont_smoke.save()
+
 
     while user is not None:
 
@@ -119,6 +148,16 @@ def migrate():
             )
             new_place.save()
             new_profile.places.add(new_place)
+
+            # Conditions
+            raw_conditions = user['conditions']
+            if raw_conditions:
+                if "Kunportu dormosakon" in raw_conditions:
+                    new_place.conditions.add(sleeping_bag)
+                if "Ne fumu" in raw_conditions:
+                    new_place.conditions.add(dont_smoke)
+                if "ambra lo" in raw_conditions:
+                    new_place.conditions.add(one_room)
 
         # Phone number
         raw_number = user['field_telefono1_value']
