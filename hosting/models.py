@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 import phonenumbers
@@ -40,7 +41,9 @@ class Profile(TimeStampedModel):
     description = models.TextField(_("description"), help_text=_("All about yourself."), blank=True)
     avatar = models.ImageField(_("avatar"), upload_to="avatars", blank=True)
     places = models.ManyToManyField('hosting.Place', verbose_name=_("places"), blank=True)
-    phones = models.ManyToManyField('hosting.Phone', verbose_name=_("phone numbers"), blank=True)
+
+    checked = models.BooleanField(_("checked"), default=False)
+    deleted = models.BooleanField(_("deleted"), default=False)
 
     class Meta:
         verbose_name = _("profile")
@@ -55,11 +58,15 @@ class Profile(TimeStampedModel):
         return " ".join((self.first_name, self.last_name[:1]))
 
     def __str__(self):
-        return self.full_name if self.full_name else self.user.username
+        return self.full_name if self.full_name.strip() else self.user.username
+
+    def get_admin_url(self):
+        return reverse('admin:hosting_profile_change', args=(self.id,))
 
 
 @python_2_unicode_compatible
 class Place(TimeStampedModel):
+    owner = models.ForeignKey('hosting.Profile', verbose_name=_("owner"))
     address = models.TextField(_("address"), blank=True,
         help_text=_("e.g.: Nieuwe Binnenweg 176"))
     city = models.CharField(_("city"), max_length=255,
@@ -118,11 +125,15 @@ class Place(TimeStampedModel):
 class Phone(TimeStampedModel):
     PHONE_TYPE_CHOICES = PHONE_TYPE_CHOICES
     MOBILE, HOME, WORK = 'm', 'h', 'w'
+    profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"))
     number = PhoneNumberField()
     country = CountryField(_("country"))
     comments = models.CharField(_("comments"), max_length=255, blank=True)
     type = models.CharField(_("phone type"), max_length=3,
         choices=PHONE_TYPE_CHOICES, default=MOBILE)
+
+    checked = models.BooleanField(_("checked"), default=False)
+    deleted = models.BooleanField(_("deleted"), default=False)
 
     class Meta:
         verbose_name = _("phone")
@@ -135,6 +146,22 @@ class Phone(TimeStampedModel):
             as_rfc3966          'tel:+31-10-436-1044'
         """
         return self.number.as_international
+
+
+@python_2_unicode_compatible
+class Website(TimeStampedModel):
+    profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"))
+    url = models.URLField(_("URL"))
+
+    checked = models.BooleanField(_("checked"), default=False)
+    deleted = models.BooleanField(_("deleted"), default=False)
+
+    class Meta:
+        verbose_name = _("website")
+        verbose_name_plural = _("websites")
+
+    def __str__(self):
+        return self.url
 
 
 @python_2_unicode_compatible
