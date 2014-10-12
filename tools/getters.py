@@ -147,3 +147,22 @@ def get_state_province(string, country):
         else:
             print('  Invalid state or province:', string)
     return ''
+
+
+def get_websites(string):
+    if string.strip('htps:/ '):
+        raw_websites = re.split(r',| |kaj', string)
+        websites = []
+        for website in raw_websites:
+            website = website.strip()
+            if website:
+                forbidden = ['@', '..', '.bili', 'script']
+                invalid = any([sign in website for sign in forbidden])
+                if '.' in website and not invalid:
+                    if not 'http' in website:
+                        website = 'http://' + website
+                    websites.append(website)
+                else:
+                    print('  Invalid website:', website)
+        return websites
+    return []

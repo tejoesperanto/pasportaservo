@@ -62,7 +62,7 @@ def migrate():
 
     from django.contrib.auth.models import User
     from hosting.utils import title_with_particule
-    from hosting.models import Profile, Place, Phone, Condition
+    from hosting.models import Profile, Place, Phone, Condition, Website
 
     django.setup()
 
@@ -131,6 +131,7 @@ def migrate():
         if address or user['latitude']:
             new_place = Place(
                     id=user['uid'],
+                    owner=new_profile,
                     address='' if not address else address.strip(),
                     description='' if not details else details.strip(),
                     city='' if not city else title_with_particule(city.strip()),
@@ -138,8 +139,8 @@ def migrate():
                     postcode=g.get_postcode(user['field_posxtokodo_logxadreso_value']),
                     country=country,
                     state_province=state_province,
-                    latitude=None if not user['latitude'] else float(user['latitude']),
-                    longitude=None if not user['longitude'] else float(user['longitude']),
+                    latitude=float(user['latitude']) if user['latitude'] else None,
+                    longitude=float(user['longitude']) if user['longitude'] else None,
                     max_host=g.get_int_or_none(user['field_maksimuma_gastoj_value']),
                     max_night=g.get_int_or_none(user['field_maksimuma_noktoj_value']),
                     available=g.get_truefalse(user['field_mi_pretas_gastigi_value']),
@@ -166,24 +167,33 @@ def migrate():
         number = g.get_phone_number(raw_number, country) if raw_number else ''
         if number:
             new_number = Phone(
+                    profile=new_profile,
                     number=number,
                     country=country if country else PHONE_CODES.get(number.country_code, ''),
                     type=g.get_phone_type(user['tel1_type']),
             )
             new_number.save()
-            new_profile.phones.add(new_number)
 
         # Phone number 2
         raw_number2 = user['field_telefono2_value']
         number2 = g.get_phone_number(raw_number2, country) if raw_number2 else ''
         if number2:
             new_number2 = Phone(
+                    profile=new_profile,
                     number=number2,
                     country=country if country else PHONE_CODES.get(number2.country_code, ''),
                     type=g.get_phone_type(user['tel2_type']),
             )
-            new_number2.save()
-            new_profile.phones.add(new_number2)
+            new_number.save()
+
+        # Websites
+        websites = g.get_websites(user['field_mia_ttt_pagxo_value'])
+        for website in websites:
+            new_website = Website(
+                    profile=new_profile,
+                    url=website,
+            )
+            new_website.save()
 
         user = users.fetchone()
 
