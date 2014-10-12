@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 
 from wpadmin.menu import menus, items
-from .models import Profile, Place, Phone, Condition
+from .models import Profile, Place, Phone, Condition, Website
 
 admin.site.unregister(User)
 @admin.register(User)
@@ -34,22 +34,42 @@ class ProfileAdmin(admin.ModelAdmin):
 @admin.register(Place)
 class PlaceAdmin(admin.ModelAdmin):
     list_display = (
-        'address', 'city', 'postcode', 'country',
+        'address', 'city', 'postcode', 'country', 'state_province',
         'latitude', 'longitude',
-        'max_host', 'max_night', 'contact_before',
-        'booked', 'available', 'in_book'
+        # 'max_host', 'max_night', 'contact_before',
+        'booked', 'available', 'in_book',
+        'owner_url',
     )
+
+    def owner_url(self, obj):
+        return '<a href="%s">%s</a>' % (obj.owner.get_admin_url(), obj.owner)
+    owner_url.allow_tags = True
+    owner_url.short_description = _("owner")
 
 
 @admin.register(Phone)
 class PhoneAdmin(admin.ModelAdmin):
-    list_display = ('number', 'type')
+    list_display = ('number_intl', 'country_code', 'country', 'type')
+
+    def number_intl(self, obj):
+        return obj.number.as_international
+    number_intl.short_description = _("number")
+    number_intl.admin_order_field = 'number'
+
+    def country_code(self, obj):
+        return obj.number.country_code
+    country_code.short_description = _("country code")
 
 
 @admin.register(Condition)
 class ConditionAdmin(admin.ModelAdmin):
     list_display = ('name', )
     prepopulated_fields = {'slug': ("name",)}
+
+
+@admin.register(Website)
+class WebsiteAdmin(admin.ModelAdmin):
+    list_display = ('url', 'profile')
 
 
 admin.site.site_header = _("Pasporta Servo administration")
