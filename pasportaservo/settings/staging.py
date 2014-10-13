@@ -1,5 +1,5 @@
 try:
-    import secrets
+    from . import secrets
 except ImportError:
     from warnings import warn
     warn("\nFile secrets.py not found.",
