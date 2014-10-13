@@ -36,7 +36,8 @@ def migrate():
         SELECT *,
             GROUP_CONCAT(DISTINCT content_field_kondicxoj.field_kondicxoj_value) conditions,
             GROUP_CONCAT(DISTINCT content_field_telefono1estas.field_telefono1estas_value) tel1_type,
-            GROUP_CONCAT(DISTINCT content_field_telefono2estas.field_telefono2estas_value) tel2_type
+            GROUP_CONCAT(DISTINCT content_field_telefono2estas.field_telefono2estas_value) tel2_type,
+            GROUP_CONCAT(DISTINCT content_field_petu_gastigon.field_petu_gastigon_value) contact_preferences
         FROM users u
         INNER JOIN node n ON n.uid=u.uid AND n.type='profilo'
         INNER JOIN content_type_profilo p ON p.nid=n.nid
@@ -50,6 +51,8 @@ def migrate():
             ON n.nid = content_field_telefono1estas.nid
         LEFT JOIN content_field_telefono2estas
             ON n.nid = content_field_telefono2estas.nid
+        LEFT JOIN content_field_petu_gastigon
+            ON n.nid = content_field_petu_gastigon.nid
         WHERE u.uid > 1
             AND u.name <> 'testuser'
             AND ( (field_lando_value = 'Albanio' AND field_urbo_value is not NULL)
@@ -62,7 +65,7 @@ def migrate():
 
     from django.contrib.auth.models import User
     from hosting.utils import title_with_particule
-    from hosting.models import Profile, Place, Phone, Condition, Website
+    from hosting.models import Profile, Place, Phone, Condition, Website, ContactPreference
 
     django.setup()
 
@@ -71,25 +74,38 @@ def migrate():
 
     # Condition objects
     sleeping_bag = Condition(
-            name=_("Sleeping bag"),
-            abbr=_("sleeping bag"),
+            name="Bring sleeping bag",
+            abbr="dorms.",
             slug="sleeping-bag",
     )
     sleeping_bag.save()
 
     one_room = Condition(
-            name=_("One room"),
-            abbr=_("one room"),
+            name="One room",
+            abbr="1ĉ",
             slug="one-room",
     )
     one_room.save()
 
     dont_smoke = Condition(
-            name=_("Don't smoke"),
-            abbr=_("dont smoke"),
+            name="Don't smoke",
+            abbr="Nef.",
             slug="dont-smoke",
     )
     dont_smoke.save()
+
+    # Contact preferences
+    by_email = ContactPreference(name="by email")
+    by_email.save()
+
+    by_snailmail = ContactPreference(name="by snail mail")
+    by_snailmail.save()
+
+    by_phone = ContactPreference(name="by phone")
+    by_phone.save()
+
+    by_website = ContactPreference(name="by website")
+    by_website.save()
 
 
     while user is not None:
@@ -195,12 +211,24 @@ def migrate():
             )
             new_website.save()
 
+        # Contact preferences
+        contact_preferences = user['contact_preferences'] if user['contact_preferences'] is not None else ''
+        if contact_preferences:
+            if 'Retpo' in contact_preferences:
+                new_profile.contact_preferences.add(by_email)
+            if 'Skribe' in contact_preferences:
+                new_profile.contact_preferences.add(by_snailmail)
+            if 'Telefone' in contact_preferences:
+                new_profile.contact_preferences.add(by_phone)
+            if 'Per pa' in contact_preferences:
+                new_profile.contact_preferences.add(by_website)
+
         user = users.fetchone()
 
     users.close()
     dr.close()
 
-    print(r'Success! \o/')
+    print('\n  Success! \\o/\n')
 
 
 if __name__ == '__main__':
