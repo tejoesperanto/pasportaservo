@@ -20,11 +20,12 @@ TITLE_CHOICES = (
 )
 
 
-MOBILE, HOME, WORK = 'm', 'h', 'w'
+MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
 PHONE_TYPE_CHOICES = (
     (MOBILE, _("mobile")),
     (HOME, _("home")),
     (WORK, _("work")),
+    (FAX, _("fax")),
 )
 
 
@@ -41,6 +42,7 @@ class Profile(TimeStampedModel):
     description = models.TextField(_("description"), help_text=_("All about yourself."), blank=True)
     avatar = models.ImageField(_("avatar"), upload_to="avatars", blank=True)
     places = models.ManyToManyField('hosting.Place', verbose_name=_("places"), blank=True)
+    contact_preferences = models.ManyToManyField('hosting.ContactPreference', verbose_name=_("contact preferences"), blank=True)
 
     checked = models.BooleanField(_("checked"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
@@ -165,13 +167,26 @@ class Website(TimeStampedModel):
 
 
 @python_2_unicode_compatible
-class Condition(TimeStampedModel):
+class Condition(models.Model):
     """Hosting condition (e.g. bringing sleeping bag, no smoking...)."""
     name = models.CharField(_("name"), max_length=255,
         help_text=_("E.g.: 'Ne fumu'."))
     abbr = models.CharField(_("name"), max_length=20,
         help_text=_("Official abbreviation as used in the book. E.g.: 'Nef.'"))
     slug = models.SlugField()
+
+    class Meta:
+        verbose_name = _("condition")
+        verbose_name_plural = _("conditions")
+
+    def __str__(self):
+        return self.name
+
+
+@python_2_unicode_compatible
+class ContactPreference(models.Model):
+    """Contact preference for a profile, whether by email, telephone or snail mail."""
+    name = models.CharField(_("name"), max_length=255)
 
     class Meta:
         verbose_name = _("condition")
