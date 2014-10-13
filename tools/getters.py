@@ -131,12 +131,12 @@ def get_phone_type(string):
     if string:
         if 'Poŝtelefona' in string:
             return 'm'  # Mobile
+        if 'Faksilo' in string:
+            return 'f'  # Fax
         if 'Hejma' in string:
             return 'h'  # Home
         if 'Labora' in string:
             return 'w'  # Work
-        if 'Faksilo' in string:
-            return 'h'  # Home
     return ''
 
 
