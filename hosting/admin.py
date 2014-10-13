@@ -72,7 +72,7 @@ class WebsiteAdmin(admin.ModelAdmin):
     list_display = ('url', 'profile')
 
 
-admin.site.site_header = _("Pasporta Servo administration")
+
 
 
 class CustomTopMenu(menus.DefaultTopMenu):

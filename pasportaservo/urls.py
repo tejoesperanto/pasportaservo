@@ -5,10 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'pasportaservo.views.home', name='home'),
-    # url(r'^pasportaservo/', include('pasportaservo.foo.urls')),
-
+    url(r'^grappelli/', include('grappelli.urls')), # grappelli URLS
     url(r'^admin/', include(admin.site.urls)),
     url(_(r'^login/$'), login, name='login'),
     url(_(r'^logout/$'), logout, {'next_page':'/'}, name='logout'),
