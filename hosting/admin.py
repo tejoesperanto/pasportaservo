@@ -1,10 +1,11 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin
 
-from .models import Profile, Place, Phone, Condition, Website
+from .models import Profile, Place, Phone, Condition, Website, ContactPreference
 
+admin.site.unregister(Group)
 admin.site.unregister(User)
 
 
@@ -14,6 +15,13 @@ class CustomUserAdmin(UserAdmin):
         'username', 'email', 'password_algorithm',
         'last_login', 'date_joined',
         'is_active', 'is_staff', 'is_superuser',
+    )
+
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        (_('Personal info'), {'fields': ('email',)}),
+        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser')}),
+        (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
 
     def password_algorithm(self, obj):
@@ -43,13 +51,13 @@ class PlaceAdmin(admin.ModelAdmin):
         'latitude', 'longitude',
         # 'max_host', 'max_night', 'contact_before',
         'booked', 'available', 'in_book',
-        'owner_url',
+        'owner_link',
     )
 
-    def owner_url(self, obj):
+    def owner_link(self, obj):
         return '<a href="%s">%s</a>' % (obj.owner.get_admin_url(), obj.owner)
-    owner_url.allow_tags = True
-    owner_url.short_description = _("owner")
+    owner_link.allow_tags = True
+    owner_link.short_description = _("owner")
 
 
 @admin.register(Phone)
@@ -75,3 +83,7 @@ class ConditionAdmin(admin.ModelAdmin):
 @admin.register(Website)
 class WebsiteAdmin(admin.ModelAdmin):
     list_display = ('url', 'profile')
+
+@admin.register(ContactPreference)
+class ContactPreferenceAdmin(admin.ModelAdmin):
+    pass
