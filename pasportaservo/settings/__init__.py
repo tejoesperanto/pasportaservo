@@ -7,6 +7,7 @@ import os
  
 from django.conf import global_settings
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.translation import ugettext_lazy as _
 
 def get_env_variable(var_name):
     """ Get the environment variable or return exception """
@@ -42,11 +43,11 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+GRAPPELLI_ADMIN_TITLE = _("Pasporta Servo administration")
 # Application definition
 
 INSTALLED_APPS = (
-    'wpadmin',
+    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -117,17 +118,6 @@ LOGIN_REDIRECT_URL = '/'
 # This means: Interpret phone number as dialed in Poland
 PHONENUMBER_DEFAULT_REGION = 'PL'
 
-
-WPADMIN = {
-    'admin': {
-        'title': 'Pasporta Servo',
-        'menu': {
-            'top': 'hosting.admin.CustomTopMenu',
-            'left': 'wpadmin.menu.menus.BasicLeftMenu',
-        },
-        'custom_style': STATIC_URL + 'css/ps_admin.css',
-    }
-}
 
 LEAFLET_CONFIG = {
     'DEFAULT_CENTER': (40, 0),
