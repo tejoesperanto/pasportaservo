@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-14 21:11+0200\n"
-"PO-Revision-Date: 2014-10-14 21:17+0100\n"
+"POT-Creation-Date: 2014-10-15 00:16+0200\n"
+"PO-Revision-Date: 2014-10-15 00:17+0100\n"
 "Last-Translator: Baptiste Darthenay <taggit.batisteo@recursor.net>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -19,25 +19,35 @@ msgstr ""
 "X-Generator: Poedit 1.5.4\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: admin.py:21
+#: admin.py:22
+msgid "Personal info"
+msgstr ""
+
+#: admin.py:23
+msgid "Permissions"
+msgstr ""
+
+#: admin.py:24
+msgid "Important dates"
+msgstr ""
+
+#: admin.py:29
 msgid "MD5 (weak)"
 msgstr "MD5 (malforta)"
 
-#: admin.py:24
+#: admin.py:32
 msgid "Password algorithm"
 msgstr "Pasvorta algoritmo"
 
-#: admin.py:52 models.py:71
+#: admin.py:60 models.py:71
 msgid "owner"
 msgstr "posedanto"
 
-#: admin.py:61
-#| msgid "Phone number"
+#: admin.py:69
 msgid "number"
 msgstr "numero"
 
-#: admin.py:66
-#| msgid "country"
+#: admin.py:74
 msgid "country code"
 msgstr "landa kodo"
 
@@ -113,8 +123,7 @@ msgstr "avataro"
 msgid "places"
 msgstr "loĝejoj"
 
-#: models.py:45
-#| msgid "contact before"
+#: models.py:45 models.py:193
 msgid "contact preferences"
 msgstr "kontaktaj preferoj"
 
@@ -123,7 +132,6 @@ msgid "checked"
 msgstr "kontrolita"
 
 #: models.py:48 models.py:106 models.py:138 models.py:159
-#| msgid "Delete"
 msgid "deleted"
 msgstr "forigita"
 
@@ -250,7 +258,7 @@ msgstr "trinkumi"
 msgid "If you are ready to have a coffee or beer with visitors."
 msgstr "Se vi pretas kafumi aŭ bierumi kun vizitantoj."
 
-#: models.py:103 models.py:180 models.py:193
+#: models.py:103 models.py:180
 msgid "conditions"
 msgstr "kondiĉoj"
 
@@ -298,9 +306,14 @@ msgstr "Ekz: 'Ne fumu':"
 msgid "Official abbreviation as used in the book. E.g.: 'Nef.'"
 msgstr "Oficiala mallongigo tiel, kiel uzata en la libro. Ekz: 'Nef.'"
 
-#: models.py:179 models.py:192
+#: models.py:179
 msgid "condition"
 msgstr "kondiĉo"
+
+#: models.py:192
+#| msgid "contact preferences"
+msgid "contact preference"
+msgstr "kontakta prefero"
 
 #: templates/hosting/base.html:14 templates/hosting/home.html:10
 msgid "log out"
@@ -473,7 +486,6 @@ msgid "^profile/detail/$"
 msgstr "^profilo/detalo/$"
 
 #: urls.py:10
-#| msgid "^profile/create/$"
 msgid "^profile/update/$"
 msgstr "^profilo/redakti/$"
 
