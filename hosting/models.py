@@ -189,8 +189,8 @@ class ContactPreference(models.Model):
     name = models.CharField(_("name"), max_length=255)
 
     class Meta:
-        verbose_name = _("condition")
-        verbose_name_plural = _("conditions")
+        verbose_name = _("contact preference")
+        verbose_name_plural = _("contact preferences")
 
     def __str__(self):
         return self.name
