@@ -59,7 +59,6 @@ INSTALLED_APPS = (
     'phonenumber_field',
     'bootstrapform',
     'leaflet',
-    'debug_toolbar',
 
     'hosting',
 )
@@ -133,5 +132,5 @@ try:
     from pasportaservo.settings.local_settings import *
 except ImportError:
     from warnings import warn
-    warn("\nSymbolic link local_setting.py not found. Please create it in the 'settings' folder.",
+    warn("\nSymbolic link local_settings.py not found. Please create it in the 'settings' folder.",
     UserWarning)
