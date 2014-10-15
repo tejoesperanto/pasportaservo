@@ -5,6 +5,9 @@ from django.contrib.auth.admin import UserAdmin
 
 from .models import Profile, Place, Phone, Condition, Website, ContactPreference
 
+
+admin.site.disable_action('delete_selected')
+
 admin.site.unregister(Group)
 admin.site.unregister(User)
 
@@ -39,6 +42,10 @@ class ProfileAdmin(admin.ModelAdmin):
         'birth_date', 'avatar', 'description',
         'user__email', 'user'
     )
+    search_fields = [
+        'first_name', 'last_name', 'user__email', 'user__username',
+    ]
+    date_hierarchy = 'birth_date'
 
     def user__email(self, obj):
         return obj.user.email
@@ -53,6 +60,18 @@ class PlaceAdmin(admin.ModelAdmin):
         'booked', 'available', 'in_book',
         'owner_link',
     )
+    list_display_links = (
+        'address', 'city', 'postcode', 'country',
+        'latitude', 'longitude',
+    )
+    search_fields = [
+        'address', 'city', 'postcode', 'country', 'state_province',
+        'owner__first_name', 'owner__last_name', 'owner__user__email',
+    ]
+    list_filter = (
+        'in_book', 'available',
+        'country',
+    )
 
     def owner_link(self, obj):
         return '<a href="%s">%s</a>' % (obj.owner.get_admin_url(), obj.owner)
@@ -63,6 +82,8 @@ class PlaceAdmin(admin.ModelAdmin):
 @admin.register(Phone)
 class PhoneAdmin(admin.ModelAdmin):
     list_display = ('number_intl', 'country_code', 'country', 'type')
+    search_fields = ('number', 'country')
+    list_filter = ('country',)
 
     def number_intl(self, obj):
         return obj.number.as_international
@@ -83,6 +104,10 @@ class ConditionAdmin(admin.ModelAdmin):
 @admin.register(Website)
 class WebsiteAdmin(admin.ModelAdmin):
     list_display = ('url', 'profile')
+    search_fields = [
+        'url',
+        'profile__first_name', 'profile__last_name', 'profile__user__email', 'profile__user__username',
+    ]
 
 @admin.register(ContactPreference)
 class ContactPreferenceAdmin(admin.ModelAdmin):
