@@ -1,15 +1,3 @@
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'pasportaservo',
-        'USER': 'guillaume',
-    }
-}
-
-
-LANGUAGE_CODE = 'en'
-
-
 INSTALLED_APPS = (
     'grappelli',
     'django.contrib.admin',
@@ -28,3 +16,4 @@ INSTALLED_APPS = (
 
     'debug_toolbar',
 )
+
