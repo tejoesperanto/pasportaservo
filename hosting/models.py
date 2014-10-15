@@ -126,8 +126,8 @@ class Place(TimeStampedModel):
 @python_2_unicode_compatible
 class Phone(TimeStampedModel):
     PHONE_TYPE_CHOICES = PHONE_TYPE_CHOICES
-    MOBILE, HOME, WORK = 'm', 'h', 'w'
-    profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"))
+    MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
+    profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"), related_name="phones")
     number = PhoneNumberField(_("number"))
     country = CountryField(_("country"))
     comments = models.CharField(_("comments"), max_length=255, blank=True)

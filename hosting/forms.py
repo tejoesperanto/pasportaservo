@@ -100,7 +100,7 @@ class PlaceForm(forms.ModelForm):
 class PhoneForm(forms.ModelForm):
     class Meta:
         model = Phone
-        fields = ['number', 'type']
+        fields = ['number', 'type', 'country', 'comments']
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
