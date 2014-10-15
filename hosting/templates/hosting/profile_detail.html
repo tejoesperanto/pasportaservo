@@ -35,8 +35,17 @@
     <ul class="list-group">
         {% for phone in profile.phones.all %}
             <li class="list-group-item">
-                <span class="glyphicon glyphicon-{% if phone.type = phone.HOME %}ear{% endif %}phone{% if phone.type = phone.WORK %}-alt{% endif %}"></span>
+                {% if phone.type = phone.HOME %}
+                    <span class="glyphicon glyphicon-earphone"></span>
+                {% elif phone.type = phone.WORK %}
+                    <span class="glyphicon glyphicon-phone-alt"></span>
+                {% elif phone.type = phone.MOBILE %}
+                    <span class="glyphicon glyphicon-phone"></span>
+                {% elif phone.type = phone.FAX %}
+                    <span class="glyphicon glyphicon-print"></span>
+                {% endif %}
                 <strong>{{ phone.number.as_international }}</strong>
+                <em>{{ phone.comments }}</em>
                 <div class="btn-group-xs pull-right">
                     <a href="{% url 'phone_update' phone.number.as_e164|cut:"+" %}" class="btn btn-default">{% trans "Update" %}</a>
                     <a href="{% url 'phone_delete' phone.number.as_e164|cut:"+" %}" class="btn btn-danger">{% trans "Delete" %}</a>
