@@ -110,6 +110,28 @@ p.tip {
     margin-top: 1em;
 }
 
+
+/* Profile */
+.profile-avatar img {
+    width: 100%;
+    max-width: 140px;
+}
+.profile-avatar {
+    margin-right: 2em;
+}
+
+.phone {
+    height: 4em;
+}
+.phone .details {
+    margin-top: .5em;
+}
+.phone .number {
+    font-weight: bold;
+    margin: 0 1em;
+}
+
+
 /* Footer */
 footer {
     text-align: center;
