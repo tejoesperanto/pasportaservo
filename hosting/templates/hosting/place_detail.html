@@ -5,42 +5,44 @@
     <div class="row">
         <div class="col-xs-12 col-md-6 owner">
             <div class="row">
-                {% with profile=place.profile_set.first %}
-                    <div class="col-xs-3">
-                        <img src="{% static 'img/avatar.png' %}" />
-                    </div>
-                    <div class="col-xs-9">
-                        <div class="row">
-                            <div class="col-xs-5 name">
-                                {{ profile.anonymous_name }}
-                            </div>
-                            <div class="col-xs-4 status">
-                                {% if place.booked %}
-                                    {% trans "unavailable" %}
-                                {% else %}
-                                    {% trans "available" %}
-                                {% endif %}
-                            </div>
-                            <div class="col-xs-9 address">
-                                {{ place.city }}, {{ place.country.name }}
-                            </div>
+                <div class="col-xs-3">
+                    {% if place.owner.avatar %}
+                        <img src="{{ place.owner.avatar.url }}" />
+                    {% else %}
+                        <img src="http://www.gravatar.com/avatar?d=mm&f=y" />
+                    {% endif %}
+                </div>
+                <div class="col-xs-9">
+                    <div class="row">
+                        <div class="col-xs-5 name">
+                            {{ place.owner.anonymous_name }}
                         </div>
-
-                        {% if user.is_authenticated %}
-                            <div class="row">
-                                <div class="col-xs-5">{% trans "Address" %}</div>
-                                <p class="col-xs-7">
-                                    {{ place.address }}<br>
-                                    {{ place.city }} {{ place.country }}-{{ place.postcode }}
-                                </p>
-                                <div class="col-xs-5">{% trans "Phone number" %}</div>
-                                <p class="col-xs-7">
-                                    {{ profile.phones.all|join:"<br/>" }}
-                                </p>
-                            </div>
-                        {% endif %}
+                        <div class="col-xs-4 status">
+                            {% if place.booked %}
+                                {% trans "unavailable" %}
+                            {% else %}
+                                {% trans "available" %}
+                            {% endif %}
+                        </div>
+                        <div class="col-xs-9 address">
+                            {{ place.city }}, {{ place.country.name }}
+                        </div>
                     </div>
-                {% endwith %}
+
+                    {% if user.is_authenticated %}
+                        <div class="row">
+                            <div class="col-xs-5">{% trans "Address" %}</div>
+                            <p class="col-xs-7">
+                                {{ place.address }}<br>
+                                {{ place.city }} {{ place.country }}-{{ place.postcode }}
+                            </p>
+                            <div class="col-xs-5">{% trans "Phone number" %}</div>
+                            <p class="col-xs-7">
+                                {{ place.owner.phones.all|join:"<br/>" }}
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
 
             <div class="row">
