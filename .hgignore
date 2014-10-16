@@ -1,0 +1,15 @@
+syntax: glob
+
+*~
+*\#
+*.pyc
+*.db
+*.sqlite3
+env/
+.bash*
+*.orig
+.DS_Store
+*.geany
+secrets.py
+pasportaservo/settings/local_settings.py
+
