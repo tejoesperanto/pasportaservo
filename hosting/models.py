@@ -33,7 +33,7 @@ PHONE_TYPE_CHOICES = (
 class Profile(TimeStampedModel):
     TITLE_CHOICES = TITLE_CHOICES
     user = models.OneToOneField(settings.AUTH_USER_MODEL)
-    title = models.CharField(_("title"), max_length=5, choices=TITLE_CHOICES)
+    title = models.CharField(_("title"), max_length=5, choices=TITLE_CHOICES, blank=True)
     first_name = models.CharField(_("first name"), max_length=255, blank=True,
         validators = [validate_no_allcaps, validate_not_to_much_caps])
     last_name = models.CharField(_("last name"), max_length=255, blank=True,
@@ -68,10 +68,10 @@ class Profile(TimeStampedModel):
 
 @python_2_unicode_compatible
 class Place(TimeStampedModel):
-    owner = models.ForeignKey('hosting.Profile', verbose_name=_("owner"))
+    owner = models.ForeignKey('hosting.Profile', verbose_name=_("owner"), related_name="owned_places")
     address = models.TextField(_("address"), blank=True,
         help_text=_("e.g.: Nieuwe Binnenweg 176"))
-    city = models.CharField(_("city"), max_length=255,
+    city = models.CharField(_("city"), max_length=255, blank=True,
         help_text=_("e.g.: Rotterdam"),
         validators = [validate_no_allcaps, validate_not_to_much_caps])
     closest_city = models.CharField(_("closest big city"), max_length=255, blank=True,
@@ -126,9 +126,9 @@ class Place(TimeStampedModel):
 @python_2_unicode_compatible
 class Phone(TimeStampedModel):
     PHONE_TYPE_CHOICES = PHONE_TYPE_CHOICES
-    MOBILE, HOME, WORK = 'm', 'h', 'w'
-    profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"))
-    number = PhoneNumberField()
+    MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
+    profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"), related_name="phones")
+    number = PhoneNumberField(_("number"))
     country = CountryField(_("country"))
     comments = models.CharField(_("comments"), max_length=255, blank=True)
     type = models.CharField(_("phone type"), max_length=3,
@@ -171,9 +171,9 @@ class Condition(models.Model):
     """Hosting condition (e.g. bringing sleeping bag, no smoking...)."""
     name = models.CharField(_("name"), max_length=255,
         help_text=_("E.g.: 'Ne fumu'."))
-    abbr = models.CharField(_("name"), max_length=20,
+    abbr = models.CharField(_("abbreviation"), max_length=20,
         help_text=_("Official abbreviation as used in the book. E.g.: 'Nef.'"))
-    slug = models.SlugField()
+    slug = models.SlugField(_("URL friendly name"))
 
     class Meta:
         verbose_name = _("condition")
@@ -189,8 +189,8 @@ class ContactPreference(models.Model):
     name = models.CharField(_("name"), max_length=255)
 
     class Meta:
-        verbose_name = _("condition")
-        verbose_name_plural = _("conditions")
+        verbose_name = _("contact preference")
+        verbose_name_plural = _("contact preferences")
 
     def __str__(self):
         return self.name

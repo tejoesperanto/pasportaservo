@@ -89,21 +89,26 @@ class PlaceForm(forms.ModelForm):
         super(PlaceForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        place = super(PlaceForm, self).save()
-        self.profile.places.add(place)
+        place = super(PlaceForm, self).save(commit=True)
+        place.owner = self.profile
+        if commit:
+            place.save()
+            self.profile.places.add(place)
         return place
 
 
 class PhoneForm(forms.ModelForm):
     class Meta:
         model = Phone
-        fields = ['number', 'type']
+        fields = ['number', 'type', 'country', 'comments']
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
         super(PhoneForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        phone = super(PhoneForm, self).save()
-        self.profile.phones.add(phone)
+        phone = super(PhoneForm, self).save(commit=False)
+        phone.profile = self.profile
+        if commit:
+            phone.save()
         return phone
