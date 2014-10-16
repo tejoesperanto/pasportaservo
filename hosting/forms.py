@@ -70,11 +70,12 @@ class PlaceForm(forms.ModelForm):
     class Meta:
         model = Place
         fields = [
+            'closest_city',
             'address',
             'city',
             'postcode',
+            'state_province',
             'country',
-            'closest_city',
             'max_host', 'max_night', 'contact_before',
             'description', 'short_description',
             'booked', 'available',

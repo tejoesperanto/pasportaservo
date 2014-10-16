@@ -96,6 +96,12 @@ place_create = PlaceCreateView.as_view()
 
 class PlaceUpdateView(LoginRequiredMixin, generic.UpdateView):
     success_url = reverse_lazy('profile_detail')
+    form_class = PlaceForm
+
+    def get_form_kwargs(self):
+        kwargs = super(PlaceUpdateView, self).get_form_kwargs()
+        kwargs['profile'] = self.request.user.profile
+        return kwargs
 
     def get_object(self, queryset=None):
         pk = self.kwargs['pk']
@@ -103,6 +109,17 @@ class PlaceUpdateView(LoginRequiredMixin, generic.UpdateView):
         return get_object_or_404(Place, pk=pk, profile=profile)
 
 place_update = PlaceUpdateView.as_view()
+
+
+class PlaceDeleteView(LoginRequiredMixin, generic.DeleteView):
+    success_url = reverse_lazy('profile_detail')
+
+    def get_object(self, queryset=None):
+        pk = self.kwargs['pk']
+        profile = self.request.user.profile
+        return get_object_or_404(Place, pk=pk, profile=profile)
+
+place_delete = PlaceDeleteView.as_view()
 
 
 class PlaceDetailView(generic.DetailView):
