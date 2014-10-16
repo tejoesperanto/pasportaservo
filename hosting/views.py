@@ -130,7 +130,13 @@ phone_create = PhoneCreateView.as_view()
 
 
 class PhoneUpdateView(LoginRequiredMixin, generic.UpdateView):
+    form_class = PhoneForm
     success_url = reverse_lazy('profile_detail')
+
+    def get_form_kwargs(self):
+        kwargs = super(PhoneUpdateView, self).get_form_kwargs()
+        kwargs['profile'] = self.request.user.profile
+        return kwargs
 
     def get_object(self, queryset=None):
         number = '+' + self.kwargs['num']
