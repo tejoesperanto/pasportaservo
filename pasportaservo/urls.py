@@ -10,4 +10,6 @@ urlpatterns = patterns('',
     url(_(r'^login/$'), login, name='login'),
     url(_(r'^logout/$'), logout, {'next_page':'/'}, name='logout'),
     url(r'', include('hosting.urls')),
+    url(_(r'^pages/'), include('pages.urls')),
 )
+
