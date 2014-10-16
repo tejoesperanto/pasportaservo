@@ -35,7 +35,9 @@
         {% block footer %}
             <div class="row">
                 <div class="col-md-12">
-                    Footer
+                    <a href="{% url 'about' %}">About us</a>
+                    |
+                    <a href="{% url 'terms_conditions' %}">Terms</a>
                 </div>
             </div>
         {% endblock footer %}
