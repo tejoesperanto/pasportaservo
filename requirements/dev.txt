@@ -1,0 +1,6 @@
+-r base.txt
+
+PyMySQL==0.6.2
+bpython==0.13.1
+django-debug-toolbar==1.2.1
+pytz==2014.7

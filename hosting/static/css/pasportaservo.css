@@ -1,0 +1,149 @@
+@font-face {
+    font-family: Geotica;
+    src: url("../fonts/Geotica_Three-webfont.woff");
+}
+
+/* General header. */
+header {
+    color: #fff;
+    background: #f71;
+    padding: 0.5em 0;
+    margin-bottom: 1em;
+}
+header a {
+    color: #fff;
+}
+header a:hover {
+    color: #fff;
+}
+header .links {
+    font-weight: bold;
+    padding-top: 0.5em;
+    text-align: right;
+}
+header #title {
+    font-family: Geotica, sans-serif;
+    font-size: 1.6em;
+}
+header #title a:hover {
+    text-decoration: none;
+}
+header #subtitle {
+    padding-top: 0.5em;
+}
+
+/* Header on home page */
+header.home .links {
+    text-align: center;
+}
+
+header.home #title {
+    font-size: 5em;
+    text-align: center;
+    margin-top: 1rem;
+    padding-bottom: 0.25em;
+}
+header.home #subtitle {
+    font-size: 1.5em;
+    text-align: center;
+    margin-bottom: 2em;
+    font-weight: bold;
+}
+
+header.home form.search {
+    margin-bottom: 2em;
+}
+
+/* Search */
+#page.search form.search{
+    margin-bottom: 1em;
+}
+.place-list {
+    padding-bottom: 0.5em;
+    margin-bottom: 0.5em;
+    border-bottom: 1px solid #ddd;
+}
+.place-list .name {
+    font-weight: bold;
+}
+.place-list .status {
+    text-align: right;
+    font-size: 0.8em;
+    color: #666;
+}
+.place-list .avatar {
+    text-align: center;
+}
+.place-list .avatar img {
+    width: 100%;
+    max-width: 100px;
+}
+
+/* Accomodation */
+.owner {
+    margin-bottom: 1em;
+}
+.owner img {
+    width: 100%;
+}
+.register, .login {
+    text-align: center;
+    margin-top: 1em;
+}
+.register label, .login label {
+    display: none;
+}
+.register h4, .login h4 {
+    margin-top: 0;
+}
+.register .form-group:last-of-type {  /* Hiding honeypot */
+    position: absolute;
+    top: -10000px;
+}
+p.tip {
+    font-size: 0.8em;
+}
+.map iframe {
+    height: 150px;
+}
+.description-small {
+    margin-top: 1em;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding-top: 3em;
+}
+
+/* SM */
+@media (min-width: 768px) {
+    .map iframe {
+        border-radius: 4px;
+        height: 300px;
+    }
+}
+/* MD */
+@media (min-width: 992px) {
+    header.home form.search {
+        margin-bottom: 4em;
+    }
+    header.home #title {
+        margin-top: 2em;
+        padding-bottom: 0.5em;
+    }
+    .map iframe {
+        border-radius: 4px;
+        height: 500px;
+    }
+}
+/* LG */
+@media (min-width: 1170px) {
+    header.home form.search {
+        margin-bottom: 6em;
+    }
+    header.home #title {
+        margin-top: 1.6em;
+        padding-bottom: 1em;
+    }
+}
