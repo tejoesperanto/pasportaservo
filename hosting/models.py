@@ -1,4 +1,7 @@
 from __future__ import unicode_literals
+
+from datetime import date
+
 from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
 from django.conf import settings
@@ -58,6 +61,10 @@ class Profile(TimeStampedModel):
     @property
     def anonymous_name(self):
         return " ".join((self.first_name, self.last_name[:1]))
+
+    @property
+    def age(self):
+        return int((date.today() - self.birth_date).days / 365.24)
 
     def __str__(self):
         return self.full_name if self.full_name.strip() else self.user.username
