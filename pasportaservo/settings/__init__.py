@@ -61,6 +61,7 @@ INSTALLED_APPS = (
     'leaflet',
 
     'hosting',
+    'pages',
 )
 
 MIDDLEWARE_CLASSES = (
