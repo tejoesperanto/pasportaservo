@@ -2,56 +2,71 @@
 {% load i18n static %}
 
 {% block page %}
+    <p class="pull-right"><a href="{% url 'profile_update' %}" class="btn btn-success">{% trans "Update" %}</a></p>
+    <div class="pull-left profile-avatar">
+        <img src="{{ profile.avatar.url }}" />
+    </div>
     <h1><small>{{ profile.get_title_display }}</small> {{ profile }}</h1>
-    <p>{{ profile.birth_date }}</p>
-    <p><a href="{% url 'profile_update' %}" class="btn btn-default">{% trans "Update" %}</a></p>
+    <p>{% blocktrans with age=profile.age %}{{ age }} y.o.{% endblocktrans %}</p>
+
+    <div class="clearfix"></div>
 
     <h2>{% trans "About me" %}</h2>
     {{ profile.description|linebreaks }}
 
-    <h2>{% trans "Places" %}</h2>
-    {% for place in profile.places.all %}
-        <div class="row place-list">
-            <div class="col-xs-3 col-sm-2 col-md-1 avatar">
-                <a href="{% url 'place_update' place.pk %}">
-                    <img src="{% static 'img/avatar2.png' %}" />
-                </a>
-            </div>
-            <div class="col-xs-5 col-sm-6 col-md-7 name">
-                <a href="{% url 'place_update' place.pk %}">{{ place.profile_set.first.anonymous_name }}</a>
-            </div>
-            <div class="col-xs-4 status">
-                {% if booked or not available %}{% trans "unavailable" %}{% endif %}
-            </div>
-            <div class="col-xs-9 col-sm-10 col-md-11 address">
-                {{ place.address }}, {{ place.city }}, {{ place.country.name }}
-            </div>
-        </div>
-    {% endfor %}
-
-    <a class="btn btn-primary" href="{% url 'place_create' %}">{% trans "Add a place" %}</a>
-
-    <h2>{% trans "Phones" %}</h2>
+    <h2>
+        {% blocktrans count counter=profile.places.all|length trimmed %}
+            Place
+        {% plural %}
+            Places
+        {% endblocktrans %}
+    </h2>
     <ul class="list-group">
-        {% for phone in profile.phones.all %}
+        {% for place in profile.places.all %}
             <li class="list-group-item">
-                {% if phone.type = phone.HOME %}
-                    <span class="glyphicon glyphicon-earphone"></span>
-                {% elif phone.type = phone.WORK %}
-                    <span class="glyphicon glyphicon-phone-alt"></span>
-                {% elif phone.type = phone.MOBILE %}
-                    <span class="glyphicon glyphicon-phone"></span>
-                {% elif phone.type = phone.FAX %}
-                    <span class="glyphicon glyphicon-print"></span>
-                {% endif %}
-                <strong>{{ phone.number.as_international }}</strong>
-                <em>{{ phone.comments }}</em>
-                <div class="btn-group-xs pull-right">
-                    <a href="{% url 'phone_update' phone.number.as_e164|cut:"+" %}" class="btn btn-default">{% trans "Update" %}</a>
-                    <a href="{% url 'phone_delete' phone.number.as_e164|cut:"+" %}" class="btn btn-danger">{% trans "Delete" %}</a>
+                <div class="btn-group pull-right">
+                    <a href="{% url 'place_update' place.pk %}" class="btn btn-success">{% trans "Update" %}</a>
+                    <a href="{% url 'place_delete' place.pk %}" class="btn btn-danger"><span class="glyphicon glyphicon-trash" title="{% trans "Delete" %}"></span></a>
+                </div>
+                <div>
+                    <strong>{{ place.address }}</strong><br />
+                    {{ place.postcode }} {{ place.city }}<br />
+                    {{ place.country.name }}<br />
                 </div>
             </li>
         {% endfor %}
     </ul>
-    <a class="btn btn-primary" href="{% url 'phone_create' %}">{% trans "Add a phone" %}</a>
+
+    <a class="btn btn-info" href="{% url 'place_create' %}"><span class="glyphicon glyphicon-plus"></span>
+        <strong>{% trans "Add a place" %}</strong>
+    </a>
+
+    <h2>{% trans "Phones" %}</h2>
+    <ul class="list-group phone-list">
+        {% for phone in profile.phones.all %}
+            <li class="list-group-item phone">
+                <div class="btn-group pull-right">
+                    <a href="{% url 'phone_update' phone.number.as_e164|cut:"+" %}" class="btn btn-success">{% trans "Update" %}</a>
+                    <a href="{% url 'phone_delete' phone.number.as_e164|cut:"+" %}" class="btn btn-danger"><span class="glyphicon glyphicon-trash" title="{% trans "Delete" %}"></span></a>
+                </div>
+
+                <p class="col-xs-5 col-sm-6 col-md-7 details">
+                    {% if phone.type = phone.HOME %}
+                        <span class="glyphicon glyphicon-earphone" title="{{ phone.get_type_display|capfirst }}"></span>
+                    {% elif phone.type = phone.WORK %}
+                        <span class="glyphicon glyphicon-phone-alt" title="{{ phone.get_type_display|capfirst }}"></span>
+                    {% elif phone.type = phone.MOBILE %}
+                        <span class="glyphicon glyphicon-phone" title="{{ phone.get_type_display|capfirst }}"></span>
+                    {% elif phone.type = phone.FAX %}
+                        <span class="glyphicon glyphicon-print" title="{{ phone.get_type_display|capfirst }}"></span>
+                    {% endif %}
+                    <b class="number">{{ phone.number.as_international }}</b>
+                    <em>{{ phone.comments }}</em>
+                </p>
+            </li>
+        {% endfor %}
+    </ul>
+    <a class="btn btn-info" href="{% url 'phone_create' %}"><span class="glyphicon glyphicon-plus"></span>
+        <strong>{% trans "Add a phone" %}</strong>
+    </a>
 {% endblock page %}
