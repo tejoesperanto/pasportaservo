@@ -3,11 +3,16 @@
 
 {% block page_class %} search{% endblock %}
 
+{% block extra_js %}
+    <script src="{% static 'hosting/js/search.js' %}"></script>
+{% endblock %}
+
 {% block page %}
-    <form class="form-inline row search" role="form" method="GET" action="">
+    <form class="form-inline row search" id="searchform" role="form" method="GET" action="">
         <div class="form-group" style="width: 100%">
             <div class="input-group" style="width: 100%">
-                <input class="form-control" type="search" name="q" value="{{ request.GET.q|title }}" placeholder="{% trans "Budapest, London, Venezuela, etc." %}">
+                <input class="form-control" type="search" id="searchinput" name="q" value="{{ request.GET.q|title }}" placeholder="{% trans "Budapest, London, Venezuela, etc." %}">
+                <input type="hidden" id="gpsinput" name="gps_coords" value="" />
                 <span class="input-group-btn" style="width: 20%">
                     <button class="btn btn-default" type="submit" id="gps" style="min-width: 40px; width: 100%;">
                         <span class="glyphicon glyphicon-map-marker"></span>
