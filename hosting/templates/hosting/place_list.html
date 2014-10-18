@@ -14,9 +14,13 @@
                 <input class="form-control" type="search" id="searchinput" name="q" value="{{ request.GET.q|title }}" placeholder="{% trans "Budapest, London, Venezuela, etc." %}">
                 <input type="hidden" id="gpsinput" name="gps_coords" value="" />
                 <span class="input-group-btn" style="width: 20%">
-                    <button class="btn btn-default" type="button" id="gps" style="min-width: 40px; width: 100%;">
+                    <button class="btn btn-default" type="submit" id="search" style="min-width: 40px; width: 50%;">
+                        <span class="glyphicon glyphicon-search"></span>
+                        <span class="hidden-xs">{% trans "Search" %}</span>
+                    </button>
+                    <button class="btn btn-default" type="button" id="gps" style="min-width: 40px; width: 50%;">
                         <span class="glyphicon glyphicon-map-marker"></span>
-                        <span class="hidden-xs">{% trans "Search location" %}</span>
+                        <span class="hidden-xs">{% trans "My location" %}</span>
                     </button>
                 </span>
             </div>
