@@ -27,18 +27,14 @@
         <div class="row place-list">
             <div class="col-xs-3 col-sm-2 col-md-1 avatar">
                 <a href="{% url 'place_detail' place.pk %}">
-                    {% if place.owner.avatar %}
-                        <img src="{{ place.owner.avatar.url }}" />
-                    {% else %}
-                        <img src="http://www.gravatar.com/avatar?d=mm&f=y" />
-                    {% endif %}
+                    <img src="{{ place.owner.avatar_url }}" />
                 </a>
             </div>
             <div class="col-xs-5 col-sm-6 col-md-7 name">
                 <a href="{% url 'place_detail' place.pk %}">{{ place.profile_set.first.anonymous_name }}</a>
             </div>
             <div class="col-xs-4 status">
-                {% if profile.booked or not profile.available %}{% trans "unavailable" %}{% endif %}
+                {% if place.booked or not place.available %}{% trans "unavailable" %}{% endif %}
             </div>
             <div class="col-xs-9 col-sm-10 col-md-11 address">
                 <strong>{{ place.city }}</strong><br />

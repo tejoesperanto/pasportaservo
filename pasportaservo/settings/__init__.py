@@ -123,6 +123,9 @@ LOGIN_REDIRECT_URL = '/'
 PHONENUMBER_DEFAULT_REGION = 'PL'
 
 
+DEFAULT_AVATAR_URL = "http://www.gravatar.com/avatar?d=mm&f=y&s=140"
+
+
 LEAFLET_CONFIG = {
     'DEFAULT_CENTER': (40, 0),
     'DEFAULT_ZOOM': 1,
