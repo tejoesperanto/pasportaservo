@@ -6,10 +6,10 @@
         {% block header %}
             <div class="row">
                 <div class="col-xs-6 col-sm-3 col-md-2" id="title">
-                    <a href="{% url 'home' %}">Pasporta Servo</a>
+                    <a href="{% url 'home' %}">Pasporta&nbsp;Servo</a>
                 </div>
-                <div class="hidden-xs col-sm-3 col-md-2" id="subtitle">Gastigantoj tra la mondo</div>
-                <div class="col-xs-3 col-sm-2 col-md-1 col-sm-offset-2 col-md-offset-6 links">
+                <div class="hidden-xs col-sm-3 col-md-3" id="subtitle">Gastigantoj tra la mondo</div>
+                <div class="col-xs-3 col-sm-2 col-md-1 col-sm-offset-2 col-md-offset-5 links">
                     {% if user.is_authenticated %}
                         <a href="{% url 'logout' %}?next={{ request.get_full_path|urlencode }}">{% trans "log out" %}</a>
                     {% else %}
@@ -35,7 +35,9 @@
         {% block footer %}
             <div class="row">
                 <div class="col-md-12">
-                    Footer
+                    <a href="{% url 'about' %}">About us</a>
+                    |
+                    <a href="{% url 'terms_conditions' %}">Terms</a>
                 </div>
             </div>
         {% endblock footer %}
