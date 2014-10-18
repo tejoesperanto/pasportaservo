@@ -96,7 +96,7 @@ class Place(TimeStampedModel):
     state_province = models.CharField(_("State / Province"), max_length=70, blank=True)
     latitude = models.FloatField(_("latitude"), null=True, blank=True)
     longitude = models.FloatField(_("longitude"), null=True, blank=True)
-    max_host = models.PositiveSmallIntegerField(_("maximum number of host"), blank=True, null=True)
+    max_guest = models.PositiveSmallIntegerField(_("maximum number of guest"), blank=True, null=True)
     max_night = models.PositiveSmallIntegerField(_("maximum number of night"), blank=True, null=True)
     contact_before = models.PositiveSmallIntegerField(_("contact before"), blank=True, null=True,
         help_text=_("Number of days before people should contact host."))

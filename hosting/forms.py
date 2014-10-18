@@ -76,7 +76,7 @@ class PlaceForm(forms.ModelForm):
             'postcode',
             'state_province',
             'country',
-            'max_host', 'max_night', 'contact_before',
+            'max_guest', 'max_night', 'contact_before',
             'description', 'short_description',
             'booked', 'available',
             'tour_guide', 'have_a_drink',
