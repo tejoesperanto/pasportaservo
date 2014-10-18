@@ -66,6 +66,13 @@ class Profile(TimeStampedModel):
     def age(self):
         return int((date.today() - self.birth_date).days / 365.24)
 
+    @property
+    def avatar_url(self):
+        if self.avatar and hasattr(self.avatar, 'url'):
+            return self.avatar.url
+        else:
+            return settings.DEFAULT_AVATAR_URL
+
     def __str__(self):
         return self.full_name if self.full_name.strip() else self.user.username
 

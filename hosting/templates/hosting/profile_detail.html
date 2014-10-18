@@ -4,7 +4,7 @@
 {% block page %}
     <p class="pull-right"><a href="{% url 'profile_update' %}" class="btn btn-success">{% trans "Update" %}</a></p>
     <div class="pull-left profile-avatar">
-        <img src="{{ profile.avatar.url }}" />
+        <img src="{{ profile.avatar_url }}" />
     </div>
     <h1><small>{{ profile.get_title_display }}</small> {{ profile }}</h1>
     <p>{% blocktrans with age=profile.age %}{{ age }} y.o.{% endblocktrans %}</p>
