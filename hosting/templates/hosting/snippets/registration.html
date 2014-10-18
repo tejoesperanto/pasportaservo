@@ -1,0 +1,18 @@
+{% load i18n bootstrap %}
+
+
+<div class="col-xs-12 well register">
+    <h4>{% trans "Registration" %}</h4>
+    <p class="tip">
+        {% trans "You must register to book this accomodation." %}
+    </p>
+    <form class="form" method="POST" action="{% url 'register' %}?next={{ request.get_full_path|urlencode }}">
+        <div class="col-md-10 col-md-offset-1">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <p>
+                <button type="submit" class="btn btn-primary">{% trans "Register" %}</button>
+            </p>
+        </div>
+    </form>
+</div>
