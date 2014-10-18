@@ -13,6 +13,7 @@ INSTALLED_APPS = (
     'leaflet',
 
     'hosting',
+    'pages',
 
     'debug_toolbar',
 )

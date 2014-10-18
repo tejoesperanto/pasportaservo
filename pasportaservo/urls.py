@@ -21,4 +21,6 @@ urlpatterns = patterns('',
     # url(_(r'^password/reset/confirm/$'), password_reset_confirm, name='password_reset_confirm'),
 
     url(r'', include('hosting.urls')),
+    url(_(r'^pages/'), include('pages.urls')),
 )
+
