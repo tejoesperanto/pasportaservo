@@ -136,6 +136,17 @@ p.tip {
 footer {
     text-align: center;
     padding-top: 3em;
+    padding-bottom: 3em;
+}
+
+#home-explain {
+    margin-top: 1.5em;
+}
+#home-explain .desc {
+    font-size: 1.5em;
+}
+#home-explain .pic {
+    text-align: center;
 }
 
 /* SM */
@@ -143,6 +154,9 @@ footer {
     .map iframe {
         border-radius: 4px;
         height: 300px;
+    }
+    #home-explain .desc {
+        padding-top: 1em;
     }
 }
 /* MD */
@@ -157,6 +171,13 @@ footer {
     .map iframe {
         border-radius: 4px;
         height: 500px;
+    }
+    #home-explain .desc {
+        font-size: 1.8em;
+        padding-top: 2em;
+    }
+    #home-explain {
+        margin-top: 3em;
     }
 }
 /* LG */
