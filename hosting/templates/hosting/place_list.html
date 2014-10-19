@@ -1,0 +1,73 @@
+{% extends 'hosting/base.html' %}
+{% load i18n static %}
+
+{% block page_class %} search{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'hosting/js/search.js' %}"></script>
+{% endblock %}
+
+{% block page %}
+    <form class="form-inline row search" id="searchform" role="form" method="GET" action="">
+        <div class="form-group" style="width: 100%">
+            <div class="input-group" style="width: 100%">
+                <input class="form-control" type="search" id="searchinput" name="q" value="{{ request.GET.q|title }}" placeholder="{% trans "Budapest, London, Venezuela, etc." %}">
+                <input type="hidden" id="gpsinput" name="gps_coords" value="" />
+                <span class="input-group-btn" style="width: 20%">
+                    <button class="btn btn-default" type="submit" id="search" style="min-width: 40px; width: 50%;">
+                        <span class="glyphicon glyphicon-search"></span>
+                        <span class="hidden-xs">{% trans "Search" %}</span>
+                    </button>
+                    <button class="btn btn-default" type="button" id="gps" style="min-width: 40px; width: 50%;">
+                        <span class="search-marker glyphicon glyphicon-map-marker"></span>
+                        <img class="search-working" style="display: none;" src="{% static 'img/gps_spinner.gif' %}" />
+                        <span class="hidden-xs">{% trans "My location" %}</span>
+                    </button>
+                </span>
+            </div>
+        </div>
+    </form>
+
+    {% for place in place_list %}
+        <div class="row place-list">
+            <div class="col-xs-3 col-sm-2 col-md-1 avatar">
+                <a href="{% url 'place_detail' place.pk %}">
+                    <img src="{{ place.owner.avatar_url }}" />
+                </a>
+            </div>
+            <div class="col-xs-5 col-sm-6 col-md-7 name">
+                <a href="{% url 'place_detail' place.pk %}">{{ place.profile_set.first.anonymous_name }}</a>
+            </div>
+            <div class="col-xs-4 status">
+                {% if place.booked or not place.available %}{% trans "unavailable" %}{% endif %}
+            </div>
+            <div class="col-xs-9 col-sm-10 col-md-11 address">
+                <strong>{{ place.city }}</strong><br />
+                {{ place.country.name }}
+            </div>
+        </div>
+    {% endfor %}
+{% endblock page %}
+
+
+
+{% if location %}
+    <h1>{% firstof location.address.city location.address.state location.address.country %}</h1>
+{% elif query == None %}
+    <h1>None!</h1>
+{% elif timedout %}
+    <h1>Timeout! Try again…</h1>
+{% else %}
+    <h1>Did not found "{{ query }}"</h1>
+{% endif %}
+
+<form action="" method="get">
+    <input type="text" name="q" value="{{ request.GET.q|title }}" id="id_q" autofocus />
+    <input type="submit" value="Search" />
+</form>
+
+<ul>
+    {% for place in place_list %}
+        <li>{{ place.profile_set.first }}: {{ place.address }}</li>
+    {% endfor %}
+</ul>
