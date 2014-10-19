@@ -10,7 +10,9 @@
             <form class="form" method="POST" action="{% block form_action %}{% endblock %}">
                 <div class="col-md-10 col-md-offset-1">
                     {% csrf_token %}
+                    {% block fields_before %}{% endblock %}
                     {{ form|bootstrap }}
+                    {% block fields_after %}{% endblock %}
                     <p class="pull-right">
                         <button type="submit" class="btn btn-primary">{% block form_submit_button %}{% trans "Submit" %}{% endblock %}</button>
                     </p>
