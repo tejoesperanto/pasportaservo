@@ -13,6 +13,8 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django_extensions.db.models import TimeStampedModel
 from django_countries.fields import CountryField
 
+from .gravatar import email_to_gravatar
+
 from .validators import validate_no_allcaps, validate_not_to_much_caps
 
 
@@ -71,7 +73,7 @@ class Profile(TimeStampedModel):
         if self.avatar and hasattr(self.avatar, 'url'):
             return self.avatar.url
         else:
-            return settings.DEFAULT_AVATAR_URL
+            return email_to_gravatar(self.user.email, settings.DEFAULT_AVATAR_URL)
 
     def __str__(self):
         return self.full_name if self.full_name.strip() else self.user.username
