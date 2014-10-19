@@ -1,0 +1,98 @@
+{% extends 'hosting/base.html' %}
+{% load i18n static %}
+
+{% block page %}
+    <div class="row">
+        <div class="col-xs-12 col-md-6 owner">
+            <div class="row">
+                <div class="col-xs-3">
+                    <img src="{{ place.owner.avatar_url }}" />
+                </div>
+                <div class="col-xs-9">
+                    <div class="row">
+                        <div class="col-xs-5 name">
+                            {{ place.owner.anonymous_name }}
+                        </div>
+                        <div class="col-xs-4 status">
+                            {% if place.booked %}
+                                {% trans "unavailable" %}
+                            {% else %}
+                                {% trans "available" %}
+                            {% endif %}
+                        </div>
+                        <div class="col-xs-9 address">
+                            {{ place.city }}, {{ place.country.name }}
+                        </div>
+                    </div>
+
+                    {% if user.is_authenticated %}
+                        <div class="row">
+                            <div class="col-xs-5">{% trans "Address" %}</div>
+                            <p class="col-xs-7">
+                                {{ place.address }}<br>
+                                {{ place.city }} {{ place.country }}-{{ place.postcode }}
+                            </p>
+                            <div class="col-xs-5">{% trans "Phone number" %}</div>
+                            <p class="col-xs-7">
+                                {{ place.owner.phones.all|join:"<br/>" }}
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row">
+            {% if user.is_authenticated %}
+                <div class="col-md-12 hidden-xs hidden-sm">
+                    <h4>{% trans "Description:" %}</h4>
+                    {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_host max_night=place.max_night %}
+                </div>
+            {% else %}
+                {% include 'hosting/snippets/registration.html' %}
+            {% endif %}
+            </div>
+        </div>
+        
+        <div class="map col-xs-12 col-md-6">
+                <iframe width="100%"
+                    frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
+                    src="http://www.openstreetmap.org/export/embed.html?bbox={{ place.bbox }}&amp;layer=hot{% if user.is_authenticated %}&amp;marker={{ place.latitude|stringformat:"f" }},{{ place.longitude|stringformat:"f" }}{% endif %}">
+                </iframe>
+        </div>
+
+        {% if user.is_authenticated %}
+            <div class="col-xs-12 hidden-md hidden-lg description-small">
+                {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_host max_night=place.max_night %}
+            </div>
+        {% endif %}
+
+        {% if user.is_authenticated and user.profile in place.profile_set.all %}
+            <div>
+                <div class="">{% trans "Short description" %}</div>
+                <p class="">{{ place.small_description }}</p>
+                <div class="">{% trans "Booked" %}</div>
+                <p class="">{{ place.booked|yesno }}</p>
+                <div class="">{% trans "Available" %}</div>
+                <p class="">{{ place.available|yesno }}</p>
+                <div class="">{% trans "Print in book" %}</div>
+                <p class="">{{ place.print_in_book|yesno }}</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock page %}
+
+
+{{ place.address }}<br/>
+{{ place.city }}<br/>
+{{ place.postcode }}<br/>
+{{ place.get_country_display }}<br/>
+{{ place.latitude }}<br/>
+{{ place.longitude }}<br/>
+{{ place.max_host }}<br/>
+{{ place.max_night }}<br/>
+{{ place.contact_before }}<br/>
+{{ place.description|linebreaks }}<br/>
+{{ place.small_description }}<br/>
+{{ place.booked|yesno }}<br/>
+{{ place.available|yesno }}<br/>
+{{ place.print_in_book|yesno }}<br/>

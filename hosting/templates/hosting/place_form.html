@@ -1,0 +1,21 @@
+{% extends 'hosting/base_form.html' %}
+{% load static %}
+{% load leaflet_tags %}
+
+{% block extra_css %}
+    {{ block.super }}
+    {% leaflet_css %}
+{% endblock %}
+{% block extra_js %}
+    {{ block.super }}
+    {% leaflet_js %}
+    <script src="{% static 'hosting/js/maps.js' %}" type="text/javascript"></script>
+{% endblock %}
+
+{% block form_container_class %}col-md-6{% endblock %}
+
+{% block form_before %}
+    <div class="col-md-6 well map map-edit">
+        {% leaflet_map "place-edit" callback="placeEdit" %}
+    </div>
+{% endblock form_before %}
