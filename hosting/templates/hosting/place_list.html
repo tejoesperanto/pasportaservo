@@ -19,7 +19,8 @@
                         <span class="hidden-xs">{% trans "Search" %}</span>
                     </button>
                     <button class="btn btn-default" type="button" id="gps" style="min-width: 40px; width: 50%;">
-                        <span class="glyphicon glyphicon-map-marker"></span>
+                        <span class="search-marker glyphicon glyphicon-map-marker"></span>
+                        <img class="search-working" style="display: none;" src="{% static 'img/gps_spinner.gif' %}" />
                         <span class="hidden-xs">{% trans "My location" %}</span>
                     </button>
                 </span>
