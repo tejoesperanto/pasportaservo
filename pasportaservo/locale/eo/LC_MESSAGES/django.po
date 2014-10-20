@@ -7,19 +7,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-19 07:46+0200\n"
-"PO-Revision-Date: 2014-10-19 07:50+0100\n"
+"POT-Creation-Date: 2014-10-20 10:29+0200\n"
+"PO-Revision-Date: 2014-10-20 10:29+0100\n"
 "Last-Translator: Baptiste Darthenay <taggit.batisteo@recursor.net>\n"
 "Language-Team: EO <info@pasportaservo.org>\n"
+"Language: eo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.5.4\n"
-"Language: eo\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: settings/__init__.py:50
+#: settings/__init__.py:52
 msgid "Pasporta Servo administration"
 msgstr "Administrado de Pasporta Servo"
 
@@ -27,34 +27,37 @@ msgstr "Administrado de Pasporta Servo"
 msgid "^login/$"
 msgstr "^ensaluti/$"
 
-#: urls.py:14
+#: urls.py:16
 msgid "^logout/$"
 msgstr "^elsaluti/$"
 
-#: urls.py:15
+#: urls.py:20
 msgid "^password/$"
 msgstr "^pasvorto/$"
 
-#: urls.py:16
+#: urls.py:23
 msgid "^password/done/$"
-msgstr "^pasvorto/farita/$"
+msgstr "^pasvorto/fino/$"
 
-#: urls.py:17
+#: urls.py:26
 msgid "^password/reset/$"
-msgstr "^pasvorto/refaro/$"
+msgstr "^pasvorto/nova/$"
 
-#: urls.py:18
-msgid ""
-"^password/reset/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-"
-"[0-9A-Za-z]{1,20})/$"
-msgstr ""
-"^pasvorto/refaro/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-"
-"[0-9A-Za-z]{1,20})/$"
-
-#: urls.py:20
+#: urls.py:29
 msgid "^password/reset/done/$"
-msgstr "^pasvorto/refaro/farita/$"
+msgstr "^pasvorto/nova/fino/$"
 
-#: urls.py:24
-msgid "^pages/"
-msgstr "^p/"
+#: urls.py:32
+msgid ""
+"^reset/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]"
+"{1,20})/$"
+msgstr ""
+"^nova-pasvorto/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-"
+"[0-9A-Za-z]{1,20})/$"
+
+#: urls.py:35
+msgid "^reset/done/$"
+msgstr "^nova-pasvorto/fino/$"
+
+#~ msgid "^pages/"
+#~ msgstr "^p/"
