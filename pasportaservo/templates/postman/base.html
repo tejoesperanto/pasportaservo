@@ -1,0 +1,37 @@
+{% extends "hosting/base.html" %}
+{% load url from future %}
+{% load i18n static %}
+{% load postman_tags %}
+{% block title %}{% trans "Messaging" %}{% endblock %}
+{% block extra_css %}
+    {{ block.super }}
+    <link type="text/css" media="all" rel="stylesheet" href="{% static 'postman/css/postman.css' %}" />
+{% endblock %}
+
+{% block page %}
+    <div class="col-xs-12 col-sm-7 col-md-8 col-lg-6 col-lg-offset-3">
+        {% block content %}{% endblock %}
+    </div>
+
+    <div class="col-xs-12 col-sm-5 col-md-4 col-lg-3">
+        {% block postman_menu %}
+            <ul id="postman_menu">{% postman_unread as unread_count %}
+                <li>
+                    <a href="{% url 'postman_inbox' %}"><span class="glyphicon glyphicon-inbox"></span>&nbsp;&nbsp;{% trans "Inbox" %}{% if unread_count %} <strong>({{ unread_count }})</strong>{% endif %}</a>
+                </li>
+                <li>
+                    <a href="{% url 'postman_write' %}"><span class="glyphicon glyphicon-pencil"></span>&nbsp;&nbsp;{% trans "Write" %}</a>
+                </li>
+                <li>
+                    <a href="{% url 'postman_sent' %}"><span class="glyphicon glyphicon-share-alt"></span>&nbsp;&nbsp;{% trans "Sent Messages" %}</a>
+                </li>
+                <li>
+                    <a href="{% url 'postman_archives' %}"><span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;{% trans "Archives" %}</a>
+                </li>
+                <li>
+                    <a href="{% url 'postman_trash' %}"><span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;{% trans "Trash" %}</a>
+                </li>
+            </ul>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -32,6 +32,10 @@ header #subtitle {
     padding-top: 0.5em;
 }
 
+header .enveloppe span {
+    font-size: 1.3em;
+}
+
 /* Header on home page */
 header.home .links {
     text-align: center;
