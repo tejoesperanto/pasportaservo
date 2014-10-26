@@ -32,6 +32,7 @@ STATICFILES_DIRS = (os.path.join(PROJECT_DIR, 'static'), )
 
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'hosting/templates'),
+    os.path.join(PROJECT_DIR, 'templates'),
 )
 
 LOCALE_PATHS = (os.path.join(PROJECT_DIR, 'locale'), )
@@ -58,6 +59,7 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
@@ -65,6 +67,7 @@ INSTALLED_APPS = (
     'phonenumber_field',
     'bootstrapform',
     'leaflet',
+    'postman',
 
     'hosting',
     'pages',
@@ -82,6 +85,7 @@ MIDDLEWARE_CLASSES = (
 
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
     'django.core.context_processors.request',
+    'postman.context_processors.inbox',
 )
 
 ROOT_URLCONF = 'pasportaservo.urls'
@@ -113,12 +117,16 @@ USE_L10N = True
 USE_TZ = True
 
 
+SITE_ID = 1
+
 
 AUTH_PROFILE_MODULE = 'hosting.Profile'
 
-LOGIN_URL = '/login/'
+LOGIN_URL = 'login'
 LOGOUT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
+
+DEFAULT_FROM_EMAIL = 'saluton@pasportaservo.org'
 
 # Helps entering phone numbers with "00" instead of "+"
 # This means: Interpret phone number as dialed in Poland
@@ -137,6 +145,14 @@ LEAFLET_CONFIG = {
     'RESET_VIEW': False,
 }
 
+
+POSTMAN_AUTO_MODERATE_AS = True
+POSTMAN_MAILER_APP = None
+POSTMAN_SHOW_USER_AS = 'get_full_name'
+POSTMAN_DISALLOW_ANONYMOUS = True
+POSTMAN_DISALLOW_MULTIRECIPIENTS = True
+POSTMAN_DISALLOW_COPIES_ON_REPLY = True
+POSTMAN_NOTIFIER_APP = None
 
 try:
     from pasportaservo.settings.local_settings import *

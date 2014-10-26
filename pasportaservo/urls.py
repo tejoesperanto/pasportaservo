@@ -1,10 +1,13 @@
+from __future__ import unicode_literals
+
 from django.conf.urls import patterns, include, url
+from django.views.generic.base import RedirectView
+from django.core.urlresolvers import reverse_lazy
 from django.contrib import admin
-from django.contrib.auth.views import (login, logout,
-    password_change, password_change_done,
-    password_reset, password_reset_done, password_reset_confirm, password_reset_complete)
 from django.utils.translation import ugettext_lazy as _
 
+from postman import OPTIONS
+from postman import views as postman_views
 
 urlpatterns = patterns('',
     url(r'^grappelli/', include('grappelli.urls')),
@@ -36,6 +39,21 @@ urlpatterns = patterns('',
         view='django.contrib.auth.views.password_reset_complete',
         name='password_reset_complete'),
 
+
+    url(_(r'^messages/inbox/(?:(?P<option>m)/)?$'), postman_views.InboxView.as_view(), name='postman_inbox'),
+    url(_(r'^messages/sent/(?:(?P<option>m)/)?$'), postman_views.SentView.as_view(), name='postman_sent'),
+    url(_(r'^messages/archives/(?:(?P<option>m)/)?$'), postman_views.ArchivesView.as_view(), name='postman_archives'),
+    url(_(r'^messages/trash/(?:(?P<option>m)/)?$'), postman_views.TrashView.as_view(), name='postman_trash'),
+    url(_(r'^messages/write/(?:(?P<recipients>[^/#]+)/)?$'), postman_views.WriteView.as_view(), name='postman_write'),
+    url(_(r'^messages/reply/(?P<message_id>[\d]+)/$'), postman_views.ReplyView.as_view(), name='postman_reply'),
+    url(_(r'^messages/view/(?P<message_id>[\d]+)/$'), postman_views.MessageView.as_view(), name='postman_view'),
+    url(_(r'^messages/view/t/(?P<thread_id>[\d]+)/$'), postman_views.ConversationView.as_view(), name='postman_view_conversation'),
+    url(_(r'^messages/archive/$'), postman_views.ArchiveView.as_view(), name='postman_archive'),
+    url(_(r'^messages/delete/$'), postman_views.DeleteView.as_view(), name='postman_delete'),
+    url(_(r'^messages/undelete/$'), postman_views.UndeleteView.as_view(), name='postman_undelete'),
+    url(_(r'^messages/$'), RedirectView.as_view(url=reverse_lazy('postman_inbox'))),
+
     url('', include('hosting.urls')),
     url('', include('pages.urls')),
 )
+
