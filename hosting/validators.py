@@ -5,7 +5,7 @@ from .utils import split, title_with_particule
 
 
 def validate_no_allcaps(value):
-    """Tries to figure out wheather value is all caps and shouldn't.
+    """Tries to figure out whether value is all caps and shouldn't.
     Validates until 3 characters and non latin strings.
     """
     if len(value) > 3 and value[-1:].isupper() and value == value.upper():
@@ -15,8 +15,8 @@ def validate_no_allcaps(value):
 
 
 def validate_not_to_much_caps(value):
-    """Tries to figure out wheather value has too much caps.
-    Maximum one capital per word.
+    """Tries to figure out whether value has too much caps.
+    Maximum two capital per word.
     """
     nb_caps = sum(1 for c in value if c.isupper())
     words = split(value)
@@ -25,7 +25,7 @@ def validate_not_to_much_caps(value):
         pass  # For non latin letters
     elif value == value.upper():
         pass  # Trusting validate_no_allcaps()
-    elif nb_caps > nb_word:
+    elif nb_caps > nb_word * 2:
         correct_value = title_with_particule(value)
         message = _("This seems there is too much uppercase letters. Try with '{correct_value}'.")
         raise ValidationError(message.format(correct_value=correct_value))
