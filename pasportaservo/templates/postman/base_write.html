@@ -1,0 +1,29 @@
+{% extends "postman/base.html" %}
+{% load i18n static %}
+{% block extra_head %}
+    {{ block.super }}
+    {% if autocompleter_app.is_active %}
+        {% if autocompleter_app.name == "ajax_select" %}
+            {% if autocompleter_app.version == "1.1.4" or autocompleter_app.version == "1.1.5" %}
+                <script type="text/javascript" src="{% static 'js/jquery.autocomplete.min.js' %}"></script>
+                <link type="text/css" media="all" rel="stylesheet" href="{% static 'css/jquery.autocomplete.css' %}" />
+            {% endif %}
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div id="postman">
+        <h1>{% block pm_write_title %}{% endblock %}</h1>
+        <form action="{% if next_url %}?next={{ next_url|urlencode }}{% endif %}" method="post">{% csrf_token %}
+            <table>
+                {% block pm_write_recipient %}{% endblock %}
+                {{ form.as_table }}
+            </table>
+            <button type="submit" class="btn btn-primary">
+                <span class="glyphicon glyphicon-share-alt"></span>&nbsp;
+                {% trans "Send" %}
+            </button>
+        </form>
+    </div>
+{% endblock content %}

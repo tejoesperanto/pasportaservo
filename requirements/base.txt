@@ -12,3 +12,4 @@ geopy==1.1.5
 sqlparse==0.1.11
 
 -e git+https://github.com/SmileyChris/django-countries.git@8e22ddee5675c877e547e03a8e0c8fe3f6694590#egg=django_countries
+-e hg+http://hg.bitbucket.org/psam/django-postman/#egg=django-postman

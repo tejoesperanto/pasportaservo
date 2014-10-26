@@ -23,6 +23,7 @@ INSTALLED_APPS = (
     'phonenumber_field',
     'bootstrapform',
     'leaflet',
+    'postman',
 
     'hosting',
     'pages',
