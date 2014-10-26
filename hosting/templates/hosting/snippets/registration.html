@@ -4,7 +4,7 @@
 <div class="col-xs-12 well register">
     <h4>{% trans "Registration" %}</h4>
     <p class="tip">
-        {% trans "You must register to book this accomodation." %}
+        {% trans "You must register to see this accomodation." %}
     </p>
     <form class="form" method="POST" action="{% url 'register' %}?next={{ request.get_full_path|urlencode }}">
         <div class="col-md-10 col-md-offset-1">
