@@ -57,3 +57,30 @@
         </div>
     </form>
 {% endblock header %}
+
+{% block page %}
+    <div id="home-explain">
+        <div class="row">
+            <div class="col-xs-3 col-sm-2 col-md-2 col-md-offset-1 pic">
+                <img class="img-responsive" src="{% static 'img/home/search_pic.png' %}" alt="Search icon" />
+            </div>
+            <div class="col-xs-9 col-sm-10 col-md-8 col-md-offset-1 desc">
+                <p>
+                    Find accomodation anywhere in the world.
+                </p>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-xs-3 col-sm-2 col-md-2 col-md-offset-1 pic">
+                <img class="img-responsive" src="{% static 'img/home/bed.png' %}" alt="Bed icon" />
+            </div>
+            <div class="col-xs-9 col-sm-10 col-md-8 col-md-offset-1 desc">
+                <p>
+                    Register your place to welcome other esperantists.
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock page %}
+
