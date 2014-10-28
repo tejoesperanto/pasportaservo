@@ -9,16 +9,28 @@
                     <a href="{% url 'home' %}">Pasporta&nbsp;Servo</a>
                 </div>
                 <div class="hidden-xs col-sm-3 col-md-3" id="subtitle">Gastigantoj tra la mondo</div>
-                <div class="col-xs-3 col-sm-2 col-md-1 col-sm-offset-2 col-md-offset-5 links">
+                <div class="col-xs-2 col-sm-2 col-md-1 col-md-offset-4 enveloppe links">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'postman_inbox' %}">
+                            <span class="glyphicon glyphicon-envelope"></span>
+                            {{ postman_unread_count|default:"" }}
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="col-xs-2 col-sm-2 col-md-1 links">
                     {% if user.is_authenticated %}
                         <a href="{% url 'logout' %}?next={{ request.get_full_path|urlencode }}">{% trans "log out" %}</a>
                     {% else %}
                         <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">{% trans "log in" %}</a>
                     {% endif %}
                 </div>
-                <div class="col-xs-3 col-sm-2 col-md-1 links">
+                <div class="col-xs-2 col-sm-2 col-md-1 links">
                     {% if user.is_authenticated %}
-                        <a href="{% url 'profile_detail' %}">{{ user.username }}</a>
+                        {% if user.profile %}
+                            <a href="{% url 'profile_detail' %}">{{ user.username }}</a>
+                        {% else %}
+                            <a href="{% url 'profile_create' %}">{{ user.username }}</a>
+                        {% endif %}
                     {% else %}
                         <a href="{% url 'register' %}?next={{ request.get_full_path|urlencode }}">{% trans "register" %}</a>
                     {% endif %}
@@ -26,7 +38,7 @@
             </div>
         {% endblock header %}
     </header>
-    
+
     <div id="page" class="container{% block page_class %}{% endblock %}">
         {% block page %}{% endblock %}
     </div>

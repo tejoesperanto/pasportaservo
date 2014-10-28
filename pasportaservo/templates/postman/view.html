@@ -1,0 +1,77 @@
+{% extends "postman/base.html" %}
+{% load i18n %}{% load postman_tags %}
+
+{% block content %}
+    <div id="postman">
+        <h1>{% if pm_messages|length > 1 %}{% trans "Conversation" %}{% else %}{% trans "Message" %}{% endif %}</h1>
+
+        {% for message in pm_messages %}
+            <div class="pm_message{% if message.is_pending %} pm_pending{% endif %}{% if message.is_rejected %} pm_rejected{% endif %}{% if message.sender == user and message.sender_archived or message.recipient == user and message.recipient_archived %} pm_archived{% endif %}{% if message.sender == user and message.sender_deleted_at or message.recipient == user and message.recipient_deleted_at %} pm_deleted{% endif %}{% if message.recipient == user and not message.read_at %} pm_unread{% endif %}">
+                <div class="pm_header">
+                    <span class="pm_sender">{{ message.obfuscated_sender|or_me:user }}</span> &raquo;
+                    <span class="pm_recipient">{{ message.obfuscated_recipient|or_me:user }}</span> |
+                    <span class="pm_date">{{ message.sent_at|date:"DATETIME_FORMAT"}}</span> |
+                    <span class="pm_subject">{{ message.subject }}</span>
+                    {% if message.is_rejected %}
+                        <div class="pm_status">
+                            {% trans "Rejected" %}{% if message.moderation_reason %}{% trans ":" %} {{ message.moderation_reason }}{% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="pm_body">{{ message.body|linebreaksbr }}</div>
+            </div>
+
+            {% if forloop.last %}
+                <form action="" method="post">{% csrf_token %}
+                    <input type="hidden"
+                        {% if pm_messages|length > 1 and message.thread_id %}
+                            name="tpks"
+                            value="{{ message.thread_id }}"
+                        {% else %}
+                            name="pks"
+                            value="{{ message.pk }}"
+                        {% endif %} />
+                    
+                    <a class="btn btn-default" href="{{ next_url }}">
+                        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;
+                        {% trans "Back" %}
+                    </a>
+                    <span id="pm_buttons">
+                        {% if not archived %}
+                            <button class="btn btn-primary" type="submit" onclick="this.form.action='{% url 'postman_archive' %}?next={{ next_url|urlencode }}'">
+                            <span class="glyphicon glyphicon-folder-open"></span>&nbsp;
+                                {% trans "Archive" %}
+                            </button>
+                        {% endif %}
+                        <button class="btn btn-danger" type="submit" onclick="this.form.action='{% url 'postman_delete' %}?next={{ next_url|urlencode }}'">
+                            <span class="glyphicon glyphicon-trash"></span>&nbsp;
+                            {% trans "Delete" %}
+                        </button>
+                    </span>
+                    {% if reply_to_pk %}
+                        <a class="btn btn-success" href="{% url 'postman_reply' reply_to_pk %}?next={{ next_url|urlencode }}">
+                            <span class="glyphicon glyphicon-share-alt"></span>&nbsp;
+                            {% trans "Reply" %}
+                        </a>
+                    {% endif %}
+                </form>
+
+                {% if reply_to_pk %}<hr />
+                    <h2>{% trans 'Reply' %}</h2>
+        
+                    <form action="{% url 'postman_reply' reply_to_pk %}?next={{ next_url|urlencode }}" method="post">
+                        {% csrf_token %}
+                        <div id="pm_reply">
+                            {{ form.body }}
+                        </div>
+                        <button class="btn btn-primary" type="submit">
+                            <span class="glyphicon glyphicon-share-alt"></span>&nbsp;
+                            {% trans 'Send' %}
+                        </button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock content %}

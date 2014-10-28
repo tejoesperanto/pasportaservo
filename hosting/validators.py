@@ -5,7 +5,7 @@ from .utils import split, title_with_particule
 
 
 def validate_no_allcaps(value):
-    """Tries to figure out wheather value is all caps and shouldn't.
+    """Tries to figure out whether value is all caps and shouldn't.
     Validates until 3 characters and non latin strings.
     """
     if len(value) > 3 and value[-1:].isupper() and value == value.upper():
@@ -15,17 +15,26 @@ def validate_no_allcaps(value):
 
 
 def validate_not_to_much_caps(value):
-    """Tries to figure out wheather value has too much caps.
-    Maximum one capital per word.
+    """Tries to figure out whether value has too much caps.
+    Maximum two capital per word.
     """
-    nb_caps = sum(1 for c in value if c.isupper())
+    authorized_begining = ('a', 'de', 'la', 'mac', 'mc')
+    message = _("This seems there is too much uppercase letters. Try with '{correct_value}'.")
+    message = message.format(correct_value=title_with_particule(value))
+
     words = split(value)
     nb_word = len(words)
     if not any(words):
         pass  # For non latin letters
     elif value == value.upper():
-        pass  # Trusting validate_no_allcaps()
-    elif nb_caps > nb_word:
-        correct_value = title_with_particule(value)
-        message = _("This seems there is too much uppercase letters. Try with '{correct_value}'.")
-        raise ValidationError(message.format(correct_value=correct_value))
+        validate_no_allcaps(value)
+    else:
+        for word in words:
+            nb_caps = sum(1 for char in word if char.isupper())
+            if nb_caps > 1:
+                if any([word.lower().startswith(s) for s in authorized_begining]):
+                    # This should validate 'McCoy'
+                    if nb_caps > 2:
+                        raise ValidationError(message)
+                else:
+                    raise ValidationError(message)

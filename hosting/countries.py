@@ -248,7 +248,7 @@ LANGUAGES = {
     "YT": ["fr"],
     "ZA": ["zu", "xh", "af", "st", "tn", "en"],
     "ZM": ["en"],
-    "ZW": ["en", "sn", "nd"]; 
+    "ZW": ["en", "sn", "nd"],
 }
 
 

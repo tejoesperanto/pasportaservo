@@ -53,7 +53,7 @@
                     <a href="{% url 'phone_delete' phone.number.as_e164|cut:"+" %}" class="btn btn-danger"><span class="glyphicon glyphicon-trash" title="{% trans "Delete" %}"></span></a>
                 </div>
 
-                <p class="col-xs-5 col-sm-6 col-md-7 details">
+                <p class="details">
                     {% if phone.type = phone.HOME %}
                         <span class="glyphicon glyphicon-earphone" title="{{ phone.get_type_display|capfirst }}"></span>
                     {% elif phone.type = phone.WORK %}
