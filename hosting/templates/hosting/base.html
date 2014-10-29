@@ -5,16 +5,17 @@
     <header class="container-fluid{% block header_class %}{% endblock %}">
         {% block header %}
             <div class="row">
-                <div class="col-xs-6 col-sm-3 col-md-2" id="title">
-                    <a href="{% url 'home' %}">Pasporta&nbsp;Servo</a>
+                <div class="col-xs-2 col-sm-3 col-md-2" id="title">
+                    <a href="{% url 'home' %}">P<span class="hidden-xs">asporta&nbsp;</span>S<span class="hidden-xs">ervo</span></a>
                 </div>
                 <div class="hidden-xs col-sm-3 col-md-3" id="subtitle">Gastigantoj tra la mondo</div>
-                <div class="col-xs-2 col-sm-2 col-md-1 col-md-offset-4 enveloppe links">
+                <div class="col-xs-3 col-sm-2 col-md-1 col-md-offset-4 enveloppe links">
                     {% if user.is_authenticated %}
                         <a href="{% url 'postman_inbox' %}">
                             <span class="glyphicon glyphicon-envelope"></span>
                             {{ postman_unread_count|default:"" }}
                         </a>
+                    {% else %}&nbsp;
                     {% endif %}
                 </div>
                 <div class="col-xs-2 col-sm-2 col-md-1 links">
@@ -24,7 +25,7 @@
                         <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">{% trans "log in" %}</a>
                     {% endif %}
                 </div>
-                <div class="col-xs-2 col-sm-2 col-md-1 links">
+                <div class="col-xs-5 col-sm-2 col-md-1 links">
                     {% if user.is_authenticated %}
                         {% if user.profile %}
                             <a href="{% url 'profile_detail' %}">{{ user.username }}</a>

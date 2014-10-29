@@ -58,7 +58,7 @@
             {% if place.owner != user.profile %}
                 <div class="col-xs-12">
                     <a href="{% url 'postman_write' place.owner.user.username %}" class="btn btn-primary">
-                        <span class="glyphicon glyphicon-pencil"></span> {% trans "Write message" %}
+                        <span class="glyphicon glyphicon-send"></span> {% trans "Write message" %}
                     </a>
                 </div>
             {% endif %}
