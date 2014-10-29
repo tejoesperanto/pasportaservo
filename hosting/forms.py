@@ -3,6 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.forms import AuthenticationForm as UserLoginForm, UserCreationForm
 from django.contrib.auth.models import User
 
+from chosen import forms as chosenforms
 from django_countries import countries
 from phonenumber_field.formfields import PhoneNumberField
 
@@ -84,10 +85,14 @@ class PlaceForm(forms.ModelForm):
             'conditions',
             'latitude', 'longitude',
         ]
+        widgets = {
+            'conditions': chosenforms.ChosenSelectMultiple,
+        }
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
         super(PlaceForm, self).__init__(*args, **kwargs)
+        self.fields['conditions'].help_text = ""
 
     def save(self, commit=True):
         place = super(PlaceForm, self).save(commit=True)
