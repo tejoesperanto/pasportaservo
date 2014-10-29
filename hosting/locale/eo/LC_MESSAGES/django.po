@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-25 16:21+0200\n"
-"PO-Revision-Date: 2014-10-25 16:23+0100\n"
+"POT-Creation-Date: 2014-10-29 13:27+0000\n"
+"PO-Revision-Date: 2014-10-29 14:30+0100\n"
 "Last-Translator: Baptiste Darthenay <taggit.batisteo@recursor.net>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -55,15 +55,15 @@ msgstr "landa kodo"
 msgid "Hosting"
 msgstr "Gastigado"
 
-#: forms.py:13
+#: forms.py:14
 msgid "Email"
 msgstr "Retadreso"
 
-#: forms.py:15
+#: forms.py:16
 msgid "Leave blank"
 msgstr "Lasu malplene"
 
-#: forms.py:27
+#: forms.py:28
 msgid "User address already in use."
 msgstr "Uzanta adreso jam uzita."
 
@@ -112,8 +112,8 @@ msgid "description"
 msgstr "priskribo"
 
 #: models.py:47
-msgid "All about yourself."
-msgstr "Ĉio pri vi."
+msgid "Short biography."
+msgstr "Mallonga sinprezento."
 
 #: models.py:48
 msgid "avatar"
@@ -346,11 +346,11 @@ msgstr "Pri ni"
 msgid "Terms"
 msgstr "Kondiĉoj"
 
-#: templates/hosting/base_form.html:17
+#: templates/hosting/base_form.html:32
 msgid "Submit"
 msgstr "Sendi"
 
-#: templates/hosting/home.html:36 templates/hosting/place_list.html:14
+#: templates/hosting/home.html:44 templates/hosting/place_list.html:14
 msgid "Budapest, London, Venezuela, etc."
 msgstr "Budapeŝto, Londono, Venezuelo, ktp."
 
@@ -378,7 +378,7 @@ msgstr "Priskribo:"
 
 #: templates/hosting/place_detail.html:61
 msgid "Write message"
-msgstr ""
+msgstr "Skribu mesaĝon"
 
 #: templates/hosting/place_detail.html:69
 msgid "Short description"
@@ -418,7 +418,7 @@ msgstr "Ŝanĝi pasvorton"
 #: templates/hosting/profile_detail.html:13
 #, python-format
 msgid "%(age)s y.o."
-msgstr "%(age)s jaraĝa"
+msgstr "%(age)s-jaraĝa"
 
 #: templates/hosting/profile_detail.html:17
 msgid "About me"
@@ -484,7 +484,6 @@ msgid "Registration"
 msgstr "Registrado"
 
 #: templates/hosting/snippets/registration.html:7
-#| msgid "You must register to book this accomodation."
 msgid "You must register to see this accomodation."
 msgstr "Vi devas registri por vidi tiun loĝejon."
 
@@ -502,7 +501,6 @@ msgid "Log in with your username and password."
 msgstr "Ensalutu kun vian uzantnomo kaj pasvorto."
 
 #: templates/registration/login.html:7
-#| msgid "Change password"
 msgid "Forgot password?"
 msgstr "Mi forgesis mian pasvorton"
 
@@ -526,7 +524,6 @@ msgid "Change"
 msgstr "Ŝanĝi"
 
 #: templates/registration/password_reset_complete.html:5
-#| msgid "Password reset"
 msgid "Password reset complete"
 msgstr "Nova pasvorto farita"
 
@@ -535,7 +532,6 @@ msgid "Your password has been set. You may go ahead and log in now."
 msgstr ""
 
 #: templates/registration/password_reset_confirm.html:5
-#| msgid "Change password"
 msgid "Enter new password"
 msgstr "Enmeti novan pasvorton"
 
@@ -546,7 +542,6 @@ msgid ""
 msgstr ""
 
 #: templates/registration/password_reset_confirm.html:8
-#| msgid "Change password"
 msgid "Change my password"
 msgstr "Ŝanĝi mian pasvorton"
 
@@ -661,11 +656,14 @@ msgstr "^esplori/$"
 msgid "Today is not CapsLock day. Please try with '{correct_value}'."
 msgstr "La CapsLock tago ne estas hodiaŭ. Bv. provi kun “{correct_value}”."
 
-#: validators.py:30
+#: validators.py:22
 #, python-brace-format
 msgid ""
 "This seems there is too much uppercase letters. Try with '{correct_value}'."
 msgstr "Ŝajnas, ke estas tro da majuskloj. Provu kun “{correct_value}”."
+
+#~ msgid "All about yourself."
+#~ msgstr "Ĉio pri vi."
 
 #~ msgid "Address"
 #~ msgstr "Adreso"
