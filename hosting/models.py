@@ -13,9 +13,9 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django_extensions.db.models import TimeStampedModel
 from django_countries.fields import CountryField
 
-from .gravatar import email_to_gravatar
-
+from .querysets import BaseQuerySet
 from .validators import validate_no_allcaps, validate_not_to_much_caps
+from .gravatar import email_to_gravatar
 
 
 MRS, MR = 'Mrs', 'Mr'
@@ -51,6 +51,8 @@ class Profile(TimeStampedModel):
 
     checked = models.BooleanField(_("checked"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
+
+    objects = BaseQuerySet.as_manager()
 
     class Meta:
         verbose_name = _("profile")
@@ -121,6 +123,8 @@ class Place(TimeStampedModel):
     checked = models.BooleanField(_("checked"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
+    objects = BaseQuerySet.as_manager()
+
     class Meta:
         verbose_name = _("place")
         verbose_name_plural = _("places")
@@ -153,6 +157,8 @@ class Phone(TimeStampedModel):
     checked = models.BooleanField(_("checked"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
+    objects = BaseQuerySet.as_manager()
+
     class Meta:
         verbose_name = _("phone")
         verbose_name_plural = _("phones")
@@ -173,6 +179,8 @@ class Website(TimeStampedModel):
 
     checked = models.BooleanField(_("checked"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
+
+    objects = BaseQuerySet.as_manager()
 
     class Meta:
         verbose_name = _("website")
