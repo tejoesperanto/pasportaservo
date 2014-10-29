@@ -1,4 +1,4 @@
-Django==1.7
+Django==1.7.1
 psycopg2==2.5.4
 Pillow==2.5.3
 
@@ -13,3 +13,4 @@ sqlparse==0.1.11
 
 -e git+https://github.com/SmileyChris/django-countries.git@8e22ddee5675c877e547e03a8e0c8fe3f6694590#egg=django_countries
 -e hg+http://hg.bitbucket.org/psam/django-postman/#egg=django-postman
+-e git+https://github.com/theatlantic/django-chosen.git#egg=django-chosen

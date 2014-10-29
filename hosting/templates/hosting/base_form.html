@@ -1,5 +1,18 @@
 {% extends 'hosting/base.html' %}
-{% load i18n bootstrap %}
+{% load static i18n %}
+{% load bootstrap %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'datepicker/css/datepicker3.css' %}">
+{% endblock extra_css %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script src="{% static 'datepicker/js/bootstrap-datepicker.js' %}"></script>
+    <script src="{% static 'datepicker/js/locales/bootstrap-datepicker.eo.js' %}"></script>
+    <script src="{% static 'js/forms.js' %}"></script>
+{% endblock extra_js %}
 
 {% block page %}
     {% block form_before %}{% endblock %}
@@ -10,6 +23,8 @@
             <form class="form" method="POST" action="{% block form_action %}{% endblock %}">
                 <div class="col-md-10 col-md-offset-1">
                     {% csrf_token %}
+                    {{ form.media }}
+
                     {% block fields_before %}{% endblock %}
                     {{ form|bootstrap }}
                     {% block fields_after %}{% endblock %}
@@ -21,4 +36,5 @@
         </div>
     </div>
     {% block form_after %}{% endblock %}
+
 {% endblock %}
