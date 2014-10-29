@@ -3,6 +3,23 @@
     src: url("../fonts/Geotica_Three-webfont.woff");
 }
 
+@font-face {
+  font-family: 'PT Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('PT Sans'), local('PTSans-Regular'), url("../fonts/ptsans-regular.woff") format('woff');
+}
+@font-face {
+  font-family: 'PT Sans';
+  font-style: normal;
+  font-weight: 700;
+  src: local('PT Sans Bold'), local('PTSans-Bold'), url("../fonts/ptsans-bold.woff") format('woff');
+}
+
+body {
+    font-family: "PT Sans", Helvetica, Arial, sans-serif;
+}
+
 /* General header. */
 header {
     color: #fff;
@@ -36,13 +53,17 @@ header .enveloppe span {
     font-size: 1.3em;
 }
 
+header.home {
+    margin-bottom: 0;
+}
+
 /* Header on home page */
 header.home .links {
     text-align: center;
 }
 
 header.home #title {
-    font-size: 5em;
+    font-size: 7em;
     text-align: center;
     margin-top: 1rem;
     padding-bottom: 0.25em;
@@ -144,13 +165,14 @@ footer {
 }
 
 #home-explain {
-    margin-top: 1.5em;
+    padding-top: 5em;
+    padding-bottom: 5em;
+    background: url('/static/img/home/woman-on-couch.jpg') no-repeat center center / cover transparent;
 }
-#home-explain .desc {
-    font-size: 1.5em;
-}
-#home-explain .pic {
+#home-explain p {
+    font-size: 5em;
     text-align: center;
+    font-weight: bold;
 }
 
 /* SM */
@@ -166,10 +188,10 @@ footer {
 /* MD */
 @media (min-width: 992px) {
     header.home form.search {
-        margin-bottom: 4em;
+        margin-bottom: 2em;
     }
     header.home #title {
-        margin-top: 2em;
+        margin-top: 1em;
         padding-bottom: 0.5em;
     }
     .map iframe {
@@ -180,17 +202,18 @@ footer {
         font-size: 1.8em;
         padding-top: 2em;
     }
-    #home-explain {
-        margin-top: 3em;
-    }
 }
 /* LG */
 @media (min-width: 1170px) {
     header.home form.search {
-        margin-bottom: 6em;
+        margin-bottom: 8em;
     }
     header.home #title {
-        margin-top: 1.6em;
+        margin-top: 1em;
         padding-bottom: 1em;
+    }
+    #home-explain {
+        padding-top: 15em;
+        padding-bottom: 15em;
     }
 }
