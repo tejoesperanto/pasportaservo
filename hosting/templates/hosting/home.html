@@ -18,7 +18,11 @@
         </div>
         <div class="col-xs-2 col-xs-offset-2">
             {% if user.is_authenticated %}
-                <a href="{% url 'profile_detail' %}">{{ user.username }}</a>
+                {% if user.profile %}
+                    <a href="{% url 'profile_detail' %}">{{ user.username }}</a>
+                {% else %}
+                    <a href="{% url 'profile_create' %}">{{ user.username }}</a>
+                {% endif %}
             {% else %}
                 <a href="{% url 'register' %}?next={{ request.get_full_path|urlencode }}">{% trans "register" %}</a>
             {% endif %}
