@@ -2,17 +2,36 @@
 {% load i18n static %}
 
 {% block page %}
-    <div class="btn-group pull-right">
-        <a href="{% url 'profile_update' %}" class="btn btn-success"><span class="glyphicon glyphicon-pencil"></span> {% trans "Update" %}</a>
-        <a href="{% url 'password_change' %}" class="btn btn-warning"><span class="glyphicon glyphicon-lock"></span> {% trans "Change password" %}</a>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="btn-group edit-buttons">
+                <a href="{% url 'profile_update' %}"
+                   class="btn btn-success"
+                   title="{% trans "Update" %}">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                    <span class="hidden-xs">{% trans "Update" %}</span>
+                </a>
+                <a href="{% url 'password_change' %}"
+                   class="btn btn-warning"
+                   title="{% trans "Change password" %}">
+                    <span class="glyphicon glyphicon-lock"></span>
+                    <span class="hidden-xs">{% trans "Change password" %}</span>
+                </a>
+            </div>
+        </div>
     </div>
-    <div class="pull-left profile-avatar">
-        <img src="{{ profile.avatar_url }}" />
-    </div>
-    <h1><small>{{ profile.get_title_display }}</small> {{ profile }}</h1>
-    <p>{% blocktrans with age=profile.age %}{{ age }} y.o.{% endblocktrans %}</p>
 
-    <div class="clearfix"></div>
+    <div class="row owner">
+        <div class="col-xs-3">
+            <img src="{{ profile.avatar_url }}" />
+        </div>
+        <div class="col-xs-9">
+            <h1><small>{{ profile.get_title_display }}</small> {{ profile }}</h1>
+        </div>
+        <div class="col-xs-12 col-sm-9">
+            <p>{% blocktrans with age=profile.age %}{{ age }} y.o.{% endblocktrans %}</p>
+        </div>
+    </div>
 
     <h2>{% trans "About me" %}</h2>
     {{ profile.description|linebreaks }}
@@ -28,8 +47,13 @@
         {% for place in profile.places.all %}
             <li class="list-group-item">
                 <div class="btn-group pull-right">
-                    <a href="{% url 'place_update' place.pk %}" class="btn btn-success"><span class="glyphicon glyphicon-pencil"></span> {% trans "Update" %}</a>
-                    <a href="{% url 'place_delete' place.pk %}" class="btn btn-danger"><span class="glyphicon glyphicon-trash" title="{% trans "Delete" %}"></span></a>
+                    <a href="{% url 'place_update' place.pk %}" class="btn btn-success">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                        <span class="hidden-xs">{% trans "Update" %}</span>
+                    </a>
+                    <a href="{% url 'place_delete' place.pk %}" class="btn btn-danger">
+                        <span class="glyphicon glyphicon-trash" title="{% trans "Delete" %}"></span>
+                    </a>
                 </div>
                 <div>
                     <strong>{{ place.address }}</strong><br />
@@ -49,8 +73,17 @@
         {% for phone in profile.phones.all %}
             <li class="list-group-item phone">
                 <div class="btn-group pull-right">
-                    <a href="{% url 'phone_update' phone.number.as_e164|cut:"+" %}" class="btn btn-success"><span class="glyphicon glyphicon-pencil"></span> {% trans "Update" %}</a>
-                    <a href="{% url 'phone_delete' phone.number.as_e164|cut:"+" %}" class="btn btn-danger"><span class="glyphicon glyphicon-trash" title="{% trans "Delete" %}"></span></a>
+                    <a href="{% url 'phone_update' phone.number.as_e164|cut:"+" %}"
+                       class="btn btn-success"
+                       title="{% trans "Update" %}">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                        <span class="hidden-xs">{% trans "Update" %}</span>
+                    </a>
+                    <a href="{% url 'phone_delete' phone.number.as_e164|cut:"+" %}"
+                       class="btn btn-danger"
+                       title="{% trans "Delete" %}">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </a>
                 </div>
 
                 <p class="details">
@@ -69,7 +102,8 @@
             </li>
         {% endfor %}
     </ul>
-    <a class="btn btn-info" href="{% url 'phone_create' %}"><span class="glyphicon glyphicon-plus"></span>
+    <a class="btn btn-info" href="{% url 'phone_create' %}">
+        <span class="glyphicon glyphicon-plus"></span>
         <strong>{% trans "Add a phone" %}</strong>
     </a>
 {% endblock page %}

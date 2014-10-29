@@ -4,6 +4,11 @@
     src: url('../fonts/Geotica_Three-webfont.eot?#iefix') format('embedded-opentype'), url('../fonts/Geotica_Three-webfont.woff') format('woff'), url('../fonts/Geotica_Three-webfont.ttf') format('truetype'), url('../fonts/Geotica_Three-webfont.svg#glyphicons_halflingsregular') format('svg');
 }
 
+.edit-buttons {
+    float: right;
+    margin-bottom: 1em;
+}
+
 /* General header. */
 header {
     color: #fff;
@@ -90,6 +95,7 @@ header.home form.search {
 }
 .owner img {
     width: 100%;
+    max-width: 140px;
 }
 .base-form {
     text-align: center;
@@ -143,6 +149,13 @@ footer {
     padding-top: 3em;
 }
 
+/* XS */
+@media (max-width: 767px) {
+    .owner h1 {
+        margin-top: 0;
+        font-size: 24px;
+    }
+}
 /* SM */
 @media (min-width: 768px) {
     .map iframe {
