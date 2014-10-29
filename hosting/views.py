@@ -2,6 +2,7 @@ import geopy
 
 from django.views import generic
 from django.conf import settings
+from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
@@ -63,7 +64,7 @@ class ProfileUpdateView(LoginRequiredMixin, generic.UpdateView):
     success_url = reverse_lazy('profile_detail')
 
     def get_object(self):
-        return Profile.objects.get(user=self.request.user)
+        return get_object_or_404(Profile, user=self.request.user, deleted=False)
 
     def get_form(self, form_class):
         user = self.request.user
@@ -72,11 +73,48 @@ class ProfileUpdateView(LoginRequiredMixin, generic.UpdateView):
 profile_update = ProfileUpdateView.as_view()
 
 
+class ProfileDeleteView(LoginRequiredMixin, generic.DeleteView):
+    form_class = ProfileForm
+    success_url = reverse_lazy('logout')
+
+    def get_object(self):
+        return get_object_or_404(Profile, user=self.request.user, deleted=False)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Set the flag 'deleted' to True on the profile
+        and some associated objects,
+        desactivate the linked user,
+        and then redirects to the success URL
+        """
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.deleted = True
+        self.object.save()
+        for place in self.object.places.all():
+            place.deleted = True
+            place.save()
+        for phone in self.object.phones.all():
+            phone.deleted = True
+            phone.save()
+        self.object.user.is_active = False
+        self.object.user.save()
+        return HttpResponseRedirect(success_url)
+
+profile_delete = ProfileDeleteView.as_view()
+
+
 class ProfileDetailView(LoginRequiredMixin, generic.DetailView):
     model = Profile
 
     def get_object(self, queryset=None):
-        return self.request.user.profile
+        return get_object_or_404(Profile, user=self.request.user, deleted=False)
+
+    def get_context_data(self, **kwargs):
+        context = super(ProfileDetailView, self).get_context_data(**kwargs)
+        context['places'] = self.object.places.all().filter(deleted=False)
+        context['phones'] = self.object.phones.all().filter(deleted=False)
+        return context
 
 profile_detail = ProfileDetailView.as_view()
 
@@ -118,6 +156,17 @@ class PlaceDeleteView(LoginRequiredMixin, generic.DeleteView):
         pk = self.kwargs['pk']
         profile = self.request.user.profile
         return get_object_or_404(Place, pk=pk, profile=profile)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Set the flag 'deleted' to True on the place
+        and then redirects to the success URL
+        """
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.deleted = True
+        self.object.save()
+        return HttpResponseRedirect(success_url)
 
 place_delete = PlaceDeleteView.as_view()
 
@@ -170,6 +219,17 @@ class PhoneDeleteView(LoginRequiredMixin, generic.DeleteView):
         number = '+' + self.kwargs['num']
         profile = self.request.user.profile
         return get_object_or_404(Phone, number=number, profile=profile)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Set the flag 'deleted' to True on the phone
+        and then redirects to the success URL
+        """
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.deleted = True
+        self.object.save()
+        return HttpResponseRedirect(success_url)
 
 phone_delete = PhoneDeleteView.as_view()
 
