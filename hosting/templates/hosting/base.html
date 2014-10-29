@@ -38,6 +38,8 @@
             </div>
         {% endblock header %}
     </header>
+    
+    {% block pre-page %}{% endblock %}
 
     <div id="page" class="container{% block page_class %}{% endblock %}">
         {% block page %}{% endblock %}
