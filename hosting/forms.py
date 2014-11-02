@@ -58,6 +58,7 @@ class ProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
         super(ProfileForm, self).__init__(*args, **kwargs)
+        self.fields['birth_date'].widget.attrs['placeholder'] = 'jjjj-mm-tt'
 
     def save(self, commit=True):
         profile = super(ProfileForm, self).save(commit=False)
@@ -118,3 +119,11 @@ class PhoneForm(forms.ModelForm):
         if commit:
             phone.save()
         return phone
+
+
+class AuthorizeUserForm(forms.Form):
+    user = forms.CharField(label=_("Authorize user"), max_length=254)
+
+    def __init__(self, *args, **kwargs):
+        super(AuthorizeUserForm, self).__init__(*args, **kwargs)
+        self.fields['user'].widget.attrs['placeholder'] = _("username")

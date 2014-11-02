@@ -11,31 +11,39 @@
                     <span class="glyphicon glyphicon-pencil"></span>
                     <span class="hidden-xs">{% trans "Update" %}</span>
                 </a>
-                <a href="{% url 'password_change' %}"
-                   class="btn btn-warning"
-                   title="{% trans "Change password" %}">
-                    <span class="glyphicon glyphicon-lock"></span>
-                    <span class="hidden-xs">{% trans "Change password" %}</span>
-                </a>
                 <a href="{% url 'profile_delete' %}"
                    class="btn btn-danger"
                    title="{% trans "Delete account" %}">
                     <span class="glyphicon glyphicon-trash"></span>
+                </a>
+                <a href="{% url 'password_change' %}"
+                   class="btn btn-warning"
+                   title="{% trans "Change password" %}">
+                    <span class="glyphicon glyphicon-tower"></span>
+                    <span class="hidden-xs">{% trans "Change password" %}</span>
+                </a>
+                <a href="#"
+                   class="btn btn-info"
+                   title="{% trans "Settings" %}">
+                    <span class="glyphicon glyphicon-cog"></span>
+                    <span class="hidden-xs">{% trans "Settings" %}</span>
                 </a>
             </div>
         </div>
     </div>
 
     <div class="row owner">
-        <div class="col-xs-3">
+        <div class="col-xs-3 col-md-2">
             <img src="{{ profile.avatar_url }}" />
         </div>
-        <div class="col-xs-9">
+        <div class="col-xs-9 col-md-10">
             <h1><small>{{ profile.get_title_display }}</small> {{ profile }}</h1>
         </div>
-        <div class="col-xs-12 col-sm-9">
-            <p>{% blocktrans with age=profile.age %}{{ age }} y.o.{% endblocktrans %}</p>
-        </div>
+        {% if profile.birth_date %}
+            <div class="col-xs-12 col-sm-9">
+                <p>{% blocktrans with age=profile.age %}{{ age }} y.o.{% endblocktrans %}</p>
+            </div>
+        {% endif %}
     </div>
 
     <h2>{% trans "About me" %}</h2>
@@ -58,6 +66,14 @@
                     </a>
                     <a href="{% url 'place_delete' place.pk %}" class="btn btn-danger">
                         <span class="glyphicon glyphicon-trash" title="{% trans "Delete" %}"></span>
+                    </a>
+                    <a href="{% url 'authorized_users' place.pk %}" class="btn btn-info">
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                        <span class="hidden-xs">{% trans "Authorizations" %}</span>
+                    </a>
+                    <a href="{% url 'place_detail' place.pk %}" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-arrow-right" title="{% trans "View this place" %}"></span>
+                        <span class="hidden-xs">{% trans "View" %}</span>
                     </a>
                 </div>
                 <div>
@@ -92,15 +108,7 @@
                 </div>
 
                 <p class="details">
-                    {% if phone.type = phone.HOME %}
-                        <span class="glyphicon glyphicon-earphone" title="{{ phone.get_type_display|capfirst }}"></span>
-                    {% elif phone.type = phone.WORK %}
-                        <span class="glyphicon glyphicon-phone-alt" title="{{ phone.get_type_display|capfirst }}"></span>
-                    {% elif phone.type = phone.MOBILE %}
-                        <span class="glyphicon glyphicon-phone" title="{{ phone.get_type_display|capfirst }}"></span>
-                    {% elif phone.type = phone.FAX %}
-                        <span class="glyphicon glyphicon-print" title="{{ phone.get_type_display|capfirst }}"></span>
-                    {% endif %}
+                    {{ phone.icon }}
                     <b class="number">{{ phone.number.as_international }}</b>
                     <em>{{ phone.comments }}</em>
                 </p>
