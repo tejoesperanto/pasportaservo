@@ -73,6 +73,7 @@ header.home form.search {
     margin-bottom: 0.5em;
     border-bottom: 1px solid #ddd;
 }
+.place-detail .name,
 .place-list .name {
     font-weight: bold;
 }
@@ -142,6 +143,10 @@ p.tip {
     margin: 0 1em;
 }
 
+.authorized-user {
+    position: relative;
+    top: .25em;
+}
 
 /* Footer */
 footer {

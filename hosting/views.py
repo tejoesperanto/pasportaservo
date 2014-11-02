@@ -6,14 +6,15 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import get_user_model, authenticate, login
+from django.template.loader import render_to_string, get_template
+from django.core.mail import EmailMessage
 from django.utils.translation import ugettext_lazy as _
 
 from braces.views import AnonymousRequiredMixin, LoginRequiredMixin
 
 from .models import Profile, Place, Phone, Condition
-from .forms import UserRegistrationForm, ProfileForm, PlaceForm, PhoneForm
+from .forms import UserRegistrationForm, ProfileForm, PlaceForm, PhoneForm, AuthorizeUserForm
 from .utils import extend_bbox
 
 lang = settings.LANGUAGE_CODE
@@ -26,7 +27,7 @@ home = HomeView.as_view()
 
 
 class RegisterView(AnonymousRequiredMixin, generic.CreateView):
-    model = User
+    model = get_user_model()
     template_name = 'registration/register.html'
     form_class = UserRegistrationForm
     success_url = reverse_lazy('profile_create')
@@ -112,7 +113,7 @@ class ProfileDetailView(LoginRequiredMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileDetailView, self).get_context_data(**kwargs)
-        context['places'] = self.object.places.all().filter(deleted=False)
+        context['places'] = self.object.owned_places.all().filter(deleted=False)
         context['phones'] = self.object.phones.all().filter(deleted=False)
         return context
 
@@ -144,7 +145,7 @@ class PlaceUpdateView(LoginRequiredMixin, generic.UpdateView):
     def get_object(self, queryset=None):
         pk = self.kwargs['pk']
         profile = self.request.user.profile
-        return get_object_or_404(Place, pk=pk, profile=profile)
+        return get_object_or_404(Place, pk=pk, owner=profile)
 
 place_update = PlaceUpdateView.as_view()
 
@@ -155,7 +156,7 @@ class PlaceDeleteView(LoginRequiredMixin, generic.DeleteView):
     def get_object(self, queryset=None):
         pk = self.kwargs['pk']
         profile = self.request.user.profile
-        return get_object_or_404(Place, pk=pk, profile=profile)
+        return get_object_or_404(Place, pk=pk, owner=profile)
 
     def delete(self, request, *args, **kwargs):
         """
@@ -278,3 +279,67 @@ class SearchView(generic.ListView):
         return context
 
 search = SearchView.as_view()
+
+
+class AuthorizedUsersView(LoginRequiredMixin, generic.DetailView):
+    model = Place
+    template_name = 'hosting/place_authorized_users.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(AuthorizedUsersView, self).get_context_data(**kwargs)
+        context['form'] = AuthorizeUserForm
+        return context
+
+authorized_users = AuthorizedUsersView.as_view()
+
+
+class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
+    """Form view to add a user to the list of authorized users
+    for a place to be able to see more details."""
+    form_class = AuthorizeUserForm
+
+    def form_valid(self, form):
+        place = get_object_or_404(Place, pk=self.kwargs['pk'], owner=self.request.user)
+        user = get_object_or_404(get_user_model(), username=form.cleaned_data['user'])
+        if self.user not in self.place.authorized_users.all():
+            place.authorized_users.add(user)
+            self.send_email(user, place)
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse_lazy('authorized_users', kwargs={'pk': self.kwargs['pk']})
+
+    def send_email(self, user, place):
+        subject = _("[Pasporta Servo] You received an Authorization")
+        to = [user.email]
+        email_template = 'hosting/emails/new_authorization.txt'
+        email_context = {
+            'user_first_name': user.profile.first_name or user.username,
+            'owner_name': place.owner.full_name,
+            'place_id': place.pk,
+            'site_domain': self.request.get_host(),
+            'site_name': settings.SITE_NAME,
+        }
+        message = render_to_string(email_template, email_context)
+        EmailMessage(subject, message, to=to).send()
+
+authorize_user = AuthorizeUserView.as_view()
+
+
+class AuthorizeUserLinkView(LoginRequiredMixin, generic.View):
+    """Add (or remove if present) a user to the list of authorized users
+    for a place to be able to see more details."""
+    def dispatch(self, request, *args, **kwargs):
+        self.user = get_object_or_404(get_user_model(), username=kwargs['user'])
+        self.place = get_object_or_404(Place, pk=kwargs['pk'], owner=request.user)
+        if self.user in self.place.authorized_users.all():
+            self.place.authorized_users.remove(self.user)
+        else:
+            self.place.authorized_users.add(self.user)
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse_lazy('authorized_users', kwargs={'pk': self.kwargs['pk']})
+
+authorize_user_link = AuthorizeUserLinkView.as_view()
