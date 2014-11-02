@@ -2,7 +2,7 @@
 {% load i18n static %}
 
 {% block page %}
-    <div class="row">
+    <div class="row place-detail">
         <div class="col-xs-12 col-md-6 owner">
             <div class="row">
                 <div class="col-xs-3">
@@ -10,22 +10,53 @@
                 </div>
                 <div class="col-xs-9">
                     <div class="row">
-                        <div class="col-xs-5 name">
-                            {{ place.owner.anonymous_name }}
-                        </div>
-                        <div class="col-xs-4 status">
+                        <p class="col-xs-8 name">
+                            {% if user in place.authorized_users.all %}
+                                {{ place.owner.full_name }}
+                            {% else %}
+                                {{ place.owner.anonymous_name }}
+                            {% endif %}
+                        </p>
+                        <p class="col-xs-4 status">
                             {% if place.booked %}
                                 <em>{% trans "unavailable" %}</em>
                             {% else %}
                                 <em>{% trans "available" %}</em>
                             {% endif %}
-                        </div>
-                    {% if user.is_authenticated %}
-                        <div class="col-xs-9 address">
-                            {{ place.city }}<br />
-                            {{ place.country }}-{{ place.postcode }}
-                        </div>
-                    {% endif %}
+                        </p>
+                        {% if user.is_authenticated %}
+                            <p class="col-xs-9 address">
+                                {% if user in place.authorized_users.all %}
+                                    {{ place.address }}
+                                    <br />
+                                {% endif %}
+
+                                {{ place.postcode }}
+
+                                {% if place.closest_city %}
+                                    {% blocktrans with city=place.city closest_city=place.closest_city trimmed %}
+                                        {{ city }}, near {{ closest_city }}
+                                    {% endblocktrans %}
+                                {% else %}
+                                    {{ place.city }}
+                                {% endif %}
+
+                                <br />
+
+                                {{ place.get_country_display }}
+                            </p>
+                        {% endif %}
+
+                        {% if user in place.authorized_users.all %}
+                            <p class="col-xs-9">
+                                {% for phone in place.owner.phones.all %}
+                                    {{ phone.icon }}
+                                    {% if phone.country %}({{ phone.country }}){% endif %}
+                                    {{ phone.number.as_international }}
+                                    <em>{{ phone.comments }}</em>
+                                {% endfor %}
+                            </p>
+                        {% endif %}
                     </div>
 
                 </div>
@@ -34,7 +65,7 @@
             <div class="row">
             {% if user.is_authenticated %}
                 <div class="col-md-12 hidden-xs hidden-sm">
-                    <h4>{% trans "Description:" %}</h4>
+                    <h3>{% trans "Description:" %}</h3>
                     {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_host max_night=place.max_night %}
                 </div>
             {% else %}
@@ -42,7 +73,7 @@
             {% endif %}
             </div>
         </div>
-        
+
         <div class="map col-xs-12 col-md-6">
                 <iframe width="100%"
                     frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
@@ -55,12 +86,22 @@
                 {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_host max_night=place.max_night %}
             </div>
 
-            {% if place.owner != user.profile %}
-                <div class="col-xs-12">
+            {% if place.owner = user.profile %}
+                <p class="col-xs-12 btn-group">
+                    <a href="{% url 'place_update' place.pk %}" class="btn btn-success">
+                        <span class="glyphicon glyphicon-pencil"></span> {% trans "Update" %}
+                    </a>
+                    <a href="{% url 'authorized_users' place.pk %}" class="btn btn-info">
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                        <span class="hidden-xs">{% trans "Authorizations" %}</span>
+                    </a>
+                </p>
+            {% else %}
+                <p class="col-xs-12">
                     <a href="{% url 'postman_write' place.owner.user.username %}" class="btn btn-primary">
                         <span class="glyphicon glyphicon-send"></span> {% trans "Write message" %}
                     </a>
-                </div>
+                </p>
             {% endif %}
         {% endif %}
 

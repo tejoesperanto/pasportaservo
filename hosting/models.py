@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from datetime import date
 
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.html import format_html
 from django.db import models
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -119,6 +120,8 @@ class Place(TimeStampedModel):
     have_a_drink = models.BooleanField(_("have a drink"), default=False,
         help_text=_("If you are ready to have a coffee or beer with visitors."))
     conditions = models.ManyToManyField('hosting.Condition', verbose_name=_("conditions"), blank=True, null=True)
+    authorized_users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("authorized users"), blank=True, null=True,
+        help_text=_("List of users authorized to view most of data of this accommodation."))
 
     checked = models.BooleanField(_("checked"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
@@ -162,6 +165,20 @@ class Phone(TimeStampedModel):
     class Meta:
         verbose_name = _("phone")
         verbose_name_plural = _("phones")
+
+    @property
+    def icon(self):
+        if self.type == self.HOME:
+            cls = "glyphicon-earphone"
+        elif self.type == self.WORK:
+            cls = "glyphicon-phone-alt"
+        elif self.type == self.MOBILE:
+            cls = "glyphicon-phone"
+        elif self.type == self.FAX:
+            cls = "glyphicon-print"
+        title=self.get_type_display().capitalize()
+        template = '<span class="glyphicon {cls}" title="{title}"></span>'
+        return format_html(template, cls=cls, title=title)
 
     def __str__(self):
         """ as_e164             '+31104361044'
