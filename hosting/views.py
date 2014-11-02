@@ -301,7 +301,7 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
     def form_valid(self, form):
         place = get_object_or_404(Place, pk=self.kwargs['pk'], owner=self.request.user)
         user = get_object_or_404(get_user_model(), username=form.cleaned_data['user'])
-        if self.user not in self.place.authorized_users.all():
+        if user not in place.authorized_users.all():
             place.authorized_users.add(user)
             self.send_email(user, place)
         return HttpResponseRedirect(self.get_success_url())
