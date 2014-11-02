@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-02 14:48+0000\n"
-"PO-Revision-Date: 2014-11-02 16:19+0100\n"
+"POT-Creation-Date: 2014-11-02 19:32+0000\n"
+"PO-Revision-Date: 2014-11-02 20:32+0100\n"
 "Last-Translator: Baptiste Darthenay <taggit.batisteo@recursor.net>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -72,7 +72,6 @@ msgid "Authorize user"
 msgstr "Permesi uzanton"
 
 #: forms.py:129
-#| msgid "name"
 msgid "username"
 msgstr "uzantnomo"
 
@@ -340,7 +339,7 @@ msgstr "kondiĉo"
 msgid "contact preference"
 msgstr "preferata kontaktmaniero"
 
-#: templates/base.html:5
+#: templates/base.html:7
 msgid "Find accomodation"
 msgstr "Trovi loĝejon"
 
@@ -376,10 +375,9 @@ msgstr "Kara %(user_first_name)s,"
 #: templates/hosting/emails/new_authorization.txt:5
 #, python-format
 msgid "You've been authorized to see the complete address of %(owner_name)s!"
-msgstr " %(owner_name)s rajtigis vin rigardi sian plenan adreson!"
+msgstr "%(owner_name)s rajtigis vin rigardi sian plenan adreson!"
 
 #: templates/hosting/emails/new_authorization.txt:9
-#| msgid "You must register to see this accomodation."
 msgid "Follow this link to see this accommodation:"
 msgstr "Klaku sur la ligilon por vidi tiun loĝejon:"
 
@@ -440,7 +438,6 @@ msgid "Remove user"
 msgstr "Forvigi uzanton"
 
 #: templates/hosting/place_confirm_delete.html:7
-#| msgid "Are you sure you want to delete this number?"
 msgid "Are you sure you want to delete this place?"
 msgstr "Ĉu vi certe volas forigi tiun loĝejon?"
 
@@ -453,11 +450,11 @@ msgstr "maldisponebla"
 msgid "%(city)s, near %(closest_city)s"
 msgstr "%(city)s, proksime al %(closest_city)s"
 
-#: templates/hosting/place_detail.html:67
+#: templates/hosting/place_detail.html:68
 msgid "Description:"
 msgstr "Priskribo:"
 
-#: templates/hosting/place_detail.html:91
+#: templates/hosting/place_detail.html:92
 #: templates/hosting/profile_detail.html:10
 #: templates/hosting/profile_detail.html:12
 #: templates/hosting/profile_detail.html:65
@@ -466,28 +463,28 @@ msgstr "Priskribo:"
 msgid "Update"
 msgstr "Redakti"
 
-#: templates/hosting/place_detail.html:95
+#: templates/hosting/place_detail.html:96
 #: templates/hosting/profile_detail.html:72
 msgid "Authorizations"
 msgstr "Permesoj"
 
-#: templates/hosting/place_detail.html:101
+#: templates/hosting/place_detail.html:102
 msgid "Write message"
 msgstr "Skribu mesaĝon"
 
-#: templates/hosting/place_detail.html:109
+#: templates/hosting/place_detail.html:110
 msgid "Short description"
 msgstr "Mallonga priskribo"
 
-#: templates/hosting/place_detail.html:111
+#: templates/hosting/place_detail.html:112
 msgid "Booked"
 msgstr "Rezervita"
 
-#: templates/hosting/place_detail.html:113
+#: templates/hosting/place_detail.html:114
 msgid "Available"
 msgstr "Disponebla"
 
-#: templates/hosting/place_detail.html:115
+#: templates/hosting/place_detail.html:116
 msgid "Print in book"
 msgstr "Printi en la PS libreto"
 
@@ -508,7 +505,6 @@ msgstr ""
 "(loĝejojn, telefonnumerojn…)?"
 
 #: templates/hosting/profile_detail.html:16
-#| msgid "Delete"
 msgid "Delete account"
 msgstr "Forigi konton"
 
@@ -614,7 +610,7 @@ msgstr "Ensalutu"
 
 #: templates/registration/login.html:5
 msgid "Log in with your username and password."
-msgstr "Ensalutu kun vian uzantnomo kaj pasvorto."
+msgstr "Ensalutu kun via uzantnomo kaj pasvorto"
 
 #: templates/registration/login.html:7
 msgid "Forgot password?"
@@ -731,7 +727,6 @@ msgid "^profile/update/$"
 msgstr "^profilo/redakti/$"
 
 #: urls.py:12
-#| msgid "^profile/detail/$"
 msgid "^profile/delete/$"
 msgstr "^profilo/forigi/$"
 
@@ -752,17 +747,14 @@ msgid "^place/(?P<pk>\\d+)/delete/$"
 msgstr "^ejo/(?P<pk>\\d+)/forigi/$"
 
 #: urls.py:18
-#| msgid "^place/(?P<pk>\\d+)/update/$"
 msgid "^place/(?P<pk>\\d+)/authorized/$"
 msgstr "^ejo/(?P<pk>\\d+)/permesitaj/$"
 
 #: urls.py:19
-#| msgid "^place/(?P<pk>\\d+)/update/$"
 msgid "^place/(?P<pk>\\d+)/authorize/$"
 msgstr "^ejo/(?P<pk>\\d+)/permesi/$"
 
 #: urls.py:20
-#| msgid "^place/(?P<pk>\\d+)/update/$"
 msgid "^place/(?P<pk>\\d+)/authorize/(?P<user>\\w+)/$"
 msgstr "^ejo/(?P<pk>\\d+)/permesi/(?P<user>\\w+)/$"
 
@@ -794,6 +786,5 @@ msgid ""
 msgstr "Ŝajnas, ke estas tro da majuskloj. Provu kun “{correct_value}”."
 
 #: views.py:313
-#| msgid "Pasporta Servo administration"
 msgid "[Pasporta Servo] You received an Authorization"
 msgstr "[Pasporta Servo] Vi ricevis permeson"
