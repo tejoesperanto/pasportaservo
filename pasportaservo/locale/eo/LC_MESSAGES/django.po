@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-25 23:34+0200\n"
-"PO-Revision-Date: 2014-10-25 23:35+0100\n"
+"POT-Creation-Date: 2014-11-02 22:51+0000\n"
+"PO-Revision-Date: 2014-11-02 23:52+0100\n"
 "Last-Translator: Baptiste Darthenay <taggit.batisteo@recursor.net>\n"
 "Language-Team: EO <info@pasportaservo.org>\n"
 "Language: eo\n"
@@ -19,7 +19,7 @@ msgstr ""
 "X-Generator: Poedit 1.5.4\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: settings/__init__.py:53
+#: settings/__init__.py:137
 msgid "Pasporta Servo administration"
 msgstr "Administrado de Pasporta Servo"
 
@@ -149,17 +149,21 @@ msgstr ""
 msgid "You have received a message from the user '%(sender)s'."
 msgstr ""
 
-#: templates/postman/email_user.txt:20 templates/postman/email_visitor.txt:18
+#: templates/postman/email_user.txt:21
+msgid "To answer this message, follow this link:"
+msgstr "Por respondi tiun mesaĝon, klaku sur tiu ligilo:"
+
+#: templates/postman/email_user.txt:28 templates/postman/email_visitor.txt:18
 msgid ""
 "Note: This message is issued by an automated system.\n"
 "Do not reply, this would not be taken into account."
 msgstr ""
 
 #: templates/postman/email_user_subject.txt:1
-#: templates/postman/email_visitor_subject.txt:1
 #, python-format
-msgid "Message \"%(subject)s\" on the site %(sitename)s"
-msgstr ""
+#| msgid "[%(sitename)s] Message \"%(subject)s\" on the site "
+msgid "[%(sitename)s] Message \"%(subject)s\""
+msgstr "[%(sitename)s] Nova mesaĝo \"%(subject)s\""
 
 #: templates/postman/email_visitor.txt:1
 msgid "Dear visitor,"
@@ -182,10 +186,13 @@ msgid "For more comfort, we encourage you to open an account on the site."
 msgstr ""
 
 #: templates/postman/email_visitor.txt:16
-#, fuzzy
-#| msgid "Pasporta Servo administration"
 msgid "The site administrator"
-msgstr "Administrado de Pasporta Servo"
+msgstr "La administranto de la retejo"
+
+#: templates/postman/email_visitor_subject.txt:1
+#, python-format
+msgid "Message \"%(subject)s\" on the site %(sitename)s"
+msgstr ""
 
 #: templates/postman/inbox.html:3
 msgid "Received Messages"
@@ -271,22 +278,18 @@ msgid "^reset/done/$"
 msgstr "^nova-pasvorto/fino/$"
 
 #: urls.py:43
-#| msgid "^messages/inbox/(?:(?P<option>"
 msgid "^messages/inbox/(?:(?P<option>m)/)?$"
 msgstr "^leteroj/kesto/(?:(?P<option>m)/)?$"
 
 #: urls.py:44
-#| msgid "^messages/sent/(?:(?P<option>"
 msgid "^messages/sent/(?:(?P<option>m)/)?$"
 msgstr "^leteroj/senditaj/(?:(?P<option>m)/)?$"
 
 #: urls.py:45
-#| msgid "^messages/archives/(?:(?P<option>"
 msgid "^messages/archives/(?:(?P<option>m)/)?$"
 msgstr "^leteroj/arkivoj/(?:(?P<option>m)/)?$"
 
 #: urls.py:46
-#| msgid "^messages/trash/(?:(?P<option>"
 msgid "^messages/trash/(?:(?P<option>m)/)?$"
 msgstr "^leteroj/rubujo/(?:(?P<option>m)/)?$"
 

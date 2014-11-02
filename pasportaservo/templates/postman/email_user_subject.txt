@@ -1,1 +1,3 @@
-{% load i18n %}{% autoescape off %}{% blocktrans with object.subject as subject and site.name as sitename %}Message "{{ subject }}" on the site {{ sitename }}{% endblocktrans %}{% endautoescape %}
+{% load i18n %}{% autoescape off %}{% blocktrans with object.subject as subject and site.name as sitename trimmed %}
+    [{{ sitename }}] Message "{{ subject }}"
+{% endblocktrans %}{% endautoescape %}

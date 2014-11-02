@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-02 19:32+0000\n"
-"PO-Revision-Date: 2014-11-02 20:32+0100\n"
+"POT-Creation-Date: 2014-11-02 22:53+0000\n"
+"PO-Revision-Date: 2014-11-02 23:55+0100\n"
 "Last-Translator: Baptiste Darthenay <taggit.batisteo@recursor.net>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -67,11 +67,11 @@ msgstr "Lasu malplene"
 msgid "User address already in use."
 msgstr "Uzanta adreso jam uzita."
 
-#: forms.py:125
+#: forms.py:127
 msgid "Authorize user"
 msgstr "Permesi uzanton"
 
-#: forms.py:129
+#: forms.py:131
 msgid "username"
 msgstr "uzantnomo"
 
@@ -563,11 +563,11 @@ msgid_plural ""
 "If you want to book this accomodation, please contact me at least "
 "%(nb_days)s days in advance."
 msgstr[0] ""
-"Por rezervi tiun loĝejon, bonvolu kontakti min almenaŭ %(nb_days)s tago "
-"antaŭ."
+"Por tranokti en tiu loĝejo, bonvolu kontakti min almenaŭ %(nb_days)s tago "
+"antaŭe."
 msgstr[1] ""
-"Por rezervi tiun loĝejon, bonvolu kontakti min almenaŭ %(nb_days)s tagoj "
-"antaŭ."
+"Por tranokti en tiu loĝejo, bonvolu kontakti min almenaŭ %(nb_days)s tagoj "
+"antaŭe."
 
 #: templates/hosting/snippets/place_description.html:16
 #, python-format
