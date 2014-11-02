@@ -85,19 +85,21 @@ class PlaceForm(forms.ModelForm):
             'in_book',
             'conditions',
             'latitude', 'longitude',
+            'owner',
         ]
         widgets = {
             'conditions': chosenforms.ChosenSelectMultiple,
+            'owner': forms.HiddenInput,
         }
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
         super(PlaceForm, self).__init__(*args, **kwargs)
         self.fields['conditions'].help_text = ""
+        self.fields['owner'].initial = self.profile
 
     def save(self, commit=True):
         place = super(PlaceForm, self).save(commit=True)
-        place.owner = self.profile
         if commit:
             place.save()
             self.profile.places.add(place)
