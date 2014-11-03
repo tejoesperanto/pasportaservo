@@ -1,5 +1,5 @@
 {% extends 'hosting/base_form.html' %}
-{% load static %}
+{% load i18n static %}
 {% load leaflet_tags %}
 
 {% block extra_css %}
@@ -15,7 +15,24 @@
 {% block form_container_class %}col-md-6{% endblock %}
 
 {% block form_before %}
-    <div class="col-md-6 well map map-edit">
+    <div class="col-md-6 well base-form map map-edit">
+
         {% leaflet_map "place-edit" callback="placeEdit" %}
+
+        <p class="help-block">
+            {% trans "Click on the map to select your location." %}
+        </p>
+
+        <hr />
+
+        <button type="button" id="get-location" class="btn btn-default pull-left">
+            <span class="glyphicon glyphicon-globe"></span>
+            {% trans "Where am I?" %}
+        </button>
+
+        <button type="button" id="get-address" class="btn btn-default pull-right" disabled="disabled">
+            <span class="glyphicon glyphicon-road"></span>
+            {% trans "Search with the address" %}
+        </button>
     </div>
 {% endblock form_before %}
