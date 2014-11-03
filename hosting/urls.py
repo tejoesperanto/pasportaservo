@@ -7,7 +7,7 @@ urlpatterns = patterns('hosting.views',
     url(r'^$', 'home', name='home'),
     url(_(r'^register/$'), 'register', name='register'),
     url(_(r'^profile/create/$'), 'profile_create', name='profile_create'),
-    url(_(r'^profile/detail/$'), 'profile_detail', name='profile_detail'),
+    url(_(r'^profile/$'), 'profile_detail', name='profile_detail'),
     url(_(r'^profile/update/$'), 'profile_update', name='profile_update'),
     url(_(r'^profile/delete/$'), 'profile_delete', name='profile_delete'),
 

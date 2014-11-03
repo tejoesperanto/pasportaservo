@@ -15,7 +15,10 @@ from django_extensions.db.models import TimeStampedModel
 from django_countries.fields import CountryField
 
 from .querysets import BaseQuerySet
-from .validators import validate_no_allcaps, validate_not_to_much_caps
+from .validators import (
+    validate_no_allcaps, validate_not_to_much_caps,
+    validate_image, validate_size,
+)
 from .gravatar import email_to_gravatar
 
 
@@ -41,12 +44,14 @@ class Profile(TimeStampedModel):
     user = models.OneToOneField(settings.AUTH_USER_MODEL)
     title = models.CharField(_("title"), max_length=5, choices=TITLE_CHOICES, blank=True)
     first_name = models.CharField(_("first name"), max_length=255, blank=True,
-        validators = [validate_no_allcaps, validate_not_to_much_caps])
+        validators=[validate_no_allcaps, validate_not_to_much_caps])
     last_name = models.CharField(_("last name"), max_length=255, blank=True,
-        validators = [validate_no_allcaps, validate_not_to_much_caps])
+        validators=[validate_no_allcaps, validate_not_to_much_caps])
     birth_date = models.DateField(_("birth date"), blank=True, null=True)
     description = models.TextField(_("description"), help_text=_("Short biography."), blank=True)
-    avatar = models.ImageField(_("avatar"), upload_to="avatars", blank=True)
+    avatar = models.ImageField(_("avatar"), upload_to="avatars", blank=True,
+        validators=[validate_image, validate_size],
+        help_text=_("Small image under 100kB. Ideal size: 140x140 px."))
     places = models.ManyToManyField('hosting.Place', verbose_name=_("places"), blank=True)
     contact_preferences = models.ManyToManyField('hosting.ContactPreference', verbose_name=_("contact preferences"), blank=True)
 

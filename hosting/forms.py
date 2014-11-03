@@ -88,7 +88,9 @@ class PlaceForm(forms.ModelForm):
             'owner',
         ]
         widgets = {
-            'conditions': chosenforms.ChosenSelectMultiple,
+            'conditions': chosenforms.ChosenSelectMultiple(
+                overlay=_("Choose your conditions..."),
+            ),
             'owner': forms.HiddenInput,
         }
 

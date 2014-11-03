@@ -7,4 +7,7 @@ $(function() {
         language: "eo"
     });
 
+    $(window).bind("load", function() {
+        $('ul.chosen-choices').addClass("form-control");
+    });
 });
