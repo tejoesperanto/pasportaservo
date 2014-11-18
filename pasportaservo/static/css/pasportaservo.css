@@ -132,13 +132,13 @@ p.tip {
     margin-right: 2em;
 }
 
-.phone {
+.list-vertical-align {
     height: 4em;
 }
-.phone .details {
+.list-vertical-align .details {
     margin-top: .5em;
 }
-.phone .number {
+.list-vertical-align .number {
     font-weight: bold;
     margin: 0 1em;
 }

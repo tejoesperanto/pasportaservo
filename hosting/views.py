@@ -14,10 +14,24 @@ from django.utils.translation import ugettext_lazy as _
 from braces.views import AnonymousRequiredMixin, LoginRequiredMixin
 
 from .models import Profile, Place, Phone, Condition
-from .forms import UserRegistrationForm, ProfileForm, PlaceForm, PhoneForm, AuthorizeUserForm
+from .forms import (UserRegistrationForm,
+    ProfileForm, PlaceForm, PhoneForm, AuthorizeUserForm,
+    FamilyMemberForm, FamilyMemberCreateForm)
 from .utils import extend_bbox
 
 lang = settings.LANGUAGE_CODE
+
+
+class DeleteMixin(object):
+    def delete(self, request, *args, **kwargs):
+        """
+        Set the flag 'deleted' to True on the object
+        and then redirects to the success URL
+        """
+        self.object = self.get_object()
+        self.object.deleted = True
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class HomeView(generic.TemplateView):
@@ -74,7 +88,7 @@ class ProfileUpdateView(LoginRequiredMixin, generic.UpdateView):
 profile_update = ProfileUpdateView.as_view()
 
 
-class ProfileDeleteView(LoginRequiredMixin, generic.DeleteView):
+class ProfileDeleteView(LoginRequiredMixin, DeleteMixin, generic.DeleteView):
     form_class = ProfileForm
     success_url = reverse_lazy('logout')
 
@@ -88,19 +102,18 @@ class ProfileDeleteView(LoginRequiredMixin, generic.DeleteView):
         desactivate the linked user,
         and then redirects to the success URL
         """
-        self.object = self.get_object()
-        success_url = self.get_success_url()
-        self.object.deleted = True
-        self.object.save()
         for place in self.object.places.all():
             place.deleted = True
             place.save()
         for phone in self.object.phones.all():
             phone.deleted = True
             phone.save()
+        for member in self.family_members:
+            member.deleted = True
+            member.save()
         self.object.user.is_active = False
         self.object.user.save()
-        return HttpResponseRedirect(success_url)
+        return super(ProfileDeleteView, self).delete(request, *args, **kwargs)
 
 profile_delete = ProfileDeleteView.as_view()
 
@@ -150,24 +163,13 @@ class PlaceUpdateView(LoginRequiredMixin, generic.UpdateView):
 place_update = PlaceUpdateView.as_view()
 
 
-class PlaceDeleteView(LoginRequiredMixin, generic.DeleteView):
+class PlaceDeleteView(LoginRequiredMixin, DeleteMixin, generic.DeleteView):
     success_url = reverse_lazy('profile_detail')
 
     def get_object(self, queryset=None):
         pk = self.kwargs['pk']
         profile = self.request.user.profile
         return get_object_or_404(Place, pk=pk, owner=profile)
-
-    def delete(self, request, *args, **kwargs):
-        """
-        Set the flag 'deleted' to True on the place
-        and then redirects to the success URL
-        """
-        self.object = self.get_object()
-        success_url = self.get_success_url()
-        self.object.deleted = True
-        self.object.save()
-        return HttpResponseRedirect(success_url)
 
 place_delete = PlaceDeleteView.as_view()
 
@@ -213,24 +215,13 @@ class PhoneUpdateView(LoginRequiredMixin, generic.UpdateView):
 phone_update = PhoneUpdateView.as_view()
 
 
-class PhoneDeleteView(LoginRequiredMixin, generic.DeleteView):
+class PhoneDeleteView(LoginRequiredMixin, DeleteMixin, generic.DeleteView):
     success_url = reverse_lazy('profile_detail')
 
     def get_object(self, queryset=None):
         number = '+' + self.kwargs['num']
         profile = self.request.user.profile
         return get_object_or_404(Phone, number=number, profile=profile)
-
-    def delete(self, request, *args, **kwargs):
-        """
-        Set the flag 'deleted' to True on the phone
-        and then redirects to the success URL
-        """
-        self.object = self.get_object()
-        success_url = self.get_success_url()
-        self.object.deleted = True
-        self.object.save()
-        return HttpResponseRedirect(success_url)
 
 phone_delete = PhoneDeleteView.as_view()
 
@@ -343,3 +334,70 @@ class AuthorizeUserLinkView(LoginRequiredMixin, generic.View):
         return reverse_lazy('authorized_users', kwargs={'pk': self.kwargs['pk']})
 
 authorize_user_link = AuthorizeUserLinkView.as_view()
+
+
+class FamilyMemberCreateView(LoginRequiredMixin, generic.CreateView):
+    model = Profile
+    form_class = FamilyMemberCreateForm
+    success_url = reverse_lazy('profile_detail')
+
+    def get_form_kwargs(self):
+        kwargs = super(FamilyMemberCreate, self).get_form_kwargs()
+        kwargs['place'] = get_object_or_404(Place, pk=self.kwargs['pk'])
+        return kwargs
+
+family_member_create = FamilyMemberCreateView.as_view()
+
+
+class FamilyMemberAddMeView(LoginRequiredMixin, generic.FormView):
+    success_url = reverse_lazy('profile_detail')
+
+    def post(self, request, *args, **kwargs):
+        place = get_object_or_404(Place, pk=kwargs['place_pk'])
+        place.family_members.add(request.user.profile)
+        return HttpResponseRedirect(self.success_url)
+
+family_member_add_me = FamilyMemberAddMeView.as_view()
+
+
+class FamilyMemberUpdateView(LoginRequiredMixin, generic.UpdateView):
+    model = Profile
+    form_class = FamilyMemberForm
+    success_url = reverse_lazy('profile_detail')
+
+family_member_update = FamilyMemberUpdateView.as_view()
+
+
+class FamilyMemberRemoveView(LoginRequiredMixin, generic.DeleteView):
+    """Remove the family member for the Place."""
+    model = Profile
+    template_name = 'hosting/family_member_confirm_delete.html'
+    success_url = reverse_lazy('profile_detail')
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.place = get_object_or_404(Place, pk=self.kwargs['place_pk'])
+        self.place.family_members.remove(self.object)
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        context = super(FamilyMemberRemoveView, self).get_context_data(**kwargs)
+        context['place'] = get_object_or_404(Place, pk=self.kwargs['place_pk'])
+        return context
+
+family_member_remove = FamilyMemberRemoveView.as_view()
+
+
+class FamilyMemberDeleteView(LoginRequiredMixin, DeleteMixin, generic.DeleteView):
+    """Remove the family member for the Place and delete it."""
+    model = Profile
+    success_url = reverse_lazy('profile_detail')
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.place = get_object_or_404(Place, pk=self.kwargs['place_pk'])
+        self.place.family_members.remove(self.object)
+        return super(FamilyMemberDeleteView, self).delete(request, *args, **kwargs)
+    
+
+family_member_delete = FamilyMemberDeleteView.as_view()
