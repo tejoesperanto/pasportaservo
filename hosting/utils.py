@@ -17,10 +17,11 @@ def title_with_particule(value, particules=None):
     """
     particule_list = ['van', 'de', 'des', 'del', 'von', 'av', 'af']
     particules = particules if particules else particule_list
-    value = value.title()
-    particules_re = [(part, r'(^|\W)(?i)%s(\W)' % part) for part in particules]
-    for particule, particule_re in particules_re:
-        value = re.sub(particule_re, '\g<1>' + particule + '\g<2>', value)
+    if value:
+        value = value.title()
+        particules_re = [(part, r'(^|\W)(?i)%s(\W)' % part) for part in particules]
+        for particule, particule_re in particules_re:
+            value = re.sub(particule_re, '\g<1>' + particule + '\g<2>', value)
     return value
 
 

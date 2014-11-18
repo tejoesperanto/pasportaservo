@@ -65,8 +65,13 @@
             <div class="row">
             {% if user.is_authenticated %}
                 <div class="col-md-12 hidden-xs hidden-sm">
-                    <h3>{% trans "Description:" %}</h3>
+                    <h3>{% trans "Description" %}</h3>
                     {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_host max_night=place.max_night %}
+
+                    {% if place.family_members.all %}
+                        <h3>{% trans "Family members" %}</h3>
+                        <p>{{ place.get_family_members|join:", " }}</p>
+                    {% endif %}
                 </div>
             {% else %}
                 {% include 'hosting/snippets/registration.html' %}
@@ -105,7 +110,8 @@
             {% endif %}
         {% endif %}
 
-        {% if user.is_authenticated and user.profile in place.profile_set.all %}
+
+        {% if user.is_authenticated and user.profile in place.family_members.all %}
             <div>
                 <div>{% trans "Short description" %}</div>
                 <p>{{ place.small_description }}</p>

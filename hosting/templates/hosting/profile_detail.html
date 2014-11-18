@@ -50,7 +50,7 @@
     {{ profile.description|linebreaks }}
 
     <h2>
-        {% blocktrans count counter=profile.places.all|length trimmed %}
+        {% blocktrans count counter=profile.owned_places.all|length trimmed %}
             Place
         {% plural %}
             Places
@@ -67,7 +67,7 @@
                     <a href="{% url 'place_delete' place.pk %}" class="btn btn-danger">
                         <span class="glyphicon glyphicon-trash" title="{% trans "Delete" %}"></span>
                     </a>
-                    <a href="{% url 'authorized_users' place.pk %}" class="btn btn-info">
+                    <a href="{% url 'authorized_users' place.pk %}" class="btn btn-warning">
                         <span class="glyphicon glyphicon-eye-open"></span>
                         <span class="hidden-xs">{% trans "Authorizations" %}</span>
                     </a>
@@ -77,11 +77,58 @@
                     </a>
                 </div>
                 <div>
-                    <strong>{{ place.address }}</strong><br />
-                    {{ place.postcode }} {{ place.city }}<br />
-                    {{ place.country.name }}<br />
+                    <h3>{{ place.address }}<br />
+                        <small><strong>
+                            {{ place.city }}<br />
+                            {{ place.postcode }} {{ place.country.name }}<br />
+                        </strong></small>
+                    </h3>
                 </div>
+
+                <ul class="list-group">
+                    {% for member in place.family_members.all %}
+                        <li class="list-group-item list-vertical-align">
+                            <div class="btn-group pull-right">
+                                {% if member != user.profile %}
+                                    <a href="{% url 'family_member_update' member.pk %}"
+                                       class="btn btn-success"
+                                       title="{% trans "Update" %}">
+                                        <span class="glyphicon glyphicon-pencil"></span>
+                                        <span class="hidden-xs">{% trans "Update" %}</span>
+                                    </a>
+                                {% endif %}
+
+                                <a href="{% url 'family_member_remove' place.pk member.pk %}"
+                                   class="btn btn-danger"
+                                   title="{% trans "Delete" %}">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </a>
+                            </div>
+
+                            <p class="details">
+                                {{ member.icon }}
+                                <b class="number">{{ member }}</b>
+                                {% if member.age %}<em>({{ member.age }})</em>{% endif %}
+                            </p>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <form action="{% url 'family_member_add_me' place.pk %}" method="post">
+                    {% csrf_token %}
+                    <a class="btn btn-info" href="{% url 'family_member_create' place.pk %}">
+                        <span class="glyphicon glyphicon-user"></span>
+                        <strong>{% trans "Add a family member" %}</strong>
+                    </a>
+                    {% if user.profile not in place.family_members.all %}
+                        <button type="submit" class="btn btn-info">
+                            <span class="glyphicon glyphicon-user"></span>
+                            <strong>{% trans "Add me" %}</strong>
+                        </button>
+                    {% endif %}
+                </form>
             </li>
+            <p>&nbsp;</p>
         {% endfor %}
     </ul>
 
@@ -92,7 +139,7 @@
     <h2>{% trans "Phones" %}</h2>
     <ul class="list-group phone-list">
         {% for phone in phones %}
-            <li class="list-group-item phone">
+            <li class="list-group-item list-vertical-align">
                 <div class="btn-group pull-right">
                     <a href="{% url 'phone_update' phone.number.as_e164|cut:"+" %}"
                        class="btn btn-success"
