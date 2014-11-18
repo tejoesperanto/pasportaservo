@@ -41,7 +41,7 @@ PHONE_TYPE_CHOICES = (
 @python_2_unicode_compatible
 class Profile(TimeStampedModel):
     TITLE_CHOICES = TITLE_CHOICES
-    user = models.OneToOneField(settings.AUTH_USER_MODEL)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, blank=True)
     title = models.CharField(_("title"), max_length=5, choices=TITLE_CHOICES, blank=True)
     first_name = models.CharField(_("first name"), max_length=255, blank=True,
         validators=[validate_no_allcaps, validate_not_to_much_caps])
@@ -52,7 +52,8 @@ class Profile(TimeStampedModel):
     avatar = models.ImageField(_("avatar"), upload_to="avatars", blank=True,
         validators=[validate_image, validate_size],
         help_text=_("Small image under 100kB. Ideal size: 140x140 px."))
-    places = models.ManyToManyField('hosting.Place', verbose_name=_("places"), blank=True)
+    places = models.ManyToManyField('hosting.Place', verbose_name=_("places"),
+        related_name='family_members', blank=True)
     contact_preferences = models.ManyToManyField('hosting.ContactPreference', verbose_name=_("contact preferences"), blank=True)
 
     checked = models.BooleanField(_("checked"), default=False)
@@ -82,6 +83,12 @@ class Profile(TimeStampedModel):
             return self.avatar.url
         else:
             return email_to_gravatar(self.user.email, settings.DEFAULT_AVATAR_URL)
+
+    @property
+    def icon(self):
+        title=self.get_title_display().capitalize()
+        template = '<span class="glyphicon glyphicon-user" title="{title}"></span>'
+        return format_html(template, title=title)
 
     def __str__(self):
         return self.full_name if self.full_name.strip() else self.user.username
@@ -146,6 +153,9 @@ class Place(TimeStampedModel):
         lat, lng = self.latitude, self.longitude
         boundingbox = (lng - dx, lat - dy, lng + dx, lat + dy)
         return ",".join([str(coord) for coord in boundingbox])
+
+    def get_family_members(self):
+        return [m.first_name +" ("+ str(m.age) +")" for m in self.family_members.all()]
 
     def __str__(self):
         return self.city

@@ -131,3 +131,20 @@ class AuthorizeUserForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(AuthorizeUserForm, self).__init__(*args, **kwargs)
         self.fields['user'].widget.attrs['placeholder'] = _("username")
+
+
+class FamilyMemberForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['title', 'first_name', 'last_name', 'birth_date']
+
+
+class FamilyMemberCreateForm(FamilyMemberForm):
+    def __init__(self, *args, **kwargs):
+        self.place = kwargs.pop('place')
+        super(FamilyMemberForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        family_member = super(FamilyMemberForm, self).save()
+        self.place.family_members.add(family_member)
+        return family_member
