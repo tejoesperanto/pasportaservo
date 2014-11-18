@@ -21,21 +21,21 @@ def get_username(name, mail):
 
 
 def get_title(sekso):
-    if sekso == 'Ina':
+    if sekso in ('Ina', 's-ino'):
         return 'Mrs'
-    if sekso == 'Vira':
+    if sekso in ('Vira', 's-ro'):
         return 'Mr'
     return ''
 
 
 def get_birth_date(year):
     if year:
-        year = year.strip(' .-')
+        year = year.strip(' .-x')
         if len(year) == 4:
             return date(int(year), 1, 1)
         if len(year) == 2 and int(year) > 30:
             return date(int('19'+year), 1, 1)
-        if '/' in year:
+        if '/' in year and len(year) > 9:
             day, month, y = year.split('/')
             if len(y) == 2:
                 return date(int('19'+y), int(month), int(day))
