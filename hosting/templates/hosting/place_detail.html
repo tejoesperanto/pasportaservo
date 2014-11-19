@@ -70,7 +70,16 @@
 
                     {% if place.family_members.all %}
                         <h3>{% trans "Family members" %}</h3>
-                        <p>{{ place.get_family_members|join:", " }}</p>
+                        <ul>
+                            {% for member in place.family_members.all %}
+                                <li>
+                                    {{ member.full_name }}
+                                    {% if member.age %}
+                                        ({{ member.age }})
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
                     {% endif %}
                 </div>
             {% else %}
