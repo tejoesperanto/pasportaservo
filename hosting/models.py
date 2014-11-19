@@ -155,9 +155,6 @@ class Place(TimeStampedModel):
         boundingbox = (lng - dx, lat - dy, lng + dx, lat + dy)
         return ",".join([str(coord) for coord in boundingbox])
 
-    def get_family_members(self):
-        return [m.first_name +" ("+ str(m.age) +")" for m in self.family_members.all()]
-
     def __str__(self):
         return self.city
 

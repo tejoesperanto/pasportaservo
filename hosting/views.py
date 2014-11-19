@@ -15,7 +15,7 @@ from braces.views import AnonymousRequiredMixin, LoginRequiredMixin
 
 from .models import Profile, Place, Phone, Condition
 from .forms import (UserRegistrationForm,
-    ProfileForm, PlaceForm, PhoneForm, AuthorizeUserForm,
+    ProfileForm, PlaceForm, PlaceCreateForm, PhoneForm, AuthorizeUserForm,
     FamilyMemberForm, FamilyMemberCreateForm)
 from .utils import extend_bbox
 
@@ -135,7 +135,7 @@ profile_detail = ProfileDetailView.as_view()
 
 class PlaceCreateView(LoginRequiredMixin, generic.CreateView):
     model = Place
-    form_class = PlaceForm
+    form_class = PlaceCreateForm
     success_url = reverse_lazy('profile_detail')
 
     def get_form_kwargs(self):

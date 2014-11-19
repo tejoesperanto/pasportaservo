@@ -47,15 +47,12 @@ def validate_image(content):
         content_type = content.file.content_type.split('/')[0]
         if content_type != 'image':
             raise ValidationError(_('File type is not supported'))
-    else:
-        print('   HAHA! 500!')
 
 
 def validate_size(content):
     """Validate if the size of the content in not too big."""
     MAX_UPLOAD_SIZE = 102400  # 100kB
     if content.file.size > MAX_UPLOAD_SIZE:
-        print('  TOO BIG!!')
         raise ValidationError(_('Please keep filesize under %s. Current filesize %s') % (
             filesizeformat(MAX_UPLOAD_SIZE),
             filesizeformat(content.file.size))
