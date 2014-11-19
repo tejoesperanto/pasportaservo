@@ -100,11 +100,13 @@ class PlaceForm(forms.ModelForm):
         self.fields['conditions'].help_text = ""
         self.fields['owner'].initial = self.profile
 
+
+class PlaceCreateForm(PlaceForm):
     def save(self, commit=True):
         place = super(PlaceForm, self).save(commit=True)
         if commit:
             place.save()
-            self.profile.places.add(place)
+            place.family_members.add(self.profile)
         return place
 
 
