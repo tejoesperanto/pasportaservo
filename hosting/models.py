@@ -52,8 +52,7 @@ class Profile(TimeStampedModel):
     avatar = models.ImageField(_("avatar"), upload_to="avatars", blank=True,
         validators=[validate_image, validate_size],
         help_text=_("Small image under 100kB. Ideal size: 140x140 px."))
-    places = models.ManyToManyField('hosting.Place', verbose_name=_("places"),
-        related_name='family_members', blank=True)
+    places = models.ManyToManyField('hosting.Place', verbose_name=_("places"), blank=True)
     contact_preferences = models.ManyToManyField('hosting.ContactPreference', verbose_name=_("contact preferences"), blank=True)
 
     checked = models.BooleanField(_("checked"), default=False)
@@ -134,6 +133,7 @@ class Place(TimeStampedModel):
     have_a_drink = models.BooleanField(_("have a drink"), default=False,
         help_text=_("If you are ready to have a coffee or beer with visitors."))
     conditions = models.ManyToManyField('hosting.Condition', verbose_name=_("conditions"), blank=True, null=True)
+    family_members = models.ManyToManyField('hosting.Profile', verbose_name=_("family members"), blank=True, null=True)
     authorized_users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("authorized users"), blank=True, null=True,
         help_text=_("List of users authorized to view most of data of this accommodation."))
 
