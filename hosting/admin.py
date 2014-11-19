@@ -48,7 +48,10 @@ class ProfileAdmin(admin.ModelAdmin):
     date_hierarchy = 'birth_date'
 
     def user__email(self, obj):
-        return obj.user.email
+        try:
+            return obj.user.email
+        except AttributeError:
+            return '-'
 
 
 @admin.register(Place)

@@ -82,7 +82,8 @@ class Profile(TimeStampedModel):
         if self.avatar and hasattr(self.avatar, 'url'):
             return self.avatar.url
         else:
-            return email_to_gravatar(self.user.email, settings.DEFAULT_AVATAR_URL)
+            email = self.user.email if self.user else 'family.member@pasportaservo.org'
+            return email_to_gravatar(email, settings.DEFAULT_AVATAR_URL)
 
     @property
     def icon(self):
@@ -91,7 +92,8 @@ class Profile(TimeStampedModel):
         return format_html(template, title=title)
 
     def __str__(self):
-        return self.full_name if self.full_name.strip() else self.user.username
+        username = self.user.username if self.user else '-'
+        return self.full_name if self.full_name.strip() else username
 
     def get_admin_url(self):
         return reverse('admin:hosting_profile_change', args=(self.id,))
