@@ -12,6 +12,18 @@ admin.site.unregister(Group)
 admin.site.unregister(User)
 
 
+class PlaceInLine(admin.StackedInline):
+    model = Place
+    extra = 0
+    raw_id_fields = ['owner', 'family_members', 'authorized_users']
+    inline_classes = ('grp-collapse grp-open',)
+
+
+class PhoneInLine(admin.TabularInline):
+    model = Phone
+    extra = 0
+
+
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     list_display = (
@@ -43,9 +55,11 @@ class ProfileAdmin(admin.ModelAdmin):
         'user__email', 'user'
     )
     search_fields = [
-        'first_name', 'last_name', 'user__email', 'user__username',
+        'id', 'first_name', 'last_name', 'user__email', 'user__username',
     ]
     date_hierarchy = 'birth_date'
+    raw_id_fields = ['user']
+    inlines = [PlaceInLine, PhoneInLine]
 
     def user__email(self, obj):
         try:
@@ -75,6 +89,7 @@ class PlaceAdmin(admin.ModelAdmin):
         'in_book', 'available',
         'country',
     )
+    raw_id_fields = ('owner', 'family_members', 'authorized_users')
 
     def owner_link(self, obj):
         return '<a href="%s">%s</a>' % (obj.owner.get_admin_url(), obj.owner)
@@ -87,6 +102,7 @@ class PhoneAdmin(admin.ModelAdmin):
     list_display = ('number_intl', 'country_code', 'country', 'type')
     search_fields = ('number', 'country')
     list_filter = ('country',)
+    raw_id_fields = ('profile',)
 
     def number_intl(self, obj):
         return obj.number.as_international
@@ -100,7 +116,7 @@ class PhoneAdmin(admin.ModelAdmin):
 
 @admin.register(Condition)
 class ConditionAdmin(admin.ModelAdmin):
-    list_display = ('name', )
+    list_display = ('name',)
     prepopulated_fields = {'slug': ("name",)}
 
 
@@ -111,6 +127,7 @@ class WebsiteAdmin(admin.ModelAdmin):
         'url',
         'profile__first_name', 'profile__last_name', 'profile__user__email', 'profile__user__username',
     ]
+    raw_id_fields = ('profile',)
 
 @admin.register(ContactPreference)
 class ContactPreferenceAdmin(admin.ModelAdmin):
