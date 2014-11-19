@@ -52,7 +52,6 @@ class Profile(TimeStampedModel):
     avatar = models.ImageField(_("avatar"), upload_to="avatars", blank=True,
         validators=[validate_image, validate_size],
         help_text=_("Small image under 100kB. Ideal size: 140x140 px."))
-    places = models.ManyToManyField('hosting.Place', verbose_name=_("places"), blank=True)
     contact_preferences = models.ManyToManyField('hosting.ContactPreference', verbose_name=_("contact preferences"), blank=True)
 
     checked = models.BooleanField(_("checked"), default=False)
