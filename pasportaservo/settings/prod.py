@@ -28,3 +28,5 @@ SERVER_EMAIL = secrets.SERVER_EMAIL
 DEFAULT_FROM_EMAIL = secrets.DEFAULT_FROM_EMAIL
 
 DEBUG = False
+
+ALLOWED_HOSTS = ['pasportaservo.org', 'nova.pasportaservo.org', 'pasportaservo.batisteo.eu']
