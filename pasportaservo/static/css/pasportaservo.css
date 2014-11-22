@@ -75,6 +75,16 @@ header.home #title {
     margin-top: 1rem;
     padding-bottom: 0.25em;
 }
+
+header.home #title small {
+    font-size: .3em;
+    opacity: .5;
+}
+
+header.home #title small:hover {
+    cursor: help;
+}
+
 header.home #subtitle {
     font-size: 1.5em;
     text-align: center;
