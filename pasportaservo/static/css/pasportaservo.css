@@ -1,6 +1,7 @@
 @font-face {
     font-family: Geotica;
-    src: url("../fonts/Geotica_Three-webfont.woff");
+    src: url('../fonts/Geotica_Three-webfont.eot');
+    src: url('../fonts/Geotica_Three-webfont.eot?#iefix') format('embedded-opentype'), url('../fonts/Geotica_Three-webfont.woff') format('woff'), url('../fonts/Geotica_Three-webfont.ttf') format('truetype'), url('../fonts/Geotica_Three-webfont.svg#glyphicons_halflingsregular') format('svg');
 }
 
 @font-face {
@@ -18,6 +19,12 @@
 
 body {
     font-family: "PT Sans", Helvetica, Arial, sans-serif;
+	font-size: 15px;
+}
+
+.edit-buttons {
+    float: right;
+    margin-bottom: 1em;
 }
 
 /* General header. */
@@ -88,6 +95,7 @@ header.home form.search {
     margin-bottom: 0.5em;
     border-bottom: 1px solid #ddd;
 }
+.place-detail .name,
 .place-list .name {
     font-weight: bold;
 }
@@ -110,6 +118,7 @@ header.home form.search {
 }
 .owner img {
     width: 100%;
+    max-width: 140px;
 }
 .base-form {
     text-align: center;
@@ -145,23 +154,26 @@ p.tip {
     margin-right: 2em;
 }
 
-.phone {
+.list-vertical-align {
     height: 4em;
 }
-.phone .details {
+.list-vertical-align .details {
     margin-top: .5em;
 }
-.phone .number {
+.list-vertical-align .number {
     font-weight: bold;
     margin: 0 1em;
 }
 
+.authorized-user {
+    position: relative;
+    top: .25em;
+}
 
 /* Footer */
 footer {
     text-align: center;
-    padding-top: 3em;
-    padding-bottom: 3em;
+    padding: 3em 0;
 }
 
 #home-explain {
@@ -169,12 +181,36 @@ footer {
     padding-bottom: 5em;
     background: url('/static/img/home/woman-on-couch.jpg') no-repeat center center / cover transparent;
 }
+
 #home-explain p {
     font-size: 5em;
     text-align: center;
     font-weight: bold;
 }
 
+
+/* Forms */
+
+#id_conditions_chosen .chosen-choices {
+    padding: 2px;
+}
+#id_conditions_chosen .chosen-choices input[type="text"] {
+    height: 26px;
+}
+
+
+
+/* XS */
+@media (max-width: 767px) {
+
+    header.home #title {
+        font-size: 4em;
+    }
+    .owner h1 {
+        margin-top: 0;
+        font-size: 24px;
+    }
+}
 /* SM */
 @media (min-width: 768px) {
     .map iframe {

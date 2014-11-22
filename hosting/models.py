@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from datetime import date
 
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.html import format_html
 from django.db import models
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -13,9 +14,12 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django_extensions.db.models import TimeStampedModel
 from django_countries.fields import CountryField
 
+from .querysets import BaseQuerySet
+from .validators import (
+    validate_no_allcaps, validate_not_to_much_caps,
+    validate_image, validate_size,
+)
 from .gravatar import email_to_gravatar
-
-from .validators import validate_no_allcaps, validate_not_to_much_caps
 
 
 MRS, MR = 'Mrs', 'Mr'
@@ -37,20 +41,23 @@ PHONE_TYPE_CHOICES = (
 @python_2_unicode_compatible
 class Profile(TimeStampedModel):
     TITLE_CHOICES = TITLE_CHOICES
-    user = models.OneToOneField(settings.AUTH_USER_MODEL)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, blank=True)
     title = models.CharField(_("title"), max_length=5, choices=TITLE_CHOICES, blank=True)
     first_name = models.CharField(_("first name"), max_length=255, blank=True,
-        validators = [validate_no_allcaps, validate_not_to_much_caps])
+        validators=[validate_no_allcaps, validate_not_to_much_caps])
     last_name = models.CharField(_("last name"), max_length=255, blank=True,
-        validators = [validate_no_allcaps, validate_not_to_much_caps])
+        validators=[validate_no_allcaps, validate_not_to_much_caps])
     birth_date = models.DateField(_("birth date"), blank=True, null=True)
-    description = models.TextField(_("description"), help_text=_("All about yourself."), blank=True)
-    avatar = models.ImageField(_("avatar"), upload_to="avatars", blank=True)
-    places = models.ManyToManyField('hosting.Place', verbose_name=_("places"), blank=True)
+    description = models.TextField(_("description"), help_text=_("Short biography."), blank=True)
+    avatar = models.ImageField(_("avatar"), upload_to="avatars", blank=True,
+        validators=[validate_image, validate_size],
+        help_text=_("Small image under 100kB. Ideal size: 140x140 px."))
     contact_preferences = models.ManyToManyField('hosting.ContactPreference', verbose_name=_("contact preferences"), blank=True)
 
     checked = models.BooleanField(_("checked"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
+
+    objects = BaseQuerySet.as_manager()
 
     class Meta:
         verbose_name = _("profile")
@@ -73,10 +80,18 @@ class Profile(TimeStampedModel):
         if self.avatar and hasattr(self.avatar, 'url'):
             return self.avatar.url
         else:
-            return email_to_gravatar(self.user.email, settings.DEFAULT_AVATAR_URL)
+            email = self.user.email if self.user else 'family.member@pasportaservo.org'
+            return email_to_gravatar(email, settings.DEFAULT_AVATAR_URL)
+
+    @property
+    def icon(self):
+        title=self.get_title_display().capitalize()
+        template = '<span class="glyphicon glyphicon-user" title="{title}"></span>'
+        return format_html(template, title=title)
 
     def __str__(self):
-        return self.full_name if self.full_name.strip() else self.user.username
+        username = self.user.username if self.user else '-'
+        return self.full_name if self.full_name.strip() else username
 
     def get_admin_url(self):
         return reverse('admin:hosting_profile_change', args=(self.id,))
@@ -117,9 +132,14 @@ class Place(TimeStampedModel):
     have_a_drink = models.BooleanField(_("have a drink"), default=False,
         help_text=_("If you are ready to have a coffee or beer with visitors."))
     conditions = models.ManyToManyField('hosting.Condition', verbose_name=_("conditions"), blank=True, null=True)
+    family_members = models.ManyToManyField('hosting.Profile', verbose_name=_("family members"), blank=True, null=True)
+    authorized_users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("authorized users"), blank=True, null=True,
+        help_text=_("List of users authorized to view most of data of this accommodation."))
 
     checked = models.BooleanField(_("checked"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
+
+    objects = BaseQuerySet.as_manager()
 
     class Meta:
         verbose_name = _("place")
@@ -153,9 +173,25 @@ class Phone(TimeStampedModel):
     checked = models.BooleanField(_("checked"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
+    objects = BaseQuerySet.as_manager()
+
     class Meta:
         verbose_name = _("phone")
         verbose_name_plural = _("phones")
+
+    @property
+    def icon(self):
+        if self.type == self.HOME:
+            cls = "glyphicon-earphone"
+        elif self.type == self.WORK:
+            cls = "glyphicon-phone-alt"
+        elif self.type == self.MOBILE:
+            cls = "glyphicon-phone"
+        elif self.type == self.FAX:
+            cls = "glyphicon-print"
+        title=self.get_type_display().capitalize()
+        template = '<span class="glyphicon {cls}" title="{title}"></span>'
+        return format_html(template, cls=cls, title=title)
 
     def __str__(self):
         """ as_e164             '+31104361044'
@@ -173,6 +209,8 @@ class Website(TimeStampedModel):
 
     checked = models.BooleanField(_("checked"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
+
+    objects = BaseQuerySet.as_manager()
 
     class Meta:
         verbose_name = _("website")

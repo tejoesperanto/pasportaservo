@@ -1,0 +1,22 @@
+{% extends 'hosting/base.html' %}
+{% load i18n %}
+
+{% block page %}
+    <div class="well">
+        <p class="text-center text-danger">
+            {% trans "Are you sure you want to delete this place?" %}
+        </p>
+    </div>
+
+    <form action="" method="post" class="pull-right">
+        {% csrf_token %}
+        <a href="#" onclick="history.go(-1)" class="btn btn-default">
+            <span class="glyphicon glyphicon-arrow-left"></span>
+            {% trans "Cancel" %}
+        </a>
+        <button type="submit" class="btn btn-primary">
+            <span class="glyphicon glyphicon-trash"></span>
+            {% trans "Delete" %}
+        </button>
+    </form>
+{% endblock page %}

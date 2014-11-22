@@ -50,7 +50,6 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
-GRAPPELLI_ADMIN_TITLE = _("Pasporta Servo administration")
 # Application definition
 
 INSTALLED_APPS = (
@@ -66,6 +65,7 @@ INSTALLED_APPS = (
     'django_countries',
     'phonenumber_field',
     'bootstrapform',
+    'chosen',
     'leaflet',
     'postman',
 
@@ -127,6 +127,15 @@ LOGOUT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 
 DEFAULT_FROM_EMAIL = 'saluton@pasportaservo.org'
+
+
+
+# Non-Django settings:
+
+SITE_NAME = "Pasporta Servo"
+
+GRAPPELLI_ADMIN_TITLE = _("Pasporta Servo administration")
+
 
 # Helps entering phone numbers with "00" instead of "+"
 # This means: Interpret phone number as dialed in Poland

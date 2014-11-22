@@ -8,9 +8,16 @@
         </p>
         <p class="text-center"><strong>{{ phone.number.as_international }}</strong></p>
     </div>
-        <form action="" method="post" class="pull-right">
-            {% csrf_token %}
-            <a href="#" onclick="history.go(-1)" class="btn btn-default">{% trans "Cancel" %}</a>
-            <input type="submit" value="{% trans "Delete" %}" class="btn btn-primary" />
-        </form>
+
+    <form action="" method="post" class="pull-right">
+        {% csrf_token %}
+        <a href="#" onclick="history.go(-1)" class="btn btn-default">
+            <span class="glyphicon glyphicon-arrow-left"></span>
+            {% trans "Cancel" %}
+        </a>
+        <button type="submit" class="btn btn-primary">
+            <span class="glyphicon glyphicon-trash"></span>
+            {% trans "Delete" %}
+        </button>
+    </form>
 {% endblock page %}

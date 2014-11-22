@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext_lazy as _
 
 from .utils import split, title_with_particule
@@ -38,3 +39,21 @@ def validate_not_to_much_caps(value):
                         raise ValidationError(message)
                 else:
                     raise ValidationError(message)
+
+
+def validate_image(content):
+    """Validate if Content Type is an image."""
+    if getattr(content.file, 'content_type', None):
+        content_type = content.file.content_type.split('/')[0]
+        if content_type != 'image':
+            raise ValidationError(_('File type is not supported'))
+
+
+def validate_size(content):
+    """Validate if the size of the content in not too big."""
+    MAX_UPLOAD_SIZE = 102400  # 100kB
+    if content.file.size > MAX_UPLOAD_SIZE:
+        raise ValidationError(_('Please keep filesize under %s. Current filesize %s') % (
+            filesizeformat(MAX_UPLOAD_SIZE),
+            filesizeformat(content.file.size))
+        )
