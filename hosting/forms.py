@@ -68,6 +68,12 @@ class ProfileForm(forms.ModelForm):
         return profile
 
 
+class ProfileSettingsForm(forms.ModelForm):
+    class Meta:
+        model = User 
+        fields = ['email']
+
+
 class PlaceForm(forms.ModelForm):
     class Meta:
         model = Place
