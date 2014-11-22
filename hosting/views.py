@@ -14,7 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 from braces.views import AnonymousRequiredMixin, LoginRequiredMixin
 
 from .models import Profile, Place, Phone, Condition
-from .forms import (UserRegistrationForm,
+from .forms import (UserRegistrationForm, ProfileSettingsForm,
     ProfileForm, PlaceForm, PlaceCreateForm, PhoneForm, AuthorizeUserForm,
     FamilyMemberForm, FamilyMemberCreateForm)
 from .utils import extend_bbox
@@ -120,6 +120,7 @@ profile_delete = ProfileDeleteView.as_view()
 
 class ProfileDetailView(LoginRequiredMixin, generic.DetailView):
     model = Profile
+    success_url = reverse_lazy('logout')
 
     def get_object(self, queryset=None):
         return get_object_or_404(Profile, user=self.request.user, deleted=False)
@@ -131,6 +132,18 @@ class ProfileDetailView(LoginRequiredMixin, generic.DetailView):
         return context
 
 profile_detail = ProfileDetailView.as_view()
+
+
+class ProfileSettingsView(LoginRequiredMixin, generic.UpdateView):
+    model = get_user_model()
+    template_name = 'hosting/base_form.html'
+    form_class = ProfileSettingsForm
+    success_url = reverse_lazy('profile_detail')
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+profile_settings = ProfileSettingsView.as_view()
 
 
 class PlaceCreateView(LoginRequiredMixin, generic.CreateView):

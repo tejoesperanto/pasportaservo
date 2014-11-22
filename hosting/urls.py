@@ -10,6 +10,7 @@ urlpatterns = patterns('hosting.views',
     url(_(r'^profile/$'), 'profile_detail', name='profile_detail'),
     url(_(r'^profile/update/$'), 'profile_update', name='profile_update'),
     url(_(r'^profile/delete/$'), 'profile_delete', name='profile_delete'),
+    url(_(r'^profile/settings/$'), 'profile_settings', name='profile_settings'),
 
     url(_(r'^place/(?P<pk>\d+)/$'), 'place_detail', name='place_detail'),
     url(_(r'^place/create/$'), 'place_create', name='place_create'),
