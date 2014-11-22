@@ -105,7 +105,7 @@
                     <a href="{% url 'place_update' place.pk %}" class="btn btn-success">
                         <span class="glyphicon glyphicon-pencil"></span> {% trans "Update" %}
                     </a>
-                    <a href="{% url 'authorized_users' place.pk %}" class="btn btn-info">
+                    <a href="{% url 'authorize_user' place.pk %}" class="btn btn-info">
                         <span class="glyphicon glyphicon-eye-open"></span>
                         <span class="hidden-xs">{% trans "Authorizations" %}</span>
                     </a>
