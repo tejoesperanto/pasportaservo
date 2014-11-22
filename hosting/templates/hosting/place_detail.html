@@ -68,7 +68,7 @@
                     <h3>{% trans "Description" %}</h3>
                     {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_host max_night=place.max_night %}
 
-                    {% if place.family_members.all %}
+                    {% if place.family_members.all and user in place.authorized_users.all %}
                         <h3>{% trans "Family members" %}</h3>
                         <ul>
                             {% for member in place.family_members.all %}
