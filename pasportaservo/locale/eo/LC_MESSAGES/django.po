@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-02 22:51+0000\n"
-"PO-Revision-Date: 2014-11-02 23:52+0100\n"
+"POT-Creation-Date: 2014-11-22 08:07+0000\n"
+"PO-Revision-Date: 2014-11-22 09:07+0100\n"
 "Last-Translator: Baptiste Darthenay <taggit.batisteo@recursor.net>\n"
 "Language-Team: EO <info@pasportaservo.org>\n"
 "Language: eo\n"
@@ -22,6 +22,22 @@ msgstr ""
 #: settings/__init__.py:137
 msgid "Pasporta Servo administration"
 msgstr "Administrado de Pasporta Servo"
+
+#: templates/404.html:5
+msgid "Page not found"
+msgstr "Paĝo ne trovita"
+
+#: templates/500.html:6
+msgid "Programmation error on the server"
+msgstr "Programa eraro sur la servilo"
+
+#: templates/500.html:7
+msgid ""
+"The administrators have been informed of the problem and will fix it as soon "
+"as possible."
+msgstr ""
+"La administrantoj estas informitaj pri la problemo kaj ĝin korektos la plej "
+"rapide."
 
 #: templates/postman/archives.html:3
 msgid "Archived Messages"
@@ -161,7 +177,6 @@ msgstr ""
 
 #: templates/postman/email_user_subject.txt:1
 #, python-format
-#| msgid "[%(sitename)s] Message \"%(subject)s\" on the site "
 msgid "[%(sitename)s] Message \"%(subject)s\""
 msgstr "[%(sitename)s] Nova mesaĝo \"%(subject)s\""
 
