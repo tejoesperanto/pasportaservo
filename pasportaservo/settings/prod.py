@@ -13,6 +13,7 @@ DATABASES = {
         'NAME': secrets.DJANGO_DB_NAME,
         'USER': secrets.DJANGO_DB_USER,
         'PASSWORD': secrets.DJANGO_DB_PASSWORD,
+        'HOST': secrets.DJANGO_DB_HOST,
         'PORT': secrets.DJANGO_DB_PORT,
     }
 }
@@ -29,4 +30,13 @@ DEFAULT_FROM_EMAIL = secrets.DEFAULT_FROM_EMAIL
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['pasportaservo.org', 'nova.pasportaservo.org', 'pasportaservo.batisteo.eu']
+ALLOWED_HOSTS = [
+    'pasportaservo.org',
+    'www.pasportaservo.org',
+    'nova.pasportaservo.org',
+    'pasportaservo.batisteo.eu',
+]
+
+ADMINS = (
+    ('Baptiste Darthenay', 'saluton@pasportaservo.org')
+)
