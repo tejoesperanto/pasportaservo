@@ -179,7 +179,7 @@ footer {
 #home-explain {
     padding-top: 5em;
     padding-bottom: 5em;
-    background: url('/static/img/home/woman-on-couch.jpg') no-repeat center center / cover transparent;
+    background: url('../img/home/woman-on-couch.jpg') no-repeat center center / cover transparent;
 }
 
 #home-explain p {
