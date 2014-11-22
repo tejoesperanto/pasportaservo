@@ -1,0 +1,29 @@
+{% extends 'hosting/base.html' %}
+{% load i18n %}
+
+{% block page %}
+    <div class="well">
+        <p class="text-center text-danger">
+            {% trans "Are you sure you want to delete this family member?" %}
+        </p>
+        <p class="text-center"><strong>{{ profile }} ({{ profile.age }})</strong></p>
+    </div>
+
+    <form action="" method="post" class="pull-right">
+        {% csrf_token %}
+        <a href="#" onclick="history.go(-1)" class="btn btn-default">
+            <span class="glyphicon glyphicon-arrow-left"></span>
+            {% trans "Cancel" %}
+        </a>
+        {% if user.profile != profile %}
+            <a href="{% url 'family_member_delete' place.pk profile.pk %}" class="btn btn-danger">
+                <span class="glyphicon glyphicon-trash"></span>
+                {% trans "Delete profile" %}
+            </a>
+        {% endif %}
+        <button type="submit" class="btn btn-primary">
+            <span class="glyphicon glyphicon-share"></span>
+            {% trans "Just remove" %}
+        </button>
+    </form>
+{% endblock page %}

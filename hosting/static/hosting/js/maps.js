@@ -4,8 +4,6 @@ function placeEdit(map, options){
         setPositionFields([e.latitude, e.longitude]);
         marker.setLatLng([e.latitude, e.longitude]);
     }
-    map.on('locationfound', onLocationFound);
-    map.locate({setView: true});
 
     // Init the map and marker
     var latitude = $("#id_latitude").val();
@@ -41,4 +39,10 @@ function placeEdit(map, options){
 
     map.on('click', onMapClick);
     marker.on('dragend', onMarkerDrag);
+
+    // Click on the 'Where I am?' button
+    $('#get-location').click(function(e) {
+        map.on('locationfound', onLocationFound);
+        map.locate({setView: true});
+    });
 };

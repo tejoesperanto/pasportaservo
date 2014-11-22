@@ -13,8 +13,16 @@
 {% else %}{% blocktrans with object.obfuscated_sender as sender %}You have received a message from the user '{{ sender }}'.{% endblocktrans %}
 {% endif %}
 -------------------------------------------------------------------------------
+
 {{ object.body }}
+
 -------------------------------------------------------------------------------
+
+{% blocktrans trimmed %}
+To answer this message, follow this link:
+{% endblocktrans %}
+{% if request.is_secure %}https{% else %}http{% endif %}://{{ site.domain }}{% url 'postman_view' object.pk %}
+
 {% endif %}{# 'acceptance' #}
 
 {% blocktrans %}Note: This message is issued by an automated system.

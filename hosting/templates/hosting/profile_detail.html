@@ -2,41 +2,133 @@
 {% load i18n static %}
 
 {% block page %}
-    <div class="btn-group pull-right">
-        <a href="{% url 'profile_update' %}" class="btn btn-success"><span class="glyphicon glyphicon-pencil"></span> {% trans "Update" %}</a>
-        <a href="{% url 'password_change' %}" class="btn btn-warning"><span class="glyphicon glyphicon-lock"></span> {% trans "Change password" %}</a>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="btn-group edit-buttons">
+                <a href="{% url 'profile_update' %}"
+                   class="btn btn-success"
+                   title="{% trans "Update" %}">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                    <span class="hidden-xs">{% trans "Update" %}</span>
+                </a>
+                <a href="{% url 'profile_delete' %}"
+                   class="btn btn-danger"
+                   title="{% trans "Delete account" %}">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </a>
+                <a href="{% url 'password_change' %}"
+                   class="btn btn-warning"
+                   title="{% trans "Change password" %}">
+                    <span class="glyphicon glyphicon-tower"></span>
+                    <span class="hidden-xs">{% trans "Change password" %}</span>
+                </a>
+                <a href="#"
+                   class="btn btn-info disabled"
+                   title="{% trans "Settings" %}">
+                    <span class="glyphicon glyphicon-cog"></span>
+                    <span class="hidden-xs">{% trans "Settings" %}</span>
+                </a>
+            </div>
+        </div>
     </div>
-    <div class="pull-left profile-avatar">
-        <img src="{{ profile.avatar_url }}" />
-    </div>
-    <h1><small>{{ profile.get_title_display }}</small> {{ profile }}</h1>
-    <p>{% blocktrans with age=profile.age %}{{ age }} y.o.{% endblocktrans %}</p>
 
-    <div class="clearfix"></div>
+    <div class="row owner">
+        <div class="col-xs-3 col-md-2">
+            <img src="{{ profile.avatar_url }}" />
+        </div>
+        <div class="col-xs-9 col-md-10">
+            <h1><small>{{ profile.get_title_display }}</small> {{ profile }}</h1>
+        </div>
+        {% if profile.birth_date %}
+            <div class="col-xs-12 col-sm-9">
+                <p>{% blocktrans with age=profile.age %}{{ age }} y.o.{% endblocktrans %}</p>
+            </div>
+        {% endif %}
+    </div>
 
     <h2>{% trans "About me" %}</h2>
     {{ profile.description|linebreaks }}
 
     <h2>
-        {% blocktrans count counter=profile.places.all|length trimmed %}
+        {% blocktrans count counter=profile.owned_places.all|length trimmed %}
             Place
         {% plural %}
             Places
         {% endblocktrans %}
     </h2>
     <ul class="list-group">
-        {% for place in profile.places.all %}
+        {% for place in places %}
             <li class="list-group-item">
                 <div class="btn-group pull-right">
-                    <a href="{% url 'place_update' place.pk %}" class="btn btn-success"><span class="glyphicon glyphicon-pencil"></span> {% trans "Update" %}</a>
-                    <a href="{% url 'place_delete' place.pk %}" class="btn btn-danger"><span class="glyphicon glyphicon-trash" title="{% trans "Delete" %}"></span></a>
+                    <a href="{% url 'place_update' place.pk %}" class="btn btn-success">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                        <span class="hidden-xs">{% trans "Update" %}</span>
+                    </a>
+                    <a href="{% url 'place_delete' place.pk %}" class="btn btn-danger">
+                        <span class="glyphicon glyphicon-trash" title="{% trans "Delete" %}"></span>
+                    </a>
+                    <a href="{% url 'authorized_users' place.pk %}" class="btn btn-warning">
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                        <span class="hidden-xs">{% trans "Authorizations" %}</span>
+                    </a>
+                    <a href="{% url 'place_detail' place.pk %}" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-arrow-right" title="{% trans "View this place" %}"></span>
+                        <span class="hidden-xs">{% trans "View" %}</span>
+                    </a>
                 </div>
                 <div>
-                    <strong>{{ place.address }}</strong><br />
-                    {{ place.postcode }} {{ place.city }}<br />
-                    {{ place.country.name }}<br />
+                    <h3>{{ place.address }}<br />
+                        <small><strong>
+                            {{ place.city }}<br />
+                            {{ place.postcode }} {{ place.country.name }}<br />
+                        </strong></small>
+                    </h3>
                 </div>
+
+                <ul class="list-group">
+                    {% for member in place.family_members.all %}
+                        <li class="list-group-item list-vertical-align">
+                            <div class="btn-group pull-right">
+                                {% if member != user.profile %}
+                                    <a href="{% url 'family_member_update' member.pk %}"
+                                       class="btn btn-success"
+                                       title="{% trans "Update" %}">
+                                        <span class="glyphicon glyphicon-pencil"></span>
+                                        <span class="hidden-xs">{% trans "Update" %}</span>
+                                    </a>
+                                {% endif %}
+
+                                <a href="{% url 'family_member_remove' place.pk member.pk %}"
+                                   class="btn btn-danger"
+                                   title="{% trans "Delete" %}">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </a>
+                            </div>
+
+                            <p class="details">
+                                {{ member.icon }}
+                                <b class="number">{{ member }}</b>
+                                {% if member.age %}<em>({{ member.age }})</em>{% endif %}
+                            </p>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <form action="{% url 'family_member_add_me' place.pk %}" method="post">
+                    {% csrf_token %}
+                    <a class="btn btn-info" href="{% url 'family_member_create' place.pk %}">
+                        <span class="glyphicon glyphicon-user"></span>
+                        <strong>{% trans "Add a family member" %}</strong>
+                    </a>
+                    {% if user.profile not in place.family_members.all %}
+                        <button type="submit" class="btn btn-info">
+                            <span class="glyphicon glyphicon-user"></span>
+                            <strong>{% trans "Add me" %}</strong>
+                        </button>
+                    {% endif %}
+                </form>
             </li>
+            <p>&nbsp;</p>
         {% endfor %}
     </ul>
 
@@ -46,30 +138,32 @@
 
     <h2>{% trans "Phones" %}</h2>
     <ul class="list-group phone-list">
-        {% for phone in profile.phones.all %}
-            <li class="list-group-item phone">
+        {% for phone in phones %}
+            <li class="list-group-item list-vertical-align">
                 <div class="btn-group pull-right">
-                    <a href="{% url 'phone_update' phone.number.as_e164|cut:"+" %}" class="btn btn-success"><span class="glyphicon glyphicon-pencil"></span> {% trans "Update" %}</a>
-                    <a href="{% url 'phone_delete' phone.number.as_e164|cut:"+" %}" class="btn btn-danger"><span class="glyphicon glyphicon-trash" title="{% trans "Delete" %}"></span></a>
+                    <a href="{% url 'phone_update' phone.number.as_e164|cut:"+" %}"
+                       class="btn btn-success"
+                       title="{% trans "Update" %}">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                        <span class="hidden-xs">{% trans "Update" %}</span>
+                    </a>
+                    <a href="{% url 'phone_delete' phone.number.as_e164|cut:"+" %}"
+                       class="btn btn-danger"
+                       title="{% trans "Delete" %}">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </a>
                 </div>
 
                 <p class="details">
-                    {% if phone.type = phone.HOME %}
-                        <span class="glyphicon glyphicon-earphone" title="{{ phone.get_type_display|capfirst }}"></span>
-                    {% elif phone.type = phone.WORK %}
-                        <span class="glyphicon glyphicon-phone-alt" title="{{ phone.get_type_display|capfirst }}"></span>
-                    {% elif phone.type = phone.MOBILE %}
-                        <span class="glyphicon glyphicon-phone" title="{{ phone.get_type_display|capfirst }}"></span>
-                    {% elif phone.type = phone.FAX %}
-                        <span class="glyphicon glyphicon-print" title="{{ phone.get_type_display|capfirst }}"></span>
-                    {% endif %}
+                    {{ phone.icon }}
                     <b class="number">{{ phone.number.as_international }}</b>
                     <em>{{ phone.comments }}</em>
                 </p>
             </li>
         {% endfor %}
     </ul>
-    <a class="btn btn-info" href="{% url 'phone_create' %}"><span class="glyphicon glyphicon-plus"></span>
+    <a class="btn btn-info" href="{% url 'phone_create' %}">
+        <span class="glyphicon glyphicon-plus"></span>
         <strong>{% trans "Add a phone" %}</strong>
     </a>
 {% endblock page %}
