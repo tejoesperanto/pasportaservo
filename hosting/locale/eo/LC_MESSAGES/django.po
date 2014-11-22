@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-22 10:02+0000\n"
-"PO-Revision-Date: 2014-11-22 11:29+0100\n"
+"POT-Creation-Date: 2014-11-22 11:31+0000\n"
+"PO-Revision-Date: 2014-11-22 12:32+0100\n"
 "Last-Translator: Baptiste Darthenay <taggit.batisteo@recursor.net>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -67,15 +67,15 @@ msgstr "Lasu malplene"
 msgid "User address already in use."
 msgstr "Uzanta adreso jam uzita."
 
-#: forms.py:92
+#: forms.py:98
 msgid "Choose your conditions..."
 msgstr "Elektu viajn kondiĉojn…"
 
-#: forms.py:131
+#: forms.py:137
 msgid "Authorize user"
 msgstr "Permesi uzanton"
 
-#: forms.py:135
+#: forms.py:141
 msgid "username"
 msgstr "uzantnomo"
 
@@ -275,7 +275,6 @@ msgid "conditions"
 msgstr "kondiĉoj"
 
 #: models.py:135
-#| msgid "Family members"
 msgid "family members"
 msgstr "kunloĝantoj"
 
@@ -787,67 +786,72 @@ msgstr "^profilo/redakti/$"
 msgid "^profile/delete/$"
 msgstr "^profilo/forigi/$"
 
-#: urls.py:14
+#: urls.py:13
+#| msgid "^profile/create/$"
+msgid "^profile/settings/$"
+msgstr "^profilo/agordoj/$"
+
+#: urls.py:15
 msgid "^place/(?P<pk>\\d+)/$"
 msgstr "^ejo/(?P<pk>\\d+)/$"
 
-#: urls.py:15
+#: urls.py:16
 msgid "^place/create/$"
 msgstr "^ejo/krei/$"
 
-#: urls.py:16
+#: urls.py:17
 msgid "^place/(?P<pk>\\d+)/update/$"
 msgstr "^ejo/(?P<pk>\\d+)/redakti/$"
 
-#: urls.py:17
+#: urls.py:18
 msgid "^place/(?P<pk>\\d+)/delete/$"
 msgstr "^ejo/(?P<pk>\\d+)/forigi/$"
 
-#: urls.py:18
+#: urls.py:19
 msgid "^place/(?P<pk>\\d+)/authorized/$"
 msgstr "^ejo/(?P<pk>\\d+)/permesitaj/$"
 
-#: urls.py:19
+#: urls.py:20
 msgid "^place/(?P<pk>\\d+)/authorize/$"
 msgstr "^ejo/(?P<pk>\\d+)/permesi/$"
 
-#: urls.py:20
+#: urls.py:21
 msgid "^place/(?P<pk>\\d+)/authorize/(?P<user>\\w+)/$"
 msgstr "^ejo/(?P<pk>\\d+)/permesi/(?P<user>\\w+)/$"
 
-#: urls.py:21
+#: urls.py:22
 msgid "^place/(?P<pk>\\d+)/family-member/create/$"
 msgstr "^ejo/(?P<pk>\\d+)/kunloganto/krei/$"
 
-#: urls.py:22
+#: urls.py:23
 msgid "^family-member/(?P<pk>\\d+)/update/$"
 msgstr "^kunloganto/(?P<pk>\\d+)/redakti/$"
 
-#: urls.py:23
+#: urls.py:24
 msgid "^place/(?P<place_pk>\\d+)/family-member/add-me/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/min-aldoni/$"
 
-#: urls.py:24
+#: urls.py:25
 msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/remove/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/forpreni/$"
 
-#: urls.py:25
+#: urls.py:26
 msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/delete/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/forigi/$"
 
-#: urls.py:27
+#: urls.py:28
 msgid "^phone/create/$"
 msgstr "^telefono/krei/$"
 
-#: urls.py:28
+#: urls.py:29
 msgid "^phone/(?P<num>\\w+)/update/$"
 msgstr "^telefono/(?P<num>\\w+)/redakti/$"
 
-#: urls.py:29
+#: urls.py:30
 msgid "^phone/(?P<num>\\w+)/delete/$"
 msgstr "^telefono/(?P<num>\\w+)/forigi/$"
 
-#: urls.py:31
+#: urls.py:32
 msgid "^search/$"
 msgstr "^esplori/$"
 
@@ -871,6 +875,6 @@ msgstr "Dosiertipo ne akceptebla"
 msgid "Please keep filesize under %s. Current filesize %s"
 msgstr "Bv. gardi dosiergrando sub %s. Nuna grando: %s"
 
-#: views.py:304
+#: views.py:317
 msgid "[Pasporta Servo] You received an Authorization"
 msgstr "[Pasporta Servo] Vi ricevis permeson"
