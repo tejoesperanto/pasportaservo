@@ -1,0 +1,8 @@
+{% extends "hosting/home.html" %}
+{% load i18n %}
+
+{% block home_title %}500{% endblock %}
+{% block home_subtitle %}
+    {% trans "Programmation error on the server" %}<br />
+    <small>{% trans "The administrators have been informed of the problem and will fix it as soon as possible." %}</small>
+{% endblock %}
