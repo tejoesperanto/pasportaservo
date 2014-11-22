@@ -16,7 +16,7 @@ from django_countries.fields import CountryField
 
 from .querysets import BaseQuerySet
 from .validators import (
-    validate_no_allcaps, validate_not_to_much_caps,
+    validate_no_allcaps, validate_not_to_much_caps, no_digit,
     validate_image, validate_size,
 )
 from .gravatar import email_to_gravatar
@@ -44,9 +44,9 @@ class Profile(TimeStampedModel):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, blank=True)
     title = models.CharField(_("title"), max_length=5, choices=TITLE_CHOICES, blank=True)
     first_name = models.CharField(_("first name"), max_length=255, blank=True,
-        validators=[validate_no_allcaps, validate_not_to_much_caps])
+        validators=[validate_no_allcaps, validate_not_to_much_caps, no_digit])
     last_name = models.CharField(_("last name"), max_length=255, blank=True,
-        validators=[validate_no_allcaps, validate_not_to_much_caps])
+        validators=[validate_no_allcaps, validate_not_to_much_caps, no_digit])
     birth_date = models.DateField(_("birth date"), blank=True, null=True)
     description = models.TextField(_("description"), help_text=_("Short biography."), blank=True)
     avatar = models.ImageField(_("avatar"), upload_to="avatars", blank=True,
@@ -103,10 +103,11 @@ class Place(TimeStampedModel):
     address = models.TextField(_("address"), blank=True,
         help_text=_("e.g.: Nieuwe Binnenweg 176"))
     city = models.CharField(_("city"), max_length=255, blank=True,
-        help_text=_("e.g.: Rotterdam"),
+        help_text=_("Name in the official language, not in Esperanto (e.g.: Rotterdam)"),
         validators = [validate_no_allcaps, validate_not_to_much_caps])
     closest_city = models.CharField(_("closest big city"), max_length=255, blank=True,
-        help_text=_("If you place is in a town near a bigger city."),
+        help_text=_("If you place is in a town near a bigger city. "
+                    "Name in the official language, not in Esperanto."),
         validators = [validate_no_allcaps, validate_not_to_much_caps])
     postcode = models.CharField(_("postcode"), max_length=11, blank=True)
     country = CountryField(_("country"))

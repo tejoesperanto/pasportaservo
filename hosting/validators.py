@@ -1,3 +1,5 @@
+from string import digits
+
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext_lazy as _
@@ -39,6 +41,13 @@ def validate_not_to_much_caps(value):
                         raise ValidationError(message)
                 else:
                     raise ValidationError(message)
+
+
+def no_digit(value):
+    """Validates if there is not digit in the string."""
+    message = _("Digits are not allowed.")
+    if any([char in digits for char in value]):
+        raise ValidationError(message)
 
 
 def validate_image(content):
