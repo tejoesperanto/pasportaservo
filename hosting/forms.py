@@ -1,13 +1,16 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.forms import AuthenticationForm as UserLoginForm, UserCreationForm
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 from chosen import forms as chosenforms
 from django_countries import countries
 from phonenumber_field.formfields import PhoneNumberField
 
 from .models import Profile, Place, Phone, Condition
+
+
+User = get_user_model()
 
 
 class UserRegistrationForm(UserCreationForm):
@@ -176,6 +179,13 @@ class AuthorizeUserForm(forms.Form):
         super(AuthorizeUserForm, self).__init__(*args, **kwargs)
         self.fields['user'].widget.attrs['placeholder'] = _("username")
 
+    def clean_user(self):
+        username = self.cleaned_data['user']
+        try:
+            User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise forms.ValidationError(_("User does not exist"))
+        return username
 
 class FamilyMemberForm(forms.ModelForm):
     class Meta:

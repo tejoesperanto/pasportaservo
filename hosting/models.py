@@ -24,6 +24,7 @@ from .gravatar import email_to_gravatar
 
 MRS, MR = 'Mrs', 'Mr'
 TITLE_CHOICES = (
+    (None, ""),
     (MRS, _("Mrs")),
     (MR, _("Mr")),
 )

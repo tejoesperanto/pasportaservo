@@ -67,7 +67,7 @@
                     <a href="{% url 'place_delete' place.pk %}" class="btn btn-danger">
                         <span class="glyphicon glyphicon-trash" title="{% trans "Delete" %}"></span>
                     </a>
-                    <a href="{% url 'authorized_users' place.pk %}" class="btn btn-warning">
+                    <a href="{% url 'authorize_user' place.pk %}" class="btn btn-warning">
                         <span class="glyphicon glyphicon-eye-open"></span>
                         <span class="hidden-xs">{% trans "Authorizations" %}</span>
                     </a>
