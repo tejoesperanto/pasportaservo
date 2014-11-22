@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-22 11:31+0000\n"
-"PO-Revision-Date: 2014-11-22 12:32+0100\n"
+"POT-Creation-Date: 2014-11-22 16:28+0000\n"
+"PO-Revision-Date: 2014-11-22 17:33+0100\n"
 "Last-Translator: Baptiste Darthenay <taggit.batisteo@recursor.net>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -43,7 +43,7 @@ msgstr "Pasvorta algoritmo"
 msgid "owner"
 msgstr "posedanto"
 
-#: admin.py:109 models.py:167
+#: admin.py:109 models.py:168
 msgid "number"
 msgstr "numero"
 
@@ -67,15 +67,29 @@ msgstr "Lasu malplene"
 msgid "User address already in use."
 msgstr "Uzanta adreso jam uzita."
 
-#: forms.py:98
+#: forms.py:70 forms.py:134
+msgid ""
+"You want to be in the printed edition of Pasporta Servo. In order to have a "
+"quality product, some fields a required. If you think there is a problem, "
+"please contact us."
+msgstr ""
+"Vi volas esti en la printita eldonaĵo de Pasporta Servo. Por havi kvalitan "
+"produkton, kelkaj kampoj estas devigaj. Se vi pensas ke estas problemo, bv. "
+"kontakti nin."
+
+#: forms.py:75 forms.py:141
+msgid "This field is required to be printed in the book."
+msgstr "Tiu kampo estas deviga por esti printita en la libro."
+
+#: forms.py:117
 msgid "Choose your conditions..."
 msgstr "Elektu viajn kondiĉojn…"
 
-#: forms.py:137
+#: forms.py:173
 msgid "Authorize user"
 msgstr "Permesi uzanton"
 
-#: forms.py:141
+#: forms.py:177
 msgid "username"
 msgstr "uzantnomo"
 
@@ -119,7 +133,7 @@ msgstr "familia nomo"
 msgid "birth date"
 msgstr "naskiĝtago"
 
-#: models.py:51 models.py:120
+#: models.py:51 models.py:121
 msgid "description"
 msgstr "priskribo"
 
@@ -135,19 +149,19 @@ msgstr "avataro"
 msgid "Small image under 100kB. Ideal size: 140x140 px."
 msgstr "Malgranda bildo, sub 100 kB. Ideala grando: 140×140 bilderoj."
 
-#: models.py:55 models.py:247
+#: models.py:55 models.py:248
 msgid "contact preferences"
 msgstr "preferataj kontaktmanieroj"
 
-#: models.py:57 models.py:139 models.py:173 models.py:210
+#: models.py:57 models.py:140 models.py:174 models.py:211
 msgid "checked"
 msgstr "kontrolita"
 
-#: models.py:58 models.py:140 models.py:174 models.py:211
+#: models.py:58 models.py:141 models.py:175 models.py:212
 msgid "deleted"
 msgstr "forigita"
 
-#: models.py:63 models.py:166 models.py:207
+#: models.py:63 models.py:167 models.py:208
 msgid "profile"
 msgstr "profilo"
 
@@ -168,186 +182,191 @@ msgid "city"
 msgstr "urbo"
 
 #: models.py:106
-msgid "e.g.: Rotterdam"
-msgstr "ekz: Rotterdam"
+msgid "Name in the official language, not in Esperanto (e.g.: Rotterdam)"
+msgstr "Nomo en la oficiala lingvo, ne en Esperanto (ekz: Rotterdam)"
 
 #: models.py:108
 msgid "closest big city"
 msgstr "plej proksima granda urbo"
 
 #: models.py:109
-msgid "If you place is in a town near a bigger city."
-msgstr "Se via loĝejo estas en urbeto proksime al granda urbo."
+#| msgid "If you place is in a town near a bigger city."
+msgid ""
+"If you place is in a town near a bigger city. Name in the official language, "
+"not in Esperanto."
+msgstr ""
+"Se via loĝejo estas en urbeto proksime al granda urbo. Nomo en la oficiala "
+"lingvo, ne en Esperanto."
 
-#: models.py:111
+#: models.py:112
 msgid "postcode"
 msgstr "poŝtkodo"
 
-#: models.py:112 models.py:168
+#: models.py:113 models.py:169
 msgid "country"
 msgstr "lando"
 
-#: models.py:113
+#: models.py:114
 msgid "State / Province"
 msgstr "Ŝtato / Provinco"
 
-#: models.py:114
+#: models.py:115
 msgid "latitude"
 msgstr "latitudo"
 
-#: models.py:115
+#: models.py:116
 msgid "longitude"
 msgstr "longitudo"
 
-#: models.py:116
+#: models.py:117
 msgid "maximum number of guest"
 msgstr "maksimuma nombro da gastoj"
 
-#: models.py:117
+#: models.py:118
 msgid "maximum number of night"
 msgstr "maksimuma nombro da noktoj"
 
-#: models.py:118
+#: models.py:119
 msgid "contact before"
 msgstr "kontakti antaŭ"
 
-#: models.py:119
+#: models.py:120
 msgid "Number of days before people should contact host."
 msgstr "Nombro da tagoj antaŭ homoj devus kontakti la gastiganto."
 
-#: models.py:121
+#: models.py:122
 msgid "Description or remarks about your place."
 msgstr "Priskriboj aŭ rimarkoj pri via loĝejo."
 
-#: models.py:122
+#: models.py:123
 msgid "short description"
 msgstr "mallonga priskribo"
 
-#: models.py:123
+#: models.py:124
 msgid "Used in the book, 140 character maximum."
 msgstr "Uzita en la libro, 140 signoj maksimume."
 
-#: models.py:124
+#: models.py:125
 msgid "booked"
 msgstr "rezervita"
 
-#: models.py:125
+#: models.py:126
 msgid "If the place is currently booked."
 msgstr "Ĉu la loĝejo estas nuntempe rezervita?"
 
-#: models.py:126 templates/hosting/place_detail.html:24
+#: models.py:127 templates/hosting/place_detail.html:24
 msgid "available"
 msgstr "disponebla"
 
-#: models.py:127
+#: models.py:128
 msgid "If this place is searchable. If yes, you will be considered as host."
 msgstr ""
 "Ĉu tiu loĝejo estas serĉebla? Se jes, vi estos konsiderita kiel gastiganto."
 
-#: models.py:128
+#: models.py:129
 msgid "print in book"
 msgstr "printu en la PS libreto"
 
-#: models.py:129
+#: models.py:130
 msgid "If you want this place to be in the printed book. Must be available."
 msgstr ""
 "Se vi deziras ke tiu loĝejo estu printita en la libreto. Devas estis "
 "disponebla."
 
-#: models.py:130
+#: models.py:131
 msgid "tour guide"
 msgstr "ĉiĉeronado"
 
-#: models.py:131
+#: models.py:132
 msgid "If you are ready to show your area to visitors."
 msgstr "Se vi volonte montros vian ĉirkaŭaĵon al vizitantoj."
 
-#: models.py:132
+#: models.py:133
 msgid "have a drink"
 msgstr "trinkejumado"
 
-#: models.py:133
+#: models.py:134
 msgid "If you are ready to have a coffee or beer with visitors."
 msgstr "Se vi volonte kafumos aŭ bierumos kun vizitantoj."
 
-#: models.py:134 models.py:234
+#: models.py:135 models.py:235
 msgid "conditions"
 msgstr "kondiĉoj"
 
-#: models.py:135
+#: models.py:136
 msgid "family members"
 msgstr "kunloĝantoj"
 
-#: models.py:136
+#: models.py:137
 msgid "authorized users"
 msgstr "permesitaj uzantoj"
 
-#: models.py:137
+#: models.py:138
 msgid "List of users authorized to view most of data of this accommodation."
 msgstr ""
 "Listo de uzantoj kiuj estis permesitaj rigardi la datenojn de tiu ĉi loĝejo."
 
-#: models.py:145
+#: models.py:146
 msgid "place"
 msgstr "loĝejo"
 
-#: models.py:146
+#: models.py:147
 msgid "places"
 msgstr "loĝejoj"
 
-#: models.py:169
+#: models.py:170
 msgid "comments"
 msgstr "komentoj"
 
-#: models.py:170
+#: models.py:171
 msgid "phone type"
 msgstr "tipo de telefono"
 
-#: models.py:179
+#: models.py:180
 msgid "phone"
 msgstr "telefono"
 
-#: models.py:180
+#: models.py:181
 msgid "phones"
 msgstr "telefonoj"
 
-#: models.py:208
+#: models.py:209
 msgid "URL"
 msgstr "URL"
 
-#: models.py:216
+#: models.py:217
 msgid "website"
 msgstr "retejo"
 
-#: models.py:217
+#: models.py:218
 msgid "websites"
 msgstr "retejoj"
 
-#: models.py:226 models.py:243
+#: models.py:227 models.py:244
 msgid "name"
 msgstr "nomo"
 
-#: models.py:227
+#: models.py:228
 msgid "E.g.: 'Ne fumu'."
 msgstr "Ekz: 'Ne fumu'."
 
-#: models.py:228
+#: models.py:229
 msgid "abbreviation"
 msgstr "mallongigo"
 
-#: models.py:229
+#: models.py:230
 msgid "Official abbreviation as used in the book. E.g.: 'Nef.'"
 msgstr "Oficiala mallongigo tiel, kiel uzata en la libro. Ekz: 'Nef.'"
 
-#: models.py:230
+#: models.py:231
 msgid "URL friendly name"
 msgstr "URL-amikeca nomo"
 
-#: models.py:233
+#: models.py:234
 msgid "condition"
 msgstr "kondiĉo"
 
-#: models.py:246
+#: models.py:247
 msgid "contact preference"
 msgstr "preferata kontaktmaniero"
 
@@ -787,7 +806,6 @@ msgid "^profile/delete/$"
 msgstr "^profilo/forigi/$"
 
 #: urls.py:13
-#| msgid "^profile/create/$"
 msgid "^profile/settings/$"
 msgstr "^profilo/agordoj/$"
 
@@ -855,22 +873,26 @@ msgstr "^telefono/(?P<num>\\w+)/forigi/$"
 msgid "^search/$"
 msgstr "^esplori/$"
 
-#: validators.py:14
+#: validators.py:16
 #, python-brace-format
 msgid "Today is not CapsLock day. Please try with '{correct_value}'."
 msgstr "La CapsLock tago ne estas hodiaŭ. Bv. provi kun “{correct_value}”."
 
-#: validators.py:23
+#: validators.py:25
 #, python-brace-format
 msgid ""
 "This seems there is too much uppercase letters. Try with '{correct_value}'."
 msgstr "Ŝajnas, ke estas tro da majuskloj. Provu kun “{correct_value}”."
 
-#: validators.py:49
+#: validators.py:48
+msgid "Digits are not allowed."
+msgstr "Tiu kampo ne haveblas ciferojn."
+
+#: validators.py:58
 msgid "File type is not supported"
 msgstr "Dosiertipo ne akceptebla"
 
-#: validators.py:56
+#: validators.py:65
 #, python-format
 msgid "Please keep filesize under %s. Current filesize %s"
 msgstr "Bv. gardi dosiergrando sub %s. Nuna grando: %s"
@@ -878,3 +900,6 @@ msgstr "Bv. gardi dosiergrando sub %s. Nuna grando: %s"
 #: views.py:317
 msgid "[Pasporta Servo] You received an Authorization"
 msgstr "[Pasporta Servo] Vi ricevis permeson"
+
+#~ msgid "e.g.: Rotterdam"
+#~ msgstr "ekz: Rotterdam"
