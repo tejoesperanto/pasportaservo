@@ -60,6 +60,25 @@ class ProfileForm(forms.ModelForm):
         super(ProfileForm, self).__init__(*args, **kwargs)
         self.fields['birth_date'].widget.attrs['placeholder'] = 'jjjj-mm-tt'
 
+    def clean(self):
+        """Sets some fields as required if user wants his data to be printed in book."""
+        cleaned_data = super(ProfileForm, self).clean()
+        profile = self.user.profile
+        in_book = any([place.in_book for place in profile.owned_places.all()])
+        required_fields = ['title', 'first_name', 'last_name']
+        all_filled = all([cleaned_data[field] for field in required_fields])
+        message = _("You want to be in the printed edition of Pasporta Servo. "
+                    "In order to have a quality product, some fields a required. "
+                    "If you think there is a problem, please contact us.")
+
+        if in_book and not all_filled:
+            msg = _("This field is required to be printed in the book.")
+            for field in required_fields:
+                if not cleaned_data[field]:
+                    self.add_error(field, msg)
+            raise forms.ValidationError(message)
+        return cleaned_data
+
     def save(self, commit=True):
         profile = super(ProfileForm, self).save(commit=False)
         profile.user = self.user
@@ -105,6 +124,23 @@ class PlaceForm(forms.ModelForm):
         super(PlaceForm, self).__init__(*args, **kwargs)
         self.fields['conditions'].help_text = ""
         self.fields['owner'].initial = self.profile
+
+    def clean(self):
+        """Sets some fields as required if user wants his data to be printed in book."""
+        cleaned_data = super(PlaceForm, self).clean()
+        required_fields = ['address', 'city', 'postcode', 'country',
+            'short_description', 'available', 'latitude', 'longitude']
+        all_filled = all([cleaned_data[field] for field in required_fields])
+        message = _("You want to be in the printed edition of Pasporta Servo. "
+                    "In order to have a quality product, some fields a required. "
+                    "If you think there is a problem, please contact us.")
+
+        if cleaned_data['in_book'] and not all_filled:
+            for field in required_fields:
+                if not cleaned_data[field]:
+                    self.add_error(field, _("This field is required to be printed in the book."))
+            raise forms.ValidationError(message)
+        return cleaned_data
 
 
 class PlaceCreateForm(PlaceForm):
