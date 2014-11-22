@@ -1,0 +1,41 @@
+{% extends 'hosting/base_form.html' %}
+{% load i18n %}
+
+{% block form_action %}{% url 'authorize_user' pk=place.pk %}{% endblock %}
+{% block form_submit_button %}<span class="glyphicon glyphicon-plus"></span> {% trans "Authorize" %}{% endblock %}
+
+{% block form_before %}
+    <h1 class="text-center">{% trans "Authorized users" %}</h1>
+    <p class="col-xs-12 col-md-8 col-md-offset-2 text-center lead">
+        {% trans "Authorized users can see your full address, family members and telephone numbers." %}
+        {% trans "Your email still remain private" %}
+    </p>
+{% endblock form_before %}
+
+
+{% block form_back_link %}
+    <a href="{% url 'profile_detail' %}" class="btn btn-default">
+        <span class="glyphicon glyphicon-arrow-left"></span>
+        {% trans "Back" %}
+    </a>
+{% endblock %}
+
+{% block form_after %}
+    <div class="clearfix"></div>
+
+    {% for user in place.authorized_users.all %}
+        <div class="col-xs-12 col-md-6 col-md-offset-3">
+            <p class="col-xs-12 well">
+                <a href="{% url 'authorize_user_link' place.pk user %}"
+                   class="btn-sm btn-danger pull-right"
+                   title="{% trans "Remove user" %}">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </a>
+                <span class="authorized-user">
+                    {{ user.profile.full_name }}
+                    (<a href="#">{{ user.username }}</a>)
+                </span>
+            </p>
+        </div>
+    {% endfor %}
+{% endblock form_after %}

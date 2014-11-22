@@ -3,6 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.forms import AuthenticationForm as UserLoginForm, UserCreationForm
 from django.contrib.auth.models import User
 
+from chosen import forms as chosenforms
 from django_countries import countries
 from phonenumber_field.formfields import PhoneNumberField
 
@@ -57,6 +58,7 @@ class ProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
         super(ProfileForm, self).__init__(*args, **kwargs)
+        self.fields['birth_date'].widget.attrs['placeholder'] = 'jjjj-mm-tt'
 
     def save(self, commit=True):
         profile = super(ProfileForm, self).save(commit=False)
@@ -83,18 +85,28 @@ class PlaceForm(forms.ModelForm):
             'in_book',
             'conditions',
             'latitude', 'longitude',
+            'owner',
         ]
+        widgets = {
+            'conditions': chosenforms.ChosenSelectMultiple(
+                overlay=_("Choose your conditions..."),
+            ),
+            'owner': forms.HiddenInput,
+        }
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
         super(PlaceForm, self).__init__(*args, **kwargs)
+        self.fields['conditions'].help_text = ""
+        self.fields['owner'].initial = self.profile
 
+
+class PlaceCreateForm(PlaceForm):
     def save(self, commit=True):
         place = super(PlaceForm, self).save(commit=True)
-        place.owner = self.profile
         if commit:
             place.save()
-            self.profile.places.add(place)
+            place.family_members.add(self.profile)
         return place
 
 
@@ -113,3 +125,28 @@ class PhoneForm(forms.ModelForm):
         if commit:
             phone.save()
         return phone
+
+
+class AuthorizeUserForm(forms.Form):
+    user = forms.CharField(label=_("Authorize user"), max_length=254)
+
+    def __init__(self, *args, **kwargs):
+        super(AuthorizeUserForm, self).__init__(*args, **kwargs)
+        self.fields['user'].widget.attrs['placeholder'] = _("username")
+
+
+class FamilyMemberForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['title', 'first_name', 'last_name', 'birth_date']
+
+
+class FamilyMemberCreateForm(FamilyMemberForm):
+    def __init__(self, *args, **kwargs):
+        self.place = kwargs.pop('place')
+        super(FamilyMemberForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        family_member = super(FamilyMemberForm, self).save()
+        self.place.family_members.add(family_member)
+        return family_member

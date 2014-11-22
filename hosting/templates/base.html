@@ -2,16 +2,16 @@
 {% load i18n static %}
 <html lang="{{ LANGUAGE_CODE }}">
     <head>
-        <title>{% block head_title %}{% trans "Find accomodation" %}{% endblock %} | Pasporta Servo</title>
         <meta charset="utf-8">
+        <link rel="icon" type="image/png" href="{% static 'img/PS_favicon.png' %}" />
+        <title>{% block head_title %}{% trans "Find accomodation" %}{% endblock %} | Pasporta Servo</title>
         <meta name="description" content="{% block head_description %}{% endblock %}">
         <meta name="viewport" content="width=device-width"></meta>
-        <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-        <link rel="stylesheet" href="{% static 'css/bootstrap-theme.min.css' %}">
+        <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
         <link rel="stylesheet" href="{% static 'css/pasportaservo.css' %}">
         {% block extra_css %}{% endblock %}
         <script src="{% static 'js/jquery.min.js' %}"></script>
-        <script src="{% static 'js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
         {% block extra_js %}{% endblock %}
         {% block extra_head %}{% endblock %}
     </head>

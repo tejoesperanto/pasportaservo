@@ -36,7 +36,7 @@
                 </a>
             </div>
             <div class="col-xs-5 col-sm-6 col-md-7 name">
-                <a href="{% url 'place_detail' place.pk %}">{{ place.profile_set.first.anonymous_name }}</a>
+                <a href="{% url 'place_detail' place.pk %}">{{ place.family_members.first.anonymous_name }}</a>
             </div>
             <div class="col-xs-4 status">
                 {% if place.booked or not place.available %}{% trans "unavailable" %}{% endif %}
@@ -68,6 +68,6 @@
 
 <ul>
     {% for place in place_list %}
-        <li>{{ place.profile_set.first }}: {{ place.address }}</li>
+        <li>{{ place.family_members.first }}: {{ place.address }}</li>
     {% endfor %}
 </ul>

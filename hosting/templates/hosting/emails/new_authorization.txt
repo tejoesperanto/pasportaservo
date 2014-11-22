@@ -1,0 +1,17 @@
+{% load i18n %}{% blocktrans trimmed %}
+    Dear {{ user_first_name }},
+{% endblocktrans %}
+
+{% blocktrans trimmed %}
+    You've been authorized to see the complete address of {{ owner_name }}!
+{% endblocktrans %}
+
+{% blocktrans trimmed %}
+    Follow this link to see this accommodation:
+{% endblocktrans %}
+{% if request.is_secure %}https{% else %}http{% endif %}://{{ site_domain }}{% url 'place_detail' place_id %}
+
+
+{% blocktrans trimmed %}
+    The {{ site_name }} team
+{% endblocktrans %}
