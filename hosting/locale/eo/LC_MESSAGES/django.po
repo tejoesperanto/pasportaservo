@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-22 16:28+0000\n"
-"PO-Revision-Date: 2014-11-22 17:33+0100\n"
+"POT-Creation-Date: 2014-11-22 17:31+0000\n"
+"PO-Revision-Date: 2014-11-22 18:35+0100\n"
 "Last-Translator: Baptiste Darthenay <taggit.batisteo@recursor.net>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -190,7 +190,6 @@ msgid "closest big city"
 msgstr "plej proksima granda urbo"
 
 #: models.py:109
-#| msgid "If you place is in a town near a bigger city."
 msgid ""
 "If you place is in a town near a bigger city. Name in the official language, "
 "not in Esperanto."
@@ -374,15 +373,15 @@ msgstr "preferata kontaktmaniero"
 msgid "Find accomodation"
 msgstr "Trovi loĝejon"
 
-#: templates/hosting/base.html:23 templates/hosting/home.html:14
+#: templates/hosting/base.html:23 templates/hosting/home.html:22
 msgid "log out"
 msgstr "elsaluti"
 
-#: templates/hosting/base.html:25 templates/hosting/home.html:16
+#: templates/hosting/base.html:25 templates/hosting/home.html:27
 msgid "log in"
 msgstr "ensaluti"
 
-#: templates/hosting/base.html:36 templates/hosting/home.html:27
+#: templates/hosting/base.html:36 templates/hosting/home.html:38
 msgid "register"
 msgstr "registri"
 
@@ -437,11 +436,19 @@ msgstr "Forigi profilon"
 msgid "Just remove"
 msgstr "Nur forpreni"
 
-#: templates/hosting/home.html:48 templates/hosting/place_list.html:14
+#: templates/hosting/home.html:24
+msgid "admin site"
+msgstr "administrilo"
+
+#: templates/hosting/home.html:43
+msgid "test version"
+msgstr "Prova versio: tiu retejo ne estas konsiderita kiel finpreta"
+
+#: templates/hosting/home.html:51 templates/hosting/place_list.html:14
 msgid "Budapest, London, Venezuela, etc."
 msgstr "Budapeŝto, Londono, Venezuelo, ktp."
 
-#: templates/hosting/home.html:71
+#: templates/hosting/home.html:74
 msgid "Find accomodation<br>anywhere in the world."
 msgstr "Trovu loĝejon<br>ĉie ajn sur la planedo"
 
