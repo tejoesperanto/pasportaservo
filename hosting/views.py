@@ -19,6 +19,8 @@ from .forms import (UserRegistrationForm, ProfileSettingsForm,
     FamilyMemberForm, FamilyMemberCreateForm)
 from .utils import extend_bbox
 
+
+User = get_user_model()
 lang = settings.LANGUAGE_CODE
 
 
@@ -41,7 +43,7 @@ home = HomeView.as_view()
 
 
 class RegisterView(AnonymousRequiredMixin, generic.CreateView):
-    model = get_user_model()
+    model = User
     template_name = 'registration/register.html'
     form_class = UserRegistrationForm
     success_url = reverse_lazy('profile_create')
@@ -135,7 +137,7 @@ profile_detail = ProfileDetailView.as_view()
 
 
 class ProfileSettingsView(LoginRequiredMixin, generic.UpdateView):
-    model = get_user_model()
+    model = User
     template_name = 'hosting/base_form.html'
     form_class = ProfileSettingsForm
     success_url = reverse_lazy('profile_detail')
@@ -285,33 +287,32 @@ class SearchView(generic.ListView):
 search = SearchView.as_view()
 
 
-class AuthorizedUsersView(LoginRequiredMixin, generic.DetailView):
-    model = Place
-    template_name = 'hosting/place_authorized_users.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(AuthorizedUsersView, self).get_context_data(**kwargs)
-        context['form'] = AuthorizeUserForm
-        return context
-
-authorized_users = AuthorizedUsersView.as_view()
-
-
 class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
     """Form view to add a user to the list of authorized users
     for a place to be able to see more details."""
+    template_name = 'hosting/place_authorized_users.html'
     form_class = AuthorizeUserForm
 
+    def dispatch(self, request, *args, **kwargs):
+        self.place = get_object_or_404(Place,
+                                       pk=self.kwargs['pk'],
+                                       owner=self.request.user)
+        return super(AuthorizeUserView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(AuthorizeUserView, self).get_context_data(**kwargs)
+        context['place'] = self.place
+        return context
+
     def form_valid(self, form):
-        place = get_object_or_404(Place, pk=self.kwargs['pk'], owner=self.request.user)
-        user = get_object_or_404(get_user_model(), username=form.cleaned_data['user'])
-        if user not in place.authorized_users.all():
-            place.authorized_users.add(user)
-            self.send_email(user, place)
+        user = get_object_or_404(User, username=form.cleaned_data['user'])
+        if user not in self.place.authorized_users.all():
+            self.place.authorized_users.add(user)
+            self.send_email(user, self.place)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse_lazy('authorized_users', kwargs={'pk': self.kwargs['pk']})
+        return reverse_lazy('authorize_user', kwargs={'pk': self.kwargs['pk']})
 
     def send_email(self, user, place):
         subject = _("[Pasporta Servo] You received an Authorization")
@@ -334,7 +335,7 @@ class AuthorizeUserLinkView(LoginRequiredMixin, generic.View):
     """Add (or remove if present) a user to the list of authorized users
     for a place to be able to see more details."""
     def dispatch(self, request, *args, **kwargs):
-        self.user = get_object_or_404(get_user_model(), username=kwargs['user'])
+        self.user = get_object_or_404(User, username=kwargs['user'])
         self.place = get_object_or_404(Place, pk=kwargs['pk'], owner=request.user)
         if self.user in self.place.authorized_users.all():
             self.place.authorized_users.remove(self.user)

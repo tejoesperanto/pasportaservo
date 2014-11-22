@@ -15,7 +15,7 @@ admin.site.unregister(User)
 class PlaceInLine(admin.StackedInline):
     model = Place
     extra = 0
-    raw_id_fields = ['owner', 'family_members', 'authorized_users']
+    raw_id_fields = ('owner', 'family_members', 'authorized_users')
     inline_classes = ('grp-collapse grp-open',)
 
 
