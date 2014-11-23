@@ -11,7 +11,7 @@ from postman import views as postman_views
 
 urlpatterns = patterns('',
     url(r'^grappelli/', include('grappelli.urls')),
-    url(r'^administrilo/', include(admin.site.urls)),
+    url(_(r'^admin/'), include(admin.site.urls)),
 
     url(_(r'^login/$'),
         view='django.contrib.auth.views.login',
