@@ -176,6 +176,7 @@ class Phone(TimeStampedModel):
     objects = BaseQuerySet.as_manager()
 
     class Meta:
+        unique_together = ('profile', 'number')
         verbose_name = _("phone")
         verbose_name_plural = _("phones")
 

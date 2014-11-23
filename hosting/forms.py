@@ -167,6 +167,15 @@ class PhoneForm(forms.ModelForm):
         self.profile = kwargs.pop('profile')
         super(PhoneForm, self).__init__(*args, **kwargs)
 
+    def clean(self):
+        """Checks if the number and the profile are unique together."""
+        cleaned_data = super(PhoneForm, self).clean()
+        number = cleaned_data['number']
+        if Phone.objects.filter(number=number, profile=self.profile):
+            self.add_error('number', _("You already have this telephone number."))
+        return cleaned_data
+        
+
     def save(self, commit=True):
         phone = super(PhoneForm, self).save(commit=False)
         phone.profile = self.profile
