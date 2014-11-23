@@ -170,9 +170,10 @@ class PhoneForm(forms.ModelForm):
     def clean(self):
         """Checks if the number and the profile are unique together."""
         cleaned_data = super(PhoneForm, self).clean()
-        number = cleaned_data['number']
-        if Phone.objects.filter(number=number, profile=self.profile):
-            self.add_error('number', _("You already have this telephone number."))
+        if cleaned_data.get('number', False):
+            number = cleaned_data['number'].as_international
+            if Phone.objects.filter(number=number, profile=self.profile):
+                self.add_error('number', _("You already have this telephone number."))
         return cleaned_data
         
 
