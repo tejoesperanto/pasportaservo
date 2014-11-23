@@ -5,6 +5,8 @@ except ImportError:
     warn("\nFile secrets.py not found.",
     UserWarning)
 
+DEBUG = False
+
 SECRET_KEY = secrets.SECRET_KEY
 
 DATABASES = {
@@ -18,8 +20,6 @@ DATABASES = {
     }
 }
 
-STATIC_URL = 'http://static.pasportaservo.org/'
-
 EMAIL_HOST = secrets.EMAIL_HOST
 EMAIL_HOST_USER = secrets.EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = secrets.EMAIL_HOST_PASSWORD
@@ -28,12 +28,12 @@ EMAIL_USE_SSL = secrets.EMAIL_USE_SSL
 SERVER_EMAIL = secrets.SERVER_EMAIL
 DEFAULT_FROM_EMAIL = secrets.DEFAULT_FROM_EMAIL
 
-DEBUG = False
+STATIC_URL = 'http://static.pasportaservo.org/'
+MEDIA_URL = 'http://static.pasportaservo.org/media/'
 
 ALLOWED_HOSTS = [
     'pasportaservo.org',
     'www.pasportaservo.org',
-    'pasportaservo.batisteo.eu',
 ]
 
 ADMINS = (
