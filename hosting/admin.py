@@ -74,7 +74,7 @@ class PlaceAdmin(admin.ModelAdmin):
         'address', 'city', 'postcode', 'country', 'state_province',
         'latitude', 'longitude',
         # 'max_host', 'max_night', 'contact_before',
-        'booked', 'available', 'in_book',
+        'available', 'in_book',
         'owner_link',
     )
     list_display_links = (
