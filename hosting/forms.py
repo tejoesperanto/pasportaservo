@@ -66,20 +66,21 @@ class ProfileForm(forms.ModelForm):
     def clean(self):
         """Sets some fields as required if user wants his data to be printed in book."""
         cleaned_data = super(ProfileForm, self).clean()
-        profile = self.user.profile
-        in_book = any([place.in_book for place in profile.owned_places.all()])
-        required_fields = ['title', 'first_name', 'last_name']
-        all_filled = all([cleaned_data[field] for field in required_fields])
-        message = _("You want to be in the printed edition of Pasporta Servo. "
-                    "In order to have a quality product, some fields a required. "
-                    "If you think there is a problem, please contact us.")
+        profile = getattr(self.user, 'profile', None)
+        if profile:
+            in_book = any([place.in_book for place in profile.owned_places.all()])
+            required_fields = ['title', 'first_name', 'last_name']
+            all_filled = all([cleaned_data[field] for field in required_fields])
+            message = _("You want to be in the printed edition of Pasporta Servo. "
+                        "In order to have a quality product, some fields a required. "
+                        "If you think there is a problem, please contact us.")
 
-        if in_book and not all_filled:
-            msg = _("This field is required to be printed in the book.")
-            for field in required_fields:
-                if not cleaned_data[field]:
-                    self.add_error(field, msg)
-            raise forms.ValidationError(message)
+            if in_book and not all_filled:
+                msg = _("This field is required to be printed in the book.")
+                for field in required_fields:
+                    if not cleaned_data[field]:
+                        self.add_error(field, msg)
+                raise forms.ValidationError(message)
         return cleaned_data
 
     def save(self, commit=True):
@@ -133,14 +134,16 @@ class PlaceForm(forms.ModelForm):
         cleaned_data = super(PlaceForm, self).clean()
         required_fields = ['address', 'city', 'postcode', 'country',
             'short_description', 'available', 'latitude', 'longitude']
-        all_filled = all([cleaned_data[field] for field in required_fields])
+        all_filled = all([cleaned_data.get(field, False) for field in required_fields])
         message = _("You want to be in the printed edition of Pasporta Servo. "
                     "In order to have a quality product, some fields a required. "
                     "If you think there is a problem, please contact us.")
 
         if cleaned_data['in_book'] and not all_filled:
             for field in required_fields:
-                if not cleaned_data[field]:
+                if field in ['latitude', 'longitude']:
+                    raise forms.ValidationError(_("Please click on the map to choose your location."))
+                if not cleaned_data.get(field, False):
                     self.add_error(field, _("This field is required to be printed in the book."))
             raise forms.ValidationError(message)
         return cleaned_data
