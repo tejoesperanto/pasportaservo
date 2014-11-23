@@ -33,10 +33,10 @@ DEBUG = False
 ALLOWED_HOSTS = [
     'pasportaservo.org',
     'www.pasportaservo.org',
-    'nova.pasportaservo.org',
     'pasportaservo.batisteo.eu',
 ]
 
 ADMINS = (
-    ('Baptiste Darthenay', 'saluton@pasportaservo.org')
+    ('Pasporta Servo', 'saluton@pasportaservo.org'),
+    ('Baptiste Darthenay', 'baptiste+pasportaservo3@darthenay.fr'),
 )
