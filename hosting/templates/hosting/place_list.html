@@ -39,7 +39,7 @@
                 <a href="{% url 'place_detail' place.pk %}">{{ place.family_members.first.anonymous_name }}</a>
             </div>
             <div class="col-xs-4 status">
-                {% if place.booked or not place.available %}{% trans "unavailable" %}{% endif %}
+                {% if not place.available %}{% trans "unavailable" %}{% endif %}
             </div>
             <div class="col-xs-9 col-sm-10 col-md-11 address">
                 <strong>{{ place.city }}</strong><br />

@@ -109,7 +109,7 @@ class PlaceForm(forms.ModelForm):
             'country',
             'max_guest', 'max_night', 'contact_before',
             'description', 'short_description',
-            'booked', 'available',
+            'available',
             'tour_guide', 'have_a_drink',
             'in_book',
             'conditions',
