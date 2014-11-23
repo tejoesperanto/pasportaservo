@@ -230,7 +230,7 @@ class PhoneUpdateView(LoginRequiredMixin, generic.UpdateView):
 phone_update = PhoneUpdateView.as_view()
 
 
-class PhoneDeleteView(LoginRequiredMixin, DeleteMixin, generic.DeleteView):
+class PhoneDeleteView(LoginRequiredMixin, generic.DeleteView):
     success_url = reverse_lazy('profile_detail')
 
     def get_object(self, queryset=None):
