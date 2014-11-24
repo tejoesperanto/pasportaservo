@@ -356,7 +356,7 @@ class FamilyMemberCreateView(LoginRequiredMixin, generic.CreateView):
     success_url = reverse_lazy('profile_detail')
 
     def get_form_kwargs(self):
-        kwargs = super(FamilyMemberCreate, self).get_form_kwargs()
+        kwargs = super(FamilyMemberCreateView, self).get_form_kwargs()
         kwargs['place'] = get_object_or_404(Place, pk=self.kwargs['pk'])
         return kwargs
 
