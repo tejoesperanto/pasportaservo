@@ -104,15 +104,15 @@ class ProfileDeleteView(LoginRequiredMixin, DeleteMixin, generic.DeleteView):
         desactivate the linked user,
         and then redirects to the success URL
         """
-        for place in self.object.places.all():
+        self.object = self.get_object()
+        for place in self.object.owned_places.all():
             place.deleted = True
             place.save()
-        for phone in self.object.phones.all():
-            phone.deleted = True
-            phone.save()
-        for member in self.family_members:
-            member.deleted = True
-            member.save()
+            for member in place.family_members.all():
+                if not member.user:
+                    member.deleted = True
+                    member.save()
+        self.object.phones.all().delete()
         self.object.user.is_active = False
         self.object.user.save()
         return super(ProfileDeleteView, self).delete(request, *args, **kwargs)
