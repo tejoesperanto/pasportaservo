@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-23 22:02+0000\n"
-"PO-Revision-Date: 2014-11-23 23:02+0100\n"
+"POT-Creation-Date: 2014-11-24 18:30+0000\n"
+"PO-Revision-Date: 2014-11-24 19:38+0100\n"
 "Last-Translator: Baptiste Darthenay <taggit.batisteo@recursor.net>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -89,19 +89,19 @@ msgstr "Elektu viajn kondiĉojn…"
 msgid "Please click on the map to choose your location."
 msgstr "Bonvolu klaki sur la mapon por elekti vian lokon."
 
-#: forms.py:175
+#: forms.py:176
 msgid "You already have this telephone number."
 msgstr "Vi jam havas tiun telefonnumeron."
 
-#: forms.py:188
+#: forms.py:189
 msgid "Authorize user"
 msgstr "Permesi uzanton"
 
-#: forms.py:192
+#: forms.py:193
 msgid "username"
 msgstr "uzantnomo"
 
-#: forms.py:199
+#: forms.py:200
 msgid "User does not exist"
 msgstr "Uzanto ne ekzistas"
 
@@ -375,7 +375,7 @@ msgstr "preferata kontaktmaniero"
 
 #: templates/base.html:7
 msgid "Find accomodation"
-msgstr "Trovi loĝejon"
+msgstr "Trovu loĝejon"
 
 #: templates/hosting/base.html:23 templates/hosting/home.html:22
 msgid "log out"
@@ -487,7 +487,7 @@ msgstr ""
 
 #: templates/hosting/place_authorized_users.html:11
 msgid "Your email still remain private"
-msgstr "Vian retpoŝtadreson ĉiukaze restas privata."
+msgstr "Via retpoŝtadreso ĉiukaze restas privata."
 
 #: templates/hosting/place_authorized_users.html:19
 msgid "Back"
@@ -645,10 +645,10 @@ msgid_plural ""
 "If you want to book this accomodation, please contact me at least "
 "%(nb_days)s days in advance."
 msgstr[0] ""
-"Por tranokti en tiu loĝejo, bonvolu kontakti min almenaŭ %(nb_days)s tago "
+"Por tranokti en tiu loĝejo, bonvolu kontakti min almenaŭ %(nb_days)s tagon "
 "antaŭe."
 msgstr[1] ""
-"Por tranokti en tiu loĝejo, bonvolu kontakti min almenaŭ %(nb_days)s tagoj "
+"Por tranokti en tiu loĝejo, bonvolu kontakti min almenaŭ %(nb_days)s tagojn "
 "antaŭe."
 
 #: templates/hosting/snippets/place_description.html:16
