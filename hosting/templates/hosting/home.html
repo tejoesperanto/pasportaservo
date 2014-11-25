@@ -19,7 +19,7 @@
         </div>
         <div class="col-xs-2 col-sm-5">
             {% if user.is_authenticated %}
-                <a href="{% url 'logout' %}?next={{ request.get_full_path|urlencode }}">{% trans "log out" %}</a>
+                <a href="{% url 'logout' %}">{% trans "log out" %}</a>
                 {% if user.is_staff %}
                     <b class="hidden-xs">|</b>
                     <a href="{% url 'admin:index' %}">{% trans "admin site" %}</a>
