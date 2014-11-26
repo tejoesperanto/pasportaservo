@@ -141,13 +141,13 @@
         {% for phone in phones %}
             <li class="list-group-item list-vertical-align">
                 <div class="btn-group pull-right">
-                    <a href="{% url 'phone_update' phone.number.as_e164|cut:"+" %}"
+                    <a href="{% url 'phone_update' phone.number.as_e164|slugify %}"
                        class="btn btn-success"
                        title="{% trans "Update" %}">
                         <span class="glyphicon glyphicon-pencil"></span>
                         <span class="hidden-xs">{% trans "Update" %}</span>
                     </a>
-                    <a href="{% url 'phone_delete' phone.number.as_e164|cut:"+" %}"
+                    <a href="{% url 'phone_delete' phone.number.as_e164|cut:"+"|cut:" " %}"
                        class="btn btn-danger"
                        title="{% trans "Delete" %}">
                         <span class="glyphicon glyphicon-trash"></span>

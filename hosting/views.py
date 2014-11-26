@@ -223,9 +223,11 @@ class PhoneUpdateView(LoginRequiredMixin, generic.UpdateView):
         return kwargs
 
     def get_object(self, queryset=None):
-        number = '+' + self.kwargs['num']
+        number = self.kwargs['num'].replace('-', ' ')
         profile = self.request.user.profile
-        return get_object_or_404(Phone, number=number, profile=profile)
+        return get_object_or_404(Phone,
+                                 number__icontains=number,
+                                 profile=profile)
 
 phone_update = PhoneUpdateView.as_view()
 
@@ -234,9 +236,11 @@ class PhoneDeleteView(LoginRequiredMixin, generic.DeleteView):
     success_url = reverse_lazy('profile_detail')
 
     def get_object(self, queryset=None):
-        number = '+' + self.kwargs['num']
+        number = self.kwargs['num'].replace('-', ' ')
         profile = self.request.user.profile
-        return get_object_or_404(Phone, number=number, profile=profile)
+        return get_object_or_404(Phone,
+                                 number__icontains=number,
+                                 profile=profile)
 
 phone_delete = PhoneDeleteView.as_view()
 
