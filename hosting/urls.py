@@ -25,8 +25,8 @@ urlpatterns = patterns('hosting.views',
     url(_(r'^place/(?P<place_pk>\d+)/family-member/(?P<pk>\d+)/delete/$'), 'family_member_delete', name='family_member_delete'),
 
     url(_(r'^phone/create/$'), 'phone_create', name='phone_create'),
-    url(_(r'^phone/(?P<num>\w+)/update/$'), 'phone_update', name='phone_update'),
-    url(_(r'^phone/(?P<num>\w+)/delete/$'), 'phone_delete', name='phone_delete'),
+    url(_(r'^phone/(?P<num>[\w-]+)/update/$'), 'phone_update', name='phone_update'),
+    url(_(r'^phone/(?P<num>[\w-]+)/delete/$'), 'phone_delete', name='phone_delete'),
 
     url(_(r'^search/$'), 'search', name='search'),
 )
