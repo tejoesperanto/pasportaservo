@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-24 18:30+0000\n"
-"PO-Revision-Date: 2014-11-24 19:38+0100\n"
+"POT-Creation-Date: 2014-11-26 22:52+0000\n"
+"PO-Revision-Date: 2014-11-26 23:53+0100\n"
 "Last-Translator: Baptiste Darthenay <taggit.batisteo@recursor.net>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -89,19 +89,19 @@ msgstr "Elektu viajn kondiĉojn…"
 msgid "Please click on the map to choose your location."
 msgstr "Bonvolu klaki sur la mapon por elekti vian lokon."
 
-#: forms.py:176
+#: forms.py:180
 msgid "You already have this telephone number."
 msgstr "Vi jam havas tiun telefonnumeron."
 
-#: forms.py:189
+#: forms.py:192
 msgid "Authorize user"
 msgstr "Permesi uzanton"
 
-#: forms.py:193
+#: forms.py:196
 msgid "username"
 msgstr "uzantnomo"
 
-#: forms.py:200
+#: forms.py:203
 msgid "User does not exist"
 msgstr "Uzanto ne ekzistas"
 
@@ -161,19 +161,19 @@ msgstr "avataro"
 msgid "Small image under 100kB. Ideal size: 140x140 px."
 msgstr "Malgranda bildo, sub 100 kB. Ideala grando: 140×140 bilderoj."
 
-#: models.py:56 models.py:248
+#: models.py:56 models.py:249
 msgid "contact preferences"
 msgstr "preferataj kontaktmanieroj"
 
-#: models.py:58 models.py:139 models.py:173 models.py:211
+#: models.py:58 models.py:139 models.py:174 models.py:212
 msgid "checked"
 msgstr "kontrolita"
 
-#: models.py:59 models.py:140 models.py:174 models.py:212
+#: models.py:59 models.py:140 models.py:175 models.py:213
 msgid "deleted"
 msgstr "forigita"
 
-#: models.py:64 models.py:166 models.py:208
+#: models.py:64 models.py:166 models.py:209
 msgid "profile"
 msgstr "profilo"
 
@@ -213,7 +213,7 @@ msgstr ""
 msgid "postcode"
 msgstr "poŝtkodo"
 
-#: models.py:114 models.py:168
+#: models.py:114 models.py:169
 msgid "country"
 msgstr "lando"
 
@@ -292,7 +292,7 @@ msgstr "trinkejumado"
 msgid "If you are ready to have a coffee or beer with visitors."
 msgstr "Se vi volonte kafumos aŭ bierumos kun vizitantoj."
 
-#: models.py:134 models.py:235
+#: models.py:134 models.py:236
 msgid "conditions"
 msgstr "kondiĉoj"
 
@@ -317,59 +317,66 @@ msgstr "loĝejo"
 msgid "places"
 msgstr "loĝejoj"
 
-#: models.py:169
+#: models.py:167
+msgid ""
+"International number format begining with the plus sign (e.g.: +31 10 436 "
+"1044)"
+msgstr ""
+"En formato de internacia numero, komencu per pluso (ekz:  +31 10 436 1044)"
+
+#: models.py:170
 msgid "comments"
 msgstr "komentoj"
 
-#: models.py:170
+#: models.py:171
 msgid "phone type"
 msgstr "tipo de telefono"
 
-#: models.py:180
+#: models.py:181
 msgid "phone"
 msgstr "telefono"
 
-#: models.py:181
+#: models.py:182
 msgid "phones"
 msgstr "telefonoj"
 
-#: models.py:209
+#: models.py:210
 msgid "URL"
 msgstr "URL"
 
-#: models.py:217
+#: models.py:218
 msgid "website"
 msgstr "retejo"
 
-#: models.py:218
+#: models.py:219
 msgid "websites"
 msgstr "retejoj"
 
-#: models.py:227 models.py:244
+#: models.py:228 models.py:245
 msgid "name"
 msgstr "nomo"
 
-#: models.py:228
+#: models.py:229
 msgid "E.g.: 'Ne fumu'."
 msgstr "Ekz: 'Ne fumu'."
 
-#: models.py:229
+#: models.py:230
 msgid "abbreviation"
 msgstr "mallongigo"
 
-#: models.py:230
+#: models.py:231
 msgid "Official abbreviation as used in the book. E.g.: 'Nef.'"
 msgstr "Oficiala mallongigo tiel, kiel uzata en la libro. Ekz: 'Nef.'"
 
-#: models.py:231
+#: models.py:232
 msgid "URL friendly name"
 msgstr "URL-amikeca nomo"
 
-#: models.py:234
+#: models.py:235
 msgid "condition"
 msgstr "kondiĉo"
 
-#: models.py:247
+#: models.py:248
 msgid "contact preference"
 msgstr "preferata kontaktmaniero"
 
@@ -865,12 +872,12 @@ msgid "^phone/create/$"
 msgstr "^telefono/krei/$"
 
 #: urls.py:28
-msgid "^phone/(?P<num>\\w+)/update/$"
-msgstr "^telefono/(?P<num>\\w+)/redakti/$"
+msgid "^phone/(?P<num>[\\w-]+)/update/$"
+msgstr "^telefono/(?P<num>[\\w-]+)/redakti/$"
 
 #: urls.py:29
-msgid "^phone/(?P<num>\\w+)/delete/$"
-msgstr "^telefono/(?P<num>\\w+)/forigi/$"
+msgid "^phone/(?P<num>[\\w-]+)/delete/$"
+msgstr "^telefono/(?P<num>[\\w-]+)/forigi/$"
 
 #: urls.py:31
 msgid "^search/$"
@@ -900,7 +907,7 @@ msgstr "Dosiertipo ne akceptebla"
 msgid "Please keep filesize under %s. Current filesize %s"
 msgstr "Bv. gardi dosiergrando sub %s. Nuna grando: %s"
 
-#: views.py:318
+#: views.py:322
 msgid "[Pasporta Servo] You received an Authorization"
 msgstr "[Pasporta Servo] Vi ricevis permeson"
 

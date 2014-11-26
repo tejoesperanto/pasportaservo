@@ -164,7 +164,8 @@ class Phone(TimeStampedModel):
     PHONE_TYPE_CHOICES = PHONE_TYPE_CHOICES
     MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
     profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"), related_name="phones")
-    number = PhoneNumberField(_("number"))
+    number = PhoneNumberField(_("number"), help_text=_("International number format "
+        "begining with the plus sign (e.g.: +31 10 436 1044)"))
     country = CountryField(_("country"))
     comments = models.CharField(_("comments"), max_length=255, blank=True)
     type = models.CharField(_("phone type"), max_length=3,
