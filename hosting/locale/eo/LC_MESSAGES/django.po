@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-26 22:52+0000\n"
-"PO-Revision-Date: 2014-11-26 23:53+0100\n"
+"POT-Creation-Date: 2014-11-27 12:56+0000\n"
+"PO-Revision-Date: 2014-11-27 13:57+0100\n"
 "Last-Translator: Baptiste Darthenay <taggit.batisteo@recursor.net>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -273,7 +273,7 @@ msgstr "printu en la PS libreto"
 #: models.py:129
 msgid "If you want this place to be in the printed book. Must be available."
 msgstr ""
-"Se vi deziras ke tiu loĝejo estu printita en la libreto. Devas estis "
+"Se vi deziras ke tiu loĝejo estu printita en la libreto. Devas esti "
 "disponebla."
 
 #: models.py:130
@@ -730,7 +730,7 @@ msgstr "Nova pasvorto farita"
 
 #: templates/registration/password_reset_complete.html:6
 msgid "Your password has been set. You may go ahead and log in now."
-msgstr ""
+msgstr "Vi bone ŝanĝis vian pasvorton. Vi nun povas antaŭiri kaj ensaluti."
 
 #: templates/registration/password_reset_confirm.html:5
 msgid "Enter new password"
