@@ -269,7 +269,7 @@ class SearchView(generic.ListView):
         bbox = self.location.raw['boundingbox']
         country_code = self.location.raw['address'].get('country_code')
         lats, lngs = bbox[:2], bbox[2:]
-        qs = Place.objects.filter(available=True)
+        qs = Place.objects.filter(available=True, deleted=False)
         qs = qs.filter(latitude__range=lats, longitude__range=lngs)
         qs = qs.filter(country=country_code.upper()) if country_code else qs
         if not qs.count():
