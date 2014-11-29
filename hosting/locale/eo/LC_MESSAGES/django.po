@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-27 12:59+0000\n"
-"PO-Revision-Date: 2014-11-27 14:00+0100\n"
+"POT-Creation-Date: 2014-11-29 14:21+0000\n"
+"PO-Revision-Date: 2014-11-29 15:26+0100\n"
 "Last-Translator: Baptiste Darthenay <taggit.batisteo@recursor.net>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -19,35 +19,35 @@ msgstr ""
 "X-Generator: Poedit 1.5.4\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: admin.py:37
+#: admin.py:48
 msgid "Personal info"
 msgstr "Personaj informoj"
 
-#: admin.py:38
+#: admin.py:49
 msgid "Permissions"
 msgstr "Permesoj"
 
-#: admin.py:39
+#: admin.py:50
 msgid "Important dates"
 msgstr "Gravaj datoj"
 
-#: admin.py:44
+#: admin.py:55
 msgid "MD5 (weak)"
 msgstr "MD5 (malforta)"
 
-#: admin.py:47
+#: admin.py:58
 msgid "Password algorithm"
 msgstr "Pasvorta algoritmo"
 
-#: admin.py:97 models.py:103
+#: admin.py:109 models.py:103
 msgid "owner"
 msgstr "posedanto"
 
-#: admin.py:109 models.py:167
+#: admin.py:128 models.py:167
 msgid "number"
 msgstr "numero"
 
-#: admin.py:114
+#: admin.py:133
 msgid "country code"
 msgstr "landa kodo"
 
@@ -404,7 +404,7 @@ msgstr "Pri ni"
 msgid "Terms"
 msgstr "Kondiĉoj"
 
-#: templates/hosting/base_form.html:32
+#: templates/hosting/base_form.html:36
 msgid "Confirm"
 msgstr "Konfirmi"
 
@@ -732,19 +732,36 @@ msgstr "Nova pasvorto farita"
 msgid "Your password has been set. You may go ahead and log in now."
 msgstr "Vi bone ŝanĝis vian pasvorton. Vi nun povas antaŭiri kaj ensaluti."
 
-#: templates/registration/password_reset_confirm.html:5
+#: templates/registration/password_reset_confirm.html:6
+msgid "Change my password"
+msgstr "Ŝanĝi mian pasvorton"
+
+#: templates/registration/password_reset_confirm.html:10
 msgid "Enter new password"
 msgstr "Enmeti novan pasvorton"
 
-#: templates/registration/password_reset_confirm.html:6
+#: templates/registration/password_reset_confirm.html:12
+msgid "Invalid password link"
+msgstr "Nevalida pasvorta ligilo"
+
+#: templates/registration/password_reset_confirm.html:18
 msgid ""
 "Please enter your new password twice so we can verify you typed it in "
 "correctly."
 msgstr ""
 
-#: templates/registration/password_reset_confirm.html:8
-msgid "Change my password"
-msgstr "Ŝanĝi mian pasvorton"
+#: templates/registration/password_reset_confirm.html:20
+msgid ""
+"It seems like you already used this link. A link to change your password can "
+"be used just once."
+msgstr ""
+"Ŝajnas ke vi jam uzis tiun ligilon. La ligilo por ŝanĝi pasvorton povas esti "
+"uzata nur unufoje."
+
+#: templates/registration/password_reset_confirm.html:30
+#| msgid "Enter new password"
+msgid "New password link"
+msgstr "Nova pasvorta ligilo"
 
 #: templates/registration/password_reset_done.html:5
 msgid "Password reset successful"
@@ -910,18 +927,3 @@ msgstr "Bv. gardi dosiergrando sub %s. Nuna grando: %s"
 #: views.py:322
 msgid "[Pasporta Servo] You received an Authorization"
 msgstr "[Pasporta Servo] Vi ricevis permeson"
-
-#~ msgid "booked"
-#~ msgstr "rezervita"
-
-#~ msgid "If the place is currently booked."
-#~ msgstr "Ĉu la loĝejo estas nuntempe rezervita?"
-
-#~ msgid "Booked"
-#~ msgstr "Rezervita"
-
-#~ msgid "^place/(?P<pk>\\d+)/authorized/$"
-#~ msgstr "^ejo/(?P<pk>\\d+)/permesitaj/$"
-
-#~ msgid "e.g.: Rotterdam"
-#~ msgstr "ekz: Rotterdam"
