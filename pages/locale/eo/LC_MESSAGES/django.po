@@ -7,17 +7,21 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo pages\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-19 07:51+0200\n"
-"PO-Revision-Date: 2014-10-19 07:54+0100\n"
+"POT-Creation-Date: 2014-12-06 15:27+0000\n"
+"PO-Revision-Date: 2014-12-06 16:27+0100\n"
 "Last-Translator: Baptiste Darthenay <taggit.batisteo@recursor.net>\n"
 "Language-Team: EO <info@pasportaservo.org>\n"
+"Language: eo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.5.4\n"
-"Language: eo\n"
 "X-Poedit-SourceCharset: UTF-8\n"
+
+#: templates/pages/supervisors.html:4
+msgid "Supervisors"
+msgstr "LO"
 
 #: urls.py:6
 msgid "^about/$"
@@ -26,3 +30,7 @@ msgstr "^pri-ni/$"
 #: urls.py:7
 msgid "^terms-and-conditions/$"
 msgstr "^kond/$"
+
+#: urls.py:8
+msgid "^supervisors/$"
+msgstr "^landaj-organizantoj/$"
