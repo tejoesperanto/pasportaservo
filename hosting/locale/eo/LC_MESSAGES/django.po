@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-29 14:21+0000\n"
-"PO-Revision-Date: 2014-11-29 15:26+0100\n"
+"POT-Creation-Date: 2014-12-06 15:28+0000\n"
+"PO-Revision-Date: 2014-12-06 16:28+0100\n"
 "Last-Translator: Baptiste Darthenay <taggit.batisteo@recursor.net>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -404,6 +404,10 @@ msgstr "Pri ni"
 msgid "Terms"
 msgstr "Kondiĉoj"
 
+#: templates/hosting/base.html:57
+msgid "Supervisors"
+msgstr "Landaj organizantoj"
+
 #: templates/hosting/base_form.html:36
 msgid "Confirm"
 msgstr "Konfirmi"
@@ -758,8 +762,7 @@ msgstr ""
 "Ŝajnas ke vi jam uzis tiun ligilon. La ligilo por ŝanĝi pasvorton povas esti "
 "uzata nur unufoje."
 
-#: templates/registration/password_reset_confirm.html:30
-#| msgid "Enter new password"
+#: templates/registration/password_reset_confirm.html:40
 msgid "New password link"
 msgstr "Nova pasvorta ligilo"
 
