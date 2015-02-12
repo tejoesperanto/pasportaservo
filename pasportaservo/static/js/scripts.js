@@ -4,4 +4,11 @@ $(document).ready(function(){
         $(this).attr("href", $(this).attr("href").replace(" [cxe] ", "@"));
         $(this).html($(this).html().replace(" [cxe] ", "@"));
     });
+
+    // Close message
+    $("a.close").click(function(e) {
+        $(this).hide();
+        $(this).parents(".message").slideUp();
+        e.preventDefault();
+    });    
 });

@@ -27,6 +27,48 @@ body {
     margin-bottom: 1em;
 }
 
+/* Message */
+
+.message {
+    position: relative;
+    background: #4cae4c;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2em;
+    padding: 1em 0;
+    text-align: center;
+    box-shadow: inset rgba(0,0,0,.6) 0 -10px 10px -10px;
+}
+.message a {
+    color: white;
+    opacity: .8;
+    text-decoration: underline;
+}
+.message a:focus,
+.message a:active,
+.message a:hover {
+    opacity: 1;
+}
+.message a.close {
+    position: absolute;
+    right: .5em;
+    top: 8px;
+    font-size: 40px;
+    color: black;
+    text-decoration: none;
+    opacity: .3;
+    text-shadow: rgba(0,0,0,0.2) -2px 0, rgba(0,0,0,0.2) 0 -2px,
+             rgba(255,255,255,0.2) 2px 0, rgba(255,255,255,0.2) 0 2px,
+             rgba(0,0,0,0.2) -2px -2px, rgba(255,255,255,0.2) 2px 2px;
+}
+.message a.close:focus,
+.message a.close:active,
+.message a.close:hover {
+    color: #c00;
+    opacity: .5;
+    outline: none;
+}
+
 /* General header. */
 header {
     color: #fff;
