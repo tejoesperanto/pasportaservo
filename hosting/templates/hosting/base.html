@@ -2,6 +2,7 @@
 {% load i18n static %}
 
 {% block body %}
+    <section class="messages">{% block messages %}{% endblock %}</section>
     <header class="container-fluid{% block header_class %}{% endblock %}">
         {% block header %}
             <div class="row">
