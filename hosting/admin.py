@@ -8,7 +8,7 @@ from .models import Profile, Place, Phone, Condition, Website, ContactPreference
 
 admin.site.disable_action('delete_selected')
 
-admin.site.unregister(Group)
+# admin.site.unregister(Group)
 admin.site.unregister(User)
 
 

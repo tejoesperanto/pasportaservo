@@ -32,6 +32,7 @@ STATICFILES_DIRS = (os.path.join(PROJECT_DIR, 'static'), )
 
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'hosting/templates'),
+    os.path.join(BASE_DIR, 'book/templates'),
     os.path.join(PROJECT_DIR, 'templates'),
 )
 
