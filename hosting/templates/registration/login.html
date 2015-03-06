@@ -1,0 +1,8 @@
+{% extends 'hosting/base_form.html' %}
+{% load i18n %}
+
+{% block form_title %}{% trans "Log In" %}{% endblock %}
+{% block form_tip %}{% trans "Log in with your username and password." %}{% endblock %}
+{% block form_block_class %} login{% endblock %}
+{% block fields_after %}<p class="pull-left"><a href="{% url 'password_reset' %}">{% trans "Forgot password?" %}</a></p>{% endblock %}
+{% block form_submit_button %}{% trans "Log in" %}{% endblock %}

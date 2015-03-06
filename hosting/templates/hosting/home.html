@@ -1,0 +1,98 @@
+{% extends 'hosting/base.html' %}
+{% load i18n static %}
+
+{% block header_class %} home{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'hosting/js/search.js' %}"></script>
+{% endblock %}
+
+{% block messages %}
+    <article class="container-fluid message messageVoteForIdeas">
+        Ĉu vi volas plibonigi Pasportan Servon? Ĉu vi havas novajn ideojn? <a href="https://trello.com/b/kerCH0sk/pasporta-servo-novaj-funkcioj" target="_blank">Komentu kaj voĉdonu</a>!
+        <a href="#" class="close" title="{% trans "Close" %}">x</a>
+    </article>
+{% endblock messages %}
+
+{% block header %}
+    <div class="row links">
+        <div class="col-xs-3 col-sm-1 enveloppe">
+            {% if user.is_authenticated %}
+                <a href="{% url 'postman_inbox' %}">
+                    <span class="glyphicon glyphicon-envelope"></span>
+                    {{ postman_unread_count|default:"" }}
+                </a>
+            {% endif %}
+        </div>
+        <div class="col-xs-2 col-sm-5">
+            {% if user.is_authenticated %}
+                <a href="{% url 'logout' %}">{% trans "log out" %}</a>
+                {% if user.is_staff %}
+                    <b class="hidden-xs">|</b>
+                    <a href="{% url 'admin:index' %}">{% trans "admin site" %}</a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">{% trans "log in" %}</a>
+            {% endif %}
+        </div>
+        <div class="col-xs-5 col-xs-offset-1 col-sm-5 col-sm-offset-0">
+            {% if user.is_authenticated %}
+                {% if user.profile %}
+                    <a href="{% url 'profile_detail' %}">{{ user.username }}</a>
+                {% else %}
+                    <a href="{% url 'profile_create' %}">{{ user.username }}</a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'register' %}?next={{ request.get_full_path|urlencode }}">{% trans "register" %}</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12" id="title">
+            {% block home_title %}
+                <i class="hidden-xs">&nbsp;</i>
+                Pasporta Servo<small class="hidden-xs" title="{% trans "test version" %}"><em>beta</em></small>
+            {% endblock %}
+        </div>
+        <div class="col-md-12" id="subtitle">{% block home_subtitle %}Esperantaj gastigantoj tra la mondo{% endblock %}</div>
+    </div>
+    
+    <form class="form-inline row search" id="searchform" role="form" method="GET" action="{% url 'search' %}">
+        <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
+            <div class="form-group" style="width: 100%">
+                <div class="input-group" style="width: 100%">
+                    <input class="form-control" type="search" id="searchinput" name="q" placeholder="{% trans "Budapest, London, Venezuela, etc." %}">
+                    <input type="hidden" id="gpsinput" name="gps_coords" value="" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit" id="search" style="min-width: 40px; width: 50%;">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                        <button class="btn btn-default" type="button" id="gps" style="min-width: 40px; width: 50%;">
+                            <span class="search-marker glyphicon glyphicon-map-marker"></span>
+                            <img class="search-working" style="display: none;" src="{% static 'img/gps_spinner.gif' %}" />
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock header %}
+
+{% block pre-page %}
+    <div id="home-explain">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <p>
+                        {% trans "Find accomodation<br>anywhere in the world." %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock pre-page %}
+
+{% block page %}
+    
+{% endblock page %}
+
