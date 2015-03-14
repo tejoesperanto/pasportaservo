@@ -4,6 +4,7 @@ from datetime import date
 
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.html import format_html
+from django.utils.text import slugify
 from django.db import models
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -94,6 +95,11 @@ class Profile(TimeStampedModel):
         username = self.user.username if self.user else '-'
         return self.full_name if self.full_name.strip() else username
 
+    def get_absolute_url(self):
+        return reverse('profile_detail', kwargs={
+                'pk': self.pk,
+                'slug': slugify(self.user.username)})
+
     def get_admin_url(self):
         return reverse('admin:hosting_profile_change', args=(self.id,))
 
@@ -146,6 +152,11 @@ class Place(TimeStampedModel):
         verbose_name_plural = _("places")
 
     @property
+    def profile(self):
+        """Proxy for self.owner. Rename 'owner' to 'profile' is possible."""
+        return self.owner
+
+    @property
     def bbox(self):
         """Return an OpenStreetMap formated bounding box.
         See http://wiki.osm.org/wiki/Bounding_Box
@@ -154,6 +165,9 @@ class Place(TimeStampedModel):
         lat, lng = self.latitude, self.longitude
         boundingbox = (lng - dx, lat - dy, lng + dx, lat + dy)
         return ",".join([str(coord) for coord in boundingbox])
+
+    def get_absolute_url(self):
+        return reverse('place_detail', kwargs={'pk': self.pk})
 
     def __str__(self):
         return self.city
