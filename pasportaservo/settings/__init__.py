@@ -149,7 +149,7 @@ LEAFLET_CONFIG = {
     'DEFAULT_CENTER': (40, 0),
     'DEFAULT_ZOOM': 1,
     'MIN_ZOOM': 1,
-    'TILES': 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+    'TILES': 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     'ATTRIBUTION_PREFIX': 'Mapaj datumoj &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> kontribuantoj',
     'RESET_VIEW': False,
 }
