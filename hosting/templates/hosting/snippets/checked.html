@@ -1,0 +1,8 @@
+{% load i18n %}
+{% if user.is_staff %}
+    {% if object.checked %}
+        <span class="label label-success">{% trans "Checked" %}</button>
+    {% else %}
+        <span class="label label-warning">{% trans "Not checked" %}</button>
+    {% endif %}
+{% endif %}
