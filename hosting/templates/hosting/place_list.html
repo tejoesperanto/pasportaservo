@@ -47,26 +47,3 @@
         <div class="row place-list">{% trans "Sorry, no kind hosts found…" %}</div>
     {% endfor %}
 {% endblock page %}
-
-
-
-{% if location %}
-    <h1>{% firstof location.address.city location.address.state location.address.country %}</h1>
-{% elif query == None %}
-    <h1>None!</h1>
-{% elif timedout %}
-    <h1>Timeout! Try again…</h1>
-{% else %}
-    <h1>Did not found "{{ query }}"</h1>
-{% endif %}
-
-<form action="" method="get">
-    <input type="text" name="q" value="{{ request.GET.q|title }}" id="id_q" autofocus />
-    <input type="submit" value="Search" />
-</form>
-
-<ul>
-    {% for place in place_list %}
-        <li>{{ place.family_members.first }}: {{ place.address }}</li>
-    {% endfor %}
-</ul>
