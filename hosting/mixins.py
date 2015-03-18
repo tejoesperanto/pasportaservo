@@ -11,7 +11,6 @@ class ProfileMixin(object):
         if hasattr(self.object, 'profile'):
             return self.object.profile.get_edit_url()
         if type(self.object) is Profile:
-            print(dir(self.object))
             return self.object.get_edit_url()
 
 
