@@ -218,9 +218,8 @@ class SearchView(generic.ListView):
         self.query = request.GET.get('q')
         if self.query:
             try:
-                geocoder = geopy.geocoders.Nominatim(timeout=5)
-                self.location = geocoder.geocode(self.query, language=lang,
-                        exactly_one=True, addressdetails=True)
+                geocoder = geopy.geocoders.OpenCage(settings.OPENCAGE_KEY, timeout=5)
+                self.location = geocoder.geocode(self.query, language=lang, exactly_one=True)
             except (GeocoderTimedOut, GeocoderServiceError) as e:
                 self.location = None
         return super(SearchView, self).get(request, *args, **kwargs)
@@ -231,17 +230,13 @@ class SearchView(generic.ListView):
         """
         qs = Place.objects.none()
         if self.location:
-            bbox = self.location.raw['boundingbox']
-            country_code = self.location.raw['address']['country_code']
-            lats, lngs = bbox[:2], bbox[2:]
+            country_code = self.location.raw['components']['country_code']
+            bounds = self.location.raw['bounds']
+            lats = (bounds['southwest']['lat'], bounds['northeast']['lat'])
+            lngs = (bounds['southwest']['lng'], bounds['northeast']['lng'])
             qs = Place.objects.filter(available=True, deleted=False)
             qs = qs.filter(latitude__range=lats, longitude__range=lngs)
             qs = qs.filter(country=country_code.upper()) if country_code else qs
-            if not qs.exists():
-                """If there is no result, extends the bbox."""
-                bbox = extend_bbox(bbox)
-                lats, lngs = bbox[:2], bbox[2:]
-                qs = qs.filter(latitude__range=lats, longitude__range=lngs)
 
         """Search in the Profile name and username too."""
         if len(self.query) <= 3:
