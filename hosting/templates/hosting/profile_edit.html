@@ -1,0 +1,118 @@
+{% extends 'hosting/profile_detail.html' %}
+{% load i18n static %}
+
+{% block profile_edit_buttons %}
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="btn-group edit-buttons">
+                <a href="{% url 'profile_update' profile.pk profile.user.username|slugify %}"
+                   class="btn btn-success"
+                   title="{% trans "Update" %}">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                    <span class="hidden-xs">{% trans "Update" %}</span>
+                </a>
+                <a href="{% url 'profile_delete' profile.pk %}"
+                   class="btn btn-danger"
+                   title="{% trans "Delete account" %}">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </a>
+                <a href="{% url 'password_change' %}"
+                   class="btn btn-warning"
+                   title="{% trans "Change password" %}">
+                    <span class="glyphicon glyphicon-tower"></span>
+                    <span class="hidden-xs">{% trans "Change password" %}</span>
+                </a>
+                <a href="{% url 'profile_settings' profile.pk %}"
+                   class="btn btn-info"
+                   title="{% trans "Settings" %}">
+                    <span class="glyphicon glyphicon-cog"></span>
+                    <span class="hidden-xs">{% trans "Settings" %}</span>
+                </a>
+                <a href="{% url 'profile_detail' profile.pk profile.user.username|slugify %}" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-arrow-right" title="{% trans "View profile" %}"></span>
+                    <span class="hidden-xs">{% trans "View" %}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block place_edit_buttons %}
+    <a href="{% url 'place_update' place.pk %}" class="btn btn-success">
+        <span class="glyphicon glyphicon-pencil"></span>
+        <span class="hidden-xs">{% trans "Update" %}</span>
+    </a>
+    <a href="{% url 'place_delete' place.pk %}" class="btn btn-danger">
+        <span class="glyphicon glyphicon-trash" title="{% trans "Delete" %}"></span>
+    </a>
+    <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}" class="btn btn-warning">
+        <span class="glyphicon glyphicon-eye-open"></span>
+        <span class="hidden-xs">{% trans "Authorizations" %}</span>
+    </a>
+{% endblock %}
+
+{% block place_add_buttons %}
+    <a class="btn btn-info" href="{% url 'place_create' profile.pk %}"><span class="glyphicon glyphicon-plus"></span>
+        <strong>{% trans "Add a place" %}</strong>
+    </a>
+{% endblock %}
+
+{% block family_member_edit_buttons %}
+    <div class="btn-group pull-right">
+        {% if member != profile %}
+            <a href="{% url 'family_member_update' place.pk member.pk %}?next={{ request.get_full_path|urlencode }}"
+               class="btn btn-success"
+               title="{% trans "Update" %}">
+                <span class="glyphicon glyphicon-pencil"></span>
+                <span class="hidden-xs">{% trans "Update" %}</span>
+            </a>
+        {% endif %}
+
+        <a href="{% url 'family_member_remove' place.pk member.pk %}"
+           class="btn btn-danger"
+           title="{% trans "Delete" %}">
+            <span class="glyphicon glyphicon-trash"></span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block familiy_member_add_buttons %}
+    <div class="row">
+        <form action="{% url 'family_member_add_me' place.pk %}" method="post">
+            {% csrf_token %}
+            <a class="btn btn-info" href="{% url 'family_member_create' place.pk %}">
+                <span class="glyphicon glyphicon-user"></span>
+                <strong>{% trans "Add a family member" %}</strong>
+            </a>
+            {% if profile not in place.family_members.all %}
+                <button type="submit" class="btn btn-info">
+                    <span class="glyphicon glyphicon-user"></span>
+                    <strong>{% trans "Add me" %}</strong>
+                </button>
+            {% endif %}
+        </form>
+    </div>
+{% endblock %}
+
+{% block phone_edit_buttons %}
+    <div class="btn-group pull-right">
+        <a href="{% url 'phone_update' phone.number.as_e164|slugify %}"
+           class="btn btn-success"
+           title="{% trans "Update" %}">
+            <span class="glyphicon glyphicon-pencil"></span>
+            <span class="hidden-xs">{% trans "Update" %}</span>
+        </a>
+        <a href="{% url 'phone_delete' phone.number.as_e164|cut:"+"|cut:" " %}"
+           class="btn btn-danger"
+           title="{% trans "Delete" %}">
+            <span class="glyphicon glyphicon-trash"></span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block phone_add_buttons %}
+    <a class="btn btn-info" href="{% url 'phone_create' profile.pk %}">
+        <span class="glyphicon glyphicon-plus"></span>
+        <strong>{% trans "Add a phone" %}</strong>
+    </a>
+{% endblock %}

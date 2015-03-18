@@ -91,6 +91,10 @@ class Profile(TimeStampedModel):
         template = '<span class="glyphicon glyphicon-user" title="{title}"></span>'
         return format_html(template, title=title)
 
+    @property
+    def autoslug(self):
+        return slugify(self.user.username)
+
     def __str__(self):
         username = self.user.username if self.user else '-'
         return self.full_name if self.full_name.strip() else username
@@ -98,7 +102,12 @@ class Profile(TimeStampedModel):
     def get_absolute_url(self):
         return reverse('profile_detail', kwargs={
                 'pk': self.pk,
-                'slug': slugify(self.user.username)})
+                'slug': getattr(self, 'slug', self.autoslug)})
+
+    def get_edit_url(self):
+        return reverse('profile_edit', kwargs={
+                'pk': self.pk,
+                'slug': getattr(self, 'slug', self.autoslug)})
 
     def get_admin_url(self):
         return reverse('admin:hosting_profile_change', args=(self.id,))
