@@ -169,3 +169,5 @@ except ImportError:
     from warnings import warn
     warn("\nSymbolic link local_settings.py not found. Please create it in the 'settings' folder.",
     UserWarning)
+
+OPENCAGE_KEY = 'a27f7e361bdfe11881a987a6e86fb5fd'
