@@ -247,14 +247,6 @@ class SearchView(generic.ListView):
         qs.filter(deleted=False)
         return qs.select_related('owner__user').order_by('country', 'city')
 
-    def get_context_data(self, **kwargs):
-        context = super(SearchView, self).get_context_data(**kwargs)
-        context['query'] = self.query
-        if self.query:
-            context['location'] = getattr(self.location, 'raw', '')
-            context['timedout'] = getattr(self, 'timedout', False)
-        return context
-
 search = SearchView.as_view()
 
 
