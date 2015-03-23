@@ -230,7 +230,7 @@ class SearchView(generic.ListView):
         """
         qs = Place.objects.none()
         if self.location:
-            country_code = self.location.raw['components']['country_code']
+            country_code = self.location.raw['components'].get('country_code')
             bounds = self.location.raw['bounds']
             lats = (bounds['southwest']['lat'], bounds['northeast']['lat'])
             lngs = (bounds['southwest']['lng'], bounds['northeast']['lng'])
