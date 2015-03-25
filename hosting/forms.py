@@ -3,7 +3,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.forms import AuthenticationForm as UserLoginForm, UserCreationForm
 from django.contrib.auth import get_user_model
 
-from chosen import forms as chosenforms
 from django_countries import countries
 from phonenumber_field.formfields import PhoneNumberField
 
@@ -120,15 +119,11 @@ class PlaceForm(forms.ModelForm):
             'conditions',
             'latitude', 'longitude',
         ]
-        widgets = {
-            'conditions': chosenforms.ChosenSelectMultiple(
-                overlay=_("Choose your conditions..."),
-            ),
-        }
 
     def __init__(self, *args, **kwargs):
         super(PlaceForm, self).__init__(*args, **kwargs)
         self.fields['conditions'].help_text = ""
+        self.fields['conditions'].widget.attrs['data-placeholder'] = _("Choose your conditions...")
 
     def clean(self):
         """Sets some fields as required if user wants his data to be printed in book."""

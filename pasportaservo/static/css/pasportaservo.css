@@ -235,9 +235,11 @@ footer {
 
 #id_conditions_chosen .chosen-choices {
     padding: 2px;
+    padding-left: 5px;
 }
 #id_conditions_chosen .chosen-choices input[type="text"] {
     height: 26px;
+    width: 15px !important;
 }
 
 

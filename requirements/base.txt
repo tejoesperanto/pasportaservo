@@ -11,5 +11,3 @@ django-extensions==1.5.1
 django-phonenumber-field==0.7.2
 django-postman==3.2.0
 django-leaflet==0.15.2
-
--e git+https://github.com/theatlantic/django-chosen.git@a603281497e3214eff37c735fce8da152038c122#egg=django_chosen-master
