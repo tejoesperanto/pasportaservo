@@ -229,7 +229,7 @@ class SearchView(generic.ListView):
         because some bbox for some countres are huge (e.g. France, USA).
         """
         qs = Place.objects.none()
-        if self.location:
+        if self.query and self.location:
             country_code = self.location.raw['components'].get('country_code')
             bounds = self.location.raw['bounds']
             lats = (bounds['southwest']['lat'], bounds['northeast']['lat'])
