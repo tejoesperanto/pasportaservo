@@ -38,7 +38,11 @@ class RegisterView(AnonymousRequiredMixin, generic.CreateView):
     template_name = 'registration/register.html'
     form_class = UserRegistrationForm
     success_url = reverse_lazy('profile_create')
-    authenticated_redirect_url = reverse_lazy('profile_detail')
+
+    def get_authenticated_redirect_url(self):
+        if self.request.GET.get('next'):
+            return self.request.GET['next']
+        return self.request.user.profile.get_edit_url()
 
     def form_valid(self, form):
         self.object = form.save()
