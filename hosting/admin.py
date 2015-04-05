@@ -52,7 +52,8 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display = (
         '__str__', 'title', 'first_name', 'last_name',
         'birth_date', 'avatar', 'description',
-        'user__email', 'user'
+        'user__email', 'user',
+        'deleted', 'modified',
     )
     search_fields = [
         'id', 'first_name', 'last_name', 'user__email', 'user__username',
@@ -76,6 +77,7 @@ class PlaceAdmin(admin.ModelAdmin):
         # 'max_host', 'max_night', 'contact_before',
         'available', 'in_book',
         'owner_link',
+        'deleted', 'modified',
     )
     list_display_links = (
         'address', 'city', 'postcode', 'country',
