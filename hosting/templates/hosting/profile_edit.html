@@ -11,7 +11,7 @@
                     <span class="glyphicon glyphicon-pencil"></span>
                     <span class="hidden-xs">{% trans "Update" %}</span>
                 </a>
-                <a href="{% url 'profile_delete' profile.pk %}"
+                <a href="{% url 'profile_delete' profile.pk profile.user.username|slugify %}"
                    class="btn btn-danger"
                    title="{% trans "Delete account" %}">
                     <span class="glyphicon glyphicon-trash"></span>
