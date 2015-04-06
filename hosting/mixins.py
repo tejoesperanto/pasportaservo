@@ -17,7 +17,8 @@ class ProfileMixin(object):
 class ProfileAuthMixin(object):
     def get_object(self, queryset=None):
         profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
-        if profile == self.request.user.profile:
+        user_profile = getattr(self.request.user, 'profile', None)
+        if user_profile and profile == user_profile:
             self.role = 'user'
         elif self.request.user.is_staff:
             self.role = 'admin'
