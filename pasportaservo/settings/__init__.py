@@ -66,7 +66,6 @@ INSTALLED_APPS = (
     'django_countries',
     'phonenumber_field',
     'bootstrapform',
-    'chosen',
     'leaflet',
     'postman',
 
@@ -150,7 +149,7 @@ LEAFLET_CONFIG = {
     'DEFAULT_CENTER': (40, 0),
     'DEFAULT_ZOOM': 1,
     'MIN_ZOOM': 1,
-    'TILES': 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+    'TILES': 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     'ATTRIBUTION_PREFIX': 'Mapaj datumoj &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> kontribuantoj',
     'RESET_VIEW': False,
 }
@@ -170,3 +169,5 @@ except ImportError:
     from warnings import warn
     warn("\nSymbolic link local_settings.py not found. Please create it in the 'settings' folder.",
     UserWarning)
+
+OPENCAGE_KEY = 'a27f7e361bdfe11881a987a6e86fb5fd'

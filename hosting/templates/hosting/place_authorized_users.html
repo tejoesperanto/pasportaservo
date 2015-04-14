@@ -14,7 +14,7 @@
 
 
 {% block form_back_link %}
-    <a href="{% url 'profile_detail' %}" class="btn btn-default">
+    <a href="{{ request.GET.next }}" class="btn btn-default">
         <span class="glyphicon glyphicon-arrow-left"></span>
         {% trans "Back" %}
     </a>
@@ -32,8 +32,9 @@
                     <span class="glyphicon glyphicon-trash"></span>
                 </a>
                 <span class="authorized-user">
-                    {{ user.profile.full_name }}
-                    (<a href="#">{{ user.username }}</a>)
+                    <a href="{{ user.profile.get_absolute_url }}">
+                        {{ user.profile.full_name }}
+                    </a>
                 </span>
             </p>
         </div>
