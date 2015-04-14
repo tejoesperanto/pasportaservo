@@ -10,5 +10,10 @@ $(document).ready(function(){
         $(this).hide();
         $(this).parents(".message").slideUp();
         e.preventDefault();
-    });    
+    });
+
+    // Lazy load images
+    $(".lazy").addClass("loaded");
+
+    $("#id_conditions").chosen();
 });
