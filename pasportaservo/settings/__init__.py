@@ -62,13 +62,13 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'django_extensions',
     'django_countries',
     'phonenumber_field',
     'bootstrapform',
     'leaflet',
     'postman',
-
     'hosting',
     'pages',
 )
@@ -126,7 +126,7 @@ LOGIN_URL = 'login'
 LOGOUT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 
-DEFAULT_FROM_EMAIL = 'saluton@pasportaservo.org'
+DEFAULT_FROM_EMAIL = 'nerespondu@pasportaservo.org'
 
 
 
