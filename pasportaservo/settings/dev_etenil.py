@@ -22,7 +22,6 @@ INSTALLED_APPS = (
     'django_countries',
     'phonenumber_field',
     'bootstrapform',
-    'chosen',
     'leaflet',
     'postman',
 
