@@ -37,6 +37,5 @@ ALLOWED_HOSTS = [
 ]
 
 ADMINS = (
-    ('Pasporta Servo', 'saluton@pasportaservo.org'),
-    ('Baptiste Darthenay', 'baptiste+pasportaservo3@darthenay.fr'),
+    ('Pasporta Servo', 'eraroj@pasportaservo.org'),
 )

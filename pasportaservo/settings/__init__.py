@@ -126,7 +126,7 @@ LOGIN_URL = 'login'
 LOGOUT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 
-DEFAULT_FROM_EMAIL = 'nerespondu@pasportaservo.org'
+DEFAULT_FROM_EMAIL = 'ne-respondu@pasportaservo.org'
 
 
 
