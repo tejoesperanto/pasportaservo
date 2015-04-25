@@ -13,6 +13,6 @@ env/
 secrets.py
 pasportaservo/settings/local_settings.py
 media/
-.static/
+./static/
 htmlcov/
 .coverage
