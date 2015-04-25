@@ -1,6 +1,6 @@
 from django.views.generic import TemplateView
 
-from djappypod.response import OdtTemplateResponse
+# from djappypod.response import OdtTemplateResponse
 
 from hosting.models import Place
 
@@ -9,7 +9,7 @@ class DataHolder():
     pass
 
 class Book(TemplateView):
-    response_class = OdtTemplateResponse
+    # response_class = OdtTemplateResponse
     template_name = "book/template.odt"
 
 
