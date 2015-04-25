@@ -1,3 +1,5 @@
+from debug_toolbar import settings as dt_settings
+
 INSTALLED_APPS = (
     'grappelli',
     'django.contrib.admin',
@@ -21,3 +23,5 @@ INSTALLED_APPS = (
 )
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+dt_settings.CONFIG_DEFAULTS['JQUERY_URL'] = "/static/js/jquery.min.js"

@@ -1,3 +1,5 @@
+from datetime import datetime
+from markdown2 import markdown
 import geopy
 
 from django.views import generic
@@ -7,9 +9,11 @@ from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import get_user_model, authenticate, login
-from django.template.loader import render_to_string
+from django.template.loader import render_to_string, get_template
+from django.template import Context
 from django.core.mail import EmailMessage
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 
 from braces.views import AnonymousRequiredMixin, LoginRequiredMixin
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
@@ -19,8 +23,10 @@ from .mixins import (ProfileMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMi
     FamilyMemberMixin, DeleteMixin)
 from .forms import (UserRegistrationForm, AuthorizeUserForm,
     ProfileForm, ProfileSettingsForm, ProfileCreateForm, PhoneForm, PhoneCreateForm,
-    PlaceForm, PlaceCreateForm, FamilyMemberForm, FamilyMemberCreateForm)
-from .utils import extend_bbox
+    PlaceForm, PlaceCreateForm, FamilyMemberForm, FamilyMemberCreateForm,
+    MassMailForm,
+)
+from .utils import extend_bbox, send_mass_html_mail
 
 
 User = get_user_model()
@@ -372,3 +378,80 @@ class FamilyMemberDeleteView(LoginRequiredMixin, DeleteMixin, FamilyMemberMixin,
         return super(FamilyMemberDeleteView, self).delete(request, *args, **kwargs)
 
 family_member_delete = FamilyMemberDeleteView.as_view()
+
+
+class MassMailView(generic.FormView):
+    template_name = 'hosting/mass_mail_form.html'
+    form_class = MassMailForm
+
+    def get_success_url(self):
+        return reverse_lazy('mass_mail_sent') + "?nb=" + str(self.nb_sent)
+
+    def form_valid(self, form):
+        body = form.cleaned_data['body']
+        md_body = markdown(body)
+        subject = form.cleaned_data['subject']
+        category = form.cleaned_data['categories']
+        default_from = settings.DEFAULT_FROM_EMAIL
+        template = get_template('hosting/emails/mail_template.html')
+
+        opening = datetime(2014,11,24)
+        places = Place.objects.filter(deleted=False).select_related('owner__user')
+        profiles = []
+
+        if category in ("test", "just_user"):
+            places = []
+            profiles = Profile.objects.filter(place__isnull=True)
+        elif category == "old_system":
+            places = places.filter(owner__user__last_login__lte=opening)
+        else:
+            places = places.filter(owner__user__last_login__gt=opening)
+            if category == "in_book":
+                places = places.filter(in_book=True)
+            elif category == "not_in_book":
+                places = places.filter(in_book=False)
+
+        if category == 'test':
+            messages = [(
+                subject,
+                body.format(nomo=form.cleaned_data['test_email']),
+                template.render(Context({'body':mark_safe(md_body.format(nomo=form.cleaned_data['test_email']))})),
+                default_from,
+                [form.cleaned_data['test_email']]
+            )]
+
+        elif category == 'just_user':
+            messages = [(
+                subject,
+                body.format(nomo=pr.name),
+                template.render(Context({'body':mark_safe(md_body.format(nomo=pr.name))})),
+                default_from,
+                [pr.user.email]
+            ) for pr in profiles]
+
+        else:
+            messages = [(
+                subject,
+                body.format(nomo=p.owner.name),
+                template.render(Context({'body':mark_safe(md_body.format(nomo=p.owner.name))})),
+                default_from,
+                [p.owner.user.email]
+            ) for p in places] if places else []
+
+
+        self.nb_sent = send_mass_html_mail(messages)
+
+        return super(MassMailView, self).form_valid(form)
+
+mass_mail = MassMailView.as_view()
+
+
+class MassMailSentView(generic.TemplateView):
+    template_name = 'hosting/mass_mail_sent.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(MassMailSentView, self).get_context_data(**kwargs)
+        context['nb'] = self.request.GET['nb']
+        return context
+
+mass_mail_sent = MassMailSentView.as_view()

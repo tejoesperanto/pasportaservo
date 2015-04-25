@@ -14,6 +14,4 @@ $(document).ready(function(){
 
     // Lazy load images
     $(".lazy").addClass("loaded");
-
-    $("#id_conditions").chosen();
 });
