@@ -70,6 +70,10 @@ class Profile(TimeStampedModel):
         return " ".join((self.first_name, self.last_name))
 
     @property
+    def name(self):
+        return self.first_name or self.user.username.title()
+
+    @property
     def anonymous_name(self):
         return " ".join((self.first_name, self.last_name[:1]))
 
@@ -146,9 +150,9 @@ class Place(TimeStampedModel):
         help_text=_("If you are ready to show your area to visitors."))
     have_a_drink = models.BooleanField(_("have a drink"), default=False,
         help_text=_("If you are ready to have a coffee or beer with visitors."))
-    conditions = models.ManyToManyField('hosting.Condition', verbose_name=_("conditions"), blank=True, null=True)
-    family_members = models.ManyToManyField('hosting.Profile', verbose_name=_("family members"), blank=True, null=True)
-    authorized_users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("authorized users"), blank=True, null=True,
+    conditions = models.ManyToManyField('hosting.Condition', verbose_name=_("conditions"), blank=True)
+    family_members = models.ManyToManyField('hosting.Profile', verbose_name=_("family members"), blank=True)
+    authorized_users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("authorized users"), blank=True,
         help_text=_("List of users authorized to view most of data of this accommodation."))
 
     checked = models.BooleanField(_("checked"), default=False)
