@@ -230,13 +230,13 @@ class FamilyMemberCreateForm(FamilyMemberForm):
 
 
 class MassMailForm(forms.Form):
-    subject = forms.CharField(initial="[Pasporta Servo] ")
-    body = forms.CharField(widget=forms.Textarea, initial="Kara {nomo},")
-    categories = forms.ChoiceField(choices=(
+    subject = forms.CharField(label=_("Subject"), initial="[Pasporta Servo] ")
+    body = forms.CharField(label=_("Body"), widget=forms.Textarea, initial="Kara {nomo},")
+    categories = forms.ChoiceField(label=_("Categories"), choices=(
         ('test', _("test")),
         ('old_system', _("old system")),
         ('not_in_book', _("not in book")),
         ('in_book', _("in book")),
         ('just_user', _("just user")),
     ))
-    test_email = forms.EmailField(initial="baptiste@darthenay.fr")
+    test_email = forms.EmailField(label=_("Your email for test"), initial="baptiste@darthenay.fr")

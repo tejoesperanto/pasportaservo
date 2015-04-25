@@ -15,7 +15,7 @@ from django.core.mail import EmailMessage
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 
-from braces.views import AnonymousRequiredMixin, LoginRequiredMixin
+from braces.views import AnonymousRequiredMixin, LoginRequiredMixin, SuperuserRequiredMixin
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
 from .models import Profile, Place, Phone
@@ -380,7 +380,7 @@ class FamilyMemberDeleteView(LoginRequiredMixin, DeleteMixin, FamilyMemberMixin,
 family_member_delete = FamilyMemberDeleteView.as_view()
 
 
-class MassMailView(generic.FormView):
+class MassMailView(SuperuserRequiredMixin, generic.FormView):
     template_name = 'hosting/mass_mail_form.html'
     form_class = MassMailForm
 
@@ -446,7 +446,7 @@ class MassMailView(generic.FormView):
 mass_mail = MassMailView.as_view()
 
 
-class MassMailSentView(generic.TemplateView):
+class MassMailSentView(SuperuserRequiredMixin, generic.TemplateView):
     template_name = 'hosting/mass_mail_sent.html'
 
     def get_context_data(self, **kwargs):
