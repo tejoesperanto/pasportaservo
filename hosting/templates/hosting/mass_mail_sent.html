@@ -1,0 +1,11 @@
+{% extends 'hosting/base.html' %}
+{% load i18n %}
+
+{% block page %}
+    <h1>{% trans "Emails sent" %}</h1>
+    <h3 class="text-success well">
+        {% blocktrans with nb=nb trimmed %}
+            You sent {{ nb }} emails. Well done!
+        {% endblocktrans %}
+    </h3>
+{% endblock %}

@@ -40,3 +40,7 @@
         </div>
     </div>
 {% endblock form_before %}
+
+{% block form_after %}
+    <script type="text/javascript">$("#id_conditions").chosen();</script>
+{% endblock form_after %}

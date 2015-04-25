@@ -211,6 +211,7 @@ class AuthorizeUserForm(forms.Form):
             raise forms.ValidationError(_("User does not exist"))
         return username
 
+
 class FamilyMemberForm(forms.ModelForm):
     class Meta:
         model = Profile
@@ -226,3 +227,16 @@ class FamilyMemberCreateForm(FamilyMemberForm):
         family_member = super(FamilyMemberForm, self).save()
         self.place.family_members.add(family_member)
         return family_member
+
+
+class MassMailForm(forms.Form):
+    subject = forms.CharField(initial="[Pasporta Servo] ")
+    body = forms.CharField(widget=forms.Textarea, initial="Kara {nomo},")
+    categories = forms.ChoiceField(choices=(
+        ('test', _("test")),
+        ('old_system', _("old system")),
+        ('not_in_book', _("not in book")),
+        ('in_book', _("in book")),
+        ('just_user', _("just user")),
+    ))
+    test_email = forms.EmailField(initial="baptiste@darthenay.fr")

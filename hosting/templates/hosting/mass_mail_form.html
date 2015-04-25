@@ -1,0 +1,15 @@
+{% extends 'hosting/base_form.html' %}
+{% load static %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script src="{% static 'js/marked.js' %}"></script>
+{% endblock extra_js %}
+
+{% block form_container_class %}col-xs-12 col-md-6{% endblock %}
+
+{% block form_after %}
+    <div class="col-xs-12 col-md-6">
+        {% include 'hosting/emails/mail_template.html' %}
+    </div>
+{% endblock form_after %}
