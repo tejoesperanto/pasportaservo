@@ -1,8 +1,9 @@
-Django==1.8
+Django==1.7.7
 psycopg2==2.6
 Pillow==2.8.1
+markdown2==2.3.0
 
-geopy==1.10.1
+geopy==1.10.0
 django-braces==1.8.0
 django-bootstrap-form==3.2
 django-countries==3.3
@@ -10,5 +11,5 @@ django-grappelli==2.6.4
 django-extensions==1.5.2
 django-phonenumber-field==0.7.2
 django-postman==3.2.2
-django-leaflet==0.16
+django-leaflet==0.15.1
 django-appypod==0.0.2
