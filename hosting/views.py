@@ -224,14 +224,19 @@ phone_delete = PhoneDeleteView.as_view()
 class SearchView(generic.ListView):
     model = Place
 
+    def first_with_bounds(self, locations):
+        for location in locations:
+            if location.raw.has_key('bounds'):
+                return location
+
     def get(self, request, *args, **kwargs):
         self.query = request.GET.get('q')
         if self.query:
             try:
                 geocoder = geopy.geocoders.OpenCage(settings.OPENCAGE_KEY, timeout=5)
-                self.location = geocoder.geocode(self.query, language=lang, exactly_one=True)
+                self.locations = geocoder.geocode(self.query, language=lang, exactly_one=False)
             except (GeocoderTimedOut, GeocoderServiceError) as e:
-                self.location = None
+                self.locations = []
         return super(SearchView, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -239,9 +244,10 @@ class SearchView(generic.ListView):
         because some bbox for some countres are huge (e.g. France, USA).
         """
         qs = Place.objects.none()
-        if self.query and self.location:
-            country_code = self.location.raw['components'].get('country_code')
-            bounds = self.location.raw['bounds']
+        location = self.first_with_bounds(self.locations)
+        if self.query and location:
+            country_code = location.raw['components'].get('country_code')
+            bounds = location.raw['bounds']
             lats = (bounds['southwest']['lat'], bounds['northeast']['lat'])
             lngs = (bounds['southwest']['lng'], bounds['northeast']['lng'])
             qs = Place.objects.filter(available=True, deleted=False)
