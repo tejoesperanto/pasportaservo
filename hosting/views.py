@@ -244,15 +244,16 @@ class SearchView(generic.ListView):
         because some bbox for some countres are huge (e.g. France, USA).
         """
         qs = Place.objects.none()
-        location = self.first_with_bounds(self.locations)
-        if self.query and location:
-            country_code = location.raw['components'].get('country_code')
-            bounds = location.raw['bounds']
-            lats = (bounds['southwest']['lat'], bounds['northeast']['lat'])
-            lngs = (bounds['southwest']['lng'], bounds['northeast']['lng'])
-            qs = Place.objects.filter(available=True, deleted=False)
-            qs = qs.filter(latitude__range=lats, longitude__range=lngs)
-            qs = qs.filter(country=country_code.upper()) if country_code else qs
+        if self.query and self.locations:
+            location = self.first_with_bounds(self.locations)
+            if location:
+                country_code = location.raw['components'].get('country_code')
+                bounds = location.raw['bounds']
+                lats = (bounds['southwest']['lat'], bounds['northeast']['lat'])
+                lngs = (bounds['southwest']['lng'], bounds['northeast']['lng'])
+                qs = Place.objects.filter(available=True, deleted=False)
+                qs = qs.filter(latitude__range=lats, longitude__range=lngs)
+                qs = qs.filter(country=country_code.upper()) if country_code else qs
 
         """Search in the Profile name and username too."""
         if len(self.query) <= 3:
