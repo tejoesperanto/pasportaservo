@@ -97,7 +97,7 @@ class ProfileCreateForm(ProfileForm):
 
 class ProfileSettingsForm(forms.ModelForm):
     class Meta:
-        model = User 
+        model = User
         fields = ['email']
 
 
@@ -137,7 +137,7 @@ class PlaceForm(forms.ModelForm):
 
         if cleaned_data['in_book'] and not all_filled:
             for field in required_fields:
-                if field in ['latitude', 'longitude']:
+                if not cleaned_data['latitude'] or not cleaned_data['longitude']:
                     raise forms.ValidationError(_("Please click on the map to choose your location."))
                 if not cleaned_data.get(field, False):
                     self.add_error(field, _("This field is required to be printed in the book."))
