@@ -1,61 +1,43 @@
-Pasporta Servo 3.0
-==================
+# ![Pasporta Servo 3](https://cdn.rawgit.com/tejo-esperanto/pasportaservo/master/logos/pasportaservo_logo.svg)
 
-**This repository contains the codebase that runs the pasportaservo.org website in near future.**
+[![Python 3.4](https://img.shields.io/badge/Python-3.4-blue.svg)](https://docs.python.org/3.4/)
+[![Django 1.7](https://img.shields.io/badge/Django-1.7-0C4B33.svg)](https://docs.djangoproject.com/en/1.7/)
+[![No HTTPS](https://img.shields.io/badge/HTTPS-ne-red.svg)](https://letsencrypt.org/)
+[![Esperanto](https://img.shields.io/badge/Esperanto-jes-green.svg)](https://eo.wikipedia.org/wiki/Esperanto)
+[![TEJO](https://img.shields.io/badge/Projekto de-TEJO-orange.svg)](http://tejo.org)
+[![Join the chat at https://gitter.im/tejo-esperanto/pasportaservo](https://img.shields.io/gitter/room/tejo-esperanto/pasportaservo.svg)](https://gitter.im/tejo-esperanto/pasportaservo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Twitter URL](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/PasportaServo3)
 
-This project is using and Django 1.7. See requirements.txt.
-
-You will need Python 2.7 or 3.4, PostgreSQL, PIP and Virtualenv:
-
-    sudo apt-get install postgresql postgresql-client postgresql-client-common libpq5 libpq-dev python3 python3-dev
-    sudo apt-get install mercurial
-    sudo apt-get install python-setuptools
-    easy_install --user pip
-    sudo pip install virtualenv
-
-If it's possible, don't install Django on your system, but just in a virtualenv. This way you will get an error if you're not in a proper virtualenv.
-
-    sudo -u postgres creatuser my-username
-
-And answer 'n' to all questions.
-
-    sudo -u postgres createdb -O my-username -l eo.utf8 -E utf8 pasportaservo
-
-Go to https://bitbucket.org/pasportaservo/pasportaservo/ and fork it to your own account. You should have the repository on https://bitbucket.org/my-username/pasportaservo/
-
-    hg clone ssh://hg@bitbucket.org/my-username/pasportaservo
-
-or
-
-    hg clone https://my-username@bitbucket.org/my-username/pasportaservo
-
-    cd pasportaservo
-    virtualenv env --system-site-packages
-    source env/bin/activate
-    pip install -r requirements.txt  # or requirements/dev.txt
-    python manage.py migrate
-
-    cd pasportaservo/settings
-    ln -s my-local-settings.py local_settings.py
-    cd -
-
-> `my-local-settings.py` can be `dev.py`, `staging.py` or `prod.py`
-
-    python manage.py runserver
-
-Then type in your web browser: `localhost:8000`
-    
-
-    
-## Understanding the codebase
-
-- **pasportaservo/**: general folder, with configuration, base-level URLs…
-- **hosting/**: main application for hosting
+[Pasporta Servo](https://eo.wikipedia.org/wiki/Pasporta_servo/) estas senpaga tutmonda gastiga servo. La projekto komencis en 1974 kiel eta jarlibro, kaj ekde 2009 ankaŭ daŭras kiel retejo. En tiu ĉi deponejo kolektiĝas la kodo kiu ruligas la retejon [pasportaservo.org](http://pasportaservo.org).
 
 
-**Important files in hosting:**
+- [Kontribui](#kontribui)
+- [Instali](#instali)
+- [Licenco](#licenco)
 
-- models.py: data structure
-- urls.py: links between URLs and views
-- views.py: what kind of page to display
-- templates/: pseudo HTML files
+## Kontribui
+
+Ĉu vi trovis cimon? Ĉu vi havas ideo kiel plibonigi la retejon? Nepre kreu [novan atentindaĵon](https://github.com/tejo-esperanto/pasportaservo/issues/new).
+
+Ĉu vi konas Pitonon kaj Dĵangon, aŭ volas lerni, legu [kiel instali](INSTALL.md).
+
+Ĉiu kaze estas bona ideo veni sur [la Gitter babilejon](https://gitter.im/tejo-esperanto/pasportaservo) kaj legi kiel esti [pli bona kontribuanto](CONTRIBUTING.md).
+
+
+## Instali
+
+```bash
+$ mkvirtualenv ps -p python3
+(ps) $ git clone https://github.com/tejo-esperanto/pasportaservo.git
+(ps) $ cd pasportaservo
+(ps) $ pip install -r requirements.txt
+(ps) $ ./manage.py migrate
+(ps) $ ./manage.py runserver
+```
+
+Pli detale: [INSTALL.md](INSTALL.md)
+
+
+## Licenco
+
+[aGPL v3](LICENSE)
