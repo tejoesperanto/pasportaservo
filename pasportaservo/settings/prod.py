@@ -1,39 +1,25 @@
-try:
-    from . import secrets
-except ImportError:
-    from warnings import warn
-    warn("\nFile secrets.py not found.",
-    UserWarning)
+from .base import *
 
-DEBUG = False
 
-SECRET_KEY = secrets.SECRET_KEY
+SECRET_KEY = get_env_setting('SECRET_KEY')
 
 DATABASES = {
     'default': {
-        'ENGINE': secrets.DJANGO_DB_ENGINE,
-        'NAME': secrets.DJANGO_DB_NAME,
-        'USER': secrets.DJANGO_DB_USER,
-        'PASSWORD': secrets.DJANGO_DB_PASSWORD,
-        'HOST': secrets.DJANGO_DB_HOST,
-        'PORT': secrets.DJANGO_DB_PORT,
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'pasportaservo',
     }
 }
 
-EMAIL_HOST = secrets.EMAIL_HOST
-EMAIL_HOST_USER = secrets.EMAIL_HOST_USER
-EMAIL_HOST_PASSWORD = secrets.EMAIL_HOST_PASSWORD
-EMAIL_PORT = secrets.EMAIL_PORT
-EMAIL_USE_SSL = secrets.EMAIL_USE_SSL
-SERVER_EMAIL = secrets.SERVER_EMAIL
-DEFAULT_FROM_EMAIL = secrets.DEFAULT_FROM_EMAIL
-
-STATIC_URL = 'http://static.pasportaservo.org/'
-MEDIA_URL = 'http://static.pasportaservo.org/media/'
+EMAIL_HOST = 'mail.gandi.net'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'eraroj@pasportaservo.org'
+EMAIL_HOST_PASSWORD = get_env_setting('EMAIL_HOST_PASSWORD')
+EMAIL_SUBJECT_PREFIX = '[PS] '
+DEFAULT_FROM_EMAIL = 'saluton@pasportaservo.org'
 
 ALLOWED_HOSTS = [
     'pasportaservo.org',
-    'www.pasportaservo.org',
 ]
 
 ADMINS = (

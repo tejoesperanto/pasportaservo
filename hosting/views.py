@@ -226,7 +226,7 @@ class SearchView(generic.ListView):
 
     def first_with_bounds(self, locations):
         for location in locations:
-            if location.raw.has_key('bounds'):
+            if 'bounds' in location.raw:
                 return location
 
     def get(self, request, *args, **kwargs):
