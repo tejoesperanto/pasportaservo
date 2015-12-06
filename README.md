@@ -1,6 +1,8 @@
 Pasporta Servo 3.0
 ==================
 
+[![Join the chat at https://gitter.im/tejo-esperanto/pasportaservo](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tejo-esperanto/pasportaservo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 **This repository contains the codebase that runs the pasportaservo.org website in near future.**
 
 This project is using and Django 1.7. See requirements.txt.
