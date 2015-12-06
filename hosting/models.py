@@ -82,6 +82,19 @@ class Profile(TimeStampedModel):
         return int((date.today() - self.birth_date).days / 365.24)
 
     @property
+    def january_first(self):
+        return self.birth_date.day == 1 and self.birth_date.month == 1
+
+    def invalid_email(self):
+        try:
+            email = self.user.email
+        except AttributeError:
+            return False
+        if 'pasportaservo' in email.split('@')[1]:
+            return True
+        return not bool(email)
+
+    @property
     def avatar_url(self):
         if self.avatar and hasattr(self.avatar, 'url'):
             return self.avatar.url
@@ -105,6 +118,11 @@ class Profile(TimeStampedModel):
 
     def get_absolute_url(self):
         return reverse('profile_detail', kwargs={
+                'pk': self.pk,
+                'slug': getattr(self, 'slug', self.autoslug)})
+
+    def get_update_url(self):
+        return reverse('profile_update', kwargs={
                 'pk': self.pk,
                 'slug': getattr(self, 'slug', self.autoslug)})
 
@@ -132,8 +150,8 @@ class Place(TimeStampedModel):
     postcode = models.CharField(_("postcode"), max_length=11, blank=True)
     country = CountryField(_("country"))
     state_province = models.CharField(_("State / Province"), max_length=70, blank=True)
-    latitude = models.FloatField(_("latitude"), null=True, blank=True)
-    longitude = models.FloatField(_("longitude"), null=True, blank=True)
+    latitude = models.FloatField(_("latitude"), default=0)
+    longitude = models.FloatField(_("longitude"), default=0)
     max_guest = models.PositiveSmallIntegerField(_("maximum number of guest"), blank=True, null=True)
     max_night = models.PositiveSmallIntegerField(_("maximum number of night"), blank=True, null=True)
     contact_before = models.PositiveSmallIntegerField(_("contact before"), blank=True, null=True,
@@ -182,6 +200,9 @@ class Place(TimeStampedModel):
     def get_absolute_url(self):
         return reverse('place_detail', kwargs={'pk': self.pk})
 
+    def get_update_url(self):
+        return reverse('place_update', kwargs={'pk': self.pk})
+
     def __str__(self):
         return self.city
 
@@ -208,18 +229,21 @@ class Phone(TimeStampedModel):
         verbose_name = _("phone")
         verbose_name_plural = _("phones")
 
+    def get_update_url(self):
+        return reverse('phone_update', kwargs={'num': slugify(self.number.as_e164)})
+
     @property
     def icon(self):
         if self.type == self.HOME:
-            cls = "glyphicon-earphone"
+            cls = "phone-alt"
         elif self.type == self.WORK:
-            cls = "glyphicon-phone-alt"
+            cls = "briefcase"
         elif self.type == self.MOBILE:
-            cls = "glyphicon-phone"
+            cls = "phone"
         elif self.type == self.FAX:
-            cls = "glyphicon-print"
+            cls = "print"
         title=self.get_type_display().capitalize()
-        template = '<span class="glyphicon {cls}" title="{title}"></span>'
+        template = '<i class="glyphicon glyphicon-{cls}" title="{title}"></i>'
         return format_html(template, cls=cls, title=title)
 
     def __str__(self):
@@ -274,6 +298,19 @@ class ContactPreference(models.Model):
     class Meta:
         verbose_name = _("contact preference")
         verbose_name_plural = _("contact preferences")
+
+    @property
+    def icon(self):
+        # by email, by snail mail, by phone, by website
+        icons = {
+            'by email': 'sent',
+            'by snail mail': 'envelope',
+            'by phone': 'phone-alt',
+            'by website': 'globe',
+        }
+        title=self.name.capitalize()
+        template='<i class="glyphicon glyphicon-{cls}" title="{title}"></i> '
+        return format_html(template, cls=icons.get(self.name), title=title)
 
     def __str__(self):
         return self.name

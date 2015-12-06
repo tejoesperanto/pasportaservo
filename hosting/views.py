@@ -241,7 +241,7 @@ class SearchView(generic.ListView):
 
     def get_queryset(self):
         """Find location by bounding box. Filters also by country,
-        because some bbox for some countres are huge (e.g. France, USA).
+        because some bbox are huge for some countries with colonies (e.g. France, USA).
         """
         qs = Place.objects.none()
         if self.query and self.locations:
@@ -462,3 +462,22 @@ class MassMailSentView(SuperuserRequiredMixin, generic.TemplateView):
         return context
 
 mass_mail_sent = MassMailSentView.as_view()
+
+
+class CheckingListView(SuperuserRequiredMixin, generic.ListView):
+    template_name = 'hosting/checking_list.html'
+    model = Place
+    paginate_by = 20
+
+    def get_queryset(self):
+        qs = super(CheckingListView, self).get_queryset()
+        qs = qs.filter(deleted=False, available=True, in_book=True)
+        qs = qs.select_related('owner__user')
+        country = self.kwargs.get('code', '')
+        return qs.filter(country=country.upper()) if country else qs
+
+    def get_context_data(self):
+        context = super(CheckingListView, self).get_context_data()
+        context['countries'] = Co
+
+checking_list = CheckingListView.as_view()

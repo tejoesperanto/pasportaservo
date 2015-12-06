@@ -1,0 +1,107 @@
+{% extends 'hosting/base.html' %}
+{% load i18n static %}
+
+{% block page_class %} search{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'hosting/js/search.js' %}"></script>
+{% endblock %}
+
+{% block page %}
+
+    {% include 'hosting/snippets/paginator.html' %}
+
+    <form class="form-inline row search" id="searchform" role="form" method="GET" action="">
+        <div class="form-group" style="width: 100%">
+            <div class="input-group" style="width: 100%">
+                <input class="form-control" type="search" id="searchinput" name="q" value="{{ request.GET.q|title }}" placeholder="{% trans "GB, HU, FR, DE, ES…" %}">
+                <span class="input-group-btn" style="width: 20%">
+                    <button class="btn btn-default" type="submit" id="search" style="min-width: 40px; width: 50%;">
+                        <span class="glyphicon glyphicon-search"></span>
+                        <span class="hidden-xs">{% trans "Search" %}</span>
+                    </button>
+                </span>
+            </div>
+        </div>
+    </form>
+
+    {% for place in place_list %}
+        <div class="row place-list" id="id_{{ place.pk }}">
+            <div class="col-xs-3 col-sm-2 col-md-1 avatar">
+                <a href="{{ place.get_update_url }}?next={{ request.get_full_path|urlencode }}#id_{{ place.pk }}">
+                    <img src="{{ place.profile.avatar_url }}" />
+                </a>
+            </div>
+            <div class="col-xs-5 col-sm-6 col-md-7 name">
+                {{ place.profile.get_title_display }}
+                <a class="btn btn-primary" href="{{ place.profile.get_update_url }}?next={{ request.get_full_path|urlencode }}#id_{{ place.pk }}">
+                    <strong>{{ place.profile.full_name }}</strong>
+                    <span class="badge">{% if place.profile.january_first %}~{% endif %}{{ place.profile.birth_date.year }}</span>
+                    {% include 'hosting/snippets/checked.html' with object=place.profile %}
+                </a>
+            </div>
+            <div class="col-xs-4 status">
+                {% if not place.available %}{% trans "unavailable" %}{% endif %}
+            </div>
+            <div class="col-xs-9 col-sm-10 col-md-11 address">
+                <div class="pull-right">{% include 'hosting/snippets/checked.html' with object=place %}</div>
+                <div class="well">
+                    <a href="{{ place.get_update_url }}?next={{ request.get_full_path|urlencode }}#id_{{ place.pk }}">
+                        {{ place.address }} <br />
+                        <strong>{{ place.postcode }} - {{ place.city }}</strong><br />
+                        {{ place.country.name }}
+                    </a>
+                </div>
+                <p>
+                    {% for member in place.family_members.all %}
+                        {% if member != place.profile %}
+                        <a href="{% url 'family_member_update' place.pk member.pk %}?next={{ request.get_full_path|urlencode }}#id_{{ place.pk }}" class="btn btn-primary">
+                            {{ member }} <span class="badge">{% if place.profile.january_first %}~{% endif %}{{ member.birth_date.year }}</span>
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                </p>
+                <blockquote>
+                    <p>
+                        {{ place.description }}
+                    </p>
+                </blockquote>
+                <p>
+                    {% for phone in place.profile.phones.all %}
+                        <a href="{{ phone.get_update_url }}?next={{ request.get_full_path|urlencode }}#id_{{ place.pk }}"
+                            class="{% if not phone.number.is_valid %}text-danger{% endif %}">
+                            {{ phone.icon }} {{ phone }}
+                        </a>
+                    {% endfor %}
+                </p>
+                <p>
+                    <span class="{% if place.profile.invalid_email %}text-danger{% else %}text-muted{% endif %}">
+                        {{ place.profile.user.email }}
+                    </span>
+                </p>
+                <p>
+                    <strong>
+                        {{ place.max_guest|default_if_none:"-" }}g
+                        {{ place.max_night|default_if_none:"-" }}n
+                        {{ place.contact_before|default_if_none:"-" }}t
+                    </strong>
+                |
+                    {% for condition in place.conditions.all %}
+                        <span class="badge">{{ condition }}</span>
+                    {% endfor %}
+                |
+                    {% for preference in place.profile.contact_preferences.all %}
+                        {{ preference.icon }}
+                    {% endfor %}
+                </p>
+            </div>
+        </div>
+    {% empty %}
+        <div class="row place-list">{% trans "Sorry, no kind hosts found…" %}</div>
+    {% endfor %}
+
+    {% include 'hosting/snippets/paginator.html' %}
+
+</div>
+
+{% endblock page %}

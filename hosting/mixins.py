@@ -7,7 +7,7 @@ from .models import Profile, Place, Phone
 class ProfileMixin(object):
     def get_success_url(self, *args, **kwargs):
         if 'next' in self.request.GET:
-            return self.request.GET.get('next')
+            return self.request.GET['next']
         if hasattr(self.object, 'profile'):
             return self.object.profile.get_edit_url()
         if type(self.object) is Profile:
@@ -63,7 +63,8 @@ class FamilyMemberMixin(object):
         raise Http404
 
     def get_success_url(self, *args, **kwargs):
-        return self.place.owner.get_edit_url()
+        next_url = self.request.GET.get('next')
+        return self.place.owner.get_edit_url() if not next_url else next_url
 
 
 class DeleteMixin(object):

@@ -12,6 +12,25 @@ def extend_bbox(boundingbox):
     return [s - delta_lat, n + delta_lat, w - delta_lng, e + delta_lng]
 
 
+def deg_to_dms(deg):
+    d = int(deg)
+    md = abs(deg - d) * 60
+    m = int(md)
+    sd = (md - m) * 60
+    s = int(sd)
+    return [d, md, s]
+
+
+def format_coord(coord, lat=False, lng=False):
+    W, N, E, S = u"\u2190", u"\u2191", u"\u2192", u"\u2193"
+    d, m, _ = coord
+    if lat:
+        orient = N if abs(d) == d else S
+    if lng:
+        orient = E if abs(d) == d else W
+    return u"{arrow}{d:0>2d}\xb0{m:0>2.0f}".format(arrow=orient, d=abs(d), m=m)
+
+
 def title_with_particule(value, particules=None):
     """Like string.title(), but do not capitalize surname particules.
     Regex maches case insensitive (?i) particule
@@ -33,7 +52,7 @@ def split(value):
     return re.split('\W+', value)
 
 
-def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None, 
+def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,
                         connection=None):
     """
     Given a datatuple of (subject, text_content, html_content, from_email,

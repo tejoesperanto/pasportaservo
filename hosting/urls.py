@@ -34,6 +34,8 @@ urlpatterns = patterns('hosting.views',
 
     url(_(r'^search/$'), 'search', name='search'),
 
+    url(_(r'^checking(?::(?P<code>[\w-]+))?/$'), 'checking_list', name='checking_list'),
+
     url(_(r'^mass_mail/$'), 'mass_mail', name='mass_mail'),
     url(_(r'^mass_mail_sent/$'), 'mass_mail_sent', name='mass_mail_sent'),
 )

@@ -1,7 +1,10 @@
 @font-face {
     font-family: Geotica;
     src: url('../fonts/Geotica_Three-webfont.eot');
-    src: url('../fonts/Geotica_Three-webfont.eot?#iefix') format('embedded-opentype'), url('../fonts/Geotica_Three-webfont.woff') format('woff'), url('../fonts/Geotica_Three-webfont.ttf') format('truetype'), url('../fonts/Geotica_Three-webfont.svg#glyphicons_halflingsregular') format('svg');
+    src: url('../fonts/Geotica_Three-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/Geotica_Three-webfont.woff') format('woff'),
+         url('../fonts/Geotica_Three-webfont.ttf') format('truetype'),
+         url('../fonts/Geotica_Three-webfont.svg#glyphicons_halflingsregular') format('svg');
 }
 
 body {
