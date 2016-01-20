@@ -1,58 +1,90 @@
 # INSTALI
 
-This project is using and Django 1.7. See requirements.txt.
+Tiu ĉi projekto uzas Django 1.7; vidu requirements.txt.
 
-You will need Python 2.7 or 3.4, PostgreSQL, PIP and Virtualenv:
+Vi bezonos Python 2.7 aŭ 3.4, PostgreSQL, PIP kaj Virtualenv:
 
-    sudo apt-get install postgresql postgresql-client postgresql-client-common libpq5 libpq-dev python3 python3-dev
-    sudo apt-get install mercurial
-    sudo apt-get install python-setuptools
-    easy_install --user pip
-    sudo pip install virtualenv
+    $ sudo apt-get install postgresql postgresql-client postgresql-client-common libpq5 libpq-dev
+    $ sudo apt-get install python3 python3-dev
+    $ sudo apt-get install mercurial
+    $ sudo apt-get install python-setuptools
+    $ easy_install --user pip
+    $ sudo pip install virtualenv
 
-If it's possible, don't install Django on your system, but just in a virtualenv. This way you will get an error if you're not in a proper virtualenv.
+Kiam eblas, ne instalu Django-n en via ĉefa sistemo sed ene de virtualenv, kiu provizas hermetikan Python-ĉirkaŭaĵon. Tiukaze, se vi provos lanĉi Django-n ekster la agordita ĉirkaŭaĵo, okazos eraro.
 
-    sudo -u postgres createuser my-username --interactive
+    $ virtualenv {ENV}
+    $ source ./{ENV}/bin/activate
 
-And answer 'n' to all questions.
+Kie `{ENV}` (ekz, 'PS3') estas la dosierujo enhavonta ĉion necesan por la ĉirkaŭaĵo, inkluzive de Python kaj bibliotekoj. `deactivate` por eliri el la ĉirkaŭaĵo.
 
-    sudo -u postgres createdb -O my-username -l eo.utf8 -E utf8 pasportaservo
+#### Konfiguro de PostgreSQL
 
-Go to https://bitbucket.org/pasportaservo/pasportaservo/ and fork it to your own account. You should have the repository on https://bitbucket.org/my-username/pasportaservo/
+    $ sudo -u postgres createuser {via-uzantonomo} --interactive
 
-    hg clone ssh://hg@bitbucket.org/my-username/pasportaservo
+Kie `{via-uzantonomo}` estas de tiu uzanto per kiu vi aktuale estas ensalutinta. Respondu:
 
-or
+>    Shall the new role be a superuser? (y/n) **n**
+>
+>    Shall the new role be allowed to create databases? (y/n) **y**
+>
+>    Shall the new role be allowed to create more new roles? (y/n) **n**
 
-    hg clone https://my-username@bitbucket.org/my-username/pasportaservo
+Se la antaŭa komando malsukcesas (ekz., vi ricevas eraron "unrecognized option --interactive"), provu:
 
-    cd pasportaservo
-    virtualenv env --system-site-packages
-    source env/bin/activate
-    pip install -r requirements.txt  # or requirements/dev.txt
-    python manage.py migrate
+    $ sudo -u postgres psql
+    psql (9.1.19)
+    Type "help" for help.
+    postgres=# CREATE ROLE {via-uzantonomo} WITH LOGIN CREATEDB CREATEROLE;
+    postgres=# \q
 
-    cd pasportaservo/settings
-    ln -s my-local-settings.py local_settings.py
-    cd -
+Sekvas kreo de datumbazo.
 
-> `my-local-settings.py` can be `dev.py`, `staging.py` or `prod.py`  
+    $ sudo -u postgres createdb -O {via-uzantonomo} -E utf8 pasportaservo
+    $ sudo -u postgres psql
+    psql (9.1.19)
+    Type "help" for help.
+    postgres=# \l
+                                        List of databases
+         Name      |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges   
+    ---------------+----------+----------+-------------+-------------+-----------------------
+     pasportaservo | {uzanto} | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+     template0     | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+                   |          |          |             |             | postgres=CTc/postgres
+     template1     | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+                   |          |          |             |             | postgres=CTc/postgres
 
-    python manage.py runserver
+    postgres=# \q
 
-Then type in your web browser: `localhost:8000`  
+Se vi vidas tabelon kiel ĉi-supre, ĉio glate paŝis.
+
+#### Elpreno de kodo kaj lanĉo
+
+    (PS3) $ mkdir site
+    (PS3) $ cd site/
+    (PS3) $ git clone https://github.com/tejo-esperanto/pasportaservo.git
+    (PS3) $ cd pasportaservo
+    (PS3) $ pip install -r requirements.txt  # aŭ requirements/dev.txt
+    (PS3) $ cd pasportaservo/settings/
+    (PS3) $ ln -s {my-local-settings}.py local_settings.py
+    (PS3) $ cd -
+
+> `my-local-settings.py` povas esti `dev.py`, `staging.py` aŭ `prod.py`
+
+    (PS3) $ ./manage.py migrate
+    (PS3) $ ./manage.py runserver
+
+En la krozilo, iru al la adreso `http://127.0.0.1:8000`.
 
 
+## Komprenu la strukturon de la kodo
 
-## Understanding the codebase
+- **pasportaservo/**: ĝenerala dosierujo kun konfiguro, baz-nivelaj URL-oj…
+- **hosting/**: la ĉefa programo por gastiganta servo
 
-- **pasportaservo/**: general folder, with configuration, base-level URLs…
-- **hosting/**: main application for hosting
+**Gravaj dosieroj por Gastigoservo:**
 
-
-**Important files in hosting:**
-
-- models.py: data structure
-- urls.py: links between URLs and views
-- views.py: what kind of page to display
-- templates/: pseudo HTML files
+- models.py: strukturo de la datumoj
+- urls.py: ligoj inter URL-oj kaj paĝo-vidoj
+- views.py: difino de vidoj, paĝoj por prezentado
+- templates/: pseŭdo-HTML dosieroj (ŝablonoj)

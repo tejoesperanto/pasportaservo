@@ -10,8 +10,6 @@ env/
 *.orig
 .DS_Store
 *.geany
-secrets.py
-pasportaservo/settings/local_settings.py
 media/
 ./static/
 htmlcov/
