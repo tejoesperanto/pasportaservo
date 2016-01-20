@@ -214,15 +214,15 @@ class Phone(TimeStampedModel):
 
     @property
     def icon(self):
-        if self.type == self.HOME:
-            cls = "glyphicon-earphone"
-        elif self.type == self.WORK:
+        if self.type == self.WORK:
             cls = "glyphicon-phone-alt"
         elif self.type == self.MOBILE:
             cls = "glyphicon-phone"
         elif self.type == self.FAX:
             cls = "glyphicon-print"
-        title=self.get_type_display().capitalize()
+        else:  # self.HOME or ''
+            cls = "glyphicon-earphone"
+        title = self.get_type_display().capitalize()
         template = '<span class="glyphicon {cls}" title="{title}"></span>'
         return format_html(template, cls=cls, title=title)
 
