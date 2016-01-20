@@ -7,7 +7,7 @@
             <div class="btn-group edit-buttons">
                 <a href="{% url 'profile_update' profile.pk profile.user.username|slugify %}"
                    class="btn btn-success"
-                   title="{% trans "Update" %}">
+                   title="{% trans "Update profile" %}">
                     <span class="glyphicon glyphicon-pencil"></span>
                     <span class="hidden-xs">{% trans "Update" %}</span>
                 </a>
@@ -28,8 +28,10 @@
                     <span class="glyphicon glyphicon-cog"></span>
                     <span class="hidden-xs">{% trans "Settings" %}</span>
                 </a>
-                <a href="{% url 'profile_detail' profile.pk profile.user.username|slugify %}" class="btn btn-primary">
-                    <span class="glyphicon glyphicon-arrow-right" title="{% trans "View profile" %}"></span>
+                <a href="{% url 'profile_detail' profile.pk profile.user.username|slugify %}" 
+                   class="btn btn-primary"
+                   title="{% trans "View public profile" %}">
+                    <span class="glyphicon glyphicon-arrow-right"></span>
                     <span class="hidden-xs">{% trans "View" %}</span>
                 </a>
             </div>
@@ -38,21 +40,22 @@
 {% endblock %}
 
 {% block place_edit_buttons %}
-    <a href="{% url 'place_update' place.pk %}" class="btn btn-success">
+    <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% trans "Update this place" %}">
         <span class="glyphicon glyphicon-pencil"></span>
         <span class="hidden-xs">{% trans "Update" %}</span>
     </a>
-    <a href="{% url 'place_delete' place.pk %}" class="btn btn-danger">
-        <span class="glyphicon glyphicon-trash" title="{% trans "Delete" %}"></span>
+    <a href="{% url 'place_delete' place.pk %}" class="btn btn-danger" title="{% trans "Delete" %}">
+        <span class="glyphicon glyphicon-trash"></span>
     </a>
-    <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}" class="btn btn-warning">
+    <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}" class="btn btn-warning" title="{% trans "Authorizations" %}">
         <span class="glyphicon glyphicon-eye-open"></span>
         <span class="hidden-xs">{% trans "Authorizations" %}</span>
     </a>
 {% endblock %}
 
 {% block place_add_buttons %}
-    <a class="btn btn-info" href="{% url 'place_create' profile.pk %}"><span class="glyphicon glyphicon-plus"></span>
+    <a class="btn btn-info" href="{% url 'place_create' profile.pk %}">
+        <span class="glyphicon glyphicon-plus"></span>
         <strong>{% trans "Add a place" %}</strong>
     </a>
 {% endblock %}
@@ -76,8 +79,8 @@
     </div>
 {% endblock %}
 
-{% block familiy_member_add_buttons %}
-    <div class="row">
+{% block family_member_add_buttons %}
+    <div class="">
         <form action="{% url 'family_member_add_me' place.pk %}" method="post">
             {% csrf_token %}
             <a class="btn btn-info" href="{% url 'family_member_create' place.pk %}">

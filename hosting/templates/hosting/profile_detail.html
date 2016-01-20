@@ -8,13 +8,16 @@
                     {% block profile_edit_buttons %}
                         {% if profile != user.profile %}
                             <a href="{% url 'postman_write' profile.user.username %}" class="btn btn-primary">
-                                <span class="glyphicon glyphicon-send"></span> {% trans "Write message" %}
+                                <span class="glyphicon glyphicon-send"></span>&nbsp; 
+                                <strong>{% trans "Write message" %}</strong>
                             </a>
                         {% endif %}
                         {% if profile = user.profile or role = "admin" %}
+                            {% if role = "admin" %}{% trans "Update user's details" as update_title %}{% endif %}
+                            {% if profile = user.profile %}{% trans "Update my details" as update_title %}{% endif %}
                             <a href="{% url 'profile_edit' profile.pk profile.user.username|slugify %}"
                                class="btn btn-success"
-                               title="{% trans "Update" %}">
+                               title="{{ update_title }}">
                                 <span class="glyphicon glyphicon-pencil"></span>
                                 <span class="hidden-xs">{% trans "Update" %}</span>
                             </a>
@@ -34,40 +37,45 @@
             <h1><small>{{ profile.get_title_display }}</small> {{ profile }}</h1>
         </div>
         {% if profile.birth_date %}
-            <div class="col-xs-12 col-sm-9">
-                <p>{% blocktrans with age=profile.age %}{{ age }} y.o.{% endblocktrans %}</p>
-                <p>{% include 'hosting/snippets/checked.html' with object=profile %}</p>
+            <div class="col-xs-8 col-sm-9">
+                <p>
+                    {% blocktrans with age=profile.age %}{{ age }} y.o.{% endblocktrans %}
+                    &nbsp;
+                    {% include 'hosting/snippets/checked.html' with object=profile %}
+                </p>
             </div>
         {% endif %}
     </div>
 
     <hr />
 
-    <h2>{% trans "About me" %}</h2>
+    <h2 class="owner">{% trans "About me" %}</h2>
     {{ profile.description|linebreaks }}
 
     <hr />
 
-    <h2>
+    <h2 class="owner">
         {% blocktrans count counter=profile.owned_places.all|length trimmed %}
             Place
         {% plural %}
             Places
         {% endblocktrans %}
     </h2>
-    <ul class="list-group">
-        {% for place in places %}
+    {% for place in places %}
+        <ul class="list-group">
             <li class="list-group-item {% if user.is_staff and place.checked %}alert alert-success{% endif %}">
                 <div class="btn-group pull-right">
                     {% block place_edit_buttons %}{% endblock %}
-                    <a href="{% url 'place_detail' place.pk %}" class="btn btn-primary">
-                        <span class="glyphicon glyphicon-arrow-right" title="{% trans "View this place" %}"></span>
+                    <a href="{% url 'place_detail' place.pk %}" class="btn btn-primary" title="{% trans "View details of this place" %}">
+                        <span class="glyphicon glyphicon-arrow-right"></span>
                         <span class="hidden-xs">{% trans "View" %}</span>
                     </a>
                 </div>
                 {% if view.public_view %}
                     <div>
-                        <h3>{{ place.city }}</h3>
+                        {% if place.city %}
+                            <h3>{{ place.city }}</h3>
+                        {% endif %}
                         {% if place.closest_city %}
                             <h4>{{ place.closest_city }}</h4>
                         {% endif %}
@@ -76,7 +84,9 @@
                     {% include 'hosting/snippets/checked.html' with object=place %}
                 {% else %}
                     <div>
-                        <p>{% include 'hosting/snippets/checked.html' with object=place %}</p>
+                        {% if user.is_staff %}
+                            <p>{% include 'hosting/snippets/checked.html' with object=place %}</p>
+                        {% endif %}
                         <h3>{{ place.address }}</h3>
                         <h4>{{ place.city }}</h4>
                         <h4>{{ place.postcode }} {{ place.country.name }}</h4>
@@ -89,25 +99,25 @@
     
                                 <p class="details">
                                     {{ member.icon }}
-                                    <b class="number">{{ member }}</b>
-                                    {% if member.age %}<em>({{ member.age }})</em>{% endif %}
+                                    <b class="member">{{ member }}</b>
+                                    {% if member.age %}<em class="comment">({{ member.age }})</em>{% endif %}
                                 </p>
                             </li>
                         {% endfor %}
                     </ul>
                 {% endif %}
 
-                {% block familiy_member_add_buttons %}{% endblock %}
+                {% block family_member_add_buttons %}{% endblock %}
             </li>
-        {% endfor %}
-    </ul>
+        </ul>
+    {% endfor %}
 
     {% block place_add_buttons %}{% endblock %}
 
     {% if not view.public_view %}
         <hr />
 
-        <h2>{% trans "Phones" %}</h2>
+        <h2 class="owner">{% trans "Phones" %}</h2>
         <ul class="list-group phone-list">
             {% for phone in phones %}
                 <li class="list-group-item list-vertical-align">
@@ -116,7 +126,8 @@
                     <p class="details">
                         {{ phone.icon }}
                         <b class="number">{{ phone.number.as_international }}</b>
-                        <em>{{ phone.comments }}</em>
+                        <br class="visible-xs-inline" />
+                        <em class="comment">{{ phone.comments }}</em>
                     </p>
                 </li>
             {% endfor %}

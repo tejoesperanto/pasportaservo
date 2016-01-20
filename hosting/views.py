@@ -345,7 +345,7 @@ family_member_create = FamilyMemberCreateView.as_view()
 class FamilyMemberAddMeView(LoginRequiredMixin, FamilyMemberMixin, generic.FormView):
     def post(self, request, *args, **kwargs):
         self.place.family_members.add(request.user.profile)
-        return HttpResponseRedirect(self.success_url)
+        return HttpResponseRedirect(self.get_success_url())
 
 family_member_add_me = FamilyMemberAddMeView.as_view()
 

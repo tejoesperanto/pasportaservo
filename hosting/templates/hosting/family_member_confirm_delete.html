@@ -6,7 +6,14 @@
         <p class="text-center text-danger">
             {% trans "Are you sure you want to delete this family member?" %}
         </p>
-        <p class="text-center"><strong>{{ profile }} ({{ profile.age }})</strong></p>
+        <p class="text-center">
+            <strong>
+                {{ profile }}
+                {% if profile.age %}
+                    ({{ profile.age }})
+                {% endif %}
+            </strong>
+        </p>
     </div>
 
     <form action="" method="post" class="pull-right">

@@ -58,7 +58,7 @@
                 </form>
 
                 {% if reply_to_pk %}<hr />
-                    <h2>{% trans 'Reply' %}</h2>
+                    <h2>{% trans "Reply" %}</h2>
         
                     <form action="{% url 'postman_reply' reply_to_pk %}?next={{ next_url|urlencode }}" method="post">
                         {% csrf_token %}
@@ -67,7 +67,7 @@
                         </div>
                         <button class="btn btn-primary" type="submit">
                             <span class="glyphicon glyphicon-share-alt"></span>&nbsp;
-                            {% trans 'Send' %}
+                            {% trans "Send" %}
                         </button>
                     </form>
                 {% endif %}
