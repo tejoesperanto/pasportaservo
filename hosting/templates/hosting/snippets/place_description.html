@@ -1,6 +1,6 @@
 {% load i18n %}
 
-{{ description|linebreaks }}
+{{ description|capfirst|linebreaks }}
 
 {% if contact_before %}
     <p>
@@ -13,19 +13,29 @@
 {% endif %}
 
 {% if not max_host and max_night %}
-    {% blocktrans count max_night=max_night trimmed %}
-        I can host during {{ max_night }} night maximum.
-    {% plural %}
-        I can host during {{ max_night }} nights maximum.
-    {% endblocktrans %}
+    <p>
+        {% blocktrans count max_night=max_night trimmed %}
+            I can host during {{ max_night }} night maximum.
+        {% plural %}
+            I can host during {{ max_night }} nights maximum.
+        {% endblocktrans %}
+    </p>
 {% elif max_host or max_night %}
-    {% blocktrans count max_host=max_host trimmed %}
-        I can accept {{ max_host }} person
-    {% plural %}
-        I can accept {{ max_host }} persons
-    {% endblocktrans %}{% if max_night %}{% blocktrans count max_night=max_night trimmed %}
-        , during {{ max_night }} night maximum
-    {% plural %}
-        , during {{ max_night }} nights maximum
-    {% endblocktrans %}{% endif %}.
+    <p>
+    {% spaceless %}
+        <span>{% blocktrans count max_host=max_host trimmed %}
+                  I can accept {{ max_host }} person
+              {% plural %}
+                  I can accept {{ max_host }} persons
+              {% endblocktrans %}</span>
+        {% if max_night %}
+            <span>{% blocktrans count max_night=max_night trimmed %}
+                      , during {{ max_night }} night maximum
+                  {% plural %}
+                      , during {{ max_night }} nights maximum
+                  {% endblocktrans %}</span>
+        {% endif %}
+        <span>.</span>
+    {% endspaceless %}
+    </p>
 {% endif %}

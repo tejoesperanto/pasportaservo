@@ -20,12 +20,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='place',
             name='city',
-            field=models.CharField(help_text='e.g.: Rotterdam', verbose_name='city', max_length=255, validators=[hosting.validators.validate_no_allcaps, hosting.validators.validate_not_to_much_caps]),
+            field=models.CharField(help_text='e.g.: Rotterdam', verbose_name='city', max_length=255, validators=[hosting.validators.validate_not_all_caps, hosting.validators.validate_not_too_many_caps]),
         ),
         migrations.AlterField(
             model_name='place',
             name='closest_city',
-            field=models.CharField(help_text='If you place is in a town near a bigger city.', verbose_name='closest big city', max_length=255, validators=[hosting.validators.validate_no_allcaps, hosting.validators.validate_not_to_much_caps], blank=True),
+            field=models.CharField(help_text='If you place is in a town near a bigger city.', verbose_name='closest big city', max_length=255, validators=[hosting.validators.validate_not_all_caps, hosting.validators.validate_not_too_many_caps], blank=True),
         ),
         migrations.AlterField(
             model_name='place',
@@ -35,11 +35,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='profile',
             name='first_name',
-            field=models.CharField(verbose_name='first name', max_length=255, validators=[hosting.validators.validate_no_allcaps, hosting.validators.validate_not_to_much_caps], blank=True),
+            field=models.CharField(verbose_name='first name', max_length=255, validators=[hosting.validators.validate_not_all_caps, hosting.validators.validate_not_too_many_caps], blank=True),
         ),
         migrations.AlterField(
             model_name='profile',
             name='last_name',
-            field=models.CharField(verbose_name='last name', max_length=255, validators=[hosting.validators.validate_no_allcaps, hosting.validators.validate_not_to_much_caps], blank=True),
+            field=models.CharField(verbose_name='last name', max_length=255, validators=[hosting.validators.validate_not_all_caps, hosting.validators.validate_not_too_many_caps], blank=True),
         ),
     ]

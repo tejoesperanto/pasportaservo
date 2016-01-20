@@ -45,7 +45,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='place',
             name='city',
-            field=models.CharField(verbose_name='city', help_text='e.g.: Rotterdam', validators=[hosting.validators.validate_no_allcaps, hosting.validators.validate_not_to_much_caps], blank=True, max_length=255),
+            field=models.CharField(verbose_name='city', help_text='e.g.: Rotterdam', validators=[hosting.validators.validate_not_all_caps, hosting.validators.validate_not_too_many_caps], blank=True, max_length=255),
         ),
         migrations.AlterField(
             model_name='place',

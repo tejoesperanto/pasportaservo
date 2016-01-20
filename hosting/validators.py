@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from .utils import split, title_with_particule
 
 
-def validate_no_allcaps(value):
+def validate_not_all_caps(value):
     """Tries to figure out whether value is all caps and shouldn't.
     Validates until 3 characters and non latin strings.
     """
@@ -17,12 +17,12 @@ def validate_no_allcaps(value):
         raise ValidationError(message.format(correct_value=correct_value))
 
 
-def validate_not_to_much_caps(value):
+def validate_not_too_many_caps(value):
     """Tries to figure out whether value has too much caps.
     Maximum two capital per word.
     """
     authorized_begining = ('a', 'de', 'la', 'mac', 'mc')
-    message = _("This seems there is too much uppercase letters. Try with '{correct_value}'.")
+    message = _("It seems there are too many uppercase letters. Try with '{correct_value}'.")
     message = message.format(correct_value=title_with_particule(value))
 
     words = split(value)
@@ -30,7 +30,7 @@ def validate_not_to_much_caps(value):
     if not any(words):
         pass  # For non latin letters
     elif value == value.upper():
-        validate_no_allcaps(value)
+        validate_not_all_caps(value)
     else:
         for word in words:
             nb_caps = sum(1 for char in word if char.isupper())
@@ -43,7 +43,7 @@ def validate_not_to_much_caps(value):
                     raise ValidationError(message)
 
 
-def no_digit(value):
+def validate_no_digit(value):
     """Validates if there is not digit in the string."""
     message = _("Digits are not allowed.")
     if any([char in digits for char in value]):

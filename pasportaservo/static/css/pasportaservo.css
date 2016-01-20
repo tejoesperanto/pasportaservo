@@ -6,7 +6,7 @@
 
 body {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 16px;
+    font-size: 16px;
 }
 
 .edit-buttons {
@@ -14,8 +14,36 @@ body {
     margin-bottom: 1em;
 }
 
-/* Message */
+.glyphicon-stack {
+    position: relative;
+    display: inline-block;
+    width: 2em;
+    height: 2em;
+    line-height: 2em;
+    vertical-align: middle;
+}
+.glyphicon-stack-1x,
+.glyphicon-stack-2x {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    text-align: center;
+}
+.glyphicon-stack-1x {
+    line-height: inherit;
+}
+.glyphicon-stack-2x {
+    font-size: 1.5em;
+}
 
+.visible-xxs-block,
+.visible-xxs-inline,
+.visible-xxs-inline-block {
+    display: none !important;
+}
+
+
+/* Message */
 .message {
     position: relative;
     background: #4cae4c;
@@ -55,6 +83,7 @@ body {
     opacity: .5;
     outline: none;
 }
+
 
 /* General header. */
 header {
@@ -125,6 +154,7 @@ header.home form.search {
     margin-bottom: 2em;
 }
 
+
 /* Search */
 #page.search form.search{
     margin-bottom: 1em;
@@ -138,10 +168,21 @@ header.home form.search {
 .place-list .name {
     font-weight: bold;
 }
+.place-detail .status,
 .place-list .status {
     text-align: right;
+}
+.place-list .status {
     font-size: 0.8em;
     color: #666;
+}
+.place-detail .status .place-marker {
+    color: #F71;
+}
+.place-detail .status .place-availability {
+    color: #666;
+    left: 1pt; 
+    top: 1pt;
 }
 .place-list .avatar {
     text-align: center;
@@ -150,6 +191,7 @@ header.home form.search {
     width: 100%;
     max-width: 100px;
 }
+
 
 /* Accomodation */
 .owner {
@@ -181,6 +223,7 @@ p.tip {
 }
 .description-small {
     margin-top: 1em;
+    margin-bottom: 1em;
 }
 
 
@@ -194,20 +237,26 @@ p.tip {
 }
 
 .list-vertical-align {
-    height: 4em;
+    min-height: 3.5em;
 }
 .list-vertical-align .details {
     margin-top: .5em;
+    margin-bottom: 0em;
 }
+.list-vertical-align .member,
 .list-vertical-align .number {
     font-weight: bold;
-    margin: 0 1em;
+    margin: 0 1em 0 .5em;
+}
+.list-vertical-align .number {
+    white-space: nowrap;
 }
 
 .authorized-user {
     position: relative;
     top: .25em;
 }
+
 
 /* Footer */
 footer {
@@ -232,7 +281,6 @@ footer {
 
 
 /* Forms */
-
 #id_conditions_chosen .chosen-choices {
     padding: 2px;
     padding-left: 5px;
@@ -243,15 +291,37 @@ footer {
 }
 
 
-
+/* XXS */
+@media (max-width: 480px) {
+    .visible-xxs-block {
+        display: block !important;
+    }
+    .visible-xxs-inline {
+        display: inline !important;
+    }
+    .visible-xxs-inline-block {
+        display: inline-block !important;
+    }
+    .hidden-xxs {
+        display: none !important;
+    }
+    .list-vertical-align .member {
+        margin-right: .5em;
+    }
+    .list-vertical-align .details .comment {
+        font-size: 14px;
+    }
+}
 /* XS */
 @media (max-width: 767px) {
-
     header.home #title {
         font-size: 4em;
     }
     .owner h1 {
         margin-top: 0;
+        font-size: 24px;
+    }
+    h2.owner {
         font-size: 24px;
     }
 }
