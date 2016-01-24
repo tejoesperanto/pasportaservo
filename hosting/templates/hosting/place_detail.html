@@ -84,6 +84,9 @@
                         <h3>{% trans "Description" %}</h3>
                         {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night %}
                     {% endif %}
+                    {% if place.conditions.all %}
+                        {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all %}
+                    {% endif %}
 
                     {% if place.family_members.all and user in place.authorized_users.all %}
                         <h3>{% trans "Family members" %}</h3>
@@ -115,9 +118,12 @@
         {% if user.is_authenticated %}
             <div class="col-xs-12 hidden-md hidden-lg description-small">
                 {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night %}
+                {% if place.conditions.all %}
+                    {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all %}
+                {% endif %}
             </div>
 
-            {% if place.owner = user.profile %}
+            {% if user.profile == place.owner %}
                 <p class="col-xs-12 btn-group">
                     <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% trans "Update" %}">
                         <span class="glyphicon glyphicon-pencil"></span> {% trans "Update" %}
@@ -139,7 +145,7 @@
         {% endif %}
 
         {% if user.is_authenticated %}
-        {% if user.profile in place.family_members.all or user.profile = place.owner %}
+        {% if user.profile in place.family_members.all or user.profile == place.owner %}
             <div class="col-xs-12">
                 <p>
                     {% trans "Short description" %}:&nbsp; {{ place.short_description|default:"&ndash;" }}
@@ -159,4 +165,3 @@
         {% endif %}
     </div>
 {% endblock page %}
-
