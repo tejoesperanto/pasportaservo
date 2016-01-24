@@ -22,18 +22,20 @@
                             </a>
                         </p>
                         <p class="col-xs-4 status">
-                            {% if place.available %}
-                                <span class="visible-xs-inline-block glyphicon glyphicon-stack" title="{% trans "available" %}">
-                                    <span class="place-marker glyphicon-home glyphicon-stack-2x"></span>
-                                    <span class="place-availability glyphicon-ok glyphicon-stack-1x"></span>
-                                </span>
-                                <em class="hidden-xs">{% trans "available" %}</em>
-                            {% else %}
-                                <span class="visible-xs-inline-block glyphicon glyphicon-stack" title="{% trans "unavailable" %}">
-                                    <span class="place-marker glyphicon-home glyphicon-stack-2x"></span>
-                                    <span class="place-availability glyphicon-remove glyphicon-stack-1x"></span>
-                                </span>
-                                <em class="hidden-xs">{% trans "unavailable" %}</em>
+                            {% if user.is_authenticated %}
+                                {% if place.available %}
+                                    <span class="visible-xs-inline-block glyphicon glyphicon-stack" title="{% trans "available" %}">
+                                        <span class="place-marker glyphicon-home glyphicon-stack-2x"></span>
+                                        <span class="place-availability glyphicon-ok glyphicon-stack-1x"></span>
+                                    </span>
+                                    <em class="hidden-xs">{% trans "available" %}</em>
+                                {% else %}
+                                    <span class="visible-xs-inline-block glyphicon glyphicon-stack" title="{% trans "unavailable" %}">
+                                        <span class="place-marker glyphicon-home glyphicon-stack-2x"></span>
+                                        <span class="place-availability glyphicon-remove glyphicon-stack-1x"></span>
+                                    </span>
+                                    <em class="hidden-xs">{% trans "unavailable" %}</em>
+                                {% endif %}
                             {% endif %}
                         </p>
                         {% if user.is_authenticated %}
