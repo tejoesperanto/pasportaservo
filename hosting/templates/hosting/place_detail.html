@@ -40,24 +40,23 @@
                         </p>
                         {% if user.is_authenticated %}
                             <p class="col-xs-9 address">
-                                {% if user in place.authorized_users.all %}
-                                    {{ place.address }}
+                                {% if user in place.authorized_users.all and place.address %}
+                                    {{ place.address.strip|linebreaksbr }}
                                     <br />
                                 {% endif %}
 
-                                {{ place.postcode }}
-
-                                {% if place.closest_city %}
-                                    {% blocktrans with city=place.city closest_city=place.closest_city trimmed %}
-                                        {{ city }}, near {{ closest_city }}
-                                    {% endblocktrans %}
-                                {% else %}
-                                    {{ place.city }}
-                                {% endif %}
-
+                                {% include 'hosting/snippets/place_city_complete.html' with city=place.city closest_city=place.closest_city %}
                                 <br />
-
+                                {% if place.state_province %}
+                                    {{ place.state_province }}
+                                    <br />
+                                {% endif %}
+                                {% if user in place.authorized_users.all %}
+                                    {{ place.postcode }}
+                                {% endif %}
                                 {{ place.get_country_display }}
+                                
+                                &nbsp; {% include 'hosting/snippets/checked.html' with object=place %}
                             </p>
                         {% endif %}
 

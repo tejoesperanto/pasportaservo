@@ -63,7 +63,7 @@
     </h2>
     {% for place in places %}
         <ul class="list-group">
-            <li class="list-group-item {% if user.is_staff and place.checked %}alert alert-success{% endif %}">
+            <li class="list-group-item {% if user.is_staff and place.checked %}alert-success{% endif %}">
                 <div class="btn-group pull-right">
                     {% block place_edit_buttons %}{% endblock %}
                     <a href="{% url 'place_detail' place.pk %}" class="btn btn-primary" title="{% trans "View details of this place" %}">
@@ -77,8 +77,14 @@
                             <h3>{{ place.city }}</h3>
                         {% endif %}
                         {% if place.closest_city %}
-                            <h4>{{ place.closest_city }}</h4>
+                            <h4>
+								<span class="glyphicon glyphicon-share-alt small"></span>
+								{% blocktrans with closest_city=place.closest_city %}near {{ closest_city }}{% endblocktrans %}
+							</h4>
                         {% endif %}
+						{% if place.state_province %}
+							<h4>{{ place.state_province }}</h4>
+						{% endif %}
                         <h4>{{ place.country.name }}</h4>
                     </div>
                     {% include 'hosting/snippets/checked.html' with object=place %}
@@ -87,8 +93,11 @@
                         {% if user.is_staff %}
                             <p>{% include 'hosting/snippets/checked.html' with object=place %}</p>
                         {% endif %}
-                        <h3>{{ place.address }}</h3>
-                        <h4>{{ place.city }}</h4>
+                        <h3>{{ place.address.strip }}</h3>
+                        <h4>{% include 'hosting/snippets/place_city_complete.html' with city=place.city closest_city=place.closest_city %}</h4>
+						{% if place.state_province %}
+							<h4>{{ place.state_province }}</h4>
+						{% endif %}
                         <h4>{{ place.postcode }} {{ place.country.name }}</h4>
                     </div>
     
