@@ -15,7 +15,8 @@ from django.core.mail import EmailMessage
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 
-from braces.views import AnonymousRequiredMixin, LoginRequiredMixin, SuperuserRequiredMixin
+from braces.views import (AnonymousRequiredMixin, LoginRequiredMixin, 
+    SuperuserRequiredMixin, UserPassesTestMixin)
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
 from .models import Profile, Place, Phone
@@ -194,7 +195,35 @@ class PlaceDetailView(generic.DetailView):
         context['form'] = UserRegistrationForm
         return context
 
+    def render_to_response(self, context, **response_kwargs):
+        # Automatically redirect the user to the verbose view if permission granted (in authorized_users list).
+        if (self.request.user in self.object.authorized_users.all() and not self.request.user.is_staff 
+            and not isinstance(self, PlaceDetailVerboseView)):
+            return HttpResponseRedirect(reverse_lazy('place_detail_verbose', kwargs={'pk': self.kwargs['pk']}))
+        else:
+            return super(PlaceDetailView, self).render_to_response(context)
+
 place_detail = PlaceDetailView.as_view()
+
+
+class PlaceDetailVerboseView(UserPassesTestMixin, PlaceDetailView):
+    redirect_field_name = ''
+    redirect_unauthenticated_users = True
+
+    def get_login_url(self):
+        return reverse_lazy('place_detail', kwargs={'pk': self.kwargs['pk']})
+
+    def test_func(self, user):
+        object = self.get_object()
+        return (user is not None and user.is_authenticated()
+                and (user.is_staff or user in object.authorized_users.all() or user.profile == object.owner))
+
+    def get_context_data(self, **kwargs):
+        context = super(PlaceDetailVerboseView, self).get_context_data(**kwargs)
+        context['is_verbose_view'] = True
+        return context
+
+place_detail_verbose = PlaceDetailVerboseView.as_view()
 
 
 class PhoneCreateView(LoginRequiredMixin, ProfileMixin, generic.CreateView):

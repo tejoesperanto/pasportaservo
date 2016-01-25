@@ -14,25 +14,37 @@ body {
     margin-bottom: 1em;
 }
 
-.glyphicon-stack {
+.btn-vert-space {
+    margin-bottom: 5px;
+}
+
+.glyphicon-stack-normal,
+.glyphicon-stack-large {
     position: relative;
     display: inline-block;
+    vertical-align: middle;
+}
+.glyphicon-stack-normal {
+    width: 1em;
+    height: 1em;
+    line-height: 1em;
+} 
+.glyphicon-stack-large {
     width: 2em;
     height: 2em;
     line-height: 2em;
-    vertical-align: middle;
 }
-.glyphicon-stack-1x,
-.glyphicon-stack-2x {
+.glyphicon-stackbit-1x,
+.glyphicon-stackbit-2x {
     position: absolute;
     left: 0;
     width: 100%;
     text-align: center;
 }
-.glyphicon-stack-1x {
+.glyphicon-stackbit-1x {
     line-height: inherit;
 }
-.glyphicon-stack-2x {
+.glyphicon-stackbit-2x {
     font-size: 1.5em;
 }
 
@@ -177,7 +189,7 @@ header.home form.search {
     color: #666;
 }
 .place-detail .status .place-marker {
-    color: #F71;
+    color: #f71;
 }
 .place-detail .status .place-availability {
     color: #666;
@@ -190,6 +202,9 @@ header.home form.search {
 .place-list .avatar img {
     width: 100%;
     max-width: 100px;
+}
+.place-detail .owner .avatar {
+    padding-right: 0;
 }
 
 
