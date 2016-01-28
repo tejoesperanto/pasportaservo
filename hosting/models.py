@@ -67,7 +67,8 @@ class Profile(TimeStampedModel):
 
     @property
     def full_name(self):
-        return " ".join((self.first_name, self.last_name))
+        return " ".join((self.first_name, self.last_name)).strip()  \
+               or (self.user.username.title() if self.user else " ")
 
     @property
     def name(self):
@@ -75,7 +76,8 @@ class Profile(TimeStampedModel):
 
     @property
     def anonymous_name(self):
-        return " ".join((self.first_name, self.last_name[:1]+"."))
+        return " ".join((self.first_name, self.last_name[:1]+"." if self.last_name else "")).strip()  \
+               or (self.user.username.title() if self.user else " ")
 
     @property
     def age(self):
@@ -100,7 +102,7 @@ class Profile(TimeStampedModel):
         return slugify(self.user.username)
 
     def __str__(self):
-        username = self.user.username if self.user else '-'
+        username = self.user.username if self.user else '--'
         return self.full_name if self.full_name.strip() else username
 
     def get_absolute_url(self):
