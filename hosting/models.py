@@ -67,7 +67,7 @@ class Profile(TimeStampedModel):
 
     @property
     def full_name(self):
-        return " ".join((self.first_name, self.last_name))
+        return " ".join((self.first_name, self.last_name)).strip() or self.user.username.title()
 
     @property
     def name(self):
@@ -75,7 +75,7 @@ class Profile(TimeStampedModel):
 
     @property
     def anonymous_name(self):
-        return " ".join((self.first_name, self.last_name[:1]+"."))
+        return " ".join((self.first_name, self.last_name[:1]+"." if self.last_name else "")).strip() or self.user.username.title()
 
     @property
     def age(self):
