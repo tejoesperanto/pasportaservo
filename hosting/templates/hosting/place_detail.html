@@ -23,18 +23,36 @@
                         </p>
                         <p class="col-xs-4 status">
                             {% if user.is_authenticated %}
+                                {% if place.tour_guide %}
+                                    <img src="{% get_static_prefix %}img/city_guide.svg"
+                                         onerror="this.onerror = null; this.src = this.src.replace(/\.svg$/, '.png');"
+                                         alt="[&nbsp;{% trans "tour guide" %}&nbsp;]"
+                                         title="{% trans "I can guide around the city" %}"
+                                         style="width: 1.5em; height: 1.5em;" />
+                                {% endif %}
+                                {% if place.have_a_drink %}
+                                    <img src="{% get_static_prefix %}img/city_drink.svg"
+                                         onerror="this.onerror = null; this.src = this.src.replace(/\.svg$/, '.png');"
+                                         alt="[&nbsp;{% trans "have a drink" %}&nbsp;]"
+                                         title="{% trans "I'd like to have a drink together" %}"
+                                         style="width: 1.5em; height: 1.5em;" />
+                                {% endif %}
+                                
                                 {% if place.available %}
-                                    <span class="visible-xs-inline-block glyphicon glyphicon-stack-large" title="{% trans "available" %}">
+                                    <span title="{% trans "place" %} {% trans "available" %}"
+                                          class="glyphicon glyphicon-stack-large">
                                         <span class="place-marker glyphicon-stackbit-2x glyphicon-home"></span>
                                         <span class="place-availability glyphicon-stackbit-1x glyphicon-ok"></span>
                                     </span>
-                                    <em class="hidden-xs">{% trans "available" %}</em>
                                 {% else %}
-                                    <span class="visible-xs-inline-block glyphicon glyphicon-stack-large" title="{% trans "unavailable" %}">
+                                    <span title="{% trans "place" %} {% trans "unavailable" %}"
+                                          class="glyphicon glyphicon-stack-large">
                                         <span class="place-marker glyphicon-stackbit-2x glyphicon-home"></span>
                                         <span class="place-availability glyphicon-stackbit-1x glyphicon-remove"></span>
                                     </span>
+                                    {% comment "povas esti utila por indiki portempan malĉeeston, en la futuro" %}
                                     <em class="hidden-xs">{% trans "unavailable" %}</em>
+                                    {% endcomment %}
                                 {% endif %}
                             {% endif %}
                         </p>
