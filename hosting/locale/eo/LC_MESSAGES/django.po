@@ -1,14 +1,13 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Esperantaj tekstoĉenoj por reta Pasporta Servo.
+# Kopirajto (C) 2015 TEJO kaj kontribuantoj
+# Al tiu ĉi dosiero aplikiĝas la sama licenco kiel al la tuta kodo de PS.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-11 17:56+0000\n"
-"PO-Revision-Date: 2016-01-19 14:02+0100\n"
+"PO-Revision-Date: 2016-01-28 10:57+0100\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -594,6 +593,19 @@ msgstr "Ĉu vi certe volas forigi tiun ĉi loĝejon?"
 msgid "%(city)s, near %(closest_city)s"
 msgstr "%(city)s, proksime al %(closest_city)s"
 
+#: templates/hosting/profile_detail.html:82
+#, python-format
+msgid "near %(closest_city)s"
+msgstr "proksime al %(closest_city)s"
+
+#: templates/hosting/place_detail.html:30
+msgid "I can guide around the city"
+msgstr "mi povas ĉiĉeroni"
+
+#: templates/hosting/place_detail.html:37
+msgid "I'd like to have a drink together"
+msgstr "mi emas trinkejumi"
+
 #: templates/hosting/place_detail.html:72
 msgid "Description"
 msgstr "Priskribo"
@@ -640,15 +652,19 @@ msgstr "Permesoj"
 msgid "Write message"
 msgstr "Sendi mesaĝon"
 
-#: templates/hosting/place_detail.html:129
+#: templates/hosting/place_detail.html:147
+msgid "View as an authorized user"
+msgstr "Rigardi kvazaŭ permesita uzanto"
+
+#: templates/hosting/place_detail.html:166
 msgid "Short description"
 msgstr "Mallonga priskribo"
 
-#: templates/hosting/place_detail.html:131
+#: templates/hosting/place_detail.html:169
 msgid "Available"
 msgstr "Disponebla"
 
-#: templates/hosting/place_detail.html:133
+#: templates/hosting/place_detail.html:174
 msgid "Print in book"
 msgstr "Printi en la PS libreto"
 
@@ -895,32 +911,29 @@ msgstr "^profilo/krei/$"
 msgid "^profile(?:/(?P<pk>\\d+))?/$"
 msgstr "^profilo(?:/(?P<pk>\\d+))?/$"
 
+#msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/$"
 #: urls.py:11
-#, fuzzy
-#| msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/$"
-msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/$"
+msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/$"
 
+#msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/edit/$"
 #: urls.py:12
-#| msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/edit/$"
-msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/edit/$"
+msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/edit/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/redakti/$"
 
+#msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/update/$"
 #: urls.py:13
-#| msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/update/$"
-msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/update/$"
+msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/update/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/aktualigi/$"
 
+#msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/delete/$"
 #: urls.py:14
-#, fuzzy
-#| msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/delete/$"
-msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/delete/$"
+msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/delete/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/forigi/$"
 
+#msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/settings/$"
 #: urls.py:15
-#, fuzzy
-#| msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/settings/$"
-msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/settings/$"
+msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/settings/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/agordoj/$"
 
 #: urls.py:17
@@ -928,76 +941,78 @@ msgid "^place/(?P<pk>\\d+)/$"
 msgstr "^ejo/(?P<pk>\\d+)/$"
 
 #: urls.py:18
-#, fuzzy
-#| msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/place/create/$"
-msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/place/create/$"
+msgid "^place/(?P<pk>\\d+)/detailed/$"
+msgstr "^ejo/(?P<pk>\\d+)/detale/$"
+
+#msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/place/create/$"
+#: urls.py:19
+msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/place/create/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/ejo/krei/$"
 
-#: urls.py:19
+#: urls.py:20
 msgid "^place/(?P<pk>\\d+)/update/$"
 msgstr "^ejo/(?P<pk>\\d+)/redakti/$"
 
-#: urls.py:20
+#: urls.py:21
 msgid "^place/(?P<pk>\\d+)/delete/$"
 msgstr "^ejo/(?P<pk>\\d+)/forigi/$"
 
-#: urls.py:22
+#: urls.py:23
 msgid "^place/(?P<pk>\\d+)/authorize/$"
 msgstr "^ejo/(?P<pk>\\d+)/permesi/$"
 
-#: urls.py:23
+#: urls.py:24
 msgid "^place/(?P<pk>\\d+)/authorize/(?P<user>\\w+)/$"
 msgstr "^ejo/(?P<pk>\\d+)/permesi/(?P<user>\\w+)/$"
 
-#: urls.py:25
+#: urls.py:26
 msgid "^place/(?P<place_pk>\\d+)/family-member/create/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/krei/$"
 
-#: urls.py:26
+#: urls.py:27
 msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/update/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/redakti/$"
 
-#: urls.py:27
+#: urls.py:28
 msgid "^place/(?P<place_pk>\\d+)/family-member/add-me/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/min-aldoni/$"
 
-#: urls.py:28
+#: urls.py:29
 msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/remove/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/forpreni/$"
 
-#: urls.py:29
+#: urls.py:30
 msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/delete/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/forigi/$"
 
-#: urls.py:31
-#, fuzzy
-#| msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/phone/create/$"
-msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/phone/create/$"
+#msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/phone/create/$"
+#: urls.py:32
+msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/phone/create/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/telefono/krei/$"
 
-#: urls.py:32
+#: urls.py:33
 msgid "^phone/(?P<num>[\\w-]+)/update/$"
 msgstr "^telefono/(?P<num>[\\w-]+)/redakti/$"
 
-#: urls.py:33
+#: urls.py:34
 msgid "^phone/(?P<num>[\\w-]+)/delete/$"
 msgstr "^telefono/(?P<num>[\\w-]+)/forigi/$"
 
-#: urls.py:35
+#: urls.py:36
 msgid "^search/$"
 msgstr "^esplori/$"
 
-#: urls.py:37
+#: urls.py:38
 msgid "^checking(?::(?P<code>[\\w-]+))?/$"
 msgstr ""
 
-#: urls.py:39
+#: urls.py:40
 msgid "^mass_mail/$"
 msgstr "^amassendado/$"
 
-#: urls.py:40
+#: urls.py:41
 msgid "^mass_mail_sent/$"
-msgstr "^amassendado_sendita/$"
+msgstr "^amassendado_sukcesa/$"
 
 #: validators.py:16
 #, python-brace-format
@@ -1026,35 +1041,5 @@ msgstr "Bv. certigu ke dosiergrando estas sub %s. Nuna grando: %s"
 msgid "[Pasporta Servo] You received an Authorization"
 msgstr "[Pasporta Servo] Vi ricevis permeson"
 
-#~ msgid "body"
-#~ msgstr "mesaĝo"
-
-#~ msgid "Close"
-#~ msgstr "Fermi"
-
-#~ msgid "^place/create/$"
-#~ msgstr "^ejo/krei/$"
-
-#~ msgid "^family-member/(?P<pk>\\d+)/update/$"
-#~ msgstr "^kunloganto/(?P<pk>\\d+)/redakti/$"
-
-#~ msgid "^phone/create/$"
-#~ msgstr "^telefono/krei/$"
-
 #~ msgid "My location"
 #~ msgstr "Mia loko"
-
-#~ msgid "You must register to book this accomodation."
-#~ msgstr "Vi devas registri por rezervi tiun loĝejon."
-
-#~ msgid "^profile/$"
-#~ msgstr "^profilo/$"
-
-#~ msgid "^profile/update/$"
-#~ msgstr "^profilo/redakti/$"
-
-#~ msgid "^profile/delete/$"
-#~ msgstr "^profilo/forigi/$"
-
-#~ msgid "^profile/settings/$"
-#~ msgstr "^profilo/agordoj/$"
