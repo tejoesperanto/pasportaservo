@@ -17,6 +17,10 @@ body {
 .btn-vert-space {
     margin-bottom: 5px;
 }
+.btn-vert-space-even {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
 
 .glyphicon-stack-normal,
 .glyphicon-stack-large {

@@ -26,20 +26,23 @@
                 {% trans "Click on the map to select your location." %}
             </p>
 
-            <hr />
+            <hr style="border-color: #ddd" />
 
-            <button type="button" id="get-location" class="btn btn-default pull-left">
-                <span class="glyphicon glyphicon-globe"></span>
-                {% trans "Where am I?" %}
+            <button type="button" id="get-location" class="btn btn-default btn-vert-space-even pull-left">
+                <span class="glyphicon glyphicon-globe"></span>&nbsp;
+                <span class="hidden-xxs">{% trans "Where am I?" %}</span>
+                <span class="glyphicon glyphicon-search visible-xxs-inline"></span>
             </button>
 
-            <button type="button" id="get-address" class="btn btn-default pull-right" disabled="disabled">
-                <span class="glyphicon glyphicon-road"></span>
+            <button type="button" id="get-address" class="btn btn-default btn-vert-space-even pull-right" disabled="disabled">
+                <span class="glyphicon glyphicon-road"></span>&nbsp;
                 {% trans "Search with the address" %}
             </button>
         </div>
     </div>
 {% endblock form_before %}
+
+{% block form_keyboard_shortcut %}Save{% endblock %}
 
 {% block form_after %}
     <script type="text/javascript">$("#id_conditions").chosen();</script>

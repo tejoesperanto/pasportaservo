@@ -11,6 +11,7 @@ $(function() {
         $('ul.chosen-choices').addClass("form-control");
     });
 
+    /* for mass mail form */
     $('#id_body').keyup(function() {
         $('#antauvido').html(marked($(this).val()));
     }).keyup();
@@ -22,4 +23,18 @@ $(function() {
             $('#id_test_email').closest('.form-group').hide();
         }
     }).change();
+
+    /* form submit keyboard shortcut key implementation */
+    if ($('#id_form_submit').attr('data-kbdshortcut')) {
+        shortcut = $('#id_form_submit').attr('data-kbdshortcut').charAt(0).toLowerCase();
+        $(window).bind("keydown", function(event) {
+            if ((event.ctrlKey && !event.altKey) || event.metaKey) {
+                if (String.fromCharCode(event.which).toLowerCase() === shortcut) {
+                    event.preventDefault();
+                    $('#id_form_submit').click();
+                }
+            };
+        });
+    }
+
 });

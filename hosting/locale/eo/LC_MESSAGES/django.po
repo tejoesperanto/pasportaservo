@@ -7,8 +7,8 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-11 17:56+0000\n"
-"PO-Revision-Date: 2016-01-30 11:55+0100\n"
-"Last-Translator: Meir <interDist@users.noreply.github.com>\n"
+"PO-Revision-Date: 2016-02-01 16:04+0100\n"
+"Last-Translator: Meiyer <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
 "MIME-Version: 1.0\n"
@@ -420,6 +420,10 @@ msgstr "preferata kontaktmaniero"
 msgid "Find accomodation"
 msgstr "Trovu loĝejon"
 
+#: templates/registration/password_change_form.html:5
+msgid "at"
+msgstr "ĉe"
+
 #: templates/base.html:16
 msgid "inbox"
 msgstr "poŝtkesto"
@@ -722,13 +726,22 @@ msgstr "Rigardi"
 msgid "Phones"
 msgstr "Telefonoj"
 
+#: templates/hosting/phone_form.html:5
+msgid "Phone number"
+msgstr "Telefonnumero"
+
+#: templates/hosting/phone_form.html:7
+#, python-format
+msgid "of %(name)s"
+msgstr "de %(name)s"
+
 #: templates/hosting/profile_edit.html:16
 msgid "Delete account"
 msgstr "Forigi konton"
 
 #: templates/hosting/profile_edit.html:21
 #: templates/hosting/profile_edit.html:23
-#: templates/registration/password_change_form.html:5
+#: templates/registration/password_change_form.html:7
 msgid "Change password"
 msgstr "Ŝanĝi pasvorton"
 
