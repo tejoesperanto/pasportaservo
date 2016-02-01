@@ -168,6 +168,7 @@ class PhoneForm(forms.ModelForm):
         super(PhoneForm, self).__init__(*args, **kwargs)
         if not hasattr(self, 'profile'):
             self.profile = self.instance.profile
+        self.fields['number'].widget.input_type = 'tel'
 
     def clean(self):
         """Checks if the number and the profile are unique together."""
