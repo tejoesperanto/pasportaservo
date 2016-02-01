@@ -598,6 +598,10 @@ msgstr "%(city)s, proksime al %(closest_city)s"
 msgid "near %(closest_city)s"
 msgstr "proksime al %(closest_city)s"
 
+#: templates/hosting/profile_detail.html:95
+msgid "I'm hosting in:"
+msgstr "mi gastigas en:"
+
 #: templates/hosting/place_detail.html:30
 msgid "I can guide around the city"
 msgstr "mi povas ĉiĉeroni"

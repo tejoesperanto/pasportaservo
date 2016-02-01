@@ -82,19 +82,22 @@
                     </a>
                 </div>
                 {% if view.public_view %}
-                    <div>
+                    <div class="place-overview">
+                        {% if place.available %}
+                            <span class="label label-info status">&nbsp;{% trans "I'm hosting in:" %}&nbsp;</span>
+                        {% endif %}
                         {% if place.city %}
                             <h3>{{ place.city }}</h3>
                         {% endif %}
                         {% if place.closest_city %}
                             <h4>
-								<span class="glyphicon glyphicon-share-alt small"></span>
-								{% blocktrans with closest_city=place.closest_city %}near {{ closest_city }}{% endblocktrans %}
-							</h4>
+                                <span class="glyphicon glyphicon-share-alt small"></span>
+                                {% blocktrans with closest_city=place.closest_city %}near {{ closest_city }}{% endblocktrans %}
+                            </h4>
                         {% endif %}
-						{% if place.state_province %}
-							<h4>{{ place.state_province }}</h4>
-						{% endif %}
+                        {% if place.state_province %}
+                            <h4>{{ place.state_province }}</h4>
+                        {% endif %}
                         <h4>{{ place.country.name }}</h4>
                     </div>
                     {% include 'hosting/snippets/checked.html' with object=place %}
@@ -105,9 +108,9 @@
                         {% endif %}
                         <h3>{{ place.address.strip }}</h3>
                         <h4>{% include 'hosting/snippets/place_city_complete.html' with city=place.city closest_city=place.closest_city %}</h4>
-						{% if place.state_province %}
-							<h4>{{ place.state_province }}</h4>
-						{% endif %}
+                        {% if place.state_province %}
+                            <h4>{{ place.state_province }}</h4>
+                        {% endif %}
                         <h4>{{ place.postcode }} {{ place.country.name }}</h4>
                     </div>
     

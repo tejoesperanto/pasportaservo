@@ -167,7 +167,7 @@ header.home form.search {
 }
 
 
-/* Search */
+/* Search & Accommodation details */
 #page.search form.search{
     margin-bottom: 1em;
 }
@@ -187,6 +187,9 @@ header.home form.search {
 .place-list .status {
     font-size: 0.8em;
     color: #666;
+}
+.place-overview .status {
+    font-size: 0.6em;
 }
 .place-detail .status .place-marker {
     color: #f71;
