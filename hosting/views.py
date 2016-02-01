@@ -133,6 +133,7 @@ class ProfileDetailView(LoginRequiredMixin, ProfileAuthMixin, generic.DetailView
     def get_context_data(self, **kwargs):
         context = super(ProfileDetailView, self).get_context_data(**kwargs)
         context['places'] = self.object.owned_places.all().filter(deleted=False)
+        context['is_hosting'] = context['places'].filter(available=True).count()
         context['phones'] = self.object.phones.all().filter(deleted=False)
         context['role'] = self.role
         return context

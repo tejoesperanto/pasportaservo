@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-11 17:56+0000\n"
-"PO-Revision-Date: 2016-01-28 10:57+0100\n"
+"PO-Revision-Date: 2016-01-30 11:55+0100\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -693,11 +693,17 @@ msgstr "%(age)s-jaraĝa"
 msgid "About me"
 msgstr "Pri mi"
 
-#: templates/hosting/profile_detail.html:52
+#: templates/hosting/profile_detail.html:66
 msgid "Place"
 msgid_plural "Places"
 msgstr[0] "Loĝejo"
 msgstr[1] "Loĝejoj"
+
+#: templates/hosting/profile_detail.html:73
+msgid "Habitat"
+msgid_plural "Habitats"
+msgstr[0] "Loĝloko"
+msgstr[1] "Loĝlokoj"
 
 #: templates/hosting/profile_detail.html:64
 msgid "View details of this place"

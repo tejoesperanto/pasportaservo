@@ -54,13 +54,23 @@
 
     <hr />
 
-    <h2 class="owner">
-        {% blocktrans count counter=profile.owned_places.all|length trimmed %}
-            Place
-        {% plural %}
-            Places
-        {% endblocktrans %}
-    </h2>
+    {% if places %}
+        <h2 class="owner">
+            {% if places.len == is_hosting %}
+                {% blocktrans count counter=places|length trimmed %}
+                    Place
+                {% plural %}
+                    Places
+                {% endblocktrans %}
+            {% else %}
+                {% blocktrans count counter=places|length trimmed %}
+                    Habitat
+                {% plural %}
+                    Habitats
+                {% endblocktrans %}
+            {% endif %}
+        </h2>
+    {% endif %}
     {% for place in places %}
         <ul class="list-group">
             <li class="list-group-item {% if user.is_staff and place.checked %}alert-success{% endif %}">
