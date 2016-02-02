@@ -61,9 +61,9 @@
 
     <hr />
 
-    {% if places %}
+    {% if places or not view.public_view %}
         <h2 class="owner">
-            {% if places.len == is_hosting %}
+            {% if places.count == is_hosting %}
                 {% blocktrans count counter=places|length trimmed %}
                     Place
                 {% plural %}
