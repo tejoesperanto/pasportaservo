@@ -2,9 +2,6 @@
 {% load i18n static %}
 
 {% block profile_edit_buttons %}
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="btn-group edit-buttons">
                 <a href="{% url 'profile_update' profile.pk profile.user.username|slugify %}"
                    class="btn btn-success"
                    title="{% trans "Update profile" %}">
@@ -34,9 +31,6 @@
                     <span class="glyphicon glyphicon-arrow-right"></span>
                     <span class="hidden-xs">{% trans "View" %}</span>
                 </a>
-            </div>
-        </div>
-    </div>
 {% endblock %}
 
 {% block place_edit_buttons %}
