@@ -14,6 +14,11 @@ body {
     margin-bottom: 1em;
 }
 
+.alert.alert-small {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
 .btn-vert-space {
     margin-bottom: 5px;
 }

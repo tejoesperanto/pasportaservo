@@ -7,8 +7,8 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-11 17:56+0000\n"
-"PO-Revision-Date: 2016-02-01 16:04+0100\n"
-"Last-Translator: Meiyer <interDist@users.noreply.github.com>\n"
+"PO-Revision-Date: 2016-02-02 13:51+0100\n"
+"Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
 "MIME-Version: 1.0\n"
@@ -592,6 +592,14 @@ msgstr "Forigi uzanton"
 msgid "Are you sure you want to delete this place?"
 msgstr "Ĉu vi certe volas forigi tiun ĉi loĝejon?"
 
+#: templates/hosting/place_detail.html:12
+msgid "Deleted place"
+msgstr "Nuligita loĝejo"
+
+#: templates/hosting/place_detail.html:12
+msgid "The address is obsolete"
+msgstr "La adreso estas neaktuala"
+
 #: templates/hosting/place_detail.html:41
 #, python-format
 msgid "%(city)s, near %(closest_city)s"
@@ -621,6 +629,10 @@ msgstr "Priskribo"
 #: templates/hosting/place_detail.html:76
 msgid "Family members"
 msgstr "Kunloĝantoj"
+
+#: templates/hosting/profile_detail.html:9
+msgid "Deleted profile"
+msgstr "Nuligita profilo"
 
 #: templates/hosting/place_detail.html:110
 #: templates/hosting/profile_detail.html:21

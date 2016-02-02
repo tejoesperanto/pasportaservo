@@ -5,6 +5,17 @@
     <div class="row place-detail">
         <div class="col-xs-12 col-md-6 owner">
             <div class="row">
+                <div class="col-xs-12 warning">
+                    {% if place.deleted and user.is_authenticated %}
+                        <div class="alert alert-small alert-danger">
+                            <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;
+                            {% if user.is_staff %}{% trans "Deleted place" %} &ndash; {% endif %}{% trans "The address is obsolete" %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="row">
                 <div class="col-xs-3 avatar">
                     <a href="{{ place.owner.get_absolute_url }}">
                         <img src="{{ place.owner.avatar_url }}" />
