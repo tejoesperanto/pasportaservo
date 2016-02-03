@@ -256,7 +256,7 @@ p.tip {
     font-size: 0.8em;
 }
 .map iframe {
-    height: 150px;
+    /*height: 150px;*/
 }
 .description-small {
     margin-top: 1em;
@@ -415,9 +415,13 @@ footer {
 }
 /* SM */
 @media (min-width: 768px) {
+    .map > .embed-responsive {
+        padding-bottom: 0;
+        height: 400px;
+    }
     .map iframe {
         border-radius: 4px;
-        height: 300px;
+        /*height: 300px;*/
     }
     #home-explain .desc {
         padding-top: 1em;
@@ -432,9 +436,11 @@ footer {
         margin-top: 1em;
         padding-bottom: 0.5em;
     }
+    .map > .embed-responsive {
+        height: 450px;
+    }
     .map iframe {
-        border-radius: 4px;
-        height: 500px;
+        /*height: 500px;*/
     }
     #home-explain .desc {
         font-size: 1.8em;
@@ -449,6 +455,9 @@ footer {
     header.home #title {
         margin-top: 1em;
         padding-bottom: 1em;
+    }
+    .map > .embed-responsive {
+        height: 500px;
     }
     #home-explain {
         padding-top: 15em;
