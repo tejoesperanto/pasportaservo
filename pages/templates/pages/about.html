@@ -2,33 +2,48 @@
 {% load i18n static %}
 
 {% block page_class %} page{% endblock %}
+{% block extra_css %}
+        {{ block.super }}
+        <style type="text/css">
+            h1 {
+                margin-bottom: 25px;
+            }
+            p {
+                margin: 0px;
+            }
+        </style>
+{% endblock %}
 
-{% block head_title %}Pri Pasporta Servo{% endblock %}
+{% block head_title %}Internacia gastiga servo per Esperanto{% endblock %}
+{% block head_title_separator %}:{% endblock %}
 
 {% block page %}
     <h1>Pasporta Servo: Internacia gastiga servo per Esperanto</h1>
 
-    <div class="row">
-        <div class="col-md-9 col-sm-10 col-xs-12">
+    <div class="row vertical-align-not-xs">
+        <div class="col-md-9 col-sm-10 col-xs-10 col-xxs-9">
             <p>
-                <br>
                 Pasporta Servo estas adresaro de homoj el la tuta mondo, kiuj senpage akceptas gastojn en siaj hejmoj. Por tio,
                 la gasto(j) kaj la gastiganto(j) devas nur scipovi Esperanton. La adreslibro 2011 enhavas 1089 gastigantojn el
                 90 landoj.
             </p>
         </div>
-        <div class="col-md-1 col-md-offset-1 col-sm-2 hidden-xs">
-            <img class="img-responsive"  src="{% static 'img/about/map-marker.png' %}" alt="Simbolo: Mapo" />
+        <div class="col-md-1 col-md-offset-1 col-sm-2 col-xs-2 col-xxs-3">
+            <div>
+                <img class="img-responsive" src="{% static 'img/about/map-marker.png' %}" alt="Simbolo: Mapo" />
+            </div>
         </div>
     </div>
     
     <hr>
 
     <div class="row">
-        <div class="col-md-1 col-md-offset-1 col-sm-2 hidden-xs">
-            <img class="img-responsive"  src="{% static 'img/about/house.png' %}" alt="Simbolo: Domo" />
+        <div class="col-md-1 col-md-offset-1 col-sm-2 col-xs-2 col-xxs-3">
+            <div>
+                <img class="img-responsive" src="{% static 'img/about/house.png' %}" alt="Simbolo: Domo" />
+            </div>
         </div>
-        <div class="col-md-9 col-md-offset-1 col-sm-10 col-xs-12">
+        <div class="col-md-9 col-md-offset-1 col-sm-10 col-xs-10 col-xxs-9">
             <p>
                 La gastigantoj indikas la kondiĉojn, ekz-e pri nefumado, aŭ la nombro de gastoj aŭ tranoktoj, kaj povas mencii
                 diversajn komentojn pri siaj interesoj, deziroj, atingebleco kaj simile. Gastigantoj ĝuas akcepti homojn el
@@ -40,16 +55,17 @@
     
     <hr>
 
-    <div class="row">
-        <div class="col-md-9 col-sm-10 col-xs-12">
+    <div class="row vertical-align-not-xs">
+        <div class="col-md-9 col-sm-10 col-xs-10 col-xxs-9">
             <p>
-            <br>
                 Se vi havas iun ajn demandon, ne hezitu skribi al Baptiste Darthenay:
                 <a href="mailto:pasportaservo [cxe] tejo.org">pasportaservo [cxe] tejo.org</a>
             </p>
         </div>
-        <div class="col-md-1 col-md-offset-1 col-sm-2 hidden-xs">
-            <img class="img-responsive"  src="{% static 'img/about/internet-mail.png' %}" alt="Simbolo: Retpoŝto" />
+        <div class="col-md-1 col-md-offset-1 col-sm-2 col-xs-2 col-xxs-3">
+            <div>
+                <img class="img-responsive" src="{% static 'img/about/internet-mail.png' %}" alt="Simbolo: Retpoŝto" />
+            </div>
         </div>
     </div>
 {% endblock page %}
