@@ -27,7 +27,8 @@ body {
 .btn-vert-space {
     margin-bottom: 5px;
 }
-.btn-vert-space-even {
+.btn-vert-space-even,
+.anchor-vert-space-even {
     margin-top: 2px;
     margin-bottom: 2px;
 }
@@ -205,7 +206,7 @@ header.home form.search {
     font-weight: bold;
 }
 .place-detail .status,
-.place-list .status {
+.place-list .status:not(.anchor-group) {
     text-align: right;
 }
 .place-list .status {
@@ -214,6 +215,20 @@ header.home form.search {
 }
 .place-overview .status {
     font-size: 0.6em;
+}
+.place-list .status .place-anchor {
+    width: 2.5ex;
+    height: 2.5ex;
+    vertical-align: middle;
+}
+.anchor-group {
+    margin-top: 3px;
+}
+.anchor-group-item {
+    display: inline-block;
+}
+.anchor-group-item:not(:last-child) {
+    margin-right: .5ex;
 }
 .place-detail .status .place-marker {
     color: #f71;
