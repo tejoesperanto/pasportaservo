@@ -1,5 +1,8 @@
 {% extends "postman/base_folder.html" %}
 {% load i18n %}
+
+{% block head_title %}{{ block.super }} &ndash; {% trans "Sent Messages" as wintitle %}{{ wintitle.split.0 }}{% endblock %}
+
 {% block pm_folder_title %}{% trans "Sent Messages" %}{% endblock %}
 {% block pm_undelete_button %}{% endblock %}
 {% block pm_sender_header %}{% endblock %}

@@ -1,6 +1,14 @@
 {% extends 'hosting/base.html' %}
 {% load i18n static %}
 
+{% block head_title %}
+    {% if user.profile == profile %}
+        {% trans "My profile" %}
+    {% else %}
+        {{ profile.anonymous_name }}
+    {% endif %}
+{% endblock %}
+
 {% block page %}
         <div class="row">
             <div class="col-xs-12 col-md-5">
@@ -26,7 +34,7 @@
                                class="btn btn-success"
                                title="{{ update_title }}">
                                 <span class="glyphicon glyphicon-pencil"></span>
-                                <span class="hidden-xs">{% trans "Update" %}</span>
+                                <span class="hidden-xxs">{% trans "Update" %}</span>
                             </a>
                         {% endif %}
                     {% endblock %}
@@ -85,7 +93,7 @@
                     {% block place_edit_buttons %}{% endblock %}
                     <a href="{% url 'place_detail' place.pk %}" class="btn btn-primary" title="{% trans "View details of this place" %}">
                         <span class="glyphicon glyphicon-arrow-right"></span>
-                        <span class="hidden-xs">{% trans "View" %}</span>
+                        <span class="{% if view.public_view %}hidden-xxs{% else %}hidden-xs{% endif %}">{% trans "View" %}</span>
                     </a>
                 </div>
                 {% if view.public_view %}

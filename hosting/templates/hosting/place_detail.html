@@ -1,6 +1,19 @@
 {% extends 'hosting/base.html' %}
 {% load i18n static %}
 
+{% block head_title %}
+    {% if user.profile == place.owner %}
+        {% trans "My habitat" %}
+    {% else %}
+        {% if place.available %}
+            {% trans "A place in" %}
+        {% else %}
+            {{ place.owner.anonymous_name }}, 
+        {% endif %}
+        {% if place.city %}{{ place.city }}, {% endif %}{{ place.get_country_display }}
+    {% endif %}
+{% endblock %}
+
 {% block page %}
     <div class="row place-detail">
         <div class="col-xs-12 col-md-6 owner">

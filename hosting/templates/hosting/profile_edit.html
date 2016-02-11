@@ -6,7 +6,7 @@
                    class="btn btn-success"
                    title="{% trans "Update profile" %}">
                     <span class="glyphicon glyphicon-pencil"></span>
-                    <span class="hidden-xs">{% trans "Update" %}</span>
+                    <span class="hidden-xxs">{% trans "Update" %}</span>
                 </a>
                 <a href="{% url 'profile_delete' profile.pk profile.user.username|slugify %}"
                    class="btn btn-danger"
@@ -23,7 +23,7 @@
                    class="btn btn-info"
                    title="{% trans "Settings" %}">
                     <span class="glyphicon glyphicon-cog"></span>
-                    <span class="hidden-xs">{% trans "Settings" %}</span>
+                    <span class="hidden-xxs">{% trans "Settings" %}</span>
                 </a>
                 <a href="{% url 'profile_detail' profile.pk profile.user.username|slugify %}" 
                    class="btn btn-primary"
@@ -34,16 +34,16 @@
 {% endblock %}
 
 {% block place_edit_buttons %}
-    <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% trans "Update this place" %}">
+    <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% blocktrans with kin=_("this ") %}Update {{ kin }}place{% endblocktrans %}">
         <span class="glyphicon glyphicon-pencil"></span>
-        <span class="hidden-xs">{% trans "Update" %}</span>
+        <span class="hidden-xxs">{% trans "Update" %}</span>
     </a>
     <a href="{% url 'place_delete' place.pk %}" class="btn btn-danger" title="{% trans "Delete" %}">
         <span class="glyphicon glyphicon-trash"></span>
     </a>
     <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}" class="btn btn-warning" title="{% trans "Authorizations" %}">
         <span class="glyphicon glyphicon-eye-open"></span>
-        <span class="hidden-xs">{% trans "Authorizations" %}</span>
+        <span class="hidden-xxs">{% trans "Authorizations" %}</span>
     </a>
 {% endblock %}
 
@@ -74,15 +74,15 @@
 {% endblock %}
 
 {% block family_member_add_buttons %}
-    <div class="">
-        <form action="{% url 'family_member_add_me' place.pk %}" method="post">
+    <div class="row">
+        <form action="{% url 'family_member_add_me' place.pk %}" method="post" class="col-xs-12">
             {% csrf_token %}
-            <a class="btn btn-info" href="{% url 'family_member_create' place.pk %}">
+            <a class="btn btn-info btn-vert-space" href="{% url 'family_member_create' place.pk %}">
                 <span class="glyphicon glyphicon-user"></span>
                 <strong>{% trans "Add a family member" %}</strong>
             </a>
             {% if profile not in place.family_members.all %}
-                <button type="submit" class="btn btn-info">
+                <button type="submit" class="btn btn-info btn-vert-space">
                     <span class="glyphicon glyphicon-user"></span>
                     <strong>{% trans "Add me" %}</strong>
                 </button>

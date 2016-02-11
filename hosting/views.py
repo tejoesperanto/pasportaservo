@@ -14,9 +14,10 @@ from django.template import Context
 from django.core.mail import EmailMessage
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+import re
 
 from braces.views import (AnonymousRequiredMixin, LoginRequiredMixin, 
-    SuperuserRequiredMixin, UserPassesTestMixin)
+    SuperuserRequiredMixin, UserPassesTestMixin, FormInvalidMessageMixin)
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
 from .models import Profile, Place, Phone
@@ -60,15 +61,22 @@ class RegisterView(AnonymousRequiredMixin, generic.CreateView):
             username=form.cleaned_data['username'],
             password=form.cleaned_data['password1'])
         login(self.request, user)
-        messages.success(self.request, "You are logged in.")
+        messages.success(self.request, _("You are logged in."))
         return result
 
 register = RegisterView.as_view()
 
 
-class ProfileCreateView(LoginRequiredMixin, ProfileMixin, generic.CreateView):
+class ProfileCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixin, generic.CreateView):
     model = Profile
     form_class = ProfileCreateForm
+    form_invalid_message = _("The data is not saved yet! Note the specified errors.")
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            return HttpResponseRedirect(self.request.user.profile.get_edit_url(), status=301)
+        except Profile.DoesNotExist:
+            return super(ProfileCreateView, self).dispatch(request, *args, **kwargs)
 
     def get_form(self, form_class):
         user = self.request.user
@@ -77,8 +85,9 @@ class ProfileCreateView(LoginRequiredMixin, ProfileMixin, generic.CreateView):
 profile_create = ProfileCreateView.as_view()
 
 
-class ProfileUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, generic.UpdateView):
+class ProfileUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, FormInvalidMessageMixin, generic.UpdateView):
     form_class = ProfileForm
+    form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
     def form_valid(self, form):
         self.object.checked = self.object.user != self.request.user
@@ -121,7 +130,10 @@ class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         if kwargs.get('pk', None):
             return get_object_or_404(Profile, pk=kwargs['pk']).get_absolute_url()
-        return self.request.user.profile.get_absolute_url()
+        try:
+            return self.request.user.profile.get_absolute_url()
+        except Profile.DoesNotExist:
+            return reverse_lazy('profile_create')
 
 profile_redirect = ProfileRedirectView.as_view()
 
@@ -159,9 +171,10 @@ class ProfileSettingsView(LoginRequiredMixin, ProfileMixin, generic.UpdateView):
 profile_settings = ProfileSettingsView.as_view()
 
 
-class PlaceCreateView(LoginRequiredMixin, ProfileMixin, generic.CreateView):
+class PlaceCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixin, generic.CreateView):
     model = Place
     form_class = PlaceCreateForm
+    form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
     def get_form_kwargs(self):
         kwargs = super(PlaceCreateView, self).get_form_kwargs()
@@ -171,8 +184,9 @@ class PlaceCreateView(LoginRequiredMixin, ProfileMixin, generic.CreateView):
 place_create = PlaceCreateView.as_view()
 
 
-class PlaceUpdateView(LoginRequiredMixin, ProfileMixin, PlaceAuthMixin, generic.UpdateView):
+class PlaceUpdateView(LoginRequiredMixin, ProfileMixin, PlaceAuthMixin, FormInvalidMessageMixin, generic.UpdateView):
     form_class = PlaceForm
+    form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
     def form_valid(self, form):
         self.object.checked = self.object.owner.user != self.request.user
@@ -312,6 +326,9 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
     def get_context_data(self, **kwargs):
         context = super(AuthorizeUserView, self).get_context_data(**kwargs)
         context['place'] = self.place
+        m = re.match(r'^/([a-zA-Z]+)/', self.request.GET.get('next', default=''))
+        if m:
+            context['back_to'] = m.group(1).lower()
         return context
 
     def form_valid(self, form):

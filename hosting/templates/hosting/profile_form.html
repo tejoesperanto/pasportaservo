@@ -1,3 +1,34 @@
 {% extends 'hosting/base_form.html' %}
+{% load i18n %}
+
+{% block head_title %}
+    {% if user.is_staff and user.profile != profile %}
+        {% trans "Update user's details" %}{% if profile.name %}: {{ profile.name }} {% else %} #{{ profile.id }} {% endif %}
+    {% elif profile %}
+        {% trans "Update my details" %}
+    {% else %}
+        {% trans "My profile" %}
+    {% endif %}
+{% endblock %}
+{% block head_title_separator %}
+    {% if not profile %}
+        {% trans "at" %}
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}
 
 {% block enctype %}enctype='multipart/form-data'{% endblock %}
+
+{% block messages %}
+    {{ block.super }}
+    {% if messages %}
+        <div class="alert alert-info col-xs-10 col-xs-offset-1 col-md-6 col-md-offset-3 flyover">
+            <ul class="list-group">
+                {% for message in messages %}
+                    <li class="list-group-item list-group-item-text help-block">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}

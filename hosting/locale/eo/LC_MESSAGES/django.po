@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-11 17:56+0000\n"
-"PO-Revision-Date: 2016-02-02 13:51+0100\n"
+"PO-Revision-Date: 2016-02-11 17:48+0100\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -100,7 +100,7 @@ msgstr "uzantnomo"
 
 #: forms.py:211
 msgid "User does not exist"
-msgstr "Uzanto ne ekzistas"
+msgstr "Tia uzanto ne ekzistas"
 
 #: forms.py:233
 msgid "Subject"
@@ -137,6 +137,17 @@ msgstr "Ne gastigantoj (malnova aŭ nova retejo)"
 #: forms.py:242
 msgid "Your email for test"
 msgstr "Via retpoŝtadreso por testi"
+
+#: views.py:64
+msgid "You are logged in."
+msgstr "Vi nun estas ensalutinta."
+
+#: views.py:73
+#: views.py:90
+#: views.py:177
+#: views.py:189
+msgid "The data is not saved yet! Note the specified errors."
+msgstr "La informoj ankoraŭ ne estas konservitaj! Atentu la indikitajn erarojn."
 
 #: models.py:29
 msgid "Mrs"
@@ -510,12 +521,19 @@ msgstr "La teamo de %(site_name)s"
 msgid "Are you sure you want to delete this family member?"
 msgstr "Ĉu vi certe volas forigi tiun ĉi kunloĝanton?"
 
-#: templates/hosting/family_member_confirm_delete.html:16
+#: templates/hosting/family_member_confirm_delete.html:21
+#: templates/hosting/phone_confirm_delete.html:14
+#: templates/hosting/place_confirm_delete.html:13
+#: templates/hosting/profile_confirm_delete.html:14
+msgid "Cancel operation"
+msgstr "Nuligi la agon"
+
+#: templates/hosting/family_member_confirm_delete.html:23
 #: templates/hosting/phone_confirm_delete.html:16
 #: templates/hosting/place_confirm_delete.html:15
-#: templates/hosting/profile_confirm_delete.html:15
+#: templates/hosting/profile_confirm_delete.html:16
 msgid "Cancel"
-msgstr "Nuligi"
+msgstr "Ne, nuligu"
 
 #: templates/hosting/family_member_confirm_delete.html:21
 msgid "Delete profile"
@@ -579,6 +597,11 @@ msgstr "Permesitaj uzantoj povas vidi vian plenan adreson, kunloĝantojn kaj tel
 #: templates/hosting/place_authorized_users.html:11
 msgid "Your email still remains private."
 msgstr "Via retpoŝtadreso ĉiukaze restas privata."
+
+#: templates/hosting/place_authorized_users.html:18
+#, python-format
+msgid "Back to %(back_to)s"
+msgstr "Reen al %(back_to)s"
 
 #: templates/hosting/place_authorized_users.html:19
 msgid "Back"
@@ -653,13 +676,34 @@ msgstr "Redakti informojn de uzanto"
 msgid "Update my details"
 msgstr "Redakti miajn informojn"
 
+#: templates/hosting/profile_form.html:10
+msgid "My profile"
+msgstr "Mia profilo"
+
 #: templates/hosting/profile_edit.html:10
 msgid "Update profile"
 msgstr "Redakti profilon"
 
-#: templates/hosting/profile_edit.html:43
-msgid "Update this place"
-msgstr "Redakti tiun ĉi loĝejon"
+#: templates/hosting/profile_edit.html:37
+#, python-format
+msgid "Update %(kin)splace"
+msgstr "Redakti %(kin)sloĝejon"
+
+#: templates/hosting/profile_edit.html:37
+msgid "this "
+msgstr "tiun ĉi "
+
+#: templates/hosting/place_form.html:10
+msgid "my "
+msgstr "mian "
+
+#: templates/hosting/place_detail.html:6
+msgid "My habitat"
+msgstr "Mia loĝloko"
+
+#: templates/hosting/place_detail.html:9
+msgid "A place in"
+msgstr "Loĝejo en"
 
 #: templates/hosting/place_detail.html:114
 #: templates/hosting/profile_edit.html:50
@@ -689,8 +733,12 @@ msgid "Print in book"
 msgstr "Printi en la PS libreto"
 
 #: templates/hosting/place_form.html:26
-msgid "Click on the map to select your location."
-msgstr "Klaku la mapon por elekti vian lokon."
+msgid "Click on the map"
+msgstr "Klaku la mapon"
+
+#: templates/hosting/place_form.html:27
+msgid "to select your location"
+msgstr "por elekti vian lokon"
 
 #: templates/hosting/place_form.html:33
 msgid "Where am I?"
