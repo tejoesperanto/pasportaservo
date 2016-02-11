@@ -5,8 +5,8 @@
 }
 @font-face {
     font-family: "PT Sans";
-    src: url('//fonts.gstatic.com/s/ptsans/v8/S1YQx4pVZa17uu0HWQd2fA.eot');
-    src: local('PT Sans'), local('PTSans-Regular'), url('//fonts.gstatic.com/s/ptsans/v8/LKf8nhXsWg5ybwEGXk8UBQ.woff') format('woff'), url('//fonts.gstatic.com/s/ptsans/v8/G0XvmuebhPCfCq4YdUpRgALUuEpTyoUstqEm5AMlJo4.ttf') format('truetype');
+    src: url('//fonts.gstatic.com/s/ptsans/v8/KaZ3WtsNp1VA4zaG9Ax95g.eot');
+    src: local('PT Sans'), local('PTSans-Regular'), url('//fonts.gstatic.com/s/ptsans/v8/GdZvpAq9shJukTEvSQbePw.woff') format('woff'), url('//fonts.gstatic.com/s/ptsans/v8/8d6bGRHQjSQfnRvIX_v_pwLUuEpTyoUstqEm5AMlJo4.ttf') format('truetype');
 }
 
 body {
