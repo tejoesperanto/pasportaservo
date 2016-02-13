@@ -25,7 +25,7 @@ from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
 from .models import Profile, Place, Phone
 from .mixins import (ProfileMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
-    FamilyMemberMixin, DeleteMixin)
+    FamilyMemberMixin, CreateMixin, DeleteMixin)
 from .forms import (UserRegistrationForm, AuthorizeUserForm,
     ProfileForm, ProfileSettingsForm, ProfileCreateForm, PhoneForm, PhoneCreateForm,
     PlaceForm, PlaceCreateForm, FamilyMemberForm, FamilyMemberCreateForm,
@@ -123,9 +123,10 @@ class ProfileDeleteView(LoginRequiredMixin, DeleteMixin, ProfileAuthMixin, gener
 
     def delete(self, request, *args, **kwargs):
         """
-        Set the flag 'deleted' to True on the profile and some associated objects,
-        deactivate the linked user,
-        and then redirect to the success URL.
+        Set the flag 'deleted' to True on the profile
+        and some associated objects,
+        desactivate the linked user,
+        and then redirects to the success URL
         """
         self.object = self.get_object()
         for place in self.object.owned_places.all():
@@ -190,7 +191,7 @@ class ProfileSettingsView(LoginRequiredMixin, ProfileMixin, generic.UpdateView):
 profile_settings = ProfileSettingsView.as_view()
 
 
-class PlaceCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixin, generic.CreateView):
+class PlaceCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixin, CreateMixin, generic.CreateView):
     model = Place
     form_class = PlaceCreateForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
@@ -203,7 +204,7 @@ class PlaceCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixin,
 place_create = PlaceCreateView.as_view()
 
 
-class PlaceUpdateView(LoginRequiredMixin, ProfileMixin, PlaceAuthMixin, FormInvalidMessageMixin, generic.UpdateView):
+class PlaceUpdateView(LoginRequiredMixin, ProfileMixin, PlaceAuthMixin, generic.UpdateView):
     form_class = PlaceForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
@@ -257,7 +258,7 @@ class PlaceDetailVerboseView(UserPassesTestMixin, PlaceDetailView):
 place_detail_verbose = PlaceDetailVerboseView.as_view()
 
 
-class PhoneCreateView(LoginRequiredMixin, ProfileMixin, generic.CreateView):
+class PhoneCreateView(LoginRequiredMixin, ProfileMixin, CreateMixin, generic.CreateView):
     model = Phone
     form_class = PhoneCreateForm
 
@@ -399,7 +400,7 @@ class AuthorizeUserLinkView(LoginRequiredMixin, generic.View):
 authorize_user_link = AuthorizeUserLinkView.as_view()
 
 
-class FamilyMemberCreateView(LoginRequiredMixin, FamilyMemberMixin, generic.CreateView):
+class FamilyMemberCreateView(LoginRequiredMixin, CreateMixin, FamilyMemberMixin, generic.CreateView):
     model = Profile
     form_class = FamilyMemberCreateForm
 
@@ -518,7 +519,7 @@ class MassMailView(SuperuserRequiredMixin, generic.FormView):
             ) for pr in profiles] if profiles else []
         
         self.nb_sent = send_mass_html_mail(messages)
-        
+
         return super(MassMailView, self).form_valid(form)
 
 mass_mail = MassMailView.as_view()
