@@ -20,7 +20,7 @@ from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
 from .models import Profile, Place, Phone
 from .mixins import (ProfileMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
-    FamilyMemberMixin, CreateMixin, DeleteMixin)
+    FamilyMemberMixin, FamilyMemberAuthMixin, CreateMixin, DeleteMixin)
 from .forms import (UserRegistrationForm, AuthorizeUserForm,
     ProfileForm, ProfileSettingsForm, ProfileCreateForm, PhoneForm, PhoneCreateForm,
     PlaceForm, PlaceCreateForm, FamilyMemberForm, FamilyMemberCreateForm,
@@ -350,7 +350,7 @@ class FamilyMemberAddMeView(LoginRequiredMixin, FamilyMemberMixin, generic.FormV
 family_member_add_me = FamilyMemberAddMeView.as_view()
 
 
-class FamilyMemberUpdateView(LoginRequiredMixin, FamilyMemberMixin, generic.UpdateView):
+class FamilyMemberUpdateView(LoginRequiredMixin, FamilyMemberAuthMixin, FamilyMemberMixin, generic.UpdateView):
     model = Profile
     form_class = FamilyMemberForm
 
@@ -375,9 +375,12 @@ class FamilyMemberRemoveView(LoginRequiredMixin, FamilyMemberMixin, generic.Dele
 family_member_remove = FamilyMemberRemoveView.as_view()
 
 
-class FamilyMemberDeleteView(LoginRequiredMixin, DeleteMixin, FamilyMemberMixin, generic.DeleteView):
+class FamilyMemberDeleteView(LoginRequiredMixin, DeleteMixin, FamilyMemberAuthMixin, FamilyMemberMixin, generic.DeleteView):
     """Remove the family member for the Place and delete it."""
     model = Profile
+
+#    def get(self, request, *args, **kwargs):
+#        pass
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
