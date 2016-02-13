@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-11-23 10:58+0000\n"
-"PO-Revision-Date: 2016-01-18 10:15+0100\n"
+"PO-Revision-Date: 2016-02-13 17:55+0100\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <info@pasportaservo.org>\n"
 "Language: eo\n"
@@ -26,6 +26,10 @@ msgstr "Administrado de Pasporta Servo"
 #: templates/404.html:5
 msgid "Page not found"
 msgstr "Paĝo ne trovita"
+
+#: templates/403.html:5
+msgid "No no, that page is off-limits"
+msgstr "Ne ne ne, tiun paĝon vi evitu"
 
 #: templates/500.html:6
 msgid "Programmation error on the server"

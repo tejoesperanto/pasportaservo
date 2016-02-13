@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
+from django.core.exceptions import PermissionDenied
 
 from .models import Profile, Place, Phone
 
@@ -14,6 +15,23 @@ class ProfileMixin(object):
             return self.object.get_edit_url()
 
 
+class CreateMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        if self.kwargs.get('pk'):
+            profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
+            user_profile = getattr(self.request.user, 'profile', None)
+            creation_allowed = self.request.user.is_staff or (user_profile and profile == user_profile)
+        elif self.kwargs.get('place_pk'):
+            place = get_object_or_404(Place, pk=self.kwargs['place_pk'])
+            user_profile = getattr(self.request.user, 'profile', None)
+            creation_allowed = self.request.user.is_staff or (user_profile and place.owner == user_profile)
+        
+        if creation_allowed:
+            return super(CreateMixin, self).dispatch(request, *args, **kwargs)
+        else:
+            raise PermissionDenied("Not allowed to create object.")
+
+
 class ProfileAuthMixin(object):
     def get_object(self, queryset=None):
         profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
@@ -26,8 +44,10 @@ class ProfileAuthMixin(object):
             # self.role = 'supervizor'
         else:
             public = getattr(self, 'public_view', False)
-            if not public or profile.deleted:
-                raise Http404
+            if not public:
+                raise PermissionDenied("Not allowed to edit this profile.")
+            if profile.deleted:
+                raise Http404("Profile was deleted.")
             self.role = 'visitor'
         return profile
 
@@ -60,7 +80,7 @@ class FamilyMemberMixin(object):
         own_place = self.place.owner == self.request.user.profile
         if own_place or self.request.user.is_staff:
             return get_object_or_404(Profile, pk=self.kwargs['pk'])
-        raise Http404
+        raise PermissionDenied("You don't own this place.")
 
     def get_success_url(self, *args, **kwargs):
         return self.place.owner.get_edit_url()

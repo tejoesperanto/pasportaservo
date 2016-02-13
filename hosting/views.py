@@ -20,7 +20,7 @@ from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
 from .models import Profile, Place, Phone
 from .mixins import (ProfileMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
-    FamilyMemberMixin, DeleteMixin)
+    FamilyMemberMixin, CreateMixin, DeleteMixin)
 from .forms import (UserRegistrationForm, AuthorizeUserForm,
     ProfileForm, ProfileSettingsForm, ProfileCreateForm, PhoneForm, PhoneCreateForm,
     PlaceForm, PlaceCreateForm, FamilyMemberForm, FamilyMemberCreateForm,
@@ -157,7 +157,7 @@ class ProfileSettingsView(LoginRequiredMixin, ProfileMixin, generic.UpdateView):
 profile_settings = ProfileSettingsView.as_view()
 
 
-class PlaceCreateView(LoginRequiredMixin, ProfileMixin, generic.CreateView):
+class PlaceCreateView(LoginRequiredMixin, ProfileMixin, CreateMixin, generic.CreateView):
     model = Place
     form_class = PlaceCreateForm
 
@@ -197,7 +197,7 @@ class PlaceDetailView(generic.DetailView):
 place_detail = PlaceDetailView.as_view()
 
 
-class PhoneCreateView(LoginRequiredMixin, ProfileMixin, generic.CreateView):
+class PhoneCreateView(LoginRequiredMixin, ProfileMixin, CreateMixin, generic.CreateView):
     model = Phone
     form_class = PhoneCreateForm
 
@@ -330,7 +330,7 @@ class AuthorizeUserLinkView(LoginRequiredMixin, generic.View):
 authorize_user_link = AuthorizeUserLinkView.as_view()
 
 
-class FamilyMemberCreateView(LoginRequiredMixin, FamilyMemberMixin, generic.CreateView):
+class FamilyMemberCreateView(LoginRequiredMixin, CreateMixin, FamilyMemberMixin, generic.CreateView):
     model = Profile
     form_class = FamilyMemberCreateForm
 
