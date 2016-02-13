@@ -73,7 +73,10 @@ class PhoneAuthMixin(object):
 
 class FamilyMemberMixin(object):
     def dispatch(self, request, *args, **kwargs):
-        self.place = get_object_or_404(Place, pk=self.kwargs['place_pk'])
+        if self.request.user.is_staff:
+            self.place = get_object_or_404(Place, pk=self.kwargs['place_pk'])
+        else:
+            self.place = get_object_or_404(Place, pk=self.kwargs['place_pk'], owner=self.request.user.profile)
         return super(FamilyMemberMixin, self).dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
