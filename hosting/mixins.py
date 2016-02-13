@@ -82,11 +82,23 @@ class FamilyMemberMixin(object):
     def get_object(self, queryset=None):
         own_place = self.place.owner == self.request.user.profile
         if own_place or self.request.user.is_staff:
-            return get_object_or_404(Profile, pk=self.kwargs['pk'])
+            profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
+            if profile in self.place.family_members.all():
+                return profile
+            else:
+                raise Http404("Profile " + str(profile.id) + " is not a family member at place " + str(self.place.id) + ".")
         raise PermissionDenied("You don't own this place.")
 
     def get_success_url(self, *args, **kwargs):
         return self.place.owner.get_edit_url()
+
+
+class FamilyMemberAuthMixin(object):
+    def get_object(self, queryset=None):
+        profile = super(FamilyMemberAuthMixin, self).get_object(queryset)
+        if profile.user:
+            raise PermissionDenied("Only the user can modify their profile.")
+        return profile
 
 
 class DeleteMixin(object):
