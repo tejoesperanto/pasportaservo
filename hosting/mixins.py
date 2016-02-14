@@ -1,6 +1,5 @@
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
-from django.core.exceptions import PermissionDenied
 
 from .models import Profile, Place, Phone
 
@@ -29,7 +28,7 @@ class CreateMixin(object):
         if creation_allowed:
             return super(CreateMixin, self).dispatch(request, *args, **kwargs)
         else:
-            raise PermissionDenied("Not allowed to create object.")
+            raise Http404("Not allowed to create object.")
 
 
 class ProfileAuthMixin(object):
@@ -45,7 +44,7 @@ class ProfileAuthMixin(object):
         else:
             public = getattr(self, 'public_view', False)
             if not public:
-                raise PermissionDenied("Not allowed to edit this profile.")
+                raise Http404("Not allowed to edit this profile.")
             if profile.deleted:
                 raise Http404("Profile was deleted.")
             self.role = 'visitor'
@@ -87,7 +86,7 @@ class FamilyMemberMixin(object):
                 return profile
             else:
                 raise Http404("Profile " + str(profile.id) + " is not a family member at place " + str(self.place.id) + ".")
-        raise PermissionDenied("You don't own this place.")
+        raise Http404("You don't own this place.")
 
     def get_success_url(self, *args, **kwargs):
         return self.place.owner.get_edit_url()
@@ -97,7 +96,7 @@ class FamilyMemberAuthMixin(object):
     def get_object(self, queryset=None):
         profile = super(FamilyMemberAuthMixin, self).get_object(queryset)
         if profile.user:
-            raise PermissionDenied("Only the user can modify their profile.")
+            raise Http404("Only the user can modify their profile.")
         return profile
 
 
