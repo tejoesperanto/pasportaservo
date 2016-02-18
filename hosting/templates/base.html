@@ -4,7 +4,8 @@
     <head>
         <meta charset="utf-8">
         <link rel="icon" type="image/png" href="{% static 'img/PS_favicon.png' %}" />
-        <title>{% block head_title %}{% trans "Find accomodation" %}{% endblock %} | Pasporta Servo</title>
+        <title>{% block head_title %}{% trans "Find accomodation" %}{% endblock %}
+               {% block head_title_separator %}|{% endblock %} Pasporta Servo</title>
         <meta name="description" content="{% block head_description %}{% endblock %}">
         <meta name="viewport" content="width=device-width">
         <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">

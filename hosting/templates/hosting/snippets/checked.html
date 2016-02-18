@@ -1,8 +1,8 @@
 {% load i18n %}
 {% if user.is_staff %}
     {% if object.checked %}
-        <span class="label label-success"><span class="glyphicon glyphicon-ok-circle"></span> {% trans "Checked" %}</span>
+        <span class="staff label label-success"><span class="glyphicon glyphicon-ok-circle"></span> {% trans "Checked" %}</span>
     {% else %}
-        <span class="label label-warning"><span class="glyphicon glyphicon-remove-circle"></span> {% trans "Not checked" %}</span>
+        <span class="staff label label-warning"><span class="glyphicon glyphicon-remove-circle"></span> {% trans "Not checked" %}</span>
     {% endif %}
 {% endif %}

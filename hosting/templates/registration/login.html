@@ -1,6 +1,8 @@
 {% extends 'hosting/base_form.html' %}
 {% load i18n %}
 
+{% block head_title %}{% trans "Log In" %} &amp; {% trans "Find accomodation" %}{% endblock %}
+
 {% block form_title %}{% trans "Log In" %}{% endblock %}
 {% block form_tip %}{% trans "Log in with your username and password." %}{% endblock %}
 {% block form_block_class %} login{% endblock %}

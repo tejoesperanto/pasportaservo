@@ -1,0 +1,36 @@
+{% extends 'hosting/base.html' %}
+{% load static i18n %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script src="{% static 'js/forms.js' %}"></script>
+{% endblock extra_js %}
+
+{% block page %}
+    <div class="well">
+        <p class="text-center text-danger">
+            {% block confirmation %}{% endblock %}
+        </p>
+        <p class="text-center">
+            <strong>{% block extra_details %}{% endblock %}</strong>
+        </p>
+    </div>
+
+    <form action="" method="POST" class="pull-right">
+        {% csrf_token %}
+        <a id="id_form_cancel" href="#" onclick="history.go(-1)" data-kbdshortcut="Z-out"
+           class="btn btn-default btn-vert-space" title="{% trans "Cancel operation" %}">
+            <span class="glyphicon glyphicon-arrow-left"></span> {% trans "Cancel" %}
+        </a>
+        <span style="display: inline-block">
+        {% block confirm_buttons %}
+            <button id="id_form_submit" type="submit" class="btn btn-primary btn-vert-space"
+                    title="{% block form_confirm_button_title %}{% trans "Delete" %}{% endblock %}">
+                {% block form_confirm_button %}
+                    <span class="glyphicon glyphicon-trash"></span> {% trans "Delete" %}
+                {% endblock %}
+            </button>
+        {% endblock confirm_buttons %}
+        </span>
+    </form>
+{% endblock page %}

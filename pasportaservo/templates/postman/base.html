@@ -2,6 +2,8 @@
 {% load url from future %}
 {% load i18n static %}
 {% load postman_tags %}
+
+{% block head_title %}{% trans "Inbox" %}{% endblock %}
 {% block title %}{% trans "Messaging" %}{% endblock %}
 {% block extra_css %}
     {{ block.super }}

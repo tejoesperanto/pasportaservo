@@ -21,7 +21,7 @@
             <h4>{% block form_title %}{% endblock %}</h4>
             <p class="tip">{% block form_tip %}{% endblock %}</p>
             <form class="form" method="POST" action="{% block form_action %}{% endblock %}" {% block enctype %}{% endblock %}>
-                <div class="col-md-10 col-md-offset-1">
+                <div class="{% block form_contents_class %}col-md-10 col-md-offset-1{% endblock %}">
                     {% csrf_token %}
                     {{ form.media }}
 
@@ -32,7 +32,7 @@
                     {% block fields_after %}{% endblock %}
                     <p class="pull-right">
                         {% block form_submit %}
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary" id="id_form_submit" data-kbdshortcut="{% block form_keyboard_shortcut %}{% endblock %}">
                                 {% block form_submit_button %}{% trans "Confirm" %}{% endblock %}
                             </button>
                         {% endblock %}

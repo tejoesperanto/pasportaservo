@@ -1,9 +1,24 @@
 {% extends 'hosting/base.html' %}
 {% load i18n static %}
 
+{% block head_title %}
+    {% if user.profile == profile %}
+        {% trans "My profile" %}
+    {% else %}
+        {{ profile.anonymous_name }}
+    {% endif %}
+{% endblock %}
+
 {% block page %}
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-xs-12 col-md-5">
+                {% if profile.deleted and user.is_staff %}
+                    <div class="alert alert-small alert-danger">
+                        <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp; {% trans "Deleted profile" %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-xs-12 col-md-7">
                 <div class="btn-group edit-buttons">
                     {% block profile_edit_buttons %}
                         {% if profile != user.profile %}
@@ -19,7 +34,7 @@
                                class="btn btn-success"
                                title="{{ update_title }}">
                                 <span class="glyphicon glyphicon-pencil"></span>
-                                <span class="hidden-xs">{% trans "Update" %}</span>
+                                <span class="hidden-xxs">{% trans "Update" %}</span>
                             </a>
                         {% endif %}
                     {% endblock %}
@@ -54,30 +69,49 @@
 
     <hr />
 
-    <h2 class="owner">
-        {% blocktrans count counter=profile.owned_places.all|length trimmed %}
-            Place
-        {% plural %}
-            Places
-        {% endblocktrans %}
-    </h2>
+    {% if places or not view.public_view %}
+        <h2 class="owner">
+            {% if places.count == is_hosting %}
+                {% blocktrans count counter=places|length trimmed %}
+                    Place
+                {% plural %}
+                    Places
+                {% endblocktrans %}
+            {% else %}
+                {% blocktrans count counter=places|length trimmed %}
+                    Habitat
+                {% plural %}
+                    Habitats
+                {% endblocktrans %}
+            {% endif %}
+        </h2>
+    {% endif %}
     {% for place in places %}
         <ul class="list-group">
-            <li class="list-group-item {% if user.is_staff and place.checked %}alert alert-success{% endif %}">
+            <li class="list-group-item {% if user.is_staff and place.checked %}alert-success{% endif %}">
                 <div class="btn-group pull-right">
                     {% block place_edit_buttons %}{% endblock %}
                     <a href="{% url 'place_detail' place.pk %}" class="btn btn-primary" title="{% trans "View details of this place" %}">
                         <span class="glyphicon glyphicon-arrow-right"></span>
-                        <span class="hidden-xs">{% trans "View" %}</span>
+                        <span class="{% if view.public_view %}hidden-xxs{% else %}hidden-xs{% endif %}">{% trans "View" %}</span>
                     </a>
                 </div>
                 {% if view.public_view %}
-                    <div>
+                    <div class="place-overview">
+                        {% if place.available %}
+                            <span class="label label-info status">&nbsp;{% trans "I'm hosting in:" %}&nbsp;</span>
+                        {% endif %}
                         {% if place.city %}
                             <h3>{{ place.city }}</h3>
                         {% endif %}
                         {% if place.closest_city %}
-                            <h4>{{ place.closest_city }}</h4>
+                            <h4>
+                                <span class="glyphicon glyphicon-share-alt small"></span>
+                                {% blocktrans with closest_city=place.closest_city %}near {{ closest_city }}{% endblocktrans %}
+                            </h4>
+                        {% endif %}
+                        {% if place.state_province %}
+                            <h4>{{ place.state_province }}</h4>
                         {% endif %}
                         <h4>{{ place.country.name }}</h4>
                     </div>
@@ -87,8 +121,11 @@
                         {% if user.is_staff %}
                             <p>{% include 'hosting/snippets/checked.html' with object=place %}</p>
                         {% endif %}
-                        <h3>{{ place.address }}</h3>
-                        <h4>{{ place.city }}</h4>
+                        <h3>{{ place.address.strip }}</h3>
+                        <h4>{% include 'hosting/snippets/place_city_complete.html' with city=place.city closest_city=place.closest_city %}</h4>
+                        {% if place.state_province %}
+                            <h4>{{ place.state_province }}</h4>
+                        {% endif %}
                         <h4>{{ place.postcode }} {{ place.country.name }}</h4>
                     </div>
     

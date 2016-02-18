@@ -1,0 +1,6 @@
+{% load i18n %}
+{% if closest_city %}
+    {% blocktrans %}{{ city }}, near {{ closest_city }}{% endblocktrans %}
+{% else %}
+    {{ city }}
+{% endif %}

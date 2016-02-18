@@ -15,6 +15,7 @@ urlpatterns = patterns('hosting.views',
     url(_(r'^profile/(?P<pk>\d+)(?:/(?P<slug>[\w-]+))?/settings/$'), 'profile_settings', name='profile_settings'),
 
     url(_(r'^place/(?P<pk>\d+)/$'), 'place_detail', name='place_detail'),
+    url(_(r'^place/(?P<pk>\d+)/detailed/$'), 'place_detail_verbose', name='place_detail_verbose'),
     url(_(r'^profile/(?P<pk>\d+)(?:/(?P<slug>[\w-]+))?/place/create/$'), 'place_create', name='place_create'),
     url(_(r'^place/(?P<pk>\d+)/update/$'), 'place_update', name='place_update'),
     url(_(r'^place/(?P<pk>\d+)/delete/$'), 'place_delete', name='place_delete'),

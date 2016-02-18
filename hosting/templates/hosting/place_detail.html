@@ -1,11 +1,35 @@
 {% extends 'hosting/base.html' %}
 {% load i18n static %}
 
+{% block head_title %}
+    {% if user.profile == place.owner %}
+        {% trans "My habitat" %}
+    {% else %}
+        {% if place.available %}
+            {% trans "A place in" %}
+        {% else %}
+            {{ place.owner.anonymous_name }}, 
+        {% endif %}
+        {% if place.city %}{{ place.city }}, {% endif %}{{ place.get_country_display }}
+    {% endif %}
+{% endblock %}
+
 {% block page %}
     <div class="row place-detail">
         <div class="col-xs-12 col-md-6 owner">
             <div class="row">
-                <div class="col-xs-3">
+                <div class="col-xs-12 warning">
+                    {% if place.deleted and user.is_authenticated %}
+                        <div class="alert alert-small alert-danger">
+                            <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;
+                            {% if user.is_staff %}{% trans "Deleted place" %} &ndash; {% endif %}{% trans "The address is obsolete" %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-xs-3 avatar">
                     <a href="{{ place.owner.get_absolute_url }}">
                         <img src="{{ place.owner.avatar_url }}" />
                     </a>
@@ -14,7 +38,7 @@
                     <div class="row">
                         <p class="col-xs-8 name">
                             <a href="{{ place.owner.get_absolute_url }}">
-                                {% if user in place.authorized_users.all %}
+                                {% if is_verbose_view %}
                                     {{ place.owner.full_name }}
                                 {% else %}
                                     {{ place.owner.anonymous_name }}
@@ -22,44 +46,63 @@
                             </a>
                         </p>
                         <p class="col-xs-4 status">
-                            {% if place.available %}
-                                <span class="visible-xs-inline-block glyphicon glyphicon-stack" title="{% trans "available" %}">
-                                    <span class="place-marker glyphicon-home glyphicon-stack-2x"></span>
-                                    <span class="place-availability glyphicon-ok glyphicon-stack-1x"></span>
-                                </span>
-                                <em class="hidden-xs">{% trans "available" %}</em>
-                            {% else %}
-                                <span class="visible-xs-inline-block glyphicon glyphicon-stack" title="{% trans "unavailable" %}">
-                                    <span class="place-marker glyphicon-home glyphicon-stack-2x"></span>
-                                    <span class="place-availability glyphicon-remove glyphicon-stack-1x"></span>
-                                </span>
-                                <em class="hidden-xs">{% trans "unavailable" %}</em>
+                            {% if user.is_authenticated %}
+                                {% if place.tour_guide %}
+                                    <img src="{% get_static_prefix %}img/city_guide.svg"
+                                         onerror="this.onerror = null; this.src = this.src.replace(/\.svg$/, '.png');"
+                                         alt="[&nbsp;{% trans "tour guide" %}&nbsp;]"
+                                         title="{% trans "I can guide around the city" %}"
+                                         style="width: 1.5em; height: 1.5em;" />
+                                {% endif %}
+                                {% if place.have_a_drink %}
+                                    <img src="{% get_static_prefix %}img/city_drink.svg"
+                                         onerror="this.onerror = null; this.src = this.src.replace(/\.svg$/, '.png');"
+                                         alt="[&nbsp;{% trans "have a drink" %}&nbsp;]"
+                                         title="{% trans "I'd like to have a drink together" %}"
+                                         style="width: 1.5em; height: 1.5em;" />
+                                {% endif %}
+                                
+                                {% if place.available %}
+                                    <span title="{% trans "place" %} {% trans "available" %}"
+                                          class="glyphicon glyphicon-stack-large">
+                                        <span class="place-marker glyphicon-stackbit-2x glyphicon-home"></span>
+                                        <span class="place-availability glyphicon-stackbit-1x glyphicon-ok"></span>
+                                    </span>
+                                {% else %}
+                                    <span title="{% trans "place" %} {% trans "unavailable" %}"
+                                          class="glyphicon glyphicon-stack-large">
+                                        <span class="place-marker glyphicon-stackbit-2x glyphicon-home"></span>
+                                        <span class="place-availability glyphicon-stackbit-1x glyphicon-remove"></span>
+                                    </span>
+                                    {% comment "povas esti utila por indiki portempan malĉeeston, en la futuro" %}
+                                    <em class="hidden-xs">{% trans "unavailable" %}</em>
+                                    {% endcomment %}
+                                {% endif %}
                             {% endif %}
                         </p>
                         {% if user.is_authenticated %}
-                            <p class="col-xs-9 address">
-                                {% if user in place.authorized_users.all %}
-                                    {{ place.address }}
+                            <p class="col-xs-11 address">
+                                {% if is_verbose_view and place.address %}
+                                    {{ place.address.strip|linebreaksbr }}
                                     <br />
                                 {% endif %}
 
-                                {{ place.postcode }}
-
-                                {% if place.closest_city %}
-                                    {% blocktrans with city=place.city closest_city=place.closest_city trimmed %}
-                                        {{ city }}, near {{ closest_city }}
-                                    {% endblocktrans %}
-                                {% else %}
-                                    {{ place.city }}
-                                {% endif %}
-
+                                {% include 'hosting/snippets/place_city_complete.html' with city=place.city closest_city=place.closest_city %}
                                 <br />
-
+                                {% if place.state_province %}
+                                    {{ place.state_province }}
+                                    <br />
+                                {% endif %}
+                                {% if is_verbose_view %}
+                                    {{ place.postcode }}
+                                {% endif %}
                                 {{ place.get_country_display }}
+                                
+                                &nbsp; {% include 'hosting/snippets/checked.html' with object=place %}
                             </p>
                         {% endif %}
 
-                        {% if user in place.authorized_users.all %}
+                        {% if is_verbose_view %}
                             {% for phone in place.owner.phones.all %}
                                 <p class="col-xs-12">
                                     {{ phone.icon }}
@@ -84,8 +127,11 @@
                         <h3>{% trans "Description" %}</h3>
                         {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night %}
                     {% endif %}
+                    {% if place.conditions.all %}
+                        {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all %}
+                    {% endif %}
 
-                    {% if place.family_members.all and user in place.authorized_users.all %}
+                    {% if place.family_members.all and is_verbose_view %}
                         <h3>{% trans "Family members" %}</h3>
                         <ul>
                             {% for member in place.family_members.all %}
@@ -105,53 +151,71 @@
             </div>
         </div>
 
-        <div class="map col-xs-12 col-md-6">
+        <div class="col-xs-12 col-md-6 map">
+            <div class="embed-responsive embed-responsive-16by9"> {% comment %} responsive map height with constant ratio to map width {% endcomment %}
                 <iframe width="100%"
                     frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
                     src="http://www.openstreetmap.org/export/embed.html?bbox={{ place.bbox }}{% if user.is_authenticated %}&amp;marker={{ place.latitude|stringformat:'f' }},{{ place.longitude|stringformat:'f' }}{% endif %}">
                 </iframe>
+            </div>
         </div>
 
         {% if user.is_authenticated %}
             <div class="col-xs-12 hidden-md hidden-lg description-small">
                 {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night %}
+                {% if place.conditions.all %}
+                    {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all %}
+                {% endif %}
             </div>
 
-            {% if place.owner = user.profile %}
-                <p class="col-xs-12 btn-group">
-                    <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% trans "Update" %}">
-                        <span class="glyphicon glyphicon-pencil"></span> {% trans "Update" %}
-                    </a>
-                    <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}" 
-                       class="btn btn-warning"
-                       title="{% trans "Authorizations" %}">
-                        <span class="glyphicon glyphicon-eye-open"></span>
-                        <span class="hidden-xs">{% trans "Authorizations" %}</span>
-                    </a>
-                </p>
-            {% else %}
-                <p class="col-xs-12">
-                    <a href="{% url 'postman_write' place.owner.user.username %}" class="btn btn-primary">
+            <p class="col-xs-12">
+                {% if user.profile != place.owner %}
+                    <a href="{% url 'postman_write' place.owner.user.username %}" class="btn btn-primary btn-vert-space">
                         <span class="glyphicon glyphicon-send"></span>&nbsp; {% trans "Write message" %}
                     </a>
-                </p>
-            {% endif %}
+                {% endif %}
+                {% if user.profile == place.owner or user.is_staff %}
+                    <span class="btn-group btn-vert-space">
+                        <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% trans "Update" %}">
+                            <span class="glyphicon glyphicon-pencil"></span> 
+                            <span class="">{% trans "Update" %}</span>
+                        </a>
+                        <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}" 
+                           class="btn btn-warning"
+                           title="{% trans "Authorizations" %}">
+                            <span class="glyphicon glyphicon-eye-open"></span>
+                            <span class="hidden-xxs">{% trans "Authorizations" %}</span>
+                        </a>
+                        {% if not is_verbose_view %}
+                        {% if place.authorized_users.all or user.is_staff %}
+                            <a href="{% url 'place_detail_verbose' place.pk %}" class="btn btn-primary" title="{% trans "View as an authorized user" %}">
+                                <span class="glyphicon glyphicon-stack-normal" style="font-size: .8em">
+                                    <span class="glyphicon-stackbit-1x glyphicon-eye-open"    style="top: -1.1ex"></span>
+                                    <span class="glyphicon-stackbit-1x glyphicon-arrow-right" style="top: +0.5ex"></span>
+                                </span>
+                                <span class="hidden-xxs">{% trans "View" %}</span>
+                            </a>
+                        {% endif %}
+                        {% endif %}
+                    </span>
+                {% endif %}
+            </p>
         {% endif %}
 
         {% if user.is_authenticated %}
-        {% if user.profile in place.family_members.all or user.profile = place.owner %}
+        {% if user.profile in place.family_members.all or user.profile == place.owner or user.is_staff %}
             <div class="col-xs-12">
                 <p>
                     {% trans "Short description" %}:&nbsp; {{ place.short_description|default:"&ndash;" }}
                 </p>
                 <p>
                     {% trans "Available" %}:&nbsp; 
-                    <span class="glyphicon glyphicon-{{ place.available|yesno:'ok,remove' }}"></span> 
+                    <span class="glyphicon glyphicon-{{ place.available|yesno:'ok,remove' }}"></span>
                     {{ place.available|yesno }}
                 </p>
                 <p>
                     {% trans "Print in book" %}:&nbsp; 
-                    <span class="glyphicon glyphicon-{{ place.in_book|yesno:'ok,remove' }}"></span> 
+                    <span class="glyphicon glyphicon-{{ place.in_book|yesno:'ok,remove' }}"></span>
                     {{ place.in_book|yesno }}
                 </p>
             </div>
@@ -159,4 +223,3 @@
         {% endif %}
     </div>
 {% endblock page %}
-

@@ -69,6 +69,7 @@ MIDDLEWARE_CLASSES = (
 
 TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
     'django.core.context_processors.request',
+    'django.contrib.messages.context_processors.messages',
     'postman.context_processors.inbox',
 )
 
@@ -117,6 +118,7 @@ SITE_NAME = "Pasporta Servo"
 # Helps entering phone numbers with "00" instead of "+"
 # This means: Interpret phone number as dialed in Poland
 PHONENUMBER_DEFAULT_REGION = 'PL'
+PHONENUMBER_DEFAULT_FORMAT = 'INTERNATIONAL'
 
 
 DEFAULT_AVATAR_URL = "mm"

@@ -1,23 +1,9 @@
-{% extends 'hosting/base.html' %}
+{% extends 'hosting/base_confirm.html' %}
 {% load i18n %}
 
-{% block page %}
-    <div class="well">
-        <p class="text-center text-danger">
-            {% trans "Are you sure you want to delete this number?" %}
-        </p>
-        <p class="text-center"><strong>{{ phone.number.as_international }}</strong></p>
-    </div>
-
-    <form action="" method="post" class="pull-right">
-        {% csrf_token %}
-        <a href="#" onclick="history.go(-1)" class="btn btn-default">
-            <span class="glyphicon glyphicon-arrow-left"></span>
-            {% trans "Cancel" %}
-        </a>
-        <button type="submit" class="btn btn-primary">
-            <span class="glyphicon glyphicon-trash"></span>
-            {% trans "Delete" %}
-        </button>
-    </form>
-{% endblock page %}
+{% block confirmation %}
+    {% trans "Are you sure you want to delete this number?" %}
+{% endblock %}
+{% block extra_details %}
+    {{ phone.number.as_international }}
+{% endblock %}

@@ -67,7 +67,8 @@ class Profile(TimeStampedModel):
 
     @property
     def full_name(self):
-        return " ".join((self.first_name, self.last_name))
+        return " ".join((self.first_name, self.last_name)).strip()  \
+               or (self.user.username.title() if self.user else " ")
 
     @property
     def name(self):
@@ -75,7 +76,8 @@ class Profile(TimeStampedModel):
 
     @property
     def anonymous_name(self):
-        return " ".join((self.first_name, self.last_name[:1]+"."))
+        return " ".join((self.first_name, self.last_name[:1]+"." if self.last_name else "")).strip()  \
+               or (self.user.username.title() if self.user else " ")
 
     @property
     def age(self):
@@ -100,7 +102,7 @@ class Profile(TimeStampedModel):
         return slugify(self.user.username)
 
     def __str__(self):
-        username = self.user.username if self.user else '-'
+        username = self.user.username if self.user else '--'
         return self.full_name if self.full_name.strip() else username
 
     def get_absolute_url(self):
@@ -195,8 +197,8 @@ class Phone(TimeStampedModel):
     PHONE_TYPE_CHOICES = PHONE_TYPE_CHOICES
     MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
     profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"), related_name="phones")
-    number = PhoneNumberField(_("number"), help_text=_("International number format "
-        "begining with the plus sign (e.g.: +31 10 436 1044)"))
+    number = PhoneNumberField(_("number"), 
+        help_text=_("International number format begining with the plus sign (e.g.: +31 10 436 1044)"))
     country = CountryField(_("country"))
     comments = models.CharField(_("comments"), max_length=255, blank=True)
     type = models.CharField(_("phone type"), max_length=3,

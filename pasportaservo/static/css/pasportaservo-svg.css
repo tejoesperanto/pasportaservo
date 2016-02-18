@@ -1,0 +1,12 @@
+/* https://css-tricks.com/using-svg */
+/* SVG data must be loaded as <object type="image/svg+xml" data="imagefile.svg"> for styling to work. */
+/* SVG fallback to image can be provided as <object> tag contents. */
+
+.place-condition {
+}
+.place-condition:hover {
+}
+
+.place-anchor {
+    fill: #5bc0de;
+}

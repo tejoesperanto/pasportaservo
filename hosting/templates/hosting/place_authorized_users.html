@@ -1,6 +1,8 @@
 {% extends 'hosting/base_form.html' %}
 {% load i18n %}
 
+{% block head_title %}{% trans "Authorized users" %}{% endblock %}
+
 {% block form_action %}{% url 'authorize_user' pk=place.pk %}?next={{ request.GET.next }}{% endblock %}
 {% block form_submit_button %}<span class="glyphicon glyphicon-plus"></span> {% trans "Authorize" %}{% endblock %}
 
@@ -14,9 +16,10 @@
 
 
 {% block form_back_link %}
-    <a href="{{ request.GET.next }}" class="btn btn-default">
+    <a href="{{ request.GET.next }}" class="btn btn-default" 
+       title="{% if back_to %}{% blocktrans %}Back to {{ back_to }}{% endblocktrans %}{% else %}{% trans "Back" %}{% endif %}">
         <span class="glyphicon glyphicon-arrow-left"></span>
-        <span class="hidden-xs">{% trans "Back" %}</span>
+        <span class="hidden-xxs">{% trans "Back" %}</span>
     </a>
 {% endblock %}
 
