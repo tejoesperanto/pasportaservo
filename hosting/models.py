@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from datetime import date
 
-from django.utils.encoding import python_2_unicode_compatible
+from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.html import format_html
 from django.utils.text import slugify
 from django.db import models
@@ -189,7 +189,7 @@ class Place(TimeStampedModel):
         return reverse('place_detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.city
+        return ", ".join([self.city, force_text(self.country.name)]) if self.city else force_text(self.country.name)
 
 
 @python_2_unicode_compatible
