@@ -56,4 +56,4 @@ def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None
             headers = {'Reply-To': 'Pasporta Servo <saluton@pasportaservo.org>'})
         message.attach_alternative(html, 'text/html')
         messages.append(message)
-    return connection.send_messages(messages)
+    return connection.send_messages(messages) or 0
