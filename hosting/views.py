@@ -12,9 +12,10 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model, authenticate, login
 from django.template.loader import render_to_string, get_template
 from django.template import Context
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+from django.utils.html import linebreaks as tohtmlpara, urlize
 import re
 
 from braces.views import (AnonymousRequiredMixin, LoginRequiredMixin, 
@@ -345,16 +346,22 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
     def send_email(self, user, place):
         subject = _("[Pasporta Servo] You received an Authorization")
         to = [user.email]
-        email_template = 'hosting/emails/new_authorization.txt'
+        email_template_text = 'hosting/emails/new_authorization.txt'
+        email_template_html = 'hosting/emails/mail_template.html'
         email_context = {
-            'user_first_name': user.profile.first_name or user.username,
+            'user_first_name': user.profile.name,
             'owner_name': place.owner.full_name,
             'place_id': place.pk,
+            'place_address': str(place),
             'site_domain': self.request.get_host(),
             'site_name': settings.SITE_NAME,
         }
-        message = render_to_string(email_template, email_context)
-        EmailMessage(subject, message, to=to).send()
+        message_text = render_to_string(email_template_text, email_context)
+        message_html = render_to_string(email_template_html, {'body': mark_safe(tohtmlpara(urlize(message_text))),})
+
+        message = EmailMultiAlternatives(subject, message_text, to=to)
+        message.attach_alternative(message_html, 'text/html')
+        message.send()
 
 authorize_user = AuthorizeUserView.as_view()
 
