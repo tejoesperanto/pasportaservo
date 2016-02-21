@@ -6,10 +6,12 @@
     <script src="{% static 'js/marked.js' %}"></script>
 {% endblock extra_js %}
 
-{% block form_container_class %}col-xs-12 col-md-6{% endblock %}
+{% block form_container_class %}col-xs-12 col-md-5{% endblock %}
+
+{% block form_contents_class %}{% endblock %}
 
 {% block form_after %}
-    <div class="col-xs-12 col-md-6">
+    <div class="col-xs-12 col-md-7">
         {% include 'hosting/emails/mail_template.html' %}
     </div>
 {% endblock form_after %}
