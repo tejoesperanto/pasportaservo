@@ -14,6 +14,30 @@
     {% endif %}
 {% endblock %}
 
+{% block extra_js %}
+        <script type="text/javascript">
+            $(document).ready(function() {
+                notification = $('#status-anchors_notification').data("content");
+                $('.anchor-notify').popover(
+                    { trigger: "manual",
+                      html: true,
+                      content: notification });
+            });
+            function displayAnchorsNotification() {
+                blockSmallDescription = $('.description-small');
+                $('html, body').animate({ scrollTop: blockSmallDescription.offset().top - 10 }, 500);
+                origin = $('.anchor-notify'); 
+                origin.popover("show");
+                notify = origin.next('.popover');
+                origin.filter('.status').next('.popover').addClass('hidden-xs hidden-sm');
+                notify.animate({ opacity: 0.95 }, 600);
+                window.setTimeout(function() {
+                    notify.animate({ opacity: 0 }, 600, function() { origin.popover("hide") });
+                }, 5000);
+            }
+        </script>
+{% endblock %}
+
 {% block page %}
     <div class="row place-detail">
         <div class="col-xs-12 col-md-6 owner">
@@ -45,7 +69,7 @@
                                 {% endif %}
                             </a>
                         </p>
-                        <p class="col-xs-4 status">
+                        <p class="col-xs-4 status anchor-notify" data-placement="left" onclick="displayAnchorsNotification()">
                             {% if user.is_authenticated %}
                                 {% if place.tour_guide %}
                                     <img src="{% get_static_prefix %}img/city_guide.svg"
@@ -162,6 +186,8 @@
 
         {% if user.is_authenticated %}
             <div class="col-xs-12 hidden-md hidden-lg description-small">
+                <a id="status-anchors_notification" class="col-xs-12 anchor-notify" data-placement="bottom"
+                   data-content="{% include 'hosting/snippets/place_owner_anchors.html' %}"></a>
                 {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night %}
                 {% if place.conditions.all %}
                     {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all %}
