@@ -2,6 +2,7 @@ from datetime import datetime
 from markdown2 import markdown
 import geopy
 
+from django.db.models import Q
 from django.views import generic
 from django.conf import settings
 from django.http import HttpResponseRedirect
@@ -11,9 +12,10 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model, authenticate, login
 from django.template.loader import render_to_string, get_template
 from django.template import Context
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+from django.utils.html import linebreaks as tohtmlpara, urlize
 import re
 
 from braces.views import (AnonymousRequiredMixin, LoginRequiredMixin, 
@@ -344,16 +346,22 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
     def send_email(self, user, place):
         subject = _("[Pasporta Servo] You received an Authorization")
         to = [user.email]
-        email_template = 'hosting/emails/new_authorization.txt'
+        email_template_text = 'hosting/emails/new_authorization.txt'
+        email_template_html = 'hosting/emails/mail_template.html'
         email_context = {
-            'user_first_name': user.profile.first_name or user.username,
+            'user_first_name': user.profile.name,
             'owner_name': place.owner.full_name,
             'place_id': place.pk,
+            'place_address': str(place),
             'site_domain': self.request.get_host(),
             'site_name': settings.SITE_NAME,
         }
-        message = render_to_string(email_template, email_context)
-        EmailMessage(subject, message, to=to).send()
+        message_text = render_to_string(email_template_text, email_context)
+        message_html = render_to_string(email_template_html, {'body': mark_safe(tohtmlpara(urlize(message_text))),})
+
+        message = EmailMultiAlternatives(subject, message_text, to=to)
+        message.attach_alternative(message_html, 'text/html')
+        message.send()
 
 authorize_user = AuthorizeUserView.as_view()
 
@@ -455,16 +463,28 @@ class MassMailView(SuperuserRequiredMixin, generic.FormView):
 
         if category in ("test", "just_user"):
             places = []
-            profiles = Profile.objects.filter(place__isnull=True)
+            # only active profiles, linked to existing user accounts
+            profiles = Profile.objects.filter(deleted=False, user__isnull=False)
+            # exclude completely those who have at least one active available place
+            profiles = profiles.exclude(owned_places=Place.objects.filter(available=True, deleted=False))
+            # remove profiles with places available in the past, that is deleted
+            profiles = profiles.filter(Q(owned_places__available=False) | Q(owned_places__isnull=True))
+            # finally remove duplicates
+            profiles = profiles.distinct()
         elif category == "old_system":
-            places = places.filter(owner__user__last_login__lte=opening)
+            # those who logged in before the opening date; essentially, never used the new system
+            profiles = Profile.objects.filter(user__last_login__lte=opening, deleted=False, owned_places__deleted=False).distinct()
         else:
-            places = places.filter(owner__user__last_login__gt=opening)
+            # those who logged in after the opening date
+            profiles = Profile.objects.filter(user__last_login__gt=opening, deleted=False)
+            # filter by active places according to 'in-book?' selection
             if category == "in_book":
-                places = places.filter(in_book=True)
+                profiles = profiles.filter(owned_places__in_book=True, owned_places__deleted=False)
             elif category == "not_in_book":
-                places = places.filter(in_book=False)
-
+                profiles = profiles.filter(owned_places__in_book=False, owned_places__available=True, owned_places__deleted=False)
+            # finally remove duplicates
+            profiles = profiles.distinct()
+        
         if category == 'test':
             messages = [(
                 subject,
@@ -473,28 +493,18 @@ class MassMailView(SuperuserRequiredMixin, generic.FormView):
                 default_from,
                 [form.cleaned_data['test_email']]
             )]
-
-        elif category == 'just_user':
+        
+        else:
             messages = [(
                 subject,
                 body.format(nomo=pr.name),
                 template.render(Context({'body':mark_safe(md_body.format(nomo=pr.name))})),
                 default_from,
                 [pr.user.email]
-            ) for pr in profiles]
-
-        else:
-            messages = [(
-                subject,
-                body.format(nomo=p.owner.name),
-                template.render(Context({'body':mark_safe(md_body.format(nomo=p.owner.name))})),
-                default_from,
-                [p.owner.user.email]
-            ) for p in places] if places else []
-
-
+            ) for pr in profiles] if profiles else []
+        
         self.nb_sent = send_mass_html_mail(messages)
-
+        
         return super(MassMailView, self).form_valid(form)
 
 mass_mail = MassMailView.as_view()
@@ -505,7 +515,7 @@ class MassMailSentView(SuperuserRequiredMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(MassMailSentView, self).get_context_data(**kwargs)
-        context['nb'] = self.request.GET['nb']
+        context['nb'] = int(self.request.GET['nb']) if self.request.GET.get('nb', '').isdigit() else '??'
         return context
 
 mass_mail_sent = MassMailSentView.as_view()

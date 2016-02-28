@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-11 17:56+0000\n"
-"PO-Revision-Date: 2016-02-11 17:48+0100\n"
+"PO-Revision-Date: 2016-02-21 23:13+0100\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -514,8 +514,8 @@ msgstr "Klaku la ligilon por vidi tiun ĉi loĝejon:"
 #: templates/hosting/emails/new_authorization.txt:15
 #: templates/registration/password_reset_email.html:12
 #, python-format
-msgid "The %(site_name)s team"
-msgstr "La teamo de %(site_name)s"
+msgid "The %(site_name)s team."
+msgstr "La teamo de %(site_name)s."
 
 #: templates/hosting/family_member_confirm_delete.html:7
 msgid "Are you sure you want to delete this family member?"
