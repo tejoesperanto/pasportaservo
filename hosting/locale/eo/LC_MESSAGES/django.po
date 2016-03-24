@@ -653,6 +653,39 @@ msgstr "Priskribo"
 msgid "Family members"
 msgstr "Kunloĝantoj"
 
+#: templates/hosting/snippets/place_owner_anchors.html:5
+msgid "I'm hosting :)"
+msgstr "Mi gastigas :)"
+
+#: templates/hosting/snippets/place_owner_anchors.html:7
+msgid "I'm <b>not</b> hosting"
+msgstr "Mi <b>ne</b> gastigas"
+
+#: templates/hosting/snippets/place_owner_anchors.html:12
+msgid "&nbsp; and will be glad "
+msgstr "&nbsp; kaj volonte "
+
+#: templates/hosting/snippets/place_owner_anchors.html:14
+msgid ", but will be glad "
+msgstr ", sed volonte "
+
+#: templates/hosting/snippets/place_owner_anchors.html:20
+#, python-format
+msgid "to guide you around %(my_city)s"
+msgstr "ĉiĉeronos vin en %(my_city)s"
+
+#: templates/hosting/snippets/place_owner_anchors.html:24
+msgid " or "
+msgstr " aŭ "
+
+#: templates/hosting/snippets/place_owner_anchors.html:30
+msgid "to have a drink together"
+msgstr "trinkos ion kun vi"
+
+#: templates/hosting/snippets/place_owner_anchors.html:32
+msgid "to have a drink together in the city"
+msgstr "trinkos ion kun vi en la urbo"
+
 #: templates/hosting/profile_detail.html:9
 msgid "Deleted profile"
 msgstr "Nuligita profilo"

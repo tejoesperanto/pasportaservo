@@ -248,6 +248,29 @@ header.home form.search {
 .place-detail .owner .avatar {
     padding-right: 0;
 }
+.description-small {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+.anchor-notify + .popover {
+    color: #31708f;
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+    opacity: 0.95;
+    text-align: center;
+}
+.anchor-notify + .popover.bottom > .arrow {
+    border-bottom-color: #bce8f1;
+}
+.anchor-notify + .popover.left > .arrow {
+    border-left-color: #bce8f1;
+}
+.anchor-notify + .popover.bottom > .arrow:after {
+    border-bottom-color: #d9edf7;
+}
+.anchor-notify + .popover.left > .arrow:after {
+    border-left-color: #d9edf7;
+}
 
 
 /* Accomodation */
@@ -280,10 +303,6 @@ p.tip {
 }
 .map iframe {
     /*height: 150px;*/
-}
-.description-small {
-    margin-top: 1em;
-    margin-bottom: 1em;
 }
 
 
@@ -362,6 +381,7 @@ header:not(.home) #subtitle {
     margin-top: -100px;
     overflow: hidden;
     position: fixed;
+    top: 0;
     opacity: 0.92;
     z-index: 1050;
     transition: margin-top 1s, opacity .8s linear; -webkit-transition: margin-top 1s, opacity .8s linear; -moz-transition: margin-top 1s, opacity .8s linear; -o-transition: margin-top 1s, opacity .8s linear;

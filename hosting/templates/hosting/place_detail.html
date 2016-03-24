@@ -45,7 +45,7 @@
                                 {% endif %}
                             </a>
                         </p>
-                        <p class="col-xs-4 status">
+                        <p class="col-xs-4 status anchor-notify" data-placement="left" onclick="displayAnchorsNotification()">
                             {% if user.is_authenticated %}
                                 {% if place.tour_guide %}
                                     <img src="{% get_static_prefix %}img/city_guide.svg"
@@ -162,6 +162,8 @@
 
         {% if user.is_authenticated %}
             <div class="col-xs-12 hidden-md hidden-lg description-small">
+                <a id="status-anchors_notification" class="col-xs-12 anchor-notify" data-placement="bottom"
+                   data-content="{% include 'hosting/snippets/place_owner_anchors.html' %}"></a>
                 {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night %}
                 {% if place.conditions.all %}
                     {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all %}
