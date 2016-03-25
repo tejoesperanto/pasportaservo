@@ -143,7 +143,7 @@ class Place(TimeStampedModel):
     description = models.TextField(_("description"), blank=True,
         help_text=_("Description or remarks about your place."))
     short_description = models.CharField(_("short description"), max_length=140, blank=True,
-        help_text=_("Used in the book, 140 character maximum."))
+        help_text=_("Used in the book and on profile, 140 characters maximum."))
     available = models.BooleanField(_("available"), default=True,
         help_text=_("If this place is searchable. If yes, you will be considered as host."))
     in_book = models.BooleanField(_("print in book"), default=False,

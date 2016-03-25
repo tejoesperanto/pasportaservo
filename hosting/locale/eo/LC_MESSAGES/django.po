@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-11 17:56+0000\n"
-"PO-Revision-Date: 2016-02-21 23:13+0100\n"
+"PO-Revision-Date: 2016-03-25 01:56+0100\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -305,8 +305,8 @@ msgid "short description"
 msgstr "mallonga priskribo"
 
 #: models.py:162
-msgid "Used in the book, 140 character maximum."
-msgstr "Uzita en la libro, 140 signoj maksimume."
+msgid "Used in the book and on profile, 140 characters maximum."
+msgstr "Uzita en la libro kaj ĉe profilo, 140 signoj maksimume."
 
 #: models.py:163
 #: templates/hosting/place_detail.html:26

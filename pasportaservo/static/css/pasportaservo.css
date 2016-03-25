@@ -24,6 +24,10 @@ body {
     font-size: 14px;
 }
 
+.text-muted .glyphicon {
+    color: #999;
+}
+
 .btn-vert-space {
     margin-bottom: 5px;
 }
@@ -221,6 +225,11 @@ header.home form.search {
     height: 2.5ex;
     vertical-align: middle;
 }
+.place-overview .place-anchor {
+    width: 2.0ex;
+    height: 2.0ex;
+    vertical-align: bottom;
+}
 .anchor-group {
     margin-top: 3px;
 }
@@ -251,6 +260,15 @@ header.home form.search {
 .description-small {
     margin-top: 1em;
     margin-bottom: 1em;
+}
+.place-overview .description-short {
+    display: inline-block;
+    position: relative;
+    top: .2ex;
+}
+.place-overview .description-short .glyphicon {
+    position: relative;
+    top: .3ex;
 }
 .anchor-notify + .popover {
     color: #31708f;
