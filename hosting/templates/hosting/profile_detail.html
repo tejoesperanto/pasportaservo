@@ -138,6 +138,28 @@
                                 {% endspaceless %}
                                 </div>
                             {% endif %}
+                            {% if place.max_guest %}
+                                <div class="anchor-group-item anchor-vert-space-even"
+                                     title="{% blocktrans count max_host=place.max_guest trimmed %}
+                                                I can accept {{ max_host }} person
+                                            {% plural %}
+                                                I can accept {{ max_host }} persons
+                                            {% endblocktrans %}.">
+                                    <span class="description-prefix text-label-info"><span class="glyphicon glyphicon-user"></span></span>
+                                    <span class="label label-info status">{{ place.max_guest }}</span>
+                                </div>
+                            {% endif %}
+                            {% if place.max_night %}
+                                <div class="anchor-group-item anchor-vert-space-even"
+                                     title="{% blocktrans count max_night=place.max_night trimmed %}
+                                                I can host during {{ max_night }} night maximum.
+                                            {% plural %}
+                                                I can host during {{ max_night }} nights maximum.
+                                            {% endblocktrans %}">
+                                    <span class="description-prefix text-label-info"><span class="glyphicon glyphicon-time"></span></span>
+                                    <span class="label label-info status">{{ place.max_night }}</span>
+                                </div>
+                            {% endif %}
                             {% if place.short_description %}
                                 <div class="anchor-group-item anchor-vert-space-even">
                                     <mark class="description-short small text-muted">

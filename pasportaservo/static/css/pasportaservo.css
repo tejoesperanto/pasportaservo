@@ -27,6 +27,21 @@ body {
 .text-muted .glyphicon {
     color: #999;
 }
+.text-label-primary {
+    color: #428bca;
+}
+.text-label-success {
+    color: #5cb85c;
+}
+.text-label-info {
+    color: #5bc0de;
+}
+.text-label-warning {
+    color: #f0ad4e;
+}
+.text-label-danger {
+    color: #d9534f;
+}
 
 .btn-vert-space {
     margin-bottom: 5px;
@@ -269,6 +284,10 @@ header.home form.search {
 .place-overview .description-short .glyphicon {
     position: relative;
     top: .3ex;
+}
+.place-overview .description-prefix {
+    position: relative;
+    top: .45ex;
 }
 .anchor-notify + .popover {
     color: #31708f;
