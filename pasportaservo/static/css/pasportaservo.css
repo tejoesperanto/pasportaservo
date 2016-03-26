@@ -244,8 +244,13 @@ header.home form.search {
 }
 .place-detail .status .place-availability {
     color: #666;
-    left: 1pt; 
-    top: 1pt;
+    top: .1em;
+}
+.glyphicon-stack-normal > .place-availability {
+    left: .3em;
+}
+.glyphicon-stack-large > .place-availability {
+    left: .1em;
 }
 .place-list .avatar {
     text-align: center;

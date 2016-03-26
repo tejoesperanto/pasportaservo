@@ -38,7 +38,7 @@
                     <div class="row">
                         <p class="col-xs-8 name">
                             <a href="{{ place.owner.get_absolute_url }}">
-                                {% if is_verbose_view %}
+                                {% if view.verbose_view %}
                                     {{ place.owner.full_name }}
                                 {% else %}
                                     {{ place.owner.anonymous_name }}
@@ -82,7 +82,7 @@
                         </p>
                         {% if user.is_authenticated %}
                             <p class="col-xs-11 address">
-                                {% if is_verbose_view and place.address %}
+                                {% if view.verbose_view and place.address %}
                                     {{ place.address.strip|linebreaksbr }}
                                     <br />
                                 {% endif %}
@@ -93,7 +93,7 @@
                                     {{ place.state_province }}
                                     <br />
                                 {% endif %}
-                                {% if is_verbose_view %}
+                                {% if view.verbose_view %}
                                     {{ place.postcode }}
                                 {% endif %}
                                 {{ place.get_country_display }}
@@ -102,7 +102,7 @@
                             </p>
                         {% endif %}
 
-                        {% if is_verbose_view %}
+                        {% if view.verbose_view %}
                             {% for phone in place.owner.phones.all %}
                                 <p class="col-xs-12">
                                     {{ phone.icon }}
@@ -131,7 +131,7 @@
                         {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all %}
                     {% endif %}
 
-                    {% if place.family_members.all and is_verbose_view %}
+                    {% if place.family_members.all and view.verbose_view %}
                         <h3>{% trans "Family members" %}</h3>
                         <ul>
                             {% for member in place.family_members.all %}
@@ -182,13 +182,15 @@
                             <span class="glyphicon glyphicon-pencil"></span> 
                             <span class="">{% trans "Update" %}</span>
                         </a>
-                        <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}" 
-                           class="btn btn-warning"
-                           title="{% trans "Authorizations" %}">
-                            <span class="glyphicon glyphicon-eye-open"></span>
-                            <span class="hidden-xxs">{% trans "Authorizations" %}</span>
-                        </a>
-                        {% if not is_verbose_view %}
+                        {% if profile == user.profile %}
+                            <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}" 
+                               class="btn btn-warning"
+                               title="{% trans "Authorizations" %}">
+                                <span class="glyphicon glyphicon-eye-open"></span>
+                                <span class="hidden-xxs">{% trans "Authorizations" %}</span>
+                            </a>
+                        {% endif %}
+                        {% if not view.verbose_view %}
                         {% if place.authorized_users.all or user.is_staff %}
                             <a href="{% url 'place_detail_verbose' place.pk %}" class="btn btn-primary" title="{% trans "View as an authorized user" %}">
                                 <span class="glyphicon glyphicon-stack-normal" style="font-size: .8em">
