@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
-import re
+import os, re
+from uuid import uuid4
 
+from django.utils.deconstruct import deconstructible
 from django.core.mail import get_connection, EmailMultiAlternatives
 from django.conf import settings
 
@@ -57,3 +59,20 @@ def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None
         message.attach_alternative(html, 'text/html')
         messages.append(message)
     return connection.send_messages(messages)
+
+
+@deconstructible
+class UploadAndRenameAvatar(object):
+    def __init__(self, path):
+        self.sub_path = path
+
+    def __call__(self, instance, filename):
+        ext = filename.split('.')[-1]
+        if instance.pk:
+            filename = 'p{}_{}'.format(instance.pk, hex(uuid4().fields[0])[2:-1])
+        elif instance.user:
+            filename = 'u{}_{}'.format(instance.user.pk, hex(uuid4().fields[0])[2:-1])
+        else:
+            filename = 'x{}'.format(str(uuid4()))
+        filename = 'picture-{}.{}'.format(filename, ext.lower())
+        return os.path.join(self.sub_path, filename)

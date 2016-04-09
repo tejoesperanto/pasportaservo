@@ -20,6 +20,7 @@ from .validators import (
     validate_not_all_caps, validate_not_too_many_caps, validate_no_digit,
     validate_image, validate_size,
 )
+from .utils import UploadAndRenameAvatar
 from .gravatar import email_to_gravatar
 
 
@@ -51,7 +52,7 @@ class Profile(TimeStampedModel):
         validators=[validate_not_all_caps, validate_not_too_many_caps, validate_no_digit])
     birth_date = models.DateField(_("birth date"), blank=True, null=True)
     description = models.TextField(_("description"), help_text=_("Short biography."), blank=True)
-    avatar = models.ImageField(_("avatar"), upload_to="avatars", blank=True,
+    avatar = models.ImageField(_("avatar"), upload_to=UploadAndRenameAvatar("avatars"), blank=True,
         validators=[validate_image, validate_size],
         help_text=_("Small image under 100kB. Ideal size: 140x140 px."))
     contact_preferences = models.ManyToManyField('hosting.ContactPreference', verbose_name=_("contact preferences"), blank=True)
