@@ -10,18 +10,15 @@ DATABASES = {
     }
 }
 
-EMAIL_HOST = 'mail.gandi.net'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'eraroj@pasportaservo.org'
-EMAIL_HOST_PASSWORD = get_env_setting('EMAIL_HOST_PASSWORD')
+EMAIL_BACKEND = "sgbackend.SendGridBackend"
+SENDGRID_API_KEY = get_env_setting('SENDGRID_API_KEY')
 EMAIL_SUBJECT_PREFIX = '[PS staging] '
-DEFAULT_FROM_EMAIL = 'saluton@pasportaservo.org'
+DEFAULT_FROM_EMAIL = 'ne-respondu@pasportaservo.org'
 
 ALLOWED_HOSTS = [
-    'pasportaservo.me',
     'test.pasportaservo.org',
     'localhost',
+    '127.0.0.1',
 ]
 
 ADMINS = (

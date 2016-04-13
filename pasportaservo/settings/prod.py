@@ -10,18 +10,16 @@ DATABASES = {
     }
 }
 
-EMAIL_HOST = 'mail.gandi.net'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'eraroj@pasportaservo.org'
-EMAIL_HOST_PASSWORD = get_env_setting('EMAIL_HOST_PASSWORD')
+EMAIL_BACKEND = "sgbackend.SendGridBackend"
+SENDGRID_API_KEY = get_env_setting('SENDGRID_API_KEY')
 EMAIL_SUBJECT_PREFIX = '[PS] '
-DEFAULT_FROM_EMAIL = 'saluton@pasportaservo.org'
+DEFAULT_FROM_EMAIL = 'ne-respondu@pasportaservo.org'
 
 ALLOWED_HOSTS = [
     'pasportaservo.org',
 ]
 
 ADMINS = (
-    ('Pasporta Servo', 'eraroj@pasportaservo.org'),
+    ('Pasporta Servo', 'ne-respondu@pasportaservo.org'),
+    ('Baptiste Darthenay', 'baptiste.darthenay@gmail.com'),
 )
