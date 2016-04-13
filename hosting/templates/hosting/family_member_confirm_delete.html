@@ -6,18 +6,19 @@
 {% endblock %}
 {% block extra_details %}
     {{ profile }}
-    {% if profile.age %} ({{ profile.age }}) {% endif %}
+    {% if profile.birth_date %} &ensp;({{ profile.age }}) {% endif %}
 {% endblock %}
 
 {% block confirm_buttons %}
-    {% if user.profile != profile and place.owner != profile %}
+    {% if user.profile != profile and place.owner != profile and not profile.user %}
         <a href="{% url 'family_member_delete' place.pk profile.pk %}" class="btn btn-danger btn-vert-space" title="{% trans "Delete profile" %}">
             <span class="glyphicon glyphicon-trash"></span>
             <span class="hidden-xxs">{% trans "Delete profile" %}</span>
         </a>
+        {% trans "Just remove" as remove_only_text %}
     {% endif %}
-    <button type="submit" class="btn btn-primary btn-vert-space" title="{% trans "Just remove" %}">
+    <button type="submit" class="btn btn-primary btn-vert-space" title="{% trans "Remove from list of family members" %}">
         <span class="glyphicon glyphicon-share"></span>
-        {% trans "Just remove" %}
+        {% if remove_only_text %}{{ remove_only_text }}{% else %}{% trans "Delete" %}{% endif %}
     </button>
 {% endblock confirm_buttons %}

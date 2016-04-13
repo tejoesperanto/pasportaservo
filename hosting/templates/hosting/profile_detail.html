@@ -88,7 +88,7 @@
     {% endif %}
     {% for place in places %}
         <ul class="list-group">
-            <li class="list-group-item {% if user.is_staff and place.checked %}alert-success{% endif %}">
+            <li class="list-group-item {% if user.is_staff and place.checked %}text-success{% endif %}">
                 <div class="btn-group pull-right">
                     {% block place_edit_buttons %}{% endblock %}
                     <a href="{% url 'place_detail' place.pk %}" class="btn btn-primary" title="{% trans "View details of this place" %}">
@@ -97,10 +97,12 @@
                     </a>
                 </div>
                 {% if view.public_view %}
+                    <p class="pull-right" style="margin-right: 10px">{% include 'hosting/snippets/checked.html' with object=place %}</p>
                     <div class="place-overview">
                         {% if place.available %}
                             <span class="label label-info status">&nbsp;{% trans "I'm hosting in:" %}&nbsp;</span>
                         {% endif %}
+                        
                         {% if place.city %}
                             <h3>{{ place.city }}</h3>
                         {% endif %}
@@ -114,8 +116,37 @@
                             <h4>{{ place.state_province }}</h4>
                         {% endif %}
                         <h4>{{ place.country.name }}</h4>
+
+                        <div class="anchor-group">
+                            {% if place.tour_guide %}
+                                <div class="anchor-group-item anchor-vert-space-even">
+                                {% spaceless %}
+                                    <object type="image/svg+xml" data="{% static 'img/city_guide.svg' %}" class="place-anchor">
+                                        <img src="{% static 'img/city_guide.png' %}" class="place-anchor" />
+                                    </object>
+                                    <span class="label label-info status">{% trans "I can guide around the city" %}</span>
+                                {% endspaceless %}
+                                </div>
+                            {% endif %}
+                            {% if place.have_a_drink %}
+                                <div class="anchor-group-item anchor-vert-space-even">
+                                {% spaceless %}
+                                    <object type="image/svg+xml" data="{% static 'img/city_drink.svg' %}" class="place-anchor">
+                                        <img src="{% static 'img/city_drink.png' %}" class="place-anchor" />
+                                    </object>
+                                    <span class="label label-info status">{% trans "I'd like to have a drink together" %}</span>
+                                {% endspaceless %}
+                                </div>
+                            {% endif %}
+                            {% if place.short_description %}
+                                <div class="anchor-group-item anchor-vert-space-even">
+                                    <mark class="description-short small text-muted">
+                                        <span class="glyphicon glyphicon-info-sign"></span> {{ place.short_description }}
+                                    </mark>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
-                    {% include 'hosting/snippets/checked.html' with object=place %}
                 {% else %}
                     <div>
                         {% if user.is_staff %}

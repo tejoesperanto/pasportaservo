@@ -2,6 +2,44 @@
 {% load i18n %}
 
 {% block confirmation %}
+            {% if profile == user.profile %}
+                {% trans "your " as kin %}
+            {% else %}
+                {% trans "this " as kin %}
+            {% endif %}
             <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;
-            {% trans "Are you sure you want to delete your profile and all linked data (place, phone…)?" %}
+            {% blocktrans %}Are you sure you want to delete {{ kin }}profile and all linked data (place, phone…)?{% endblocktrans %}
+{% endblock %}
+{% block extra_details %}
+    {% if profile != user.profile %}
+            {% if places %}<br>{% endif %}
+            {{ profile }}
+    {% endif %}
+{% endblock %}
+{% block extra_details_block %}
+    {% if places and profile != user.profile %}
+        <div class="row">
+            <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+                <ul class="list-group small">
+                    {% for place in places %}
+                        <li class="list-group-item place-detail">
+                            {{ place }}
+                            {% if place.available %}
+                                <span title="{% trans "place" %}: {% trans "available" %}"
+                                      class="status pull-right glyphicon glyphicon-stack-normal">
+                                    <span class="place-marker glyphicon-stackbit-2x glyphicon-home"></span>
+                                    <span class="place-availability glyphicon-stackbit-1x glyphicon-ok"></span>
+                                </span>
+                            {% else %}
+                                <span title="{% trans "place" %}: {% trans "unavailable" %}"
+                                      class="status pull-right glyphicon glyphicon-stack-normal">
+                                    <span class="place-marker glyphicon-stackbit-2x glyphicon-home"></span>
+                                    <span class="place-availability glyphicon-stackbit-1x glyphicon-remove"></span>
+                                </span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div></div>
+    {% endif %}
 {% endblock %}
