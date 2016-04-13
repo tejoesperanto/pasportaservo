@@ -22,7 +22,7 @@
                 <div class="btn-group edit-buttons">
                     {% block profile_edit_buttons %}
                         {% if profile != user.profile %}
-                            <a href="{% url 'postman_write' profile.user.username %}" class="btn btn-primary">
+                            <a href="{% url 'postman:write' profile.user.username %}" class="btn btn-primary">
                                 <span class="glyphicon glyphicon-send"></span>&nbsp; 
                                 <strong>{% trans "Write message" %}</strong>
                             </a>

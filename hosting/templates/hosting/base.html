@@ -12,7 +12,7 @@
                 <div class="hidden-xs col-sm-3 col-md-3" id="subtitle">E-gastigantoj tra la mondo</div>
                 <div class="col-xs-3 col-sm-2 col-md-1 col-md-offset-4 enveloppe links">
                     {% if user.is_authenticated %}
-                        <a href="{% url 'postman_inbox' %}" style="text-decoration: none">
+                        <a href="{% url 'postman:inbox' %}" style="text-decoration: none">
                             {% trans "inbox" as title_inbox %}
                             {% if not postman_unread_count %}
                                 <span class="glyphicon glyphicon-envelope" title="{{ title_inbox }}"></span>

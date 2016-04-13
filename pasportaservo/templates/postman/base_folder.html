@@ -67,7 +67,7 @@
                                 <td>
                                     {% if message.is_new %}<strong>{% endif %}{% if message.is_replied %}<em>{% endif %}
                                     {% block pm_subject %}
-                                        <a href="{% if by_conversation and message.thread_id %}{% url 'postman_view_conversation' message.thread_id %}{% else %}{{message.get_absolute_url }}{% endif %}?next={{ current_url|urlencode }}">
+                                        <a href="{% if by_conversation and message.thread_id %}{% url 'postman:view_conversation' message.thread_id %}{% else %}{{message.get_absolute_url }}{% endif %}?next={{ current_url|urlencode }}">
                                             {% include "postman/inc_subject_ex.html" %}
                                         </a>
                                     {% endblock %}
@@ -80,19 +80,19 @@
                     {% block pm_form_buttons %}
                         <div id="pm_buttons">
                             {% block pm_archive_button %}
-                                <button class="btn btn-primary" type="submit" onclick="this.form.action='{% url 'postman_archive' %}'">
+                                <button class="btn btn-primary" type="submit" onclick="this.form.action='{% url 'postman:archive' %}'">
                                     <span class="glyphicon glyphicon-folder-open"></span>&nbsp;
                                     {% trans "Archive" %}
                                 </button>
                             {% endblock %}
                             {% block pm_delete_button %}
-                                <button class="btn btn-danger" type="submit" onclick="this.form.action='{% url 'postman_delete' %}'">
+                                <button class="btn btn-danger" type="submit" onclick="this.form.action='{% url 'postman:delete' %}'">
                                     <span class="glyphicon glyphicon-trash"></span>&nbsp;
                                     {% trans "Delete" %}
                                 </button>
                             {% endblock %}
                             {% block pm_undelete_button %}
-                                <button class="btn btn-primary" type="submit" onclick="this.form.action='{% url 'postman_undelete' %}'">
+                                <button class="btn btn-primary" type="submit" onclick="this.form.action='{% url 'postman:undelete' %}'">
                                     <span class="glyphicon glyphicon-ok"></span>&nbsp;
                                     {% trans "Undelete" %}
                                 </button>

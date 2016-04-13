@@ -39,18 +39,18 @@
                     </a>
                     <span id="pm_buttons">
                         {% if not archived %}
-                            <button class="btn btn-primary" type="submit" onclick="this.form.action='{% url 'postman_archive' %}?next={{ next_url|urlencode }}'">
+                            <button class="btn btn-primary" type="submit" onclick="this.form.action='{% url 'postman:archive' %}?next={{ next_url|urlencode }}'">
                             <span class="glyphicon glyphicon-folder-open"></span>&nbsp;
                                 {% trans "Archive" %}
                             </button>
                         {% endif %}
-                        <button class="btn btn-danger" type="submit" onclick="this.form.action='{% url 'postman_delete' %}?next={{ next_url|urlencode }}'">
+                        <button class="btn btn-danger" type="submit" onclick="this.form.action='{% url 'postman:delete' %}?next={{ next_url|urlencode }}'">
                             <span class="glyphicon glyphicon-trash"></span>&nbsp;
                             {% trans "Delete" %}
                         </button>
                     </span>
                     {% if reply_to_pk %}
-                        <a class="btn btn-success" href="{% url 'postman_reply' reply_to_pk %}?next={{ next_url|urlencode }}">
+                        <a class="btn btn-success" href="{% url 'postman:reply' reply_to_pk %}?next={{ next_url|urlencode }}">
                             <span class="glyphicon glyphicon-share-alt"></span>&nbsp;
                             {% trans "Reply" %}
                         </a>
@@ -60,7 +60,7 @@
                 {% if reply_to_pk %}<hr />
                     <h2>{% trans "Reply" %}</h2>
         
-                    <form action="{% url 'postman_reply' reply_to_pk %}?next={{ next_url|urlencode }}" method="post">
+                    <form action="{% url 'postman:reply' reply_to_pk %}?next={{ next_url|urlencode }}" method="post">
                         {% csrf_token %}
                         <div id="pm_reply">
                             {{ form.body }}

@@ -21,7 +21,7 @@
 {% blocktrans trimmed %}
 To answer this message, follow this link:
 {% endblocktrans %}
-{% if request.is_secure %}https{% else %}http{% endif %}://{{ site.domain }}{% url 'postman_view' object.pk %}
+{% if request.is_secure %}https{% else %}http{% endif %}://{{ site.domain }}{% url 'postman:view' object.pk %}
 
 {% endif %}{# 'acceptance' #}
 
