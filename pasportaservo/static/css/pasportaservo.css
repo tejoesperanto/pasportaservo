@@ -24,6 +24,25 @@ body {
     font-size: 14px;
 }
 
+.text-muted .glyphicon {
+    color: #999;
+}
+.text-label-primary {
+    color: #428bca;
+}
+.text-label-success {
+    color: #5cb85c;
+}
+.text-label-info {
+    color: #5bc0de;
+}
+.text-label-warning {
+    color: #f0ad4e;
+}
+.text-label-danger {
+    color: #d9534f;
+}
+
 .btn-vert-space {
     margin-bottom: 5px;
 }
@@ -221,6 +240,11 @@ header.home form.search {
     height: 2.5ex;
     vertical-align: middle;
 }
+.place-overview .place-anchor {
+    width: 2.0ex;
+    height: 2.0ex;
+    vertical-align: bottom;
+}
 .anchor-group {
     margin-top: 3px;
 }
@@ -235,8 +259,13 @@ header.home form.search {
 }
 .place-detail .status .place-availability {
     color: #666;
-    left: 1pt; 
-    top: 1pt;
+    top: .1em;
+}
+.glyphicon-stack-normal > .place-availability {
+    left: .3em;
+}
+.glyphicon-stack-large > .place-availability {
+    left: .1em;
 }
 .place-list .avatar {
     text-align: center;
@@ -251,6 +280,19 @@ header.home form.search {
 .description-small {
     margin-top: 1em;
     margin-bottom: 1em;
+}
+.place-overview .description-short {
+    display: inline-block;
+    position: relative;
+    top: .2ex;
+}
+.place-overview .description-short .glyphicon {
+    position: relative;
+    top: .3ex;
+}
+.place-overview .description-prefix {
+    position: relative;
+    top: .45ex;
 }
 .anchor-notify + .popover {
     color: #31708f;

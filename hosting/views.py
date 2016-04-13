@@ -8,6 +8,7 @@ from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 from django.contrib import messages
 from django.contrib.auth import get_user_model, authenticate, login
 from django.template.loader import render_to_string, get_template
@@ -103,12 +104,28 @@ class ProfileDeleteView(LoginRequiredMixin, DeleteMixin, ProfileAuthMixin, gener
     form_class = ProfileForm
     success_url = reverse_lazy('logout')
 
+    def get_object(self, queryset=None):
+        object = super(ProfileDeleteView, self).get_object(queryset)
+        if not object.user:
+            raise Http404("Detached profile (probably a family member).")
+        return object
+
+    def get_context_data(self, **kwargs):
+        context = super(ProfileDeleteView, self).get_context_data(**kwargs)
+        context['places'] = self.object.owned_places.all().filter(deleted=False)
+        return context
+
+    def get_success_url(self):
+        # Administrators will be redirected to the deleted profile's page.
+        if self.object.user != self.request.user:
+            return self.object.get_absolute_url()
+        return self.success_url
+
     def delete(self, request, *args, **kwargs):
         """
-        Set the flag 'deleted' to True on the profile
-        and some associated objects,
-        desactivate the linked user,
-        and then redirects to the success URL
+        Set the flag 'deleted' to True on the profile and some associated objects,
+        deactivate the linked user,
+        and then redirect to the success URL.
         """
         self.object = self.get_object()
         for place in self.object.owned_places.all():
@@ -206,6 +223,7 @@ place_delete = PlaceDeleteView.as_view()
 
 class PlaceDetailView(generic.DetailView):
     model = Place
+    verbose_view = False
 
     def get_context_data(self, **kwargs):
         context = super(PlaceDetailView, self).get_context_data(**kwargs)
@@ -226,6 +244,7 @@ place_detail = PlaceDetailView.as_view()
 class PlaceDetailVerboseView(UserPassesTestMixin, PlaceDetailView):
     redirect_field_name = ''
     redirect_unauthenticated_users = True
+    verbose_view = True
 
     def get_login_url(self):
         return reverse_lazy('place_detail', kwargs={'pk': self.kwargs['pk']})
@@ -234,11 +253,6 @@ class PlaceDetailVerboseView(UserPassesTestMixin, PlaceDetailView):
         object = self.get_object()
         return (user is not None and user.is_authenticated()
                 and (user.is_staff or user in object.authorized_users.all() or user.profile == object.owner))
-
-    def get_context_data(self, **kwargs):
-        context = super(PlaceDetailVerboseView, self).get_context_data(**kwargs)
-        context['is_verbose_view'] = True
-        return context
 
 place_detail_verbose = PlaceDetailVerboseView.as_view()
 
@@ -399,7 +413,7 @@ family_member_create = FamilyMemberCreateView.as_view()
 
 class FamilyMemberAddMeView(LoginRequiredMixin, FamilyMemberMixin, generic.FormView):
     def post(self, request, *args, **kwargs):
-        self.place.family_members.add(request.user.profile)
+        self.place.family_members.add(self.place.owner)
         return HttpResponseRedirect(self.get_success_url())
 
 family_member_add_me = FamilyMemberAddMeView.as_view()

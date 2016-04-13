@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-11 17:56+0000\n"
-"PO-Revision-Date: 2016-02-21 23:13+0100\n"
+"PO-Revision-Date: 2016-03-26 02:15+0100\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
 "Language: eo\n"
@@ -305,8 +305,8 @@ msgid "short description"
 msgstr "mallonga priskribo"
 
 #: models.py:162
-msgid "Used in the book, 140 character maximum."
-msgstr "Uzita en la libro, 140 signoj maksimume."
+msgid "Used in the book and on profile, 140 characters maximum."
+msgstr "Uzita en la libro kaj ĉe profilo, 140 signoj maksimume."
 
 #: models.py:163
 #: templates/hosting/place_detail.html:26
@@ -535,13 +535,18 @@ msgstr "Nuligi la agon"
 msgid "Cancel"
 msgstr "Ne, nuligu"
 
-#: templates/hosting/family_member_confirm_delete.html:21
+#: templates/hosting/family_member_confirm_delete.html:14
+#: templates/hosting/family_member_confirm_delete.html:16
 msgid "Delete profile"
 msgstr "Forigi profilon"
 
-#: templates/hosting/family_member_confirm_delete.html:26
+#: templates/hosting/family_member_confirm_delete.html:18
 msgid "Just remove"
 msgstr "Nur forpreni"
+
+#: templates/hosting/family_member_confirm_delete.html:20
+msgid "Remove from list of family members"
+msgstr "Forpreni el listo de kunloĝantoj"
 
 #: templates/hosting/home.html:27
 msgid "admin site"
@@ -730,6 +735,10 @@ msgstr "tiun ĉi "
 msgid "my "
 msgstr "mian "
 
+#: templates/hosting/profile_confirm_delete.html:6
+msgid "your "
+msgstr "vian "
+
 #: templates/hosting/place_detail.html:6
 msgid "My habitat"
 msgstr "Mia loĝloko"
@@ -782,8 +791,9 @@ msgid "Search with the address"
 msgstr "Serĉu laŭ la adreso"
 
 #: templates/hosting/profile_confirm_delete.html:7
-msgid "Are you sure you want to delete your profile and all linked data (place, phone…)?"
-msgstr "Ĉu vi certege volas forigi vian profilon, kaj ĉiujn ligitajn datumojn (loĝejojn, telefonnumerojn…)?"
+#, python-format
+msgid "Are you sure you want to delete %(kin)sprofile and all linked data (place, phone…)?"
+msgstr "Ĉu vi certege volas forigi %(kin)sprofilon, kaj ĉiujn ligitajn datumojn (loĝejojn, telefonnumerojn…)?"
 
 #: templates/hosting/profile_detail.html:38
 #, python-format

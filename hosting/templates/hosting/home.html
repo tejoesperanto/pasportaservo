@@ -13,7 +13,7 @@
     <div class="row links">
         <div class="col-xs-3 col-sm-1 enveloppe">
             {% if user.is_authenticated %}
-                <a href="{% url 'postman_inbox' %}">
+                <a href="{% url 'postman:inbox' %}">
                     <span class="glyphicon glyphicon-envelope"></span>
                     {{ postman_unread_count|default:"" }}
                 </a>

@@ -19,19 +19,19 @@
         {% block postman_menu %}
             <ul id="postman_menu">{% postman_unread as unread_count %}
                 <li>
-                    <a href="{% url 'postman_inbox' %}"><span class="glyphicon glyphicon-inbox"></span>&nbsp;&nbsp;{% trans "Inbox" %}{% if unread_count %} <strong>({{ unread_count }})</strong>{% endif %}</a>
+                    <a href="{% url 'postman:inbox' %}"><span class="glyphicon glyphicon-inbox"></span>&nbsp;&nbsp;{% trans "Inbox" %}{% if unread_count %} <strong>({{ unread_count }})</strong>{% endif %}</a>
                 </li>
                 <li>
-                    <a href="{% url 'postman_write' %}"><span class="glyphicon glyphicon-pencil"></span>&nbsp;&nbsp;{% trans "Write" %}</a>
+                    <a href="{% url 'postman:write' %}"><span class="glyphicon glyphicon-pencil"></span>&nbsp;&nbsp;{% trans "Write" %}</a>
                 </li>
                 <li>
-                    <a href="{% url 'postman_sent' %}"><span class="glyphicon glyphicon-share-alt"></span>&nbsp;&nbsp;{% trans "Sent Messages" %}</a>
+                    <a href="{% url 'postman:sent' %}"><span class="glyphicon glyphicon-share-alt"></span>&nbsp;&nbsp;{% trans "Sent Messages" %}</a>
                 </li>
                 <li>
-                    <a href="{% url 'postman_archives' %}"><span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;{% trans "Archives" %}</a>
+                    <a href="{% url 'postman:archives' %}"><span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;{% trans "Archives" %}</a>
                 </li>
                 <li>
-                    <a href="{% url 'postman_trash' %}"><span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;{% trans "Trash" %}</a>
+                    <a href="{% url 'postman:trash' %}"><span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;{% trans "Trash" %}</a>
                 </li>
             </ul>
         {% endblock %}
