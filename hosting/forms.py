@@ -199,18 +199,32 @@ class PhoneCreateForm(PhoneForm):
 
 class AuthorizeUserForm(forms.Form):
     user = forms.CharField(label=_("Authorize user"), max_length=254)
+    remove = forms.BooleanField(required=False, initial=False, widget=forms.widgets.HiddenInput)
 
     def __init__(self, *args, **kwargs):
         super(AuthorizeUserForm, self).__init__(*args, **kwargs)
         self.fields['user'].widget.attrs['placeholder'] = _("username")
 
-    def clean_user(self):
-        username = self.cleaned_data['user']
-        try:
-            User.objects.get(username=username)
-        except User.DoesNotExist:
-            raise forms.ValidationError(_("User does not exist"))
-        return username
+    def clean(self):
+        cleaned_data = super(AuthorizeUserForm, self).clean()
+        if 'user' not in cleaned_data:
+            return
+        user_qualifier = cleaned_data['user']
+        if not cleaned_data.get('remove', False):
+            try:
+                User.objects.get(username=user_qualifier).profile
+            except User.DoesNotExist:
+                raise forms.ValidationError(_("User does not exist"))
+            except Profile.DoesNotExist:
+                raise forms.ValidationError(_("User has not set up a profile"))
+        return cleaned_data
+
+
+class AuthorizedOnceUserForm(AuthorizeUserForm):
+    def __init__(self, *args, **kwargs):
+        super(AuthorizedOnceUserForm, self).__init__(*args, **kwargs)
+        self.fields['user'].widget = forms.widgets.HiddenInput()
+        self.fields['remove'].initial = True
 
 
 class FamilyMemberForm(forms.ModelForm):

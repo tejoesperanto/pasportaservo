@@ -1,4 +1,6 @@
+import re
 from datetime import datetime
+
 from markdown2 import markdown
 import geopy
 
@@ -13,20 +15,19 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model, authenticate, login
 from django.template.loader import render_to_string, get_template
 from django.template import Context
-from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.utils.html import linebreaks as tohtmlpara, urlize
-import re
 
-from braces.views import (AnonymousRequiredMixin, LoginRequiredMixin, 
+from braces.views import (AnonymousRequiredMixin, LoginRequiredMixin,
     SuperuserRequiredMixin, UserPassesTestMixin, FormInvalidMessageMixin)
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
 from .models import Profile, Place, Phone
 from .mixins import (ProfileMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
     FamilyMemberMixin, FamilyMemberAuthMixin, CreateMixin, DeleteMixin)
-from .forms import (UserRegistrationForm, AuthorizeUserForm,
+from .forms import (UserRegistrationForm, AuthorizeUserForm, AuthorizedOnceUserForm,
     ProfileForm, ProfileSettingsForm, ProfileCreateForm, PhoneForm, PhoneCreateForm,
     PlaceForm, PlaceCreateForm, FamilyMemberForm, FamilyMemberCreateForm,
     MassMailForm,
@@ -123,10 +124,9 @@ class ProfileDeleteView(LoginRequiredMixin, DeleteMixin, ProfileAuthMixin, gener
 
     def delete(self, request, *args, **kwargs):
         """
-        Set the flag 'deleted' to True on the profile
-        and some associated objects,
-        desactivate the linked user,
-        and then redirects to the success URL
+        Set the flag 'deleted' to True on the profile and some associated objects,
+        deactivate the linked user,
+        and then redirect to the success URL.
         """
         self.object = self.get_object()
         for place in self.object.owned_places.all():
@@ -204,7 +204,7 @@ class PlaceCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixin,
 place_create = PlaceCreateView.as_view()
 
 
-class PlaceUpdateView(LoginRequiredMixin, ProfileMixin, PlaceAuthMixin, generic.UpdateView):
+class PlaceUpdateView(LoginRequiredMixin, ProfileMixin, PlaceAuthMixin, FormInvalidMessageMixin, generic.UpdateView):
     form_class = PlaceForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
@@ -346,13 +346,27 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
         m = re.match(r'^/([a-zA-Z]+)/', self.request.GET.get('next', default=''))
         if m:
             context['back_to'] = m.group(1).lower()
+        def order_by_name(user):
+            try:
+                return user.profile.full_name
+            except Profile.DoesNotExist:
+                return user.username
+        context['authorized_set'] = [(user, AuthorizedOnceUserForm(initial={'user': user.pk}, auto_id=False))
+                                     for user
+                                     in sorted(self.place.authorized_users.all(), key=order_by_name)]
         return context
 
     def form_valid(self, form):
-        user = get_object_or_404(User, username=form.cleaned_data['user'])
-        if user not in self.place.authorized_users.all():
-            self.place.authorized_users.add(user)
-            self.send_email(user, self.place)
+        if not form.cleaned_data['remove']:
+            # for addition, "user" is the username
+            user = get_object_or_404(User, username=form.cleaned_data['user'])
+            if user not in self.place.authorized_users.all():
+                self.place.authorized_users.add(user)
+                self.send_email(user, self.place)
+        else:
+            # for removal, "user" is the primary key
+            user = get_object_or_404(User, pk=form.cleaned_data['user'])
+            self.place.authorized_users.remove(user)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
@@ -379,25 +393,6 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
         message.send()
 
 authorize_user = AuthorizeUserView.as_view()
-
-
-class AuthorizeUserLinkView(LoginRequiredMixin, generic.View):
-    """Add (or remove if present) a user to the list of authorized users
-    for a place to be able to see more details."""
-    def dispatch(self, request, *args, **kwargs):
-        self.user = get_object_or_404(User, username=kwargs['user'])
-        self.place = get_object_or_404(Place, pk=kwargs['pk'], owner=request.user.profile)
-        if self.user in self.place.authorized_users.all():
-            self.place.authorized_users.remove(self.user)
-        else:
-            self.place.authorized_users.add(self.user)
-
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self):
-        return reverse_lazy('authorize_user', kwargs={'pk': self.kwargs['pk']})
-
-authorize_user_link = AuthorizeUserLinkView.as_view()
 
 
 class FamilyMemberCreateView(LoginRequiredMixin, CreateMixin, FamilyMemberMixin, generic.CreateView):

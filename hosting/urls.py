@@ -21,7 +21,6 @@ urlpatterns = patterns('hosting.views',
     url(_(r'^place/(?P<pk>\d+)/delete/$'), 'place_delete', name='place_delete'),
 
     url(_(r'^place/(?P<pk>\d+)/authorize/$'), 'authorize_user', name='authorize_user'),
-    url(_(r'^place/(?P<pk>\d+)/authorize/(?P<user>\w+)/$'), 'authorize_user_link', name='authorize_user_link'),
 
     url(_(r'^place/(?P<place_pk>\d+)/family-member/create/$'), 'family_member_create', name='family_member_create'),
     url(_(r'^place/(?P<place_pk>\d+)/family-member/(?P<pk>\d+)/update/$'), 'family_member_update', name='family_member_update'),

@@ -1,14 +1,13 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Esperantaj tekstoĉenoj por reta Pasporta Servo.
+# Kopirajto (C) 2015 TEJO kaj kontribuantoj
+# Al tiu ĉi dosiero aplikiĝas la sama licenco kiel al la tuta kodo de PS.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-23 10:58+0000\n"
-"PO-Revision-Date: 2016-01-18 10:15+0100\n"
+"POT-Creation-Date: 2016-04-13 09:17+0000\n"
+"PO-Revision-Date: 2016-04-13 11:19+0200\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <info@pasportaservo.org>\n"
 "Language: eo\n"
@@ -16,60 +15,57 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Poedit 1.8.7.1\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-
-#: settings/__init__.py:137
-msgid "Pasporta Servo administration"
-msgstr "Administrado de Pasporta Servo"
 
 #: templates/404.html:5
 msgid "Page not found"
 msgstr "Paĝo ne trovita"
-
-#: templates/403.html:5
-msgid "No no, that page is off-limits"
-msgstr "Ne ne ne, tiun paĝon vi evitu"
 
 #: templates/500.html:6
 msgid "Programmation error on the server"
 msgstr "Programa eraro sur la servilo"
 
 #: templates/500.html:7
-msgid "The administrators have been informed of the problem and will fix it as soon as possible."
-msgstr "La administrantoj estas informitaj pri la problemo kaj ĝin korektos kieleble plej baldaŭ."
-
-#: templates/postman/archives.html:3
-msgid "Archived Messages"
+msgid ""
+"The administrators have been informed of the problem and will fix it as soon "
+"as possible."
 msgstr ""
+"La administrantoj estas informitaj pri la problemo kaj ĝin korektos kieleble "
+"plej baldaŭ."
 
-#: templates/postman/archives.html:7
-msgid "Messages in this folder will never be removed. You can use this folder for long term storage."
-msgstr ""
-
-#: templates/postman/base.html:5
-msgid "Messaging"
-msgstr ""
-
-#: templates/postman/base.html:20
-msgid "Inbox"
-msgstr ""
-
-#: templates/postman/base.html:23
-#: templates/postman/write.html:3
-msgid "Write"
-msgstr ""
-
-#: templates/postman/base.html:26
-#: templates/postman/sent.html:3
-msgid "Sent Messages"
-msgstr ""
-
-#: templates/postman/base.html:29
+#: templates/postman/archives.html:4 templates/postman/base.html:31
 msgid "Archives"
 msgstr ""
 
-#: templates/postman/base.html:32
+#: templates/postman/archives.html:6
+msgid "Archived Messages"
+msgstr ""
+
+#: templates/postman/archives.html:11
+msgid ""
+"Messages in this folder will never be removed. You can use this folder for "
+"long term storage."
+msgstr ""
+
+#: templates/postman/base.html:6 templates/postman/base.html.py:22
+msgid "Inbox"
+msgstr ""
+
+#: templates/postman/base.html:7
+msgid "Messaging"
+msgstr ""
+
+#: templates/postman/base.html:25 templates/postman/write.html:3
+msgid "Write"
+msgstr ""
+
+#: templates/postman/base.html:28 templates/postman/sent.html:4
+#: templates/postman/sent.html.py:6
+msgid "Sent Messages"
+msgstr ""
+
+#: templates/postman/base.html:34 templates/postman/trash.html:4
 msgid "Trash"
 msgstr ""
 
@@ -93,8 +89,7 @@ msgstr ""
 msgid "Sender"
 msgstr ""
 
-#: templates/postman/base_folder.html:49
-#: templates/postman/reply.html:4
+#: templates/postman/base_folder.html:49 templates/postman/reply.html:4
 msgid "Recipient"
 msgstr ""
 
@@ -110,13 +105,11 @@ msgstr ""
 msgid "g:i A,M j,n/j/y"
 msgstr ""
 
-#: templates/postman/base_folder.html:85
-#: templates/postman/view.html:44
+#: templates/postman/base_folder.html:85 templates/postman/view.html:44
 msgid "Archive"
 msgstr ""
 
-#: templates/postman/base_folder.html:91
-#: templates/postman/view.html:49
+#: templates/postman/base_folder.html:91 templates/postman/view.html:49
 msgid "Delete"
 msgstr ""
 
@@ -128,8 +121,7 @@ msgstr ""
 msgid "No messages."
 msgstr ""
 
-#: templates/postman/base_write.html:25
-#: templates/postman/view.html:70
+#: templates/postman/base_write.html:25 templates/postman/view.html:70
 msgid "Send"
 msgstr ""
 
@@ -137,24 +129,20 @@ msgstr ""
 msgid "Dear user,"
 msgstr ""
 
-#: templates/postman/email_user.txt:3
-#: templates/postman/email_visitor.txt:3
+#: templates/postman/email_user.txt:3 templates/postman/email_visitor.txt:3
 #, python-format
 msgid "On %(date)s, you asked to send a message to the user '%(recipient)s'."
 msgstr ""
 
-#: templates/postman/email_user.txt:5
-#: templates/postman/email_visitor.txt:5
+#: templates/postman/email_user.txt:5 templates/postman/email_visitor.txt:5
 msgid "Your message has been rejected by the moderator"
 msgstr ""
 
-#: templates/postman/email_user.txt:5
-#: templates/postman/email_visitor.txt:5
+#: templates/postman/email_user.txt:5 templates/postman/email_visitor.txt:5
 msgid ", for the following reason:"
 msgstr ""
 
-#: templates/postman/email_user.txt:9
-#: templates/postman/email_visitor.txt:10
+#: templates/postman/email_user.txt:9 templates/postman/email_visitor.txt:10
 #, python-format
 msgid "On %(date)s, you sent a message to the user '%(sender)s'."
 msgstr ""
@@ -177,8 +165,7 @@ msgstr ""
 msgid "To answer this message, follow this link:"
 msgstr "Por respondi tiun ĉi mesaĝon, klaku la ligilon:"
 
-#: templates/postman/email_user.txt:28
-#: templates/postman/email_visitor.txt:18
+#: templates/postman/email_user.txt:28 templates/postman/email_visitor.txt:18
 msgid ""
 "Note: This message is issued by an automated system.\n"
 "Do not reply, this would not be taken into account."
@@ -226,22 +213,23 @@ msgstr ""
 msgid "Received"
 msgstr ""
 
-#: templates/postman/reply.html:3
-#: templates/postman/view.html:55
+#: templates/postman/reply.html:3 templates/postman/view.html:55
 #: templates/postman/view.html.py:61
 msgid "Reply"
 msgstr ""
 
-#: templates/postman/sent.html:6
+#: templates/postman/sent.html:9
 msgid "Sent"
 msgstr ""
 
-#: templates/postman/trash.html:3
+#: templates/postman/trash.html:6
 msgid "Deleted Messages"
 msgstr ""
 
-#: templates/postman/trash.html:10
-msgid "Messages in this folder can be removed from time to time. For long term storage, use instead the archive folder."
+#: templates/postman/trash.html:15
+msgid ""
+"Messages in this folder can be removed from time to time. For long term "
+"storage, use instead the archive folder."
 msgstr ""
 
 #: templates/postman/view.html:6
@@ -264,87 +252,82 @@ msgstr ""
 msgid "Back"
 msgstr ""
 
-#: urls.py:14
+#: urls.py:13
 msgid "^admin/"
 msgstr "^administrilo/"
 
-#: urls.py:16
+#: urls.py:15
 msgid "^login/$"
 msgstr "^ensaluti/$"
 
-#: urls.py:19
+#: urls.py:18
 msgid "^logout/$"
 msgstr "^elsaluti/$"
 
-#: urls.py:23
+#: urls.py:22
 msgid "^password/$"
 msgstr "^pasvorto/$"
 
-#: urls.py:26
+#: urls.py:25
 msgid "^password/done/$"
 msgstr "^pasvorto/fino/$"
 
-#: urls.py:29
+#: urls.py:28
 msgid "^password/reset/$"
 msgstr "^pasvorto/nova/$"
 
-#: urls.py:32
+#: urls.py:31
 msgid "^password/reset/done/$"
 msgstr "^pasvorto/nova/fino/$"
 
-#: urls.py:35
-msgid "^reset/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$"
-msgstr "^nova-pasvorto/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$"
+#: urls.py:34
+msgid ""
+"^reset/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]"
+"{1,20})/$"
+msgstr ""
+"^nova-pasvorto/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-"
+"[0-9A-Za-z]{1,20})/$"
 
-#: urls.py:38
+#: urls.py:37
 msgid "^reset/done/$"
 msgstr "^nova-pasvorto/fino/$"
 
 #: urls.py:43
-msgid "^messages/inbox/(?:(?P<option>m)/)?$"
-msgstr "^leteroj/kesto/(?:(?P<option>m)/)?$"
+msgid "^messages/"
+msgstr "^leteroj/"
 
-#: urls.py:44
-msgid "^messages/sent/(?:(?P<option>m)/)?$"
-msgstr "^leteroj/senditaj/(?:(?P<option>m)/)?$"
+#~ msgid "Pasporta Servo administration"
+#~ msgstr "Administrado de Pasporta Servo"
 
-#: urls.py:45
-msgid "^messages/archives/(?:(?P<option>m)/)?$"
-msgstr "^leteroj/arkivo/(?:(?P<option>m)/)?$"
+#~ msgid "^messages/inbox/(?:(?P<option>m)/)?$"
+#~ msgstr "^leteroj/kesto/(?:(?P<option>m)/)?$"
 
-#: urls.py:46
-msgid "^messages/trash/(?:(?P<option>m)/)?$"
-msgstr "^leteroj/rubujo/(?:(?P<option>m)/)?$"
+#~ msgid "^messages/sent/(?:(?P<option>m)/)?$"
+#~ msgstr "^leteroj/senditaj/(?:(?P<option>m)/)?$"
 
-#: urls.py:47
-msgid "^messages/write/(?:(?P<recipients>[^/#]+)/)?$"
-msgstr "^leteroj/skribi/(?:(?P<recipients>[^/#]+)/)?$"
+#~ msgid "^messages/archives/(?:(?P<option>m)/)?$"
+#~ msgstr "^leteroj/arkivo/(?:(?P<option>m)/)?$"
 
-#: urls.py:48
-msgid "^messages/reply/(?P<message_id>[\\d]+)/$"
-msgstr "^leteroj/respondi/(?P<message_id>[\\d]+)/$"
+#~ msgid "^messages/trash/(?:(?P<option>m)/)?$"
+#~ msgstr "^leteroj/rubujo/(?:(?P<option>m)/)?$"
 
-#: urls.py:49
-msgid "^messages/view/(?P<message_id>[\\d]+)/$"
-msgstr "^leteroj/vidi/(?P<message_id>[\\d]+)/$"
+#~ msgid "^messages/write/(?:(?P<recipients>[^/#]+)/)?$"
+#~ msgstr "^leteroj/skribi/(?:(?P<recipients>[^/#]+)/)?$"
 
-#: urls.py:50
-msgid "^messages/view/t/(?P<thread_id>[\\d]+)/$"
-msgstr "^leteroj/vidi/t/(?P<thread_id>[\\d]+)/$"
+#~ msgid "^messages/reply/(?P<message_id>[\\d]+)/$"
+#~ msgstr "^leteroj/respondi/(?P<message_id>[\\d]+)/$"
 
-#: urls.py:51
-msgid "^messages/archive/$"
-msgstr "^leteroj/arkivo/$"
+#~ msgid "^messages/view/(?P<message_id>[\\d]+)/$"
+#~ msgstr "^leteroj/vidi/(?P<message_id>[\\d]+)/$"
 
-#: urls.py:52
-msgid "^messages/delete/$"
-msgstr "^leteroj/forigi/$"
+#~ msgid "^messages/view/t/(?P<thread_id>[\\d]+)/$"
+#~ msgstr "^leteroj/vidi/t/(?P<thread_id>[\\d]+)/$"
 
-#: urls.py:53
-msgid "^messages/undelete/$"
-msgstr "^leteroj/malforigi/$"
+#~ msgid "^messages/archive/$"
+#~ msgstr "^leteroj/arkivo/$"
 
-#: urls.py:54
-msgid "^messages/$"
-msgstr "^leteroj/$"
+#~ msgid "^messages/delete/$"
+#~ msgstr "^leteroj/forigi/$"
 
+#~ msgid "^messages/undelete/$"
+#~ msgstr "^leteroj/malforigi/$"
