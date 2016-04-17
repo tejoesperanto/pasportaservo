@@ -99,9 +99,13 @@ msgstr "Permesi uzanton"
 msgid "username"
 msgstr "uzantnomo"
 
-#: forms.py:211
+#: forms.py:216
 msgid "User does not exist"
-msgstr "Uzanto ne ekzistas"
+msgstr "Tia uzanto ne ekzistas"
+
+#: forms.py:218
+msgid "User has not set up a profile"
+msgstr "Uzanto ne agordis profilon"
 
 #: forms.py:233
 msgid "Subject"

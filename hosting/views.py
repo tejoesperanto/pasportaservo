@@ -21,7 +21,7 @@ from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 from .models import Profile, Place, Phone
 from .mixins import (ProfileMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
     FamilyMemberMixin, FamilyMemberAuthMixin, CreateMixin, DeleteMixin)
-from .forms import (UserRegistrationForm, AuthorizeUserForm,
+from .forms import (UserRegistrationForm, AuthorizeUserForm, AuthorizedOnceUserForm,
     ProfileForm, ProfileSettingsForm, ProfileCreateForm, PhoneForm, PhoneCreateForm,
     PlaceForm, PlaceCreateForm, FamilyMemberForm, FamilyMemberCreateForm,
     MassMailForm,
@@ -282,13 +282,27 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
     def get_context_data(self, **kwargs):
         context = super(AuthorizeUserView, self).get_context_data(**kwargs)
         context['place'] = self.place
+        def order_by_name(user):
+            try:
+                return user.profile.full_name
+            except Profile.DoesNotExist:
+                return user.username
+        context['authorized_set'] = [(user, AuthorizedOnceUserForm(initial={'user': user.pk}, auto_id=False))
+                                     for user
+                                     in sorted(self.place.authorized_users.all(), key=order_by_name)]
         return context
 
     def form_valid(self, form):
-        user = get_object_or_404(User, username=form.cleaned_data['user'])
-        if user not in self.place.authorized_users.all():
-            self.place.authorized_users.add(user)
-            self.send_email(user, self.place)
+        if not form.cleaned_data['remove']:
+            # for addition, "user" is the username
+            user = get_object_or_404(User, username=form.cleaned_data['user'])
+            if user not in self.place.authorized_users.all():
+                self.place.authorized_users.add(user)
+                self.send_email(user, self.place)
+        else:
+            # for removal, "user" is the primary key
+            user = get_object_or_404(User, pk=form.cleaned_data['user'])
+            self.place.authorized_users.remove(user)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
@@ -309,25 +323,6 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
         EmailMessage(subject, message, to=to).send()
 
 authorize_user = AuthorizeUserView.as_view()
-
-
-class AuthorizeUserLinkView(LoginRequiredMixin, generic.View):
-    """Add (or remove if present) a user to the list of authorized users
-    for a place to be able to see more details."""
-    def dispatch(self, request, *args, **kwargs):
-        self.user = get_object_or_404(User, username=kwargs['user'])
-        self.place = get_object_or_404(Place, pk=kwargs['pk'], owner=request.user.profile)
-        if self.user in self.place.authorized_users.all():
-            self.place.authorized_users.remove(self.user)
-        else:
-            self.place.authorized_users.add(self.user)
-
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self):
-        return reverse_lazy('authorize_user', kwargs={'pk': self.kwargs['pk']})
-
-authorize_user_link = AuthorizeUserLinkView.as_view()
 
 
 class FamilyMemberCreateView(LoginRequiredMixin, CreateMixin, FamilyMemberMixin, generic.CreateView):
