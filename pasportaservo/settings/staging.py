@@ -16,7 +16,7 @@ EMAIL_SUBJECT_PREFIX = '[PS staging] '
 DEFAULT_FROM_EMAIL = 'ne-respondu@pasportaservo.org'
 
 ALLOWED_HOSTS = [
-    'test.pasportaservo.org',
+    'ido.pasportaservo.org',
     'localhost',
     '127.0.0.1',
 ]
@@ -24,3 +24,8 @@ ALLOWED_HOSTS = [
 ADMINS = (
     ('Baptiste Darthenay', 'baptiste.darthenay@gmail.com'),
 )
+
+SECURE_SSL_REDIRECT = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True

@@ -14,9 +14,9 @@ $(document).ready(function() {
         initLatLng = [latitude, longitude];
         initZoom = 18;
     }
-    var attribution = 'Mapaj datumoj &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> kontribuantoj';
+    var attribution = 'Mapaj datumoj &copy; <a href="https://openstreetmap.org">OpenStreetMap</a> kontribuantoj';
     var placeEditMap = L.map('place-edit-map').setView(initLatLng, initZoom);
-    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: attribution
     }).addTo(placeEditMap);
     var marker = L.marker(initLatLng, {draggable:true}).addTo(placeEditMap);

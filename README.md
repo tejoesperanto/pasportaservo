@@ -2,13 +2,13 @@
 
 [![Python 3.4](https://img.shields.io/badge/Python-3.4-blue.svg)](https://docs.python.org/3.4/)
 [![Django 1.9](https://img.shields.io/badge/Django-1.9-0C4B33.svg)](https://docs.djangoproject.com/en/1.9/)
-[![No HTTPS](https://img.shields.io/badge/HTTPS-ne-red.svg)](https://letsencrypt.org/)
+[![HTTPS](https://img.shields.io/badge/HTTPS-jes-green.svg)](https://letsencrypt.org/)
 [![Esperanto](https://img.shields.io/badge/Esperanto-jes-green.svg)](https://eo.wikipedia.org/wiki/Esperanto)
 [![TEJO](https://img.shields.io/badge/Projekto de-TEJO-orange.svg)](http://tejo.org)
 [![Join the chat at https://gitter.im/tejo-esperanto/pasportaservo](https://img.shields.io/gitter/room/tejo-esperanto/pasportaservo.svg)](https://gitter.im/tejo-esperanto/pasportaservo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Twitter URL](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/PasportaServo3)
 
-[Pasporta Servo](https://eo.wikipedia.org/wiki/Pasporta_servo/) estas senpaga tutmonda gastiga servo. La projekto komencis en 1974 kiel eta jarlibro, kaj ekde 2009 ankaŭ daŭras kiel retejo. En tiu ĉi deponejo kolektiĝas la kodo kiu ruligas la retejon [pasportaservo.org](http://pasportaservo.org).
+[Pasporta Servo](https://eo.wikipedia.org/wiki/Pasporta_servo/) estas senpaga tutmonda gastiga servo. La projekto komencis en 1974 kiel eta jarlibro, kaj ekde 2009 ankaŭ daŭras kiel retejo. En tiu ĉi deponejo kolektiĝas la kodo kiu ruligas la retejon [pasportaservo.org](https://pasportaservo.org).
 
 
 - [Kontribui](#kontribui)
