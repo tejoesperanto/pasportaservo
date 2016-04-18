@@ -28,17 +28,11 @@ MEDIA_ROOT = path.join(WWW_DIR, 'media')
 
 STATICFILES_DIRS = (path.join(PROJECT_DIR, 'static'), )
 
-TEMPLATE_DIRS = (
-    path.join(BASE_DIR, 'hosting/templates'),
-    path.join(PROJECT_DIR, 'templates'),
-)
-
 LOCALE_PATHS = (path.join(PROJECT_DIR, 'locale'), )
 
 # Application definition
 
 INSTALLED_APPS = (
-    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -66,11 +60,27 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
-    'django.core.context_processors.request',
-    'django.contrib.messages.context_processors.messages',
-    'postman.context_processors.inbox',
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            path.join(BASE_DIR, 'hosting/templates'),
+            path.join(PROJECT_DIR, 'templates'),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.template.context_processors.i18n',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+
+                'postman.context_processors.inbox',
+            ],
+        },
+    },
+]
 
 ROOT_URLCONF = 'pasportaservo.urls'
 

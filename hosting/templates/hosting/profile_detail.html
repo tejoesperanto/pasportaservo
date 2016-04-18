@@ -27,9 +27,9 @@
                                 <strong>{% trans "Write message" %}</strong>
                             </a>
                         {% endif %}
-                        {% if profile = user.profile or role = "admin" %}
-                            {% if role = "admin" %}{% trans "Update user's details" as update_title %}{% endif %}
-                            {% if profile = user.profile %}{% trans "Update my details" as update_title %}{% endif %}
+                        {% if profile == user.profile or role == "admin" %}
+                            {% if role == "admin" %}{% trans "Update user's details" as update_title %}{% endif %}
+                            {% if profile == user.profile %}{% trans "Update my details" as update_title %}{% endif %}
                             <a href="{% url 'profile_edit' profile.pk profile.user.username|slugify %}"
                                class="btn btn-success"
                                title="{{ update_title }}">

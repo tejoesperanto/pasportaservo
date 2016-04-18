@@ -1,14 +1,14 @@
-Django==1.7.11
-psycopg2==2.6
-Pillow==2.8.1
-markdown2==2.3.0
+Django==1.9.5
+psycopg2==2.6.1
+Pillow==3.2.0
+markdown2==2.3.1
 
 geopy==1.11
-django-braces==1.8.0
+django-braces==1.8.1
 django-bootstrap-form==3.2
-django-countries==3.3
-django-grappelli==2.6.4
-django-extensions==1.5.2
-django-phonenumber-field==0.7.2
-django-postman==3.3.1
+django-countries==3.4.1
+django-extensions==1.6.1
+django-phonenumber-field==1.1.0
 sendgrid-django==1.4.0
+
+-e hg+ssh://hg@bitbucket.org/psam/django-postman@74bf484632f8e4882dc249dc193b08bab6bb37b2#egg=django_postman

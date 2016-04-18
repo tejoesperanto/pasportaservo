@@ -1,7 +1,7 @@
 # ![Pasporta Servo 3](https://cdn.rawgit.com/tejo-esperanto/pasportaservo/master/logos/pasportaservo_logo.svg)
 
 [![Python 3.4](https://img.shields.io/badge/Python-3.4-blue.svg)](https://docs.python.org/3.4/)
-[![Django 1.7](https://img.shields.io/badge/Django-1.7-0C4B33.svg)](https://docs.djangoproject.com/en/1.7/)
+[![Django 1.9](https://img.shields.io/badge/Django-1.9-0C4B33.svg)](https://docs.djangoproject.com/en/1.9/)
 [![No HTTPS](https://img.shields.io/badge/HTTPS-ne-red.svg)](https://letsencrypt.org/)
 [![Esperanto](https://img.shields.io/badge/Esperanto-jes-green.svg)](https://eo.wikipedia.org/wiki/Esperanto)
 [![TEJO](https://img.shields.io/badge/Projekto de-TEJO-orange.svg)](http://tejo.org)

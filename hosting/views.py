@@ -82,7 +82,7 @@ class ProfileCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixi
         except Profile.DoesNotExist:
             return super(ProfileCreateView, self).dispatch(request, *args, **kwargs)
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=ProfileCreateForm):
         user = self.request.user
         return form_class(user=user, **self.get_form_kwargs())
 
