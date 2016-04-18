@@ -1,9 +1,9 @@
-function placeEdit(map, options){
+$(document).ready(function() {
     // HTML5 Geolocation API
-    function onLocationFound(e){
+    var onLocationFound = function(e){
         setPositionFields([e.latitude, e.longitude]);
         marker.setLatLng([e.latitude, e.longitude]);
-    }
+    };
 
     // Init the map and marker
     var latitude = $("#id_latitude").val();
@@ -14,35 +14,39 @@ function placeEdit(map, options){
         initLatLng = [latitude, longitude];
         initZoom = 18;
     }
-    map.setView(initLatLng, initZoom);
-    var marker = L.marker(initLatLng, {draggable:true}).addTo(map);
+    var attribution = 'Mapaj datumoj &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> kontribuantoj';
+    var placeEditMap = L.map('place-edit-map').setView(initLatLng, initZoom);
+    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: attribution
+    }).addTo(placeEditMap);
+    var marker = L.marker(initLatLng, {draggable:true}).addTo(placeEditMap);
 
     // Hide fields in form
     $("#id_latitude").closest('.form-group').hide();
     $("#id_longitude").closest('.form-group').hide();
 
-    function setPositionFields(latlng) {
+    var setPositionFields = function(latlng) {
         $("#id_latitude").val(latlng.lat);
         $("#id_longitude").val(latlng.lng);
     };
 
-    function onMapClick(e) {
+    var onMapClick = function(e) {
         setPositionFields(e.latlng);
         marker.setLatLng(e.latlng);
-        map.setView(e.latlng, map.getZoom()+2);  /* Center and Zoom x2 */
+        placeEditMap.setView(e.latlng, placeEditMap.getZoom()+2);  /* Center and Zoom x2 */
     };
 
-    function onMarkerDrag(e) {
+    var onMarkerDrag = function(e) {
         setPositionFields(e.target.getLatLng());
-        map.setView(e.target.getLatLng());  /* Center */
+        placeEditMap.setView(e.target.getLatLng());  /* Center */
     };
 
-    map.on('click', onMapClick);
+    placeEditMap.on('click', onMapClick);
     marker.on('dragend', onMarkerDrag);
 
     // Click on the 'Where I am?' button
     $('#get-location').click(function(e) {
-        map.on('locationfound', onLocationFound);
-        map.locate({setView: true});
+        placeEditMap.on('locationfound', onLocationFound);
+        placeEditMap.locate({setView: true});
     });
-};
+});

@@ -51,7 +51,6 @@ INSTALLED_APPS = (
     'django_countries',
     'phonenumber_field',
     'bootstrapform',
-    'leaflet',
     'postman',
     'hosting',
     'pages',
@@ -122,16 +121,6 @@ PHONENUMBER_DEFAULT_FORMAT = 'INTERNATIONAL'
 
 
 DEFAULT_AVATAR_URL = "mm"
-
-
-LEAFLET_CONFIG = {
-    'DEFAULT_CENTER': (40, 0),
-    'DEFAULT_ZOOM': 1,
-    'MIN_ZOOM': 1,
-    'TILES': 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    'ATTRIBUTION_PREFIX': 'Mapaj datumoj &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> kontribuantoj',
-    'RESET_VIEW': False,
-}
 
 
 POSTMAN_AUTO_MODERATE_AS = True

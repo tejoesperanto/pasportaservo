@@ -343,8 +343,8 @@ header.home form.search {
 p.tip {
     font-size: 0.8em;
 }
-.map iframe {
-    /*height: 150px;*/
+.map .leaflet-container {
+    min-height: 400px;
 }
 
 
