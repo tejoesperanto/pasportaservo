@@ -7,5 +7,10 @@ INSTALLED_APPS += (
     'debug_toolbar',
 )
 
-EMAIL_BACKEND = "sgbackend.SendGridBackend"
-SENDGRID_API_KEY = "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"
+# MailDump
+# $ sudo pip install maildump (python 2 only)
+# $ maildump
+# http://127.0.0.1:1080/
+if DEBUG:
+    EMAIL_HOST = '127.0.0.1'
+    EMAIL_PORT = '1025'
