@@ -18,7 +18,7 @@ from django_countries.fields import CountryField
 from .querysets import BaseQuerySet
 from .validators import (
     validate_no_allcaps, validate_not_to_much_caps, no_digit,
-    validate_image, validate_size,
+    validate_image, validate_not_future, validate_size,
 )
 from .gravatar import email_to_gravatar
 
@@ -49,7 +49,8 @@ class Profile(TimeStampedModel):
         validators=[validate_no_allcaps, validate_not_to_much_caps, no_digit])
     last_name = models.CharField(_("last name"), max_length=255, blank=True,
         validators=[validate_no_allcaps, validate_not_to_much_caps, no_digit])
-    birth_date = models.DateField(_("birth date"), blank=True, null=True)
+    birth_date = models.DateField(_("birth date"), blank=True, null=True,
+        validators=[validate_not_future])
     description = models.TextField(_("description"), help_text=_("Short biography."), blank=True)
     avatar = models.ImageField(_("avatar"), upload_to="avatars", blank=True,
         validators=[validate_image, validate_size],

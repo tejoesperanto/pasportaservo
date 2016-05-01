@@ -2,9 +2,17 @@ from string import digits
 
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import filesizeformat
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from .utils import split, title_with_particule
+
+
+def validate_not_future(value):
+    age = (timezone.now().today().date() - value).days / 365.24
+    if (age < 0):
+            message = _("This date can't be in the future")
+            raise  ValidationError(message)
 
 
 def validate_no_allcaps(value):
