@@ -128,9 +128,9 @@ body, .same-as-body {
     color: black;
     text-decoration: none;
     opacity: .3;
-    text-shadow: rgba(0,0,0,0.2) -2px 0, rgba(0,0,0,0.2) 0 -2px,
-             rgba(255,255,255,0.2) 2px 0, rgba(255,255,255,0.2) 0 2px,
-             rgba(0,0,0,0.2) -2px -2px, rgba(255,255,255,0.2) 2px 2px;
+    text-shadow: rgba(0,  0,  0,  0.2) -2px  0,   rgba(0,  0,  0,  0.2) 0  -2px,
+                 rgba(255,255,255,0.2)  2px  0,   rgba(255,255,255,0.2) 0   2px,
+                 rgba(0,  0,  0,  0.2) -2px -2px, rgba(255,255,255,0.2) 2px 2px;
 }
 .message a.close:focus,
 .message a.close:active,
@@ -411,8 +411,20 @@ footer {
     width: 15px !important;
 }
 
+*[type="password"] + .progress,
+*[type="password"] + .popover + .progress {
+    margin-top: 2px;
+}
+*[type="password"] + .progress .password-verdict,
+*[type="password"] + .popover + .progress .password-verdict {
+    float: right;
+    margin-right: 1ex;
+}
+
+header:not(.home) #subtitle,
 .help-block,
-header:not(.home) #subtitle {
+*[type="password"] + .progress .password-verdict,
+*[type="password"] + .popover + .progress .password-verdict {
     font-family: "PT Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 .help-block {

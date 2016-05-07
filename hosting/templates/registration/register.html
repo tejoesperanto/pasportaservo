@@ -1,5 +1,5 @@
 {% extends 'hosting/base_form.html' %}
-{% load i18n bootstrap %}
+{% load i18n bootstrap static %}
 
 {% block head_title %}{% trans "Register" %} &amp; {% trans "Find accomodation" %}{% endblock %}
 
@@ -7,3 +7,8 @@
 {% block form_block_class %} register{% endblock %}
 {% block form_tip %}&nbsp;{% endblock %}
 {% block form_submit_button %}{% trans "Register" %}{% endblock %}
+
+{% block body %}
+    {{ block.super }}
+    <script src="{% static 'pwstrength/js/zxcvbn.js' %}"></script>
+{% endblock %}

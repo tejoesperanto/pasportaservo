@@ -9,9 +9,12 @@
 
 {% block extra_js %}
     {{ block.super }}
-    <script src="{% static 'datepicker/js/bootstrap-datepicker.js' %}"></script>
-    <script src="{% static 'datepicker/js/locales/bootstrap-datepicker.eo.js' %}"></script>
-    <script src="{% static 'js/forms.js' %}"></script>
+    {% get_static_prefix as STATIC %}
+    <script src="{{ STATIC }}datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="{{ STATIC }}datepicker/js/locales/bootstrap-datepicker.{{ LANGUAGE_CODE }}.js"></script>
+    <script src="{{ STATIC }}pwstrength/js/pwstrength-bootstrap.min.js"></script>
+    <script src="{{ STATIC }}pwstrength/js/locales/pwstrength-bootstrap.{{ LANGUAGE_CODE }}.js"></script>
+    <script src="{{ STATIC }}js/forms.js"></script>
 {% endblock extra_js %}
 
 {% block page %}
