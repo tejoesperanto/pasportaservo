@@ -723,6 +723,10 @@ msgstr "Redakti informojn de uzanto"
 msgid "Update my details"
 msgstr "Redakti miajn informojn"
 
+#: templates/hosting/profile_detail.html:16
+msgid "Update a family member"
+msgstr "Redakti kunloĝanton"
+
 #: templates/hosting/profile_form.html:10
 msgid "My profile"
 msgstr "Mia profilo"

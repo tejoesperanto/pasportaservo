@@ -2,16 +2,28 @@
 {% load i18n %}
 
 {% block head_title %}
-    {% if user.is_staff and user.profile != profile %}
-        {% trans "Update user's details" %}{% if profile.name %}: {{ profile.name }} {% else %} #{{ profile.id }} {% endif %}
+    {% if user.is_staff and profile and user.profile != profile %}
+        {% if profile.user %}
+            {% trans "Update user's details" %}{% if profile.name %}: {{ profile.name }} {% else %} #{{ profile.id }} {% endif %}
+        {% else %}
+            {% trans "Update a family member" %}
+        {% endif %}
     {% elif profile %}
-        {% trans "Update my details" %}
+        {% if user.profile != profile %}
+            {% trans "Update a family member" %}
+        {% else %}
+            {% trans "Update my details" %}
+        {% endif %}
     {% else %}
-        {% trans "My profile" %}
+        {% if user.profile or view.place %}
+            {% trans "Add a family member" %}
+        {% else %}
+            {% trans "My profile" %}
+        {% endif %}
     {% endif %}
 {% endblock %}
 {% block head_title_separator %}
-    {% if not profile %}
+    {% if not profile and not user.profile and not view.place %}
         {% trans "at" %}
     {% else %}
         {{ block.super }}
