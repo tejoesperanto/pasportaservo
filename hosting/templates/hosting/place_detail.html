@@ -182,10 +182,10 @@
                             <span class="glyphicon glyphicon-pencil"></span> 
                             <span class="">{% trans "Update" %}</span>
                         </a>
-                        {% if profile == user.profile %}
+                        {% if user.profile == place.owner %}
                             <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}" 
                                class="btn btn-warning"
-                               title="{% trans "Authorizations" %}">
+                               title="{% trans "Authorized users" %}">
                                 <span class="glyphicon glyphicon-eye-open"></span>
                                 <span class="hidden-xxs">{% trans "Authorizations" %}</span>
                             </a>
