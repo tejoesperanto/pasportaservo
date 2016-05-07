@@ -9,7 +9,7 @@
     src: local('PT Sans'), local('PTSans-Regular'), url('//fonts.gstatic.com/s/ptsans/v8/GdZvpAq9shJukTEvSQbePw.woff') format('woff'), url('//fonts.gstatic.com/s/ptsans/v8/8d6bGRHQjSQfnRvIX_v_pwLUuEpTyoUstqEm5AMlJo4.ttf') format('truetype');
 }
 
-body {
+body, .same-as-body {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 16px;
 }

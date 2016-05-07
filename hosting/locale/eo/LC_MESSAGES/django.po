@@ -632,6 +632,11 @@ msgstr "Nuligita loĝejo"
 msgid "The address is obsolete"
 msgstr "La adreso estas neaktuala"
 
+#: templates/hosting/place_detail.html:66
+#: templates/hosting/profile_confirm_delete.html:27
+msgid "available,unavailable"
+msgstr "disponebla,maldisponebla"
+
 #: templates/hosting/place_detail.html:41
 #, python-format
 msgid "%(city)s, near %(closest_city)s"

@@ -38,8 +38,9 @@
                     <div class="row">
                         <p class="col-xs-8 name">
                             <a href="{{ place.owner.get_absolute_url }}">
-                                {% if view.verbose_view %}
-                                    {{ place.owner.full_name }}
+                                {% if user.is_authenticated %}
+                                    <span class="hidden-xxs">{{ place.owner.full_name }}</span>
+                                    <span class="visible-xxs-inline">{{ place.owner.anonymous_name }}</span>
                                 {% else %}
                                     {{ place.owner.anonymous_name }}
                                 {% endif %}
@@ -61,23 +62,15 @@
                                          title="{% trans "I'd like to have a drink together" %}"
                                          style="width: 1.5em; height: 1.5em;" />
                                 {% endif %}
-                                
-                                {% if place.available %}
-                                    <span title="{% trans "place" %} {% trans "available" %}"
+
+                                    <span title="{% trans "place" %} {{ place.available|yesno:_('available,unavailable') }}"
                                           class="glyphicon glyphicon-stack-large">
                                         <span class="place-marker glyphicon-stackbit-2x glyphicon-home"></span>
-                                        <span class="place-availability glyphicon-stackbit-1x glyphicon-ok"></span>
-                                    </span>
-                                {% else %}
-                                    <span title="{% trans "place" %} {% trans "unavailable" %}"
-                                          class="glyphicon glyphicon-stack-large">
-                                        <span class="place-marker glyphicon-stackbit-2x glyphicon-home"></span>
-                                        <span class="place-availability glyphicon-stackbit-1x glyphicon-remove"></span>
+                                        <span class="place-availability glyphicon-stackbit-1x glyphicon-{{ place.available|yesno:'ok,remove' }}"></span>
                                     </span>
                                     {% comment "povas esti utila por indiki portempan malĉeeston, en la futuro" %}
                                     <em class="hidden-xs">{% trans "unavailable" %}</em>
                                     {% endcomment %}
-                                {% endif %}
                             {% endif %}
                         </p>
                         {% if user.is_authenticated %}
@@ -209,15 +202,16 @@
         {% if user.is_authenticated %}
         {% if user.profile in place.family_members.all or user.profile == place.owner or user.is_staff %}
             <div class="col-xs-12">
-                <p>
-                    {% trans "Short description" %}:&nbsp; {{ place.short_description|default:"&ndash;" }}
+                <p class="help-block">
+                    {% trans "Short description" %}:&nbsp;
+                    <em class="same-as-body"><small>{{ place.short_description|default:"&ndash;" }}</small></em>
                 </p>
-                <p>
+                <p class="help-block">
                     {% trans "Available" %}:&nbsp; 
                     <span class="glyphicon glyphicon-{{ place.available|yesno:'ok,remove' }}"></span>
                     {{ place.available|yesno }}
                 </p>
-                <p>
+                <p class="help-block">
                     {% trans "Print in book" %}:&nbsp; 
                     <span class="glyphicon glyphicon-{{ place.in_book|yesno:'ok,remove' }}"></span>
                     {{ place.in_book|yesno }}
