@@ -344,7 +344,7 @@ p.tip {
     font-size: 0.8em;
 }
 .map .leaflet-container {
-    min-height: 400px;
+    min-height: 300px;
 }
 
 
