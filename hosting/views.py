@@ -291,7 +291,7 @@ class SearchView(generic.ListView):
                 return location
 
     def get(self, request, *args, **kwargs):
-        self.query = request.GET.get('q', '')
+        self.query = request.GET.get('ps_q', '')
         if self.query:
             try:
                 geocoder = geopy.geocoders.OpenCage(settings.OPENCAGE_KEY, timeout=5)
