@@ -3,6 +3,9 @@
 
 {% block header_class %} home{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pasportaservo-home.css' %}">
+{% endblock %}
 {% block extra_js %}
     <script src="{% static 'hosting/js/search.js' %}"></script>
 {% endblock %}
@@ -83,6 +86,36 @@
 {% endblock pre-page %}
 
 {% block page %}
-    
+    <div class="social-links lg-icons pull-left">
+        {% spaceless %}
+        <a href="https://www.facebook.com/pasportaservo" target="_blank" title="Pasporta Servo {% trans "at" %} Facebook" class="highlight-orange">
+            <img src="{% static 'img/home/social_cup_facebook-lg.png' %}" alt="[facebook]"/>
+        </a>
+        &nbsp;
+        <a href="https://twitter.com/pasportaservo" target="_blank" title="Pasporta Servo {% trans "at" %} Twitter" class="highlight-orange">
+            <img src="{% static 'img/home/social_cup_twitter-lg.png' %}" alt="[twitter]"/>
+        </a>
+        &nbsp;
+        <a href="https://youtu.be/hkQZUI5f_ck" target="_blank" title="{% trans "About us" %}, {% trans "at" %} YouTube" class="highlight-orange">
+            <img src="{% static 'img/home/social_cup_youtube-lg.png' %}" alt="[youtube]"/>
+        </a>
+        {% endspaceless %}
+    </div>
+    <div class="social-links contact sm-icons pull-right">
+        {% spaceless %}
+        <a href="skype:pasporta.servo?chat" title="{% trans "Contact us via Skype" %}" class="highlight-custom">
+            <img src="{% static 'img/home/social_skype-sm.png' %}" alt="[skype]"/>
+        </a>
+        <a href="mailto:info [cxe] pasportaservo.org" title="{% trans "Contact us via email" %}" class="highlight-custom">
+            <img src="{% static 'img/home/social_email-sm.png' %}" alt="[email]"/>
+        </a>
+        <a href="https://trello.com/b/kerCH0sk/pasporta-servo-novaj-funkcioj" target="_blank" title="{% trans "Your ideas and suggestions" %}: Trello" class="highlight-custom narrow">
+            <img src="{% static 'img/home/social_trello-sm.png' %}" alt="[trello]"/>
+        </a>
+        <a href="https://github.com/tejo-esperanto/pasportaservo" target="_blank" title="{% trans "Pasporta Servo's source code" %}: GitHub" class="highlight-custom">
+            <img src="{% static 'img/home/social_github-sm.png' %}" alt="[github]"/>
+        </a>
+        {% endspaceless %}
+    </div>
 {% endblock page %}
 

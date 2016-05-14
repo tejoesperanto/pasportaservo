@@ -565,9 +565,25 @@ msgstr "Prova versio: tiu ĉi retejo ankoraŭ ne estas finpreta"
 msgid "Budapest, London, Venezuela, etc."
 msgstr "Budapeŝto, Londono, Venezuelo, ktp."
 
-#: templates/hosting/home.html:77
+#: templates/hosting/home.html:80
 msgid "Find accomodation<br>anywhere in the world."
 msgstr "Trovu loĝejon<br>ĉie ajn sur la planedo"
+
+#: templates/hosting/home.html:106
+msgid "Contact us via Skype"
+msgstr "Kontaktu nin per Skajpo"
+
+#: templates/hosting/home.html:109
+msgid "Contact us via email"
+msgstr "Kontaktu nin per retpoŝto"
+
+#: templates/hosting/home.html:112
+msgid "Your ideas and suggestions"
+msgstr "Viaj ideoj kaj proponoj"
+
+#: templates/hosting/home.html:115
+msgid "Pasporta Servo's source code"
+msgstr "Fontkodo de Pasporta Servo"
 
 #: templates/hosting/mass_mail_sent.html:5
 msgid "Emails sent"
