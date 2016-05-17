@@ -1,4 +1,4 @@
-Django==1.9.5
+Django==1.9.6
 psycopg2==2.6.1
 Pillow==3.2.0
 markdown2==2.3.1
@@ -9,6 +9,9 @@ django-bootstrap-form==3.2
 django-countries==3.4.1
 django-extensions==1.6.1
 django-phonenumber-field==1.1.0
+djangorestframework==3.3.3
+djangorestframework-jsonapi==2.0.1
+django-cors-headers==1.1.0
 sendgrid-django==1.4.0
 
--e hg+ssh://hg@bitbucket.org/psam/django-postman@74bf484632f8e4882dc249dc193b08bab6bb37b2#egg=django_postman
+-e hg+https://hg@bitbucket.org/psam/django-postman@74bf484632f8e4882dc249dc193b08bab6bb37b2#egg=django_postman

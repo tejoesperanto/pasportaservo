@@ -20,11 +20,13 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.utils.html import linebreaks as tohtmlpara, urlize
 
+from rest_framework import viewsets
 from braces.views import (AnonymousRequiredMixin, LoginRequiredMixin,
     SuperuserRequiredMixin, UserPassesTestMixin, FormInvalidMessageMixin)
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
 from .models import Profile, Place, Phone
+from .serializers import ProfileSerializer, PlaceSerializer, UserSerializer
 from .mixins import (ProfileMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
     FamilyMemberMixin, FamilyMemberAuthMixin, CreateMixin, DeleteMixin)
 from .forms import (UserRegistrationForm, AuthorizeUserForm, AuthorizedOnceUserForm,
@@ -37,6 +39,33 @@ from .utils import extend_bbox, send_mass_html_mail
 
 User = get_user_model()
 lang = settings.LANGUAGE_CODE
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = UserSerializer
+
+
+class ProfileViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows profiles to be viewed or edited.
+    """
+    serializer_class = ProfileSerializer
+    queryset = Profile.objects.all()
+
+
+class PlaceViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows places to be viewed or edited.
+    """
+    serializer_class = PlaceSerializer
+    queryset = Place.objects.filter(
+        latitude__isnull=False,
+        longitude__isnull=False,
+    )
 
 
 class HomeView(generic.TemplateView):
