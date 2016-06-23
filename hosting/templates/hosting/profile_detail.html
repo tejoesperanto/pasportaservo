@@ -9,6 +9,13 @@
     {% endif %}
 {% endblock %}
 
+{% block extra_css %}
+        <link rel="stylesheet" href="{% static 'popup/magnific-popup.min.css' %}">
+{% endblock %}
+{% block extra_js %}
+        <script src="{% static 'popup/magnific-popup.min.js' %}"></script>
+{% endblock %}
+
 {% block page %}
         <div class="row">
             <div class="col-xs-12 col-md-5">
@@ -46,7 +53,9 @@
 
     <div class="row owner">
         <div class="col-xs-3 col-md-2">
-            <img src="{{ profile.avatar_url }}" />
+            <span class="owner-avatar" data-content="&#xe003;">
+                <img src="{{ profile.avatar_url }}" data-mfp-src="{{ profile.avatar_url }}" alt="{% trans "avatar" %}"/>
+            </span>
         </div>
         <div class="col-xs-9 col-md-10">
             <h1><small>{{ profile.get_title_display }}</small> {{ profile }}</h1>

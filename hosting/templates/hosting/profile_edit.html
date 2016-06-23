@@ -44,7 +44,7 @@
         <span class="glyphicon glyphicon-trash"></span>
     </a>
     {% if profile == user.profile %}
-        <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}" class="btn btn-warning" title="{% trans "Authorizations" %}">
+        <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}" class="btn btn-warning" title="{% trans "Authorized users" %}">
             <span class="glyphicon glyphicon-eye-open"></span>
             <span class="hidden-xxs">{% trans "Authorizations" %}</span>
         </a>

@@ -79,7 +79,7 @@ class FamilyMemberMixin(object):
         return super(FamilyMemberMixin, self).dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
-        own_place = self.place.owner == self.request.user.profile
+        own_place = self.place.owner.user == self.request.user
         if own_place or self.request.user.is_staff:
             profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
             if profile in self.place.family_members.all():
