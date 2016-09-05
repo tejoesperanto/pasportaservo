@@ -68,6 +68,14 @@ class PlaceViewSet(viewsets.ModelViewSet):
         longitude__isnull=False,
     )
 
+    def get_queryset(self):
+        qs = self.queryset
+        bounds = {p: self.request.query_params.get(p, None) for p in 'nswe'}
+        if any(bounds.values()):
+            qs = qs.filter(latitude__range=(bounds['s'], bounds['n']))
+            qs = qs.filter(longitude__range=(bounds['w'], bounds['e']))
+        return qs
+
 
 class HomeView(generic.TemplateView):
     template_name = 'hosting/home.html'
