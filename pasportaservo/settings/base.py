@@ -48,6 +48,7 @@ INSTALLED_APPS = (
     'postman',
     'hosting',
     'pages',
+    'book',
 )
 
 MIDDLEWARE_CLASSES = (
