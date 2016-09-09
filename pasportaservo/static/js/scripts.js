@@ -19,6 +19,23 @@ $(document).ready(function() {
     // Lazy load images
     $('.lazy').addClass('loaded');
 
+    // Image links with custom highlighting
+    +function() {
+        set_highlight = function() {
+            src = $(this).children('img').attr('src');
+            if (src.match(/-hl\.[a-z]+$/))
+                return;
+            $(this).children('img').attr('src', src.replace(/\.([a-z]+)$/, "-hl.$1"));
+        };
+        del_highlight = function() {
+            src = $(this).children('img').attr('src');
+            $(this).children('img').attr('src', src.replace(/-hl\.([a-z]+)$/, ".$1"));
+        };
+        $('.highlight-custom').hover(set_highlight, del_highlight);
+        $('.highlight-custom').focus(set_highlight);
+        $('.highlight-custom').blur( del_highlight);
+    }();
+
     // Profile picture magnifier
     if (typeof $().magnificPopup !== "undefined") {
         $('.owner-avatar img').magnificPopup({
