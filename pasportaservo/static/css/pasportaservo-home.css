@@ -1,0 +1,84 @@
+.highlight-orange:hover img, .highlight-orange:focus img {
+    background: radial-gradient(closest-side, rgba(255,119,17,1), rgba(255,119,17,0));
+}
+.highlight-blue:hover img, .highlight-blue:focus img {
+    background: radial-gradient(closest-side, rgba(66,139,202,1), rgba(66,139,202,0));
+}
+.highlight-custom:hover, .highlight-custom:focus, .highlight-custom:active {
+    outline: 0;
+}
+.highlight-custom img {
+    padding-bottom: 1px;
+    border-bottom: solid 2px transparent;
+}
+.highlight-custom:focus img {
+    border-bottom: solid 2px #428bca;
+}
+
+/* XXS */
+@media (max-width: 479px) {
+    .social-links:not(.social-contact).lg-icons {
+        height: 80px;
+        line-height: 80px;
+    }
+    .social-links:not(.social-contact).sm-icons {
+        padding-top: 9px;
+    }
+    .social-links.social-contact {
+        padding-right: 5px;
+        padding-top: 9px;
+        text-align: center;
+    }
+    .social-links.social-contact.sm-icons {
+        width: 42px;
+    }
+    .social-links.social-contact.lg-icons {
+        width: 74px;
+    }
+    .social-links.social-contact a:not(:last-child) img {
+        margin-bottom: 9px;
+    }
+    .social-links.social-contact .highlight-custom img {
+        padding-bottom: 0px;
+        border-bottom: 0;
+        padding-right: 2px;
+        border-right: solid 2px transparent;
+    }
+    .social-links.social-contact .highlight-custom:focus img {
+        border-right: solid 2px #428bca;
+    }
+    .social-links.social-networks.sm-icons a img {
+        margin-right: 12px;
+    }
+    .social-links.social-networks.lg-icons a img {
+        margin-right: 15px;
+    }
+}
+/* !XXS */
+@media (min-width: 480px) {
+    .social-links {
+        height: 80px;
+        line-height: 80px;
+    }
+    .social-links.social-contact a img,
+    .social-links.social-networks a img {
+        margin-left: 9px;
+        margin-right: 9px;
+    }
+    .social-links.social-contact.lg-icons a img,
+    .social-links.social-networks.lg-icons a img {
+        margin-left: 12px;
+        margin-right: 12px;
+    }
+    .social-links.social-contact a.narrow img,
+    .social-links.social-networks a.narrow img {
+        margin-left: 3px;
+        margin-right: 3px;
+    }
+    .social-links.social-contact a:last-child img {
+        margin-right: 0;
+    }
+    .social-links.social-networks a:first-child img {
+        margin-left: 0;
+    }
+}

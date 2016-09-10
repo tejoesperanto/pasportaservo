@@ -356,6 +356,26 @@ p.tip {
 .profile-avatar {
     margin-right: 2em;
 }
+@media (max-width: 540px) {
+	.owner-avatar {
+        display: inline-block;
+		position: relative;
+        cursor: zoom-in;
+    }
+    .owner-avatar:after {
+        font-family: 'Glyphicons Halflings';
+        content: attr(data-content);
+        position: absolute;
+        bottom: -5px;
+        right: -1px;
+        color: #eee;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+    }
+    .mfp-wrap {
+        position: fixed !important;
+        top: 0px !important;
+    }
+}
 
 .list-vertical-align {
     min-height: 3.5em;
