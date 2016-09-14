@@ -198,7 +198,7 @@ class Phone(TimeStampedModel):
     PHONE_TYPE_CHOICES = PHONE_TYPE_CHOICES
     MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
     profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"), related_name="phones")
-    number = PhoneNumberField(_("number"), 
+    number = PhoneNumberField(_("number"),
         help_text=_("International number format begining with the plus sign (e.g.: +31 10 436 1044)"))
     country = CountryField(_("country"))
     comments = models.CharField(_("comments"), max_length=255, blank=True)
@@ -236,6 +236,12 @@ class Phone(TimeStampedModel):
             as_rfc3966          'tel:+31-10-436-1044'
         """
         return self.number.as_international
+
+    @property
+    def show(self):
+        t = self.type or '(?)'
+        return t + ': ' + self.number.as_international
+
 
 
 @python_2_unicode_compatible
