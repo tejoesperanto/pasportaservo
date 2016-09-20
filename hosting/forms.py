@@ -15,7 +15,8 @@ User = get_user_model()
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(label=_("Email"), max_length=254)
     # Honeypot:
-    name = forms.CharField(required=False, help_text=_("Leave blank"))
+    name = forms.CharField(widget=forms.TextInput(attrs={'autocomplete':'off'}),
+        help_text=_("Leave blank"), required=False)
 
     def __init__(self, *args, **kwargs):
         super(UserRegistrationForm, self).__init__(*args, **kwargs)
