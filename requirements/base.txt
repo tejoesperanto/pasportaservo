@@ -9,6 +9,7 @@ django-bootstrap-form==3.2
 django-countries==3.4.1
 django-extensions==1.6.1
 django-phonenumber-field==1.1.0
+itsdangerous==0.24
 sendgrid-django==1.4.0
 
 -e hg+ssh://hg@bitbucket.org/psam/django-postman@74bf484632f8e4882dc249dc193b08bab6bb37b2#egg=django_postman

@@ -30,4 +30,5 @@ urlpatterns += [
     url('', include('hosting.urls')),
     url('', include('pages.urls')),
     url('', include('book.urls')),
+    url('', include('links.urls')),
 ]

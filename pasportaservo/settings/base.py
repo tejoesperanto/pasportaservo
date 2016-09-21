@@ -49,6 +49,7 @@ INSTALLED_APPS = (
     'hosting',
     'pages',
     'book',
+    'links',
 )
 
 MIDDLEWARE_CLASSES = (
