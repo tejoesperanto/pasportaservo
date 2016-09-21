@@ -58,6 +58,7 @@ class Profile(TimeStampedModel):
     contact_preferences = models.ManyToManyField('hosting.ContactPreference', verbose_name=_("contact preferences"), blank=True)
 
     checked = models.BooleanField(_("checked"), default=False)
+    confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
     objects = BaseQuerySet.as_manager()
@@ -159,6 +160,7 @@ class Place(TimeStampedModel):
         help_text=_("List of users authorized to view most of data of this accommodation."))
 
     checked = models.BooleanField(_("checked"), default=False)
+    confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
     objects = BaseQuerySet.as_manager()
@@ -206,6 +208,7 @@ class Phone(TimeStampedModel):
         choices=PHONE_TYPE_CHOICES, default=MOBILE)
 
     checked = models.BooleanField(_("checked"), default=False)
+    confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
     objects = BaseQuerySet.as_manager()
@@ -250,6 +253,7 @@ class Website(TimeStampedModel):
     url = models.URLField(_("URL"))
 
     checked = models.BooleanField(_("checked"), default=False)
+    confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
     objects = BaseQuerySet.as_manager()
