@@ -107,6 +107,9 @@ class Profile(TimeStampedModel):
         username = self.user.username if self.user else '--'
         return self.full_name if self.full_name.strip() else username
 
+    def repr(self):
+        return '{} ({})'.format(self.__str__(), self.birth_date.year)
+
     def get_absolute_url(self):
         return reverse('profile_detail', kwargs={
                 'pk': self.pk,
@@ -193,6 +196,13 @@ class Place(TimeStampedModel):
 
     def __str__(self):
         return ", ".join([self.city, force_text(self.country.name)]) if self.city else force_text(self.country.name)
+
+    def display_family_members(self):
+        family_members = self.family_members.exclude(pk=self.owner.pk).order_by('birth_date')
+        return ", ".join(fm.repr() for fm in family_members)
+
+    def display_conditions(self):
+        return ", ".join(c.__str__() for c in self.conditions.all())
 
 
 @python_2_unicode_compatible

@@ -62,6 +62,7 @@ class ContactExport(StaffMixin, generic.ListView):
     owner_fields = [ 'title', 'first_name', 'last_name', 'birth_date']
     user_fields = ['email', 'username', 'last_login', 'date_joined']
     phone_fields = ['phone1', 'phone2']
+    other_fields = ['family_members', 'conditions']
 
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related('owner__user')
@@ -80,7 +81,7 @@ class ContactExport(StaffMixin, generic.ListView):
             with open(os.path.join(tempdir, 'contacts.csv'), 'w+') as f:
                 writer = csv.writer(f)
                 writer.writerow(self.user_fields + self.owner_fields \
-                    + self.place_fields + self.phone_fields)
+                    + self.place_fields + self.phone_fields + self.other_fields)
                 for place in context['place_list']:
                     row = self.get_row(place)
                     writer.writerow(row)
@@ -93,7 +94,8 @@ class ContactExport(StaffMixin, generic.ListView):
         from_owner = self.build_row(place.owner, self.owner_fields)
         from_place = self.build_row(place, self.place_fields)
         phones = [ph.show for ph in place.owner.phones.filter(deleted=False)[:2]]
-        return from_user + from_owner + from_place + phones
+        other = [place.display_family_members(), place.display_conditions()]
+        return from_user + from_owner + from_place + phones + other
 
     def build_row(self, obj, fields):
         row = []
