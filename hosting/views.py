@@ -1,16 +1,15 @@
 import re
 from datetime import datetime
-
+from urllib.parse import unquote_plus
 from markdown2 import markdown
 import geopy
 
 from django.db.models import Q
 from django.views import generic
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404
-from django.http import Http404
 from django.contrib import messages
 from django.contrib.auth import get_user_model, authenticate, login
 from django.template.loader import render_to_string, get_template
@@ -19,6 +18,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.utils.html import linebreaks as tohtmlpara, urlize
+from django.utils.http import urlquote_plus
+from django.utils.encoding import uri_to_iri
 
 from braces.views import (AnonymousRequiredMixin, LoginRequiredMixin,
     SuperuserRequiredMixin, UserPassesTestMixin, FormInvalidMessageMixin)
@@ -233,7 +234,7 @@ class PlaceDetailView(generic.DetailView):
 
     def render_to_response(self, context, **response_kwargs):
         # Automatically redirect the user to the verbose view if permission granted (in authorized_users list).
-        if (self.request.user in self.object.authorized_users.all() and not self.request.user.is_staff 
+        if (self.request.user in self.object.authorized_users.all() and not self.request.user.is_staff
             and not isinstance(self, PlaceDetailVerboseView)):
             return HttpResponseRedirect(reverse_lazy('place_detail_verbose', kwargs={'pk': self.kwargs['pk']}))
         else:
@@ -291,7 +292,12 @@ class SearchView(generic.ListView):
                 return location
 
     def get(self, request, *args, **kwargs):
-        self.query = request.GET.get('ps_q', '')
+        if 'ps_q' in request.GET:
+            # Keeping Unicode in URL, replacing space with '+'
+            query = uri_to_iri(urlquote_plus(request.GET.get('ps_q', '')))
+            return HttpResponseRedirect(reverse_lazy('search', kwargs={'query': query}))
+        query = kwargs['query'] or ''  # Avoiding query=None
+        self.query = unquote_plus(query)
         if self.query:
             try:
                 geocoder = geopy.geocoders.OpenCage(settings.OPENCAGE_KEY, timeout=5)
@@ -322,8 +328,13 @@ class SearchView(generic.ListView):
         qs |= Place.objects.filter(owner__user__username__icontains=self.query)
         qs |= Place.objects.filter(owner__first_name__icontains=self.query)
         qs |= Place.objects.filter(owner__last_name__icontains=self.query)
+        qs |= Place.objects.filter(closest_city__icontains=self.query)
         qs.filter(deleted=False)
         return qs.select_related('owner__user').order_by('country', 'city')
+
+    @property
+    def get_query(self):
+        return self.query
 
 search = SearchView.as_view()
 
@@ -497,7 +508,7 @@ class MassMailView(SuperuserRequiredMixin, generic.FormView):
                 profiles = profiles.filter(owned_places__in_book=False, owned_places__available=True, owned_places__deleted=False)
             # finally remove duplicates
             profiles = profiles.distinct()
-        
+
         if category == 'test':
             messages = [(
                 subject,
@@ -506,7 +517,7 @@ class MassMailView(SuperuserRequiredMixin, generic.FormView):
                 default_from,
                 [form.cleaned_data['test_email']]
             )]
-        
+
         else:
             messages = [(
                 subject,
@@ -515,7 +526,7 @@ class MassMailView(SuperuserRequiredMixin, generic.FormView):
                 default_from,
                 [pr.user.email]
             ) for pr in profiles] if profiles else []
-        
+
         self.nb_sent = send_mass_html_mail(messages)
 
         return super(MassMailView, self).form_valid(form)

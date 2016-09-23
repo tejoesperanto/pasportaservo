@@ -8,12 +8,12 @@
 {% endblock %}
 
 {% block page %}
-    <form class="form-inline row search" id="searchform" role="form" method="GET" action="">
+    <form class="form-inline row search" id="searchform" role="form" method="GET" action="{% url 'search' %}">
         <div class="form-group col-xs-12" style="width: 100%">
             <div class="input-group" style="width: 100%">
-                <input class="form-control" type="search" id="searchinput" name="ps_q" value="{{ request.GET.ps_q|title }}" placeholder="{% trans "Budapest, London, Venezuela, etc." %}">
+                <input class="form-control" type="search" id="searchinput" name="ps_q" value="{{ view.get_query|title }}" placeholder="{% trans "Budapest, London, Venezuela, etc." %}">
                 <span class="input-group-btn" style="width: 20%">
-                    <button class="btn btn-default" type="submit" id="search" style="min-width: 40px; width: 50%;" 
+                    <button class="btn btn-default" type="submit" id="search" style="min-width: 40px; width: 50%;"
                             title="{% trans "Search" %} {% trans "at" %} Pasporta Servo">
                         <span class="glyphicon glyphicon-search"></span>
                         <span class="hidden-xs">{% trans "Search" %}</span>
