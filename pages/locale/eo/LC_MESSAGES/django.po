@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo pages\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-06 15:27+0000\n"
+"POT-Creation-Date: 2016-09-23 13:01+0000\n"
 "PO-Revision-Date: 2014-12-06 16:27+0100\n"
 "Last-Translator: Baptiste Darthenay <taggit.batisteo@recursor.net>\n"
 "Language-Team: EO <info@pasportaservo.org>\n"
@@ -19,18 +19,18 @@ msgstr ""
 "X-Generator: Poedit 1.5.4\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: templates/pages/supervisors.html:4
+#: pages/templates/pages/supervisors.html:4
 msgid "Supervisors"
 msgstr "LO"
 
-#: urls.py:6
+#: pages/urls.py:7
 msgid "^about/$"
 msgstr "^pri-ni/$"
 
-#: urls.py:7
+#: pages/urls.py:8
 msgid "^terms-and-conditions/$"
 msgstr "^kond/$"
 
-#: urls.py:8
+#: pages/urls.py:9
 msgid "^supervisors/$"
 msgstr "^landaj-organizantoj/$"
