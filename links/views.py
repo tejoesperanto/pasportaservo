@@ -16,10 +16,9 @@ from hosting.models import Place
 class UniqueLinkView(generic.TemplateView):
     def get(self, request, *args, **kwargs):
         self.token = kwargs.pop('token')
-        s = URLSafeTimedSerializer(settings.SECRET_KEY, salt='salo')
-        print(self.token)
+        s = URLSafeTimedSerializer(settings.SECRET_KEY, salt=settings.SALT)
         try:
-            payload = s.loads(self.token, max_age=3600*24*60, salt='salo')  # 2 months
+            payload = s.loads(self.token, max_age=3600*24*30*2)  # 2 months
         except SignatureExpired:
             self.template_name = 'links/signature_expired.html'
         except BadTimeSignature:
@@ -34,8 +33,7 @@ class UniqueLinkView(generic.TemplateView):
         except KeyError:
             self.template_name = 'links/invalid_link.html'
             return super().get(request, *args, **kwargs)
-        redirect = getattr(self, 'redirect_'+action)(request, payload)
-        return redirect
+        return getattr(self, 'redirect_'+action)(request, payload)
 
     def redirect_confirm(self, request, payload):
         place = get_object_or_404(Place, pk=payload['place'])

@@ -11,6 +11,9 @@ from django.template.defaultfilters import yesno
 
 from hosting.mixins import StaffMixin
 from hosting.models import Place
+from links.utils import create_unique_url
+
+TITLE_MAP = {'': '', 'Mrs': 'S-ino', 'Mr': 'S-ro'}
 
 
 class PDFBookView(StaffMixin, generic.TemplateView):
@@ -62,7 +65,7 @@ class ContactExport(StaffMixin, generic.ListView):
     owner_fields = [ 'title', 'first_name', 'last_name', 'birth_date']
     user_fields = ['email', 'username', 'last_login', 'date_joined']
     phone_fields = ['phone1', 'phone2']
-    other_fields = ['family_members', 'conditions']
+    other_fields = ['family_members', 'conditions', 'update_url', 'confirm_url']
 
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related('owner__user')
@@ -94,8 +97,9 @@ class ContactExport(StaffMixin, generic.ListView):
         from_owner = self.build_row(place.owner, self.owner_fields)
         from_place = self.build_row(place, self.place_fields)
         phones = [ph.show for ph in place.owner.phones.filter(deleted=False)[:2]]
-        other = [place.display_family_members(), place.display_conditions()]
-        return from_user + from_owner + from_place + phones + other
+        others = [place.display_family_members(), place.display_conditions(),
+            self.get_url(place, 'update'), self.get_url(place, 'confirm')]
+        return from_user + from_owner + from_place + phones + others
 
     def build_row(self, obj, fields):
         row = []
@@ -106,7 +110,12 @@ class ContactExport(StaffMixin, generic.ListView):
             except AttributeError:
                 if isinstance(value, bool):
                     value = yesno(value, "1,0")
+                if f == 'title':
+                    value = TITLE_MAP[obj.title]
                 row.append(value)
         return row
+
+    def get_url(self, place, action):
+        return create_unique_url({'place': place.pk, 'action': action})
 
 contact_export = ContactExport.as_view()
