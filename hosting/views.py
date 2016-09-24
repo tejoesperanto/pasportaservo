@@ -294,8 +294,9 @@ class SearchView(generic.ListView):
     def get(self, request, *args, **kwargs):
         if 'ps_q' in request.GET:
             # Keeping Unicode in URL, replacing space with '+'
-            query = uri_to_iri(urlquote_plus(request.GET.get('ps_q', '')))
-            return HttpResponseRedirect(reverse_lazy('search', kwargs={'query': query}))
+            query = uri_to_iri(urlquote_plus(request.GET['ps_q']))
+            params = {'query': query} if query else None
+            return HttpResponseRedirect(reverse_lazy('search', kwargs=params))
         query = kwargs['query'] or ''  # Avoiding query=None
         self.query = unquote_plus(query)
         if self.query:
