@@ -55,18 +55,20 @@
             </div>
         {% endblock header %}
     </header>
-    
+
     {% block pre-page %}{% endblock %}
 
     <div id="page" class="container{% block page_class %}{% endblock %}">
         {% block page %}{% endblock %}
     </div>
-    
+
     <footer class="container-fluid">
         {% block footer %}
             <div class="row">
                 <div class="col-md-12">
                     <a href="{% url 'about' %}">{% trans "About us" %}</a>
+                    |
+                    <a href="{% url 'faq' %}">{% trans "FAQ" %}</a>
                     |
                     <a href="{% url 'terms_conditions' %}">{% trans "Terms" %}</a>
                     |
