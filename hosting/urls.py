@@ -1,9 +1,12 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.conf import settings
 from django.views.static import serve
 from django.utils.translation import ugettext_lazy as _
 
+from rest_framework import routers
+
 from .views import (
+    ProfileViewSet, PlaceViewSet, UserViewSet,
     home,
     register,
     profile_create, profile_redirect, profile_detail,
@@ -17,6 +20,11 @@ from .views import (
     search,
     mass_mail, mass_mail_sent,
 )
+
+router = routers.DefaultRouter()
+router.register(r'places', PlaceViewSet)
+router.register(r'profiles', ProfileViewSet)
+router.register(r'users', UserViewSet)
 
 urlpatterns = [
     url(r'^$', home, name='home'),
@@ -51,6 +59,11 @@ urlpatterns = [
 
     url(_(r'^mass_mail/$'), mass_mail, name='mass_mail'),
     url(_(r'^mass_mail_sent/$'), mass_mail_sent, name='mass_mail_sent'),
+]
+
+urlpatterns += [
+    url(r'^api/', include(router.urls)),
+    url(r'^api/api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
 
 if settings.DEBUG:

@@ -43,14 +43,19 @@ INSTALLED_APPS = (
 
     'django_extensions',
     'django_countries',
+    'rest_framework',
+    'corsheaders',
     'phonenumber_field',
     'bootstrapform',
     'postman',
     'hosting',
     'pages',
+    'book',
+    'links',
 )
 
 MIDDLEWARE_CLASSES = (
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -123,6 +128,31 @@ DEFAULT_FROM_EMAIL = 'ne-respondu@pasportaservo.org'
 
 SITE_NAME = "Pasporta Servo"
 
+SALT = 'salo'
+
+CORS_ORIGIN_WHITELIST = (
+    'pasportaservo.org',
+    'localhost:4200',
+    'localhost:8000',
+)
+
+REST_FRAMEWORK = {
+    'PAGE_SIZE': 50,
+    'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework_json_api.pagination.PageNumberPagination',
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework_json_api.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser'
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework_json_api.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+    'DEFAULT_METADATA_CLASS': 'rest_framework_json_api.metadata.JSONAPIMetadata',
+}
+JSON_API_FORMAT_KEYS = 'dasherize'
 
 # Helps entering phone numbers with "00" instead of "+"
 # This means: Interpret phone number as dialed in Poland

@@ -1,2 +1,4 @@
 __pycache__/
 pasportaservo/settings/__init__.py
+*.aux
+*.log

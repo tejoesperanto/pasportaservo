@@ -1,7 +1,13 @@
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
+from django.contrib.auth.mixins import UserPassesTestMixin
 
 from .models import Profile, Place, Phone
+
+
+class StaffMixin(UserPassesTestMixin):
+    def test_func(self):
+        return lambda: self.request.user.is_staff
 
 
 class ProfileMixin(object):
@@ -24,7 +30,7 @@ class CreateMixin(object):
             place = get_object_or_404(Place, pk=self.kwargs['place_pk'])
             user_profile = getattr(self.request.user, 'profile', None)
             creation_allowed = self.request.user.is_staff or (user_profile and place.owner == user_profile)
-        
+
         if creation_allowed:
             return super(CreateMixin, self).dispatch(request, *args, **kwargs)
         else:
