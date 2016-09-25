@@ -58,6 +58,7 @@ class Profile(TimeStampedModel):
     contact_preferences = models.ManyToManyField('hosting.ContactPreference', verbose_name=_("contact preferences"), blank=True)
 
     checked = models.BooleanField(_("checked"), default=False)
+    confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
     objects = BaseQuerySet.as_manager()
@@ -105,6 +106,9 @@ class Profile(TimeStampedModel):
     def __str__(self):
         username = self.user.username if self.user else '--'
         return self.full_name if self.full_name.strip() else username
+
+    def repr(self):
+        return '{} ({})'.format(self.__str__(), self.birth_date.year)
 
     def get_absolute_url(self):
         return reverse('profile_detail', kwargs={
@@ -159,6 +163,7 @@ class Place(TimeStampedModel):
         help_text=_("List of users authorized to view most of data of this accommodation."))
 
     checked = models.BooleanField(_("checked"), default=False)
+    confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
     objects = BaseQuerySet.as_manager()
@@ -192,13 +197,20 @@ class Place(TimeStampedModel):
     def __str__(self):
         return ", ".join([self.city, force_text(self.country.name)]) if self.city else force_text(self.country.name)
 
+    def display_family_members(self):
+        family_members = self.family_members.exclude(pk=self.owner.pk).order_by('birth_date')
+        return ", ".join(fm.repr() for fm in family_members)
+
+    def display_conditions(self):
+        return ", ".join(c.__str__() for c in self.conditions.all())
+
 
 @python_2_unicode_compatible
 class Phone(TimeStampedModel):
     PHONE_TYPE_CHOICES = PHONE_TYPE_CHOICES
     MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
     profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"), related_name="phones")
-    number = PhoneNumberField(_("number"), 
+    number = PhoneNumberField(_("number"),
         help_text=_("International number format begining with the plus sign (e.g.: +31 10 436 1044)"))
     country = CountryField(_("country"))
     comments = models.CharField(_("comments"), max_length=255, blank=True)
@@ -206,6 +218,7 @@ class Phone(TimeStampedModel):
         choices=PHONE_TYPE_CHOICES, default=MOBILE)
 
     checked = models.BooleanField(_("checked"), default=False)
+    confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
     objects = BaseQuerySet.as_manager()
@@ -237,6 +250,12 @@ class Phone(TimeStampedModel):
         """
         return self.number.as_international
 
+    @property
+    def show(self):
+        t = self.type or '(?)'
+        return t + ': ' + self.number.as_international
+
+
 
 @python_2_unicode_compatible
 class Website(TimeStampedModel):
@@ -244,6 +263,7 @@ class Website(TimeStampedModel):
     url = models.URLField(_("URL"))
 
     checked = models.BooleanField(_("checked"), default=False)
+    confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
     objects = BaseQuerySet.as_manager()

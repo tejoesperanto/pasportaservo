@@ -1,0 +1,75 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-22 17:58+0000\n"
+"PO-Revision-Date: 2016-09-22 20:04+0200\n"
+"Language: eo\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
+"Language-Team: \n"
+"X-Generator: Poedit 1.8.8\n"
+
+#: links/templates/links/already_confirmed.html:5
+msgid "Already confirmed"
+msgstr "Jam konfirmite"
+
+#: links/templates/links/already_confirmed.html:6
+msgid "You already confirmed your profile and address. Thanks!"
+msgstr "Vi jam konfirmis vian profilon kaj adreson. Dankon!"
+
+#: links/templates/links/bad_time_signature.html:4
+msgid "Bad Time Signature"
+msgstr "Malbona Tempa Signo"
+
+#: links/templates/links/bad_time_signature.html:5
+msgid "The link seems not valid"
+msgstr "La ligilo ne ŝajnas esti valida"
+
+#: links/templates/links/confirmed.html:5
+msgid "Data confirmed"
+msgstr "Informoj konfirmitaj"
+
+#: links/templates/links/confirmed.html:6
+msgid "You just confirmed your profile and address. Thanks!"
+msgstr "Vi ĵus konfirmis vian profilon kaj adreson. Dankon!"
+
+#: links/templates/links/invalid_link.html:4
+msgid "Invalid Link"
+msgstr "Nevalida ligilo"
+
+#: links/templates/links/invalid_link.html:5
+msgid "The link is not valid"
+msgstr "La ligilo ne estas valida"
+
+#: links/templates/links/signature_expired.html:4
+msgid "Signature Expired"
+msgstr "Subskribo eksiĝis"
+
+#: links/templates/links/signature_expired.html:5
+msgid "The link is not valid anymore"
+msgstr "La ligilo ne plu validas"
+
+#: links/urls.py:7
+msgid "^link/(?P<token>[\\w\\.\\-_]+)$"
+msgstr "^ligilo/(?P<token>[\\w\\.\\-_]+)$"
+
+#: links/urls.py:8
+msgid "^confirmed$"
+msgstr "^konfirmita$"
+
+#: links/urls.py:9
+msgid "^already_confirmed$"
+msgstr "^jam_konfirmita$"
+
+#: links/views.py:57
+msgid "You've been automatically logged in. Happy editing!"
+msgstr "Vi estas aŭtomate ensalutita. Bonan redakton!"

@@ -48,6 +48,8 @@ INSTALLED_APPS = (
     'postman',
     'hosting',
     'pages',
+    'book',
+    'links',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -123,6 +125,7 @@ DEFAULT_FROM_EMAIL = 'ne-respondu@pasportaservo.org'
 
 SITE_NAME = "Pasporta Servo"
 
+SALT = 'salo'
 
 # Helps entering phone numbers with "00" instead of "+"
 # This means: Interpret phone number as dialed in Poland
