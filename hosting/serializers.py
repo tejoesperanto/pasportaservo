@@ -6,7 +6,7 @@ from .models import Place, Profile
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ('url', 'username', 'email')
+        fields = ('url', 'username')
 
 
 class PlaceSerializer(serializers.HyperlinkedModelSerializer):
@@ -28,7 +28,5 @@ class ProfileSerializer(serializers.HyperlinkedModelSerializer):
         model = Profile
         fields = (
             'user',
-            'title',
             'first_name',
-            'last_name',
         )
