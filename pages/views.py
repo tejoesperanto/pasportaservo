@@ -1,11 +1,9 @@
-from django.shortcuts import render
 from django.views import generic
-from django.conf import settings
 
 
 class AboutView(generic.TemplateView):
     template_name = 'pages/about.html'
-    
+
 about = AboutView.as_view()
 
 
@@ -17,6 +15,11 @@ terms_conditions = TermsAndConditionsView.as_view()
 
 class SupervisorsView(generic.TemplateView):
     template_name = 'pages/supervisors.html'
-    
+
 supervisors = SupervisorsView.as_view()
 
+
+class FaqView(generic.TemplateView):
+    template_name = 'pages/faq.html'
+
+faq = FaqView.as_view()
