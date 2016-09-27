@@ -63,10 +63,7 @@ class PlaceViewSet(viewsets.ModelViewSet):
     API endpoint that allows places to be viewed or edited.
     """
     serializer_class = PlaceSerializer
-    queryset = Place.objects.filter(
-        latitude__isnull=False,
-        longitude__isnull=False,
-    )
+    queryset = Place.with_coord.all()
 
     def get_queryset(self):
         qs = self.queryset

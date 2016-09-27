@@ -10,12 +10,11 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-import phonenumbers
 from phonenumber_field.modelfields import PhoneNumberField
 from django_extensions.db.models import TimeStampedModel
 from django_countries.fields import CountryField
 
-from .querysets import BaseQuerySet
+from .managers import NotDeletedManager, WithCoordManager
 from .validators import (
     validate_not_all_caps, validate_not_too_many_caps, validate_no_digit,
     validate_image, validate_size,
@@ -61,7 +60,8 @@ class Profile(TimeStampedModel):
     confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
-    objects = BaseQuerySet.as_manager()
+    all_objects = models.Manager()
+    objects = NotDeletedManager()
 
     class Meta:
         verbose_name = _("profile")
@@ -166,7 +166,9 @@ class Place(TimeStampedModel):
     confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
-    objects = BaseQuerySet.as_manager()
+    all_objects = models.Manager()
+    objects = NotDeletedManager()
+    with_coord = WithCoordManager()
 
     class Meta:
         verbose_name = _("place")
@@ -221,12 +223,13 @@ class Phone(TimeStampedModel):
     confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
-    objects = BaseQuerySet.as_manager()
+    all_objects = models.Manager()
+    objects = NotDeletedManager()
 
     class Meta:
-        unique_together = ('profile', 'number')
         verbose_name = _("phone")
         verbose_name_plural = _("phones")
+        unique_together = ('profile', 'number')
 
     @property
     def icon(self):
@@ -266,7 +269,8 @@ class Website(TimeStampedModel):
     confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
-    objects = BaseQuerySet.as_manager()
+    all_objects = models.Manager()
+    objects = NotDeletedManager()
 
     class Meta:
         verbose_name = _("website")
