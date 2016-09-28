@@ -242,7 +242,7 @@ class Phone(TimeStampedModel):
         else:  # self.HOME or ''
             cls = "glyphicon-earphone"
         title = self.get_type_display().capitalize()
-        template = '<span class="glyphicon {cls}" title="{title}"></span>'
+        template = '<span class="glyphicon {cls}" title="{title}" data-toggle="tooltip" data-placement="left"></span>'
         return format_html(template, cls=cls, title=title)
 
     def __str__(self):
