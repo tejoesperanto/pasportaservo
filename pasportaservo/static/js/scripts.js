@@ -82,6 +82,10 @@ $(document).ready(function() {
             content: $('#status-anchors_notification').data("content") 
         });
     }
+
+    // Bootstrap tooltips
+    $('[data-toggle=tooltip]').tooltip();
+    $('[data-toggle=tooltip-lasting]').tooltip({ delay: { show: 0, hide: 2000, } });
 });
 
 

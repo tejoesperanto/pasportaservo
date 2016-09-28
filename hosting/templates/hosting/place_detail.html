@@ -100,10 +100,14 @@
                                 <p class="col-xs-12">
                                     {{ phone.icon }}
                                     {% if phone.country %}
-                                        <span title="{{ phone.get_country_display }}">({{ phone.country }})</span>
+                                        <span title="{{ phone.get_country_display }}" data-toggle="tooltip" data-placement="bottom">({{ phone.country }})</span>
                                     {% endif %}
-                                    <span style="white-space: nowrap">{{ phone.number.as_international }}</span>&nbsp;
-                                    <br class="visible-xxs-inline" />
+                                    {% spaceless %}
+                                        {% if phone.type != phone.FAX %}<a href="tel:{{ phone.number.as_e164 }}">{% endif %}
+                                        <span style="white-space: nowrap">{{ phone.number.as_international }}</span>
+                                        {% if phone.type != phone.FAX %}</a>{% endif %}
+                                        &nbsp;<br class="visible-xxs-inline" />
+                                    {% endspaceless %}
                                     <em><small>{{ phone.comments }}</small></em>
                                 </p>
                             {% endfor %}
