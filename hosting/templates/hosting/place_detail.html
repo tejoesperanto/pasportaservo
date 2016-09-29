@@ -48,6 +48,9 @@
                         </p>
                         <p class="col-xs-4 status anchor-notify" data-placement="left" onclick="displayAnchorsNotification()">
                             {% if user.is_authenticated %}
+                                {% if place.tour_guide or place.have_a_drink %}
+                                    {% trans "available" as owner_available %}
+                                {% endif %}
                                 {% if place.tour_guide %}
                                     <img src="{% static 'img/city_guide.svg' %}"
                                          onerror="this.onerror = null; this.src = this.src.replace(/\.svg$/, '.png');"
@@ -122,10 +125,10 @@
                 <div class="col-md-12 hidden-xs hidden-sm">
                     {% if place.any_accommodation_details %}
                         <h3>{% trans "Description" %}</h3>
-                        {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night %}
+                        {% include 'hosting/snippets/place_description.html' with description=place.description place_available=place.available owner_available=owner_available contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
                     {% endif %}
                     {% if place.conditions.all %}
-                        {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all %}
+                        {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all only %}
                     {% endif %}
 
                     {% if place.family_members.all and view.verbose_view %}
@@ -161,9 +164,9 @@
             <div class="col-xs-12 hidden-md hidden-lg description-small">
                 <a id="status-anchors_notification" class="col-xs-12 anchor-notify" data-placement="bottom"
                    data-content="{% include 'hosting/snippets/place_owner_anchors.html' %}"></a>
-                {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night %}
+                {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
                 {% if place.conditions.all %}
-                    {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all %}
+                    {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all only %}
                 {% endif %}
             </div>
 
