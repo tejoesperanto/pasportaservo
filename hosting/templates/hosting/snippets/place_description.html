@@ -1,24 +1,31 @@
 {% load i18n %}
 
-{{ description|capfirst|linebreaks }}
+{{ description.strip|capfirst|linebreaks }}
 
 {% if contact_before %}
     <p>
-        {% blocktrans count nb_days=contact_before trimmed %}
-            If you want to book this accomodation, please contact me at least {{ nb_days }} day in advance.
-        {% plural %}
-            If you want to book this accomodation, please contact me at least {{ nb_days }} days in advance.
-        {% endblocktrans %}
+    {% filter cut:"<span>"|cut:"</span>"|capfirst %}{% spaceless %}
+        {% if place_available %}
+            <span>{% trans "if you want to book this accomodation" %}, </span>
+        {% elif owner_available %}
+            <span>{% trans "if you want to meet with me" %}, </span>
+        {% endif %}
+        <span>{% blocktrans count nb_days=contact_before trimmed %}
+                    please contact me at least {{ nb_days }} day in advance
+              {% plural %}
+                    please contact me at least {{ nb_days }} days in advance
+              {% endblocktrans %}.</span>
+    {% endspaceless %}{% endfilter %}
     </p>
 {% endif %}
 
 {% if not max_host and max_night %}
     <p>
         {% blocktrans count max_night=max_night trimmed %}
-            I can host during {{ max_night }} night maximum.
+            I can host during {{ max_night }} night maximum
         {% plural %}
-            I can host during {{ max_night }} nights maximum.
-        {% endblocktrans %}
+            I can host during {{ max_night }} nights maximum
+        {% endblocktrans %}.
     </p>
 {% elif max_host or max_night %}
     <p>
