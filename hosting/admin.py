@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
+from django.core import urlresolvers
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin
 
@@ -15,22 +16,38 @@ admin.site.unregister(User)
 class PlaceInLine(admin.StackedInline):
     model = Place
     extra = 0
-    raw_id_fields = ('owner', 'family_members', 'authorized_users')
-    inline_classes = ('grp-collapse grp-open',)
+    can_delete = False
+    fields = (
+        'owner', 'country', 'state_province', ('city', 'closest_city'), 'postcode', 'address',
+        ('latitude', 'longitude'),
+        'description', 'short_description',
+        ('max_guest', 'max_night', 'contact_before'), 'conditions',
+        'available', 'in_book', 'tour_guide', 'have_a_drink',
+        'family_members', 'authorized_users',
+        ('checked', 'checked_by'), 'confirmed', 'deleted',
+    )
+    raw_id_fields = ('owner', 'authorized_users', 'checked_by')
+    filter_horizontal = ('family_members',)
+    fk_name = 'owner'
+    classes = ('collapse',)
 
 
 class PhoneInLine(admin.TabularInline):
     model = Phone
     extra = 0
+    can_delete = False
+    fk_name = 'profile'
 
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     list_display = (
-        'username', 'email', 'password_algorithm',
+        'id', 'username', 'email', 'password_algorithm',
         'last_login', 'date_joined',
         'is_active', 'is_staff', 'is_superuser',
     )
+    list_display_links = ('id', 'username')
+    date_hierarchy = 'date_joined'
 
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
@@ -38,6 +55,7 @@ class CustomUserAdmin(UserAdmin):
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
+    readonly_fields = ('date_joined',)
 
     def password_algorithm(self, obj):
         if len(obj.password) == 32:
@@ -52,14 +70,17 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display = (
         '__str__', 'title', 'first_name', 'last_name',
         'birth_date', 'avatar', 'description',
-        'user__email', 'user',
-        'deleted', 'modified',
+        'user__email', 'user_link',
+        'confirmed', 'checked_by', 'deleted', 'modified',
     )
     search_fields = [
         'id', 'first_name', 'last_name', 'user__email', 'user__username',
     ]
+    list_filter = (
+        'confirmed', 'checked', 'deleted',
+    )
     date_hierarchy = 'birth_date'
-    raw_id_fields = ['user']
+    raw_id_fields = ('user', 'checked_by')
     inlines = [PlaceInLine, PhoneInLine]
 
     def user__email(self, obj):
@@ -67,20 +88,32 @@ class ProfileAdmin(admin.ModelAdmin):
             return obj.user.email
         except AttributeError:
             return '-'
+    user__email.short_description = _("Email")
+    user__email.admin_order_field = 'user__email'
+
+    def user_link(self, obj):
+        try:
+            link = urlresolvers.reverse('admin:auth_user_change', args=[obj.user.id])
+            return '<a href="%s">%s</a>' % (link, obj.user)
+        except AttributeError:
+            return '-'
+    user_link.allow_tags = True
+    user_link.short_description = _("User")
+    user_link.admin_order_field = 'user'
 
 
 @admin.register(Place)
 class PlaceAdmin(admin.ModelAdmin):
     list_display = (
-        'address', 'city', 'postcode', 'country', 'state_province',
+        'city', 'postcode', 'state_province', 'country',
         'latitude', 'longitude',
         # 'max_host', 'max_night', 'contact_before',
         'available', 'in_book',
         'owner_link',
-        'deleted', 'modified',
+        'confirmed', 'checked_by', 'deleted', 'modified',
     )
     list_display_links = (
-        'address', 'city', 'postcode', 'country',
+        'city', 'state_province', 'country',
         'latitude', 'longitude',
     )
     search_fields = [
@@ -88,22 +121,33 @@ class PlaceAdmin(admin.ModelAdmin):
         'owner__first_name', 'owner__last_name', 'owner__user__email',
     ]
     list_filter = (
-        'in_book', 'available',
+        'confirmed', 'checked', 'in_book', 'available', 'deleted',
         'country',
     )
-    raw_id_fields = ('owner', 'family_members', 'authorized_users')
+    fields = (
+        'owner', 'country', 'state_province', ('city', 'closest_city'), 'postcode', 'address',
+        ('latitude', 'longitude'),
+        'description', 'short_description',
+        ('max_guest', 'max_night', 'contact_before'), 'conditions',
+        'available', 'in_book', 'tour_guide', 'have_a_drink',
+        'family_members', 'authorized_users',
+        ('checked', 'checked_by'), 'confirmed', 'deleted',
+    )
+    raw_id_fields = ('owner', 'authorized_users', 'checked_by')
+    filter_horizontal = ('family_members',)
 
     def owner_link(self, obj):
         return '<a href="%s">%s</a>' % (obj.owner.get_admin_url(), obj.owner)
     owner_link.allow_tags = True
     owner_link.short_description = _("owner")
+    owner_link.admin_order_field = 'owner'
 
 
 @admin.register(Phone)
 class PhoneAdmin(admin.ModelAdmin):
     list_display = ('number_intl', 'country_code', 'country', 'type')
-    search_fields = ('number', 'country')
-    list_filter = ('country',)
+    search_fields = ['number', 'country']
+    list_filter = ('type', 'country')
     raw_id_fields = ('profile',)
 
     def number_intl(self, obj):
@@ -130,6 +174,7 @@ class WebsiteAdmin(admin.ModelAdmin):
         'profile__first_name', 'profile__last_name', 'profile__user__email', 'profile__user__username',
     ]
     raw_id_fields = ('profile',)
+
 
 @admin.register(ContactPreference)
 class ContactPreferenceAdmin(admin.ModelAdmin):

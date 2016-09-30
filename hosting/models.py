@@ -57,6 +57,8 @@ class Profile(TimeStampedModel):
     contact_preferences = models.ManyToManyField('hosting.ContactPreference', verbose_name=_("contact preferences"), blank=True)
 
     checked = models.BooleanField(_("checked"), default=False)
+    checked_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("approved by"), blank=True, null=True,
+        related_name="+", limit_choices_to={'is_staff': True})
     confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
@@ -163,6 +165,8 @@ class Place(TimeStampedModel):
         help_text=_("List of users authorized to view most of data of this accommodation."))
 
     checked = models.BooleanField(_("checked"), default=False)
+    checked_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("approved by"), blank=True, null=True,
+        related_name="+", limit_choices_to={'is_staff': True})
     confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
@@ -220,6 +224,7 @@ class Phone(TimeStampedModel):
         choices=PHONE_TYPE_CHOICES, default=MOBILE)
 
     checked = models.BooleanField(_("checked"), default=False)
+    #checked_by = models.ForeignKey('hosting.Profile', related_name="+", null=True)
     confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
@@ -266,6 +271,7 @@ class Website(TimeStampedModel):
     url = models.URLField(_("URL"))
 
     checked = models.BooleanField(_("checked"), default=False)
+    #checked_by = models.ForeignKey('hosting.Profile', related_name="+", null=True)
     confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
