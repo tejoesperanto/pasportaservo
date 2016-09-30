@@ -55,7 +55,7 @@ urlpatterns = [
     url(_(r'^phone/(?P<num>[\w-]+)/update/$'), phone_update, name='phone_update'),
     url(_(r'^phone/(?P<num>[\w-]+)/delete/$'), phone_delete, name='phone_delete'),
 
-    url(_(r'^search(?:/(?P<query>[^/]+))?/$'), search, name='search'),
+    url(_(r'^search(?:/(?P<query>.+))?/$'), search, name='search'),
 
     url(_(r'^mass_mail/$'), mass_mail, name='mass_mail'),
     url(_(r'^mass_mail_sent/$'), mass_mail_sent, name='mass_mail_sent'),
