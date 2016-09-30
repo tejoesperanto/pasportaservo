@@ -130,6 +130,7 @@ class ProfileUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, Form
 
     def form_valid(self, form):
         self.object.checked = self.object.user != self.request.user
+        self.object.checked_by = self.request.user if self.object.checked else None
         self.object.save()
         return super(ProfileUpdateView, self).form_valid(form)
 
@@ -245,6 +246,7 @@ class PlaceUpdateView(LoginRequiredMixin, ProfileMixin, PlaceAuthMixin, FormInva
 
     def form_valid(self, form):
         self.object.checked = self.object.owner.user != self.request.user
+        self.object.checked_by = self.request.user if self.object.checked else None
         self.object.save()
         return super(PlaceUpdateView, self).form_valid(form)
 
