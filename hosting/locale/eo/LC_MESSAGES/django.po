@@ -1214,8 +1214,8 @@ msgid "^phone/(?P<num>[\\w-]+)/delete/$"
 msgstr "^telefono/(?P<num>[\\w-]+)/forigi/$"
 
 #: hosting/urls.py:58
-msgid "^search(?:/(?P<query>[^/]+))?/$"
-msgstr "^esplori(?:/(?P<query>[^/]+))?/$"
+msgid "^search(?:/(?P<query>.+))?/$"
+msgstr "^esplori(?:/(?P<query>.+))?/$"
 
 #: hosting/urls.py:60
 msgid "^mass_mail/$"
