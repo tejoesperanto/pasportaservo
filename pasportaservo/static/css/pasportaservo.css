@@ -62,7 +62,7 @@ body, .same-as-body {
     width: 1em;
     height: 1em;
     line-height: 1em;
-} 
+}
 .glyphicon-stack-large {
     width: 2em;
     height: 2em;
@@ -102,14 +102,18 @@ body, .same-as-body {
 /* Message */
 .message {
     position: relative;
-    background: #4cae4c;
     color: white;
     font-weight: bold;
-    font-size: 1.2em;
-    padding: 1em 0;
+    padding: .8em 3em;
     text-align: center;
     box-shadow: inset rgba(0,0,0,.6) 0 -10px 10px -10px;
 }
+.message.debug { background: #aa4a86; }
+.message.info { background: #40708a; }
+.message.success { background: #4cae4c; }
+.message.warning { background: #d99c5f; }
+.message.error { background: #d95f5f; }
+
 .message a {
     color: white;
     opacity: .8;
@@ -120,21 +124,20 @@ body, .same-as-body {
 .message a:hover {
     opacity: 1;
 }
-.message a.close {
+.message .close {
     position: absolute;
     right: .5em;
     top: 8px;
-    font-size: 40px;
+    font-size: 1.6em;
     color: black;
-    text-decoration: none;
     opacity: .3;
     text-shadow: rgba(0,  0,  0,  0.2) -2px  0,   rgba(0,  0,  0,  0.2) 0  -2px,
                  rgba(255,255,255,0.2)  2px  0,   rgba(255,255,255,0.2) 0   2px,
                  rgba(0,  0,  0,  0.2) -2px -2px, rgba(255,255,255,0.2) 2px 2px;
 }
-.message a.close:focus,
-.message a.close:active,
-.message a.close:hover {
+.message .close:focus,
+.message .close:active,
+.message .close:hover {
     color: #c00;
     opacity: .5;
     outline: none;
