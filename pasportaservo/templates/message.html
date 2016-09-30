@@ -1,0 +1,5 @@
+{% load i18n %}
+<article class="container-fluid message {{ message.tags }}">
+    {{ message }}
+    <button type="button" class="close" title="{% trans "Close" %}" aria-label="{% trans "Close" %}"><span aria-hidden="true">&times;</span></button>
+</article>

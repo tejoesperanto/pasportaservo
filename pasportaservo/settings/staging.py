@@ -1,7 +1,8 @@
 from .base import *
-
+from django.contrib.messages import constants as message_level
 
 SECRET_KEY = get_env_setting('SECRET_KEY')
+MESSAGE_LEVEL = message_level.DEBUG
 
 DATABASES = {
     'default': {
