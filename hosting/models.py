@@ -43,7 +43,7 @@ PHONE_TYPE_CHOICES = (
 @python_2_unicode_compatible
 class Profile(TimeStampedModel):
     TITLE_CHOICES = TITLE_CHOICES
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, blank=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     title = models.CharField(_("title"), max_length=5, choices=TITLE_CHOICES, blank=True)
     first_name = models.CharField(_("first name"), max_length=255, blank=True,
         validators=[validate_not_all_caps, validate_not_too_many_caps, validate_no_digit])
@@ -58,7 +58,7 @@ class Profile(TimeStampedModel):
 
     checked = models.BooleanField(_("checked"), default=False)
     checked_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("approved by"), blank=True, null=True,
-        related_name="+", limit_choices_to={'is_staff': True})
+        related_name="+", limit_choices_to={'is_staff': True}, on_delete=models.SET_NULL)
     confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
@@ -128,7 +128,8 @@ class Profile(TimeStampedModel):
 
 @python_2_unicode_compatible
 class Place(TimeStampedModel):
-    owner = models.ForeignKey('hosting.Profile', verbose_name=_("owner"), related_name="owned_places")
+    owner = models.ForeignKey('hosting.Profile', verbose_name=_("owner"),
+        related_name="owned_places", on_delete=models.CASCADE)
     address = models.TextField(_("address"), blank=True,
         help_text=_("e.g.: Nieuwe Binnenweg 176"))
     city = models.CharField(_("city"), max_length=255, blank=True,
@@ -166,7 +167,7 @@ class Place(TimeStampedModel):
 
     checked = models.BooleanField(_("checked"), default=False)
     checked_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("approved by"), blank=True, null=True,
-        related_name="+", limit_choices_to={'is_staff': True})
+        related_name="+", limit_choices_to={'is_staff': True}, on_delete=models.SET_NULL)
     confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
@@ -215,7 +216,8 @@ class Place(TimeStampedModel):
 class Phone(TimeStampedModel):
     PHONE_TYPE_CHOICES = PHONE_TYPE_CHOICES
     MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
-    profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"), related_name="phones")
+    profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"),
+        related_name="phones", on_delete=models.CASCADE)
     number = PhoneNumberField(_("number"),
         help_text=_("International number format begining with the plus sign (e.g.: +31 10 436 1044)"))
     country = CountryField(_("country"))
@@ -224,7 +226,6 @@ class Phone(TimeStampedModel):
         choices=PHONE_TYPE_CHOICES, default=MOBILE)
 
     checked = models.BooleanField(_("checked"), default=False)
-    #checked_by = models.ForeignKey('hosting.Profile', related_name="+", null=True)
     confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
@@ -267,11 +268,10 @@ class Phone(TimeStampedModel):
 
 @python_2_unicode_compatible
 class Website(TimeStampedModel):
-    profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"))
+    profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"), on_delete=models.CASCADE)
     url = models.URLField(_("URL"))
 
     checked = models.BooleanField(_("checked"), default=False)
-    #checked_by = models.ForeignKey('hosting.Profile', related_name="+", null=True)
     confirmed = models.BooleanField(_("confirmed"), default=False)
     deleted = models.BooleanField(_("deleted"), default=False)
 
