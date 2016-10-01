@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
+from django.utils.html import format_html
 from django.core import urlresolvers
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin
@@ -22,7 +23,7 @@ class PlaceInLine(admin.StackedInline):
         ('latitude', 'longitude'),
         'description', 'short_description',
         ('max_guest', 'max_night', 'contact_before'), 'conditions',
-        'available', 'in_book', 'tour_guide', 'have_a_drink',
+        'available', 'in_book', ('tour_guide', 'have_a_drink'),
         'family_members', 'authorized_users',
         ('checked', 'checked_by'), 'confirmed', 'deleted',
     )
@@ -69,7 +70,7 @@ class CustomUserAdmin(UserAdmin):
 class ProfileAdmin(admin.ModelAdmin):
     list_display = (
         '__str__', 'title', 'first_name', 'last_name',
-        'birth_date', 'avatar', 'description',
+        'birth_date', #'avatar', 'description',
         'user__email', 'user_link',
         'confirmed', 'checked_by', 'deleted', 'modified',
     )
@@ -94,10 +95,9 @@ class ProfileAdmin(admin.ModelAdmin):
     def user_link(self, obj):
         try:
             link = urlresolvers.reverse('admin:auth_user_change', args=[obj.user.id])
-            return '<a href="%s">%s</a>' % (link, obj.user)
+            return format_html('<a href="{url}">{username}</a>', url=link, username=obj.user)
         except AttributeError:
             return '-'
-    user_link.allow_tags = True
     user_link.short_description = _("User")
     user_link.admin_order_field = 'user'
 
@@ -129,7 +129,7 @@ class PlaceAdmin(admin.ModelAdmin):
         ('latitude', 'longitude'),
         'description', 'short_description',
         ('max_guest', 'max_night', 'contact_before'), 'conditions',
-        'available', 'in_book', 'tour_guide', 'have_a_drink',
+        'available', 'in_book', ('tour_guide', 'have_a_drink'),
         'family_members', 'authorized_users',
         ('checked', 'checked_by'), 'confirmed', 'deleted',
     )
@@ -137,8 +137,7 @@ class PlaceAdmin(admin.ModelAdmin):
     filter_horizontal = ('family_members',)
 
     def owner_link(self, obj):
-        return '<a href="%s">%s</a>' % (obj.owner.get_admin_url(), obj.owner)
-    owner_link.allow_tags = True
+        return format_html('<a href="{url}">{name}</a>', url=obj.owner.get_admin_url(), name=obj.owner)
     owner_link.short_description = _("owner")
     owner_link.admin_order_field = 'owner'
 

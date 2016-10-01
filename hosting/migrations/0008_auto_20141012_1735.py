@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 import django_extensions.db.fields
 import django.utils.timezone
+import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -22,7 +23,7 @@ class Migration(migrations.Migration):
                 ('url', models.URLField(verbose_name='URL')),
                 ('checked', models.BooleanField(verbose_name='checked', default=False)),
                 ('deleted', models.BooleanField(verbose_name='deleted', default=False)),
-                ('profile', models.ForeignKey(verbose_name='profile', to='hosting.Profile')),
+                ('profile', models.ForeignKey(verbose_name='profile', to='hosting.Profile', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'websites',
@@ -45,7 +46,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='phone',
             name='profile',
-            field=models.ForeignKey(verbose_name='profile', default=1, to='hosting.Profile'),
+            field=models.ForeignKey(verbose_name='profile', default=1, to='hosting.Profile', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=False,
         ),
     ]

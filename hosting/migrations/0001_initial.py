@@ -7,6 +7,7 @@ import django.utils.timezone
 from django.conf import settings
 import phonenumber_field.modelfields
 import django_extensions.db.fields
+import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -83,7 +84,7 @@ class Migration(migrations.Migration):
                 ('birth_date', models.DateField(null=True, verbose_name='birth date', blank=True)),
                 ('phones', models.ManyToManyField(to='hosting.Phone', verbose_name='phone numbers', blank=True)),
                 ('places', models.ManyToManyField(to='hosting.Place', verbose_name='places', blank=True)),
-                ('user', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
+                ('user', models.OneToOneField(to=settings.AUTH_USER_MODEL, on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'verbose_name': 'profile',
