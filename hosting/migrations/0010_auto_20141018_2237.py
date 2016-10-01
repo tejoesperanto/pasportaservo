@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 import hosting.validators
 import phonenumber_field.modelfields
+import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -40,7 +41,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='phone',
             name='profile',
-            field=models.ForeignKey(to='hosting.Profile', verbose_name='profile', related_name='phones'),
+            field=models.ForeignKey(to='hosting.Profile', verbose_name='profile', related_name='phones', on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AlterField(
             model_name='place',
@@ -50,7 +51,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='place',
             name='owner',
-            field=models.ForeignKey(to='hosting.Profile', verbose_name='owner', related_name='owned_places'),
+            field=models.ForeignKey(to='hosting.Profile', verbose_name='owner', related_name='owned_places', on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AlterField(
             model_name='profile',
