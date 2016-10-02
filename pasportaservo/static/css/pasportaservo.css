@@ -360,9 +360,9 @@ p.tip {
     margin-right: 2em;
 }
 @media (max-width: 540px) {
-	.owner-avatar {
+    .owner-avatar {
         display: inline-block;
-		position: relative;
+        position: relative;
         cursor: zoom-in;
     }
     .owner-avatar:after {

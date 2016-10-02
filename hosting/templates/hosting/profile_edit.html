@@ -79,20 +79,12 @@
 
 {% block family_member_add_buttons %}
     <div class="row">
-        <form action="{% url 'family_member_add_me' place.pk %}" method="post" class="col-xs-12">
-            {% csrf_token %}
-            <a class="btn btn-info btn-vert-space" href="{% url 'family_member_create' place.pk %}">
+        <div class="col-xs-12">
+            <a class="btn btn-info" href="{% url 'family_member_create' place.pk %}">
                 <span class="glyphicon glyphicon-user"></span>
                 <strong>{% trans "Add a family member" %}</strong>
             </a>
-            {% if profile not in place.family_members.all %}
-                <button type="submit" class="btn btn-info btn-vert-space">
-                    <span class="glyphicon glyphicon-user"></span>
-                    <strong>{% trans "Add me" %}</strong>
-                    {% if profile != user.profile %}<small>({{ profile.name }})</small>{% endif %}
-                </button>
-            {% endif %}
-        </form>
+        </div>
     </div>
 {% endblock %}
 

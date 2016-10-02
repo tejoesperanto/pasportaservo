@@ -23,7 +23,7 @@ class PlaceInLine(admin.StackedInline):
         ('latitude', 'longitude'),
         'description', 'short_description',
         ('max_guest', 'max_night', 'contact_before'), 'conditions',
-        'available', 'in_book', ('tour_guide', 'have_a_drink'),
+        'available', 'in_book', ('tour_guide', 'have_a_drink'), 'sporadic_presence',
         'family_members', 'authorized_users',
         ('checked', 'checked_by'), 'confirmed', 'deleted',
     )
@@ -129,7 +129,7 @@ class PlaceAdmin(admin.ModelAdmin):
         ('latitude', 'longitude'),
         'description', 'short_description',
         ('max_guest', 'max_night', 'contact_before'), 'conditions',
-        'available', 'in_book', ('tour_guide', 'have_a_drink'),
+        'available', 'in_book', ('tour_guide', 'have_a_drink'), 'sporadic_presence',
         'family_members', 'authorized_users',
         ('checked', 'checked_by'), 'confirmed', 'deleted',
     )

@@ -140,8 +140,8 @@ class Place(TimeStampedModel):
                     "Name in the official language, not in Esperanto."),
         validators = [validate_not_all_caps, validate_not_too_many_caps])
     postcode = models.CharField(_("postcode"), max_length=11, blank=True)
-    country = CountryField(_("country"))
     state_province = models.CharField(_("State / Province"), max_length=70, blank=True)
+    country = CountryField(_("country"))
     latitude = models.FloatField(_("latitude"), null=True, blank=True)
     longitude = models.FloatField(_("longitude"), null=True, blank=True)
     max_guest = models.PositiveSmallIntegerField(_("maximum number of guest"), blank=True, null=True)
@@ -154,12 +154,14 @@ class Place(TimeStampedModel):
         help_text=_("Used in the book and on profile, 140 characters maximum."))
     available = models.BooleanField(_("available"), default=True,
         help_text=_("If this place is searchable. If yes, you will be considered as host."))
-    in_book = models.BooleanField(_("print in book"), default=False,
+    in_book = models.BooleanField(_("print in book"), default=True,
         help_text=_("If you want this place to be in the printed book. Must be available."))
     tour_guide = models.BooleanField(_("tour guide"), default=False,
         help_text=_("If you are ready to show your area to visitors."))
     have_a_drink = models.BooleanField(_("have a drink"), default=False,
         help_text=_("If you are ready to have a coffee or beer with visitors."))
+    sporadic_presence = models.BooleanField(_("irregularly present"), default=False,
+        help_text=_("If you are not often at this address and need an advance notification."))
     conditions = models.ManyToManyField('hosting.Condition', verbose_name=_("conditions"), blank=True)
     family_members = models.ManyToManyField('hosting.Profile', verbose_name=_("family members"), blank=True)
     authorized_users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("authorized users"), blank=True,
@@ -194,7 +196,6 @@ class Place(TimeStampedModel):
         boundingbox = (lng - dx, lat - dy, lng + dx, lat + dy)
         return ",".join([str(coord) for coord in boundingbox])
 
-    @property
     def any_accommodation_details(self):
         return any([self.description, self.contact_before, self.max_guest, self.max_night])
 
@@ -259,11 +260,9 @@ class Phone(TimeStampedModel):
         """
         return self.number.as_international
 
-    @property
-    def show(self):
+    def display(self):
         t = self.type or '(?)'
         return t + ': ' + self.number.as_international
-
 
 
 @python_2_unicode_compatible

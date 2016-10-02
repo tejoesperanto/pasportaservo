@@ -459,14 +459,6 @@ class FamilyMemberCreateView(LoginRequiredMixin, CreateMixin, FamilyMemberMixin,
 family_member_create = FamilyMemberCreateView.as_view()
 
 
-class FamilyMemberAddMeView(LoginRequiredMixin, FamilyMemberMixin, generic.FormView):
-    def post(self, request, *args, **kwargs):
-        self.place.family_members.add(self.place.owner)
-        return HttpResponseRedirect(self.get_success_url())
-
-family_member_add_me = FamilyMemberAddMeView.as_view()
-
-
 class FamilyMemberUpdateView(LoginRequiredMixin, FamilyMemberAuthMixin, FamilyMemberMixin, generic.UpdateView):
     model = Profile
     form_class = FamilyMemberForm
@@ -500,9 +492,10 @@ class FamilyMemberDeleteView(LoginRequiredMixin, DeleteMixin, FamilyMemberAuthMi
 #        pass
 
     def delete(self, request, *args, **kwargs):
+        redirect = super(FamilyMemberDeleteView, self).delete(request, *args, **kwargs)
         self.object = self.get_object()
         self.place.family_members.remove(self.object)
-        return super(FamilyMemberDeleteView, self).delete(request, *args, **kwargs)
+        return redirect
 
 family_member_delete = FamilyMemberDeleteView.as_view()
 
