@@ -14,7 +14,7 @@ from .views import (
     profile_settings,
     place_detail, place_detail_verbose,
     place_create, place_update, place_delete, authorize_user,
-    family_member_create, family_member_update, family_member_add_me,
+    family_member_create, family_member_update,
     family_member_remove, family_member_delete,
     phone_create, phone_update, phone_delete,
     search,
@@ -47,7 +47,6 @@ urlpatterns = [
 
     url(_(r'^place/(?P<place_pk>\d+)/family-member/create/$'), family_member_create, name='family_member_create'),
     url(_(r'^place/(?P<place_pk>\d+)/family-member/(?P<pk>\d+)/update/$'), family_member_update, name='family_member_update'),
-    url(_(r'^place/(?P<place_pk>\d+)/family-member/add-me/$'), family_member_add_me, name='family_member_add_me'),
     url(_(r'^place/(?P<place_pk>\d+)/family-member/(?P<pk>\d+)/remove/$'), family_member_remove, name='family_member_remove'),
     url(_(r'^place/(?P<place_pk>\d+)/family-member/(?P<pk>\d+)/delete/$'), family_member_delete, name='family_member_delete'),
 

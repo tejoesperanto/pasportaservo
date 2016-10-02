@@ -34,7 +34,7 @@ class PDFBookView(StaffMixin, generic.TemplateView):
 
     def generate_pdf(self, context):
         template = get_template(self.template_name)
-        rendered_tpl = template.render(context).encode('utf-8')
+        rendered_template = template.render(context).encode('utf-8')
         with tempfile.TemporaryDirectory() as tempdir:
             # Create subprocess, supress output with PIPE and
             # run latex twice to generate the TOC properly.
@@ -44,7 +44,7 @@ class PDFBookView(StaffMixin, generic.TemplateView):
                     stdin=PIPE,
                     stdout=PIPE,
                 )
-                process.communicate(rendered_tpl)
+                process.communicate(rendered_template)
             # Finally read the generated pdf.
             with open(os.path.join(tempdir, 'texput.pdf'), 'rb') as f:
                 pdf = f.read()
@@ -58,7 +58,7 @@ class ContactExport(StaffMixin, generic.ListView):
     response_class = HttpResponse
     content_type = 'text/csv'
     place_fields = ['in_book', 'checked', 'city', 'closest_city', 'address',
-        'postcode', 'country', 'state_province', 'short_description',
+        'postcode', 'state_province', 'country', 'short_description',
         'tour_guide', 'have_a_drink', 'max_guest', 'max_night', 'contact_before']
     owner_fields = ['title', 'first_name', 'last_name', 'birth_date']
     user_fields = ['email', 'username', 'last_login', 'date_joined']
@@ -94,7 +94,7 @@ class ContactExport(StaffMixin, generic.ListView):
         from_user = self.build_row(place.owner.user, self.user_fields)
         from_owner = self.build_row(place.owner, self.owner_fields)
         from_place = self.build_row(place, self.place_fields)
-        phones = [ph.show for ph in place.owner.phones.all()[:2]]
+        phones = [phone.display() for phone in place.owner.phones.all()[:2]]
         others = [place.display_family_members(), place.display_conditions(),
             self.get_url(place, 'update'), self.get_url(place, 'confirm')]
         return from_user + from_owner + from_place + phones + others

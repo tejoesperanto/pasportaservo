@@ -116,6 +116,7 @@ class PlaceForm(forms.ModelForm):
             'description', 'short_description',
             'available',
             'tour_guide', 'have_a_drink',
+            'sporadic_presence',
             'in_book',
             'conditions',
             'latitude', 'longitude',
@@ -156,7 +157,6 @@ class PlaceCreateForm(PlaceForm):
         place.owner = self.profile
         if commit:
             place.save()
-            place.family_members.add(self.profile)
         return place
 
 
