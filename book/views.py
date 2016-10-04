@@ -5,15 +5,13 @@ from subprocess import Popen, PIPE
 
 from django.http.response import HttpResponse
 from django.views import generic
-from django.template import Context
 from django.template.loader import get_template
 from django.template.defaultfilters import yesno
+from django.utils.translation import ugettext_lazy as _
 
 from hosting.mixins import StaffMixin
 from hosting.models import Place
 from links.utils import create_unique_url
-
-TITLE_MAP = {'': '', 'Mrs': 'S-ino', 'Mr': 'S-ro'}
 
 
 class PDFBookView(StaffMixin, generic.TemplateView):
@@ -62,7 +60,7 @@ class ContactExport(StaffMixin, generic.ListView):
     place_fields = ['in_book', 'checked', 'city', 'closest_city', 'address',
         'postcode', 'country', 'state_province', 'short_description',
         'tour_guide', 'have_a_drink', 'max_guest', 'max_night', 'contact_before']
-    owner_fields = [ 'title', 'first_name', 'last_name', 'birth_date']
+    owner_fields = ['title', 'first_name', 'last_name', 'birth_date']
     user_fields = ['email', 'username', 'last_login', 'date_joined']
     phone_fields = ['phone1', 'phone2']
     other_fields = ['family_members', 'conditions', 'update_url', 'confirm_url']
@@ -83,8 +81,8 @@ class ContactExport(StaffMixin, generic.ListView):
         with tempfile.TemporaryDirectory() as tempdir:
             with open(os.path.join(tempdir, 'contacts.csv'), 'w+') as f:
                 writer = csv.writer(f)
-                writer.writerow(self.user_fields + self.owner_fields \
-                    + self.place_fields + self.phone_fields + self.other_fields)
+                writer.writerow(self.user_fields + self.owner_fields +
+                    self.place_fields + self.phone_fields + self.other_fields)
                 for place in context['place_list']:
                     row = self.get_row(place)
                     writer.writerow(row)
@@ -96,7 +94,7 @@ class ContactExport(StaffMixin, generic.ListView):
         from_user = self.build_row(place.owner.user, self.user_fields)
         from_owner = self.build_row(place.owner, self.owner_fields)
         from_place = self.build_row(place, self.place_fields)
-        phones = [ph.show for ph in place.owner.phones.filter(deleted=False)[:2]]
+        phones = [ph.show for ph in place.owner.phones.all()[:2]]
         others = [place.display_family_members(), place.display_conditions(),
             self.get_url(place, 'update'), self.get_url(place, 'confirm')]
         return from_user + from_owner + from_place + phones + others
@@ -111,7 +109,7 @@ class ContactExport(StaffMixin, generic.ListView):
                 if isinstance(value, bool):
                     value = yesno(value, "1,0")
                 if f == 'title':
-                    value = TITLE_MAP[obj.title]
+                    value = _(obj.title)
                 row.append(value)
         return row
 

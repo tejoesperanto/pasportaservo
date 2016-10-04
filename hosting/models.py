@@ -97,7 +97,7 @@ class Profile(TimeStampedModel):
 
     @property
     def icon(self):
-        title=self.get_title_display().capitalize()
+        title = self.get_title_display().capitalize()
         template = '<span class="glyphicon glyphicon-user" title="{title}"></span>'
         return format_html(template, title=title)
 
@@ -110,17 +110,17 @@ class Profile(TimeStampedModel):
         return self.full_name if self.full_name.strip() else username
 
     def repr(self):
-        return '{} ({})'.format(self.__str__(), self.birth_date.year)
+        return '{} ({})'.format(self.__str__(), getattr(self.birth_date, 'year', '?'))
 
     def get_absolute_url(self):
         return reverse('profile_detail', kwargs={
-                'pk': self.pk,
-                'slug': getattr(self, 'slug', self.autoslug)})
+            'pk': self.pk,
+            'slug': getattr(self, 'slug', self.autoslug)})
 
     def get_edit_url(self):
         return reverse('profile_edit', kwargs={
-                'pk': self.pk,
-                'slug': getattr(self, 'slug', self.autoslug)})
+            'pk': self.pk,
+            'slug': getattr(self, 'slug', self.autoslug)})
 
     def get_admin_url(self):
         return reverse('admin:hosting_profile_change', args=(self.id,))
