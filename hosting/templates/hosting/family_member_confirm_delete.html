@@ -1,6 +1,10 @@
 {% extends 'hosting/base_confirm.html' %}
 {% load i18n %}
 
+{% block head_title %}
+    {% trans "Remove a family member" %}
+{% endblock %}
+
 {% block confirmation %}
     {% trans "Are you sure you want to delete this family member?" %}
 {% endblock %}

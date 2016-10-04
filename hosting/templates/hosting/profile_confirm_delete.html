@@ -1,6 +1,12 @@
 {% extends 'hosting/base_confirm.html' %}
 {% load i18n %}
 
+{% block head_title %}
+    {% if profile == user.profile %}&#9872;{% endif %}
+    {% trans "Delete profile" %}
+    {% if profile != user.profile and profile.user %} ({{ profile.anonymous_name.strip }}) {% endif %}
+{% endblock %}
+
 {% block confirmation %}
             {% if profile == user.profile %}
                 {% trans "your " as kin %}
