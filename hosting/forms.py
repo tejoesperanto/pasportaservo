@@ -236,14 +236,35 @@ class FamilyMemberForm(forms.ModelForm):
             'birth_date': { 'max_value': _("A family member cannot be future-born (even if planned)."), },
         }
 
-
-class FamilyMemberCreateForm(FamilyMemberForm):
     def __init__(self, *args, **kwargs):
         self.place = kwargs.pop('place')
         super(FamilyMemberForm, self).__init__(*args, **kwargs)
+        if not self.place_has_family_members():
+            self.fields['first_name'].help_text = _(
+                "Leave empty if you only want to indicate that other people are present in the house.")
+
+    def place_has_family_members(self):
+        members = self.place.family_members
+        if members.count() != 1:
+            return members.count() > 1
+        return members.all()[0].full_name.strip() != ""
+
+    def clean(self):
+        """Verifies that first name and last name convey some information together."""
+        cleaned_data = super(FamilyMemberForm, self).clean()
+        if 'first_name' in cleaned_data and 'last_name' in cleaned_data and self.place_has_family_members():
+            if not "".join([cleaned_data['first_name'], cleaned_data['last_name']]):
+                raise forms.ValidationError(_("The name cannot be empty, "
+                                              "at least first name or last name are required."))
+        return cleaned_data
+
+
+class FamilyMemberCreateForm(FamilyMemberForm):
+    def __init__(self, *args, **kwargs):
+        super(FamilyMemberCreateForm, self).__init__(*args, **kwargs)
 
     def save(self):
-        family_member = super(FamilyMemberForm, self).save()
+        family_member = super(FamilyMemberCreateForm, self).save()
         self.place.family_members.add(family_member)
         return family_member
 

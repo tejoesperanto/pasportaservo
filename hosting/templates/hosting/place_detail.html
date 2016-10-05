@@ -48,9 +48,6 @@
                         </p>
                         <p class="col-xs-4 status anchor-notify" data-placement="left" onclick="displayAnchorsNotification()">
                             {% if user.is_authenticated %}
-                                {% if place.tour_guide or place.have_a_drink %}
-                                    {% trans "available" as owner_available %}
-                                {% endif %}
                                 {% if place.tour_guide %}
                                     <img src="{% static 'img/city_guide.svg' %}"
                                          onerror="this.onerror = null; this.src = this.src.replace(/\.svg$/, '.png');"
@@ -125,7 +122,7 @@
                 <div class="col-md-12 hidden-xs hidden-sm">
                     {% if place.any_accommodation_details %}
                         <h3>{% trans "Description" %}</h3>
-                        {% include 'hosting/snippets/place_description.html' with description=place.description place_available=place.available owner_available=owner_available contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
+                        {% include 'hosting/snippets/place_description.html' with description=place.description place_available=place.available owner_available=place.owner_available contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
                     {% endif %}
                     {% if place.conditions.all %}
                         {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all only %}
@@ -136,14 +133,29 @@
                         <ul>
                             {% for member in place.family_members.all %}
                                 <li>
-                                    {{ member.full_name }}
-                                    {% if member.age %}
-                                        ({{ member.age }})
+                                    {% if forloop.first and forloop.last and not member.full_name.strip %}
+                                        <em>{% trans "Other dwellers at this place." %}</em>
+                                    {% else %}
+                                        {{ member.full_name }}
+                                        {% if member.birth_date %}
+                                            ({{ member.age }})
+                                        {% endif %}
                                     {% endif %}
                                 </li>
                             {% endfor %}
                         </ul>
                     {% endif %}
+                    <p>
+                        {% if place.sporadic_presence %}
+                        {% if place.available or place.owner_available or view.verbose_view %}
+                            <span class="glyphicon glyphicon-asterisk" style="color: #f71"></span>
+                            {% trans "I'm not present at this address at all times; contact me in advance." %}
+                        {% endif %}
+                        {% endif %}
+                        {% if place.family_members.all and not view.verbose_view %}
+                            {% trans "Other dwellers at this place." %}
+                        {% endif %}
+                    </p>
                 </div>
             {% else %}
                 {% include 'hosting/snippets/registration.html' %}
@@ -165,6 +177,21 @@
                 <a id="status-anchors_notification" class="col-xs-12 anchor-notify" data-placement="bottom"
                    data-content="{% include 'hosting/snippets/place_owner_anchors.html' %}"></a>
                 {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
+
+                {% if place.sporadic_presence %}
+                {% if place.available or place.owner_available or view.verbose_view %}
+                    <p>
+                        <span class="glyphicon glyphicon-list-alt" style="color: #737373"></span>&nbsp;
+                        {% trans "I'm not present at this address at all times; contact me in advance." %}
+                    </p>
+                {% endif %}
+                {% endif %}
+                {% if place.family_members.all %}
+                    <p>
+                        <span class="glyphicon glyphicon-user" style="color: #737373"></span>&nbsp;
+                        {% trans "Other dwellers at this place." %}
+                    </p>
+                {% endif %}
                 {% if place.conditions.all %}
                     {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all only %}
                 {% endif %}
