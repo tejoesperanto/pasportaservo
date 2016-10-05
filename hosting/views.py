@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from urllib.parse import unquote_plus
+from django.utils.six.moves.urllib.parse import unquote_plus
 from markdown2 import markdown
 import geopy
 
