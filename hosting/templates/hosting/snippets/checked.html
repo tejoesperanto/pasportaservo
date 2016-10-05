@@ -1,4 +1,5 @@
 {% load i18n %}
+{% spaceless %}
 {% if user.is_staff %}
     {% if object.checked %}
         <span class="staff label label-success"
@@ -13,9 +14,12 @@
                         {% trans "approver unknown"|capfirst %}
                      {% endif %}"
               data-toggle="tooltip-lasting" data-placement="bottom" data-html="true">
-            <span class="glyphicon glyphicon-ok-circle"></span> {% trans "Checked" %}
+            <span class="glyphicon glyphicon-ok-circle"></span> <span>&nbsp;{% trans "Checked" %}</span>
         </span>
     {% else %}
-        <span class="staff label label-warning"><span class="glyphicon glyphicon-remove-circle"></span> {% trans "Not checked" %}</span>
+        <span class="staff label label-warning">
+            <span class="glyphicon glyphicon-remove-circle"></span> <span>&nbsp;{% trans "Not checked" %}</span>
+        </span>
     {% endif %}
 {% endif %}
+{% endspaceless %}
