@@ -451,6 +451,23 @@ class FamilyMemberCreateView(LoginRequiredMixin, CreateMixin, FamilyMemberMixin,
     model = Profile
     form_class = FamilyMemberCreateForm
 
+    def verify_anonymous_family(self):
+        # allow creation of only one completely anonymous family member
+        if self.place.family_members.count() == 1 and not self.place.family_members.all()[0].full_name.strip():
+            return HttpResponseRedirect(
+                reverse_lazy('family_member_update',
+                    kwargs={'pk': self.place.family_members.all()[0].pk, 'place_pk': self.kwargs['place_pk']}))
+        else:
+            return None
+
+    def get(self, request, *args, **kwargs):
+        redirect = self.verify_anonymous_family()
+        return redirect or super(FamilyMemberCreateView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        redirect = self.verify_anonymous_family()
+        return redirect or super(FamilyMemberCreateView, self).post(request, *args, **kwargs)
+
     def get_form_kwargs(self):
         kwargs = super(FamilyMemberCreateView, self).get_form_kwargs()
         kwargs['place'] = self.place
@@ -462,6 +479,11 @@ family_member_create = FamilyMemberCreateView.as_view()
 class FamilyMemberUpdateView(LoginRequiredMixin, FamilyMemberAuthMixin, FamilyMemberMixin, generic.UpdateView):
     model = Profile
     form_class = FamilyMemberForm
+
+    def get_form_kwargs(self):
+        kwargs = super(FamilyMemberUpdateView, self).get_form_kwargs()
+        kwargs['place'] = self.place
+        return kwargs
 
 family_member_update = FamilyMemberUpdateView.as_view()
 

@@ -201,6 +201,10 @@ class Place(TimeStampedModel):
     def any_accommodation_details(self):
         return any([self.description, self.contact_before, self.max_guest, self.max_night])
 
+    @property
+    def owner_available(self):
+        return self.tour_guide or self.have_a_drink
+
     def get_absolute_url(self):
         return reverse('place_detail', kwargs={'pk': self.pk})
 

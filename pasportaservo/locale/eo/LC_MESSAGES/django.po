@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-09-23 13:01+0000\n"
-"PO-Revision-Date: 2016-04-13 11:19+0200\n"
+"PO-Revision-Date: 2016-10-05 03:19+0100\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <info@pasportaservo.org>\n"
 "Language: eo\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #: pasportaservo/templates/403.html:5
 msgid "No no, that page is off-limits"
-msgstr ""
+msgstr "Ne ne ne, tiun paĝon vi evitu"
 
 #: pasportaservo/templates/404.html:5
 msgid "Page not found"
@@ -37,6 +37,10 @@ msgid ""
 msgstr ""
 "La administrantoj estas informitaj pri la problemo kaj ĝin korektos kieleble "
 "plej baldaŭ."
+
+#: pasportaservo/templates/message.html:4
+msgid "Hide"
+msgstr "Kaŝi"
 
 #: pasportaservo/templates/postman/archives.html:4
 #: pasportaservo/templates/postman/base.html:30
@@ -279,39 +283,39 @@ msgstr "^ensaluti/$"
 msgid "^logout/$"
 msgstr "^elsaluti/$"
 
-#: pasportaservo/urls.py:18
+#: pasportaservo/urls.py:17
 msgid "^password/$"
 msgstr "^pasvorto/$"
 
-#: pasportaservo/urls.py:19
+#: pasportaservo/urls.py:18
 msgid "^password/done/$"
 msgstr "^pasvorto/fino/$"
 
-#: pasportaservo/urls.py:20
+#: pasportaservo/urls.py:19
 msgid "^password/reset/$"
 msgstr "^pasvorto/nova/$"
 
-#: pasportaservo/urls.py:21
+#: pasportaservo/urls.py:20
 msgid "^password/reset/done/$"
 msgstr "^pasvorto/nova/fino/$"
 
-#: pasportaservo/urls.py:22
+#: pasportaservo/urls.py:21
 msgid ""
-"^reset/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]"
-"{1,20})/$"
+"^reset/"
+"(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$"
 msgstr ""
-"^nova-pasvorto/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-"
-"[0-9A-Za-z]{1,20})/$"
+"^nova-pasvorto/"
+"(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$"
 
-#: pasportaservo/urls.py:24
+#: pasportaservo/urls.py:23
 msgid "^reset/done/$"
 msgstr "^nova-pasvorto/fino/$"
 
-#: pasportaservo/urls.py:28
+#: pasportaservo/urls.py:27
 msgid "^admin/"
 msgstr "^administrilo/"
 
-#: pasportaservo/urls.py:29
+#: pasportaservo/urls.py:28
 msgid "^messages/"
 msgstr "^leteroj/"
 
