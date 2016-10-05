@@ -133,6 +133,10 @@
                         <ul>
                             {% for member in place.family_members.all %}
                                 <li>
+                                    {% if member.user %}
+                                        <a href="{{ member.get_absolute_url }}" data-toggle="popover" data-trigger="hover focus" data-placement="top"
+                                           data-content="<img src='{{ member.avatar_url }}' height='90'>" data-html="true">
+                                    {% endif %}
                                     {% if forloop.first and forloop.last and not member.full_name.strip %}
                                         <em>{% trans "Other dwellers at this place." %}</em>
                                     {% else %}
@@ -140,6 +144,9 @@
                                         {% if member.birth_date %}
                                             ({{ member.age }})
                                         {% endif %}
+                                    {% endif %}
+                                    {% if member.user %}
+                                        </a>
                                     {% endif %}
                                 </li>
                             {% endfor %}

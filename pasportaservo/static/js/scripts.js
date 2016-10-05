@@ -83,9 +83,10 @@ $(document).ready(function() {
         });
     }
 
-    // Bootstrap tooltips
+    // Bootstrap tooltips and popovers
     $('[data-toggle=tooltip]').tooltip();
     $('[data-toggle=tooltip-lasting]').tooltip({ delay: { show: 0, hide: 2000, } });
+    $('[data-toggle=popover]').popover();
 });
 
 

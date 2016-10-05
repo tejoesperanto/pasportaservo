@@ -60,7 +60,7 @@
 
 {% block family_member_edit_buttons %}
     <div class="btn-group pull-right">
-        {% if member != profile %}
+        {% if member != profile and not member.user %}
             <a href="{% url 'family_member_update' place.pk member.pk %}?next={{ request.get_full_path|urlencode }}"
                class="btn btn-success"
                title="{% trans "Update" %}">
