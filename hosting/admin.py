@@ -43,7 +43,7 @@ class PhoneInLine(admin.TabularInline):
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     list_display = (
-        'id', 'username', 'email', 'password_algorithm',
+        'id', 'username', 'email', 'password_algorithm', 'profile_link',
         'last_login', 'date_joined',
         'is_active', 'is_staff', 'is_superuser',
     )
@@ -65,6 +65,27 @@ class CustomUserAdmin(UserAdmin):
             return 'PBKDF2 SHA256'
     password_algorithm.short_description = _("Password algorithm")
 
+    def profile_link(self, obj):
+        try:
+            fullname = obj.profile if (obj.profile.first_name or obj.profile.last_name) else "--."
+            return format_html('<a href="{url}">{name}</a>', url=obj.profile.get_admin_url(), name=fullname)
+        except AttributeError:
+            return '-'
+    profile_link.short_description = _("profile")
+    profile_link.admin_order_field = 'profile'
+
+
+class ProfileHasUserFilter(admin.SimpleListFilter):
+    title = _("user is defined")
+    parameter_name = 'has_user'
+
+    def lookups(self, request, model_admin):
+        return ((1, _('Yes')), (0, _('No')))
+
+    def queryset(self, request, queryset):
+        if str(self.value()).isdigit():
+            return queryset.filter(user__isnull=(int(self.value()) == 0))
+
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
@@ -78,7 +99,7 @@ class ProfileAdmin(admin.ModelAdmin):
         'id', 'first_name', 'last_name', 'user__email', 'user__username',
     ]
     list_filter = (
-        'confirmed', 'checked', 'deleted',
+        'confirmed', 'checked', 'deleted', ProfileHasUserFilter,
     )
     date_hierarchy = 'birth_date'
     raw_id_fields = ('user', 'checked_by')
@@ -98,7 +119,7 @@ class ProfileAdmin(admin.ModelAdmin):
             return format_html('<a href="{url}">{username}</a>', url=link, username=obj.user)
         except AttributeError:
             return '-'
-    user_link.short_description = _("User")
+    user_link.short_description = _("user")
     user_link.admin_order_field = 'user'
 
 
