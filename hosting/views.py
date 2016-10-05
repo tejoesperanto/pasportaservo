@@ -48,6 +48,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
+    http_method_names = ['get']
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
@@ -56,6 +57,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
     """
     serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
+    http_method_names = ['get']
 
 
 class PlaceViewSet(viewsets.ModelViewSet):
@@ -64,9 +66,11 @@ class PlaceViewSet(viewsets.ModelViewSet):
     """
     serializer_class = PlaceSerializer
     queryset = Place.with_coord.all()
+    http_method_names = ['get']
 
     def get_queryset(self):
         qs = self.queryset
+        qs = self.get_serializer_class().setup_eager_loading(qs)
         bounds = {p: self.request.query_params.get(p, None) for p in 'nswe'}
         if any(bounds.values()):
             qs = qs.filter(latitude__range=(bounds['s'], bounds['n']))
