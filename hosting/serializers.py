@@ -12,6 +12,11 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class PlaceSerializer(serializers.HyperlinkedModelSerializer):
     link = serializers.URLField(source='get_absolute_url')
 
+    @staticmethod
+    def setup_eager_loading(queryset):
+        queryset = queryset.prefetch_related('owner', 'owner__user')
+        return queryset
+
     class Meta:
         model = Place
         fields = (
