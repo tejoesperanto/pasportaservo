@@ -232,6 +232,9 @@ class FamilyMemberForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['title', 'first_name', 'last_name', 'birth_date']
+        error_messages = {
+            'birth_date': { 'max_value': _("A family member cannot be future-born (even if planned)."), },
+        }
 
 
 class FamilyMemberCreateForm(FamilyMemberForm):
