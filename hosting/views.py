@@ -153,7 +153,7 @@ class ProfileDeleteView(LoginRequiredMixin, DeleteMixin, ProfileAuthMixin, gener
 
     def get_context_data(self, **kwargs):
         context = super(ProfileDeleteView, self).get_context_data(**kwargs)
-        context['places'] = self.object.owned_places.all().filter(deleted=False)
+        context['places'] = self.object.owned_places.filter(deleted=False)
         return context
 
     def get_success_url(self):
@@ -204,9 +204,9 @@ class ProfileDetailView(LoginRequiredMixin, ProfileAuthMixin, generic.DetailView
 
     def get_context_data(self, **kwargs):
         context = super(ProfileDetailView, self).get_context_data(**kwargs)
-        context['places'] = self.object.owned_places.all().filter(deleted=False)
+        context['places'] = self.object.owned_places.filter(deleted=False)
         context['is_hosting'] = context['places'].filter(available=True).count()
-        context['phones'] = self.object.phones.all().filter(deleted=False)
+        context['phones'] = self.object.phones.filter(deleted=False)
         context['role'] = self.role
         return context
 
@@ -359,7 +359,7 @@ class SearchView(generic.ListView):
                 bounds = location.raw['bounds']
                 lats = (bounds['southwest']['lat'], bounds['northeast']['lat'])
                 lngs = (bounds['southwest']['lng'], bounds['northeast']['lng'])
-                qs = Place.objects.filter(available=True, deleted=False)
+                qs = Place.objects.filter(available=True)
                 qs = qs.filter(latitude__range=lats, longitude__range=lngs)
                 qs = qs.filter(country=country_code.upper()) if country_code else qs
 
@@ -370,7 +370,6 @@ class SearchView(generic.ListView):
         qs |= Place.objects.filter(owner__first_name__icontains=self.query)
         qs |= Place.objects.filter(owner__last_name__icontains=self.query)
         qs |= Place.objects.filter(closest_city__icontains=self.query)
-        qs.filter(deleted=False)
         return qs.select_related('owner__user').order_by('country', 'city')
 
     @property
@@ -538,30 +537,30 @@ class MassMailView(SuperuserRequiredMixin, generic.FormView):
         template = get_template('hosting/emails/mail_template.html')
 
         opening = datetime(2014,11,24)
-        places = Place.objects.filter(deleted=False).select_related('owner__user')
+        places = Place.objects.select_related('owner__user')
         profiles = []
 
         if category in ("test", "just_user"):
             places = []
             # only active profiles, linked to existing user accounts
-            profiles = Profile.objects.filter(deleted=False, user__isnull=False)
+            profiles = Profile.objects.filter(user__isnull=False)
             # exclude completely those who have at least one active available place
-            profiles = profiles.exclude(owned_places=Place.objects.filter(available=True, deleted=False))
+            profiles = profiles.exclude(owned_places=Place.objects.filter(available=True))
             # remove profiles with places available in the past, that is deleted
             profiles = profiles.filter(Q(owned_places__available=False) | Q(owned_places__isnull=True))
             # finally remove duplicates
             profiles = profiles.distinct()
         elif category == "old_system":
             # those who logged in before the opening date; essentially, never used the new system
-            profiles = Profile.objects.filter(user__last_login__lte=opening, deleted=False, owned_places__deleted=False).distinct()
+            profiles = Profile.objects.filter(user__last_login__lte=opening).distinct()
         else:
             # those who logged in after the opening date
-            profiles = Profile.objects.filter(user__last_login__gt=opening, deleted=False)
+            profiles = Profile.objects.filter(user__last_login__gt=opening)
             # filter by active places according to 'in-book?' selection
             if category == "in_book":
-                profiles = profiles.filter(owned_places__in_book=True, owned_places__deleted=False)
+                profiles = profiles.filter(owned_places__in_book=True)
             elif category == "not_in_book":
-                profiles = profiles.filter(owned_places__in_book=False, owned_places__available=True, owned_places__deleted=False)
+                profiles = profiles.filter(owned_places__in_book=False, owned_places__available=True)
             # finally remove duplicates
             profiles = profiles.distinct()
 

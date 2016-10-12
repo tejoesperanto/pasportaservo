@@ -67,7 +67,7 @@ class ContactExport(StaffMixin, generic.ListView):
 
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related('owner__user')
-        qs = qs.filter(available=True, deleted=False)
+        qs = qs.filter(available=True)
         return qs
 
     def render_to_response(self, context, **response_kwargs):
