@@ -27,8 +27,7 @@ class PlaceInLine(admin.StackedInline):
         'family_members', 'authorized_users',
         ('checked', 'checked_by'), 'confirmed', 'deleted',
     )
-    raw_id_fields = ('owner', 'authorized_users', 'checked_by')
-    filter_horizontal = ('family_members',)
+    raw_id_fields = ('owner', 'authorized_users', 'checked_by', 'family_members',)
     fk_name = 'owner'
     classes = ('collapse',)
 
@@ -154,8 +153,7 @@ class PlaceAdmin(admin.ModelAdmin):
         'family_members', 'authorized_users',
         ('checked', 'checked_by'), 'confirmed', 'deleted',
     )
-    raw_id_fields = ('owner', 'authorized_users', 'checked_by')
-    filter_horizontal = ('family_members',)
+    raw_id_fields = ('owner', 'authorized_users', 'checked_by', 'family_members',)
 
     def owner_link(self, obj):
         return format_html('<a href="{url}">{name}</a>', url=obj.owner.get_admin_url(), name=obj.owner)
