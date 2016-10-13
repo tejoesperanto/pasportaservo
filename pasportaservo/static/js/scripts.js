@@ -10,7 +10,7 @@ $(document).ready(function() {
     });
 
     // Close message
-    $('a.close').click(function(e) {
+    $('.close').click(function(e) {
         $(this).hide();
         $(this).parents('.message').slideUp();
         e.preventDefault();
