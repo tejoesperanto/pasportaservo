@@ -130,6 +130,7 @@ DEFAULT_FROM_EMAIL = 'ne-respondu@pasportaservo.org'
 SITE_NAME = "Pasporta Servo"
 
 SALT = 'salo'
+TOKEN_MAX_AGE = 3600 * 24 * 30 * 2  # 2 months
 
 CONFIRMED_PERIOD = timedelta(weeks=42)  # Delay after a object is no more considered confirmed
 

@@ -124,6 +124,9 @@ class Profile(TrackingModel, TimeStampedModel):
     def repr(self):
         return '{} ({})'.format(self.__str__(), getattr(self.birth_date, 'year', '?'))
 
+    def display_phones(self):
+        return ", ".join(phone.display() for phone in self.phones.all())
+
     def get_absolute_url(self):
         return reverse('profile_detail', kwargs={
             'pk': self.pk,
@@ -199,6 +202,7 @@ class Place(TrackingModel, TimeStampedModel):
         boundingbox = (lng - dx, lat - dy, lng + dx, lat + dy)
         return ",".join([str(coord) for coord in boundingbox])
 
+    @property
     def any_accommodation_details(self):
         return any([self.description, self.contact_before, self.max_guest, self.max_night])
 

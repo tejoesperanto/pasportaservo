@@ -62,8 +62,7 @@ class ContactExport(StaffMixin, generic.ListView):
         'tour_guide', 'have_a_drink', 'max_guest', 'max_night', 'contact_before']
     owner_fields = ['title', 'first_name', 'last_name', 'birth_date']
     user_fields = ['email', 'username', 'last_login', 'date_joined']
-    phone_fields = ['phone1', 'phone2']
-    other_fields = ['family_members', 'conditions', 'update_url', 'confirm_url']
+    other_fields = ['phones', 'family_members', 'conditions', 'update_url', 'confirm_url']
 
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related('owner__user')
@@ -82,7 +81,7 @@ class ContactExport(StaffMixin, generic.ListView):
             with open(os.path.join(tempdir, 'contacts.csv'), 'w+') as f:
                 writer = csv.writer(f)
                 writer.writerow(self.user_fields + self.owner_fields +
-                    self.place_fields + self.phone_fields + self.other_fields)
+                                self.place_fields + self.other_fields)
                 for place in context['place_list']:
                     row = self.get_row(place)
                     writer.writerow(row)
@@ -94,10 +93,14 @@ class ContactExport(StaffMixin, generic.ListView):
         from_user = self.build_row(place.owner.user, self.user_fields)
         from_owner = self.build_row(place.owner, self.owner_fields)
         from_place = self.build_row(place, self.place_fields)
-        phones = [phone.display() for phone in place.owner.phones.all()[:2]]
-        others = [place.display_family_members(), place.display_conditions(),
-            self.get_url(place, 'update'), self.get_url(place, 'confirm')]
-        return from_user + from_owner + from_place + phones + others
+        others = [
+            place.owner.display_phones(),
+            place.display_family_members(),
+            place.display_conditions(),
+            self.get_url(place, 'update'),
+            self.get_url(place, 'confirm'),
+        ]
+        return from_user + from_owner + from_place + others
 
     def build_row(self, obj, fields):
         row = []
@@ -107,7 +110,7 @@ class ContactExport(StaffMixin, generic.ListView):
                 row.append(value.strftime('%m/%d/%Y'))
             except AttributeError:
                 if isinstance(value, bool):
-                    value = yesno(value, "1,0")
+                    value = yesno(value, _("yes,no"))
                 if f == 'title':
                     value = _(obj.title)
                 row.append(value)
