@@ -242,7 +242,7 @@ class Phone(TimeStampedModel):
     class Meta:
         verbose_name = _("phone")
         verbose_name_plural = _("phones")
-        unique_together = ('profile', 'number')
+        # unique_together = ('profile', 'number')  # https://code.djangoproject.com/ticket/26819
 
     @property
     def icon(self):
