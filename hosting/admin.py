@@ -25,7 +25,7 @@ class PlaceInLine(admin.StackedInline):
         ('max_guest', 'max_night', 'contact_before'), 'conditions',
         'available', 'in_book', ('tour_guide', 'have_a_drink'), 'sporadic_presence',
         'family_members', 'authorized_users',
-        ('checked', 'checked_by'), 'confirmed', 'deleted',
+        ('checked', 'checked_by'), 'confirmed_on', 'deleted',
     )
     raw_id_fields = ('owner', 'authorized_users', 'checked_by', 'family_members',)
     fk_name = 'owner'
@@ -92,13 +92,13 @@ class ProfileAdmin(admin.ModelAdmin):
         '__str__', 'title', 'first_name', 'last_name',
         'birth_date', #'avatar', 'description',
         'user__email', 'user_link',
-        'confirmed', 'checked_by', 'deleted', 'modified',
+        'confirmed_on', 'checked_by', 'deleted', 'modified',
     )
     search_fields = [
         'id', 'first_name', 'last_name', 'user__email', 'user__username',
     ]
     list_filter = (
-        'confirmed', 'checked', 'deleted', ProfileHasUserFilter,
+        'confirmed_on', 'checked', 'deleted', ProfileHasUserFilter,
     )
     date_hierarchy = 'birth_date'
     raw_id_fields = ('user', 'checked_by')
@@ -130,7 +130,7 @@ class PlaceAdmin(admin.ModelAdmin):
         # 'max_host', 'max_night', 'contact_before',
         'available', 'in_book',
         'owner_link',
-        'confirmed', 'checked_by', 'deleted', 'modified',
+        'confirmed_on', 'checked_by', 'deleted', 'modified',
     )
     list_display_links = (
         'city', 'state_province', 'country',
@@ -141,7 +141,7 @@ class PlaceAdmin(admin.ModelAdmin):
         'owner__first_name', 'owner__last_name', 'owner__user__email',
     ]
     list_filter = (
-        'confirmed', 'checked', 'in_book', 'available', 'deleted',
+        'confirmed_on', 'checked', 'in_book', 'available', 'deleted',
         'country',
     )
     fields = (
@@ -151,7 +151,7 @@ class PlaceAdmin(admin.ModelAdmin):
         ('max_guest', 'max_night', 'contact_before'), 'conditions',
         'available', 'in_book', ('tour_guide', 'have_a_drink'), 'sporadic_presence',
         'family_members', 'authorized_users',
-        ('checked', 'checked_by'), 'confirmed', 'deleted',
+        ('checked', 'checked_by'), 'confirmed_on', 'deleted',
     )
     raw_id_fields = ('owner', 'authorized_users', 'checked_by', 'family_members',)
 

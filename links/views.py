@@ -8,6 +8,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth import login
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from hosting.models import Place
@@ -39,13 +40,14 @@ class UniqueLinkView(generic.TemplateView):
         place = get_object_or_404(Place, pk=payload['place'])
         if place.confirmed and place.owner.confirmed:
             return HttpResponseRedirect(reverse('already_confirmed'))
+        now = timezone.now()
+        place.confirmed_on = now
+        place.owner.confirmed_on = now
         with transaction.atomic():
-            place.confirmed = True
             place.save()
-            place.owner.confirmed = True
             place.owner.save()
-            place.owner.phones.update(confirmed=True)
-            place.owner.website_set.update(confirmed=True)
+            place.owner.phones.update(confirmed_on=now)
+            place.owner.website_set.update(confirmed_on=now)
         return HttpResponseRedirect(reverse('confirmed'))
 
     def redirect_update(self, request, payload):

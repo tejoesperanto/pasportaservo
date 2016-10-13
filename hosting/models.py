@@ -1,8 +1,7 @@
-from __future__ import unicode_literals
-
 from datetime import date
 
-from django.utils.encoding import python_2_unicode_compatible, force_text
+from django.utils import timezone
+from django.utils.encoding import force_text
 from django.utils.html import format_html
 from django.utils.text import slugify
 from django.db import models
@@ -41,8 +40,28 @@ PHONE_TYPE_CHOICES = (
 )
 
 
-@python_2_unicode_compatible
-class Profile(TimeStampedModel):
+class TrackingModel(models.Model):
+    checked = models.BooleanField(_("checked"), default=False)
+    checked_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("approved by"), blank=True, null=True,
+        related_name="+", limit_choices_to={'is_staff': True}, on_delete=models.SET_NULL)
+    confirmed_on = models.DateTimeField(_("confirmed on"), default=None, blank=True, null=True)
+    deleted = models.BooleanField(_("deleted"), default=False)
+
+    all_objects = models.Manager()
+    objects = NotDeletedManager()
+
+    class Meta:
+        abstract = True
+
+    @property
+    def confirmed(self):
+        """If the confirmed_on date is more recent than several months."""
+        if not self.confirmed_on:
+            return False
+        return (timezone.now() - self.confirmed_on) < settings.CONFIRMED_PERIOD
+
+
+class Profile(TrackingModel, TimeStampedModel):
     TITLE_CHOICES = TITLE_CHOICES
     user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     title = models.CharField(_("title"), max_length=5, choices=TITLE_CHOICES, blank=True)
@@ -57,15 +76,6 @@ class Profile(TimeStampedModel):
         validators=[validate_image, validate_size],
         help_text=_("Small image under 100kB. Ideal size: 140x140 px."))
     contact_preferences = models.ManyToManyField('hosting.ContactPreference', verbose_name=_("contact preferences"), blank=True)
-
-    checked = models.BooleanField(_("checked"), default=False)
-    checked_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("approved by"), blank=True, null=True,
-        related_name="+", limit_choices_to={'is_staff': True}, on_delete=models.SET_NULL)
-    confirmed = models.BooleanField(_("confirmed"), default=False)
-    deleted = models.BooleanField(_("deleted"), default=False)
-
-    all_objects = models.Manager()
-    objects = NotDeletedManager()
 
     class Meta:
         verbose_name = _("profile")
@@ -82,7 +92,7 @@ class Profile(TimeStampedModel):
 
     @property
     def anonymous_name(self):
-        return " ".join((self.first_name, self.last_name[:1]+"." if self.last_name else "")).strip()  \
+        return " ".join((self.first_name, self.last_name[:1] + "." if self.last_name else "")).strip()  \
                or (self.user.username.title() if self.user else " ")
 
     @property
@@ -128,19 +138,18 @@ class Profile(TimeStampedModel):
         return reverse('admin:hosting_profile_change', args=(self.id,))
 
 
-@python_2_unicode_compatible
-class Place(TimeStampedModel):
+class Place(TrackingModel, TimeStampedModel):
     owner = models.ForeignKey('hosting.Profile', verbose_name=_("owner"),
         related_name="owned_places", on_delete=models.CASCADE)
     address = models.TextField(_("address"), blank=True,
         help_text=_("e.g.: Nieuwe Binnenweg 176"))
     city = models.CharField(_("city"), max_length=255, blank=True,
         help_text=_("Name in the official language, not in Esperanto (e.g.: Rotterdam)"),
-        validators = [validate_not_all_caps, validate_not_too_many_caps])
+        validators=[validate_not_all_caps, validate_not_too_many_caps])
     closest_city = models.CharField(_("closest big city"), max_length=255, blank=True,
         help_text=_("If you place is in a town near a bigger city. "
                     "Name in the official language, not in Esperanto."),
-        validators = [validate_not_all_caps, validate_not_too_many_caps])
+        validators=[validate_not_all_caps, validate_not_too_many_caps])
     postcode = models.CharField(_("postcode"), max_length=11, blank=True)
     state_province = models.CharField(_("State / Province"), max_length=70, blank=True)
     country = CountryField(_("country"))
@@ -169,14 +178,6 @@ class Place(TimeStampedModel):
     authorized_users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("authorized users"), blank=True,
         help_text=_("List of users authorized to view most of data of this accommodation."))
 
-    checked = models.BooleanField(_("checked"), default=False)
-    checked_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("approved by"), blank=True, null=True,
-        related_name="+", limit_choices_to={'is_staff': True}, on_delete=models.SET_NULL)
-    confirmed = models.BooleanField(_("confirmed"), default=False)
-    deleted = models.BooleanField(_("deleted"), default=False)
-
-    all_objects = models.Manager()
-    objects = NotDeletedManager()
     with_coord = WithCoordManager()
 
     class Meta:
@@ -185,7 +186,7 @@ class Place(TimeStampedModel):
 
     @property
     def profile(self):
-        """Proxy for self.owner. Rename 'owner' to 'profile' is possible."""
+        """Proxy for self.owner. Rename 'owner' to 'profile' if/as possible."""
         return self.owner
 
     @property
@@ -219,8 +220,7 @@ class Place(TimeStampedModel):
         return ", ".join(c.__str__() for c in self.conditions.all())
 
 
-@python_2_unicode_compatible
-class Phone(TimeStampedModel):
+class Phone(TrackingModel, TimeStampedModel):
     PHONE_TYPE_CHOICES = PHONE_TYPE_CHOICES
     MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
     profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"),
@@ -231,13 +231,6 @@ class Phone(TimeStampedModel):
     comments = models.CharField(_("comments"), max_length=255, blank=True)
     type = models.CharField(_("phone type"), max_length=3,
         choices=PHONE_TYPE_CHOICES, default=MOBILE)
-
-    checked = models.BooleanField(_("checked"), default=False)
-    confirmed = models.BooleanField(_("confirmed"), default=False)
-    deleted = models.BooleanField(_("deleted"), default=False)
-
-    all_objects = models.Manager()
-    objects = NotDeletedManager()
 
     class Meta:
         verbose_name = _("phone")
@@ -271,17 +264,9 @@ class Phone(TimeStampedModel):
         return t + ': ' + self.number.as_international
 
 
-@python_2_unicode_compatible
-class Website(TimeStampedModel):
+class Website(TrackingModel, TimeStampedModel):
     profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"), on_delete=models.CASCADE)
     url = models.URLField(_("URL"))
-
-    checked = models.BooleanField(_("checked"), default=False)
-    confirmed = models.BooleanField(_("confirmed"), default=False)
-    deleted = models.BooleanField(_("deleted"), default=False)
-
-    all_objects = models.Manager()
-    objects = NotDeletedManager()
 
     class Meta:
         verbose_name = _("website")
@@ -291,7 +276,6 @@ class Website(TimeStampedModel):
         return self.url
 
 
-@python_2_unicode_compatible
 class Condition(models.Model):
     """Hosting condition (e.g. bringing sleeping bag, no smoking...)."""
     name = models.CharField(_("name"), max_length=255,
@@ -308,7 +292,6 @@ class Condition(models.Model):
         return self.name
 
 
-@python_2_unicode_compatible
 class ContactPreference(models.Model):
     """Contact preference for a profile, whether by email, telephone or snail mail."""
     name = models.CharField(_("name"), max_length=255)

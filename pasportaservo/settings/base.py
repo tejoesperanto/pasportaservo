@@ -1,4 +1,5 @@
-from os import environ, path, listdir
+from os import environ, path
+from datetime import timedelta
 
 
 def get_env_setting(setting):
@@ -129,6 +130,8 @@ DEFAULT_FROM_EMAIL = 'ne-respondu@pasportaservo.org'
 SITE_NAME = "Pasporta Servo"
 
 SALT = 'salo'
+
+CONFIRMED_PERIOD = timedelta(weeks=42)  # Delay after a object is no more considered confirmed
 
 CORS_ORIGIN_WHITELIST = (
     'pasportaservo.org',
