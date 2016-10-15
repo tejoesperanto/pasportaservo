@@ -186,6 +186,7 @@ class Place(TrackingModel, TimeStampedModel):
     class Meta:
         verbose_name = _("place")
         verbose_name_plural = _("places")
+        default_manager_name = 'all_objects'
 
     @property
     def profile(self):
