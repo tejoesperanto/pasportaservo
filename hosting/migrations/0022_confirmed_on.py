@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0019_auto_20161001_1021'),
+        ('hosting', '0021_update_availability'),
     ]
 
     operations = [

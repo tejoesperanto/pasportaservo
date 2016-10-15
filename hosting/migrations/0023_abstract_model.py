@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('hosting', '0020_confirmed_on'),
+        ('hosting', '0022_confirmed_on'),
     ]
 
     operations = [
