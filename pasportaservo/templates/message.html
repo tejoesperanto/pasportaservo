@@ -1,5 +1,10 @@
 {% load i18n %}
-<article class="container-fluid message {{ message.tags }}">
+<div class="container-fluid message {{ message.tags }} {{ level }}
+    {% if daily %}
+        sticky-{% now 'Y-m-d' %}-{{ sticky_class }}
+    {% elif monthly %}
+        sticky-{% now 'Y-m' %}-{{ sticky_class }}
+    {% endif %}">
     {{ message }}
     <button type="button" class="close" title="{% trans "Close" %}" aria-label="{% trans "Close" %}"><span aria-hidden="true">&times;</span></button>
-</article>
+</div>

@@ -9,13 +9,6 @@ $(document).ready(function() {
         $(this).html($(this).html().replace(" [cxe] ", "@"));
     });
 
-    // Close message
-    $('.close').click(function(e) {
-        $(this).hide();
-        $(this).parents('.message').slideUp();
-        e.preventDefault();
-    });
-
     // Lazy load images
     $('.lazy').addClass('loaded');
 

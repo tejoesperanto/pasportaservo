@@ -1,14 +1,12 @@
 from itsdangerous import URLSafeTimedSerializer, BadTimeSignature, SignatureExpired
 
 from django.views import generic
-from django.db import transaction
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth import login
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
@@ -41,14 +39,7 @@ class UniqueLinkView(generic.TemplateView):
         place = get_object_or_404(Place, pk=payload['place'])
         if place.confirmed and place.owner.confirmed:
             return HttpResponseRedirect(reverse('already_confirmed'))
-        now = timezone.now()
-        place.confirmed_on = now
-        place.owner.confirmed_on = now
-        with transaction.atomic():
-            place.save()
-            place.owner.save()
-            place.owner.phones.update(confirmed_on=now)
-            place.owner.website_set.update(confirmed_on=now)
+        place.owner.confirm_all()
         url = reverse('profile_edit', kwargs={'pk': place.owner.pk})
         msg = _('Good, your data are confirmed. Look at <a href="{url}">your profile</a>!')
         messages.info(request, format_html(msg, url=url))

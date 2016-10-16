@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.html import format_html
 from django.utils.text import slugify
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -117,6 +117,14 @@ class Profile(TrackingModel, TimeStampedModel):
     def autoslug(self):
         return slugify(self.user.username)
 
+    @property
+    def in_book(self):
+        return any(p.in_book for p in self.owned_places.filter(deleted=False))
+
+    @property
+    def places_confirmed(self):
+        return all(p.confirmed for p in self.owned_places.filter(deleted=False, in_book=True))
+
     def __str__(self):
         username = self.user.username if self.user else '--'
         return self.full_name if self.full_name.strip() else username
@@ -139,6 +147,16 @@ class Profile(TrackingModel, TimeStampedModel):
 
     def get_admin_url(self):
         return reverse('admin:hosting_profile_change', args=(self.id,))
+
+    def confirm_all(self, confirm=True):
+        """Confirm (or unconfirm) all confirmalbe objects for a profile."""
+        now = timezone.now() if confirm else None
+        self.confirmed_on = now
+        with transaction.atomic():
+            self.owned_places.update(confirmed_on=now)
+            self.phones.update(confirmed_on=now)
+            self.website_set.update(confirmed_on=now)
+            self.save()
 
 
 class Place(TrackingModel, TimeStampedModel):

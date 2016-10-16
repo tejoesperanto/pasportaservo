@@ -7,14 +7,16 @@ import geopy
 from django.db.models import Q
 from django.views import generic
 from django.conf import settings
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model, authenticate, login
 from django.template.loader import render_to_string, get_template
 from django.template import Context
 from django.core.mail import EmailMultiAlternatives
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.utils.html import linebreaks as tohtmlpara, urlize
@@ -321,6 +323,42 @@ class PhoneDeleteView(LoginRequiredMixin, ProfileMixin, PhoneAuthMixin, generic.
     pass
 
 phone_delete = PhoneDeleteView.as_view()
+
+
+class ConfirmObject(LoginRequiredMixin, ProfileMixin, generic.View):
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if not instance:
+            raise Http404()
+        instance.confirmed_on = timezone.now()
+        instance.save()
+        return JsonResponse({'success': {'confirmed': instance.confirmed}})
+
+    def get_object(self, queryset=None):
+        model = self.get_model()
+        instance = get_object_or_404(model, pk=self.kwargs['pk'])
+        user = self.get_user(instance)
+        if user.pk != self.request.user.pk:
+            return
+        return instance
+
+    def get_model(self):
+        return ContentType.objects.get(
+            app_label="hosting",
+            model=self.kwargs['model']).model_class()
+
+    def get_user(self, instance):
+        model_name = instance.__class__.__name__
+        if model_name in ('Phone', 'Website'):
+            return instance.profile.user
+        if model_name == 'Place':
+            return instance.owner.user
+        if model_name == 'Profile':
+            return instance.user
+
+confirm_object = ConfirmObject.as_view()
 
 
 class SearchView(generic.ListView):
