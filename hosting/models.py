@@ -119,7 +119,7 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @property
     def in_book(self):
-        return any(p.in_book for p in self.owned_places.filter(deleted=False))
+        return any(p.in_book for p in self.owned_places.filter(available=True, deleted=False))
 
     @property
     def places_confirmed(self):

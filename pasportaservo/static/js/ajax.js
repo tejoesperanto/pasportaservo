@@ -14,8 +14,7 @@ $(document).ready(function(){
             $this.attr('title', $this.data('title-success'));
             $this.removeClass('ajax');
         },
-        error: function(rs, e) {
-            alert(rs.responseText);
+        error: function() {
             $this.removeClass('disabled');
         }
     });
