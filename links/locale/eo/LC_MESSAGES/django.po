@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-22 17:58+0000\n"
-"PO-Revision-Date: 2016-09-22 20:04+0200\n"
+"POT-Creation-Date: 2016-10-16 21:44+0200\n"
+"PO-Revision-Date: 2016-10-16 19:40+0200\n"
+"Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
+"Language-Team: \n"
 "Language: eo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
-"Language-Team: \n"
 "X-Generator: Poedit 1.8.8\n"
 
 #: links/templates/links/already_confirmed.html:5
@@ -70,6 +70,14 @@ msgstr "^konfirmita$"
 msgid "^already_confirmed$"
 msgstr "^jam_konfirmita$"
 
-#: links/views.py:57
+#: links/views.py:44
+#, python-brace-format
+msgid ""
+"Good, your data are confirmed. Look at <a href=\"{url}\">your profile</a>!"
+msgstr ""
+"Bonege, vi konfirmis viajn datumojn. Vidu nun <a href=\"{url}\">vian "
+"profilon</a>!"
+
+#: links/views.py:52
 msgid "You've been automatically logged in. Happy editing!"
 msgstr "Vi estas aŭtomate ensalutita. Bonan redakton!"
