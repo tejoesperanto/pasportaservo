@@ -2,9 +2,6 @@
 {% load i18n static %}
 
 {% block profile_edit_buttons %}
-        {% if profile.in_book %}
-            {% include "hosting/snippets/confirmed.html" with model='profile' object=profile only %}
-        {% endif %}
                 <a href="{% url 'profile_update' profile.pk profile.user.username|slugify %}"
                    class="btn btn-success"
                    title="{% trans "Update profile" %}">
@@ -39,9 +36,6 @@
 {% endblock %}
 
 {% block place_edit_buttons %}
-        {% if profile.in_book %}
-            {% include "hosting/snippets/confirmed.html" with model='place' object=place only %}
-        {% endif %}
     <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% blocktrans with kin=_("this ") %}Update {{ kin }}place{% endblocktrans %}">
         <span class="glyphicon glyphicon-pencil"></span>
         <span class="hidden-xxs">{% trans "Update" %}</span>
@@ -96,9 +90,6 @@
 
 {% block phone_edit_buttons %}
     <div class="btn-group pull-right">
-        {% if profile.in_book %}
-            {% include "hosting/snippets/confirmed.html" with model='phone' object=phone only %}
-        {% endif %}
         <a href="{% url 'phone_update' phone.number.as_e164|slugify %}"
            class="btn btn-success"
            title="{% trans "Update" %}">

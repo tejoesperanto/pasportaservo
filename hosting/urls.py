@@ -17,7 +17,7 @@ from .views import (
     family_member_create, family_member_update,
     family_member_remove, family_member_delete,
     phone_create, phone_update, phone_delete,
-    confirm_object,
+    confirm_all,
     search,
     mass_mail, mass_mail_sent,
 )
@@ -55,7 +55,7 @@ urlpatterns = [
     url(_(r'^phone/(?P<num>[\w-]+)/update/$'), phone_update, name='phone_update'),
     url(_(r'^phone/(?P<num>[\w-]+)/delete/$'), phone_delete, name='phone_delete'),
 
-    url(_(r'^confirm/(?P<model>\w+)/(?P<pk>\d+)/$'), confirm_object, name='confirm_object'),
+    url(_(r'^confirm/$'), confirm_all, name='confirm_all'),
 
     url(_(r'^search(?:/(?P<query>.+))?/$'), search, name='search'),
 

@@ -5,15 +5,6 @@
     <section class="messages">
         {% block messages %}
             {% for message in messages %}{% include "message.html" %}{% endfor %}
-
-            {# For the confirmation campaign: #}
-            {% if user.profile.in_book and not user.profile.places_confirmed %}
-                {% url 'profile_edit' profile as url %}
-                {% blocktrans asvar msg trimmed %}
-                    You need to confirm your profile if you would like to be in the book. <a href="{{ url }}">Confirm now!</a>
-                {% endblocktrans %}
-                {% include "message.html" with message=msg|safe level="warning" sticky_class="confirm-profile" daily=True only %}
-            {% endif %}
         {% endblock %}
     </section>
     <header class="container-fluid{% block header_class %}{% endblock %}">

@@ -325,43 +325,14 @@ class PhoneDeleteView(LoginRequiredMixin, ProfileMixin, PhoneAuthMixin, generic.
 phone_delete = PhoneDeleteView.as_view()
 
 
-class ConfirmObject(LoginRequiredMixin, ProfileMixin, generic.View):
+class ConfirmAll(LoginRequiredMixin, generic.View):
     http_method_names = ['post']
-    model_names = ('profile', 'place', 'phone', 'website')
 
     def post(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.confirmed_on = timezone.now()
-        instance.save()
-        return JsonResponse({'success': {'confirmed': instance.confirmed}})
+        request.user.profile.confirm_all()
+        return JsonResponse({'success': 'confirmed'})
 
-    def get_object(self, queryset=None):
-        model = self.get_model()
-        instance = get_object_or_404(model, pk=self.kwargs['pk'])
-        user = self.get_user(instance)
-        if user.pk != self.request.user.pk:
-            raise Http404('User not allowed')
-        return instance
-
-    def get_model(self):
-        model = self.kwargs['model']
-        if model not in self.model_names:
-            raise Http404('Model not allowed')
-        return ContentType.objects.get(
-            app_label="hosting",
-            model=model
-        ).model_class()
-
-    def get_user(self, instance):
-        model_name = instance.__class__.__name__
-        if model_name in ('Phone', 'Website'):
-            return instance.profile.user
-        if model_name == 'Place':
-            return instance.owner.user
-        if model_name == 'Profile':
-            return instance.user
-
-confirm_object = ConfirmObject.as_view()
+confirm_all = ConfirmAll.as_view()
 
 
 class SearchView(generic.ListView):

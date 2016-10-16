@@ -213,6 +213,14 @@ header.home form.search {
     margin-bottom: 2em;
 }
 
+.top-info {
+    height: 4em;
+    margin-bottom: 1em;
+}
+
+.top-info p {
+    margin-top: 1em;
+}
 
 /* Search & Accommodation details */
 #page.search form.search{

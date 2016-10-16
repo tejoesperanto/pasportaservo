@@ -10,9 +10,7 @@ $(document).ready(function(){
         dataType: 'json',
         success: function(response) {
             // TODO: Make it generic
-            $this.html($this.html().replace($this.text().trim(), ''));
-            $this.attr('title', $this.data('title-success'));
-            $this.removeClass('ajax');
+            $this.parents('.remove-after-success').slideUp();
         },
         error: function() {
             $this.removeClass('disabled');

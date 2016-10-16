@@ -19,6 +19,18 @@
 {% endblock %}
 
 {% block page %}
+        {% if user.profile.in_book and not user.profile.places_confirmed %}
+            <div class="row bg-info top-info remove-after-success">
+                <p class="col-xs-12 text-center">
+                    {% trans "Are your data exact? Click if yes" %}&nbsp;
+                    <a href="{% url 'confirm_all' %}" class="btn btn-primary push-right ajax" data-csrf="{{ csrf_token }}">
+                        <span class="glyphicon glyphicon-ok"></span>&nbsp;
+                        <span class="hidden-xs">{% trans "I confirm!" %}</span>
+                    </a>
+                </p>
+            </div>
+        {% endif %}
+
         <div class="row">
             <div class="col-xs-12 col-md-5">
                 {% if profile.deleted and user.is_staff %}
