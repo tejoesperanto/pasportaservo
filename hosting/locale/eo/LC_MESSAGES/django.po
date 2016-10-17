@@ -247,7 +247,7 @@ msgstr "priskribo"
 msgid "Short biography."
 msgstr "Mallonga sinprezento."
 
-#: hosting/models.py:75 hosting/templates/hosting/profile_detail.html:76
+#: hosting/models.py:75 hosting/templates/hosting/profile_detail.html:80
 msgid "avatar"
 msgstr "profilbildo"
 
@@ -732,13 +732,13 @@ msgstr "La adreso estas neaktuala"
 
 #: hosting/templates/hosting/place_detail.html:55
 #: hosting/templates/hosting/place_list.html:69
-#: hosting/templates/hosting/profile_detail.html:155
+#: hosting/templates/hosting/profile_detail.html:159
 msgid "I can guide around the city"
 msgstr "mi povas ĉiĉeroni"
 
 #: hosting/templates/hosting/place_detail.html:62
 #: hosting/templates/hosting/place_list.html:79
-#: hosting/templates/hosting/profile_detail.html:165
+#: hosting/templates/hosting/profile_detail.html:169
 msgid "I'd like to have a drink together"
 msgstr "mi emas trinkejumi"
 
@@ -772,13 +772,13 @@ msgid "I'm not present at this address at all times; contact me in advance."
 msgstr "Mi ne troviĝas konstante ĉe tiu ĉi adreso; kontaktiĝu anticipe."
 
 #: hosting/templates/hosting/place_detail.html:211
-#: hosting/templates/hosting/profile_detail.html:53
+#: hosting/templates/hosting/profile_detail.html:57
 msgid "Write message"
 msgstr "Sendi mesaĝon"
 
 #: hosting/templates/hosting/place_detail.html:216
 #: hosting/templates/hosting/place_detail.html:218
-#: hosting/templates/hosting/profile_detail.html:63
+#: hosting/templates/hosting/profile_detail.html:67
 #: hosting/templates/hosting/profile_edit.html:9
 #: hosting/templates/hosting/profile_edit.html:41
 #: hosting/templates/hosting/profile_edit.html:66
@@ -798,7 +798,7 @@ msgid "View as an authorized user"
 msgstr "Rigardi kvazaŭ permesita uzanto"
 
 #: hosting/templates/hosting/place_detail.html:235
-#: hosting/templates/hosting/profile_detail.html:124
+#: hosting/templates/hosting/profile_detail.html:128
 #: hosting/templates/hosting/profile_edit.html:34
 msgid "View"
 msgstr "Rigardi"
@@ -870,65 +870,74 @@ msgstr ""
 msgid "My profile"
 msgstr "Mia profilo"
 
-#: hosting/templates/hosting/profile_detail.html:28
+#: hosting/templates/hosting/profile_detail.html:27
+#, python-format
+msgid ""
+"Are <a href=\"%(url)s\">your data</a> up-to-date? Please check your hosting "
+"profile."
+msgstr ""
+"Ĉu <a href=\"%(url)s\">viaj datenoj</a> estas ĝustaj kaj ĝisdataj? Bonvole "
+"kontrolu vian profilon de gastiganto."
+
+#: hosting/templates/hosting/profile_detail.html:31
 #, python-format
 msgid "Are your data up-to-date? %(tag)sClick if yes%(endtag)s"
 msgstr ""
 "Ĉu viaj datenoj estas ĝustaj kaj ĝisdataj? %(tag)sKlaku se jes%(endtag)s"
 
-#: hosting/templates/hosting/profile_detail.html:33
+#: hosting/templates/hosting/profile_detail.html:36
 msgid "I confirm!"
 msgstr "Mi konfirmas!"
 
-#: hosting/templates/hosting/profile_detail.html:43
+#: hosting/templates/hosting/profile_detail.html:47
 msgid "Deleted profile"
 msgstr "Nuligita profilo"
 
-#: hosting/templates/hosting/profile_detail.html:57
+#: hosting/templates/hosting/profile_detail.html:61
 #: hosting/templates/hosting/profile_form.html:7
 msgid "Update user's details"
 msgstr "Redakti informojn de uzanto"
 
-#: hosting/templates/hosting/profile_detail.html:58
+#: hosting/templates/hosting/profile_detail.html:62
 #: hosting/templates/hosting/profile_form.html:15
 msgid "Update my details"
 msgstr "Redakti miajn informojn"
 
-#: hosting/templates/hosting/profile_detail.html:85
+#: hosting/templates/hosting/profile_detail.html:89
 #, python-format
 msgid "%(age)s y.o."
 msgstr "%(age)s-jaraĝa"
 
-#: hosting/templates/hosting/profile_detail.html:95
+#: hosting/templates/hosting/profile_detail.html:99
 msgid "About me"
 msgstr "Pri mi"
 
-#: hosting/templates/hosting/profile_detail.html:103
+#: hosting/templates/hosting/profile_detail.html:107
 msgid "Place"
 msgid_plural "Places"
 msgstr[0] "Loĝejo"
 msgstr[1] "Loĝejoj"
 
-#: hosting/templates/hosting/profile_detail.html:109
+#: hosting/templates/hosting/profile_detail.html:113
 msgid "Habitat"
 msgid_plural "Habitats"
 msgstr[0] "Loĝloko"
 msgstr[1] "Loĝlokoj"
 
-#: hosting/templates/hosting/profile_detail.html:122
+#: hosting/templates/hosting/profile_detail.html:126
 msgid "View details of this place"
 msgstr "Rigardi detalojn de tiu ĉi loĝejo"
 
-#: hosting/templates/hosting/profile_detail.html:131
+#: hosting/templates/hosting/profile_detail.html:135
 msgid "I'm hosting in:"
 msgstr "mi gastigas en:"
 
-#: hosting/templates/hosting/profile_detail.html:140
+#: hosting/templates/hosting/profile_detail.html:144
 #, python-format
 msgid "near %(closest_city)s"
 msgstr "proksime al %(closest_city)s"
 
-#: hosting/templates/hosting/profile_detail.html:171
+#: hosting/templates/hosting/profile_detail.html:175
 #: hosting/templates/hosting/snippets/place_description.html:33
 #, python-format
 msgid "I can accept %(max_host)s person"
@@ -936,7 +945,7 @@ msgid_plural "I can accept %(max_host)s persons"
 msgstr[0] "Mi povas akcepti %(max_host)s homon"
 msgstr[1] "Mi povas akcepti %(max_host)s homojn"
 
-#: hosting/templates/hosting/profile_detail.html:183
+#: hosting/templates/hosting/profile_detail.html:187
 #: hosting/templates/hosting/snippets/place_description.html:24
 #, python-format
 msgid "I can host during %(max_night)s night maximum"
@@ -944,7 +953,7 @@ msgid_plural "I can host during %(max_night)s nights maximum"
 msgstr[0] "Mi povas gastigi dum %(max_night)s nokto maksimume"
 msgstr[1] "Mi povas gastigi dum %(max_night)s noktoj maksimume"
 
-#: hosting/templates/hosting/profile_detail.html:240
+#: hosting/templates/hosting/profile_detail.html:244
 msgid "Phones"
 msgstr "Telefonoj"
 
@@ -1343,13 +1352,13 @@ msgstr ""
 msgid "You are logged in."
 msgstr "Vi nun estas ensalutinta."
 
-#: hosting/views.py:118 hosting/views.py:135 hosting/views.py:239
-#: hosting/views.py:251
+#: hosting/views.py:118 hosting/views.py:135 hosting/views.py:238
+#: hosting/views.py:250
 msgid "The data is not saved yet! Note the specified errors."
 msgstr ""
 "La informoj ankoraŭ ne estas konservitaj! Atentu la indikitajn erarojn."
 
-#: hosting/views.py:440
+#: hosting/views.py:439
 msgid "[Pasporta Servo] You received an Authorization"
 msgstr "[Pasporta Servo] Vi ricevis permeson"
 
