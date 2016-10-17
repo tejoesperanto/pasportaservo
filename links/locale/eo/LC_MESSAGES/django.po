@@ -1,16 +1,15 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Esperantaj tekstoĉenoj por reta Pasporta Servo.
+# Kopirajto (C) 2015 TEJO kaj kontribuantoj
+# Al tiu ĉi dosiero aplikiĝas la sama licenco kiel al la tuta kodo de PS.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-10-16 21:44+0200\n"
-"PO-Revision-Date: 2016-10-16 19:40+0200\n"
-"Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
-"Language-Team: \n"
+"PO-Revision-Date: 2016-10-17 14:45+0100\n"
+"Last-Translator: Meir <interDist@users.noreply.github.com>\n"
+"Language-Team: EO <info@pasportaservo.org>\n"
 "Language: eo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,64 +19,62 @@ msgstr ""
 
 #: links/templates/links/already_confirmed.html:5
 msgid "Already confirmed"
-msgstr "Jam konfirmite"
+msgstr "Informoj jam konfirmitaj"
 
 #: links/templates/links/already_confirmed.html:6
-msgid "You already confirmed your profile and address. Thanks!"
-msgstr "Vi jam konfirmis vian profilon kaj adreson. Dankon!"
+msgid "You already confirmed the accuracy of your profile and address. Thanks!"
+msgstr "Vi jam konfirmis la aktualecon de viaj profilo kaj adreso. Dankon!"
 
 #: links/templates/links/bad_time_signature.html:4
 msgid "Bad Time Signature"
-msgstr "Malbona Tempa Signo"
+msgstr "Malbona tempostampo"
 
 #: links/templates/links/bad_time_signature.html:5
 msgid "The link seems not valid"
-msgstr "La ligilo ne ŝajnas esti valida"
+msgstr "La ligilo ne ŝajnas esti valida plu."
 
 #: links/templates/links/confirmed.html:5
 msgid "Data confirmed"
 msgstr "Informoj konfirmitaj"
 
 #: links/templates/links/confirmed.html:6
-msgid "You just confirmed your profile and address. Thanks!"
-msgstr "Vi ĵus konfirmis vian profilon kaj adreson. Dankon!"
+msgid "You just confirmed that your profile and address are up-to-date. Thanks!"
+msgstr "Vi ĵus konfirmis ke viaj profilo kaj adreso estas aktualaj. Dankon!"
 
 #: links/templates/links/invalid_link.html:4
 msgid "Invalid Link"
-msgstr "Nevalida ligilo"
+msgstr "Malbona ligilo"
 
 #: links/templates/links/invalid_link.html:5
 msgid "The link is not valid"
-msgstr "La ligilo ne estas valida"
+msgstr "La ligilo havas malbonan formon aŭ malĝustan konfirmo-ĵetonon."
 
 #: links/templates/links/signature_expired.html:4
 msgid "Signature Expired"
-msgstr "Subskribo eksiĝis"
+msgstr "Tempostampo ne plu valida"
 
 #: links/templates/links/signature_expired.html:5
 msgid "The link is not valid anymore"
-msgstr "La ligilo ne plu validas"
+msgstr "La ligilo estis kreita antaŭ tro da tempo kaj ĝi ne plu validas. Vi bezonas novan ligilon."
 
 #: links/urls.py:7
 msgid "^link/(?P<token>[\\w\\.\\-_]+)$"
 msgstr "^ligilo/(?P<token>[\\w\\.\\-_]+)$"
 
 #: links/urls.py:8
-msgid "^confirmed$"
-msgstr "^konfirmita$"
+msgid "^current/confirmed/$"
+msgstr "^aktualigo/konfirmita/$"
 
 #: links/urls.py:9
-msgid "^already_confirmed$"
-msgstr "^jam_konfirmita$"
+msgid "^current/already_confirmed/$"
+msgstr "^aktualigo/jam_konfirmita/$"
 
 #: links/views.py:44
 #, python-brace-format
-msgid ""
-"Good, your data are confirmed. Look at <a href=\"{url}\">your profile</a>!"
-msgstr ""
-"Bonege, vi konfirmis viajn datumojn. Vidu nun <a href=\"{url}\">vian "
-"profilon</a>!"
+msgid "Good, your data are confirmed. Look at <a href=\"{url}\">your profile</a>!"
+msgstr "Bonege, vi konfirmis viajn datenojn. Vidu nun <a href=\"{url}\">vian profilon</a>!"
 
 #: links/views.py:52
 msgid "You've been automatically logged in. Happy editing!"
-msgstr "Vi estas aŭtomate ensalutita. Bonan redakton!"
+msgstr "Vi estas aŭtomate ensalutita. Bonan redaktadon!"
+

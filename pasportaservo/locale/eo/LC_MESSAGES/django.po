@@ -39,8 +39,8 @@ msgstr ""
 "plej baldaŭ."
 
 #: pasportaservo/templates/message.html:9
-msgid "Close"
-msgstr "Fermi"
+msgid "Hide"
+msgstr "Kaŝi"
 
 #: pasportaservo/templates/postman/archives.html:4
 #: pasportaservo/templates/postman/base.html:30
@@ -318,9 +318,6 @@ msgstr "^administrilo/"
 #: pasportaservo/urls.py:28
 msgid "^messages/"
 msgstr "^leteroj/"
-
-#~ msgid "Hide"
-#~ msgstr "Kaŝi"
 
 #~ msgid "Pasporta Servo administration"
 #~ msgstr "Administrado de Pasporta Servo"
