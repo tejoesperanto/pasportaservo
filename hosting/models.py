@@ -58,7 +58,7 @@ class TrackingModel(models.Model):
         """If the confirmed_on date is more recent than several months."""
         if not self.confirmed_on:
             return False
-        return (timezone.now() - self.confirmed_on) < settings.CONFIRMED_PERIOD
+        return (timezone.now() - self.confirmed_on) < settings.CONFIRMATION_VALIDITY_PERIOD
 
 
 class Profile(TrackingModel, TimeStampedModel):
@@ -104,7 +104,7 @@ class Profile(TrackingModel, TimeStampedModel):
         if self.avatar and hasattr(self.avatar, 'url'):
             return self.avatar.url
         else:
-            email = self.user.email if self.user else 'family.member@pasportaservo.org'
+            email = self.user.email if self.user else "family.member@pasportaservo.org"
             return email_to_gravatar(email, settings.DEFAULT_AVATAR_URL)
 
     @property
@@ -118,8 +118,12 @@ class Profile(TrackingModel, TimeStampedModel):
         return slugify(self.user.username)
 
     @property
-    def in_book(self):
-        return any(p.in_book for p in self.owned_places.filter(available=True, deleted=False))
+    def is_hosting(self):
+        return self.owned_places.filter(available=True, deleted=False).count()
+
+    @property
+    def is_in_book(self):
+        return self.owned_places.filter(available=True, deleted=False, in_book=True).count()
 
     @property
     def places_confirmed(self):
@@ -130,7 +134,7 @@ class Profile(TrackingModel, TimeStampedModel):
         return self.full_name if self.full_name.strip() else username
 
     def repr(self):
-        return '{} ({})'.format(self.__str__(), getattr(self.birth_date, 'year', '?'))
+        return "{} ({})".format(self.__str__(), getattr(self.birth_date, 'year', "?"))
 
     def display_phones(self):
         return ", ".join(phone.display() for phone in self.phones.all())
@@ -148,8 +152,8 @@ class Profile(TrackingModel, TimeStampedModel):
     def get_admin_url(self):
         return reverse('admin:hosting_profile_change', args=(self.id,))
 
-    def confirm_all(self, confirm=True):
-        """Confirm (or unconfirm) all confirmalbe objects for a profile."""
+    def confirm_all_info(self, confirm=True):
+        """Confirm (or unconfirm) all confirmable objects for a profile."""
         now = timezone.now() if confirm else None
         self.confirmed_on = now
         with transaction.atomic():

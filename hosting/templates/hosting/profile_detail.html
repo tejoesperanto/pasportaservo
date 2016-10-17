@@ -19,13 +19,15 @@
 {% endblock %}
 
 {% block page %}
-        {% if user.profile.in_book and not user.profile.places_confirmed %}
+        {% if user.profile and user.profile.is_in_book and not user.profile.places_confirmed %}
             <div class="row bg-info top-info remove-after-success">
                 <p class="col-xs-12 text-center">
-                    {% trans "Are your data exact? Click if yes" %}&nbsp;
-                    <a href="{% url 'confirm_all' %}" class="btn btn-primary push-right ajax" data-csrf="{{ csrf_token }}">
+					{% blocktrans with tag="<span class='text-nowrap'>" endtag="</span>" trimmed %}
+						Are your data up-to-date? {{ tag }}Click if yes{{ endtag }}
+					{% endblocktrans %}&nbsp;
+                    <a href="{% url 'confirm_hosting_info' %}" class="btn btn-primary btn-sm push-right ajax" data-csrf="{{ csrf_token }}">
                         <span class="glyphicon glyphicon-ok"></span>&nbsp;
-                        <span class="hidden-xs">{% trans "I confirm!" %}</span>
+                        <span class="hidden-xxs">{% trans "I confirm!" %}</span>
                     </a>
                 </p>
             </div>
@@ -94,7 +96,7 @@
 
     {% if places or not view.public_view %}
         <h2 class="owner">
-            {% if places.count == is_hosting %}
+            {% if places.count == profile.is_hosting %}
                 {% blocktrans count counter=places|length trimmed %}
                     Place
                 {% plural %}

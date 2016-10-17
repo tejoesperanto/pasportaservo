@@ -38,12 +38,12 @@ class UniqueLinkView(generic.TemplateView):
     def redirect_confirm(self, request, payload):
         place = get_object_or_404(Place, pk=payload['place'])
         if place.confirmed and place.owner.confirmed:
-            return HttpResponseRedirect(reverse('already_confirmed'))
-        place.owner.confirm_all()
+            return HttpResponseRedirect(reverse('info_already_confirmed'))
+        place.owner.confirm_all_info()
         url = reverse('profile_edit', kwargs={'pk': place.owner.pk})
-        msg = _('Good, your data are confirmed. Look at <a href="{url}">your profile</a>!')
+        msg = _("Good, your data are confirmed. Look at <a href=\"{url}\">your profile</a>!")
         messages.info(request, format_html(msg, url=url))
-        return HttpResponseRedirect(reverse('confirmed'))
+        return HttpResponseRedirect(reverse('info_confirmed'))
 
     def redirect_update(self, request, payload):
         place = get_object_or_404(Place, pk=payload['place'])
@@ -58,10 +58,10 @@ unique_link = UniqueLinkView.as_view()
 class ConfirmedView(generic.TemplateView):
     template_name = 'links/confirmed.html'
 
-confirmed = ConfirmedView.as_view()
+info_confirmed = ConfirmedView.as_view()
 
 
 class AlreadyConfirmedView(generic.TemplateView):
     template_name = 'links/already_confirmed.html'
 
-already_confirmed = AlreadyConfirmedView.as_view()
+info_already_confirmed = AlreadyConfirmedView.as_view()

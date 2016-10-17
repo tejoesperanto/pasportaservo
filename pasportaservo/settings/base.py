@@ -50,9 +50,9 @@ INSTALLED_APPS = (
     'bootstrapform',
     'postman',
     'hosting',
+    'links',
     'pages',
     'book',
-    'links',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -132,7 +132,8 @@ SITE_NAME = "Pasporta Servo"
 SALT = 'salo'
 TOKEN_MAX_AGE = 3600 * 24 * 30 * 2  # 2 months
 
-CONFIRMED_PERIOD = timedelta(weeks=42)  # Delay after a object is no more considered confirmed
+# Delay after which an object is no longer considered as confirmed
+CONFIRMATION_VALIDITY_PERIOD = timedelta(weeks=42)
 
 CORS_ORIGIN_WHITELIST = (
     'pasportaservo.org',

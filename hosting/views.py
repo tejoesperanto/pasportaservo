@@ -207,7 +207,6 @@ class ProfileDetailView(LoginRequiredMixin, ProfileAuthMixin, generic.DetailView
     def get_context_data(self, **kwargs):
         context = super(ProfileDetailView, self).get_context_data(**kwargs)
         context['places'] = self.object.owned_places.filter(deleted=False)
-        context['is_hosting'] = context['places'].filter(available=True).count()
         context['phones'] = self.object.phones.filter(deleted=False)
         context['role'] = self.role
         return context
@@ -325,14 +324,15 @@ class PhoneDeleteView(LoginRequiredMixin, ProfileMixin, PhoneAuthMixin, generic.
 phone_delete = PhoneDeleteView.as_view()
 
 
-class ConfirmAll(LoginRequiredMixin, generic.View):
+class ConfirmInfoView(LoginRequiredMixin, generic.View):
     http_method_names = ['post']
 
     def post(self, request, *args, **kwargs):
-        request.user.profile.confirm_all()
+        request.user.profile.confirm_all_info()
+        # TODO: support a non-ajax response (reuse the one in /links)
         return JsonResponse({'success': 'confirmed'})
 
-confirm_all = ConfirmAll.as_view()
+confirm_hosting_info = ConfirmInfoView.as_view()
 
 
 class SearchView(generic.ListView):
