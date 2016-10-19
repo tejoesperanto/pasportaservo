@@ -95,13 +95,18 @@ class RegisterView(AnonymousRequiredMixin, generic.CreateView):
     def get_authenticated_redirect_url(self):
         if self.request.GET.get('next'):
             return self.request.GET['next']
-        return self.request.user.profile.get_edit_url()
+        try:
+            # When user is already authenticated, redirect to profile edit page.
+            return self.request.user.profile.get_edit_url()
+        except Profile.DoesNotExist:
+            # If profile does not exist yet, redirect to profile creation page.
+            return reverse_lazy('profile_create')
 
     def form_valid(self, form):
         self.object = form.save()
         # Keeping this on ice; it interferes with the inline login, probably by wiping the session vars.
         result = super(RegisterView, self).form_valid(form)
-        # Log in user
+        # Log in user.
         user = authenticate(
             username=form.cleaned_data['username'],
             password=form.cleaned_data['password1'])
@@ -119,9 +124,13 @@ class ProfileCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixi
 
     def dispatch(self, request, *args, **kwargs):
         try:
+            # Redirect to profile edit page if user is logged in & profile already exists.
             return HttpResponseRedirect(self.request.user.profile.get_edit_url(), status=301)
         except Profile.DoesNotExist:
             return super(ProfileCreateView, self).dispatch(request, *args, **kwargs)
+        except AttributeError:
+            # Redirect to registration page when user is not authenticated.
+            return HttpResponseRedirect(reverse_lazy('register'), status=303)
 
     def get_form(self, form_class=ProfileCreateForm):
         user = self.request.user
@@ -463,7 +472,7 @@ class FamilyMemberCreateView(LoginRequiredMixin, CreateMixin, FamilyMemberMixin,
     form_class = FamilyMemberCreateForm
 
     def verify_anonymous_family(self):
-        # allow creation of only one completely anonymous family member
+        # Allow creation of only one completely anonymous family member.
         if self.place.family_members.count() == 1 and not self.place.family_members.all()[0].full_name.strip():
             return HttpResponseRedirect(
                 reverse_lazy('family_member_update',
