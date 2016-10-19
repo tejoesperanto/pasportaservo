@@ -130,8 +130,8 @@ class Profile(TrackingModel, TimeStampedModel):
         return all(p.confirmed for p in self.owned_places.filter(deleted=False, in_book=True))
 
     def __str__(self):
-        username = self.user.username if self.user else '--'
-        return self.full_name if self.full_name.strip() else username
+        return self.full_name if self.full_name.strip()  \
+               else (self.user.username if self.user else '--')
 
     def repr(self):
         return "{} ({})".format(self.__str__(), getattr(self.birth_date, 'year', "?"))
