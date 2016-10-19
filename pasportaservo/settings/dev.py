@@ -9,6 +9,10 @@ INSTALLED_APPS += (
     'debug_toolbar',
 )
 
+MIDDLEWARE_CLASSES += (
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+)
+
 # MailDump
 # $ sudo pip install maildump (python 2 only)
 # $ maildump
@@ -16,3 +20,4 @@ INSTALLED_APPS += (
 if DEBUG:
     EMAIL_HOST = '127.0.0.1'
     EMAIL_PORT = '1025'
+    INTERNAL_IPS = ('127.0.0.1',)

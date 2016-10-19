@@ -1,5 +1,5 @@
 -r base.txt
 
 bpython==0.15
-django-debug-toolbar>=1.5
+django-debug-toolbar>=1.6
 pytz==2016.6.1

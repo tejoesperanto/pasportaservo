@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
@@ -31,3 +32,9 @@ urlpatterns += [
     url('', include('book.urls')),
     url('', include('links.urls')),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ]
