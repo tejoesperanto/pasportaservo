@@ -9,8 +9,8 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from phonenumber_field.modelfields import PhoneNumberField
 from django_extensions.db.models import TimeStampedModel
+from phonenumber_field.modelfields import PhoneNumberField
 from django_countries.fields import CountryField
 
 from .managers import NotDeletedManager, WithCoordManager
@@ -157,9 +157,9 @@ class Profile(TrackingModel, TimeStampedModel):
         now = timezone.now() if confirm else None
         self.confirmed_on = now
         with transaction.atomic():
-            self.owned_places.update(confirmed_on=now)
-            self.phones.update(confirmed_on=now)
-            self.website_set.update(confirmed_on=now)
+            self.owned_places.filter(deleted=False).update(confirmed_on=now)
+            self.phones.filter(deleted=False).update(confirmed_on=now)
+            self.website_set.filter(deleted=False).update(confirmed_on=now)
             self.save()
 
 
