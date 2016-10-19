@@ -3,6 +3,7 @@ from datetime import date
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
+from django.utils.deconstruct import deconstructible
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext_lazy as _
 
@@ -56,17 +57,37 @@ def validate_not_in_future(datevalue):
     MaxValueValidator(date.today())(datevalue)
 
 
-def validate_not_too_far_past(number_years):
-    """Validates if the date is not earlier than the specified number of years ago."""
-    def dynamic_past_validator(datevalue):
+@deconstructible
+class TooFarPastValidator(object):
+    def __init__(self, number_years):
+        self.number_years = number_years
+
+    def __call__(self, datevalue):
+        """Validates if the date is not earlier than the specified number of years ago."""
         now = date.today()
         try:
-            back_in_time = now.replace(year=now.year-number_years)
+            back_in_time = now.replace(year=now.year - self.number_years)
         except ValueError:
-            back_in_time = now.replace(year=now.year-number_years, day=now.day-1)
+            back_in_time = now.replace(year=now.year - self.number_years, day=now.day-1)
         MinValueValidator(back_in_time)(datevalue)
 
-    return dynamic_past_validator
+    def __eq__(self, other):
+        return (isinstance(other, TooFarPastValidator) and self.number_years == other.number_years)
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+@deconstructible
+class TooNearPastValidator(TooFarPastValidator):
+    def __call__(self, datevalue):
+        """Validates if the date is not later than the specified number of years ago."""
+        now = date.today()
+        try:
+            back_in_time = now.replace(year=now.year - self.number_years)
+        except ValueError:
+            back_in_time = now.replace(year=now.year - self.number_years, day=now.day-1)
+        MaxValueValidator(back_in_time)(datevalue)
 
 
 def validate_image(content):

@@ -16,7 +16,7 @@ from django_countries.fields import CountryField
 from .managers import NotDeletedManager, WithCoordManager
 from .validators import (
     validate_not_all_caps, validate_not_too_many_caps, validate_no_digit,
-    validate_not_in_future, validate_not_too_far_past,
+    validate_not_in_future, TooFarPastValidator, TooNearPastValidator,
     validate_image, validate_size,
 )
 from .utils import UploadAndRenameAvatar
@@ -70,7 +70,7 @@ class Profile(TrackingModel, TimeStampedModel):
     last_name = models.CharField(_("last name"), max_length=255, blank=True,
         validators=[validate_not_too_many_caps, validate_no_digit])
     birth_date = models.DateField(_("birth date"), blank=True, null=True,
-        validators=[validate_not_too_far_past(200), validate_not_in_future])
+        validators=[TooFarPastValidator(200), validate_not_in_future])
     description = models.TextField(_("description"), help_text=_("Short biography."), blank=True)
     avatar = models.ImageField(_("avatar"), upload_to=UploadAndRenameAvatar("avatars"), blank=True,
         validators=[validate_image, validate_size],
