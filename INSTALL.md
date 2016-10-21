@@ -1,8 +1,8 @@
 # INSTALI
 
-Tiu ĉi projekto uzas Django 1.7; vidu requirements.txt.
+Tiu ĉi projekto uzas Dĵangon 1.10; vidu requirements.txt.
 
-Vi bezonos Python 2.7 aŭ 3.4, PostgreSQL, PIP kaj Virtualenv:
+Vi bezonos Pitonon 3.4+, PostgreSQL, PIP kaj Virtualenv :
 
     $ sudo apt-get install postgresql postgresql-client postgresql-client-common libpq5 libpq-dev
     $ sudo apt-get install python3 python3-dev
@@ -33,7 +33,7 @@ Kie `{via-uzantonomo}` estas de tiu uzanto per kiu vi aktuale estas ensalutinta.
 Se la antaŭa komando malsukcesas (ekz., vi ricevas eraron "unrecognized option --interactive"), provu:
 
     $ sudo -u postgres psql
-    psql (9.1.19)
+    psql (9.4.9)
     Type "help" for help.
     postgres=# CREATE ROLE {via-uzantonomo} WITH LOGIN CREATEDB CREATEROLE;
     postgres=# \q
@@ -42,7 +42,7 @@ Sekvas kreo de datumbazo.
 
     $ sudo -u postgres createdb -O {via-uzantonomo} -E utf8 pasportaservo
     $ sudo -u postgres psql
-    psql (9.1.19)
+    psql (9.4.9)
     Type "help" for help.
     postgres=# \l
                                         List of databases
