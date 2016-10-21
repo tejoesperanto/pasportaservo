@@ -3,3 +3,4 @@
 bpython==0.15
 django-debug-toolbar>=1.6
 pytz==2016.6.1
+fabric3>=1.12

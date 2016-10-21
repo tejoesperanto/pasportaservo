@@ -1,0 +1,10 @@
+#!/bin/bash
+# This hook is sourced after this virtualenv is activated.
+# Located in /opt/envs/prod/bin/postactivate
+
+export DJANGO_SETTINGS_MODULE=pasportaservo.settings.prod
+export SECRET_KEY="sekreto"
+export EMAIL_HOST_PASSWORD="pasvorto"
+export SENDGRID_API_KEY="SG.some.API.Key"
+
+cd /srv/prod/pasportaservo/
