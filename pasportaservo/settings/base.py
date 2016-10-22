@@ -123,6 +123,8 @@ LOGIN_REDIRECT_URL = '/'
 
 DEFAULT_FROM_EMAIL = 'ne-respondu@pasportaservo.org'
 
+CSRF_COOKIE_AGE = None
+CSRF_COOKIE_HTTPONLY = True
 
 
 # Non-Django settings:

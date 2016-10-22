@@ -1,5 +1,7 @@
 {% extends "hosting/home.html" %}
 {% load i18n %}
 
+{% block head_title %}{% trans "Server error" %} &bull; {{ block.super }}{% endblock %}
+
 {% block home_title %}404{% endblock %}
 {% block home_subtitle %}{% trans "Page not found" %}{% endblock %}

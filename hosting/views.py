@@ -1,6 +1,5 @@
 import re
 from datetime import datetime
-from django.utils.six.moves.urllib.parse import unquote_plus
 from markdown2 import markdown
 import geopy
 
@@ -8,18 +7,19 @@ from django.db.models import Q
 from django.views import generic
 from django.conf import settings
 from django.http import HttpResponseRedirect, Http404, JsonResponse
+from django.template.response import TemplateResponse
+from django.views.decorators.vary import vary_on_headers
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model, authenticate, login
 from django.template.loader import render_to_string, get_template
 from django.template import Context
 from django.core.mail import EmailMultiAlternatives
-from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.utils.html import linebreaks as tohtmlpara, urlize
+from django.utils.six.moves.urllib.parse import unquote_plus
 from django.utils.http import urlquote_plus
 from django.utils.encoding import uri_to_iri
 
@@ -30,9 +30,12 @@ from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
 from .models import Profile, Place, Phone
 from .serializers import ProfileSerializer, PlaceSerializer, UserSerializer
-from .mixins import (ProfileMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
-    FamilyMemberMixin, FamilyMemberAuthMixin, CreateMixin, DeleteMixin)
-from .forms import (UserRegistrationForm, AuthorizeUserForm, AuthorizedOnceUserForm,
+from .mixins import (
+    ProfileMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
+    FamilyMemberMixin, FamilyMemberAuthMixin, CreateMixin, DeleteMixin
+)
+from .forms import (
+    UserRegistrationForm, AuthorizeUserForm, AuthorizedOnceUserForm,
     ProfileForm, ProfileSettingsForm, ProfileCreateForm, PhoneForm, PhoneCreateForm,
     PlaceForm, PlaceCreateForm, FamilyMemberForm, FamilyMemberCreateForm,
     MassMailForm,
@@ -335,11 +338,15 @@ phone_delete = PhoneDeleteView.as_view()
 
 class ConfirmInfoView(LoginRequiredMixin, generic.View):
     http_method_names = ['post']
+    template_name = 'links/confirmed.html'
 
+    @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
         request.user.profile.confirm_all_info()
-        # TODO: support a non-ajax response (reuse the one in /links)
-        return JsonResponse({'success': 'confirmed'})
+        if request.is_ajax():
+            return JsonResponse({'success': 'confirmed'})
+        else:
+            return TemplateResponse(request, self.template_name)
 
 confirm_hosting_info = ConfirmInfoView.as_view()
 

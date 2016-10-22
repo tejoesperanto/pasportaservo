@@ -4,24 +4,62 @@
 
 $(document).ready(function() {
 
+    function isCSRFSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return /^(GET|HEAD|OPTIONS|TRACE)$/.test(method);
+    }
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!isCSRFSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", settings.csrfmiddlewaretoken);
+            }
+        }
+    });
+
     $('.ajax').click(function(e) {
         e.preventDefault();
         $this = $(this);
         $this.addClass('disabled');
+        if ($this.is('a')) {
+            target = $this.attr('href');
+            requestType = $this.data('method') || "GET";
+        }
+        else {
+            // should be a button within a form
+            target = $this.parents('form').attr('action');
+            requestType = $this.parents('form').attr('method');
+        }
         $.ajax({
-            type: "POST",
-            url: $this.attr('href'),
-            data: {'csrfmiddlewaretoken': $this.data('csrf')},
+            type: requestType,
+            url: target,
             dataType: "json",
+            csrfmiddlewaretoken: $this.data('csrf'),
             success: function(response) {
                 // TODO: Make it generic
                 $this.parents('.remove-after-success').slideUp();
             },
-            error: function() {
-                // TODO: Inform the user about the error in intelligible manner
+            error: function(xhr) {
                 $this.removeClass('disabled');
+                $this.popover({
+                    trigger: "focus",
+                    container: 'body',
+                    placement: "bottom",
+                    html: true,
+                    title: ((document.documentElement.lang == "eo") ? "Servila eraro" : "Server error") + " (" + xhr.status + ")",
+                    content: "<span class='help-block'>" +
+                             ((document.documentElement.lang == "eo") ?
+                              "Io misfunkciis. Bonvole reprovu; <br class='visible-xxs-inline'>se la eraro denove okazas, <a href='{url}'>kontaktu nin</a>." :
+                              "Something misfunctioned.<br>Please retry; if the error repeats itself, please <a href='{url}'>contact us</a>."
+                             ).replace("{url}", "mailto:pasportaservo [cxe] tejo.org").replace(" [cxe] ", "@") +
+                             "</span>"
+                }).popover("show");
             }
         });
+    });
+
+    $('.ajax').focus(function(e) {
+        $(this).popover("destroy");
     });
 
 });

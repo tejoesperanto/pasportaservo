@@ -6,10 +6,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-16 21:44+0200\n"
-"PO-Revision-Date: 2016-10-16 19:41+0200\n"
-"Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
-"Language-Team: EO <info@pasportaservo.org>\n"
+"POT-Creation-Date: 2016-10-22 22:12+0000\n"
+"PO-Revision-Date: 2016-10-23 00:21+0100\n"
+"Last-Translator: Meir <interDist@users.noreply.github.com>\n"
+"Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -18,19 +18,48 @@ msgstr ""
 "X-Generator: Poedit 1.8.8\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: pasportaservo/templates/403.html:5
+#: pasportaservo/templates/403.html:4 pasportaservo/templates/403_csrf.html:4
+#: pasportaservo/templates/404.html:4 pasportaservo/templates/500.html:4
+msgid "Server error"
+msgstr "Servila eraro"
+
+#: pasportaservo/templates/403.html:7
 msgid "No no, that page is off-limits"
 msgstr "Ne ne ne, tiun paĝon vi evitu"
 
-#: pasportaservo/templates/404.html:5
+#: pasportaservo/templates/403_csrf.html:14
+msgid ""
+"If you see this page after choosing PS from bookmarks, <a href=\"\">reload</"
+"a> the page."
+msgstr ""
+"Se vi vidas tiun ĉi paĝon elektinte PS el favoratoj, <a href=\"\">ŝargu "
+"denove</a> la paĝon."
+
+#: pasportaservo/templates/403_csrf.html:21
+msgid ""
+"If this page appears each time you're trying to edit something, you are "
+"using an insecure network. Please connect to a different network."
+msgstr ""
+"Se tiu ĉi paĝo aperas ĉiufoje kiam vi provas redakti ion, vi uzas ne-sekuran "
+"reton. Bonvole konektiĝu al alia reto."
+
+#: pasportaservo/templates/403_csrf.html:29
+msgid ""
+"Otherwise, we just prevented an attack on your Pasporta Servo account. "
+"Please close all other windows / tabs of the browser."
+msgstr ""
+"Alikaze, ni ĵus haltigis atakon je via konto ĉe Pasporta Servo. Bonvole "
+"fermu ĉiujn kromajn fenestrojn / langetojn de via retumilo."
+
+#: pasportaservo/templates/404.html:7
 msgid "Page not found"
 msgstr "Paĝo ne trovita"
 
-#: pasportaservo/templates/500.html:6
+#: pasportaservo/templates/500.html:8
 msgid "Programmation error on the server"
 msgstr "Programa eraro sur la servilo"
 
-#: pasportaservo/templates/500.html:7
+#: pasportaservo/templates/500.html:9
 msgid ""
 "The administrators have been informed of the problem and will fix it as soon "
 "as possible."
@@ -275,31 +304,31 @@ msgstr ""
 msgid "Back"
 msgstr ""
 
-#: pasportaservo/urls.py:15
+#: pasportaservo/urls.py:14
 msgid "^login/$"
 msgstr "^ensaluti/$"
 
-#: pasportaservo/urls.py:16
+#: pasportaservo/urls.py:15
 msgid "^logout/$"
 msgstr "^elsaluti/$"
 
-#: pasportaservo/urls.py:17
+#: pasportaservo/urls.py:16
 msgid "^password/$"
 msgstr "^pasvorto/$"
 
-#: pasportaservo/urls.py:18
+#: pasportaservo/urls.py:17
 msgid "^password/done/$"
 msgstr "^pasvorto/fino/$"
 
-#: pasportaservo/urls.py:19
+#: pasportaservo/urls.py:18
 msgid "^password/reset/$"
 msgstr "^pasvorto/nova/$"
 
-#: pasportaservo/urls.py:20
+#: pasportaservo/urls.py:19
 msgid "^password/reset/done/$"
 msgstr "^pasvorto/nova/fino/$"
 
-#: pasportaservo/urls.py:21
+#: pasportaservo/urls.py:20
 msgid ""
 "^reset/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]"
 "{1,20})/$"
@@ -307,15 +336,15 @@ msgstr ""
 "^nova-pasvorto/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-"
 "[0-9A-Za-z]{1,20})/$"
 
-#: pasportaservo/urls.py:23
+#: pasportaservo/urls.py:22
 msgid "^reset/done/$"
 msgstr "^nova-pasvorto/fino/$"
 
-#: pasportaservo/urls.py:27
+#: pasportaservo/urls.py:26
 msgid "^admin/"
 msgstr "^administrilo/"
 
-#: pasportaservo/urls.py:28
+#: pasportaservo/urls.py:27
 msgid "^messages/"
 msgstr "^leteroj/"
 

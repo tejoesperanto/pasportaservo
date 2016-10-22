@@ -144,12 +144,13 @@ body, .same-as-body {
 }
 
 .top-info {
-    min-height: 4em;
+    /*min-height: 4em;*/
     margin-bottom: 1em;
 }
 
-.top-info p {
+.top-info p, .top-info form {
     margin-top: 1em;
+    margin-bottom: 1em;
 }
 
 
@@ -171,7 +172,7 @@ header .links {
     padding-top: 0.5em;
     text-align: right;
 }
-header #title {
+header #title, .same-as-title {
     font-family: Geotica, sans-serif;
     font-size: 1.6em;
 }
@@ -195,7 +196,7 @@ header.home .links {
     text-align: center;
 }
 
-header.home #title {
+header.home #title, .same-as-home-title {
     font-size: 7em;
     text-align: center;
     margin-top: 1rem;

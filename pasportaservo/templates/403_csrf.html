@@ -1,0 +1,37 @@
+{% extends "hosting/base.html" %}
+{% load i18n %}
+
+{% block head_title %}{% trans "Server error" %} &bull; {{ block.super }}{% endblock %}
+
+{% block page %}
+    <div class="row">
+        <div class="col-md-12 same-as-title same-as-home-title">
+            403
+        </div>
+        <div class="col-md-8 col-md-push-2">
+            <ul class="list-group">
+                <li class="list-group-item">
+                    {% blocktrans trimmed %}
+                        If you see this page after choosing PS from bookmarks, <a href="">reload</a> the page.
+                    {% endblocktrans %}
+                </li>
+            </ul>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    {% blocktrans trimmed %}
+                        If this page appears each time you're trying to edit something, you are using an insecure network.
+                        Please connect to a different network.
+                    {% endblocktrans %}
+                </li>
+            </ul>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    {% blocktrans trimmed %}
+                        Otherwise, we just prevented an attack on your Pasporta Servo account.
+                        Please close all other windows / tabs of the browser.
+                    {% endblocktrans %}
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
