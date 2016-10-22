@@ -6,10 +6,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-16 21:44+0200\n"
-"PO-Revision-Date: 2016-10-17 14:45+0100\n"
+"POT-Creation-Date: 2016-10-22 00:10+0000\n"
+"PO-Revision-Date: 2016-10-22 02:18+0100\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
-"Language-Team: EO <info@pasportaservo.org>\n"
+"Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -17,11 +17,22 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.8.8\n"
 
+#: links/templates/links/already_confirmed.html:4
+#: links/templates/links/confirmed.html:4
+#: links/templates/links/confirmed.html:8
+msgid "Data confirmed"
+msgstr "Informoj konfirmitaj"
+
 #: links/templates/links/already_confirmed.html:5
+#: links/templates/links/confirmed.html:5
+msgid "at"
+msgstr ""
+
+#: links/templates/links/already_confirmed.html:8
 msgid "Already confirmed"
 msgstr "Informoj jam konfirmitaj"
 
-#: links/templates/links/already_confirmed.html:6
+#: links/templates/links/already_confirmed.html:9
 msgid "You already confirmed the accuracy of your profile and address. Thanks!"
 msgstr "Vi jam konfirmis la aktualecon de viaj profilo kaj adreso. Dankon!"
 
@@ -33,11 +44,7 @@ msgstr "Malbona tempostampo"
 msgid "The link seems not valid"
 msgstr "La ligilo ne ŝajnas esti valida plu."
 
-#: links/templates/links/confirmed.html:5
-msgid "Data confirmed"
-msgstr "Informoj konfirmitaj"
-
-#: links/templates/links/confirmed.html:6
+#: links/templates/links/confirmed.html:9
 msgid "You just confirmed that your profile and address are up-to-date. Thanks!"
 msgstr "Vi ĵus konfirmis ke viaj profilo kaj adreso estas aktualaj. Dankon!"
 

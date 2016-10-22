@@ -179,8 +179,8 @@ class PhoneForm(forms.ModelForm):
             phones = Phone.objects.filter(number=data, profile=self.profile)
             number_list = phones.values_list('number', flat=True)
             if data in number_list:
-                # Check is done for object creation and object update
-                if self.instance.number is None or data != self.instance.number.as_e164:
+                # Check is done for object creation and for object update.
+                if not self.instance.number or data != self.instance.number.as_e164:
                     self.add_error('number', _("You already have this telephone number."))
         return cleaned_data
 

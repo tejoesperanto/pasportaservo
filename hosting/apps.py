@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 from django.utils.translation import gettext_lazy as _
 
-class TournamentsConfig(AppConfig):
+class HostingConfig(AppConfig):
     name = "hosting"
-    verbose_name = _("Hosting")
+    verbose_name = _("Hosting Service")

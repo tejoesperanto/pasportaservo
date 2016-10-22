@@ -6,10 +6,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-17 12:38+0000\n"
-"PO-Revision-Date: 2016-10-17 14:43+0100\n"
+"POT-Creation-Date: 2016-10-22 00:10+0000\n"
+"PO-Revision-Date: 2016-10-22 02:23+0100\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
-"Language-Team: EO <baptiste+pasportaservo@darthenay.fr>\n"
+"Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -18,66 +18,95 @@ msgstr ""
 "X-Generator: Poedit 1.8.8\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: hosting/admin.py:54
+#: hosting/admin.py:65
 msgid "Personal info"
 msgstr "Personaj informoj"
 
-#: hosting/admin.py:55
+#: hosting/admin.py:66
 msgid "Permissions"
 msgstr "Permesoj"
 
-#: hosting/admin.py:56
+#: hosting/admin.py:67
 msgid "Important dates"
 msgstr "Gravaj datoj"
 
-#: hosting/admin.py:62
+#: hosting/admin.py:73
 msgid "MD5 (weak)"
 msgstr "MD5 (malforta)"
 
-#: hosting/admin.py:65
+#: hosting/admin.py:76
 msgid "Password algorithm"
 msgstr "Pasvorta algoritmo"
 
-#: hosting/admin.py:73 hosting/models.py:81 hosting/models.py:253
-#: hosting/models.py:295
+#: hosting/admin.py:84 hosting/admin.py:255 hosting/models.py:81
+#: hosting/models.py:253 hosting/models.py:295
 msgid "profile"
 msgstr "profilo"
 
-#: hosting/admin.py:78
-msgid "user is defined"
-msgstr "uzanto havebla"
-
-#: hosting/admin.py:82
-msgid "Yes"
-msgstr "Jes"
-
-#: hosting/admin.py:82
-msgid "No"
-msgstr "Ne"
-
-#: hosting/admin.py:112 hosting/forms.py:16
+#: hosting/admin.py:124 hosting/forms.py:16
 msgid "Email"
 msgstr "Retadreso"
 
-#: hosting/admin.py:121 hosting/templates/hosting/snippets/checked.html:11
+#: hosting/admin.py:133 hosting/templates/hosting/snippets/checked.html:11
 msgid "user"
 msgstr "uzanto"
 
-#: hosting/admin.py:160 hosting/models.py:167
+#: hosting/admin.py:175 hosting/admin.py:264 hosting/admin_utils.py:31
+#: hosting/models.py:180 hosting/models.py:257
+msgid "country"
+msgstr "lando"
+
+#: hosting/admin.py:180 hosting/models.py:181
+msgid "latitude"
+msgstr "latitudo"
+
+#: hosting/admin.py:185 hosting/models.py:182
+msgid "longitude"
+msgstr "longitudo"
+
+#: hosting/admin.py:190 hosting/models.py:167
 msgid "owner"
 msgstr "posedanto"
 
-#: hosting/admin.py:173 hosting/models.py:255
+#: hosting/admin.py:250 hosting/models.py:255
 msgid "number"
 msgstr "numero"
 
-#: hosting/admin.py:178
+#: hosting/admin.py:260
 msgid "country code"
 msgstr "landa kodo"
 
+#: hosting/admin.py:276
+msgid "image"
+msgstr "bildo"
+
+#: hosting/admin_utils.py:15 hosting/models.py:47
+msgid "confirmed on"
+msgstr "konfirmita je"
+
+#: hosting/admin_utils.py:26 hosting/models.py:48
+msgid "deleted"
+msgstr "forigita"
+
+#: hosting/admin_utils.py:48
+msgid "All"
+msgstr "Ĉio"
+
+#: hosting/admin_utils.py:69
+msgid "user is defined"
+msgstr "uzanto havebla"
+
+#: hosting/admin_utils.py:73
+msgid "Yes"
+msgstr "Jes"
+
+#: hosting/admin_utils.py:73
+msgid "No"
+msgstr "Ne"
+
 #: hosting/apps.py:6
-msgid "Hosting"
-msgstr "Gastigado"
+msgid "Hosting Service"
+msgstr "Gastiga Servo"
 
 #: hosting/forms.py:19
 msgid "Leave blank"
@@ -215,14 +244,6 @@ msgstr "kontrolita"
 msgid "approved by"
 msgstr "aprobita de"
 
-#: hosting/models.py:47
-msgid "confirmed on"
-msgstr "konfirmita je"
-
-#: hosting/models.py:48
-msgid "deleted"
-msgstr "forigita"
-
 #: hosting/models.py:67
 msgid "title"
 msgstr "titolo"
@@ -299,18 +320,6 @@ msgstr "poŝtkodo"
 #: hosting/models.py:179
 msgid "State / Province"
 msgstr "Ŝtato / Provinco"
-
-#: hosting/models.py:180 hosting/models.py:257
-msgid "country"
-msgstr "lando"
-
-#: hosting/models.py:181
-msgid "latitude"
-msgstr "latitudo"
-
-#: hosting/models.py:182
-msgid "longitude"
-msgstr "longitudo"
 
 #: hosting/models.py:183
 msgid "maximum number of guest"
@@ -1323,42 +1332,42 @@ msgstr "^amassendado/$"
 msgid "^mass_mail_sent/$"
 msgstr "^amassendado_sukcesa/$"
 
-#: hosting/validators.py:17
+#: hosting/validators.py:18
 #, python-format
 msgid "Today is not CapsLock day. Please try with '%(correct_value)s'."
 msgstr "La CapsLock tago ne estas hodiaŭ. Bv. provi “%(correct_value)s”."
 
-#: hosting/validators.py:26
+#: hosting/validators.py:27
 #, python-format
 msgid ""
 "It seems there are too many uppercase letters. Try with '%(correct_value)s'."
 msgstr "Ŝajnas ke estas tro da majuskloj. Provu “%(correct_value)s”."
 
-#: hosting/validators.py:49
+#: hosting/validators.py:50
 msgid "Digits are not allowed."
 msgstr "Ciferoj ne estas permesitaj en tiu ĉi kampo."
 
-#: hosting/validators.py:77
+#: hosting/validators.py:98
 msgid "File type is not supported"
 msgstr "Dosiertipo ne akceptebla"
 
-#: hosting/validators.py:84
+#: hosting/validators.py:105
 #, python-format
 msgid "Please keep filesize under %(limit)s. Current filesize %(current)s"
 msgstr ""
 "Bv. certigu ke dosiergrando estas sub %(limit)s. Nuna grando: %(current)s"
 
-#: hosting/views.py:109
+#: hosting/views.py:114
 msgid "You are logged in."
 msgstr "Vi nun estas ensalutinta."
 
-#: hosting/views.py:118 hosting/views.py:135 hosting/views.py:238
-#: hosting/views.py:250
+#: hosting/views.py:123 hosting/views.py:144 hosting/views.py:247
+#: hosting/views.py:259
 msgid "The data is not saved yet! Note the specified errors."
 msgstr ""
 "La informoj ankoraŭ ne estas konservitaj! Atentu la indikitajn erarojn."
 
-#: hosting/views.py:439
+#: hosting/views.py:448
 msgid "[Pasporta Servo] You received an Authorization"
 msgstr "[Pasporta Servo] Vi ricevis permeson"
 
