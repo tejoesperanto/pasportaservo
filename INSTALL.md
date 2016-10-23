@@ -1,48 +1,95 @@
 # INSTALI
 
-Tiu ĉi projekto uzas Dĵangon 1.10; vidu requirements.txt.
+Ubuntu 16.10 / Debian Jessie:
 
-Vi bezonos Pitonon 3.4+, PostgreSQL, PIP kaj Virtualenv :
+    sudo apt install git python3-dev python3-pip libjpeg-dev \
+      postgresql-contrib postgresql-server-dev-all
 
-    $ sudo apt-get install postgresql postgresql-client postgresql-client-common libpq5 libpq-dev
-    $ sudo apt-get install python3 python3-dev
-    $ sudo apt-get install mercurial
-    $ sudo apt-get install python-setuptools
-    $ easy_install --user pip
-    $ sudo pip install virtualenv
+Fedora 25:
 
-Kiam eblas, ne instalu Django-n en via ĉefa sistemo sed ene de virtualenv, kiu provizas hermetikan Python-ĉirkaŭaĵon. Tiukaze, se vi provos lanĉi Django-n ekster la agordita ĉirkaŭaĵo, okazos eraro.
+    sudo dnf install git python3-devel python3-crypto redhat-rpm-config zlib-devel libjpeg-devel libzip-devel \
+      postgresql-server postgresql-contrib postgresql-devel 
 
-    $ virtualenv {ENV}
-    $ source ./{ENV}/bin/activate
 
-Kie `{ENV}` (ekz, 'PS3') estas la dosierujo enhavonta ĉion necesan por la ĉirkaŭaĵo, inkluzive de Python kaj bibliotekoj. `deactivate` por eliri el la ĉirkaŭaĵo.
+#### PostgreSQL
 
-#### Konfiguro de PostgreSQL
+Se vi estas sub Fedora:
 
-    $ sudo -u postgres createuser {via-uzantonomo} --interactive
+    sudo postgresql-setup --initdb --unit postgresql
+    sudo systemctl enable postgresql
+    sudo systemctl start postgresql
 
-Kie `{via-uzantonomo}` estas de tiu uzanto per kiu vi aktuale estas ensalutinta. Respondu:
+Por ĉiuj:
 
->    Shall the new role be a superuser? (y/n) **n**
->
->    Shall the new role be allowed to create databases? (y/n) **y**
->
->    Shall the new role be allowed to create more new roles? (y/n) **n**
+    sudo -u postgres createuser --interactive  # Enigu vian uzantnomon kaj poste 'y'
+    createdb via-uzantnomo
+    createdb pasportaservo
 
-Se la antaŭa komando malsukcesas (ekz., vi ricevas eraron "unrecognized option --interactive"), provu:
+
+#### VirtualenvWrapper
+
+Uzi virtualenvwrapper ne estas deviga, Pitono 3 venas kun `venv`. 
+Tamen tiu ilo estas praktika kaj uzata sur la servilo.
+
+    sudo pip3 install virtualenvwrapper
+
+Aldonu tion al la fino de via `.bashrc`, `.bash_profile` aŭ simile:
+
+    # VirtualenvWrapper
+    export WORKON_HOME=/opt/envs/
+    export VIRTUALENVWRAPPER_PYTHON=`which python3`
+    source `which virtualenvwrapper.sh`
+
+Kaj poste kreu dosierujon por la virtualaj medioj:
+
+    sudo mkdir /opt/envs && sudo chown uzantnomo:uzantnomo /opt/envs
+    source .bashrc
+    mkvirtualenv ps
+    python -V  # Ĉu Python 3.5?
+
+
+#### Fontkodo
+
+Iru al la [Github projektpaĝo](https://github.com/tejo-esperanto/pasportaservo)
+kaj forku ĝin. Poste, vi povas kloni ĝin:
+
+    git clone https://github.com/via-uzantnomo/pasportaservo.git
+    cd pasportaservo
+    git checkout devel
+    pip install -r requirements/dev.txt
+    echo 'from .dev import *' > pasportaservo/settings/__init__.py
+    ./manage.py migrate
+    ./manage.py createsuperuser
+    ./manage.py runserver
+
+Ĉu bone? Vidu http://localhost:8000
+
+----
+
+
+#### Retmesaĝoj
+
+Dum disvolvigo, estas praktika uzi *MailDump* por provadi sendi retmesaĝoj:
+
+    pip install maildump
+    maildump
+
+
+## Problem-solvado
+
+#### PostgreSQL: `unrecognized option --interactive`
+Se la komando `sudo -u postgres createuser --interactive` malsukcesas (ekz., vi ricevas eraron "unrecognized option --interactive"), provu:
 
     $ sudo -u postgres psql
-    psql (9.4.9)
+    psql (9.5.4)
     Type "help" for help.
     postgres=# CREATE ROLE {via-uzantonomo} WITH LOGIN CREATEDB CREATEROLE;
     postgres=# \q
 
-Sekvas kreo de datumbazo.
+#### PostgreSQL: Ĉu mi bone kreis la datumbazoj?
 
-    $ sudo -u postgres createdb -O {via-uzantonomo} -E utf8 pasportaservo
     $ sudo -u postgres psql
-    psql (9.4.9)
+    psql (9.5.4)
     Type "help" for help.
     postgres=# \l
                                         List of databases
@@ -58,33 +105,22 @@ Sekvas kreo de datumbazo.
 
 Se vi vidas tabelon kiel ĉi-supre, ĉio glate paŝis.
 
-#### Elpreno de kodo kaj lanĉo
-
-    (PS3) $ mkdir site
-    (PS3) $ cd site/
-    (PS3) $ git clone https://github.com/tejo-esperanto/pasportaservo.git
-    (PS3) $ cd pasportaservo
-    (PS3) $ pip install -r requirements.txt  # aŭ requirements/dev.txt
-    (PS3) $ cd pasportaservo/settings/
-    (PS3) $ ln -s {my-local-settings}.py local_settings.py
-    (PS3) $ cd -
-
-> `my-local-settings.py` povas esti `dev.py`, `staging.py` aŭ `prod.py`
-
-    (PS3) $ ./manage.py migrate
-    (PS3) $ ./manage.py runserver
-
-En la krozilo, iru al la adreso `http://127.0.0.1:8000`.
-
 
 ## Komprenu la strukturon de la kodo
 
 - **pasportaservo/**: ĝenerala dosierujo kun konfiguro, baz-nivelaj URL-oj…
 - **hosting/**: la ĉefa programo por gastiganta servo
 
-**Gravaj dosieroj por Gastigoservo:**
+Kaj en la diversaj *aplikaĵon* (ekz. `hosting`, `book`, `links`…):
 
 - models.py: strukturo de la datumoj
 - urls.py: ligoj inter URL-oj kaj paĝo-vidoj
 - views.py: difino de vidoj, paĝoj por prezentado
 - templates/: pseŭdo-HTML dosieroj (ŝablonoj)
+
+
+## Lerni Dĵangon
+
+- https://tutorial.djangogirls.org/
+- https://docs.djangoproject.com/en/stable/intro/tutorial01/
+- https://docs.djangoproject.com/en/stable/
