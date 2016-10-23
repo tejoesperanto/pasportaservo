@@ -4,7 +4,7 @@
 
 $(document).ready(function() {
     // Close message
-    $('.close').click(function(e) {
+    $('.message .close').click(function(e) {
         $(this).hide();
         $(this).parents('.message').slideUp();
         e.preventDefault();
@@ -13,7 +13,7 @@ $(document).ready(function() {
     // Close sticky message
     if (window.localStorage) {
         // Save sticky message class into localStorage when closing
-        $('.close').click(function(e) {
+        $('.message .close').click(function(e) {
             var stickyClass = $(this).parents('.message').attr('class').match(/sticky[\w-]*/).pop();
             localStorage.setItem(stickyClass, "hide");
         });

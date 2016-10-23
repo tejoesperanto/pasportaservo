@@ -104,9 +104,11 @@ body, .same-as-body {
     position: relative;
     color: white;
     font-weight: bold;
-    padding: .8em 3em;
+    font-size: .85em;
+    letter-spacing: .015em;
+    padding: .8em 2em;
     text-align: center;
-    box-shadow: inset rgba(0,0,0,.6) 0 -10px 10px -10px;
+    box-shadow: inset 0 -10px 10px -10px rgba(0, 0, 0, .6);
 }
 .message.debug { background: #aa4a86; }
 .message.info { background: #40708a; }
@@ -138,8 +140,8 @@ body, .same-as-body {
 .message .close:focus,
 .message .close:active,
 .message .close:hover {
-    color: #c00;
-    opacity: .5;
+    color: #fff;
+    opacity: .6;
     outline: none;
 }
 
@@ -455,6 +457,7 @@ footer {
 }
 
 header:not(.home) #subtitle,
+.message,
 .help-block,
 *[type="password"] + .progress .password-verdict,
 *[type="password"] + .popover + .progress .password-verdict {
