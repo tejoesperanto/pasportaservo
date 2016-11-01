@@ -42,6 +42,17 @@
         </div>
     {% endif %}
 
+    {% if profile.is_supervisor %}
+        <div class="row bg-warning top-info">
+            <p class="col-xs-12 text-center">
+                {% blocktrans with countries=profile.supervisor_of|join:", " trimmed %}
+                    Supervisor of {{ countries }}
+                {% endblocktrans %}
+            </p>
+        </div>
+    {% else %}
+    {% endif %}
+
         <div class="row">
             <div class="col-xs-12 col-md-5">
                 {% if profile.deleted and user.is_staff %}
@@ -59,7 +70,7 @@
                                 <strong>{% trans "Write message" %}</strong>
                             </a>
                         {% endif %}
-                        {% if profile == user.profile or role == "admin" %}
+                        {% if profile == user.profile or role >= profile.SUPERVISOR %}
                             {% if role == "admin" %}{% trans "Update user's details" as update_title %}{% endif %}
                             {% if profile == user.profile %}{% trans "Update my details" as update_title %}{% endif %}
                             <a href="{% url 'profile_edit' profile.pk profile.user.username|slugify %}"

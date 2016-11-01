@@ -6,14 +6,15 @@ from django.utils.html import format_html
 from django.utils.text import slugify
 from django.db import models, transaction
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from django_extensions.db.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
-from django_countries.fields import CountryField
+from django_countries.fields import CountryField, Country
 
-from .managers import NotDeletedManager, WithCoordManager
+from .managers import NotDeletedManager, WithCoordManager, AvailablesManager
 from .validators import (
     validate_not_all_caps, validate_not_too_many_caps, validate_no_digit,
     validate_not_in_future, TooFarPastValidator, TooNearPastValidator,
@@ -30,6 +31,7 @@ TITLE_CHOICES = (
     (MR, _("Mr")),
 )
 
+ADMIN, STAFF, SUPERVISOR, USER, VISITOR = 5, 4, 3, 2, 1
 
 MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
 PHONE_TYPE_CHOICES = (
@@ -63,6 +65,7 @@ class TrackingModel(models.Model):
 
 class Profile(TrackingModel, TimeStampedModel):
     TITLE_CHOICES = TITLE_CHOICES
+    ADMIN, STAFF, SUPERVISOR, USER, VISITOR = ADMIN, STAFF, SUPERVISOR, USER, VISITOR
     user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     title = models.CharField(_("title"), max_length=5, choices=TITLE_CHOICES, blank=True)
     first_name = models.CharField(_("first name"), max_length=255, blank=True,
@@ -129,9 +132,41 @@ class Profile(TrackingModel, TimeStampedModel):
     def places_confirmed(self):
         return all(p.confirmed for p in self.owned_places.filter(deleted=False, in_book=True))
 
+    @property
+    def supervised_by(self):
+        places = self.owned_places.filter(deleted=False)
+        return [superv for p in places for superv in p.supervised_by]
+
+    @property
+    def is_supervisor(self):
+        return any(self.supervisor_of)
+
+    @property
+    def supervisor_of(self, code=False):
+        countries = (Country(g.name) for g in self.user.groups.all() if len(g.name) == 2)
+        return countries if code else [c.name for c in countries]
+
+    def is_supervisor_of(self, profile=None, countries=None):
+        """Compare intersection between responsabilities and given countries."""
+        countries = countries if countries else []
+        if not countries:
+            countries = profile.owned_places.filter(
+                available=True, deleted=False).values_list('country', flat=True)
+        supervised = self.user.groups.values_list('name', flat=True)
+        return any(set(supervised) & set(countries))
+
+    def set_supervisor_of(self, country=None, remove=False):
+        group = Group.objects.get(name=str(country))
+        if remove:
+            return self.user.groups.remove(group)
+        return self.user.groups.add(group)
+
     def __str__(self):
-        return self.full_name if self.full_name.strip()  \
-               else (self.user.username if self.user else '--')
+        if self.full_name.strip():
+            return self.full_name
+        elif self.user:
+            return self.user.username
+        return '--'
 
     def repr(self):
         return "{} ({})".format(self.__str__(), getattr(self.birth_date, 'year', "?"))
@@ -203,6 +238,7 @@ class Place(TrackingModel, TimeStampedModel):
     authorized_users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("authorized users"), blank=True,
         help_text=_("List of users authorized to view most of data of this accommodation."))
 
+    availables = AvailablesManager()
     with_coord = WithCoordManager()
 
     class Meta:
@@ -232,6 +268,11 @@ class Place(TrackingModel, TimeStampedModel):
     @property
     def owner_available(self):
         return self.tour_guide or self.have_a_drink
+
+    @property
+    def supervised_by(self):
+        group = Group.objects.get(name=self.country.code)
+        return [user.profile for user in group.user_set.all()]
 
     def get_absolute_url(self):
         return reverse('place_detail', kwargs={'pk': self.pk})
