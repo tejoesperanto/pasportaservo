@@ -351,8 +351,25 @@ class ConfirmInfoView(LoginRequiredMixin, generic.View):
 confirm_hosting_info = ConfirmInfoView.as_view()
 
 
-class SearchView(generic.ListView):
+class PlaceListView(generic.ListView):
     model = Place
+
+place_list = PlaceListView.as_view()
+
+
+class CountryPlaceListView(PlaceListView):
+    def dispatch(self, request, *args, **kwargs):
+        self.country_code = self.kwargs['country_code']
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        qs = self.model.availables.filter(country=self.country_code)
+        return qs.select_related('owner__user').order_by('country', 'city')
+
+country_place_list = CountryPlaceListView.as_view()
+
+
+class SearchView(PlaceListView):
 
     def first_with_bounds(self, locations):
         for location in locations:

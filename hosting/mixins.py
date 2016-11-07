@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.mixins import UserPassesTestMixin
 
 from .models import Profile, Place, Phone
+from .models import ADMIN, STAFF, SUPERVISOR, USER, VISITOR
 
 
 class StaffMixin(UserPassesTestMixin):
@@ -42,27 +43,30 @@ class ProfileAuthMixin(object):
         profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
         user_profile = getattr(self.request.user, 'profile', None)
         if user_profile and profile == user_profile:
-            self.role = 'user'
+            self.role = USER
         elif self.request.user.is_staff:
-            self.role = 'admin'
-        # elif profile.~places~.country in self.request.user.profile.countries:
-            # self.role = 'supervizor'
+            self.role = ADMIN
+        elif self.request.user.profile.is_supervisor_of(profile):
+            self.role = SUPERVISOR
         else:
             public = getattr(self, 'public_view', False)
             if not public:
                 raise Http404("Not allowed to edit this profile.")
             if profile.deleted:
                 raise Http404("Profile was deleted.")
-            self.role = 'visitor'
+            self.role = VISITOR
         return profile
 
 
 class PlaceAuthMixin(object):
     def get_object(self, queryset=None):
-        pk = self.kwargs['pk']
-        if self.request.user.is_staff:
-            return get_object_or_404(Place, pk=pk)
-        return get_object_or_404(Place, pk=pk, owner=self.request.user.profile)
+        place = get_object_or_404(Place, pk=self.kwargs['pk'])
+        is_user = place.owner == self.request.user.profile
+        is_staff = self.request.user.is_staff
+        is_supervisor = self.request.user.profile.is_supervisor_of(countries=[place.country])
+        if any([is_user, is_staff, is_supervisor]):
+            return place
+        raise Http404("Not allowed to edit this place.")
 
 
 class PhoneAuthMixin(object):
