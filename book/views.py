@@ -59,14 +59,16 @@ class ContactExport(StaffMixin, generic.ListView):
     content_type = 'text/csv'
     place_fields = ['in_book', 'checked', 'city', 'closest_city', 'address',
         'postcode', 'state_province', 'country', 'short_description',
-        'tour_guide', 'have_a_drink', 'max_guest', 'max_night', 'contact_before']
+        'tour_guide', 'have_a_drink', 'max_guest', 'max_night', 'contact_before', 'confirmed_on']
     owner_fields = ['title', 'first_name', 'last_name', 'birth_date']
     user_fields = ['email', 'username', 'last_login', 'date_joined']
     other_fields = ['phones', 'family_members', 'conditions', 'update_url', 'confirm_url']
 
     def get_queryset(self):
         qs = super().get_queryset().prefetch_related('owner__user')
-        qs = qs.filter(available=True)
+        qs = qs.filter(available=True).exclude(
+            owner__user__email__startswith='INVALID_'
+        )
         return qs
 
     def render_to_response(self, context, **response_kwargs):
@@ -113,6 +115,8 @@ class ContactExport(StaffMixin, generic.ListView):
                     value = yesno(value, _("yes,no"))
                 if f == 'title':
                     value = _(obj.title)
+                if f == 'confirmed_on':
+                    value = '01/01/1970'
                 row.append(value)
         return row
 
