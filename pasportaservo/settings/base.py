@@ -146,6 +146,9 @@ MEET_MIN_AGE = 13
 
 INVALID_PREFIX = 'INVALID_'
 
+COUNTRIES_WITH_REGIONS = ('US', 'GB', 'FR', 'DE', 'BR')
+
+
 CORS_ORIGIN_WHITELIST = (
     'pasportaservo.org',
     'localhost:4200',

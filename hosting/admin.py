@@ -276,6 +276,8 @@ class ConditionAdmin(admin.ModelAdmin):
     list_display = ('name', 'abbr')
     prepopulated_fields = {'slug': ("name",)}
 
+    fields = ('name', 'abbr', 'slug', 'latex', 'icon')
+
     def icon(self, obj):
         return format_html('<img src="{static}img/cond_{slug}.svg" style="width:4ex; height:4ex;"/>',
                            static=settings.STATIC_URL, slug=obj.slug)

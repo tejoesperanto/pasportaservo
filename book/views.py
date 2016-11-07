@@ -1,11 +1,13 @@
-import os
+from os.path import join
 import csv
+from shutil import copytree
+from operator import attrgetter
 import tempfile
-from subprocess import Popen, PIPE
+from subprocess import call, PIPE
 
 from django.http.response import HttpResponse
 from django.views import generic
-from django.template.loader import get_template
+from django.template import Template, Context
 from django.template.defaultfilters import yesno
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -14,40 +16,67 @@ from hosting.mixins import StaffMixin
 from hosting.models import Place
 from links.utils import create_unique_url
 
+from pyuca import Collator
+c = Collator()
 
 class PDFBookView(StaffMixin, generic.TemplateView):
-    template_name = 'book/book.tex'
-    pdf_file = 'book/templates/book/book.pdf'
+    template_name = 'PasportaServo.tex'
+    pages = [
+        'pages/title.tex',
+        'pages/address.tex',
+    ]
     response_class = HttpResponse
     content_type = 'application/pdf'
 
+    def get_objects(self):
+        places = Place.objects.filter(
+            country='FR',
+            in_book=True,
+            checked=True)
+        city_key = lambda place: c.sort_key(str(place.closest_city))
+        region_key = lambda place: c.sort_key(str(place.state_province))
+        country_key = lambda place: c.sort_key(str(place.country.name))
+        return sorted(sorted(sorted(places, key=city_key), key=region_key), key=country_key)
+
     def get_context_data(self, **kwargs):
-        kwargs = super().get_context_data(**kwargs)
-        kwargs['nomo'] = "Pasporta Servo"
-        return kwargs
+        context = super().get_context_data(**kwargs)
+        context['year'] = 2017
+        context['places'] = self.get_objects()
+        return context
 
     def render_to_response(self, context, **response_kwargs):
         response_kwargs.setdefault('content_type', self.content_type)
         response = self.response_class(**response_kwargs)
-        pdf = self.generate_pdf(context)
+        self.context = Context(context)
+        pdf = self.generate_pdf()
         response.write(pdf)
         return response
 
-    def generate_pdf(self, context):
-        template = get_template(self.template_name)
-        rendered_template = template.render(context).encode('utf-8')
+    def render_tex(self, tmp, template_name):
+        with open(join(tmp, template_name), 'r') as f:
+            template = Template(f.read())
+        with open(join(tmp, template_name), 'w') as f:
+            f.write(template.render(self.context))
+
+    def generate_pdf(self):
         with tempfile.TemporaryDirectory() as tempdir:
+            tmp = copytree('book/templates/book/', join(tempdir, 'book'))
+            self.render_tex(tmp, self.template_name)
+            for template in self.pages:
+                self.render_tex(tmp, template)
             # Create subprocess, supress output with PIPE and
             # run latex twice to generate the TOC properly.
             for i in range(2):
-                process = Popen(
-                    ['xelatex', '-output-directory', tempdir],
+                process = call(
+                    ['xelatex', self.template_name],
+                    cwd=tmp,
                     stdin=PIPE,
                     stdout=PIPE,
                 )
-                process.communicate(rendered_template)
+                # process.communicate(rendered_template)
+            import time; time.sleep(6)
             # Finally read the generated pdf.
-            with open(os.path.join(tempdir, 'texput.pdf'), 'rb') as f:
+            with open(join(tmp, 'PasportaServo.pdf'), 'rb') as f:
                 pdf = f.read()
         return pdf
 
@@ -80,7 +109,7 @@ class ContactExport(StaffMixin, generic.ListView):
 
     def generate_csv(self, context):
         with tempfile.TemporaryDirectory() as tempdir:
-            with open(os.path.join(tempdir, 'contacts.csv'), 'w+') as f:
+            with open(join(tempdir, 'contacts.csv'), 'w+') as f:
                 writer = csv.writer(f)
                 writer.writerow(self.user_fields + self.owner_fields +
                                 self.place_fields + self.other_fields)
