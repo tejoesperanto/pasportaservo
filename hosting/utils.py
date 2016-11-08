@@ -5,6 +5,8 @@ from django.utils.deconstruct import deconstructible
 from django.core.mail import get_connection, EmailMultiAlternatives
 from django.conf import settings
 
+from pyuca import Collator
+
 
 def extend_bbox(boundingbox):
     """Extends the bounding box by x3 for its width, and x3 of its height."""
@@ -34,7 +36,7 @@ def split(value):
     return re.split('\W+', value)
 
 
-def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None, 
+def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,
                         connection=None):
     """
     Given a datatuple of (subject, text_content, html_content, from_email,
@@ -75,3 +77,10 @@ class UploadAndRenameAvatar(object):
             filename = 'x{}'.format(str(uuid4()))
         filename = 'picture-{}.{}'.format(filename, ext.lower())
         return os.path.join(self.sub_path, filename)
+
+
+def sort_by_name(iterable):
+    """Sort by a translatable name, using pyuca for a better result."""
+    c = Collator()
+    key = lambda obj: c.sort_key(str(obj.name))
+    return sorted(iterable, key=key)

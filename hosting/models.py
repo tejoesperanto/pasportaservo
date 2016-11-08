@@ -168,6 +168,9 @@ class Profile(TrackingModel, TimeStampedModel):
             return self.user.username
         return '--'
 
+    def __lt__(self, other):
+        return self.last_name < other.last_name
+
     def repr(self):
         return "{} ({})".format(self.__str__(), getattr(self.birth_date, 'year', "?"))
 

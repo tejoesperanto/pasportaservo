@@ -64,6 +64,7 @@ class CustomUserAdmin(UserAdmin):
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': ('email',)}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser')}),
+        (_('Supervisors'), {'fields': ('groups',)}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
     readonly_fields = ('date_joined',)

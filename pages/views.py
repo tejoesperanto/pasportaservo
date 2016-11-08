@@ -1,5 +1,9 @@
 from django.views import generic
+from django.contrib.auth.models import Group
 
+from django_countries.fields import Country
+from hosting.models import Profile, Place
+from hosting.utils import sort_by_name
 
 class AboutView(generic.TemplateView):
     template_name = 'pages/about.html'
@@ -15,6 +19,19 @@ terms_conditions = TermsAndConditionsView.as_view()
 
 class SupervisorsView(generic.TemplateView):
     template_name = 'pages/supervisors.html'
+
+    def countries(self):
+        places = Place.objects.filter(in_book=True)
+        groups = Group.objects.exclude(user=None)
+        countries = sort_by_name({p.country for p in places})
+        for country in countries:
+            try:
+                group = groups.get(name=str(country))
+                country.supervisors = sorted(user.profile for user in group.user_set.all())
+            except Group.DoesNotExist:
+                pass
+            country.place_count = places.filter(country=country).count()
+        return countries
 
 supervisors = SupervisorsView.as_view()
 
