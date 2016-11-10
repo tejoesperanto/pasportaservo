@@ -363,7 +363,7 @@ class CountryPlaceListView(PlaceListView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        qs = self.model.availables.filter(country=self.country_code)
+        qs = self.model.available_objects.filter(country=self.country_code)
         return qs.select_related('owner__user').order_by('country', 'city')
 
 country_place_list = CountryPlaceListView.as_view()

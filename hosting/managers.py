@@ -6,12 +6,12 @@ class NotDeletedManager(models.Manager):
         return super().get_queryset().exclude(deleted=True)
 
 
-class AvailablesManager(NotDeletedManager):
+class AvailableManager(NotDeletedManager):
     def get_queryset(self):
         return super().get_queryset().filter(available=True)
 
 
-class WithCoordManager(AvailablesManager):
+class WithCoordManager(AvailableManager):
     def get_queryset(self):
         return super().get_queryset().filter(
             latitude__isnull=False,

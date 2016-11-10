@@ -901,7 +901,7 @@ msgstr "Mi konfirmas!"
 #: hosting/templates/hosting/profile_detail.html:48
 #, python-format
 msgid "Supervisor of %(countries)s"
-msgstr "Landa Organizanto de %(countries)s"
+msgstr "Landa Organizanto por %(countries)s"
 
 #: hosting/templates/hosting/profile_detail.html:60
 msgid "Deleted profile"

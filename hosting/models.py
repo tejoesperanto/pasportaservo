@@ -8,13 +8,14 @@ from django.db import models, transaction
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
 
 from django_extensions.db.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
 from django_countries.fields import CountryField, Country
 
-from .managers import NotDeletedManager, WithCoordManager, AvailablesManager
+from .managers import NotDeletedManager, WithCoordManager, AvailableManager
 from .validators import (
     validate_not_all_caps, validate_not_too_many_caps, validate_no_digit,
     validate_not_in_future, TooFarPastValidator, TooNearPastValidator,
@@ -148,6 +149,9 @@ class Profile(TrackingModel, TimeStampedModel):
 
     def is_supervisor_of(self, profile=None, countries=None):
         """Compare intersection between responsabilities and given countries."""
+        if all([profile, countries]) or not any([profile, countries]):
+            raise ImproperlyConfigured(_("Profile.is_supervisor_of() needs "
+                "either a profile or a list of countries."))
         countries = countries if countries else []
         if not countries:
             countries = profile.owned_places.filter(
@@ -241,7 +245,7 @@ class Place(TrackingModel, TimeStampedModel):
     authorized_users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("authorized users"), blank=True,
         help_text=_("List of users authorized to view most of data of this accommodation."))
 
-    availables = AvailablesManager()
+    available_objects = AvailableManager()
     with_coord = WithCoordManager()
 
     class Meta:
