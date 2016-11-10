@@ -54,7 +54,6 @@ pdf_book = PDFBookView.as_view()
 
 
 class ContactExport(StaffMixin, generic.ListView):
-    model = Place
     response_class = HttpResponse
     content_type = 'text/csv'
     place_fields = ['in_book', 'checked', 'city', 'closest_city', 'address',
@@ -65,11 +64,11 @@ class ContactExport(StaffMixin, generic.ListView):
     other_fields = ['phones', 'family_members', 'conditions', 'update_url', 'confirm_url']
 
     def get_queryset(self):
-        qs = super().get_queryset().prefetch_related('owner__user')
-        qs = qs.filter(available=True).exclude(
+        places = Place.objects.prefetch_related('owner__user')
+        places = places.filter(available=True).exclude(
             owner__user__email__startswith='INVALID_'
         )
-        return qs
+        return places
 
     def render_to_response(self, context, **response_kwargs):
         response_kwargs.setdefault('content_type', self.content_type)
