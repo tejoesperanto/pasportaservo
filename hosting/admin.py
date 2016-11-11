@@ -115,7 +115,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     ) + TrackingModelAdmin.fields
     raw_id_fields = ('user', 'checked_by')
     radio_fields = {'title': admin.HORIZONTAL}
-    inlines = [PlaceInLine, PhoneInLine]
+    inlines = [PlaceInLine]
 
     def user__email(self, obj):
         try:
