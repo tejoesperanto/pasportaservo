@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-01 21:50+0000\n"
-"PO-Revision-Date: 2016-11-01 22:51+0100\n"
+"POT-Creation-Date: 2016-11-11 13:50+0100\n"
+"PO-Revision-Date: 2016-11-11 13:51+0100\n"
 "Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -18,105 +18,107 @@ msgstr ""
 "X-Generator: Poedit 1.8.8\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: hosting/admin.py:65
+#: admin.py:65
 msgid "Personal info"
 msgstr "Personaj informoj"
 
-#: hosting/admin.py:66
+#: admin.py:66
 msgid "Permissions"
 msgstr "Permesoj"
 
-#: hosting/admin.py:67
+#: admin.py:67 templates/hosting/base.html:79
+msgid "Supervisors"
+msgstr "Landaj organizantoj"
+
+#: admin.py:68
 msgid "Important dates"
 msgstr "Gravaj datoj"
 
-#: hosting/admin.py:73
+#: admin.py:74
 msgid "MD5 (weak)"
 msgstr "MD5 (malforta)"
 
-#: hosting/admin.py:76
+#: admin.py:77
 msgid "Password algorithm"
 msgstr "Pasvorta algoritmo"
 
-#: hosting/admin.py:84 hosting/admin.py:255 hosting/models.py:84
-#: hosting/models.py:294 hosting/models.py:336
+#: admin.py:85 admin.py:256 models.py:85 models.py:301 models.py:343
 msgid "profile"
 msgstr "profilo"
 
-#: hosting/admin.py:124 hosting/forms.py:16
+#: admin.py:125 forms.py:16
 msgid "Email"
 msgstr "Retadreso"
 
-#: hosting/admin.py:133 hosting/templates/hosting/snippets/checked.html:11
+#: admin.py:134 templates/hosting/snippets/checked.html:11
 msgid "user"
 msgstr "uzanto"
 
-#: hosting/admin.py:175 hosting/admin.py:264 hosting/admin_utils.py:31
-#: hosting/models.py:215 hosting/models.py:298
+#: admin.py:176 admin.py:265 admin_utils.py:31 models.py:222 models.py:305
 msgid "country"
 msgstr "lando"
 
-#: hosting/admin.py:180 hosting/models.py:216
+#: admin.py:181 models.py:223
 msgid "latitude"
 msgstr "latitudo"
 
-#: hosting/admin.py:185 hosting/models.py:217
+#: admin.py:186 models.py:224
 msgid "longitude"
 msgstr "longitudo"
 
-#: hosting/admin.py:190 hosting/models.py:202
+#: admin.py:191 models.py:209
 msgid "owner"
 msgstr "posedanto"
 
-#: hosting/admin.py:250 hosting/models.py:296
+#: admin.py:251 models.py:303
 msgid "number"
 msgstr "numero"
 
-#: hosting/admin.py:260
+#: admin.py:261
 msgid "country code"
 msgstr "landa kodo"
 
-#: hosting/admin.py:276
+#: admin.py:277
 msgid "image"
 msgstr "bildo"
 
-#: hosting/admin_utils.py:15 hosting/models.py:49
+#: admin_utils.py:15 models.py:50
 msgid "confirmed on"
 msgstr "konfirmita je"
 
-#: hosting/admin_utils.py:26 hosting/models.py:50
+#: admin_utils.py:26 models.py:51
 msgid "deleted"
 msgstr "forigita"
 
-#: hosting/admin_utils.py:48
+#: admin_utils.py:48
 msgid "All"
 msgstr "Ĉio"
 
-#: hosting/admin_utils.py:69
+#: admin_utils.py:69
 msgid "user is defined"
 msgstr "uzanto havebla"
 
-#: hosting/admin_utils.py:73
+#: admin_utils.py:73
 msgid "Yes"
 msgstr "Jes"
 
-#: hosting/admin_utils.py:73
+#: admin_utils.py:73
 msgid "No"
 msgstr "Ne"
 
-#: hosting/apps.py:6
+#: apps.py:6
 msgid "Hosting Service"
 msgstr "Gastiga Servo"
 
-#: hosting/forms.py:19
+#: forms.py:19
 msgid "Leave blank"
 msgstr "Lasu malplena"
 
-#: hosting/forms.py:31
+#: forms.py:31
 msgid "User address already in use."
 msgstr "Uzanta adreso jam uzita."
 
-#: hosting/forms.py:73 hosting/forms.py:136
+#: forms.py:73 forms.py:136
 msgid ""
 "You want to be in the printed edition of Pasporta Servo. In order to have a "
 "quality product, some fields a required. If you think there is a problem, "
@@ -126,186 +128,190 @@ msgstr ""
 "produkton, kelkaj kampoj estas devigaj. Se vi pensas ke estas problemo, bv. "
 "kontakti nin."
 
-#: hosting/forms.py:78 hosting/forms.py:145
+#: forms.py:78 forms.py:145
 msgid "This field is required to be printed in the book."
 msgstr "Tiu ĉi kampo estas deviga por esti printita en la libro."
 
-#: hosting/forms.py:128
+#: forms.py:128
 msgid "Choose your conditions..."
 msgstr "Elektu viajn kondiĉojn…"
 
-#: hosting/forms.py:143
+#: forms.py:143
 msgid "Please click on the map to choose your location."
 msgstr "Bonvolu klaki la mapon por elekti vian lokon."
 
-#: hosting/forms.py:184
+#: forms.py:184
 msgid "You already have this telephone number."
 msgstr "Vi jam indikis tian telefonnumeron."
 
-#: hosting/forms.py:202
+#: forms.py:202
 msgid "Authorize user"
 msgstr "Permesi uzanton"
 
-#: hosting/forms.py:207
+#: forms.py:207
 msgid "username"
 msgstr "uzantnomo"
 
-#: hosting/forms.py:218
+#: forms.py:218
 msgid "User does not exist"
 msgstr "Tiu ĉi uzanto ne ekzistas"
 
-#: hosting/forms.py:220
+#: forms.py:220
 msgid "User has not set up a profile"
 msgstr "Uzanto ne agordis profilon"
 
-#: hosting/forms.py:236
+#: forms.py:236
 msgid "A family member cannot be future-born (even if planned)."
 msgstr "Kunloĝanto ne povas naskiĝi estontece, eĉ se planita."
 
-#: hosting/forms.py:244
+#: forms.py:244
 msgid ""
 "Leave empty if you only want to indicate that other people are present in "
 "the house."
 msgstr ""
 "Lasu malplena se vi nure volas indiki ke kromaj homoj ĉeestas en la loĝejo."
 
-#: hosting/forms.py:257
+#: forms.py:257
 msgid ""
 "The name cannot be empty, at least first name or last name are required."
 msgstr ""
 "Nomo ne povas esti nenia, almenaŭ unu el persona aŭ familia nomoj devas esti "
 "indikita."
 
-#: hosting/forms.py:273
+#: forms.py:273
 msgid "Subject"
 msgstr "Temo"
 
-#: hosting/forms.py:274
+#: forms.py:274
 msgid "Body"
 msgstr "Mesaĝo"
 
-#: hosting/forms.py:275
+#: forms.py:275
 msgid "Categories"
 msgstr "Kategorioj"
 
-#: hosting/forms.py:276
+#: forms.py:276
 msgid "test"
 msgstr "Provo (sendas al: )"
 
-#: hosting/forms.py:277
+#: forms.py:277
 msgid "old system"
 msgstr "Gastigantoj: neniam ensalutis en la nova retejo"
 
-#: hosting/forms.py:278
+#: forms.py:278
 msgid "not in book"
 msgstr "Nova retejo: ne en la libreto"
 
-#: hosting/forms.py:279
+#: forms.py:279
 msgid "in book"
 msgstr "Nova retejo: EN la libreto"
 
-#: hosting/forms.py:280
+#: forms.py:280
 msgid "just user"
 msgstr "Ne gastigantoj (malnova aŭ nova retejo)"
 
-#: hosting/forms.py:282
+#: forms.py:282
 msgid "Your email for test"
 msgstr "Via retpoŝtadreso por testi"
 
-#: hosting/models.py:30
+#: models.py:31
 msgid "Mrs"
 msgstr "S-ino"
 
-#: hosting/models.py:31
+#: models.py:32
 msgid "Mr"
 msgstr "S-ro"
 
-#: hosting/models.py:38
+#: models.py:39
 msgid "mobile"
 msgstr "poŝtelefono"
 
-#: hosting/models.py:39
+#: models.py:40
 msgid "home"
 msgstr "hejma"
 
-#: hosting/models.py:40
+#: models.py:41
 msgid "work"
 msgstr "laboreja"
 
-#: hosting/models.py:41
+#: models.py:42
 msgid "fax"
 msgstr "fakso"
 
-#: hosting/models.py:46
+#: models.py:47
 msgid "checked"
 msgstr "kontrolita"
 
-#: hosting/models.py:47 hosting/templates/hosting/snippets/checked.html:7
+#: models.py:48 templates/hosting/snippets/checked.html:7
 msgid "approved by"
 msgstr "aprobita de"
 
-#: hosting/models.py:70
+#: models.py:71
 msgid "title"
 msgstr "titolo"
 
-#: hosting/models.py:71
+#: models.py:72
 msgid "first name"
 msgstr "persona nomo"
 
-#: hosting/models.py:73
+#: models.py:74
 msgid "last name"
 msgstr "familia nomo"
 
-#: hosting/models.py:75
+#: models.py:76
 msgid "birth date"
 msgstr "naskiĝtago"
 
-#: hosting/models.py:77 hosting/models.py:222
+#: models.py:78 models.py:229
 msgid "description"
 msgstr "priskribo"
 
-#: hosting/models.py:77
+#: models.py:78
 msgid "Short biography."
 msgstr "Mallonga sinprezento."
 
-#: hosting/models.py:78 hosting/templates/hosting/profile_detail.html:93
+#: models.py:79 templates/hosting/profile_detail.html:100
 msgid "avatar"
 msgstr "profilbildo"
 
-#: hosting/models.py:80
+#: models.py:81
 msgid "Small image under 100kB. Ideal size: 140x140 px."
 msgstr "Malgranda bildo, < 100 kB. Idealaj mezuroj: 140×140 punktoj."
 
-#: hosting/models.py:81 hosting/models.py:369
+#: models.py:82 models.py:376
 msgid "contact preferences"
 msgstr "preferataj kontaktmanieroj"
 
-#: hosting/models.py:85
+#: models.py:86
 msgid "profiles"
 msgstr "profiloj"
 
-#: hosting/models.py:204
+#: models.py:153
+msgid ""
+"Profile.is_supervisor_of() needs either a profile or a list of countries."
+msgstr ""
+
+#: models.py:211
 msgid "address"
 msgstr "adreso"
 
-#: hosting/models.py:205
+#: models.py:212
 msgid "e.g.: Nieuwe Binnenweg 176"
 msgstr "ekz: Nieuwe Binnenweg 176"
 
-#: hosting/models.py:206
-#: hosting/templates/hosting/snippets/place_owner_anchors.html:18
+#: models.py:213 templates/hosting/snippets/place_owner_anchors.html:18
 msgid "city"
 msgstr "urbo"
 
-#: hosting/models.py:207
+#: models.py:214
 msgid "Name in the official language, not in Esperanto (e.g.: Rotterdam)"
 msgstr "Nomo en la oficiala lingvo, ne en Esperanto (ekz: Rotterdam)"
 
-#: hosting/models.py:209
+#: models.py:216
 msgid "closest big city"
 msgstr "plej proksima granda urbo"
 
-#: hosting/models.py:210
+#: models.py:217
 msgid ""
 "If you place is in a town near a bigger city. Name in the official language, "
 "not in Esperanto."
@@ -313,380 +319,366 @@ msgstr ""
 "Se via loĝejo estas en urbeto proksime al granda urbo. Nomo en la oficiala "
 "lingvo, ne en Esperanto."
 
-#: hosting/models.py:213
+#: models.py:220
 msgid "postcode"
 msgstr "poŝtkodo"
 
-#: hosting/models.py:214
+#: models.py:221
 msgid "State / Province"
 msgstr "Ŝtato / Provinco"
 
-#: hosting/models.py:218
+#: models.py:225
 msgid "maximum number of guest"
 msgstr "maksimuma nombro de gastoj"
 
-#: hosting/models.py:219
+#: models.py:226
 msgid "maximum number of night"
 msgstr "maksimuma nombro de noktoj"
 
-#: hosting/models.py:220
+#: models.py:227
 msgid "contact before"
 msgstr "kontakti antaŭ"
 
-#: hosting/models.py:221
+#: models.py:228
 msgid "Number of days before people should contact host."
 msgstr "Kiom da tagoj antaŭe homoj devus kontakti la gastiganton."
 
-#: hosting/models.py:223
+#: models.py:230
 msgid "Description or remarks about your place."
 msgstr "Priskriboj aŭ rimarkoj pri via loĝejo."
 
-#: hosting/models.py:224
+#: models.py:231
 msgid "short description"
 msgstr "mallonga priskribo"
 
-#: hosting/models.py:225
+#: models.py:232
 msgid "Used in the book and on profile, 140 characters maximum."
 msgstr "Uzita en la libro kaj ĉe profilo, 140 signoj maksimume."
 
-#: hosting/models.py:226
+#: models.py:233
 msgid "available"
 msgstr "disponebla"
 
-#: hosting/models.py:227
+#: models.py:234
 msgid "If this place is searchable. If yes, you will be considered as host."
 msgstr ""
 "Ĉu tiu ĉi loĝejo estas serĉebla? Se jes, vi estos konsiderita kiel "
 "gastiganto."
 
-#: hosting/models.py:228
+#: models.py:235
 msgid "print in book"
 msgstr "printu en la PS libreto"
 
-#: hosting/models.py:229
+#: models.py:236
 msgid "If you want this place to be in the printed book. Must be available."
 msgstr ""
 "Se vi deziras ke tiu ĉi loĝejo estu printita en la libreto. Ĝi devas esti "
 "disponebla."
 
-#: hosting/models.py:230 hosting/templates/hosting/place_detail.html:54
+#: models.py:237 templates/hosting/place_detail.html:54
 msgid "tour guide"
 msgstr "ĉiĉeronado"
 
-#: hosting/models.py:231
+#: models.py:238
 msgid "If you are ready to show your area to visitors."
 msgstr "Se vi volonte montros vian ĉirkaŭaĵon al vizitantoj."
 
-#: hosting/models.py:232 hosting/templates/hosting/place_detail.html:61
+#: models.py:239 templates/hosting/place_detail.html:61
 msgid "have a drink"
 msgstr "trinkejumado"
 
-#: hosting/models.py:233
+#: models.py:240
 msgid "If you are ready to have a coffee or beer with visitors."
 msgstr "Se vi volonte kafumos aŭ bierumos kun vizitantoj."
 
-#: hosting/models.py:234
+#: models.py:241
 msgid "irregularly present"
 msgstr "nekonstanta troveblo"
 
-#: hosting/models.py:235
+#: models.py:242
 msgid "If you are not often at this address and need an advance notification."
 msgstr ""
 "Ĉu vi malofte/neantaŭvideble ĉeestas? Se jes, estos indikita bezono de frua "
 "anticipa kontakto."
 
-#: hosting/models.py:236 hosting/models.py:357
-#: hosting/templates/hosting/snippets/place_conditions.html:5
+#: models.py:243 models.py:364
+#: templates/hosting/snippets/place_conditions.html:5
 msgid "conditions"
 msgstr "kondiĉoj"
 
-#: hosting/models.py:237
+#: models.py:244
 msgid "family members"
 msgstr "kunloĝantoj"
 
-#: hosting/models.py:238
+#: models.py:245
 msgid "authorized users"
 msgstr "permesitaj uzantoj"
 
-#: hosting/models.py:239
+#: models.py:246
 msgid "List of users authorized to view most of data of this accommodation."
 msgstr ""
 "Listo de uzantoj kiuj estis permesitaj vidi la detalojn de tiu ĉi loĝejo."
 
-#: hosting/models.py:245 hosting/templates/hosting/place_detail.html:66
-#: hosting/templates/hosting/place_form.html:12
-#: hosting/templates/hosting/profile_confirm_delete.html:33
+#: models.py:252 templates/hosting/place_detail.html:66
+#: templates/hosting/place_form.html:12
+#: templates/hosting/profile_confirm_delete.html:33
 msgid "place"
 msgstr "loĝejo"
 
-#: hosting/models.py:246
+#: models.py:253
 msgid "places"
 msgstr "loĝejoj"
 
-#: hosting/models.py:297
+#: models.py:304
 msgid ""
 "International number format begining with the plus sign (e.g.: +31 10 436 "
 "1044)"
 msgstr ""
 "En formato de internacia numero, komencu per pluso (ekz:  +31 10 436 1044)"
 
-#: hosting/models.py:299
+#: models.py:306
 msgid "comments"
 msgstr "komentoj"
 
-#: hosting/models.py:300
+#: models.py:307
 msgid "phone type"
 msgstr "tipo de telefono"
 
-#: hosting/models.py:304
+#: models.py:311
 msgid "phone"
 msgstr "telefono"
 
-#: hosting/models.py:305
+#: models.py:312
 msgid "phones"
 msgstr "telefonoj"
 
-#: hosting/models.py:337
+#: models.py:344
 msgid "URL"
 msgstr "URL"
 
-#: hosting/models.py:340
+#: models.py:347
 msgid "website"
 msgstr "retejo"
 
-#: hosting/models.py:341
+#: models.py:348
 msgid "websites"
 msgstr "retejoj"
 
-#: hosting/models.py:349 hosting/models.py:365
+#: models.py:356 models.py:372
 msgid "name"
 msgstr "nomo"
 
-#: hosting/models.py:350
+#: models.py:357
 msgid "E.g.: 'Ne fumu'."
 msgstr "Ekz.: 'Ne fumu'."
 
-#: hosting/models.py:351
+#: models.py:358
 msgid "abbreviation"
 msgstr "mallongigo"
 
-#: hosting/models.py:352
+#: models.py:359
 msgid "Official abbreviation as used in the book. E.g.: 'Nef.'"
 msgstr "Oficiala mallongigo tiel, kiel uzata en la libro. Ekz: 'Nef.'"
 
-#: hosting/models.py:353
+#: models.py:360
 msgid "URL friendly name"
 msgstr "URL-amikeca nomo"
 
-#: hosting/models.py:356
+#: models.py:363
 msgid "condition"
 msgstr "kondiĉo"
 
-#: hosting/models.py:368
+#: models.py:375
 msgid "contact preference"
 msgstr "preferata kontaktmaniero"
 
-#: hosting/templates/base.html:6 hosting/templates/hosting/place_list.html:5
-#: hosting/templates/registration/login.html:4
-#: hosting/templates/registration/register.html:4
+#: templates/base.html:6 templates/hosting/place_list.html:5
+#: templates/registration/login.html:4 templates/registration/register.html:4
 msgid "Find accomodation"
 msgstr "Trovu loĝejon"
 
-#: hosting/templates/hosting/base.html:20
+#: templates/hosting/base.html:20
 msgid "inbox"
 msgstr "poŝtkesto"
 
-#: hosting/templates/hosting/base.html:25
+#: templates/hosting/base.html:25
 #, python-format
 msgid "%(unread)s new message"
 msgid_plural "%(unread)s new messages"
 msgstr[0] "%(unread)s nova mesaĝo"
 msgstr[1] "%(unread)s novaj mesaĝoj"
 
-#: hosting/templates/hosting/base.html:40
-#: hosting/templates/hosting/home.html:26
+#: templates/hosting/base.html:40 templates/hosting/home.html:26
 msgid "log out"
 msgstr "elsaluti"
 
-#: hosting/templates/hosting/base.html:44
-#: hosting/templates/hosting/home.html:32
+#: templates/hosting/base.html:44 templates/hosting/home.html:32
 msgid "log in"
 msgstr "ensaluti"
 
-#: hosting/templates/hosting/base.html:56
-#: hosting/templates/hosting/home.html:43
+#: templates/hosting/base.html:56 templates/hosting/home.html:43
 msgid "register"
 msgstr "registriĝi"
 
-#: hosting/templates/hosting/base.html:73
-#: hosting/templates/hosting/home.html:96
+#: templates/hosting/base.html:73 templates/hosting/home.html:96
 msgid "About us"
 msgstr "Pri ni"
 
-#: hosting/templates/hosting/base.html:75
+#: templates/hosting/base.html:75
 msgid "FAQ"
 msgstr "Oftaj demandoj"
 
-#: hosting/templates/hosting/base.html:77
+#: templates/hosting/base.html:77
 msgid "Terms"
 msgstr "Kondiĉoj"
 
-#: hosting/templates/hosting/base.html:79
-msgid "Supervisors"
-msgstr "Landaj organizantoj"
-
-#: hosting/templates/hosting/base_confirm.html:23
+#: templates/hosting/base_confirm.html:23
 msgid "Cancel operation"
 msgstr "Nuligi la agon"
 
-#: hosting/templates/hosting/base_confirm.html:24
+#: templates/hosting/base_confirm.html:24
 msgid "Cancel"
 msgstr "Ne, nuligu"
 
-#: hosting/templates/hosting/base_confirm.html:29
-#: hosting/templates/hosting/base_confirm.html:31
-#: hosting/templates/hosting/family_member_confirm_delete.html:26
-#: hosting/templates/hosting/profile_edit.html:43
-#: hosting/templates/hosting/profile_edit.html:74
-#: hosting/templates/hosting/profile_edit.html:101
+#: templates/hosting/base_confirm.html:29
+#: templates/hosting/base_confirm.html:31
+#: templates/hosting/family_member_confirm_delete.html:26
+#: templates/hosting/profile_edit.html:43
+#: templates/hosting/profile_edit.html:74
+#: templates/hosting/profile_edit.html:101
 msgid "Delete"
 msgstr "Forigi"
 
-#: hosting/templates/hosting/base_form.html:38
-#: hosting/templates/hosting/snippets/confirmed.html:12
-#: hosting/templates/hosting/snippets/confirmed.html:16
+#: templates/hosting/base_form.html:38
+#: templates/hosting/snippets/confirmed.html:12
+#: templates/hosting/snippets/confirmed.html:16
 msgid "Confirm"
 msgstr "Konfirmi"
 
-#: hosting/templates/hosting/emails/new_authorization.txt:1
+#: templates/hosting/emails/new_authorization.txt:1
 #, python-format
 msgid "Dear %(user_first_name)s,"
 msgstr "Kara %(user_first_name)s,"
 
-#: hosting/templates/hosting/emails/new_authorization.txt:5
+#: templates/hosting/emails/new_authorization.txt:5
 #, python-format
 msgid "You've been authorized to see the complete address of %(owner_name)s!"
 msgstr "%(owner_name)s rajtigis vin vidi sian plenan adreson!"
 
-#: hosting/templates/hosting/emails/new_authorization.txt:8
-#: hosting/templates/hosting/place_detail.html:9
+#: templates/hosting/emails/new_authorization.txt:8
+#: templates/hosting/place_detail.html:9
 msgid "A place in"
 msgstr "Loĝejo en"
 
-#: hosting/templates/hosting/emails/new_authorization.txt:10
+#: templates/hosting/emails/new_authorization.txt:10
 msgid "Follow this link to see this accommodation:"
 msgstr "Klaku la ligilon por vidi tiun ĉi loĝejon:"
 
-#: hosting/templates/hosting/emails/new_authorization.txt:16
+#: templates/hosting/emails/new_authorization.txt:16
 #, python-format
 msgid "The %(site_name)s team."
 msgstr "La teamo de %(site_name)s."
 
-#: hosting/templates/hosting/family_member_confirm_delete.html:5
+#: templates/hosting/family_member_confirm_delete.html:5
 msgid "Remove a family member"
 msgstr "Forigi kunloĝanton"
 
-#: hosting/templates/hosting/family_member_confirm_delete.html:9
+#: templates/hosting/family_member_confirm_delete.html:9
 msgid "Are you sure you want to delete this family member?"
 msgstr "Ĉu vi certe volas forigi tiun ĉi kunloĝanton?"
 
-#: hosting/templates/hosting/family_member_confirm_delete.html:18
-#: hosting/templates/hosting/family_member_confirm_delete.html:20
-#: hosting/templates/hosting/profile_confirm_delete.html:6
+#: templates/hosting/family_member_confirm_delete.html:18
+#: templates/hosting/family_member_confirm_delete.html:20
+#: templates/hosting/profile_confirm_delete.html:6
 msgid "Delete profile"
 msgstr "Forigi profilon"
 
-#: hosting/templates/hosting/family_member_confirm_delete.html:22
+#: templates/hosting/family_member_confirm_delete.html:22
 msgid "Just remove"
 msgstr "Nur forpreni"
 
-#: hosting/templates/hosting/family_member_confirm_delete.html:24
+#: templates/hosting/family_member_confirm_delete.html:24
 msgid "Remove from list of family members"
 msgstr "Forpreni el listo de kunloĝantoj"
 
-#: hosting/templates/hosting/home.html:29
+#: templates/hosting/home.html:29
 msgid "admin site"
 msgstr "administrilo"
 
-#: hosting/templates/hosting/home.html:51
+#: templates/hosting/home.html:51
 msgid "test version"
 msgstr "Prova versio: tiu ĉi retejo ankoraŭ ne estas finpreta"
 
-#: hosting/templates/hosting/home.html:61
-#: hosting/templates/hosting/place_list.html:21
+#: templates/hosting/home.html:61 templates/hosting/place_list.html:21
 msgid "Budapest, London, Venezuela, etc."
 msgstr "Budapeŝto, Londono, Venezuelo, ktp."
 
-#: hosting/templates/hosting/home.html:79
+#: templates/hosting/home.html:79
 msgid "Find accomodation<br>anywhere in the world."
 msgstr "Trovu loĝejon<br>ĉie ajn sur la planedo"
 
-#: hosting/templates/hosting/home.html:90
-#: hosting/templates/hosting/home.html:93
-#: hosting/templates/hosting/home.html:96
-#: hosting/templates/hosting/place_list.html:7
-#: hosting/templates/hosting/place_list.html:24
-#: hosting/templates/hosting/profile_form.html:27
-#: hosting/templates/registration/password_change_done.html:5
-#: hosting/templates/registration/password_change_form.html:5
+#: templates/hosting/home.html:90 templates/hosting/home.html:93
+#: templates/hosting/home.html:96 templates/hosting/place_list.html:7
+#: templates/hosting/place_list.html:24 templates/hosting/profile_form.html:27
+#: templates/registration/password_change_done.html:5
+#: templates/registration/password_change_form.html:5
 msgid "at"
 msgstr "ĉe"
 
-#: hosting/templates/hosting/home.html:103
+#: templates/hosting/home.html:103
 msgid "Contact us via Skype"
 msgstr "Kontaktu nin per Skajpo"
 
-#: hosting/templates/hosting/home.html:106
+#: templates/hosting/home.html:106
 msgid "Contact us via email"
 msgstr "Kontaktu nin per retpoŝto"
 
-#: hosting/templates/hosting/home.html:109
+#: templates/hosting/home.html:109
 msgid "Your ideas and suggestions"
 msgstr "Viaj ideoj kaj proponoj"
 
-#: hosting/templates/hosting/home.html:112
+#: templates/hosting/home.html:112
 msgid "Pasporta Servo's source code"
 msgstr "Fontkodo de Pasporta Servo"
 
-#: hosting/templates/hosting/mass_mail_sent.html:5
+#: templates/hosting/mass_mail_sent.html:5
 msgid "Emails sent"
 msgstr "Retmesaĝoj senditaj"
 
-#: hosting/templates/hosting/mass_mail_sent.html:7
+#: templates/hosting/mass_mail_sent.html:7
 #, python-format
 msgid "You sent %(nb)s emails. Well done!"
 msgstr "Vi sendis %(nb)s mesaĝojn. Bonege!"
 
-#: hosting/templates/hosting/phone_confirm_delete.html:5
+#: templates/hosting/phone_confirm_delete.html:5
 msgid "Remove a phone number"
 msgstr "Forigi telefonan numeron"
 
-#: hosting/templates/hosting/phone_confirm_delete.html:9
+#: templates/hosting/phone_confirm_delete.html:9
 msgid "Are you sure you want to delete this number?"
 msgstr "Ĉu vi certe volas forigi tiun ĉi numeron?"
 
-#: hosting/templates/hosting/phone_form.html:5
+#: templates/hosting/phone_form.html:5
 msgid "Phone number"
 msgstr "Telefonnumero"
 
-#: hosting/templates/hosting/phone_form.html:7
-#: hosting/templates/hosting/place_form.html:14
+#: templates/hosting/phone_form.html:7 templates/hosting/place_form.html:14
 #, python-format
 msgid "of %(name)s"
 msgstr "de %(name)s"
 
-#: hosting/templates/hosting/place_authorized_users.html:4
-#: hosting/templates/hosting/place_authorized_users.html:10
-#: hosting/templates/hosting/place_detail.html:223
-#: hosting/templates/hosting/profile_edit.html:47
+#: templates/hosting/place_authorized_users.html:4
+#: templates/hosting/place_authorized_users.html:10
+#: templates/hosting/place_detail.html:223
+#: templates/hosting/profile_edit.html:47
 msgid "Authorized users"
 msgstr "Permesitaj uzantoj"
 
-#: hosting/templates/hosting/place_authorized_users.html:7
+#: templates/hosting/place_authorized_users.html:7
 msgid "Authorize"
 msgstr "Permesi"
 
-#: hosting/templates/hosting/place_authorized_users.html:12
+#: templates/hosting/place_authorized_users.html:12
 msgid ""
 "Authorized users can see your full address, family members and telephone "
 "numbers."
@@ -694,178 +686,172 @@ msgstr ""
 "Permesitaj uzantoj povas vidi vian plenan adreson, kunloĝantojn kaj "
 "telefonnumerojn."
 
-#: hosting/templates/hosting/place_authorized_users.html:13
+#: templates/hosting/place_authorized_users.html:13
 msgid "Your email still remains private."
 msgstr "Via retpoŝtadreso ĉiukaze restas privata."
 
-#: hosting/templates/hosting/place_authorized_users.html:20
+#: templates/hosting/place_authorized_users.html:20
 #, python-format
 msgid "Back to %(back_to)s"
 msgstr "Reen al %(back_to)s"
 
-#: hosting/templates/hosting/place_authorized_users.html:20
-#: hosting/templates/hosting/place_authorized_users.html:22
+#: templates/hosting/place_authorized_users.html:20
+#: templates/hosting/place_authorized_users.html:22
 msgid "Back"
 msgstr "Reen"
 
-#: hosting/templates/hosting/place_authorized_users.html:42
+#: templates/hosting/place_authorized_users.html:42
 msgid "Remove user"
 msgstr "Forigi uzanton"
 
-#: hosting/templates/hosting/place_confirm_delete.html:6
-#: hosting/templates/hosting/place_form.html:9
+#: templates/hosting/place_confirm_delete.html:6
+#: templates/hosting/place_form.html:9
 msgid "my "
 msgstr "mian "
 
-#: hosting/templates/hosting/place_confirm_delete.html:6
-#: hosting/templates/hosting/place_confirm_delete.html:9
+#: templates/hosting/place_confirm_delete.html:6
+#: templates/hosting/place_confirm_delete.html:9
 #, python-format
 msgid "Remove %(kin)splace"
 msgstr "Forigi %(kin)sloĝejon"
 
-#: hosting/templates/hosting/place_confirm_delete.html:15
+#: templates/hosting/place_confirm_delete.html:15
 msgid "Are you sure you want to delete this place?"
 msgstr "Ĉu vi certe volas forigi tiun ĉi loĝejon?"
 
-#: hosting/templates/hosting/place_detail.html:6
+#: templates/hosting/place_detail.html:6
 msgid "My habitat"
 msgstr "Mia loĝloko"
 
-#: hosting/templates/hosting/place_detail.html:25
+#: templates/hosting/place_detail.html:25
 msgid "Deleted place"
 msgstr "Nuligita loĝejo"
 
-#: hosting/templates/hosting/place_detail.html:25
+#: templates/hosting/place_detail.html:25
 msgid "The address is obsolete"
 msgstr "La adreso estas neaktuala"
 
-#: hosting/templates/hosting/place_detail.html:55
-#: hosting/templates/hosting/place_list.html:69
-#: hosting/templates/hosting/profile_detail.html:172
+#: templates/hosting/place_detail.html:55 templates/hosting/place_list.html:69
+#: templates/hosting/profile_detail.html:179
 msgid "I can guide around the city"
 msgstr "mi povas ĉiĉeroni"
 
-#: hosting/templates/hosting/place_detail.html:62
-#: hosting/templates/hosting/place_list.html:79
-#: hosting/templates/hosting/profile_detail.html:182
+#: templates/hosting/place_detail.html:62 templates/hosting/place_list.html:79
+#: templates/hosting/profile_detail.html:189
 msgid "I'd like to have a drink together"
 msgstr "mi emas trinkejumi"
 
-#: hosting/templates/hosting/place_detail.html:66
-#: hosting/templates/hosting/profile_confirm_delete.html:33
+#: templates/hosting/place_detail.html:66
+#: templates/hosting/profile_confirm_delete.html:33
 msgid "available,unavailable"
 msgstr "disponebla,maldisponebla"
 
-#: hosting/templates/hosting/place_detail.html:72
-#: hosting/templates/hosting/place_list.html:43
+#: templates/hosting/place_detail.html:72 templates/hosting/place_list.html:43
 msgid "unavailable"
 msgstr "maldisponebla"
 
-#: hosting/templates/hosting/place_detail.html:124
+#: templates/hosting/place_detail.html:124
 msgid "Description"
 msgstr "Priskribo"
 
-#: hosting/templates/hosting/place_detail.html:132
+#: templates/hosting/place_detail.html:132
 msgid "Family members"
 msgstr "Kunloĝantoj"
 
-#: hosting/templates/hosting/place_detail.html:141
-#: hosting/templates/hosting/place_detail.html:163
-#: hosting/templates/hosting/place_detail.html:200
+#: templates/hosting/place_detail.html:141
+#: templates/hosting/place_detail.html:163
+#: templates/hosting/place_detail.html:200
 msgid "Other dwellers at this place."
 msgstr "Mi havas kunloĝantojn."
 
-#: hosting/templates/hosting/place_detail.html:159
-#: hosting/templates/hosting/place_detail.html:193
+#: templates/hosting/place_detail.html:159
+#: templates/hosting/place_detail.html:193
 msgid "I'm not present at this address at all times; contact me in advance."
 msgstr "Mi ne troviĝas konstante ĉe tiu ĉi adreso; kontaktiĝu anticipe."
 
-#: hosting/templates/hosting/place_detail.html:211
-#: hosting/templates/hosting/profile_detail.html:70
+#: templates/hosting/place_detail.html:211
+#: templates/hosting/profile_detail.html:77
 msgid "Write message"
 msgstr "Sendi mesaĝon"
 
-#: hosting/templates/hosting/place_detail.html:216
-#: hosting/templates/hosting/place_detail.html:218
-#: hosting/templates/hosting/profile_detail.html:80
-#: hosting/templates/hosting/profile_edit.html:9
-#: hosting/templates/hosting/profile_edit.html:41
-#: hosting/templates/hosting/profile_edit.html:66
-#: hosting/templates/hosting/profile_edit.html:68
-#: hosting/templates/hosting/profile_edit.html:95
-#: hosting/templates/hosting/profile_edit.html:97
+#: templates/hosting/place_detail.html:216
+#: templates/hosting/place_detail.html:218
+#: templates/hosting/profile_detail.html:87
+#: templates/hosting/profile_edit.html:9 templates/hosting/profile_edit.html:41
+#: templates/hosting/profile_edit.html:66
+#: templates/hosting/profile_edit.html:68
+#: templates/hosting/profile_edit.html:95
+#: templates/hosting/profile_edit.html:97
 msgid "Update"
 msgstr "Redakti"
 
-#: hosting/templates/hosting/place_detail.html:225
-#: hosting/templates/hosting/profile_edit.html:49
+#: templates/hosting/place_detail.html:225
+#: templates/hosting/profile_edit.html:49
 msgid "Authorizations"
 msgstr "Permesoj"
 
-#: hosting/templates/hosting/place_detail.html:230
+#: templates/hosting/place_detail.html:230
 msgid "View as an authorized user"
 msgstr "Rigardi kvazaŭ permesita uzanto"
 
-#: hosting/templates/hosting/place_detail.html:235
-#: hosting/templates/hosting/profile_detail.html:141
-#: hosting/templates/hosting/profile_edit.html:34
+#: templates/hosting/place_detail.html:235
+#: templates/hosting/profile_detail.html:148
+#: templates/hosting/profile_edit.html:34
 msgid "View"
 msgstr "Rigardi"
 
-#: hosting/templates/hosting/place_detail.html:248
+#: templates/hosting/place_detail.html:248
 msgid "Short description"
 msgstr "Mallonga priskribo"
 
-#: hosting/templates/hosting/place_detail.html:252
+#: templates/hosting/place_detail.html:252
 msgid "Available"
 msgstr "Disponebla"
 
-#: hosting/templates/hosting/place_detail.html:257
+#: templates/hosting/place_detail.html:257
 msgid "Print in book"
 msgstr "Printi en la PS libreto"
 
-#: hosting/templates/hosting/place_form.html:6
-#: hosting/templates/hosting/place_form.html:9
-#: hosting/templates/hosting/profile_edit.html:39
+#: templates/hosting/place_form.html:6 templates/hosting/place_form.html:9
+#: templates/hosting/profile_edit.html:39
 #, python-format
 msgid "Update %(kin)splace"
 msgstr "Redakti %(kin)sloĝejon"
 
-#: hosting/templates/hosting/place_form.html:40
+#: templates/hosting/place_form.html:40
 msgid "Click on the map"
 msgstr "Klaku la mapon"
 
-#: hosting/templates/hosting/place_form.html:41
+#: templates/hosting/place_form.html:41
 msgid "to select your location"
 msgstr "por elekti vian lokon"
 
-#: hosting/templates/hosting/place_form.html:49
+#: templates/hosting/place_form.html:49
 msgid "Where am I?"
 msgstr "Kie mi estas?"
 
-#: hosting/templates/hosting/place_form.html:53
+#: templates/hosting/place_form.html:53
 msgid "Search with the address"
 msgstr "Serĉu laŭ la adreso"
 
-#: hosting/templates/hosting/place_list.html:24
-#: hosting/templates/hosting/place_list.html:26
+#: templates/hosting/place_list.html:24 templates/hosting/place_list.html:26
 msgid "Search"
 msgstr "Serĉi"
 
-#: hosting/templates/hosting/place_list.html:91
+#: templates/hosting/place_list.html:91
 msgid "Sorry, no kind hosts found…"
 msgstr "Bedaŭrinde ni ne trovis gastigemulojn…"
 
-#: hosting/templates/hosting/profile_confirm_delete.html:12
+#: templates/hosting/profile_confirm_delete.html:12
 msgid "your "
 msgstr "vian "
 
-#: hosting/templates/hosting/profile_confirm_delete.html:14
-#: hosting/templates/hosting/profile_edit.html:39
+#: templates/hosting/profile_confirm_delete.html:14
+#: templates/hosting/profile_edit.html:39
 msgid "this "
 msgstr "tiun ĉi "
 
-#: hosting/templates/hosting/profile_confirm_delete.html:17
+#: templates/hosting/profile_confirm_delete.html:17
 #, python-format
 msgid ""
 "Are you sure you want to delete %(kin)sprofile and all linked data (place, "
@@ -874,12 +860,12 @@ msgstr ""
 "Ĉu vi certege volas forigi %(kin)sprofilon, kaj ĉiujn ligitajn datumojn "
 "(loĝejojn, telefonnumerojn…)?"
 
-#: hosting/templates/hosting/profile_detail.html:6
-#: hosting/templates/hosting/profile_form.html:21
+#: templates/hosting/profile_detail.html:6
+#: templates/hosting/profile_form.html:21
 msgid "My profile"
 msgstr "Mia profilo"
 
-#: hosting/templates/hosting/profile_detail.html:26
+#: templates/hosting/profile_detail.html:26
 #, python-format
 msgid ""
 "Are <a href=\"%(url)s\">your data</a> up-to-date? Please check your hosting "
@@ -888,285 +874,287 @@ msgstr ""
 "Ĉu <a href=\"%(url)s\">viaj datenoj</a> estas ĝustaj kaj ĝisdataj? Bonvole "
 "kontrolu vian profilon de gastiganto."
 
-#: hosting/templates/hosting/profile_detail.html:33
+#: templates/hosting/profile_detail.html:33
 #, python-format
 msgid "Are your data up-to-date? %(tag)sClick if yes%(endtag)s"
 msgstr ""
 "Ĉu viaj datenoj estas ĝustaj kaj ĝisdataj? %(tag)sKlaku se jes%(endtag)s"
 
-#: hosting/templates/hosting/profile_detail.html:38
+#: templates/hosting/profile_detail.html:38
 msgid "I confirm!"
 msgstr "Mi konfirmas!"
 
-#: hosting/templates/hosting/profile_detail.html:48
+#: templates/hosting/profile_detail.html:48
 #, python-format
 msgid "Supervisor of %(countries)s"
 msgstr "Landa Organizanto por %(countries)s"
 
-#: hosting/templates/hosting/profile_detail.html:60
+#: templates/hosting/profile_detail.html:58
+msgid "You confirmed your information"
+msgstr "Vi konfirmis viajn informojn"
+
+#: templates/hosting/profile_detail.html:67
 msgid "Deleted profile"
 msgstr "Nuligita profilo"
 
-#: hosting/templates/hosting/profile_detail.html:74
-#: hosting/templates/hosting/profile_form.html:7
+#: templates/hosting/profile_detail.html:81
+#: templates/hosting/profile_form.html:7
 msgid "Update user's details"
 msgstr "Redakti informojn de uzanto"
 
-#: hosting/templates/hosting/profile_detail.html:75
-#: hosting/templates/hosting/profile_form.html:15
+#: templates/hosting/profile_detail.html:82
+#: templates/hosting/profile_form.html:15
 msgid "Update my details"
 msgstr "Redakti miajn informojn"
 
-#: hosting/templates/hosting/profile_detail.html:102
+#: templates/hosting/profile_detail.html:109
 #, python-format
 msgid "%(age)s y.o."
 msgstr "%(age)s-jaraĝa"
 
-#: hosting/templates/hosting/profile_detail.html:112
+#: templates/hosting/profile_detail.html:119
 msgid "About me"
 msgstr "Pri mi"
 
-#: hosting/templates/hosting/profile_detail.html:120
+#: templates/hosting/profile_detail.html:127
 msgid "Place"
 msgid_plural "Places"
 msgstr[0] "Loĝejo"
 msgstr[1] "Loĝejoj"
 
-#: hosting/templates/hosting/profile_detail.html:126
+#: templates/hosting/profile_detail.html:133
 msgid "Habitat"
 msgid_plural "Habitats"
 msgstr[0] "Loĝloko"
 msgstr[1] "Loĝlokoj"
 
-#: hosting/templates/hosting/profile_detail.html:139
+#: templates/hosting/profile_detail.html:146
 msgid "View details of this place"
 msgstr "Rigardi detalojn de tiu ĉi loĝejo"
 
-#: hosting/templates/hosting/profile_detail.html:148
+#: templates/hosting/profile_detail.html:155
 msgid "I'm hosting in:"
 msgstr "mi gastigas en:"
 
-#: hosting/templates/hosting/profile_detail.html:157
+#: templates/hosting/profile_detail.html:164
 #, python-format
 msgid "near %(closest_city)s"
 msgstr "proksime al %(closest_city)s"
 
-#: hosting/templates/hosting/profile_detail.html:188
-#: hosting/templates/hosting/snippets/place_description.html:33
+#: templates/hosting/profile_detail.html:195
+#: templates/hosting/snippets/place_description.html:33
 #, python-format
 msgid "I can accept %(max_host)s person"
 msgid_plural "I can accept %(max_host)s persons"
 msgstr[0] "Mi povas akcepti %(max_host)s homon"
 msgstr[1] "Mi povas akcepti %(max_host)s homojn"
 
-#: hosting/templates/hosting/profile_detail.html:200
-#: hosting/templates/hosting/snippets/place_description.html:24
+#: templates/hosting/profile_detail.html:207
+#: templates/hosting/snippets/place_description.html:24
 #, python-format
 msgid "I can host during %(max_night)s night maximum"
 msgid_plural "I can host during %(max_night)s nights maximum"
 msgstr[0] "Mi povas gastigi dum %(max_night)s nokto maksimume"
 msgstr[1] "Mi povas gastigi dum %(max_night)s noktoj maksimume"
 
-#: hosting/templates/hosting/profile_detail.html:257
+#: templates/hosting/profile_detail.html:264
 msgid "Phones"
 msgstr "Telefonoj"
 
-#: hosting/templates/hosting/profile_edit.html:7
+#: templates/hosting/profile_edit.html:7
 msgid "Update profile"
 msgstr "Redakti profilon"
 
-#: hosting/templates/hosting/profile_edit.html:13
+#: templates/hosting/profile_edit.html:13
 msgid "Delete account"
 msgstr "Forigi konton"
 
-#: hosting/templates/hosting/profile_edit.html:19
-#: hosting/templates/hosting/profile_edit.html:21
-#: hosting/templates/registration/password_change_done.html:4
-#: hosting/templates/registration/password_change_form.html:4
-#: hosting/templates/registration/password_change_form.html:7
+#: templates/hosting/profile_edit.html:19
+#: templates/hosting/profile_edit.html:21
+#: templates/registration/password_change_done.html:4
+#: templates/registration/password_change_form.html:4
+#: templates/registration/password_change_form.html:7
 msgid "Change password"
 msgstr "Ŝanĝi pasvorton"
 
-#: hosting/templates/hosting/profile_edit.html:25
-#: hosting/templates/hosting/profile_edit.html:27
-#: hosting/templates/registration/password_change_done.html:4
-#: hosting/templates/registration/password_change_form.html:4
+#: templates/hosting/profile_edit.html:25
+#: templates/hosting/profile_edit.html:27
+#: templates/registration/password_change_done.html:4
+#: templates/registration/password_change_form.html:4
 msgid "Settings"
 msgstr "Agordoj"
 
-#: hosting/templates/hosting/profile_edit.html:32
+#: templates/hosting/profile_edit.html:32
 msgid "View public profile"
 msgstr "Rigardi publikan profilon"
 
-#: hosting/templates/hosting/profile_edit.html:57
+#: templates/hosting/profile_edit.html:57
 msgid "Add a place"
 msgstr "Aldoni loĝejon"
 
-#: hosting/templates/hosting/profile_edit.html:85
-#: hosting/templates/hosting/profile_form.html:19
+#: templates/hosting/profile_edit.html:85
+#: templates/hosting/profile_form.html:19
 msgid "Add a family member"
 msgstr "Aldoni kunloĝanton"
 
-#: hosting/templates/hosting/profile_edit.html:110
+#: templates/hosting/profile_edit.html:110
 msgid "Add a phone"
 msgstr "Aldoni telefon-numeron"
 
-#: hosting/templates/hosting/profile_form.html:9
-#: hosting/templates/hosting/profile_form.html:13
+#: templates/hosting/profile_form.html:9 templates/hosting/profile_form.html:13
 msgid "Update a family member"
 msgstr "Redakti kunloĝanton"
 
-#: hosting/templates/hosting/snippets/checked.html:14
+#: templates/hosting/snippets/checked.html:14
 msgid "approver unknown"
 msgstr "aprobanto nekonata"
 
-#: hosting/templates/hosting/snippets/checked.html:17
+#: templates/hosting/snippets/checked.html:17
 msgid "Checked"
 msgstr "Kontrolita"
 
-#: hosting/templates/hosting/snippets/checked.html:21
+#: templates/hosting/snippets/checked.html:21
 msgid "Not checked"
 msgstr "Nekontrolita"
 
-#: hosting/templates/hosting/snippets/confirmed.html:4
-#: hosting/templates/hosting/snippets/confirmed.html:13
+#: templates/hosting/snippets/confirmed.html:4
+#: templates/hosting/snippets/confirmed.html:13
 msgid "You confirmed"
 msgstr "Vi konfirmis"
 
-#: hosting/templates/hosting/snippets/place_city_complete.html:3
+#: templates/hosting/snippets/place_city_complete.html:3
 #, python-format
 msgid "%(city)s, near %(closest_city)s"
 msgstr "%(city)s, proksime al %(closest_city)s"
 
-#: hosting/templates/hosting/snippets/place_description.html:9
+#: templates/hosting/snippets/place_description.html:9
 msgid "if you want to book this accomodation"
 msgstr "por tranokti en tiu ĉi loĝejo"
 
-#: hosting/templates/hosting/snippets/place_description.html:11
+#: templates/hosting/snippets/place_description.html:11
 msgid "if you want to meet with me"
 msgstr "por renkontiĝi kun mi"
 
-#: hosting/templates/hosting/snippets/place_description.html:13
+#: templates/hosting/snippets/place_description.html:13
 #, python-format
 msgid "please contact me at least %(nb_days)s day in advance"
 msgid_plural "please contact me at least %(nb_days)s days in advance"
 msgstr[0] "bonvolu kontakti min almenaŭ %(nb_days)s tagon antaŭe"
 msgstr[1] "bonvolu kontakti min almenaŭ %(nb_days)s tagojn antaŭe"
 
-#: hosting/templates/hosting/snippets/place_description.html:39
+#: templates/hosting/snippets/place_description.html:39
 #, python-format
 msgid ", during %(max_night)s night maximum"
 msgid_plural ", during %(max_night)s nights maximum"
 msgstr[0] ", dum %(max_night)s nokto maksimume"
 msgstr[1] ", dum %(max_night)s noktoj maksimume"
 
-#: hosting/templates/hosting/snippets/place_owner_anchors.html:5
+#: templates/hosting/snippets/place_owner_anchors.html:5
 msgid "I'm hosting :)"
 msgstr "Mi gastigas :)"
 
-#: hosting/templates/hosting/snippets/place_owner_anchors.html:7
+#: templates/hosting/snippets/place_owner_anchors.html:7
 msgid "I'm <b>not</b> hosting"
 msgstr "Mi <b>ne</b> gastigas"
 
-#: hosting/templates/hosting/snippets/place_owner_anchors.html:12
+#: templates/hosting/snippets/place_owner_anchors.html:12
 msgid "&nbsp; and will be glad "
 msgstr "&nbsp; kaj volonte "
 
-#: hosting/templates/hosting/snippets/place_owner_anchors.html:14
+#: templates/hosting/snippets/place_owner_anchors.html:14
 msgid ", but will be glad "
 msgstr ", sed volonte "
 
-#: hosting/templates/hosting/snippets/place_owner_anchors.html:19
+#: templates/hosting/snippets/place_owner_anchors.html:19
 #, python-format
 msgid "to guide you around %(my_city)s"
 msgstr "ĉiĉeronos vin en %(my_city)s"
 
-#: hosting/templates/hosting/snippets/place_owner_anchors.html:24
+#: templates/hosting/snippets/place_owner_anchors.html:24
 msgid " or "
 msgstr " aŭ "
 
-#: hosting/templates/hosting/snippets/place_owner_anchors.html:30
+#: templates/hosting/snippets/place_owner_anchors.html:30
 msgid "to have a drink together"
 msgstr "trinkos ion kun vi"
 
-#: hosting/templates/hosting/snippets/place_owner_anchors.html:32
+#: templates/hosting/snippets/place_owner_anchors.html:32
 msgid "to have a drink together in the city"
 msgstr "trinkos ion kun vi en la urbo"
 
-#: hosting/templates/hosting/snippets/registration.html:6
-#: hosting/templates/registration/register.html:6
+#: templates/hosting/snippets/registration.html:6
+#: templates/registration/register.html:6
 msgid "Registration"
 msgstr "Registrado"
 
-#: hosting/templates/hosting/snippets/registration.html:8
+#: templates/hosting/snippets/registration.html:8
 msgid "You must register to see this accomodation."
 msgstr "Vi devas registriĝi por vidi tiun ĉi loĝejon."
 
-#: hosting/templates/hosting/snippets/registration.html:15
-#: hosting/templates/registration/register.html:4
-#: hosting/templates/registration/register.html:9
+#: templates/hosting/snippets/registration.html:15
+#: templates/registration/register.html:4
+#: templates/registration/register.html:9
 msgid "Register"
 msgstr "Registriĝu"
 
-#: hosting/templates/registration/login.html:4
-#: hosting/templates/registration/login.html:6
+#: templates/registration/login.html:4 templates/registration/login.html:6
 msgid "Log In"
 msgstr "Ensalutu"
 
-#: hosting/templates/registration/login.html:7
+#: templates/registration/login.html:7
 msgid "Log in with your username and password."
 msgstr "Ensalutu per via uzantnomo kaj pasvorto"
 
-#: hosting/templates/registration/login.html:9
+#: templates/registration/login.html:9
 msgid "Forgot password?"
 msgstr "Mi forgesis mian pasvorton"
 
-#: hosting/templates/registration/login.html:10
-#: hosting/templates/registration/password_reset_complete.html:7
+#: templates/registration/login.html:10
+#: templates/registration/password_reset_complete.html:7
 msgid "Log in"
 msgstr "Ensaluti"
 
-#: hosting/templates/registration/password_change_done.html:8
+#: templates/registration/password_change_done.html:8
 msgid "Your password was changed."
 msgstr "La pasvorto estis ŝanĝita."
 
-#: hosting/templates/registration/password_change_form.html:8
+#: templates/registration/password_change_form.html:8
 msgid ""
 "Please enter your old password, for security's sake, and then enter your new "
 "password twice so we can verify you typed it in correctly."
 msgstr ""
 
-#: hosting/templates/registration/password_change_form.html:10
+#: templates/registration/password_change_form.html:10
 msgid "Change"
 msgstr "Ŝanĝi"
 
-#: hosting/templates/registration/password_reset_complete.html:5
+#: templates/registration/password_reset_complete.html:5
 msgid "Password reset complete"
 msgstr "Nova pasvorto agordita"
 
-#: hosting/templates/registration/password_reset_complete.html:6
+#: templates/registration/password_reset_complete.html:6
 msgid "Your password has been set. You may go ahead and log in now."
 msgstr "Vi sukcese ŝanĝis vian pasvorton. Vi nun povas ensaluti."
 
-#: hosting/templates/registration/password_reset_confirm.html:6
+#: templates/registration/password_reset_confirm.html:6
 msgid "Change my password"
 msgstr "Ŝanĝi mian pasvorton"
 
-#: hosting/templates/registration/password_reset_confirm.html:10
+#: templates/registration/password_reset_confirm.html:10
 msgid "Enter new password"
 msgstr "Enmeti novan pasvorton"
 
-#: hosting/templates/registration/password_reset_confirm.html:12
+#: templates/registration/password_reset_confirm.html:12
 msgid "Invalid password link"
 msgstr "Nevalida pasvorta ligilo"
 
-#: hosting/templates/registration/password_reset_confirm.html:18
+#: templates/registration/password_reset_confirm.html:18
 msgid ""
 "Please enter your new password twice so we can verify you typed it in "
 "correctly."
 msgstr ""
 
-#: hosting/templates/registration/password_reset_confirm.html:20
+#: templates/registration/password_reset_confirm.html:20
 msgid ""
 "It seems like you already used this link. A link to change your password can "
 "be used just once."
@@ -1174,210 +1162,209 @@ msgstr ""
 "Ŝajnas ke vi jam uzis tiun ĉi ligilon. La ligilo por ŝanĝi pasvorton povas "
 "esti uzata nur unufoje."
 
-#: hosting/templates/registration/password_reset_confirm.html:40
+#: templates/registration/password_reset_confirm.html:40
 msgid "New password link"
 msgstr "Nova pasvorta ligilo"
 
-#: hosting/templates/registration/password_reset_done.html:5
-#: hosting/templates/registration/password_reset_form.html:5
+#: templates/registration/password_reset_done.html:5
+#: templates/registration/password_reset_form.html:5
 msgid "Password reset"
 msgstr "Nova pasvorto"
 
-#: hosting/templates/registration/password_reset_done.html:6
+#: templates/registration/password_reset_done.html:6
 msgid ""
 "We've emailed you instructions for setting your password, if an account "
 "exists with the email you entered. You should receive them shortly."
 msgstr ""
 
-#: hosting/templates/registration/password_reset_done.html:7
+#: templates/registration/password_reset_done.html:7
 msgid ""
 "If you don't receive an email, please make sure you've entered the address "
 "you registered with, and check your spam folder."
 msgstr ""
 
-#: hosting/templates/registration/password_reset_email.html:2
+#: templates/registration/password_reset_email.html:2
 #, python-format
 msgid ""
 "You're receiving this email because you requested a password reset for your "
 "user account at %(site_name)s."
 msgstr ""
 
-#: hosting/templates/registration/password_reset_email.html:4
+#: templates/registration/password_reset_email.html:4
 msgid "Please go to the following page and choose a new password:"
 msgstr ""
 
-#: hosting/templates/registration/password_reset_email.html:8
+#: templates/registration/password_reset_email.html:8
 msgid "Your username, in case you've forgotten:"
 msgstr ""
 
-#: hosting/templates/registration/password_reset_email.html:10
+#: templates/registration/password_reset_email.html:10
 msgid "Thanks for using our site!"
 msgstr ""
 
-#: hosting/templates/registration/password_reset_email.html:12
+#: templates/registration/password_reset_email.html:12
 #, fuzzy, python-format
 #| msgid "The %(site_name)s team."
 msgid "The %(site_name)s team"
 msgstr "La teamo de %(site_name)s."
 
-#: hosting/templates/registration/password_reset_form.html:6
+#: templates/registration/password_reset_form.html:6
 msgid ""
 "Forgotten your password? Enter your email address below, and we'll email "
 "instructions for setting a new one."
 msgstr ""
 
-#: hosting/templates/registration/password_reset_form.html:8
+#: templates/registration/password_reset_form.html:8
 msgid "Send"
 msgstr "Sendi"
 
-#: hosting/urls.py:33
+#: urls.py:33
 msgid "^register/$"
 msgstr "^registrado/$"
 
-#: hosting/urls.py:34
+#: urls.py:34
 msgid "^profile/create/$"
 msgstr "^profilo/krei/$"
 
-#: hosting/urls.py:35
+#: urls.py:35
 msgid "^profile(?:/(?P<pk>\\d+))?/$"
 msgstr "^profilo(?:/(?P<pk>\\d+))?/$"
 
 # msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/$"
-#: hosting/urls.py:36
+#: urls.py:36
 msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/$"
 
 # msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/edit/$"
-#: hosting/urls.py:37
+#: urls.py:37
 msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/edit/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/redakti/$"
 
 # msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/update/$"
-#: hosting/urls.py:38
+#: urls.py:38
 msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/update/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/aktualigi/$"
 
 # msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/delete/$"
-#: hosting/urls.py:39
+#: urls.py:39
 msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/delete/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/forigi/$"
 
 # msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/settings/$"
-#: hosting/urls.py:40
+#: urls.py:40
 msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/settings/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/agordoj/$"
 
-#: hosting/urls.py:42
+#: urls.py:42
 msgid "^place/(?P<pk>\\d+)/$"
 msgstr "^ejo/(?P<pk>\\d+)/$"
 
-#: hosting/urls.py:43
+#: urls.py:43
 msgid "^place/(?P<pk>\\d+)/detailed/$"
 msgstr "^ejo/(?P<pk>\\d+)/detale/$"
 
 # msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/place/create/$"
-#: hosting/urls.py:44
+#: urls.py:44
 msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/place/create/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/ejo/krei/$"
 
-#: hosting/urls.py:45
+#: urls.py:45
 msgid "^place/(?P<pk>\\d+)/update/$"
 msgstr "^ejo/(?P<pk>\\d+)/redakti/$"
 
-#: hosting/urls.py:46
+#: urls.py:46
 msgid "^place/(?P<pk>\\d+)/delete/$"
 msgstr "^ejo/(?P<pk>\\d+)/forigi/$"
 
-#: hosting/urls.py:48
+#: urls.py:48
 msgid "^place/(?P<pk>\\d+)/authorize/$"
 msgstr "^ejo/(?P<pk>\\d+)/permesi/$"
 
-#: hosting/urls.py:50
+#: urls.py:50
 msgid "^place/(?P<place_pk>\\d+)/family-member/create/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/krei/$"
 
-#: hosting/urls.py:51
+#: urls.py:51
 msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/update/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/redakti/$"
 
-#: hosting/urls.py:52
+#: urls.py:52
 msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/remove/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/forpreni/$"
 
-#: hosting/urls.py:53
+#: urls.py:53
 msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/delete/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/forigi/$"
 
-#: hosting/urls.py:55
+#: urls.py:55
 #, python-brace-format
 msgid "^place/(?P<country_code>[A-Z]{2})/$"
 msgstr "^ejo/(?P<country_code>[A-Z]{2})/$"
 
 # msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/phone/create/$"
-#: hosting/urls.py:57
+#: urls.py:57
 msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/phone/create/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/telefono/krei/$"
 
-#: hosting/urls.py:58
+#: urls.py:58
 msgid "^phone/(?P<num>[\\w-]+)/update/$"
 msgstr "^telefono/(?P<num>[\\w-]+)/redakti/$"
 
-#: hosting/urls.py:59
+#: urls.py:59
 msgid "^phone/(?P<num>[\\w-]+)/delete/$"
 msgstr "^telefono/(?P<num>[\\w-]+)/forigi/$"
 
-#: hosting/urls.py:61
+#: urls.py:61
 msgid "^current/confirm/$"
 msgstr "^aktualigo/konfirmi/$"
 
-#: hosting/urls.py:63
+#: urls.py:63
 msgid "^search(?:/(?P<query>.+))?/$"
 msgstr "^esplori(?:/(?P<query>.+))?/$"
 
-#: hosting/urls.py:65
+#: urls.py:65
 msgid "^mass_mail/$"
 msgstr "^amassendado/$"
 
-#: hosting/urls.py:66
+#: urls.py:66
 msgid "^mass_mail_sent/$"
 msgstr "^amassendado_sukcesa/$"
 
-#: hosting/validators.py:18
+#: validators.py:18
 #, python-format
 msgid "Today is not CapsLock day. Please try with '%(correct_value)s'."
 msgstr "La CapsLock tago ne estas hodiaŭ. Bv. provi “%(correct_value)s”."
 
-#: hosting/validators.py:27
+#: validators.py:27
 #, python-format
 msgid ""
 "It seems there are too many uppercase letters. Try with '%(correct_value)s'."
 msgstr "Ŝajnas ke estas tro da majuskloj. Provu “%(correct_value)s”."
 
-#: hosting/validators.py:50
+#: validators.py:50
 msgid "Digits are not allowed."
 msgstr "Ciferoj ne estas permesitaj en tiu ĉi kampo."
 
-#: hosting/validators.py:98
+#: validators.py:98
 msgid "File type is not supported"
 msgstr "Dosiertipo ne akceptebla"
 
-#: hosting/validators.py:105
+#: validators.py:105
 #, python-format
 msgid "Please keep filesize under %(limit)s. Current filesize %(current)s"
 msgstr ""
 "Bv. certigu ke dosiergrando estas sub %(limit)s. Nuna grando: %(current)s"
 
-#: hosting/views.py:117
+#: views.py:117
 msgid "You are logged in."
 msgstr "Vi nun estas ensalutinta."
 
-#: hosting/views.py:126 hosting/views.py:147 hosting/views.py:250
-#: hosting/views.py:262
+#: views.py:126 views.py:147 views.py:250 views.py:262
 msgid "The data is not saved yet! Note the specified errors."
 msgstr ""
 "La informoj ankoraŭ ne estas konservitaj! Atentu la indikitajn erarojn."
 
-#: hosting/views.py:472
+#: views.py:472
 msgid "[Pasporta Servo] You received an Authorization"
 msgstr "[Pasporta Servo] Vi ricevis permeson"
 
