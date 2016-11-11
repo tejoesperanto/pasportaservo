@@ -50,7 +50,14 @@
                 {% endblocktrans %}
             </p>
         </div>
-    {% else %}
+    {% endif %}
+
+    {% if profile.confirmed and role > profile.VISITOR %}
+        <div class="row bg-success top-info">
+            <p class="col-xs-12 text-center">
+                {% trans "You confirmed your information" %}
+            </p>
+        </div>
     {% endif %}
 
         <div class="row">
