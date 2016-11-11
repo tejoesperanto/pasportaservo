@@ -40,7 +40,7 @@
                     <td>{{ country.code }}</td>
                     <td>
                         <a class="btn btn-primary"  href="{% url "country_place_list" country.code %}">
-                            {{ country.name }}
+                            <strong>{{ country.name }}</strong>&nbsp;
                             <span class="badge">{{ country.place_count }}</span>
                         </a>
                     </td>
