@@ -135,6 +135,12 @@
                 </p>
             </div>
         {% endif %}
+        {% if role >= profile.USER %}
+            <div class="col-xs-8 col-sm-9">
+                <h4><small>{% trans "username"|capfirst %}</small> {{ profile.user.username }}</h4>
+                <h4>{{ profile.user.email }}</h4>
+            </div>
+        {% endif %}
     </div>
 
     <hr />
