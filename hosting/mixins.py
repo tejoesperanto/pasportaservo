@@ -71,13 +71,14 @@ class PlaceAuthMixin(object):
 
 class PhoneAuthMixin(object):
     def get_object(self, queryset=None):
-        number = self.kwargs['num'].replace('-', ' ')
-        user = self.request.user
-        if user.is_staff:
-            return get_object_or_404(Phone, number__icontains=number)
-        return get_object_or_404(Phone,
-                                 number__icontains=number,
-                                 profile=user.profile)
+        number = get_object_or_404(Phone,
+            number__icontains=self.kwargs['num'].replace('-', ' '))
+        is_user = self.request.user == number.profile.user
+        is_staff = self.request.user.is_staff
+        is_supervisor = self.request.user.profile.is_supervisor_of(number.profile)
+        if any([is_user, is_staff, is_supervisor]):
+            return number
+        raise Http404("Not allowed to edit this phone number.")
 
 
 class FamilyMemberMixin(object):
