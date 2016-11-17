@@ -52,7 +52,7 @@
         </div>
     {% endif %}
 
-    {% if profile.confirmed and role == profile.USER %}
+    {% if profile.confirmed and role == profile.OWNER %}
         <div class="row bg-success top-notice">
             <p class="col-xs-12 text-center">
                 {% trans "You confirmed your information" %}
