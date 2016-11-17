@@ -7,11 +7,11 @@ from django.utils.html import format_html
 from django.utils.text import slugify
 from django.db import models, transaction
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
 
-from django.contrib.auth.models import Group
 from django_extensions.db.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
 from django_countries.fields import CountryField, Country
@@ -26,7 +26,7 @@ from .utils import UploadAndRenameAvatar
 from .gravatar import email_to_gravatar
 
 
-ADMIN, STAFF, SUPERVISOR, USER, VISITOR = 5, 4, 3, 2, 1
+ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR = 5, 4, 3, 2, 1
 
 
 MRS, MR = 'Mrs', 'Mr'
@@ -69,7 +69,7 @@ class TrackingModel(models.Model):
 
 class Profile(TrackingModel, TimeStampedModel):
     TITLE_CHOICES = TITLE_CHOICES
-    ADMIN, STAFF, SUPERVISOR, USER, VISITOR = ADMIN, STAFF, SUPERVISOR, USER, VISITOR
+    ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR = ADMIN, STAFF, SUPERVISOR, USER, VISITOR
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
         null=True, blank=True, on_delete=models.SET_NULL)
