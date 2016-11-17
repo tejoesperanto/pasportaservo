@@ -78,6 +78,7 @@ class PlaceAuthMixin(object):
 class PhoneAuthMixin(object):
     def get_object(self, queryset=None):
         number = get_object_or_404(Phone,
+            profile=self.kwargs['pk'],
             number__icontains=self.kwargs['num'].replace('-', ' '))
         self.role = get_role(self.request, profile=number.profile)
         if self.role >= OWNER:
