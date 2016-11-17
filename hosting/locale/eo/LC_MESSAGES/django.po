@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-11 13:50+0100\n"
-"PO-Revision-Date: 2016-11-11 13:51+0100\n"
+"POT-Creation-Date: 2016-11-17 19:42+0100\n"
+"PO-Revision-Date: 2016-11-17 19:45+0100\n"
 "Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -148,7 +148,7 @@ msgstr "Vi jam indikis tian telefonnumeron."
 msgid "Authorize user"
 msgstr "Permesi uzanton"
 
-#: forms.py:207
+#: forms.py:207 templates/hosting/profile_detail.html:117
 msgid "username"
 msgstr "uzantnomo"
 
@@ -732,12 +732,12 @@ msgid "The address is obsolete"
 msgstr "La adreso estas neaktuala"
 
 #: templates/hosting/place_detail.html:55 templates/hosting/place_list.html:69
-#: templates/hosting/profile_detail.html:179
+#: templates/hosting/profile_detail.html:185
 msgid "I can guide around the city"
 msgstr "mi povas ĉiĉeroni"
 
 #: templates/hosting/place_detail.html:62 templates/hosting/place_list.html:79
-#: templates/hosting/profile_detail.html:189
+#: templates/hosting/profile_detail.html:195
 msgid "I'd like to have a drink together"
 msgstr "mi emas trinkejumi"
 
@@ -795,7 +795,7 @@ msgid "View as an authorized user"
 msgstr "Rigardi kvazaŭ permesita uzanto"
 
 #: templates/hosting/place_detail.html:235
-#: templates/hosting/profile_detail.html:148
+#: templates/hosting/profile_detail.html:154
 #: templates/hosting/profile_edit.html:34
 msgid "View"
 msgstr "Rigardi"
@@ -912,36 +912,36 @@ msgstr "Redakti miajn informojn"
 msgid "%(age)s y.o."
 msgstr "%(age)s-jaraĝa"
 
-#: templates/hosting/profile_detail.html:119
+#: templates/hosting/profile_detail.html:125
 msgid "About me"
 msgstr "Pri mi"
 
-#: templates/hosting/profile_detail.html:127
+#: templates/hosting/profile_detail.html:133
 msgid "Place"
 msgid_plural "Places"
 msgstr[0] "Loĝejo"
 msgstr[1] "Loĝejoj"
 
-#: templates/hosting/profile_detail.html:133
+#: templates/hosting/profile_detail.html:139
 msgid "Habitat"
 msgid_plural "Habitats"
 msgstr[0] "Loĝloko"
 msgstr[1] "Loĝlokoj"
 
-#: templates/hosting/profile_detail.html:146
+#: templates/hosting/profile_detail.html:152
 msgid "View details of this place"
 msgstr "Rigardi detalojn de tiu ĉi loĝejo"
 
-#: templates/hosting/profile_detail.html:155
+#: templates/hosting/profile_detail.html:161
 msgid "I'm hosting in:"
 msgstr "mi gastigas en:"
 
-#: templates/hosting/profile_detail.html:164
+#: templates/hosting/profile_detail.html:170
 #, python-format
 msgid "near %(closest_city)s"
 msgstr "proksime al %(closest_city)s"
 
-#: templates/hosting/profile_detail.html:195
+#: templates/hosting/profile_detail.html:201
 #: templates/hosting/snippets/place_description.html:33
 #, python-format
 msgid "I can accept %(max_host)s person"
@@ -949,7 +949,7 @@ msgid_plural "I can accept %(max_host)s persons"
 msgstr[0] "Mi povas akcepti %(max_host)s homon"
 msgstr[1] "Mi povas akcepti %(max_host)s homojn"
 
-#: templates/hosting/profile_detail.html:207
+#: templates/hosting/profile_detail.html:213
 #: templates/hosting/snippets/place_description.html:24
 #, python-format
 msgid "I can host during %(max_night)s night maximum"
@@ -957,7 +957,7 @@ msgid_plural "I can host during %(max_night)s nights maximum"
 msgstr[0] "Mi povas gastigi dum %(max_night)s nokto maksimume"
 msgstr[1] "Mi povas gastigi dum %(max_night)s noktoj maksimume"
 
-#: templates/hosting/profile_detail.html:264
+#: templates/hosting/profile_detail.html:270
 msgid "Phones"
 msgstr "Telefonoj"
 
@@ -1306,13 +1306,15 @@ msgstr "^ejo/(?P<country_code>[A-Z]{2})/$"
 msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/phone/create/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/telefono/krei/$"
 
+# msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/update/$"
 #: urls.py:58
-msgid "^phone/(?P<num>[\\w-]+)/update/$"
-msgstr "^telefono/(?P<num>[\\w-]+)/redakti/$"
+msgid "^profile/(?P<pk>\\d+)/phone/(?P<num>[\\w-]+)/update/$"
+msgstr "^profilo/(?P<pk>\\d+)/telefono/(?P<num>[\\w-]+)/redakti/$"
 
+# msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/delete/$"
 #: urls.py:59
-msgid "^phone/(?P<num>[\\w-]+)/delete/$"
-msgstr "^telefono/(?P<num>[\\w-]+)/forigi/$"
+msgid "^profile/(?P<pk>\\d+)/phone/(?P<num>[\\w-]+)/delete/$"
+msgstr "^profilo/(?P<pk>\\d+)/telefono/(?P<num>[\\w-]+)/forigi/$"
 
 #: urls.py:61
 msgid "^current/confirm/$"
@@ -1367,6 +1369,12 @@ msgstr ""
 #: views.py:472
 msgid "[Pasporta Servo] You received an Authorization"
 msgstr "[Pasporta Servo] Vi ricevis permeson"
+
+#~ msgid "^phone/(?P<num>[\\w-]+)/update/$"
+#~ msgstr "^telefono/(?P<num>[\\w-]+)/redakti/$"
+
+#~ msgid "^phone/(?P<num>[\\w-]+)/delete/$"
+#~ msgstr "^telefono/(?P<num>[\\w-]+)/forigi/$"
 
 #~ msgid ""
 #~ "You need to confirm your profile if you would like to be in the book. <a "

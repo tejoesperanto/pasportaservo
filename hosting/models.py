@@ -32,7 +32,7 @@ TITLE_CHOICES = (
     (MR, _("Mr")),
 )
 
-ADMIN, STAFF, SUPERVISOR, USER, VISITOR = 5, 4, 3, 2, 1
+ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR = 5, 4, 3, 2, 1
 
 MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
 PHONE_TYPE_CHOICES = (
@@ -66,7 +66,7 @@ class TrackingModel(models.Model):
 
 class Profile(TrackingModel, TimeStampedModel):
     TITLE_CHOICES = TITLE_CHOICES
-    ADMIN, STAFF, SUPERVISOR, USER, VISITOR = ADMIN, STAFF, SUPERVISOR, USER, VISITOR
+    ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR = ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR
     user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     title = models.CharField(_("title"), max_length=5, choices=TITLE_CHOICES, blank=True)
     first_name = models.CharField(_("first name"), max_length=255, blank=True,
