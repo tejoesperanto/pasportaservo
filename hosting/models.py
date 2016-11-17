@@ -25,14 +25,15 @@ from .utils import UploadAndRenameAvatar
 from .gravatar import email_to_gravatar
 
 
+ADMIN, STAFF, SUPERVISOR, USER, VISITOR = 5, 4, 3, 2, 1
+
+
 MRS, MR = 'Mrs', 'Mr'
 TITLE_CHOICES = (
     (None, ""),
     (MRS, _("Mrs")),
     (MR, _("Mr")),
 )
-
-ADMIN, STAFF, SUPERVISOR, USER, VISITOR = 5, 4, 3, 2, 1
 
 MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
 PHONE_TYPE_CHOICES = (
@@ -45,7 +46,8 @@ PHONE_TYPE_CHOICES = (
 
 class TrackingModel(models.Model):
     checked = models.BooleanField(_("checked"), default=False)
-    checked_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("approved by"), blank=True, null=True,
+    checked_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("approved by"),
+        blank=True, null=True,
         related_name="+", limit_choices_to={'is_staff': True}, on_delete=models.SET_NULL)
     confirmed_on = models.DateTimeField(_("confirmed on"), default=None, blank=True, null=True)
     deleted = models.BooleanField(_("deleted"), default=False)
@@ -67,19 +69,34 @@ class TrackingModel(models.Model):
 class Profile(TrackingModel, TimeStampedModel):
     TITLE_CHOICES = TITLE_CHOICES
     ADMIN, STAFF, SUPERVISOR, USER, VISITOR = ADMIN, STAFF, SUPERVISOR, USER, VISITOR
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
-    title = models.CharField(_("title"), max_length=5, choices=TITLE_CHOICES, blank=True)
-    first_name = models.CharField(_("first name"), max_length=255, blank=True,
-        validators=[validate_not_too_many_caps, validate_no_digit])
-    last_name = models.CharField(_("last name"), max_length=255, blank=True,
-        validators=[validate_not_too_many_caps, validate_no_digit])
-    birth_date = models.DateField(_("birth date"), blank=True, null=True,
-        validators=[TooFarPastValidator(200), validate_not_in_future])
-    description = models.TextField(_("description"), help_text=_("Short biography."), blank=True)
-    avatar = models.ImageField(_("avatar"), upload_to=UploadAndRenameAvatar("avatars"), blank=True,
-        validators=[validate_image, validate_size],
-        help_text=_("Small image under 100kB. Ideal size: 140x140 px."))
-    contact_preferences = models.ManyToManyField('hosting.ContactPreference', verbose_name=_("contact preferences"), blank=True)
+
+    user = models.OneToOneField(settings.AUTH_USER_MODEL,
+        null=True, blank=True, on_delete=models.SET_NULL)
+    title = models.CharField(_("title"),
+        blank=True,
+        max_length=5, choices=TITLE_CHOICES)
+    first_name = models.CharField(_("first name"),
+        blank=True,
+        max_length=255,
+        validators=[validate_not_too_many_caps, validate_no_digit]) #, validate_latin])
+    last_name = models.CharField(_("last name"),
+        blank=True,
+        max_length=255,
+        validators=[validate_not_too_many_caps, validate_no_digit]) #, validate_latin])
+    birth_date = models.DateField(_("birth date"),
+        null=True, blank=True,
+        validators=[TooFarPastValidator(200), validate_not_in_future],
+        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))
+    description = models.TextField(_("description"),
+        blank=True,
+        help_text=_("Short biography."))
+    avatar = models.ImageField(_("avatar"),
+        blank=True,
+        upload_to=UploadAndRenameAvatar("avatars"),
+        validators=[validate_image, validate_size,],
+        help_text=_("Small image under 100kB. Ideal size: 140x140 px.") )
+    contact_preferences = models.ManyToManyField('hosting.ContactPreference', verbose_name=_("contact preferences"),
+        blank=True)
 
     class Meta:
         verbose_name = _("profile")
@@ -148,14 +165,13 @@ class Profile(TrackingModel, TimeStampedModel):
         return countries if code else [c.name for c in countries]
 
     def is_supervisor_of(self, profile=None, countries=None):
-        """Compare intersection between responsabilities and given countries."""
+        """Compare intersection between responsibilities and given countries."""
         if all([profile, countries]) or not any([profile, countries]):
-            raise ImproperlyConfigured(_("Profile.is_supervisor_of() needs "
-                "either a profile or a list of countries."))
+            raise ImproperlyConfigured(
+                _("Profile.is_supervisor_of() needs either a profile or a list of countries."))
         countries = countries if countries else []
         if not countries:
-            countries = profile.owned_places.filter(
-                available=True, deleted=False).values_list('country', flat=True)
+            countries = profile.owned_places.filter(available=True, deleted=False).values_list('country', flat=True)
         supervised = self.user.groups.values_list('name', flat=True)
         return any(set(supervised) & set(countries))
 
@@ -173,7 +189,11 @@ class Profile(TrackingModel, TimeStampedModel):
         return '--'
 
     def __lt__(self, other):
-        return self.last_name < other.last_name
+        return ((self.last_name < other.last_name) or
+                (self.last_name == other.last_name and self.first_name < other.first_name))
+
+    def __repr__(self):
+        return "<{} #{}: {}>".format(self.__class__.__name__, self.id, self.__str__())
 
     def repr(self):
         return "{} ({})".format(self.__str__(), getattr(self.birth_date, 'year', "?"))
@@ -208,41 +228,66 @@ class Profile(TrackingModel, TimeStampedModel):
 class Place(TrackingModel, TimeStampedModel):
     owner = models.ForeignKey('hosting.Profile', verbose_name=_("owner"),
         related_name="owned_places", on_delete=models.CASCADE)
-    address = models.TextField(_("address"), blank=True,
-        help_text=_("e.g.: Nieuwe Binnenweg 176"))
-    city = models.CharField(_("city"), max_length=255, blank=True,
-        help_text=_("Name in the official language, not in Esperanto (e.g.: Rotterdam)"),
-        validators=[validate_not_all_caps, validate_not_too_many_caps])
-    closest_city = models.CharField(_("closest big city"), max_length=255, blank=True,
-        help_text=_("If you place is in a town near a bigger city. "
-                    "Name in the official language, not in Esperanto."),
-        validators=[validate_not_all_caps, validate_not_too_many_caps])
-    postcode = models.CharField(_("postcode"), max_length=11, blank=True)
-    state_province = models.CharField(_("State / Province"), max_length=70, blank=True)
+    address = models.TextField(_("address"),
+        blank=True,
+        help_text=_("e.g.: Nieuwe Binnenweg 176") )
+    city = models.CharField(_("city"),
+        blank=True,
+        max_length=255,
+        validators=[validate_not_all_caps, validate_not_too_many_caps],
+        help_text=_("Name in the official language, not in Esperanto (e.g.: Rotterdam)"))
+    closest_city = models.CharField(_("closest big city"),
+        blank=True,
+        max_length=255,
+        validators=[validate_not_all_caps, validate_not_too_many_caps],
+        help_text=_("If your place is in a town near a bigger city. "
+                    "Name in the official language, not in Esperanto."))
+    postcode = models.CharField(_("postcode"),
+        blank=True,
+        max_length=11)
+    state_province = models.CharField(_("State / Province"),
+        blank=True,
+        max_length=70)
     country = CountryField(_("country"))
-    latitude = models.FloatField(_("latitude"), null=True, blank=True)
-    longitude = models.FloatField(_("longitude"), null=True, blank=True)
-    max_guest = models.PositiveSmallIntegerField(_("maximum number of guest"), blank=True, null=True)
-    max_night = models.PositiveSmallIntegerField(_("maximum number of night"), blank=True, null=True)
-    contact_before = models.PositiveSmallIntegerField(_("contact before"), blank=True, null=True,
+    latitude = models.FloatField(_("latitude"),
+        null=True, blank=True)
+    longitude = models.FloatField(_("longitude"),
+        null=True, blank=True)
+    max_guest = models.PositiveSmallIntegerField(_("maximum number of guest"),
+        null=True, blank=True)
+    max_night = models.PositiveSmallIntegerField(_("maximum number of night"),
+        null=True, blank=True)
+    contact_before = models.PositiveSmallIntegerField(_("contact before"),
+        null=True, blank=True,
         help_text=_("Number of days before people should contact host."))
-    description = models.TextField(_("description"), blank=True,
+    description = models.TextField(_("description"),
+        blank=True,
         help_text=_("Description or remarks about your place."))
-    short_description = models.CharField(_("short description"), max_length=140, blank=True,
+    short_description = models.CharField(_("short description"),
+        blank=True,
+        max_length=140,
         help_text=_("Used in the book and on profile, 140 characters maximum."))
-    available = models.BooleanField(_("available"), default=True,
+    available = models.BooleanField(_("available"),
+        default=True,
         help_text=_("If this place is searchable. If yes, you will be considered as host."))
-    in_book = models.BooleanField(_("print in book"), default=True,
+    in_book = models.BooleanField(_("print in book"),
+        default=True,
         help_text=_("If you want this place to be in the printed book. Must be available."))
-    tour_guide = models.BooleanField(_("tour guide"), default=False,
+    tour_guide = models.BooleanField(_("tour guide"),
+        default=False,
         help_text=_("If you are ready to show your area to visitors."))
-    have_a_drink = models.BooleanField(_("have a drink"), default=False,
+    have_a_drink = models.BooleanField(_("have a drink"),
+        default=False,
         help_text=_("If you are ready to have a coffee or beer with visitors."))
-    sporadic_presence = models.BooleanField(_("irregularly present"), default=False,
+    sporadic_presence = models.BooleanField(_("irregularly present"),
+        default=False,
         help_text=_("If you are not often at this address and need an advance notification."))
-    conditions = models.ManyToManyField('hosting.Condition', verbose_name=_("conditions"), blank=True)
-    family_members = models.ManyToManyField('hosting.Profile', verbose_name=_("family members"), blank=True)
-    authorized_users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("authorized users"), blank=True,
+    conditions = models.ManyToManyField('hosting.Condition', verbose_name=_("conditions"),
+        blank=True)
+    family_members = models.ManyToManyField('hosting.Profile', verbose_name=_("family members"),
+        blank=True)
+    authorized_users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("authorized users"),
+        blank=True,
         help_text=_("List of users authorized to view most of data of this accommodation."))
 
     available_objects = AvailableManager()
@@ -287,6 +332,9 @@ class Place(TrackingModel, TimeStampedModel):
     def __str__(self):
         return ", ".join([self.city, force_text(self.country.name)]) if self.city else force_text(self.country.name)
 
+    def __repr__(self):
+        return "<{} #{}: {}>".format(self.__class__.__name__, self.id, self.__str__())
+
     def display_family_members(self):
         family_members = self.family_members.exclude(pk=self.owner.pk).order_by('birth_date')
         return ", ".join(fm.repr() for fm in family_members)
@@ -303,8 +351,11 @@ class Phone(TrackingModel, TimeStampedModel):
     number = PhoneNumberField(_("number"),
         help_text=_("International number format begining with the plus sign (e.g.: +31 10 436 1044)"))
     country = CountryField(_("country"))
-    comments = models.CharField(_("comments"), max_length=255, blank=True)
-    type = models.CharField(_("phone type"), max_length=3,
+    comments = models.CharField(_("comments"),
+        blank=True,
+        max_length=255)
+    type = models.CharField(_("phone type"),
+        max_length=3,
         choices=PHONE_TYPE_CHOICES, default=MOBILE)
 
     class Meta:
@@ -334,6 +385,11 @@ class Phone(TrackingModel, TimeStampedModel):
         """
         return self.number.as_international
 
+    def __repr__(self):
+        return "<{}: {}{} |p#{}>".format(self.__class__.__name__,
+                                         "("+self.type+") " if self.type else "", self.__str__(),
+                                         self.profile.id)
+
     def display(self):
         t = self.type or '(?)'
         return t + ': ' + self.number.as_international
@@ -349,6 +405,9 @@ class Website(TrackingModel, TimeStampedModel):
 
     def __str__(self):
         return self.url
+
+    def __repr__(self):
+        return "<{}: {} |p#{}>".format(self.__class__.__name__, self.__str__(), self.profile.id)
 
 
 class Condition(models.Model):
