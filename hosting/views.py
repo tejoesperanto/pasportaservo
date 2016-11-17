@@ -205,7 +205,7 @@ class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
         if kwargs.get('pk', None):
             return get_object_or_404(Profile, pk=kwargs['pk']).get_absolute_url()
         try:
-            return self.request.user.profile.get_absolute_url()
+            return self.request.user.profile.get_edit_url()
         except Profile.DoesNotExist:
             return reverse_lazy('profile_create')
 
