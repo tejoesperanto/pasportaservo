@@ -14,6 +14,11 @@ body, .same-as-body {
     font-size: 16px;
 }
 
+.last-name {
+    font-variant: small-caps;
+    font-variant-caps: small-caps;
+}
+
 .edit-buttons {
     float: right;
     margin-bottom: 1em;

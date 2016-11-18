@@ -15,6 +15,12 @@ $(function() {
 
     $(window).bind("load", function() {
         $('ul.chosen-choices').addClass('form-control');
+        $('.form-group .radio:has(.form-control-horizontal)')
+            .removeClass('radio').addClass('radio-inline').children('label').css('font-weight', "normal")
+            .each(function() {
+                $(this).data('blank-label', $(this).text().trim());
+            });
+        updatePersonNamesExample();
         flasher = $('.alert.flyover');
         flasher.addClass('in');
         if (!flasher.hasClass('no-out')) {
@@ -56,6 +62,34 @@ $(function() {
             });
         }
     }
+
+    /* dynamic display of names ordering (changes with user input) */
+    var updatePersonNamesExample = function() {
+        var nameF = $('#id_first_name').val().trim(),
+            nameL = $('#id_last_name').val().trim(),
+            labelFL = $('label:has(#id_names_inversed_0)'),
+            labelLF = $('label:has(#id_names_inversed_1)');
+        $.each(labelFL[0].childNodes, function() {
+            if (this.nodeType == Node.TEXT_NODE && this.textContent.trim()) {
+                if (nameF && nameL)
+                    this.textContent = nameF + " " + nameL;
+                else
+                    this.textContent = labelFL.data('blank-label');
+            }
+        });
+        $.each(labelLF[0].childNodes, function() {
+            if (this.nodeType == Node.TEXT_NODE && this.textContent.trim()) {
+                if (nameF && nameL)
+                    this.textContent = nameL + " " + nameF;
+                else
+                    this.textContent = labelLF.data('blank-label');
+            }
+        });
+    };
+    if ($('#id_first_name, #id_last_name').length != 2) {
+        updatePersonNamesExample = function() {};
+    }
+    $('#id_first_name, #id_last_name').change(updatePersonNamesExample);
 
     /* for mass mail form */
     $('#id_body').keyup(function() {

@@ -34,7 +34,7 @@
                     <img src="{{ auth_user.profile.avatar_url }}" height="30">&nbsp;
                     <span class="authorized-user">
                         <a href="{{ auth_user.profile.get_absolute_url }}">
-                            {{ auth_user.profile.full_name }}
+                                {{ auth_user.profile.get_fullname_display }}
                         </a>
                     </span>
                     {% csrf_token %}

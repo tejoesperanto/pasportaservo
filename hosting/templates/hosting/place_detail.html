@@ -39,7 +39,7 @@
                         <p class="col-xs-8 name">
                             <a href="{{ place.owner.get_absolute_url }}">
                                 {% if user.is_authenticated %}
-                                    <span class="hidden-xxs">{{ place.owner.full_name }}</span>
+                                    <span class="hidden-xxs">{{ place.owner.get_fullname_display }}</span>
                                     <span class="visible-xxs-inline">{{ place.owner.anonymous_name }}</span>
                                 {% else %}
                                     {{ place.owner.anonymous_name }}
@@ -140,7 +140,7 @@
                                     {% if forloop.first and forloop.last and not member.full_name.strip %}
                                         <em>{% trans "Other dwellers at this place." %}</em>
                                     {% else %}
-                                        {{ member.full_name }}
+                                        {{ member.get_fullname_always_display }}
                                         {% if member.birth_date %}
                                             ({{ member.age }})
                                         {% endif %}

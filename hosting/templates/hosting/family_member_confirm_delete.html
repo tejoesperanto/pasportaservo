@@ -9,7 +9,7 @@
     {% trans "Are you sure you want to delete this family member?" %}
 {% endblock %}
 {% block extra_details %}
-    {{ profile }}
+    {{ profile.get_fullname_always_display }}
     {% if profile.birth_date %} &ensp;({{ profile.age }}) {% endif %}
 {% endblock %}
 

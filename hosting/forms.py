@@ -53,13 +53,20 @@ class ProfileForm(forms.ModelForm):
             'title',
             'first_name',
             'last_name',
+            'names_inversed',
             'birth_date',
             'description',
             'avatar',
         ]
+        widgets = {
+            'names_inversed': forms.RadioSelect(choices=((False, _("First, then Last")),
+                                                         (True, _("Last, then First"))),
+                                                attrs={'class': 'form-control-horizontal'}),
+        }
 
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
+        self.fields['names_inversed'].label = _("Names ordering")
         self.fields['birth_date'].widget.attrs['placeholder'] = 'jjjj-mm-tt'
 
     def clean(self):
@@ -231,7 +238,7 @@ class AuthorizedOnceUserForm(AuthorizeUserForm):
 class FamilyMemberForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['title', 'first_name', 'last_name', 'birth_date']
+        fields = ['title', 'first_name', 'last_name', 'names_inversed', 'birth_date']
         error_messages = {
             'birth_date': { 'max_value': _("A family member cannot be future-born (even if planned)."), },
         }

@@ -2,6 +2,7 @@ from datetime import date
 
 from django.utils import timezone
 from django.utils.encoding import force_text
+from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 from django.utils.text import slugify
 from django.db import models, transaction
@@ -83,6 +84,8 @@ class Profile(TrackingModel, TimeStampedModel):
         blank=True,
         max_length=255,
         validators=[validate_not_too_many_caps, validate_no_digit]) #, validate_latin])
+    names_inversed = models.BooleanField(_("names in inverse order"),
+        default=False)
     birth_date = models.DateField(_("birth date"),
         null=True, blank=True,
         validators=[TooFarPastValidator(200), validate_not_in_future],
@@ -93,8 +96,8 @@ class Profile(TrackingModel, TimeStampedModel):
     avatar = models.ImageField(_("avatar"),
         blank=True,
         upload_to=UploadAndRenameAvatar("avatars"),
-        validators=[validate_image, validate_size,],
-        help_text=_("Small image under 100kB. Ideal size: 140x140 px.") )
+        validators=[validate_image, validate_size],
+        help_text=_("Small image under 100kB. Ideal size: 140x140 px."))
     contact_preferences = models.ManyToManyField('hosting.ContactPreference', verbose_name=_("contact preferences"),
         blank=True)
 
@@ -104,8 +107,12 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @property
     def full_name(self):
-        return " ".join((self.first_name, self.last_name)).strip()  \
-               or (self.user.username.title() if self.user else " ")
+        if not self.names_inversed:
+            combined_name = (self.first_name, self.last_name)
+        else:
+            combined_name = (self.last_name, self.first_name)
+        real_name = " ".join(combined_name).strip() 
+        return real_name or (self.user.username.title() if self.user else " ")
 
     @property
     def name(self):
@@ -113,8 +120,8 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @property
     def anonymous_name(self):
-        return " ".join((self.first_name, self.last_name[:1] + "." if self.last_name else "")).strip()  \
-               or (self.user.username.title() if self.user else " ")
+        real_name = " ".join((self.first_name, self.last_name[:1] + "." if self.last_name else "")).strip()
+        return real_name or (self.user.username.title() if self.user else " ")
 
     @property
     def age(self):
@@ -133,6 +140,22 @@ class Profile(TrackingModel, TimeStampedModel):
         title = self.get_title_display().capitalize()
         template = '<span class="glyphicon glyphicon-user" title="{title}"></span>'
         return format_html(template, title=title)
+
+    def get_fullname_display(self, quote='"', non_empty=False):
+        template_first_name = '<span class={q}first-name{q}>{first}</span>'
+        template_last_name = '<span class={q}last-name{q}>{last}</span>'
+        template_username = '<span class={q}profile-noname{q}>{uname}</span>'
+        if " ".join((self.first_name, self.last_name)).strip():
+            if not self.names_inversed:
+                template = (template_first_name, template_last_name)
+            else:
+                template = (template_last_name, template_first_name)
+            return format_html(" ".join(template), q=mark_safe(quote), first=self.first_name, last=self.last_name)
+        else:
+            return format_html(template_username, q=mark_safe(quote),
+                               uname=self.user.username.title() if self.user else ('--' if non_empty else " "))
+
+    get_fullname_always_display = lambda self: self.get_fullname_display(non_empty=True)
 
     @property
     def autoslug(self):
@@ -230,7 +253,7 @@ class Place(TrackingModel, TimeStampedModel):
         related_name="owned_places", on_delete=models.CASCADE)
     address = models.TextField(_("address"),
         blank=True,
-        help_text=_("e.g.: Nieuwe Binnenweg 176") )
+        help_text=_("e.g.: Nieuwe Binnenweg 176"))
     city = models.CharField(_("city"),
         blank=True,
         max_length=255,

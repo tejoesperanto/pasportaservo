@@ -45,7 +45,7 @@
                 </div>
                 <a href="{{ place.owner.get_absolute_url }}">
                     {% if user.is_authenticated %}
-                        <span class="hidden-xxs">{{ place.owner.full_name }}</span>
+                        <span class="hidden-xxs">{{ place.owner.get_fullname_display }}</span>
                         <span class="visible-xxs-inline">{{ place.owner.anonymous_name }}</span>
                     {% else %}
                         {{ place.owner.anonymous_name }}

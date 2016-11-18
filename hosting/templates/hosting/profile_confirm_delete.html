@@ -19,7 +19,7 @@
 {% block extra_details %}
     {% if profile != user.profile %}
             {% if places %}<br>{% endif %}
-            {{ profile }}
+            {{ profile.get_fullname_display }}
     {% endif %}
 {% endblock %}
 {% block extra_details_block %}

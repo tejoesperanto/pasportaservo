@@ -101,7 +101,7 @@
             </span>
         </div>
         <div class="col-xs-9 col-md-10">
-            <h1><small>{{ profile.get_title_display }}</small> {{ profile }}</h1>
+            <h1><small>{{ profile.get_title_display }}</small> {{ profile.get_fullname_display }}</h1>
         </div>
         {% if profile.birth_date %}
             <div class="col-xs-8 col-sm-9">
@@ -243,7 +243,7 @@
     
                                 <p class="details">
                                     {{ member.icon }}
-                                    <b class="member">{{ member }}</b>
+                                    <b class="member">{{ member.get_fullname_always_display }}</b>
                                     {% if member.birth_date %}<em class="comment">({{ member.age }})</em>{% endif %}
                                 </p>
                             </li>
