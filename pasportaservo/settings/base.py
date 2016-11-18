@@ -49,6 +49,7 @@ INSTALLED_APPS = (
     'phonenumber_field',
     'bootstrapform',
     'postman',
+
     'hosting',
     'links',
     'pages',
@@ -136,6 +137,9 @@ TOKEN_MAX_AGE = 3600 * 24 * 30 * 2  # 2 months
 
 # Delay after which an object is no longer considered as confirmed
 CONFIRMATION_VALIDITY_PERIOD = timedelta(weeks=42)
+
+HOST_MIN_AGE = 16
+MEET_MIN_AGE = 13
 
 CORS_ORIGIN_WHITELIST = (
     'pasportaservo.org',

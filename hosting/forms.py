@@ -1,5 +1,12 @@
 from django import forms
+from django.conf import settings
+from datetime import date
 from django.utils.translation import ugettext_lazy as _
+try:
+    from django.utils.text import format_lazy  # coming in Django 1.11
+except ImportError:
+    from django.utils.functional import keep_lazy_text
+    format_lazy = keep_lazy_text(lambda s, *args, **kwargs: s.format(*args, **kwargs))
 from django.contrib.auth.forms import AuthenticationForm as UserLoginForm, UserCreationForm
 from django.contrib.auth import get_user_model
 
@@ -7,6 +14,7 @@ from django_countries import countries
 from phonenumber_field.formfields import PhoneNumberField
 
 from .models import Profile, Place, Phone, Condition
+from .validators import TooNearPastValidator
 
 
 User = get_user_model()
@@ -67,7 +75,20 @@ class ProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
         self.fields['names_inversed'].label = _("Names ordering")
-        self.fields['birth_date'].widget.attrs['placeholder'] = 'jjjj-mm-tt'
+        bd_field = self.fields['birth_date']
+        if hasattr(self, 'instance') and (self.instance.is_hosting or self.instance.is_meeting):
+            if self.instance.is_hosting:
+                message = _("The minimum age to be allowed hosting is {age:d}.")
+                allowed_age = settings.HOST_MIN_AGE
+            else:
+                message = _("The minimum age to be allowed meeting with visitors is {age:d}.")
+                allowed_age = settings.MEET_MIN_AGE
+            message = format_lazy(message, age=allowed_age)
+            bd_field.required = True
+            bd_field.error_messages['required'] = message
+            bd_field.validators.append(TooNearPastValidator(settings.HOST_MIN_AGE))
+            bd_field.error_messages['max_value'] = message
+        bd_field.widget.attrs['placeholder'] = 'jjjj-mm-tt'
 
     def clean(self):
         """Sets some fields as required if user wants his data to be printed in book."""
@@ -135,8 +156,29 @@ class PlaceForm(forms.ModelForm):
         self.fields['conditions'].widget.attrs['data-placeholder'] = _("Choose your conditions...")
 
     def clean(self):
-        """Sets some fields as required if user wants his data to be printed in book."""
         cleaned_data = super(PlaceForm, self).clean()
+
+        # Verifies that user is of correct age if they want to host or meet guests.
+        is_hosting = cleaned_data['available']
+        is_meeting = cleaned_data['tour_guide'] or cleaned_data['have_a_drink']
+        if any([is_hosting, is_meeting]):
+            profile = self.profile if hasattr(self, 'profile') else self.instance.owner
+            try:
+                allowed_age = settings.HOST_MIN_AGE if is_hosting else settings.MEET_MIN_AGE
+                TooNearPastValidator(allowed_age)(profile.birth_date or date.today())
+            except forms.ValidationError:
+                if is_hosting:
+                    self.add_error('available', "")
+                    message = _("The minimum age to be allowed hosting is {age:d}.")
+                else:
+                    if cleaned_data['tour_guide']:
+                        self.add_error('tour_guide', "")
+                    if cleaned_data['have_a_drink']:
+                        self.add_error('have_a_drink', "")
+                    message = _("The minimum age to be allowed meeting with visitors is {age:d}.")
+                raise forms.ValidationError(format_lazy(message, age=allowed_age))
+        
+        # Sets some fields as required if user wants his data to be printed in book.
         required_fields = ['address', 'city', 'postcode', 'country',
             'short_description', 'available', 'latitude', 'longitude']
         all_filled = all([cleaned_data.get(field, False) for field in required_fields])
@@ -151,6 +193,7 @@ class PlaceForm(forms.ModelForm):
                 if not cleaned_data.get(field, False):
                     self.add_error(field, _("This field is required to be printed in the book."))
             raise forms.ValidationError(message)
+
         return cleaned_data
 
 

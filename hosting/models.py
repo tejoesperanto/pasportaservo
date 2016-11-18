@@ -166,6 +166,10 @@ class Profile(TrackingModel, TimeStampedModel):
         return self.owned_places.filter(available=True, deleted=False).count()
 
     @property
+    def is_meeting(self):
+        return sum((p.owner_available for p in self.owned_places.filter(deleted=False)), 0)
+
+    @property
     def is_in_book(self):
         return self.owned_places.filter(available=True, deleted=False, in_book=True).count()
 
