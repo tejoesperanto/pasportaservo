@@ -18,7 +18,7 @@ from django_countries.fields import CountryField, Country
 
 from .managers import NotDeletedManager, WithCoordManager, AvailableManager
 from .validators import (
-    validate_not_all_caps, validate_not_too_many_caps, validate_no_digit,
+    validate_not_all_caps, validate_not_too_many_caps, validate_no_digit, validate_latin,
     validate_not_in_future, TooFarPastValidator, TooNearPastValidator,
     validate_image, validate_size,
 )
@@ -79,11 +79,11 @@ class Profile(TrackingModel, TimeStampedModel):
     first_name = models.CharField(_("first name"),
         blank=True,
         max_length=255,
-        validators=[validate_not_too_many_caps, validate_no_digit]) #, validate_latin])
+        validators=[validate_not_too_many_caps, validate_no_digit, validate_latin])
     last_name = models.CharField(_("last name"),
         blank=True,
         max_length=255,
-        validators=[validate_not_too_many_caps, validate_no_digit]) #, validate_latin])
+        validators=[validate_not_too_many_caps, validate_no_digit, validate_latin])
     names_inversed = models.BooleanField(_("names in inverse order"),
         default=False)
     birth_date = models.DateField(_("birth date"),

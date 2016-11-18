@@ -1,5 +1,6 @@
 from string import digits
 from datetime import date
+import re
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
@@ -50,6 +51,15 @@ def validate_no_digit(value):
     message = _("Digits are not allowed.")
     if any([char in digits for char in value]):
         raise ValidationError(message, code='digits')
+
+
+def validate_latin(value):
+    """Validates if the string starts with latin characters."""
+    message = _("Please provide this data in Latin characters, preferably in Esperanto. "
+                "The source language can be possibly stated in parentheses.")
+    if not re.match(r'^[\u0041-\u005A\u0061-\u007A\u00C0-\u02AF\u0300-\u036F\u1E00-\u1EFF]', value):
+        # http://kourge.net/projects/regexp-unicode-block
+        raise ValidationError(message, code='non-latin')
 
 
 def validate_not_in_future(datevalue):
