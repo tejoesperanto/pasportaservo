@@ -1,5 +1,5 @@
 {% extends 'hosting/base_form.html' %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block head_title %}
     {% if user.is_staff and profile and user.profile != profile %}
@@ -28,6 +28,15 @@
     {% else %}
         {{ block.super }}
     {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+        {{ block.super }}
+        <link rel="stylesheet" href="{% static 'popup/magnific-popup.min.css' %}">
+{% endblock %}
+{% block extra_js %}
+        {{ block.super }}
+        <script src="{% static 'popup/magnific-popup.min.js' %}"></script>
 {% endblock %}
 
 {% block enctype %}enctype='multipart/form-data'{% endblock %}

@@ -31,39 +31,47 @@ $(document).ready(function() {
 
     // Profile picture magnifier
     if (typeof $().magnificPopup !== "undefined") {
-        $('.owner-avatar img').magnificPopup({
-            type: "image",
-            key: "profile-picture",
-            closeOnContentClick: true,
-            closeBtnInside: false,
-            tLoading: (document.documentElement.lang == "eo") ? "Ŝargata ▪ ▪ ▪" : "Loading ▪ ▪ ▪",
-            tClose: (document.documentElement.lang == "eo") ? "Fermi" : "Close",
-            disableOn: function() {
-                return $(window).width() <= 540;
-            },
-            image: {
-                tError: (document.documentElement.lang == "eo") ?
-                        "Ne eblas montri la bildon. Bv provu denove." : "Cannot show the image. Please try again.",
-            },
-            zoom: {
-                enabled: true, duration: 400,
-            },
-            callbacks: {
-                open: function() {
-                    var elem = this.st.el[0].parentElement;
-                    if (elem.hasAttribute('data-content')) {
-                        elem.setAttribute('data-content-backup', elem.getAttribute('data-content'));
-                        elem.setAttribute('data-content', "");
-                    }
-                },
-                close: function() {
-                    var elem = this.st.el[0].parentElement;
-                    if (elem.hasAttribute('data-content-backup')) {
-                        elem.setAttribute('data-content', elem.getAttribute('data-content-backup'));
-                        elem.removeAttribute('data-content-backup');
-                    }
-                },
-            }
+        $('.owner-avatar img, a:has(#avatar-preview_id)').each(function() {
+            var $magnifiedElem = $(this);
+            $magnifiedElem.magnificPopup({
+                type: "image",
+                key: "profile-picture",
+                closeOnContentClick: true,
+                closeBtnInside: false,
+                tLoading: (document.documentElement.lang == "eo") ? "Ŝargata ▪ ▪ ▪" : "Loading ▪ ▪ ▪",
+                tClose: (document.documentElement.lang == "eo") ? "Fermi" : "Close",
+                disableOn: function() {
+                    if ($magnifiedElem.is('[data-mfp-always]') || $magnifiedElem.has('[data-mfp-always]').length) {
+                        return true;
+                    }  
+                    else {
+                        return $(window).width() <= 540;
+                    }  
+                }  ,
+                image: {
+                    tError: (document.documentElement.lang == "eo") ?
+                            "Ne eblas montri la bildon. Bv provu denove." : "Cannot show the image. Please try again.",
+                }  ,
+                zoom: {
+                    enabled: true, duration: 400,
+                }  ,
+                callbacks: {
+                    open: function() {
+                        var elem = this.st.el[0].parentElement;
+                        if (elem.hasAttribute('data-content')) {
+                            elem.setAttribute('data-content-backup', elem.getAttribute('data-content'));
+                            elem.setAttribute('data-content', "");
+                        }  
+                    }  ,
+                    close: function() {
+                        var elem = this.st.el[0].parentElement;
+                        if (elem.hasAttribute('data-content-backup')) {
+                            elem.setAttribute('data-content', elem.getAttribute('data-content-backup'));
+                            elem.removeAttribute('data-content-backup');
+                        }  
+                    }  ,
+                }
+            });
         });
     } // end magnifier setup
 

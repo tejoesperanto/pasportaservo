@@ -4,6 +4,7 @@ from django.utils.html import format_html
 from django.core import urlresolvers
 from django.conf import settings
 from django.core.cache import cache
+from django.db import models
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin
 
@@ -12,6 +13,7 @@ from .admin_utils import (
     ShowConfirmedMixin, ShowDeletedMixin,
     CountryMentionedOnlyFilter, ProfileHasUserFilter
 )
+from .widgets import AdminImageWithPreviewWidget
 
 
 admin.site.disable_action('delete_selected')
@@ -115,6 +117,9 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     ) + TrackingModelAdmin.fields
     raw_id_fields = ('user', 'checked_by')
     radio_fields = {'title': admin.HORIZONTAL}
+    formfield_overrides = {
+        models.ImageField: {'widget': AdminImageWithPreviewWidget},
+    }
     inlines = [PlaceInLine]
 
     def user__email(self, obj):

@@ -15,6 +15,7 @@ from phonenumber_field.formfields import PhoneNumberField
 
 from .models import Profile, Place, Phone, Condition
 from .validators import TooNearPastValidator
+from .widgets import ClearableWithPreviewImageInput
 
 
 User = get_user_model()
@@ -70,6 +71,7 @@ class ProfileForm(forms.ModelForm):
             'names_inversed': forms.RadioSelect(choices=((False, _("First, then Last")),
                                                          (True, _("Last, then First"))),
                                                 attrs={'class': 'form-control-horizontal'}),
+            'avatar': ClearableWithPreviewImageInput,
         }
 
     def __init__(self, *args, **kwargs):
