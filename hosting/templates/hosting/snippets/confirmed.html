@@ -1,17 +1,15 @@
 {% load i18n %}
     {% if object.confirmed %}
         <a href="#" class="btn btn-success disabled"
-            title="{% trans "You confirmed" %}"
-        >
+           title="{% trans "You confirmed your information" %}">
             <span class="glyphicon glyphicon-ok"></span>
         </a>
     {% else %}
         <a href="{% url 'confirm_object' model object.pk %}"
-            data-csrf="{{ csrf_token }}"
-            class="btn btn-success ajax"
-            title="{% trans "Confirm" %}"
-            data-title-success="{% trans "You confirmed" %}"
-        >
+           data-csrf="{{ csrf_token }}"
+           class="btn btn-success ajax"
+           title="{% trans "Confirm" %}"
+           data-title-success="{% trans "You confirmed your information" %}">
             <span class="glyphicon glyphicon-ok"></span>
             <span class="hidden-xs">{% trans "Confirm" %}</span>
         </a>

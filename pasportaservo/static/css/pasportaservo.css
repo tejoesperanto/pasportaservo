@@ -23,6 +23,13 @@ body, .same-as-body {
     float: right;
     margin-bottom: 1em;
 }
+.history-link {
+    margin-right: 12px;
+    padding-right: 3px;
+    margin-left: 12px;
+    padding-left: 3px;
+    font-size: 16px;
+}
 
 .alert.alert-small {
     padding: 6px 12px;
@@ -150,12 +157,10 @@ body, .same-as-body {
     outline: none;
 }
 
-.top-info {
-    /*min-height: 4em;*/
+.top-notice {
     margin-bottom: 1em;
 }
-
-.top-info p, .top-info form {
+.top-notice p, .top-notice form {
     margin-top: 1em;
     margin-bottom: 1em;
 }
@@ -232,7 +237,7 @@ header.home form.search {
 
 
 /* Search & Accommodation details */
-#page.search form.search{
+#page.search form.search {
     margin-bottom: 1em;
 }
 .place-list {

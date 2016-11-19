@@ -19,7 +19,7 @@
 
 {% block page %}
     {% if user.profile and user.profile.is_in_book and not user.profile.places_confirmed %}
-        <div class="row bg-info top-info remove-after-success">
+        <div class="row bg-info top-notice remove-after-success">
             {% if profile != user.profile %}
                 <p class="col-xs-12 text-center">
                     {% url 'profile_edit' user.profile.pk user.profile.user.username|slugify as current_user_profile %}
@@ -43,7 +43,7 @@
     {% endif %}
 
     {% if profile.is_supervisor %}
-        <div class="row bg-warning top-info">
+        <div class="row bg-warning top-notice">
             <p class="col-xs-12 text-center">
                 {% blocktrans with countries=profile.supervisor_of|join:", " trimmed %}
                     Supervisor of {{ countries }}
@@ -52,14 +52,10 @@
         </div>
     {% endif %}
 
-    {% if profile.confirmed and role > profile.VISITOR %}
-        <div class="row bg-success top-info">
+    {% if profile.confirmed and role == profile.USER %}
+        <div class="row bg-success top-notice">
             <p class="col-xs-12 text-center">
-                {% if role == profile.USER %}
-                    {% trans "You confirmed your information" %}
-                {% else %}
-                    {% trans "profile" %} {% trans "confirmed on" %} {{ profile.confirmed_on|date:"DATE_FORMAT" }}
-                {% endif %}
+                {% trans "You confirmed your information" %}
             </p>
         </div>
     {% endif %}
@@ -98,10 +94,26 @@
                         {% endif %}
                     {% endblock %}
                 </div>
+                {% if role >= profile.SUPERVISOR or user.profile.is_supervisor or user.is_staff %}
+                    {% if profile.confirmed %}
+                        {% trans "confirmed on" as confirm_title %}
+                        {% firstof "text-success" as confirm_color %}
+                    {% elif profile.confirmed_on %}
+                        {% trans "last confirmed on" as confirm_title %}
+                        {% firstof "text-warning" as confirm_color %}
+                    {% else %}
+                        {% trans "not confirmed" as confirm_title %}
+                        {% firstof "text-warning" as confirm_color %}
+                    {% endif %}
+                    <div class="edit-buttons btn history-link"
+                         title="{% trans "profile" %} {{ confirm_title }} <br> {{ profile.confirmed_on|date:"DATE_FORMAT" }}"
+                         data-toggle="tooltip" data-placement="left auto" data-html="true">
+                        <span class="glyphicon glyphicon-list {{ confirm_color }}"></span>
+                        <span class="glyphicon glyphicon-{{ profile.confirmed|yesno:"check,unchecked" }} {{ confirm_color }}"></span>
+                    </div>
+                {% endif %}
             </div>
         </div>
-
-
 
     <div class="row owner">
         <div class="col-xs-3 col-md-2">
