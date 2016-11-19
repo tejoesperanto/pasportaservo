@@ -14,7 +14,7 @@ from django_countries import countries
 from phonenumber_field.formfields import PhoneNumberField
 
 from .models import Profile, Place, Phone, Condition
-from .validators import TooNearPastValidator
+from .validators import TooNearPastValidator, client_side_validated
 from .widgets import ClearableWithPreviewImageInput
 
 
@@ -55,6 +55,7 @@ class UserRegistrationForm(UserCreationForm):
         return user
 
 
+@client_side_validated
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
@@ -73,10 +74,12 @@ class ProfileForm(forms.ModelForm):
                                                 attrs={'class': 'form-control-horizontal'}),
             'avatar': ClearableWithPreviewImageInput,
         }
+        book_required_fields = ['title', 'first_name', 'last_name']
 
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
         self.fields['names_inversed'].label = _("Names ordering")
+
         bd_field = self.fields['birth_date']
         if hasattr(self, 'instance') and (self.instance.is_hosting or self.instance.is_meeting):
             if self.instance.is_hosting:
@@ -87,10 +90,20 @@ class ProfileForm(forms.ModelForm):
                 allowed_age = settings.MEET_MIN_AGE
             message = format_lazy(message, age=allowed_age)
             bd_field.required = True
-            bd_field.error_messages['required'] = message
             bd_field.validators.append(TooNearPastValidator(settings.HOST_MIN_AGE))
             bd_field.error_messages['max_value'] = message
         bd_field.widget.attrs['placeholder'] = 'jjjj-mm-tt'
+        bd_field.widget.attrs['pattern'] = '[1-2][0-9]{3}-((0[1-9])|(1[0-2]))-((0[1-9])|([12][0-9])|(3[0-1]))'
+
+        if hasattr(self, 'instance') and self.instance.is_in_book:
+            message = _("This field is required to be printed in the book.")
+            for field in self.Meta.book_required_fields:
+                req_field = self.fields[field]
+                req_field.required = True
+                req_field.error_messages['required'] = message
+                req_field.widget.attrs['data-error-required'] = message
+
+        self.fields['avatar'].widget.attrs['accept'] = 'image/*'
 
     def clean(self):
         """Sets some fields as required if user wants his data to be printed in book."""
@@ -98,17 +111,16 @@ class ProfileForm(forms.ModelForm):
         if hasattr(self, 'instance'):
             profile = self.instance
             in_book = any([place.in_book for place in profile.owned_places.all()])
-            required_fields = ['title', 'first_name', 'last_name']
-            all_filled = all([cleaned_data[field] for field in required_fields])
+            all_filled = all([cleaned_data.get(field, False) for field in self.Meta.book_required_fields])
             message = _("You want to be in the printed edition of Pasporta Servo. "
                         "In order to have a quality product, some fields a required. "
                         "If you think there is a problem, please contact us.")
 
             if in_book and not all_filled:
-                msg = _("This field is required to be printed in the book.")
-                for field in required_fields:
-                    if not cleaned_data[field]:
-                        self.add_error(field, msg)
+                #msg = _("This field is required to be printed in the book.")
+                #for field in self.Meta.book_required_fields:
+                #    if not cleaned_data.get(field, False):
+                #        self.add_error(field, msg)
                 raise forms.ValidationError(message)
         return cleaned_data
 
@@ -294,6 +306,8 @@ class FamilyMemberForm(forms.ModelForm):
         if not self.place_has_family_members():
             self.fields['first_name'].help_text = _(
                 "Leave empty if you only want to indicate that other people are present in the house.")
+        self.fields['birth_date'].widget.attrs['pattern'] = (
+            '[1-2][0-9]{3}-((0[1-9])|(1[0-2]))-((0[1-9])|([12][0-9])|(3[0-1]))')
 
     def place_has_family_members(self):
         members = self.place.family_members

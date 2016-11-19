@@ -3,7 +3,7 @@ from datetime import date
 import re
 
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.utils.deconstruct import deconstructible
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext_lazy as _
@@ -48,18 +48,22 @@ def validate_not_too_many_caps(value):
 
 def validate_no_digit(value):
     """Validates if there is not digit in the string."""
-    message = _("Digits are not allowed.")
     if any([char in digits for char in value]):
-        raise ValidationError(message, code='digits')
+        raise ValidationError(validate_no_digit.message, code='digits')
+
+validate_no_digit.constraint = ('pattern', '[^0-9]*')
+validate_no_digit.message = _("Digits are not allowed.")
 
 
 def validate_latin(value):
     """Validates if the string starts with latin characters."""
-    message = _("Please provide this data in Latin characters, preferably in Esperanto. "
-                "The source language can be possibly stated in parentheses.")
-    if not re.match(r'^[\u0041-\u005A\u0061-\u007A\u00C0-\u02AF\u0300-\u036F\u1E00-\u1EFF]', value):
+    if not re.match('^{}$'.format(validate_latin.constraint['pattern']), value):
         # http://kourge.net/projects/regexp-unicode-block
-        raise ValidationError(message, code='non-latin')
+        raise ValidationError(validate_latin.message, code='non-latin')
+
+validate_latin.constraint = {'pattern': r'[\u0041-\u005A\u0061-\u007A\u00C0-\u02AF\u0300-\u036F\u1E00-\u1EFF].*'}
+validate_latin.message = _("Please provide this data in Latin characters, preferably in Esperanto. "
+                           "The source language can be possibly stated in parentheses.")
 
 
 def validate_not_in_future(datevalue):
@@ -110,9 +114,44 @@ def validate_image(content):
 
 def validate_size(content):
     """Validate if the size of the content in not too big."""
-    MAX_UPLOAD_SIZE = 102400  # 100kB
-    if content.file.size > MAX_UPLOAD_SIZE:
+    if content.file.size > validate_size.MAX_UPLOAD_SIZE:
         message = _("Please keep filesize under %(limit)s. Current filesize %(current)s") % {
-            'limit': filesizeformat(MAX_UPLOAD_SIZE),
+            'limit': filesizeformat(validate_size.MAX_UPLOAD_SIZE),
             'current': filesizeformat(content.file.size)}
         raise ValidationError(message, code='file-size')
+
+validate_size.MAX_UPLOAD_SIZE = 102400  # 100kB
+validate_size.constraint = ('maxlength', validate_size.MAX_UPLOAD_SIZE)
+
+
+def client_side_validated(form_class):
+    original_init = form_class.__init__
+
+    def _new_init(self, *args, **kwargs):
+        original_init(self, *args, **kwargs)
+        for field in self._meta.model._meta.fields:
+            for validator in field.validators:
+                if hasattr(validator, 'constraint'):
+                    constraint = getattr(validator, 'constraint', ())
+                    if isinstance(constraint, dict):
+                        try:
+                            if len(constraint) != 1:
+                                raise ImproperlyConfigured
+                            constraint = dict(constraint).popitem()
+                        except Exception as e:
+                            pass
+                    if len(constraint) != 2:
+                        raise ImproperlyConfigured(
+                            "Client-side constraint for '%s' validator on %s field "
+                            "must consist of name and value only." % (
+                            getattr(validator, '__name__', None) or getattr(type(validator), '__name__', None),
+                            field
+                        ))
+                    self.fields[field.name].widget.attrs[constraint[0]] = constraint[1]
+                    if hasattr(validator, 'message'):
+                        msg_attr = 'data-error-{0}'.format(constraint[0])
+                        self.fields[field.name].widget.attrs[msg_attr] = getattr(validator, 'message', "")
+
+    form_class.__init__ = _new_init
+    return form_class
+
