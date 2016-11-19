@@ -212,7 +212,10 @@
                 {% endif %}
                 {% if user.profile == place.owner or user.is_staff %}
                     <span class="btn-group btn-vert-space">
-                        <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% trans "Update" %}">
+                        {% if user.profile == place.owner %}
+                            {% trans "my " as kin %}
+                        {% endif %}
+                        <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% blocktrans %}Update {{ kin }}place{% endblocktrans %}">
                             <span class="glyphicon glyphicon-pencil"></span> 
                             <span class="">{% trans "Update" %}</span>
                         </a>

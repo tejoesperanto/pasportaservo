@@ -6,7 +6,7 @@
               title="{% if object.checked_by %}
                         {% trans "approved by"|capfirst %}
                         {% if object.checked_by.profile %}
-                            <a href='{{ object.checked_by.profile.get_absolute_url }}'>{{ object.checked_by.profile }}</a>
+                            <a href='{{ object.checked_by.profile.get_absolute_url }}'>{{ object.checked_by.profile.name }}</a>
                         {% else %}
                             {% trans "user" %} «{{ object.checked_by }}»
                         {% endif %}

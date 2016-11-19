@@ -253,11 +253,11 @@ $(function() {
 
     /* form submit/cancel keyboard shortcut key implementation */
     if ($('#id_form_submit, #id_form_cancel').is(function() { return $(this).data('kbdshortcut') })) {
-        shortcutY = ($('#id_form_submit').data('kbdshortcut') || '\0').charAt(0).toLowerCase();
-        shortcutN = ($('#id_form_cancel').data('kbdshortcut') || '\0').charAt(0).toLowerCase();
+        var shortcutY = ($('#id_form_submit').data('kbdshortcut') || '\0').charAt(0).toLowerCase();
+        var shortcutN = ($('#id_form_cancel').data('kbdshortcut') || '\0').charAt(0).toLowerCase();
         $(window).bind("keydown", function(event) {
             if ((event.ctrlKey && !event.altKey) || event.metaKey) {
-                pressedKey = String.fromCharCode(event.which).toLowerCase()
+                var pressedKey = String.fromCharCode(event.which).toLowerCase()
                 if (pressedKey === shortcutY) {
                     event.preventDefault();
                     $('#id_form_submit').click();

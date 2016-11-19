@@ -433,7 +433,7 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
     def dispatch(self, request, *args, **kwargs):
         self.place = get_object_or_404(Place,
                                        pk=self.kwargs['pk'],
-                                       owner=self.request.user.profile)
+                                       owner__user_id=self.request.user.pk)
         return super(AuthorizeUserView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -444,9 +444,9 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
             context['back_to'] = m.group(1).lower()
         def order_by_name(user):
             try:
-                return user.profile.full_name
+                return (" ".join((user.profile.first_name, user.profile.last_name)).strip() or user.username).lower()
             except Profile.DoesNotExist:
-                return user.username
+                return user.username.lower()
         context['authorized_set'] = [(user, AuthorizedOnceUserForm(initial={'user': user.pk}, auto_id=False))
                                      for user
                                      in sorted(self.place.authorized_users.all(), key=order_by_name)]

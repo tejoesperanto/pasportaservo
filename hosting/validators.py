@@ -7,26 +7,31 @@ from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.utils.deconstruct import deconstructible
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext_lazy as _
+try:
+    from django.utils.text import format_lazy  # coming in Django 1.11
+except ImportError:
+    from django.utils.functional import keep_lazy_text
+    format_lazy = keep_lazy_text(lambda s, *args, **kwargs: s.format(*args, **kwargs))
 
 from .utils import split, title_with_particule
 
 
 def validate_not_all_caps(value):
-    """Tries to figure out whether value is all caps and shouldn't.
+    """Tries to figure out whether the value is all caps while it shouldn't be.
     Validates until 3 characters and non latin strings.
     """
     if len(value) > 3 and value[-1:].isupper() and value == value.upper():
-        message = _("Today is not CapsLock day. Please try with '%(correct_value)s'.")
-        raise ValidationError(message % {'correct_value': title_with_particule(value)}, code='caps')
+        message = _("Today is not CapsLock day. Please try with '{correct_value}'.")
+        raise ValidationError(format_lazy(message, correct_value=title_with_particule(value)), code='caps')
 
 
 def validate_not_too_many_caps(value):
-    """Tries to figure out whether value has too much caps.
-    Maximum two capital per word.
+    """Tries to figure out whether the value has too many capitals.
+    Maximum two capitals per word.
     """
     authorized_begining = ("a", "de", "la", "mac", "mc")
-    message = _("It seems there are too many uppercase letters. Try with '%(correct_value)s'.")
-    message = message % {'correct_value': title_with_particule(value)}
+    message = _("It seems there are too many uppercase letters. Please try with '{correct_value}'.")
+    message = format_lazy(message, correct_value=title_with_particule(value))
 
     words = split(value)
     nb_word = len(words)
@@ -47,7 +52,7 @@ def validate_not_too_many_caps(value):
 
 
 def validate_no_digit(value):
-    """Validates if there is not digit in the string."""
+    """Validates if there is not a digit in the string."""
     if any([char in digits for char in value]):
         raise ValidationError(validate_no_digit.message, code='digits')
 
@@ -115,9 +120,9 @@ def validate_image(content):
 def validate_size(content):
     """Validate if the size of the content in not too big."""
     if content.file.size > validate_size.MAX_UPLOAD_SIZE:
-        message = _("Please keep filesize under %(limit)s. Current filesize %(current)s") % {
-            'limit': filesizeformat(validate_size.MAX_UPLOAD_SIZE),
-            'current': filesizeformat(content.file.size)}
+        message = format_lazy(_("Please keep filesize under {limit}. Current filesize {current}"),
+            limit=filesizeformat(validate_size.MAX_UPLOAD_SIZE),
+            current=filesizeformat(content.file.size))
         raise ValidationError(message, code='file-size')
 
 validate_size.MAX_UPLOAD_SIZE = 102400  # 100kB
@@ -130,6 +135,8 @@ def client_side_validated(form_class):
     def _new_init(self, *args, **kwargs):
         original_init(self, *args, **kwargs)
         for field in self._meta.model._meta.fields:
+            if field.name not in self._meta.fields:
+                continue
             for validator in field.validators:
                 if hasattr(validator, 'constraint'):
                     constraint = getattr(validator, 'constraint', ())

@@ -7,11 +7,11 @@ from django.utils.html import format_html
 from django.utils.text import slugify
 from django.db import models, transaction
 from django.conf import settings
-from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
 
+from django.contrib.auth.models import Group
 from django_extensions.db.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
 from django_countries.fields import CountryField, Country
@@ -195,7 +195,8 @@ class Profile(TrackingModel, TimeStampedModel):
         """Compare intersection between responsibilities and given countries."""
         if all([profile, countries]) or not any([profile, countries]):
             raise ImproperlyConfigured(
-                _("Profile.is_supervisor_of() needs either a profile or a list of countries."))
+                "Profile.is_supervisor_of() needs either a profile or a list of countries."
+            )
         countries = countries if countries else []
         if not countries:
             countries = profile.owned_places.filter(available=True, deleted=False).values_list('country', flat=True)
@@ -222,21 +223,21 @@ class Profile(TrackingModel, TimeStampedModel):
     def __repr__(self):
         return "<{} #{}: {}>".format(self.__class__.__name__, self.id, self.__str__())
 
-    def repr(self):
+    def rawdisplay(self):
         return "{} ({})".format(self.__str__(), getattr(self.birth_date, 'year', "?"))
 
-    def display_phones(self):
-        return ", ".join(phone.display() for phone in self.phones.all())
+    def rawdisplay_phones(self):
+        return ", ".join(phone.rawdisplay() for phone in self.phones.all())
 
     def get_absolute_url(self):
         return reverse('profile_detail', kwargs={
             'pk': self.pk,
-            'slug': getattr(self, 'slug', self.autoslug)})
+            'slug': getattr(self, 'slug', self.autoslug) })
 
     def get_edit_url(self):
         return reverse('profile_edit', kwargs={
             'pk': self.pk,
-            'slug': getattr(self, 'slug', self.autoslug)})
+            'slug': getattr(self, 'slug', self.autoslug) })
 
     def get_admin_url(self):
         return reverse('admin:hosting_profile_change', args=(self.id,))
@@ -362,11 +363,11 @@ class Place(TrackingModel, TimeStampedModel):
     def __repr__(self):
         return "<{} #{}: {}>".format(self.__class__.__name__, self.id, self.__str__())
 
-    def display_family_members(self):
+    def rawdisplay_family_members(self):
         family_members = self.family_members.exclude(pk=self.owner.pk).order_by('birth_date')
-        return ", ".join(fm.repr() for fm in family_members)
+        return ", ".join(fm.rawdisplay() for fm in family_members)
 
-    def display_conditions(self):
+    def rawdisplay_conditions(self):
         return ", ".join(c.__str__() for c in self.conditions.all())
 
 
@@ -417,9 +418,9 @@ class Phone(TrackingModel, TimeStampedModel):
                                          "("+self.type+") " if self.type else "", self.__str__(),
                                          self.profile.id)
 
-    def display(self):
-        t = self.type or '(?)'
-        return t + ': ' + self.number.as_international
+    def rawdisplay(self):
+        t = self.type or "(?)"
+        return t + ": " + self.number.as_international
 
 
 class Website(TrackingModel, TimeStampedModel):

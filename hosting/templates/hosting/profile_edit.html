@@ -40,7 +40,7 @@
         <span class="glyphicon glyphicon-pencil"></span>
         <span class="hidden-xxs">{% trans "Update" %}</span>
     </a>
-    <a href="{% url 'place_delete' place.pk %}" class="btn btn-danger" title="{% trans "Delete" %}">
+    <a href="{% url 'place_delete' place.pk %}" class="btn btn-danger" title="{% blocktrans with kin=_("this ") %}Remove {{ kin }}place{% endblocktrans %}">
         <span class="glyphicon glyphicon-trash"></span>
     </a>
     {% if profile == user.profile %}
@@ -63,7 +63,7 @@
         {% if member != profile and not member.user %}
             <a href="{% url 'family_member_update' place.pk member.pk %}?next={{ request.get_full_path|urlencode }}"
                class="btn btn-success"
-               title="{% trans "Update" %}">
+               title="{% trans "Update a family member" %}">
                 <span class="glyphicon glyphicon-pencil"></span>
                 <span class="hidden-xs">{% trans "Update" %}</span>
             </a>
@@ -71,7 +71,7 @@
 
         <a href="{% url 'family_member_remove' place.pk member.pk %}"
            class="btn btn-danger"
-           title="{% trans "Delete" %}">
+           title="{% trans "Remove a family member" %}">
             <span class="glyphicon glyphicon-trash"></span>
         </a>
     </div>
@@ -80,7 +80,7 @@
 {% block family_member_add_buttons %}
     <div class="row">
         <div class="col-xs-12">
-            <a class="btn btn-info" href="{% url 'family_member_create' place.pk %}">
+            <a class="btn btn-info" href="{% url 'family_member_create' place.pk %}?next={{ request.get_full_path|urlencode }}">
                 <span class="glyphicon glyphicon-user"></span>
                 <strong>{% trans "Add a family member" %}</strong>
             </a>
@@ -98,7 +98,7 @@
         </a>
         <a href="{% url 'phone_delete' phone.number.as_e164|cut:"+"|cut:" " %}"
            class="btn btn-danger"
-           title="{% trans "Delete" %}">
+           title="{% trans "Remove a phone number" %}">
             <span class="glyphicon glyphicon-trash"></span>
         </a>
     </div>

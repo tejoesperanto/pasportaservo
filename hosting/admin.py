@@ -120,7 +120,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     formfield_overrides = {
         models.ImageField: {'widget': AdminImageWithPreviewWidget},
     }
-    inlines = [PlaceInLine]
+    inlines = [PlaceInLine,] #PhoneInLine] # https://code.djangoproject.com/ticket/26819
 
     def user__email(self, obj):
         try:

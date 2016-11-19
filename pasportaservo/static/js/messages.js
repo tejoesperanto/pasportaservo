@@ -13,16 +13,22 @@ $(document).ready(function() {
     // Close sticky message
     if (window.localStorage) {
         // Save sticky message class into localStorage when closing
-        $('.message .close').click(function(e) {
-            var stickyClass = $(this).parents('.message').attr('class').match(/sticky[\w-]*/).pop();
-            localStorage.setItem(stickyClass, "hide");
+        $('.message .close').click(function() {
+            var messageClasses = $(this).parents('.message').attr('class').match(/sticky[\w-]*/);
+            if (messageClasses) {
+                var stickyClass = messageClasses.pop();
+                localStorage.setItem(stickyClass, "hide");
+            }
         });
 
         // Remove sticky message if it has been already closed and saved in localStorage
-        $('.message').each(function(i, el) {
-            var stickyClass = $(el).attr('class').match(/sticky[\w-]*/).pop();
-            if (localStorage.getItem(stickyClass)) {
-                $('.'+stickyClass).remove();
+        $('.message').each(function() {
+            var messageClasses = $(this).attr('class').match(/sticky[\w-]*/);
+            if (messageClasses) {
+                var stickyClass = messageClasses.pop();
+                if (localStorage.getItem(stickyClass)) {
+                    $('.'+stickyClass).remove();
+                }
             }
         });
     }

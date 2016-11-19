@@ -55,17 +55,26 @@
     {% if profile.confirmed and role > profile.VISITOR %}
         <div class="row bg-success top-info">
             <p class="col-xs-12 text-center">
-                {% trans "You confirmed your information" %}
+                {% if role == profile.USER %}
+                    {% trans "You confirmed your information" %}
+                {% else %}
+                    {% trans "profile" %} {% trans "confirmed on" %} {{ profile.confirmed_on|date:"DATE_FORMAT" }}
+                {% endif %}
             </p>
         </div>
     {% endif %}
 
         <div class="row">
             <div class="col-xs-12 col-md-5">
-                {% if profile.deleted and user.is_staff %}
+                {% if profile.deleted %}
+                {% if profile == user.profile or role >= profile.SUPERVISOR %}
                     <div class="alert alert-small alert-danger">
-                        <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp; {% trans "Deleted profile" %}
+                        <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;
+                        {% trans "Deleted profile" as delete_notice %}
+                        {% if profile == user.profile %}{% trans "Your profile is deleted and does not appear in search results." as delete_notice %}{% endif %}
+                        {{ delete_notice }}
                     </div>
+                {% endif %}
                 {% endif %}
             </div>
             <div class="col-xs-12 col-md-7">
@@ -78,7 +87,7 @@
                             </a>
                         {% endif %}
                         {% if profile == user.profile or role >= profile.SUPERVISOR %}
-                            {% if role == "admin" %}{% trans "Update user's details" as update_title %}{% endif %}
+                            {% trans "Update user's details" as update_title %}
                             {% if profile == user.profile %}{% trans "Update my details" as update_title %}{% endif %}
                             <a href="{% url 'profile_edit' profile.pk profile.user.username|slugify %}"
                                class="btn btn-success"
@@ -103,11 +112,13 @@
         <div class="col-xs-9 col-md-10">
             <h1><small>{{ profile.get_title_display }}</small> {{ profile.get_fullname_display }}</h1>
         </div>
-        {% if profile.birth_date %}
+        {% if profile.birth_date or role >= profile.SUPERVISOR %}
             <div class="col-xs-8 col-sm-9">
                 <p>
-                    {% blocktrans with age=profile.age %}{{ age }} y.o.{% endblocktrans %}
-                    &nbsp;
+                    {% if profile.birth_date %}
+                        {% blocktrans with age=profile.age %}{{ age }} y.o.{% endblocktrans %}
+                        &nbsp;
+                    {% endif %}
                     {% include 'hosting/snippets/checked.html' with object=profile %}
                 </p>
             </div>
@@ -140,7 +151,7 @@
     {% endif %}
     {% for place in places %}
         <ul class="list-group">
-            <li class="list-group-item {% if user.is_staff and place.checked %}text-success{% endif %}">
+            <li class="list-group-item {% if role >= profile.SUPERVISOR and place.checked %}text-success{% endif %}">
                 <div class="btn-group pull-right">
                     {% block place_edit_buttons %}{% endblock %}
                     <a href="{% url 'place_detail' place.pk %}" class="btn btn-primary" title="{% trans "View details of this place" %}">
@@ -225,7 +236,7 @@
                     </div>
                 {% else %}
                     <div>
-                        {% if user.is_staff %}
+                        {% if role >= profile.SUPERVISOR %}
                             <p>{% include 'hosting/snippets/checked.html' with object=place %}</p>
                         {% endif %}
                         <h3>{{ place.address.strip }}</h3>

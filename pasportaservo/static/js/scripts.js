@@ -14,14 +14,14 @@ $(document).ready(function() {
 
     // Image links with custom highlighting
     +function() {
-        set_highlight = function() {
-            src = $(this).children('img').attr('src');
+        var set_highlight = function() {
+            var src = $(this).children('img').attr('src');
             if (src.match(/-hl\.[a-z]+$/))
                 return;
             $(this).children('img').attr('src', src.replace(/\.([a-z]+)$/, "-hl.$1"));
         };
-        del_highlight = function() {
-            src = $(this).children('img').attr('src');
+        var del_highlight = function() {
+            var src = $(this).children('img').attr('src');
             $(this).children('img').attr('src', src.replace(/-hl\.([a-z]+)$/, ".$1"));
         };
         $('.highlight-custom').hover(set_highlight, del_highlight);
@@ -43,33 +43,33 @@ $(document).ready(function() {
                 disableOn: function() {
                     if ($magnifiedElem.is('[data-mfp-always]') || $magnifiedElem.has('[data-mfp-always]').length) {
                         return true;
-                    }  
+                    }
                     else {
                         return $(window).width() <= 540;
-                    }  
-                }  ,
+                    }
+                },
                 image: {
                     tError: (document.documentElement.lang == "eo") ?
                             "Ne eblas montri la bildon. Bv provu denove." : "Cannot show the image. Please try again.",
-                }  ,
+                },
                 zoom: {
                     enabled: true, duration: 400,
-                }  ,
+                },
                 callbacks: {
                     open: function() {
                         var elem = this.st.el[0].parentElement;
                         if (elem.hasAttribute('data-content')) {
                             elem.setAttribute('data-content-backup', elem.getAttribute('data-content'));
                             elem.setAttribute('data-content', "");
-                        }  
-                    }  ,
+                        }
+                    },
                     close: function() {
                         var elem = this.st.el[0].parentElement;
                         if (elem.hasAttribute('data-content-backup')) {
                             elem.setAttribute('data-content', elem.getAttribute('data-content-backup'));
                             elem.removeAttribute('data-content-backup');
-                        }  
-                    }  ,
+                        }
+                    },
                 }
             });
         });
@@ -93,12 +93,12 @@ $(document).ready(function() {
 
 // Host preferences popover
 function displayAnchorsNotification() {
-    blockSmallDescription = $('.description-small');
+    var blockSmallDescription = $('.description-small');
     $('html, body').animate({ scrollTop: blockSmallDescription.offset().top - 10 }, 500);
     
-    origin = $('.anchor-notify');
+    var origin = $('.anchor-notify');
     origin.popover("show");
-    notify = origin.next('.popover');
+    var notify = origin.next('.popover');
     origin.filter('.status').next('.popover').addClass('hidden-xs hidden-sm');
     
     notify.animate({ opacity: 0.95 }, 600);

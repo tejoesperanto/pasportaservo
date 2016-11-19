@@ -34,7 +34,13 @@
                     <img src="{{ auth_user.profile.avatar_url }}" height="30">&nbsp;
                     <span class="authorized-user">
                         <a href="{{ auth_user.profile.get_absolute_url }}">
+                            {% if auth_user.profile.deleted %}
+                                <del datetime="{{ auth_user.profile.modified|date:"Y-m-d" }}" title="{% trans "Deleted profile" %}">
+                            {% endif %}
                                 {{ auth_user.profile.get_fullname_display }}
+                            {% if auth_user.profile.deleted %}
+                                </del>
+                            {% endif %}
                         </a>
                     </span>
                     {% csrf_token %}

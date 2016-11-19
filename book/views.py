@@ -95,9 +95,9 @@ class ContactExport(StaffMixin, generic.ListView):
         from_owner = self.build_row(place.owner, self.owner_fields)
         from_place = self.build_row(place, self.place_fields)
         others = [
-            place.owner.display_phones(),
-            place.display_family_members(),
-            place.display_conditions(),
+            place.owner.rawdisplay_phones(),
+            place.rawdisplay_family_members(),
+            place.rawdisplay_conditions(),
             self.get_url(place, 'update'),
             self.get_url(place, 'confirm'),
         ]

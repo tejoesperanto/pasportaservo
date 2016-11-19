@@ -78,6 +78,8 @@ class ProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
+        self.fields['first_name'].widget.attrs['inputmode'] = 'latin-name'
+        self.fields['last_name'].widget.attrs['inputmode'] = 'latin-name'
         self.fields['names_inversed'].label = _("Names ordering")
 
         bd_field = self.fields['birth_date']
@@ -106,11 +108,11 @@ class ProfileForm(forms.ModelForm):
         self.fields['avatar'].widget.attrs['accept'] = 'image/*'
 
     def clean(self):
-        """Sets some fields as required if user wants his data to be printed in book."""
+        """Sets some fields as required if user wants their data to be printed in book."""
         cleaned_data = super(ProfileForm, self).clean()
         if hasattr(self, 'instance'):
             profile = self.instance
-            in_book = any([place.in_book for place in profile.owned_places.all()])
+            in_book = profile.is_in_book
             all_filled = all([cleaned_data.get(field, False) for field in self.Meta.book_required_fields])
             message = _("You want to be in the printed edition of Pasporta Servo. "
                         "In order to have a quality product, some fields a required. "
@@ -192,7 +194,7 @@ class PlaceForm(forms.ModelForm):
                     message = _("The minimum age to be allowed meeting with visitors is {age:d}.")
                 raise forms.ValidationError(format_lazy(message, age=allowed_age))
         
-        # Sets some fields as required if user wants his data to be printed in book.
+        # Sets some fields as required if user wants their data to be printed in book.
         required_fields = ['address', 'city', 'postcode', 'country',
             'short_description', 'available', 'latitude', 'longitude']
         all_filled = all([cleaned_data.get(field, False) for field in required_fields])
@@ -224,6 +226,7 @@ class PlaceCreateForm(PlaceForm):
         return place
 
 
+@client_side_validated
 class PhoneForm(forms.ModelForm):
     class Meta:
         model = Phone
@@ -269,6 +272,7 @@ class AuthorizeUserForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(AuthorizeUserForm, self).__init__(*args, **kwargs)
         self.fields['user'].widget.attrs['placeholder'] = _("username")
+        self.fields['user'].widget.attrs['inputmode'] = 'verbatim'
 
     def clean(self):
         cleaned_data = super(AuthorizeUserForm, self).clean()
@@ -292,6 +296,7 @@ class AuthorizedOnceUserForm(AuthorizeUserForm):
         self.fields['remove'].initial = True
 
 
+@client_side_validated
 class FamilyMemberForm(forms.ModelForm):
     class Meta:
         model = Profile
@@ -303,11 +308,14 @@ class FamilyMemberForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.place = kwargs.pop('place')
         super(FamilyMemberForm, self).__init__(*args, **kwargs)
+        self.fields['first_name'].widget.attrs['inputmode'] = 'latin-name'
+        self.fields['last_name'].widget.attrs['inputmode'] = 'latin-name'
         if not self.place_has_family_members():
             self.fields['first_name'].help_text = _(
                 "Leave empty if you only want to indicate that other people are present in the house.")
         self.fields['birth_date'].widget.attrs['pattern'] = (
             '[1-2][0-9]{3}-((0[1-9])|(1[0-2]))-((0[1-9])|([12][0-9])|(3[0-1]))')
+        self.fields['birth_date'].widget.attrs['placeholder'] = 'jjjj-mm-tt'
 
     def place_has_family_members(self):
         members = self.place.family_members
