@@ -4,7 +4,10 @@ from django.utils.html import conditional_escape
 
 
 class ClearableWithPreviewImageInput(form_widgets.ClearableFileInput):
-    preview_template = '<img %(id)s src="%(url)s" data-mfp-always height="42" style="margin: .1em 1em .1em .1em">'
+    preview_template = (
+        '<img %(id)s src="%(url)s" data-mfp-always height="42" style="margin: .1em 1em .1em .1em">'
+        '<br class="visible-xxs-inline" />'
+    )
 
     def render(self, name, value, attrs=None):
         self.field_name = name
