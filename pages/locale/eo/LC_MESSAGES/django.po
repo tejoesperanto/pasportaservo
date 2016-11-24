@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo pages\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-09 14:18+0100\n"
-"PO-Revision-Date: 2016-11-09 14:19+0100\n"
+"POT-Creation-Date: 2016-11-24 02:26+0100\n"
+"PO-Revision-Date: 2016-11-24 02:27+0100\n"
 "Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
 "Language-Team: EO <info@pasportaservo.org>\n"
 "Language: eo\n"
@@ -15,34 +15,38 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.8\n"
+"X-Generator: Poedit 1.8.11\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: templates/pages/supervisors.html:4 templates/pages/supervisors.html:10
-#: templates/pages/supervisors.html:33
+#: templates/pages/supervisors.html:5 templates/pages/supervisors.html:11
+#: templates/pages/supervisors.html:34
 msgid "Supervisors"
 msgstr "Landaj Organizantoj"
 
-#: templates/pages/supervisors.html:31
+#: templates/pages/supervisors.html:32
 msgid "code"
 msgstr "kodo"
 
-#: templates/pages/supervisors.html:32
+#: templates/pages/supervisors.html:33
 msgid "country"
 msgstr "lando"
 
-#: urls.py:7
+#: urls.py:8
 msgid "^about/$"
 msgstr "^pri-ni/$"
 
-#: urls.py:8
+#: urls.py:9
 msgid "^terms-and-conditions/$"
 msgstr "^kond/$"
-
-#: urls.py:9
-msgid "^supervisors/$"
-msgstr "^landaj-organizantoj/$"
 
 #: urls.py:10
 msgid "^faq/$"
 msgstr "^oftaj-demandoj/$"
+
+#: urls.py:11
+msgid "^lo/$"
+msgstr "^lo/$"
+
+#: urls.py:12
+msgid "^supervisors/$"
+msgstr "^landaj-organizantoj/$"
