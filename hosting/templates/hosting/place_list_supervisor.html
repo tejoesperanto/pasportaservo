@@ -77,6 +77,7 @@
 
 <div class="callout {% if place.checked %}callout-success{% endif %} {% if not place.confirmed %}callout-warning{% endif %}">
     <div class="pull-right">
+        <div class="btn-group-vertical" role="group">
         {% if place.checked %}
             <button disabled="disabled" type="button" id="place-{{ place.pk }}" data-loading-text="Loading..." class="btn btn-success" autocomplete="off">
             {% trans "checked"|capfirst %}
@@ -86,10 +87,16 @@
             {% trans "not checked"|capfirst %}
         </button>
         {% endif %}
+        
+        <a class="btn btn-success" href="{% url 'place_update' place.pk %}" target="_blank">
+            <span class="glyphicon glyphicon-pencil"></span>
+            {% trans "Update" %}
+        </a>
+        </div>
     </div>
 
     <address>
-        <a href="{{ place.profile.get_edit_url }}">
+        <a href="{{ place.profile.get_edit_url }}" target="_blank">
             <h4 class="name">
                 <small>{{ place.profile.get_title_display }}</small>
                 {{ place.profile.get_fullname_display }}
