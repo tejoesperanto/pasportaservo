@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.utils.translation import ugettext_lazy as _
 
 from .models import Profile, Place, Phone
 from .models import ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR
@@ -25,7 +26,20 @@ def get_role(request, profile):
 
 class StaffMixin(UserPassesTestMixin):
     def test_func(self):
-        return lambda: self.request.user.is_staff
+        return self.request.user.is_staff
+
+
+class SupervisorMixin(UserPassesTestMixin):
+    raise_exception = True
+    permission_denied_message = _("Only the supervisors of this country can see this page")
+
+    def test_func(self):
+        if self.request.user.is_staff:
+            return True
+        try:
+            return self.request.user.profile.is_supervisor_of(countries=[self.country])
+        except Profile.DoesNotExist:
+            return False
 
 
 class ProfileMixin(object):

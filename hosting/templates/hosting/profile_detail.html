@@ -88,8 +88,7 @@
                             <a href="{% url 'profile_edit' profile.pk profile.user.username|slugify %}"
                                class="btn btn-success"
                                title="{{ update_title }}">
-                                <span class="glyphicon glyphicon-pencil"></span>
-                                <span class="hidden-xxs">{% trans "Update" %}</span>
+                                <span class="glyphicon glyphicon-pencil"></span> {% trans "Update" %}
                             </a>
                         {% endif %}
                     {% endblock %}

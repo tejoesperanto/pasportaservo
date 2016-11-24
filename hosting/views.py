@@ -3,7 +3,7 @@ from datetime import datetime
 from markdown2 import markdown
 import geopy
 
-from django.db.models import Q
+from django.db.models import BooleanField, Q, Case, When
 from django.views import generic
 from django.conf import settings
 from django.http import HttpResponseRedirect, Http404, JsonResponse
@@ -13,6 +13,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import get_user_model, authenticate, login
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.template.loader import render_to_string, get_template
 from django.template import Context
 from django.core.mail import EmailMultiAlternatives
@@ -24,15 +25,17 @@ from django.utils.http import urlquote_plus
 from django.utils.encoding import uri_to_iri
 
 from rest_framework import viewsets
-from braces.views import (AnonymousRequiredMixin, LoginRequiredMixin,
+from braces.views import (AnonymousRequiredMixin,
     SuperuserRequiredMixin, UserPassesTestMixin, FormInvalidMessageMixin)
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
+from django_countries.fields import Country
 
 from .models import Profile, Place, Phone
 from .serializers import ProfileSerializer, PlaceSerializer, UserSerializer
 from .mixins import (
     ProfileMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
-    FamilyMemberMixin, FamilyMemberAuthMixin, CreateMixin, DeleteMixin
+    FamilyMemberMixin, FamilyMemberAuthMixin, 
+    SupervisorMixin, CreateMixin, DeleteMixin,
 )
 from .forms import (
     UserRegistrationForm, AuthorizeUserForm, AuthorizedOnceUserForm,
@@ -357,15 +360,35 @@ class PlaceListView(generic.ListView):
 place_list = PlaceListView.as_view()
 
 
-class CountryPlaceListView(PlaceListView):
+class CountryPlaceListView(LoginRequiredMixin, SupervisorMixin, PlaceListView):
+    template_name = "hosting/place_list_supervisor.html"
+
     def dispatch(self, request, *args, **kwargs):
         self.country_code = self.kwargs['country_code']
+        self.country = Country(self.country_code)
+        self.in_book = {'0': False, '1': True, None: True}[kwargs['in_book']]
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        qs = self.model.available_objects.filter(country=self.country_code)
-        return qs.select_related('owner__user').order_by('country', 'city')
+        self.base_qs = self.model.available_objects.filter(country=self.country_code)
+        qs = self.base_qs.filter(in_book=self.in_book)
+        qs = qs.annotate(confirmed_bool=Case(
+            When(confirmed_on__isnull=True, then=False),
+            default=True,
+            output_field=BooleanField()
+        ))
+        return qs.prefetch_related('owner__user', 'owner__phones').order_by('confirmed_bool', 'checked', 'owner__last_name')
+        
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['in_book_count'] = self.base_qs.filter(in_book=True).count()
+        context['not_in_book_count'] = self.base_qs.filter(in_book=False).count()
+        context['place_count'] = self.base_qs.filter(in_book=self.in_book).count()
+        context['checked_count'] = self.base_qs.filter(in_book=self.in_book, checked=True).count()
+        context['confirmed_count'] = self.base_qs.filter(in_book=self.in_book, confirmed_on__isnull=False).count()
+        context['not_confirmed_count'] = context['place_count'] - context['confirmed_count']
+        return context
 country_place_list = CountryPlaceListView.as_view()
 
 

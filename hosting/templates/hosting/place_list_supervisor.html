@@ -1,0 +1,143 @@
+{% extends 'hosting/base.html' %}
+{% load i18n static %}
+
+{% block head_title %}{{ view.country.name }}{% endblock %}
+
+{% block page_class %} search{% endblock %}
+
+{% block page %}
+    {% blocktrans count counter=checked_count asvar checked trimmed %}
+        checked{% plural %}checked
+    {% endblocktrans %}
+
+    {% blocktrans count counter=confirmed_count asvar confirmed trimmed %}
+        confirmed{% plural %}confirmed
+    {% endblocktrans %}
+
+    {% blocktrans count counter=not_confirmed_count asvar not_confirmed trimmed %}
+        not confirmed{% plural %}not confirmed
+    {% endblocktrans %}
+
+    {% if place_count %}
+        <div class="container">
+            {% widthratio checked_count place_count 100 as checked_progress %}
+            {% widthratio confirmed_count place_count 100 as confirmed_progress %}
+            <div class="progress" title="{{ checked }}" data-toggle="tooltip">
+                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ checked_progress }}" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em; width: {{ checked_progress }}%">
+                    {{ checked_count }}
+                </div>
+            </div>
+            <div class="progress" title="{{ confirmed }}" data-toggle="tooltip">
+                <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="{{ confirmed_progress }}" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em; width: {{ confirmed_progress }}%">
+                    {{ confirmed_count }}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+<h1 class="text-center">{{ view.country.name }}</h1>
+
+    <ul class="col nav nav-pills" role="tablist">
+        <li role="presentation" class="{% if view.in_book %}active{% endif %} navbar-right">
+            <a href="{% url 'country_place_list' country_code=view.country in_book=1 %}">
+                <span class="badge">{{ in_book_count }}</span>
+                {% trans "In the book" %}
+            </a>
+        </li>
+        <li role="presentation" class="{% if not view.in_book %}active{% endif %} navbar-right">
+            <a href="{% url 'country_place_list' country_code=view.country in_book=0 %}">
+                <span class="badge">{{ not_in_book_count }}</span>
+                {% trans "Not in the book" %}
+            </a>
+        </li>
+        <li role="presentation" class="{% if not view.in_book %}active{% endif %}">
+            <a href="#{% trans "not confirmed"|slugify %}">
+                <span class="badge">{{ not_confirmed_count }}</span>
+                {{ not_confirmed|capfirst }}  <span class="caret"></span>
+            </a>
+        </li>
+    </ul>
+    <br>
+
+    {% regroup place_list by confirmed as confirmed_list %}
+    {% for confirmed_state in confirmed_list %}
+        <div>
+            {% if confirmed_state.grouper %}
+                <h3 id="{% trans "confirmed"|slugify %}" class="text-center text-info">
+                    {{ confirmed|capfirst }}
+                    <small>{{ confirmed_state.list|length }}</small>
+                </h3>
+            {% else %}
+                <h3 id="{% trans "not confirmed"|slugify %}" class="text-center text-warning">
+                    {{ not_confirmed|capfirst }}
+                    <small>{{ confirmed_state.list|length }}</small>
+                </h3>
+            {% endif %}
+            {% for place in confirmed_state.list %}
+
+<div class="callout {% if place.checked %}callout-success{% endif %} {% if not place.confirmed %}callout-warning{% endif %}">
+    <div class="pull-right">
+        {% if place.checked %}
+            <button disabled="disabled" type="button" id="place-{{ place.pk }}" data-loading-text="Loading..." class="btn btn-success" autocomplete="off">
+            {% trans "checked"|capfirst %}
+        </button>
+        {% else %}
+            <button disabled="disabled" type="button" id="place-{{ place.pk }}" data-loading-text="Loading..." class="btn btn-warning" autocomplete="off">
+            {% trans "not checked"|capfirst %}
+        </button>
+        {% endif %}
+    </div>
+
+    <address>
+        <a href="{{ place.profile.get_edit_url }}">
+            <h4 class="name">
+                <small>{{ place.profile.get_title_display }}</small>
+                {{ place.profile.get_fullname_display }}
+                <small>{{ place.profile.birth_date|date:"Y-m-d" }} ({{ place.profile.age }})</small>
+            </h4>
+        </a>
+        <div class="address">
+            {{ place.address }}<br>
+            {{ place.postcode}} | <strong>{{ place.city }}</strong><br>
+            {{ place.state_province }}
+        </div>
+        <div class="short-description">
+            {% with desc=place.short_description %}
+            <small {% if '^' in desc or 'x' in desc or 'gh' in desc %}class="text-warning" {% endif %}>
+                {{ desc }}
+                {% if desc|length >= 135 %}
+                    <span class="text-danger"><span class="glyphicon glyphicon-warning-sign"></span>
+                    {{ desc|length }}</span>
+                {% endif %}
+            </small>
+            {% endwith %}
+        </div>
+        <div>
+            {% for phone in place.profile.phones.all %}
+            {% if not phone.deleted %}
+                <small>
+                    {{ phone.icon }}
+                    <b class="number">{{ phone.number.as_international }}</b>
+                    <br class="visible-xs-inline" />
+                    <em class="comment">{{ phone.comments }}</em>
+                </small>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </address>
+    <div class="user">
+        <samp><small>{{ place.profile.user.username }}</small></samp>&nbsp;
+        {{ place.profile.user.email|urlize }}
+    </div>
+</div>
+
+            {% endfor %}
+        </div>
+    {% empty %}
+        <div class="row place-list">
+            <div class="col-xs-12 help-block" style="color: #333">
+                {% trans "Sorry, no kind hosts found…" %}
+            </div>
+        </div>
+    {% endfor %}
+{% endblock page %}

@@ -4,4 +4,10 @@
 {% block head_title %}{% trans "Server error" %} &bull; {{ block.super }}{% endblock %}
 
 {% block home_title %}403{% endblock %}
-{% block home_subtitle %}{% trans "No no, that page is off-limits" %}{% endblock %}
+{% block home_subtitle %}
+    {% if exception %}
+        {{ exception }}
+    {% else %}
+        {% trans "No no, that page is off-limits" %}
+    {% endif %}
+{% endblock %}

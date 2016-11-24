@@ -1,5 +1,6 @@
 {% extends 'hosting/base.html' %}
 {% load i18n %}
+{% load is_supervisor_of from profile %}
 
 {% block head_title %}{% trans "Supervisors" %}{% endblock %}
 
@@ -36,10 +37,15 @@
         </thead>
         <tbody>
             {% for country in view.countries %}
-                <tr>
+                <tr{% if user|is_supervisor_of:country %} class="info"{% endif %}>
                     <td>{{ country.code }}</td>
                     <td>
-                        <a class="btn btn-primary"  href="{% url "country_place_list" country.code %}">
+                        <a class="btn btn-primary"
+                            {% if user.is_staff or user|is_supervisor_of:country %}
+                                 href="{% url "country_place_list" country 1 %}"
+                            {% else %}
+                                disabled="disabled"
+                            {% endif %}>
                             <strong>{{ country.name }}</strong>&nbsp;
                             <span class="badge">{{ country.place_count }}</span>
                         </a>

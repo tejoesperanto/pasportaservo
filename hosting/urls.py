@@ -52,7 +52,9 @@ urlpatterns = [
     url(_(r'^place/(?P<place_pk>\d+)/family-member/(?P<pk>\d+)/remove/$'), family_member_remove, name='family_member_remove'),
     url(_(r'^place/(?P<place_pk>\d+)/family-member/(?P<pk>\d+)/delete/$'), family_member_delete, name='family_member_delete'),
 
-    url(_(r'^place/(?P<country_code>[A-Z]{2})/$'), country_place_list, name='country_place_list'),
+    url(_(r'^lo/(?P<country_code>[A-Z]{2})(?:/book\:(?P<in_book>(0|1)))?/$'),
+        country_place_list,
+        name='country_place_list'),
 
     url(_(r'^profile/(?P<pk>\d+)(?:/(?P<slug>[\w-]+))?/phone/create/$'), phone_create, name='phone_create'),
     url(_(r'^profile/(?P<pk>\d+)/phone/(?P<num>[\w-]+)/update/$'), phone_update, name='phone_update'),
