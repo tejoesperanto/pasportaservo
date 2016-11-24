@@ -1,6 +1,5 @@
 from datetime import date
 
-from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 from django.utils.html import format_html
@@ -16,7 +15,7 @@ from django_extensions.db.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
 from django_countries.fields import CountryField, Country
 
-from .managers import NotDeletedManager, WithCoordManager, AvailableManager
+from .managers import TrackingManager, NotDeletedManager, WithCoordManager, AvailableManager
 from .validators import (
     validate_not_all_caps, validate_not_too_many_caps, validate_no_digit, validate_latin,
     validate_not_in_future, TooFarPastValidator, TooNearPastValidator,
@@ -46,25 +45,18 @@ PHONE_TYPE_CHOICES = (
 
 
 class TrackingModel(models.Model):
-    checked = models.BooleanField(_("checked"), default=False)
+    deleted_on = models.DateTimeField(_("delete on"), default=None, blank=True, null=True)
+    confirmed_on = models.DateTimeField(_("confirmed on"), default=None, blank=True, null=True)
+    checked_on = models.DateTimeField(_("checked on"), default=None, blank=True, null=True)
     checked_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("approved by"),
         blank=True, null=True,
         related_name="+", limit_choices_to={'is_staff': True}, on_delete=models.SET_NULL)
-    confirmed_on = models.DateTimeField(_("confirmed on"), default=None, blank=True, null=True)
-    deleted = models.BooleanField(_("deleted"), default=False)
 
-    all_objects = models.Manager()
+    all_objects = TrackingManager()
     objects = NotDeletedManager()
 
     class Meta:
         abstract = True
-
-    @property
-    def confirmed(self):
-        """If the confirmed_on date is more recent than several months."""
-        if not self.confirmed_on:
-            return False
-        return (timezone.now() - self.confirmed_on) < settings.CONFIRMATION_VALIDITY_PERIOD
 
 
 class Profile(TrackingModel, TimeStampedModel):

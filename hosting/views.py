@@ -3,7 +3,7 @@ from datetime import datetime
 from markdown2 import markdown
 import geopy
 
-from django.db.models import BooleanField, Q, Case, When
+from django.db.models import Q
 from django.views import generic
 from django.conf import settings
 from django.http import HttpResponseRedirect, Http404, JsonResponse
@@ -23,6 +23,7 @@ from django.utils.html import linebreaks as tohtmlpara, urlize
 from django.utils.six.moves.urllib.parse import unquote_plus
 from django.utils.http import urlquote_plus
 from django.utils.encoding import uri_to_iri
+from django.utils import timezone
 
 from rest_framework import viewsets
 from braces.views import (AnonymousRequiredMixin,
@@ -185,13 +186,14 @@ class ProfileDeleteView(LoginRequiredMixin, DeleteMixin, ProfileAuthMixin, gener
         deactivate the linked user,
         and then redirect to the success URL.
         """
+        now = timezone.now()
         self.object = self.get_object()
         for place in self.object.owned_places.all():
-            place.deleted = True
+            place.deleted_on = now
             place.save()
             for member in place.family_members.all():
                 if not member.user:
-                    member.deleted = True
+                    member.deleted_on = now
                     member.save()
         self.object.phones.all().delete()
         self.object.user.is_active = False
@@ -372,12 +374,7 @@ class CountryPlaceListView(LoginRequiredMixin, SupervisorMixin, PlaceListView):
     def get_queryset(self):
         self.base_qs = self.model.available_objects.filter(country=self.country_code)
         qs = self.base_qs.filter(in_book=self.in_book)
-        qs = qs.annotate(confirmed_bool=Case(
-            When(confirmed_on__isnull=True, then=False),
-            default=True,
-            output_field=BooleanField()
-        ))
-        return qs.prefetch_related('owner__user', 'owner__phones').order_by('confirmed_bool', 'checked', 'owner__last_name')
+        return qs.prefetch_related('owner__user', 'owner__phones').order_by('-confirmed', 'checked', 'owner__last_name')
         
 
     def get_context_data(self, **kwargs):

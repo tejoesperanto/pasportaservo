@@ -90,7 +90,7 @@ class CustomUserAdmin(UserAdmin):
 
 class TrackingModelAdmin(ShowConfirmedMixin):
     fields = (
-        ('checked', 'checked_by'), 'display_confirmed', 'deleted',
+        ('checked_on', 'checked_by'), 'display_confirmed', 'deleted_on',
     )
     readonly_fields = ('display_confirmed',)
 
@@ -108,7 +108,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         'id', 'first_name', 'last_name', 'user__email', 'user__username',
     ]
     list_filter = (
-        'confirmed_on', 'checked', 'deleted', ProfileHasUserFilter,
+        'confirmed_on', 'checked_on', 'deleted_on', ProfileHasUserFilter,
     )
     date_hierarchy = 'birth_date'
     fields = (
@@ -162,7 +162,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         'owner__first_name', 'owner__last_name', 'owner__user__email',
     ]
     list_filter = (
-        'confirmed_on', 'checked', 'in_book', 'available', 'deleted',
+        'confirmed_on', 'checked_on', 'in_book', 'available', 'deleted_on',
         CountryMentionedOnlyFilter,
     )
     fields = (
@@ -244,7 +244,7 @@ class PhoneAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     list_display = ('number_intl', 'profile_link', 'country_code', 'display_country', 'type', 'is_deleted')
     list_select_related = ('profile__user',)
     search_fields = ['number', 'country']
-    list_filter = ('type', 'deleted', CountryMentionedOnlyFilter)
+    list_filter = ('type', 'deleted_on', CountryMentionedOnlyFilter)
     fields = (
         'profile', 'number', 'country', 'type', 'comments',
     ) + TrackingModelAdmin.fields
