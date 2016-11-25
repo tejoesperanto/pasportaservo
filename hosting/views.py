@@ -31,11 +31,11 @@ from braces.views import (AnonymousRequiredMixin,
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 from django_countries.fields import Country
 
-from .models import Profile, Place, Phone
+from .models import Profile, Place, Phone, SUPERVISOR
 from .serializers import ProfileSerializer, PlaceSerializer, UserSerializer
 from .mixins import (
     ProfileMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
-    FamilyMemberMixin, FamilyMemberAuthMixin, 
+    FamilyMemberMixin, FamilyMemberAuthMixin,
     SupervisorMixin, CreateMixin, DeleteMixin,
 )
 from .forms import (
@@ -151,9 +151,7 @@ class ProfileUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, Form
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
     def form_valid(self, form):
-        self.object.checked = self.object.user != self.request.user
-        self.object.checked_by = self.request.user if self.object.checked else None
-        self.object.save()
+        self.object.checks(self.request)
         return super(ProfileUpdateView, self).form_valid(form)
 
 profile_update = ProfileUpdateView.as_view()
@@ -356,6 +354,21 @@ class ConfirmInfoView(LoginRequiredMixin, generic.View):
 confirm_hosting_info = ConfirmInfoView.as_view()
 
 
+class PlaceCheckView(LoginRequiredMixin, PlaceAuthMixin, generic.View):
+    http_method_names = ['post']
+    minimum_role = SUPERVISOR
+    template_name = '404.html'
+
+    def post(self, request, *args, **kwargs):
+        self.get_object().checks(self.request)
+        if request.is_ajax():
+            return JsonResponse({'success': 'checked'})
+        else:  # Not tested/implemented
+            return TemplateResponse(request, self.template_name)
+
+place_check = PlaceCheckView.as_view()
+
+
 class PlaceListView(generic.ListView):
     model = Place
 
@@ -389,6 +402,7 @@ class CountryPlaceListView(LoginRequiredMixin, SupervisorMixin, PlaceListView):
         context['not_confirmed_count'] = context['place_count'] - context['confirmed_count']
         context['invalid_emails_count'] = self.base_qs.filter(owner__user__email__startswith='INVALID_').count()
         return context
+
 country_place_list = CountryPlaceListView.as_view()
 
 

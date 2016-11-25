@@ -53,6 +53,8 @@ class ProfileMixin(object):
 
 
 class CreateMixin(object):
+    minimum_role = OWNER
+
     def dispatch(self, request, *args, **kwargs):
         if self.kwargs.get('pk'):
             profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
@@ -61,7 +63,7 @@ class CreateMixin(object):
             place = get_object_or_404(Place, pk=self.kwargs['place_pk'])
             self.role = get_role(self.request, profile=place.owner)
 
-        if self.role >= OWNER:
+        if self.role >= self.minimum_role:
             return super().dispatch(request, *args, **kwargs)
         else:
             raise Http404("Not allowed to create object.")
@@ -81,33 +83,39 @@ class ProfileAuthMixin(object):
 
 
 class PlaceAuthMixin(object):
+    minimum_role = OWNER
+
     def get_object(self, queryset=None):
         place = get_object_or_404(Place, pk=self.kwargs['pk'])
         self.role = get_role(self.request, profile=place.owner)
-        if self.role >= OWNER:
+        if self.role >= self.minimum_role:
             return place
         raise Http404("Not allowed to edit this place.")
 
 
 class PhoneAuthMixin(object):
+    minimum_role = OWNER
+
     def get_object(self, queryset=None):
         number = get_object_or_404(Phone,
             profile=self.kwargs['pk'],
             number__icontains=self.kwargs['num'].replace('-', ' '))
         self.role = get_role(self.request, profile=number.profile)
-        if self.role >= OWNER:
+        if self.role >= self.minimum_role:
             return number
         raise Http404("Not allowed to edit this phone number.")
 
 
 class FamilyMemberMixin(object):
+    minimum_role = OWNER
+
     def dispatch(self, request, *args, **kwargs):
         self.place = get_object_or_404(Place, pk=self.kwargs['place_pk'])
         return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         self.role = get_role(self.request, self.place.owner)
-        if self.role >= OWNER:
+        if self.role >= self.minimum_role:
             profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
             if profile in self.place.family_members.all():
                 return profile

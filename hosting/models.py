@@ -10,6 +10,7 @@ from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
 
 from django_extensions.db.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
@@ -58,6 +59,14 @@ class TrackingModel(models.Model):
     class Meta:
         abstract = True
 
+    def checks(self, request):
+        if self.owner.user != request.user:
+            self.checked_on, self.checked_by = timezone.now(), request.user
+        else:
+            self.checked_on, self.checked_by = None, None
+        self.save()
+        return self.checked_on, self.checked_by
+
 
 class Profile(TrackingModel, TimeStampedModel):
     TITLE_CHOICES = TITLE_CHOICES
@@ -96,6 +105,10 @@ class Profile(TrackingModel, TimeStampedModel):
     class Meta:
         verbose_name = _("profile")
         verbose_name_plural = _("profiles")
+
+    @property
+    def owner(self):
+        return self
 
     @property
     def full_name(self):
@@ -384,6 +397,10 @@ class Phone(TrackingModel, TimeStampedModel):
         unique_together = ('profile', 'number')
 
     @property
+    def owner(self):
+        return self.profile
+
+    @property
     def icon(self):
         if self.type == self.WORK:
             cls = "glyphicon-phone-alt"
@@ -422,6 +439,10 @@ class Website(TrackingModel, TimeStampedModel):
     class Meta:
         verbose_name = _("website")
         verbose_name_plural = _("websites")
+
+    @property
+    def owner(self):
+        return self.profile
 
     def __str__(self):
         return self.url

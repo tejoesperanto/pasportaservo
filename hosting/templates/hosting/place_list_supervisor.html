@@ -3,7 +3,9 @@
 
 {% block head_title %}{{ view.country.name }}{% endblock %}
 
-{% block page_class %} search{% endblock %}
+{% block extra_js %}
+    <script src="{% static 'js/ajax.js' %}"></script>
+{% endblock %}
 
 {% block page %}
     {% blocktrans count counter=checked_count asvar checked trimmed %}
@@ -61,7 +63,7 @@
             </a>
         </li>
         <li role="presentation">
-            <a href="#{% trans "not confirmed"|slugify %}">
+            <a href="#{% trans "not-confirmed" %}">
                 <span class="badge">{{ not_confirmed_count }}</span>
                 {{ not_confirmed|capfirst }} &#11123;
             </a>
@@ -73,12 +75,12 @@
     {% for confirmed_state in confirmed_list %}
         <div>
             {% if confirmed_state.grouper %}
-                <h3 id="{% trans "confirmed"|slugify %}" class="text-center text-info">
+                <h3 id="{% trans "confirmed" %}" class="text-center text-info">
                     {{ confirmed|capfirst }}
                     <small>{{ confirmed_state.list|length }}</small>
                 </h3>
             {% else %}
-                <h3 id="{% trans "not confirmed"|slugify %}" class="text-center text-warning">
+                <h3 id="{% trans "not-confirmed" %}" class="text-center text-warning">
                     {{ not_confirmed|capfirst }}
                     <small>{{ confirmed_state.list|length }}</small>
                 </h3>
@@ -87,21 +89,32 @@
 
 <div class="callout {% if place.checked %}callout-success{% endif %} {% if not place.confirmed %}callout-warning{% endif %}">
     <div class="pull-right">
-        <div class="btn-group-vertical" role="group">
-        {% if place.checked %}
-            <button disabled="disabled" type="button" id="place-{{ place.pk }}" data-loading-text="Loading..." class="btn btn-success" autocomplete="off">
-            {% trans "checked"|capfirst %}
-        </button>
-        {% else %}
-            <button disabled="disabled" type="button" id="place-{{ place.pk }}" data-loading-text="Loading..." class="btn btn-warning" autocomplete="off">
-            {% trans "not checked"|capfirst %}
-        </button>
-        {% endif %}
+        <div class="btn-toolbar" role="toolbar">
+            <div class="btn-group" role="group">
+            {% if place.checked %}
+                <button disabled="disabled" type="button" id="place-{{ place.pk }}" class="btn btn-success" autocomplete="off">
+                    {% trans "Checked" %}
+                </button>
+            {% else %}
+                <form action="{% url 'place_check' place.pk %}" method="POST" class="unwrap-after-success">
+                    {% csrf_token %}
+                    <button type="button" id="place-{{ place.pk }}" class="btn btn-warning ajax" 
+                        data-csrf="{{ csrf_token }}"
+                        data-hover-text="{% trans "check?"|capfirst %}"
+                        data-success-text="{% trans "Checked" %}"
+                        autocomplete="off">
+                        {% trans "not checked"|capfirst %}
+                    </button>
+                </form>
+            {% endif %}
+            </div>
         
-        <a class="btn btn-success" href="{% url 'place_update' place.pk %}" target="_blank">
-            <span class="glyphicon glyphicon-pencil"></span>
-            {% trans "Update" %}
-        </a>
+            <div class="btn-group" role="group">
+                <a class="btn btn-success" href="{% url 'place_update' place.pk %}" target="_blank">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                    {% trans "Update" %}
+                </a>
+            </div>
         </div>
     </div>
 

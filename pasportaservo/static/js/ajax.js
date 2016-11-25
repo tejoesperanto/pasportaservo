@@ -38,6 +38,12 @@ $(document).ready(function() {
             success: function(response) {
                 // TODO: Make it generic
                 $this.parents('.remove-after-success').slideUp();
+                $this.unwrap('.unwrap-after-success');
+                $this.prev('[name="csrfmiddlewaretoken"]').remove();
+                $this.removeClass('ajax');
+                $this.removeClass('btn-warning').addClass('btn-success');
+                $this.closest('.callout').addClass('callout-success');
+                if ($this.data('success-text')) { $this.text($this.data('success-text')) }
             },
             error: function(xhr) {
                 $this.removeClass('disabled');
@@ -51,7 +57,7 @@ $(document).ready(function() {
                              ((document.documentElement.lang == "eo") ?
                               "Io misfunkciis. Bonvole reprovu; <br class='visible-xxs-inline'>se la eraro denove okazas, <a href='{url}'>kontaktu nin</a>." :
                               "Something misfunctioned.<br>Please retry; if the error repeats itself, please <a href='{url}'>contact us</a>."
-                             ).replace("{url}", "mailto:pasportaservo [cxe] tejo.org").replace(" [cxe] ", "@") +
+                             ).replace("{url}", "mailto:saluton [cxe] pasportaservo.org").replace(" [cxe] ", "@") +
                              "</span>"
                 }).popover("show");
             }

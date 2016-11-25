@@ -12,6 +12,20 @@ $(document).ready(function() {
     // Lazy load images
     $('.lazy').addClass('loaded');
 
+    // Button hover
+    $('.btn').hover(function() {
+        $this = $(this)
+        $this.data('original-text', $this.text());
+        if ($this.data('hover-text')) {
+            $this.text($this.data('hover-text'));
+        }
+    }, function() {
+        if ($this.data('original-text')) {
+            $this.text($this.data('original-text'));
+        }
+
+    })
+
     // Image links with custom highlighting
     +function() {
         var set_highlight = function() {
