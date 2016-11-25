@@ -370,7 +370,6 @@ class CountryPlaceListView(LoginRequiredMixin, SupervisorMixin, PlaceListView):
         self.country = Country(self.country_code)
         self.in_book = {'0': False, '1': True, None: True}[kwargs['in_book']]
         self.invalid_emails = kwargs['email']
-        print('self.invalid_emails', self.invalid_emails)
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
