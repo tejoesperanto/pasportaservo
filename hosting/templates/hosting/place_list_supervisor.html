@@ -50,10 +50,20 @@
                 {% trans "Not in the book" %}
             </a>
         </li>
-        <li role="presentation" class="{% if not view.in_book %}active{% endif %}">
+        <li role="presentation" class="{% if view.kwargs.email %}active{% endif %}">
+            {% if view.kwargs.email %}
+            <a href="{% url 'country_place_list' country_code=view.country in_book=view.in_book|yesno:"1,0" %}">
+            {% else %}
+            <a href="{% url 'country_place_list' country_code=view.country in_book=view.in_book|yesno:"1,0" email='email' %}">
+            {% endif %}
+                <span class="badge">{{ invalid_emails_count }}</span>
+                {% trans "invalid emails"|capfirst %}
+            </a>
+        </li>
+        <li role="presentation">
             <a href="#{% trans "not confirmed"|slugify %}">
                 <span class="badge">{{ not_confirmed_count }}</span>
-                {{ not_confirmed|capfirst }}  <span class="caret"></span>
+                {{ not_confirmed|capfirst }} &#11123;
             </a>
         </li>
     </ul>
@@ -134,7 +144,14 @@
     </address>
     <div class="user">
         <samp><small>{{ place.profile.user.username }}</small></samp>&nbsp;
-        {{ place.profile.user.email|urlize }}
+        {% if 'INVALID_' in place.profile.user.email %}
+            <span class="text-danger" title="{% trans "invalid email"%}" data-toggle="tooltip">
+                {{ place.profile.user.email|cut:"INVALID_" }}
+                <span class="glyphicon glyphicon-warning-sign"></span>
+            </span>
+        {% else %}
+            {{ place.profile.user.email|urlize }}
+        {% endif %}
     </div>
 </div>
 

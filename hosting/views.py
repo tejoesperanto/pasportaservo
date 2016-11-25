@@ -369,13 +369,16 @@ class CountryPlaceListView(LoginRequiredMixin, SupervisorMixin, PlaceListView):
         self.country_code = self.kwargs['country_code']
         self.country = Country(self.country_code)
         self.in_book = {'0': False, '1': True, None: True}[kwargs['in_book']]
+        self.invalid_emails = kwargs['email']
+        print('self.invalid_emails', self.invalid_emails)
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         self.base_qs = self.model.available_objects.filter(country=self.country_code)
         qs = self.base_qs.filter(in_book=self.in_book)
+        if self.invalid_emails:
+            qs = qs.filter(owner__user__email__startswith='INVALID_')
         return qs.prefetch_related('owner__user', 'owner__phones').order_by('-confirmed', 'checked', 'owner__last_name')
-        
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -385,6 +388,7 @@ class CountryPlaceListView(LoginRequiredMixin, SupervisorMixin, PlaceListView):
         context['checked_count'] = self.base_qs.filter(in_book=self.in_book, checked=True).count()
         context['confirmed_count'] = self.base_qs.filter(in_book=self.in_book, confirmed_on__isnull=False).count()
         context['not_confirmed_count'] = context['place_count'] - context['confirmed_count']
+        context['invalid_emails_count'] = self.base_qs.filter(owner__user__email__startswith='INVALID_').count()
         return context
 country_place_list = CountryPlaceListView.as_view()
 
