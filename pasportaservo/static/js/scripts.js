@@ -20,7 +20,7 @@ $(document).ready(function() {
             $this.text($this.data('hover-text'));
         }
     }, function() {
-        if ($this.data('original-text')) {
+        if ($this.data('hover-text') && $this.data('original-text')) {
             $this.text($this.data('original-text'));
         }
 
