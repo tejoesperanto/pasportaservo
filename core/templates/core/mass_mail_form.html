@@ -12,6 +12,7 @@
 
 {% block form_after %}
     <div class="col-xs-12 col-md-7">
-        {% include 'hosting/emails/mail_template.html' %}
+        {% include 'email/preview_header.html' %}
+        {% include 'email/base_email.html' %}
     </div>
 {% endblock form_after %}

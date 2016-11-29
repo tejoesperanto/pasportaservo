@@ -50,6 +50,7 @@ INSTALLED_APPS = (
     'bootstrapform',
     'postman',
 
+    'core',
     'hosting',
     'links',
     'pages',

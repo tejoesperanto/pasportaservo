@@ -7,8 +7,6 @@ from rest_framework import routers
 
 from .views import (
     ProfileViewSet, PlaceViewSet, UserViewSet,
-    home,
-    register,
     profile_create, profile_redirect, profile_detail,
     profile_edit, profile_update, profile_delete,
     profile_settings,
@@ -20,7 +18,6 @@ from .views import (
     phone_create, phone_update, phone_delete,
     confirm_hosting_info, place_check,
     search,
-    mass_mail, mass_mail_sent,
 )
 
 router = routers.DefaultRouter()
@@ -29,8 +26,6 @@ router.register(r'profiles', ProfileViewSet)
 router.register(r'users', UserViewSet)
 
 urlpatterns = [
-    url(r'^$', home, name='home'),
-    url(_(r'^register/$'), register, name='register'),
     url(_(r'^profile/create/$'), profile_create, name='profile_create'),
     url(_(r'^profile(?:/(?P<pk>\d+))?/$'), profile_redirect, name='profile_redirect'),
     url(_(r'^profile/(?P<pk>\d+)(?:/(?P<slug>[\w-]+))?/$'), profile_detail, name='profile_detail'),
@@ -64,9 +59,6 @@ urlpatterns = [
     url(_(r'^place/(?P<pk>\d+)/check/$'), place_check, name='place_check'),
 
     url(_(r'^search(?:/(?P<query>.+))?/$'), search, name='search'),
-
-    url(_(r'^mass_mail/$'), mass_mail, name='mass_mail'),
-    url(_(r'^mass_mail_sent/$'), mass_mail_sent, name='mass_mail_sent'),
 ]
 
 urlpatterns += [
