@@ -1,0 +1,1026 @@
+# Esperantaj tekstoĉenoj por reta Pasporta Servo.
+# Kopirajto (C) 2015 TEJO kaj kontribuantoj
+# Al tiu ĉi dosiero aplikiĝas la sama licenco kiel al la tuta kodo de PS.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Pasporta Servo Hosting\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-11-29 16:15+0100\n"
+"PO-Revision-Date: 2016-11-29 16:29+0100\n"
+"Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
+"Language-Team: EO <saluton@pasportaservo.org>\n"
+"Language: eo\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.8.11\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#: forms.py:10
+msgid "Email"
+msgstr "Retadreso"
+
+#: forms.py:13
+msgid "Leave blank"
+msgstr "Lasu malplena"
+
+#: forms.py:25
+msgid "User address already in use."
+msgstr "Uzanta adreso jam uzita."
+
+#: forms.py:44
+msgid "Heading"
+msgstr "Titolo"
+
+#: forms.py:45
+msgid "Body"
+msgstr "Mesaĝo"
+
+#: forms.py:46
+msgid "Subject"
+msgstr "Temo"
+
+#: forms.py:47
+msgid "Preheader"
+msgstr "Antaŭkapo"
+
+#: forms.py:49
+msgid "Categories"
+msgstr "Kategorioj"
+
+#: forms.py:50
+msgid "test"
+msgstr "Provo (sendas al: )"
+
+#: forms.py:51
+msgid "old system"
+msgstr "Gastigantoj: neniam ensalutis en la nova retejo"
+
+#: forms.py:52
+msgid "not in book"
+msgstr "Nova retejo: ne en la libreto"
+
+#: forms.py:53
+msgid "in book"
+msgstr "Nova retejo: EN la libreto"
+
+#: forms.py:54
+msgid "just user"
+msgstr "Ne gastigantoj (malnova aŭ nova retejo)"
+
+#: forms.py:56
+msgid "Your email for test"
+msgstr "Via retpoŝtadreso por testi"
+
+#: templates/core/home.html:26
+msgid "log out"
+msgstr "elsaluti"
+
+#: templates/core/home.html:29
+msgid "admin site"
+msgstr "administrilo"
+
+#: templates/core/home.html:32
+msgid "log in"
+msgstr "ensaluti"
+
+#: templates/core/home.html:43
+msgid "register"
+msgstr "registriĝi"
+
+#: templates/core/home.html:51
+msgid "test version"
+msgstr "Prova versio: tiu ĉi retejo ankoraŭ ne estas finpreta"
+
+#: templates/core/home.html:61
+msgid "Budapest, London, Venezuela, etc."
+msgstr "Budapeŝto, Londono, Venezuelo, ktp."
+
+#: templates/core/home.html:79
+msgid "Find accomodation<br>anywhere in the world."
+msgstr "Trovu loĝejon<br>ĉie ajn sur la planedo"
+
+#: templates/core/home.html:90 templates/core/home.html:93
+#: templates/core/home.html:96
+msgid "at"
+msgstr "ĉe"
+
+#: templates/core/home.html:96
+msgid "About us"
+msgstr "Pri ni"
+
+#: templates/core/home.html:103
+msgid "Contact us via Skype"
+msgstr "Kontaktu nin per Skajpo"
+
+#: templates/core/home.html:106
+msgid "Contact us via email"
+msgstr "Kontaktu nin per retpoŝto"
+
+#: templates/core/home.html:109
+msgid "Your ideas and suggestions"
+msgstr "Viaj ideoj kaj proponoj"
+
+#: templates/core/home.html:112
+msgid "Pasporta Servo's source code"
+msgstr "Fontkodo de Pasporta Servo"
+
+#: templates/email/base_email.html:190
+msgid "Unsubscribe"
+msgstr "Malregistriĝi"
+
+#: urls.py:13
+msgid "^register/$"
+msgstr "^registrado/$"
+
+#: urls.py:14
+msgid "^mass_mail/$"
+msgstr "^amassendado/$"
+
+#: urls.py:15
+msgid "^mass_mail_sent/$"
+msgstr "^amassendado_sukcesa/$"
+
+#: views.py:55
+msgid "You are logged in."
+msgstr "Vi nun estas ensalutinta."
+
+#~ msgid "Personal info"
+#~ msgstr "Personaj informoj"
+
+#~ msgid "Permissions"
+#~ msgstr "Permesoj"
+
+#~ msgid "Supervisors"
+#~ msgstr "Landaj organizantoj"
+
+#~ msgid "Important dates"
+#~ msgstr "Gravaj datoj"
+
+#~ msgid "MD5 (weak)"
+#~ msgstr "MD5 (malforta)"
+
+#~ msgid "Password algorithm"
+#~ msgstr "Pasvorta algoritmo"
+
+#~ msgid "profile"
+#~ msgstr "profilo"
+
+#~ msgid "user"
+#~ msgstr "uzanto"
+
+#~ msgid "country"
+#~ msgstr "lando"
+
+#~ msgid "latitude"
+#~ msgstr "latitudo"
+
+#~ msgid "longitude"
+#~ msgstr "longitudo"
+
+#~ msgid "owner"
+#~ msgstr "posedanto"
+
+#~ msgid "number"
+#~ msgstr "numero"
+
+#~ msgid "country code"
+#~ msgstr "landa kodo"
+
+#~ msgid "image"
+#~ msgstr "bildo"
+
+#~ msgid "confirmed on"
+#~ msgstr "konfirmita je"
+
+#~ msgid "deleted"
+#~ msgstr "forigita"
+
+#~ msgid "All"
+#~ msgstr "Ĉio"
+
+#~ msgid "user is defined"
+#~ msgstr "uzanto havebla"
+
+#~ msgid "Yes"
+#~ msgstr "Jes"
+
+#~ msgid "No"
+#~ msgstr "Ne"
+
+#~ msgid "Hosting Service"
+#~ msgstr "Gastiga Servo"
+
+#~ msgid "First, then Last"
+#~ msgstr "Persona · Familia"
+
+#~ msgid "Last, then First"
+#~ msgstr "Familia · Persona"
+
+#~ msgid "Names ordering"
+#~ msgstr "Ordigo de la nomoj"
+
+# TODO: update for supervisors (you -> the user)
+#~ msgid "The minimum age to be allowed hosting is {age:d}."
+#~ msgstr "Vi ekpovos gastigi kiam estos {age:d}-jaraĝa."
+
+# TODO: update for supervisors (you -> the user)
+#~ msgid "The minimum age to be allowed meeting with visitors is {age:d}."
+#~ msgstr "Vi ekpovos renkonti vizitantojn kiam estos {age:d}-jaraĝa."
+
+#~ msgid "This field is required to be printed in the book."
+#~ msgstr "Tiu ĉi kampo estas deviga por esti printita en la libro."
+
+#~ msgid "You want to be in the printed edition of Pasporta Servo. In order to have a quality product, some fields a required. If you think there is a problem, please contact us."
+#~ msgstr "Vi volas esti en la printita eldonaĵo de Pasporta Servo. Por havi kvalitan produkton, kelkaj kampoj estas devigaj. Se vi pensas ke estas problemo, bv. kontaktu nin."
+
+#~ msgid "Choose your conditions..."
+#~ msgstr "Elektu viajn kondiĉojn…"
+
+#~ msgid "Please click on the map to choose your location."
+#~ msgstr "Bonvolu klaki la mapon por elekti vian lokon."
+
+#~ msgid "You already have this telephone number."
+#~ msgstr "Vi jam indikis tian telefonnumeron."
+
+#~ msgid "Authorize user"
+#~ msgstr "Permesi uzanton"
+
+#~ msgid "username"
+#~ msgstr "uzantnomo"
+
+#~ msgid "User does not exist"
+#~ msgstr "Tiu ĉi uzanto ne ekzistas"
+
+#~ msgid "User has not set up a profile"
+#~ msgstr "Uzanto ne agordis profilon"
+
+#~ msgid "A family member cannot be future-born (even if planned)."
+#~ msgstr "Kunloĝanto ne povas naskiĝi estontece, eĉ se planita."
+
+#~ msgid "Leave empty if you only want to indicate that other people are present in the house."
+#~ msgstr "Lasu malplena se vi nure volas indiki ke kromaj homoj ĉeestas en la loĝejo."
+
+#~ msgid "The name cannot be empty, at least first name or last name are required."
+#~ msgstr "Nomo ne povas esti nenia, almenaŭ unu el persona aŭ familia nomoj devas esti indikita."
+
+#~ msgid "Only the supervisors of this country can see this page"
+#~ msgstr "Nur la Landaj Organizantoj de tiu lando povas vidi tiun paĝon"
+
+#~ msgid "Mrs"
+#~ msgstr "S-ino"
+
+#~ msgid "Mr"
+#~ msgstr "S-ro"
+
+#~ msgid "mobile"
+#~ msgstr "poŝtelefono"
+
+#~ msgid "home"
+#~ msgstr "hejma"
+
+#~ msgid "work"
+#~ msgstr "laboreja"
+
+#~ msgid "fax"
+#~ msgstr "fakso"
+
+#~ msgid "delete on"
+#~ msgstr "forigita je"
+
+#~ msgid "checked on"
+#~ msgstr "kontrolita je"
+
+#~ msgid "approved by"
+#~ msgstr "aprobita de"
+
+#~ msgid "title"
+#~ msgstr "titolo"
+
+#~ msgid "first name"
+#~ msgstr "persona nomo"
+
+#~ msgid "last name"
+#~ msgstr "familia nomo"
+
+#~ msgid "names in inverse order"
+#~ msgstr "nomoj en renversa ordo (familia unue)"
+
+#~ msgid "birth date"
+#~ msgstr "naskiĝtago"
+
+#~ msgid "In the format year(4 digits)-month(2 digits)-day(2 digits)."
+#~ msgstr "En la formato <nobr>jaro (4 ciferoj)−</nobr>​<wbr><nobr>monato (2 ciferoj)−</nobr>​<wbr><nobr>tago (2 ciferoj).</nobr>"
+
+#~ msgid "description"
+#~ msgstr "priskribo"
+
+#~ msgid "Short biography."
+#~ msgstr "Mallonga sinprezento."
+
+#~ msgid "avatar"
+#~ msgstr "profilbildo"
+
+#~ msgid "Small image under 100kB. Ideal size: 140x140 px."
+#~ msgstr "Malgranda bildo, < 100 kB. Idealaj mezuroj: 140×140 punktoj."
+
+#~ msgid "contact preferences"
+#~ msgstr "preferataj kontaktmanieroj"
+
+#~ msgid "profiles"
+#~ msgstr "profiloj"
+
+#~ msgid "address"
+#~ msgstr "adreso"
+
+#~ msgid "e.g.: Nieuwe Binnenweg 176"
+#~ msgstr "ekz: Nieuwe Binnenweg 176"
+
+#~ msgid "city"
+#~ msgstr "urbo"
+
+#~ msgid "Name in the official language, not in Esperanto (e.g.: Rotterdam)"
+#~ msgstr "Nomo en la oficiala lingvo, ne en Esperanto (ekz: Rotterdam)"
+
+#~ msgid "closest big city"
+#~ msgstr "plej proksima granda urbo"
+
+#~ msgid "If your place is in a town near a bigger city. Name in the official language, not in Esperanto."
+#~ msgstr "Se via loĝejo estas en urbeto proksime al granda urbo. Nomo en la oficiala lingvo, ne en Esperanto."
+
+#~ msgid "postcode"
+#~ msgstr "poŝtkodo"
+
+#~ msgid "State / Province"
+#~ msgstr "Ŝtato / Provinco"
+
+#~ msgid "maximum number of guest"
+#~ msgstr "maksimuma nombro de gastoj"
+
+#~ msgid "maximum number of night"
+#~ msgstr "maksimuma nombro de noktoj"
+
+#~ msgid "contact before"
+#~ msgstr "kontakti antaŭ"
+
+#~ msgid "Number of days before people should contact host."
+#~ msgstr "Kiom da tagoj antaŭe homoj devus kontakti la gastiganton."
+
+#~ msgid "Description or remarks about your place."
+#~ msgstr "Priskriboj aŭ rimarkoj pri via loĝejo."
+
+#~ msgid "short description"
+#~ msgstr "mallonga priskribo"
+
+#~ msgid "Used in the book and on profile, 140 characters maximum."
+#~ msgstr "Uzita en la libro kaj ĉe profilo, 140 signoj maksimume."
+
+#~ msgid "available"
+#~ msgstr "disponebla"
+
+#~ msgid "If this place is searchable. If yes, you will be considered as host."
+#~ msgstr "Ĉu tiu ĉi loĝejo estas serĉebla? Se jes, vi estos konsiderita kiel gastiganto."
+
+#~ msgid "print in book"
+#~ msgstr "printu en la PS libreto"
+
+#~ msgid "If you want this place to be in the printed book. Must be available."
+#~ msgstr "Se vi deziras ke tiu ĉi loĝejo estu printita en la libreto. Ĝi devas esti disponebla."
+
+#~ msgid "tour guide"
+#~ msgstr "ĉiĉeronado"
+
+#~ msgid "If you are ready to show your area to visitors."
+#~ msgstr "Se vi volonte montros vian ĉirkaŭaĵon al vizitantoj."
+
+#~ msgid "have a drink"
+#~ msgstr "trinkejumado"
+
+#~ msgid "If you are ready to have a coffee or beer with visitors."
+#~ msgstr "Se vi volonte kafumos aŭ bierumos kun vizitantoj."
+
+#~ msgid "irregularly present"
+#~ msgstr "nekonstanta troveblo"
+
+#~ msgid "If you are not often at this address and need an advance notification."
+#~ msgstr "Ĉu vi malofte/neantaŭvideble ĉeestas? Se jes, estos indikita bezono de frua anticipa kontakto."
+
+#~ msgid "conditions"
+#~ msgstr "kondiĉoj"
+
+#~ msgid "family members"
+#~ msgstr "kunloĝantoj"
+
+#~ msgid "authorized users"
+#~ msgstr "permesitaj uzantoj"
+
+#~ msgid "List of users authorized to view most of data of this accommodation."
+#~ msgstr "Listo de uzantoj kiuj estis permesitaj vidi la detalojn de tiu ĉi loĝejo."
+
+#~ msgid "place"
+#~ msgstr "loĝejo"
+
+#~ msgid "places"
+#~ msgstr "loĝejoj"
+
+#~ msgid "International number format begining with the plus sign (e.g.: +31 10 436 1044)"
+#~ msgstr "En formato de internacia numero, komencu per pluso (ekz:  +31 10 436 1044)"
+
+#~ msgid "comments"
+#~ msgstr "komentoj"
+
+#~ msgid "phone type"
+#~ msgstr "tipo de telefono"
+
+#~ msgid "phone"
+#~ msgstr "telefono"
+
+#~ msgid "phones"
+#~ msgstr "telefonoj"
+
+#~ msgid "URL"
+#~ msgstr "URL"
+
+#~ msgid "website"
+#~ msgstr "retejo"
+
+#~ msgid "websites"
+#~ msgstr "retejoj"
+
+#~ msgid "name"
+#~ msgstr "nomo"
+
+#~ msgid "E.g.: 'Ne fumu'."
+#~ msgstr "Ekz.: 'Ne fumu'."
+
+#~ msgid "abbreviation"
+#~ msgstr "mallongigo"
+
+#~ msgid "Official abbreviation as used in the book. E.g.: 'Nef.'"
+#~ msgstr "Oficiala mallongigo tiel, kiel uzata en la libro. Ekz: 'Nef.'"
+
+#~ msgid "URL friendly name"
+#~ msgstr "URL-amikeca nomo"
+
+#~ msgid "condition"
+#~ msgstr "kondiĉo"
+
+#~ msgid "contact preference"
+#~ msgstr "preferata kontaktmaniero"
+
+#~ msgid "Find accomodation"
+#~ msgstr "Trovu loĝejon"
+
+#~ msgid "My profile"
+#~ msgstr "Mia profilo"
+
+#~ msgid "Search"
+#~ msgstr "Serĉi"
+
+#~ msgid "inbox"
+#~ msgstr "poŝtkesto"
+
+#~ msgid "%(unread)s new message"
+#~ msgid_plural "%(unread)s new messages"
+#~ msgstr[0] "%(unread)s nova mesaĝo"
+#~ msgstr[1] "%(unread)s novaj mesaĝoj"
+
+#~ msgid "FAQ"
+#~ msgstr "Oftaj demandoj"
+
+#~ msgid "Terms"
+#~ msgstr "Kondiĉoj"
+
+#~ msgid "Cancel operation"
+#~ msgstr "Nuligi la agon"
+
+#~ msgid "Cancel"
+#~ msgstr "Ne, nuligu"
+
+#~ msgid "Delete"
+#~ msgstr "Forigi"
+
+#~ msgid "Confirm"
+#~ msgstr "Konfirmi"
+
+#~ msgid "Dear %(user_first_name)s,"
+#~ msgstr "Kara %(user_first_name)s,"
+
+#~ msgid "You've been authorized to see the complete address of %(owner_name)s!"
+#~ msgstr "%(owner_name)s rajtigis vin vidi sian plenan adreson!"
+
+#~ msgid "A place in"
+#~ msgstr "Loĝejo en"
+
+#~ msgid "Follow this link to see this accommodation:"
+#~ msgstr "Klaku la ligilon por vidi tiun ĉi loĝejon:"
+
+#~ msgid "The %(site_name)s team."
+#~ msgstr "La teamo de %(site_name)s."
+
+#~ msgid "Remove a family member"
+#~ msgstr "Forigi kunloĝanton"
+
+#~ msgid "Are you sure you want to delete this family member?"
+#~ msgstr "Ĉu vi certe volas forigi tiun ĉi kunloĝanton?"
+
+#~ msgid "Delete profile"
+#~ msgstr "Forigi profilon"
+
+#~ msgid "Just remove"
+#~ msgstr "Nur forpreni"
+
+#~ msgid "Remove from list of family members"
+#~ msgstr "Forpreni el listo de kunloĝantoj"
+
+#~ msgid "Emails sent"
+#~ msgstr "Retmesaĝoj senditaj"
+
+#~ msgid "You sent %(nb)s emails. Well done!"
+#~ msgstr "Vi sendis %(nb)s mesaĝojn. Bonege!"
+
+#~ msgid "Remove a phone number"
+#~ msgstr "Forigi telefonan numeron"
+
+#~ msgid "Are you sure you want to delete this number?"
+#~ msgstr "Ĉu vi certe volas forigi tiun ĉi numeron?"
+
+#~ msgid "Phone number"
+#~ msgstr "Telefonnumero"
+
+#~ msgid "of %(name)s"
+#~ msgstr "de %(name)s"
+
+#~ msgid "Authorized users"
+#~ msgstr "Permesitaj uzantoj"
+
+#~ msgid "Authorize"
+#~ msgstr "Permesi"
+
+#~ msgid "Authorized users can see your full address, family members and telephone numbers."
+#~ msgstr "Permesitaj uzantoj povas vidi vian plenan adreson, kunloĝantojn kaj telefonnumerojn."
+
+#~ msgid "Your email still remains private."
+#~ msgstr "Via retpoŝtadreso ĉiukaze restas privata."
+
+#~ msgid "Back to %(back_to)s"
+#~ msgstr "Reen al %(back_to)s"
+
+#~ msgid "Back"
+#~ msgstr "Reen"
+
+#~ msgid "Deleted profile"
+#~ msgstr "Nuligita profilo"
+
+#~ msgid "Remove user"
+#~ msgstr "Forigi uzanton"
+
+#~ msgid "my "
+#~ msgstr "mian "
+
+#~ msgid "Remove %(kin)splace"
+#~ msgstr "Forigi %(kin)sloĝejon"
+
+#~ msgid "Are you sure you want to delete this place?"
+#~ msgstr "Ĉu vi certe volas forigi tiun ĉi loĝejon?"
+
+#~ msgid "My habitat"
+#~ msgstr "Mia loĝloko"
+
+#~ msgid "Deleted place"
+#~ msgstr "Nuligita loĝejo"
+
+#~ msgid "The address is obsolete"
+#~ msgstr "La adreso estas neaktuala"
+
+#~ msgid "I can guide around the city"
+#~ msgstr "mi povas ĉiĉeroni"
+
+#~ msgid "I'd like to have a drink together"
+#~ msgstr "mi emas trinkejumi"
+
+#~ msgid "available,unavailable"
+#~ msgstr "disponebla,maldisponebla"
+
+#~ msgid "unavailable"
+#~ msgstr "maldisponebla"
+
+#~ msgid "Description"
+#~ msgstr "Priskribo"
+
+#~ msgid "Family members"
+#~ msgstr "Kunloĝantoj"
+
+#~ msgid "Other dwellers at this place."
+#~ msgstr "Mi havas kunloĝantojn."
+
+#~ msgid "I'm not present at this address at all times; contact me in advance."
+#~ msgstr "Mi ne troviĝas konstante ĉe tiu ĉi adreso; kontaktiĝu anticipe."
+
+#~ msgid "Write message"
+#~ msgstr "Sendi mesaĝon"
+
+#~ msgid "Update %(kin)splace"
+#~ msgstr "Redakti %(kin)sloĝejon"
+
+#~ msgid "Update"
+#~ msgstr "Redakti"
+
+#~ msgid "Authorizations"
+#~ msgstr "Permesoj"
+
+#~ msgid "View as an authorized user"
+#~ msgstr "Rigardi kvazaŭ permesita uzanto"
+
+#~ msgid "View"
+#~ msgstr "Rigardi"
+
+#~ msgid "Short description"
+#~ msgstr "Mallonga priskribo"
+
+#~ msgid "Available"
+#~ msgstr "Disponebla"
+
+#~ msgid "Print in book"
+#~ msgstr "Printi en la PS libreto"
+
+#~ msgid "Click on the map"
+#~ msgstr "Klaku la mapon"
+
+#~ msgid "to select your location"
+#~ msgstr "por elekti vian lokon"
+
+#~ msgid "Where am I?"
+#~ msgstr "Kie mi estas?"
+
+#~ msgid "Search with the address"
+#~ msgstr "Serĉu laŭ la adreso"
+
+#~ msgid "Sorry, no kind hosts found…"
+#~ msgstr "Bedaŭrinde ni ne trovis gastigemulojn…"
+
+#~ msgid "checked"
+#~ msgid_plural "checked"
+#~ msgstr[0] "kontrolita"
+#~ msgstr[1] "kontrolitaj"
+
+#~ msgid "confirmed"
+#~ msgid_plural "confirmed"
+#~ msgstr[0] "konfirmita"
+#~ msgstr[1] "konfirmitaj"
+
+#~ msgid "not confirmed"
+#~ msgid_plural "not confirmed"
+#~ msgstr[0] "ne konfirmita"
+#~ msgstr[1] "ne konfirmitaj"
+
+#~ msgid "Checked"
+#~ msgstr "Kontrolita"
+
+#~ msgid "In the book"
+#~ msgstr "En la libreto"
+
+#~ msgid "Not in the book"
+#~ msgstr "Ne en la libreto"
+
+#~ msgid "invalid emails"
+#~ msgstr "nevalidaj retadresoj"
+
+#~ msgid "not-confirmed"
+#~ msgstr "ne-konfirmita"
+
+#~ msgid "check?"
+#~ msgstr "ĉu kontroli?"
+
+#~ msgid "not checked"
+#~ msgstr "nekontrolita"
+
+#~ msgid "invalid email"
+#~ msgstr "nevalida retadreso"
+
+#~ msgid "your "
+#~ msgstr "vian "
+
+#~ msgid "this "
+#~ msgstr "tiun ĉi "
+
+#~ msgid "Are you sure you want to delete %(kin)sprofile and all linked data (place, phone…)?"
+#~ msgstr "Ĉu vi certege volas forigi %(kin)sprofilon, kaj ĉiujn ligitajn datumojn (loĝejojn, telefonnumerojn…)?"
+
+#~ msgid "Are <a href=\"%(url)s\">your data</a> up-to-date? Please check your hosting profile."
+#~ msgstr "Ĉu <a href=\"%(url)s\">viaj datenoj</a> estas ĝustaj kaj ĝisdataj? Bonvole kontrolu vian profilon de gastiganto."
+
+#~ msgid "Are your data up-to-date? %(tag)sClick if yes%(endtag)s"
+#~ msgstr "Ĉu viaj datenoj estas ĝustaj kaj ĝisdataj? %(tag)sKlaku se jes%(endtag)s"
+
+#~ msgid "I confirm!"
+#~ msgstr "Mi konfirmas!"
+
+#~ msgid "Supervisor of %(countries)s"
+#~ msgstr "Landa Organizanto por %(countries)s"
+
+#~ msgid "You confirmed your information"
+#~ msgstr "Vi konfirmis viajn informojn"
+
+#~ msgid "Your profile is deleted and does not appear in search results."
+#~ msgstr "Via profilo estis nuligita kaj ne aperas en serĉrezultoj."
+
+#~ msgid "Update user's details"
+#~ msgstr "Redakti informojn de uzanto"
+
+#~ msgid "Update my details"
+#~ msgstr "Redakti miajn informojn"
+
+#~ msgid "last confirmed on"
+#~ msgstr "laste konfirmita je"
+
+#~ msgid "%(age)s y.o."
+#~ msgstr "%(age)s-jaraĝa"
+
+#~ msgid "About me"
+#~ msgstr "Pri mi"
+
+#~ msgid "Place"
+#~ msgid_plural "Places"
+#~ msgstr[0] "Loĝejo"
+#~ msgstr[1] "Loĝejoj"
+
+#~ msgid "Habitat"
+#~ msgid_plural "Habitats"
+#~ msgstr[0] "Loĝloko"
+#~ msgstr[1] "Loĝlokoj"
+
+#~ msgid "View details of this place"
+#~ msgstr "Rigardi detalojn de tiu ĉi loĝejo"
+
+#~ msgid "I'm hosting in:"
+#~ msgstr "mi gastigas en:"
+
+#~ msgid "near %(closest_city)s"
+#~ msgstr "proksime al %(closest_city)s"
+
+#~ msgid "I can accept %(max_host)s person"
+#~ msgid_plural "I can accept %(max_host)s persons"
+#~ msgstr[0] "Mi povas akcepti %(max_host)s homon"
+#~ msgstr[1] "Mi povas akcepti %(max_host)s homojn"
+
+#~ msgid "I can host during %(max_night)s night maximum"
+#~ msgid_plural "I can host during %(max_night)s nights maximum"
+#~ msgstr[0] "Mi povas gastigi dum %(max_night)s nokto maksimume"
+#~ msgstr[1] "Mi povas gastigi dum %(max_night)s noktoj maksimume"
+
+#~ msgid "Phones"
+#~ msgstr "Telefonoj"
+
+#~ msgid "Update profile"
+#~ msgstr "Redakti profilon"
+
+#~ msgid "Delete account"
+#~ msgstr "Forigi konton"
+
+#~ msgid "Change password"
+#~ msgstr "Ŝanĝi pasvorton"
+
+#~ msgid "Settings"
+#~ msgstr "Agordoj"
+
+#~ msgid "View public profile"
+#~ msgstr "Rigardi publikan profilon"
+
+#~ msgid "Add a place"
+#~ msgstr "Aldoni loĝejon"
+
+#~ msgid "Update a family member"
+#~ msgstr "Redakti kunloĝanton"
+
+#~ msgid "Add a family member"
+#~ msgstr "Aldoni kunloĝanton"
+
+#~ msgid "Add a phone"
+#~ msgstr "Aldoni telefon-numeron"
+
+#~ msgid "approver unknown"
+#~ msgstr "aprobanto nekonata"
+
+#~ msgid "Not checked"
+#~ msgstr "Nekontrolita"
+
+#~ msgid "%(city)s, near %(closest_city)s"
+#~ msgstr "%(city)s, proksime al %(closest_city)s"
+
+#~ msgid "if you want to book this accomodation"
+#~ msgstr "por tranokti en tiu ĉi loĝejo"
+
+#~ msgid "if you want to meet with me"
+#~ msgstr "por renkontiĝi kun mi"
+
+#~ msgid "please contact me at least %(nb_days)s day in advance"
+#~ msgid_plural "please contact me at least %(nb_days)s days in advance"
+#~ msgstr[0] "bonvolu kontakti min almenaŭ %(nb_days)s tagon antaŭe"
+#~ msgstr[1] "bonvolu kontakti min almenaŭ %(nb_days)s tagojn antaŭe"
+
+#~ msgid ", during %(max_night)s night maximum"
+#~ msgid_plural ", during %(max_night)s nights maximum"
+#~ msgstr[0] ", dum %(max_night)s nokto maksimume"
+#~ msgstr[1] ", dum %(max_night)s noktoj maksimume"
+
+#~ msgid "I'm hosting :)"
+#~ msgstr "Mi gastigas :)"
+
+#~ msgid "I'm <b>not</b> hosting"
+#~ msgstr "Mi <b>ne</b> gastigas"
+
+#~ msgid "&nbsp; and will be glad "
+#~ msgstr "&nbsp; kaj volonte "
+
+#~ msgid ", but will be glad "
+#~ msgstr ", sed volonte "
+
+#~ msgid "to guide you around %(my_city)s"
+#~ msgstr "ĉiĉeronos vin en %(my_city)s"
+
+#~ msgid " or "
+#~ msgstr " aŭ "
+
+#~ msgid "to have a drink together"
+#~ msgstr "trinkos ion kun vi"
+
+#~ msgid "to have a drink together in the city"
+#~ msgstr "trinkos ion kun vi en la urbo"
+
+#~ msgid "Registration"
+#~ msgstr "Registrado"
+
+#~ msgid "You must register to see this accomodation."
+#~ msgstr "Vi devas registriĝi por vidi tiun ĉi loĝejon."
+
+#~ msgid "Register"
+#~ msgstr "Registriĝu"
+
+#~ msgid "Log In"
+#~ msgstr "Ensalutu"
+
+#~ msgid "Log in with your username and password."
+#~ msgstr "Ensalutu per via uzantnomo kaj pasvorto"
+
+#~ msgid "Forgot password?"
+#~ msgstr "Mi forgesis mian pasvorton"
+
+#~ msgid "Log in"
+#~ msgstr "Ensaluti"
+
+#~ msgid "Your password was changed."
+#~ msgstr "La pasvorto estis ŝanĝita."
+
+#~ msgid "Change"
+#~ msgstr "Ŝanĝi"
+
+#~ msgid "Password reset complete"
+#~ msgstr "Nova pasvorto agordita"
+
+#~ msgid "Your password has been set. You may go ahead and log in now."
+#~ msgstr "Vi sukcese ŝanĝis vian pasvorton. Vi nun povas ensaluti."
+
+#~ msgid "Change my password"
+#~ msgstr "Ŝanĝi mian pasvorton"
+
+#~ msgid "Enter new password"
+#~ msgstr "Enmeti novan pasvorton"
+
+#~ msgid "Invalid password link"
+#~ msgstr "Nevalida pasvorta ligilo"
+
+#~ msgid "It seems like you already used this link. A link to change your password can be used just once."
+#~ msgstr "Ŝajnas ke vi jam uzis tiun ĉi ligilon. La ligilo por ŝanĝi pasvorton povas esti uzata nur unufoje."
+
+#~ msgid "New password link"
+#~ msgstr "Nova pasvorta ligilo"
+
+#~ msgid "Password reset"
+#~ msgstr "Nova pasvorto"
+
+#~ msgid "The %(site_name)s team"
+#~ msgstr "La teamo de %(site_name)s"
+
+#~ msgid "Send"
+#~ msgstr "Sendi"
+
+#~ msgid "^profile/create/$"
+#~ msgstr "^profilo/krei/$"
+
+#~ msgid "^profile(?:/(?P<pk>\\d+))?/$"
+#~ msgstr "^profilo(?:/(?P<pk>\\d+))?/$"
+
+# msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/$"
+#~ msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/$"
+#~ msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/$"
+
+# msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/edit/$"
+#~ msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/edit/$"
+#~ msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/redakti/$"
+
+# msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/update/$"
+#~ msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/update/$"
+#~ msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/aktualigi/$"
+
+# msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/delete/$"
+#~ msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/delete/$"
+#~ msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/forigi/$"
+
+# msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/settings/$"
+#~ msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/settings/$"
+#~ msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/agordoj/$"
+
+#~ msgid "^place/(?P<pk>\\d+)/$"
+#~ msgstr "^ejo/(?P<pk>\\d+)/$"
+
+#~ msgid "^place/(?P<pk>\\d+)/detailed/$"
+#~ msgstr "^ejo/(?P<pk>\\d+)/detale/$"
+
+# msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/place/create/$"
+#~ msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/place/create/$"
+#~ msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/ejo/krei/$"
+
+#~ msgid "^place/(?P<pk>\\d+)/update/$"
+#~ msgstr "^ejo/(?P<pk>\\d+)/redakti/$"
+
+#~ msgid "^place/(?P<pk>\\d+)/delete/$"
+#~ msgstr "^ejo/(?P<pk>\\d+)/forigi/$"
+
+#~ msgid "^place/(?P<pk>\\d+)/authorize/$"
+#~ msgstr "^ejo/(?P<pk>\\d+)/permesi/$"
+
+#~ msgid "^place/(?P<place_pk>\\d+)/family-member/create/$"
+#~ msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/krei/$"
+
+#~ msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/update/$"
+#~ msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/redakti/$"
+
+#~ msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/remove/$"
+#~ msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/forpreni/$"
+
+#~ msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/delete/$"
+#~ msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/forigi/$"
+
+#~ msgid "^lo/(?P<country_code>[A-Z]{2})(?:/book\\:(?P<in_book>(0|1)))?(?:/(?P<email>email))?/$"
+#~ msgstr "^lo/(?P<country_code>[A-Z]{2})(?:/libro\\:(?P<in_book>(0|1)))?(?:/(?P<email>email))?/$"
+
+# msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/phone/create/$"
+#~ msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/phone/create/$"
+#~ msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/telefono/krei/$"
+
+#~ msgid "^profile/(?P<pk>\\d+)/phone/(?P<num>[\\w-]+)/update/$"
+#~ msgstr "^profilo/(?P<pk>\\d+)/telefono/(?P<num>[\\w-]+)/redakti/$"
+
+#~ msgid "^profile/(?P<pk>\\d+)/phone/(?P<num>[\\w-]+)/delete/$"
+#~ msgstr "^profilo/(?P<pk>\\d+)/telefono/(?P<num>[\\w-]+)/forigi/$"
+
+#~ msgid "^current/confirm/$"
+#~ msgstr "^aktualigo/konfirmi/$"
+
+#~ msgid "^place/(?P<pk>\\d+)/check/$"
+#~ msgstr "^ejo/(?P<pk>\\d+)/kontroli/$"
+
+#~ msgid "^search(?:/(?P<query>.+))?/$"
+#~ msgstr "^esplori(?:/(?P<query>.+))?/$"
+
+#~ msgid "Today is not CapsLock day. Please try with '{correct_value}'."
+#~ msgstr "La CapsLock tago ne estas hodiaŭ. Bv. provu “{correct_value}”."
+
+#~ msgid "It seems there are too many uppercase letters. Please try with '{correct_value}'."
+#~ msgstr "Ŝajnas ke estas tro da majuskloj. Bv. provu “{correct_value}”."
+
+#~ msgid "Digits are not allowed."
+#~ msgstr "Ciferoj ne estas permesitaj en tiu ĉi kampo."
+
+#~ msgid "Please provide this data in Latin characters, preferably in Esperanto. The source language can be possibly stated in parentheses."
+#~ msgstr "Bonvole indiku tiun ĉi informon per latinaj literoj, kaj prefere en Esperanto (vialingve/alfabete vi povas eventuale indiki en krampoj)."
+
+#~ msgid "File type is not supported"
+#~ msgstr "Dosiertipo ne akceptebla"
+
+#~ msgid "Please keep filesize under {limit}. Current filesize {current}"
+#~ msgstr "Bv. certigu ke dosiergrando estas sub {limit}. Nuna grando: {current}"
+
+#~ msgid "The data is not saved yet! Note the specified errors."
+#~ msgstr "La informoj ankoraŭ ne estas konservitaj! Atentu la indikitajn erarojn."
+
+#~ msgid "[Pasporta Servo] You received an Authorization"
+#~ msgstr "[Pasporta Servo] Vi ricevis permeson"
+
+#~ msgid "^phone/(?P<num>[\\w-]+)/update/$"
+#~ msgstr "^telefono/(?P<num>[\\w-]+)/redakti/$"
+
+#~ msgid "^phone/(?P<num>[\\w-]+)/delete/$"
+#~ msgstr "^telefono/(?P<num>[\\w-]+)/forigi/$"
+
+#~ msgid "You need to confirm your profile if you would like to be in the book. <a href=\"%(url)s\">Confirm now!</a>"
+#~ msgstr "Se vi volas aperi en la ĉi-jara eldono de PS-libro, necesas ke vi kontrolu kaj konfirmu ĝustecon de viaj profilo kaj loĝejo. <a href=\"%(url)s\">Konfirmu nun!</a>"
+
+#~ msgid "^confirm/(?P<model>\\w+)/(?P<pk>\\d+)/$"
+#~ msgstr "^konfirmi/(?P<model>\\w+)/(?P<pk>\\d+)/$"
+
+#~ msgid "My location"
+#~ msgstr "Mia loko"
