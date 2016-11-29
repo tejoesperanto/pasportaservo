@@ -1,5 +1,6 @@
 from os import environ, path
 from datetime import timedelta
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def get_env_setting(setting):
@@ -85,6 +86,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
 
                 'postman.context_processors.inbox',
+                'core.context_processors.domain',
             ],
         },
     },
@@ -174,10 +176,15 @@ PHONENUMBER_DEFAULT_FORMAT = 'INTERNATIONAL'
 
 DEFAULT_AVATAR_URL = "mm"
 
+def user_first_name(user):
+    try:
+        return user.profile.name
+    except ObjectDoesNotExist:
+        return user.username
 
 POSTMAN_AUTO_MODERATE_AS = True
 POSTMAN_MAILER_APP = None
-POSTMAN_SHOW_USER_AS = 'get_full_name'
+POSTMAN_SHOW_USER_AS = user_first_name
 POSTMAN_DISALLOW_ANONYMOUS = True
 POSTMAN_DISALLOW_MULTIRECIPIENTS = True
 POSTMAN_DISALLOW_COPIES_ON_REPLY = True

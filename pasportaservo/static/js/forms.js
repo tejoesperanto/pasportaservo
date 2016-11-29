@@ -240,15 +240,18 @@ $(function() {
 
     /* for mass mail form */
     $('#id_body').keyup(function() {
-        $('#antauvido').html(marked($(this).val()));
+        $('#preview_body').html(marked($(this).val()));
+        $('#id_preheader').val($(this).val().replace(/(\r\n|\n|\r)/gm,' ').slice(0,99)).keyup();
     }).keyup();
 
+    $.each(['heading', 'subject', 'preheader'], function(i, element){
+        $('#id_'+element).keyup(function() {
+            $('#preview_'+element).html($(this).val());
+        }).keyup();
+    });
+
     $('#id_categories').change(function() {
-        if ($(this).val() === "test") {
-            $('#id_test_email').closest('.form-group').show();
-        } else {
-            $('#id_test_email').closest('.form-group').hide();
-        }
+        $('#id_test_email').closest('.form-group').toggle($(this).val() === "test");
     }).change();
 
     /* form submit/cancel keyboard shortcut key implementation */

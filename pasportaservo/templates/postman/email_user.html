@@ -1,0 +1,18 @@
+{% extends "email/base_email.html" %}
+{% load i18n %}
+
+{% block heading %}{% blocktrans with sender=object.obfuscated_sender trimmed %}
+    {{ sender }} wrote to you!
+{% endblocktrans %}{% endblock heading %}
+
+{% block preheader %}{{ object.body|truncatechars:97 }}{% endblock %}
+
+{% block body %}
+    {{ object.body|linebreaks }}
+{% endblock body %}
+
+{% block call_to_action %}
+    {% url 'postman:view' object.pk as view_message %}
+    {% trans 'Reply' as button_label %}
+    {% include "email/button.html" with url=view_message text=button_label %}
+{% endblock %}
