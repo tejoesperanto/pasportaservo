@@ -122,7 +122,7 @@ LOGIN_URL = 'login'
 LOGOUT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 
-DEFAULT_FROM_EMAIL = 'ne-respondu@pasportaservo.org'
+DEFAULT_FROM_EMAIL = 'Pasporta Servo <saluton@pasportaservo.org>'
 
 CSRF_COOKIE_AGE = None
 CSRF_COOKIE_HTTPONLY = True

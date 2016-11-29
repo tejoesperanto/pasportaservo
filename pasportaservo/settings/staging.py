@@ -6,15 +6,14 @@ MESSAGE_LEVEL = message_level.DEBUG
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'staging',
     }
 }
 
 EMAIL_BACKEND = "sgbackend.SendGridBackend"
 SENDGRID_API_KEY = get_env_setting('SENDGRID_API_KEY')
-EMAIL_SUBJECT_PREFIX = '[PS staging] '
-DEFAULT_FROM_EMAIL = 'ne-respondu@pasportaservo.org'
+EMAIL_SUBJECT_PREFIX = '[PS ido] '
 
 ALLOWED_HOSTS = [
     'ido.pasportaservo.org',
