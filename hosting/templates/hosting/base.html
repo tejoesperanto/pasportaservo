@@ -36,7 +36,7 @@
                 </div>
                 <div class="col-xs-2 col-sm-2 col-md-1 links">
                     {% if user.is_authenticated %}
-                        <a href="{% url 'logout' %}" style="text-decoration: none">
+                        <a href="{% url 'logout' %}" style="text-decoration: none" data-no-instant>
                             <span class="glyphicon glyphicon-log-out" title="{% trans "log out" %}"></span>
                         </a>
                     {% elif user %} {# 500/403-CSRF error pages don't have a user object #}

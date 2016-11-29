@@ -34,5 +34,9 @@
         {% block extra_js %}{% endblock %}
         {% block extra_head %}{% endblock %}
     </head>
-    <body>{% block body %}{% endblock %}</body>
+    <body>
+        {% block body %}{% endblock %}
+        <script src="{% static 'js/instantclick.min.js' %}" data-no-instant></script>
+        <script data-no-instant>InstantClick.init(50);</script>
+    </body>
 </html>
