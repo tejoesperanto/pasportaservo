@@ -6,16 +6,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-22 22:12+0000\n"
-"PO-Revision-Date: 2016-10-23 00:21+0100\n"
-"Last-Translator: Meir <interDist@users.noreply.github.com>\n"
+"POT-Creation-Date: 2016-12-01 10:32+0100\n"
+"PO-Revision-Date: 2016-12-01 10:35+0100\n"
+"Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.8\n"
+"X-Generator: Poedit 1.8.11\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #: pasportaservo/templates/403.html:4 pasportaservo/templates/403_csrf.html:4
@@ -23,7 +23,7 @@ msgstr ""
 msgid "Server error"
 msgstr "Servila eraro"
 
-#: pasportaservo/templates/403.html:7
+#: pasportaservo/templates/403.html:11
 msgid "No no, that page is off-limits"
 msgstr "Ne ne ne, tiun paĝon vi evitu"
 
@@ -171,6 +171,18 @@ msgstr ""
 msgid "Send"
 msgstr ""
 
+#: pasportaservo/templates/postman/email_user.html:4
+#, python-format
+msgid "%(sender)s wrote to you!"
+msgstr "%(sender)s skribis al vi!"
+
+#: pasportaservo/templates/postman/email_user.html:16
+#: pasportaservo/templates/postman/reply.html:3
+#: pasportaservo/templates/postman/view.html:55
+#: pasportaservo/templates/postman/view.html:61
+msgid "Reply"
+msgstr "Respondu"
+
 #: pasportaservo/templates/postman/email_user.txt:1
 msgid "Dear user,"
 msgstr ""
@@ -224,8 +236,8 @@ msgstr ""
 
 #: pasportaservo/templates/postman/email_user_subject.txt:1
 #, python-format
-msgid "[%(sitename)s] Message \"%(subject)s\""
-msgstr "[%(sitename)s] Nova mesaĝo \"%(subject)s\""
+msgid "From %(sender)s: %(subject)s"
+msgstr "El %(sender)s: %(subject)s"
 
 #: pasportaservo/templates/postman/email_visitor.txt:1
 msgid "Dear visitor,"
@@ -264,12 +276,6 @@ msgstr ""
 msgid "Received"
 msgstr ""
 
-#: pasportaservo/templates/postman/reply.html:3
-#: pasportaservo/templates/postman/view.html:55
-#: pasportaservo/templates/postman/view.html:61
-msgid "Reply"
-msgstr ""
-
 #: pasportaservo/templates/postman/sent.html:9
 msgid "Sent"
 msgstr ""
@@ -302,51 +308,43 @@ msgstr ""
 
 #: pasportaservo/templates/postman/view.html:38
 msgid "Back"
-msgstr ""
+msgstr "Reen"
 
-#: pasportaservo/urls.py:14
-msgid "^login/$"
-msgstr "^ensaluti/$"
-
-#: pasportaservo/urls.py:15
-msgid "^logout/$"
-msgstr "^elsaluti/$"
-
-#: pasportaservo/urls.py:16
-msgid "^password/$"
-msgstr "^pasvorto/$"
-
-#: pasportaservo/urls.py:17
-msgid "^password/done/$"
-msgstr "^pasvorto/fino/$"
-
-#: pasportaservo/urls.py:18
-msgid "^password/reset/$"
-msgstr "^pasvorto/nova/$"
-
-#: pasportaservo/urls.py:19
-msgid "^password/reset/done/$"
-msgstr "^pasvorto/nova/fino/$"
-
-#: pasportaservo/urls.py:20
-msgid ""
-"^reset/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]"
-"{1,20})/$"
-msgstr ""
-"^nova-pasvorto/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-"
-"[0-9A-Za-z]{1,20})/$"
-
-#: pasportaservo/urls.py:22
-msgid "^reset/done/$"
-msgstr "^nova-pasvorto/fino/$"
-
-#: pasportaservo/urls.py:26
+#: pasportaservo/urls.py:9
 msgid "^admin/"
 msgstr "^administrilo/"
 
-#: pasportaservo/urls.py:27
+#: pasportaservo/urls.py:10
 msgid "^messages/"
 msgstr "^leteroj/"
+
+#~ msgid "^login/$"
+#~ msgstr "^ensaluti/$"
+
+#~ msgid "^logout/$"
+#~ msgstr "^elsaluti/$"
+
+#~ msgid "^password/$"
+#~ msgstr "^pasvorto/$"
+
+#~ msgid "^password/done/$"
+#~ msgstr "^pasvorto/fino/$"
+
+#~ msgid "^password/reset/$"
+#~ msgstr "^pasvorto/nova/$"
+
+#~ msgid "^password/reset/done/$"
+#~ msgstr "^pasvorto/nova/fino/$"
+
+#~ msgid ""
+#~ "^reset/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-"
+#~ "z]{1,20})/$"
+#~ msgstr ""
+#~ "^nova-pasvorto/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-"
+#~ "[0-9A-Za-z]{1,20})/$"
+
+#~ msgid "^reset/done/$"
+#~ msgstr "^nova-pasvorto/fino/$"
 
 #~ msgid "Pasporta Servo administration"
 #~ msgstr "Administrado de Pasporta Servo"
