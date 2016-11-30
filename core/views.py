@@ -4,17 +4,22 @@ from markdown2 import markdown
 from braces.views import AnonymousRequiredMixin, SuperuserRequiredMixin
 
 from django.views import generic
+from django.http import JsonResponse
+from django.template.response import TemplateResponse
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model, authenticate, login
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.template import Context
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from hosting.models import Place, Profile
+from hosting.mixins import SupervisorMixin
 from .forms import MassMailForm, UserRegistrationForm
 from .utils import send_mass_html_mail
 
@@ -56,6 +61,27 @@ class RegisterView(AnonymousRequiredMixin, generic.CreateView):
         return result
 
 register = RegisterView.as_view()
+
+
+class MarkInvalidEmailView(LoginRequiredMixin, SupervisorMixin, generic.View):
+    http_method_names = ['post']
+    template_name = '404.html'
+    valid = False
+
+    def dispatch(self, request, *args, **kwargs):
+        self.user = get_object_or_404(User, pk=kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if self.valid:
+            Profile.mark_valid_emails([self.user.email])
+        else:
+            Profile.mark_invalid_emails([self.user.email])
+        if request.is_ajax():
+            success_value = 'valid' if self.valid else 'invalid'
+            return JsonResponse({'success': success_value})
+        else:
+            return TemplateResponse(request, self.template_name)
 
 
 class MassMailView(SuperuserRequiredMixin, generic.FormView):

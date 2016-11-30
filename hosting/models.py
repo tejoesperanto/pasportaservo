@@ -5,7 +5,10 @@ from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 from django.utils.text import slugify
 from django.db import models, transaction
+from django.db.models import F, Value as V
+from django.db.models.functions import Concat, Substr
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
@@ -213,6 +216,22 @@ class Profile(TrackingModel, TimeStampedModel):
         if remove:
             return self.user.groups.remove(group)
         return self.user.groups.add(group)
+
+    @staticmethod
+    def mark_invalid_emails(emails=None):
+        return get_user_model().objects.filter(
+            email__in=emails).exclude(
+            email__startswith=settings.INVALID_PREFIX).update(
+            email=Concat(V(settings.INVALID_PREFIX), F('email'))
+        )
+
+    @staticmethod
+    def mark_valid_emails(emails=None):
+        return get_user_model().objects.filter(
+            email__in=emails,
+            email__startswith=settings.INVALID_PREFIX).update(
+            email=Substr(F('email'), len(settings.INVALID_PREFIX) + 1)
+        )
 
     def __str__(self):
         if self.full_name.strip():

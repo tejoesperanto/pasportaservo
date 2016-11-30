@@ -17,8 +17,6 @@ PROJECT_DIR = path.dirname(path.dirname(path.abspath(__file__)))
 BASE_DIR = path.dirname(PROJECT_DIR)
 
 
-from django.conf import global_settings
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 STATIC_URL = '/static/'
@@ -87,6 +85,7 @@ TEMPLATES = [
 
                 'postman.context_processors.inbox',
                 'core.context_processors.domain',
+                'core.context_processors.some_settings',
             ],
         },
     },
@@ -143,6 +142,8 @@ CONFIRMATION_VALIDITY_PERIOD = timedelta(weeks=42)
 
 HOST_MIN_AGE = 16
 MEET_MIN_AGE = 13
+
+INVALID_PREFIX = 'INVALID_'
 
 CORS_ORIGIN_WHITELIST = (
     'pasportaservo.org',

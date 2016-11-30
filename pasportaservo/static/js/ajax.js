@@ -36,14 +36,10 @@ $(document).ready(function() {
             dataType: "json",
             csrfmiddlewaretoken: $this.data('csrf'),
             success: function(response) {
-                // TODO: Make it generic
-                $this.parents('.remove-after-success').slideUp();
-                $this.unwrap('.unwrap-after-success');
-                $this.prev('[name="csrfmiddlewaretoken"]').remove();
-                $this.removeClass('ajax');
-                $this.removeClass('btn-warning').addClass('btn-success');
-                $this.closest('.callout').addClass('callout-success');
-                if ($this.data('success-text')) { $this.text($this.data('success-text')) }
+                successCallback = window[$this.data('on-ajax-success')]
+                if (typeof(successCallback) === 'function') {
+                    successCallback($this)
+                }
             },
             error: function(xhr) {
                 $this.removeClass('disabled');
@@ -67,6 +63,29 @@ $(document).ready(function() {
     $('.ajax').focus(function(e) {
         $(this).popover("destroy");
     });
+
+    var ditchForm = function($this) {
+        $this.unwrap('.unwrap-after-success');
+        $this.prev('[name="csrfmiddlewaretoken"]').remove();
+    }
+
+    window.confirmInfoSuccess = function($this) {
+        $this.parents('.remove-after-success').slideUp();
+    }
+
+    window.checkPlaceSuccess = function($this) {
+        ditchForm($this);
+        $this.removeClass('ajax');
+        $this.removeClass('btn-warning').addClass('btn-success');
+        $this.closest('.callout').addClass('callout-success');
+        if ($this.data('success-text')) { $this.text($this.data('success-text')) }
+    }
+
+    window.markInvalidEmailSuccess = function($this) {
+        ditchForm($this);
+        $this.prev('.email').addClass('text-danger').children('a').contents().unwrap('a');
+        $this.remove();
+    }
 
 });
 

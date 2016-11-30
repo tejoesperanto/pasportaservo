@@ -7,6 +7,7 @@ from django.http.response import HttpResponse
 from django.views import generic
 from django.template.loader import get_template
 from django.template.defaultfilters import yesno
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from hosting.mixins import StaffMixin
@@ -66,7 +67,7 @@ class ContactExport(StaffMixin, generic.ListView):
     def get_queryset(self):
         places = Place.objects.prefetch_related('owner__user')
         places = places.filter(available=True).exclude(
-            owner__user__email__startswith='INVALID_'
+            owner__user__email__startswith=settings.INVALID_PREFIX
         )
         return places
 

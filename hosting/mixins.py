@@ -39,6 +39,8 @@ class SupervisorMixin(UserPassesTestMixin):
             return True
         try:
             return self.request.user.profile.is_supervisor_of(countries=[self.country])
+        except AttributeError:
+            return self.request.user.profile.is_supervisor_of(self.user.profile)
         except Profile.DoesNotExist:
             return False
 

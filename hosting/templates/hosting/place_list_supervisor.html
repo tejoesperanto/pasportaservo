@@ -102,6 +102,7 @@
                         data-csrf="{{ csrf_token }}"
                         data-hover-text="{% trans "check?"|capfirst %}"
                         data-success-text="{% trans "Checked" %}"
+                        data-on-ajax-success="checkPlaceSuccess"
                         autocomplete="off">
                         {% trans "not checked"|capfirst %}
                     </button>
@@ -157,13 +158,24 @@
     </address>
     <div class="user">
         <samp><small>{{ place.profile.user.username }}</small></samp>&nbsp;
-        {% if 'INVALID_' in place.profile.user.email %}
-            <span class="text-danger" title="{% trans "invalid email"%}" data-toggle="tooltip">
+        {% if INVALID_PREFIX in place.profile.user.email %}
+            <span class="email text-danger" title="{% trans "invalid email"%}" data-toggle="tooltip">
                 {{ place.profile.user.email|cut:"INVALID_" }}
                 <span class="glyphicon glyphicon-warning-sign"></span>
             </span>
         {% else %}
-            {{ place.profile.user.email|urlize }}
+            <span class="email">{{ place.profile.user.email|urlize }}</span>
+            <form action="{% url 'mark_invalid_email' place.profile.user.pk %}" method="POST"
+                  class="unwrap-after-success" style="display:inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-xs btn-default ajax"
+                        data-csrf="{{ csrf_token }}"
+                        data-hover-class="btn-danger"
+                        data-on-ajax-success="markInvalidEmailSuccess"
+                        autocomplete="off">
+                    {% trans "Mark invalid" %}
+                </button>
+            </form>
         {% endif %}
     </div>
 </div>

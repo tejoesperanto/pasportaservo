@@ -10,6 +10,7 @@ from django.contrib.auth.views import (
 from .views import (
     home,
     register,
+    MarkInvalidEmailView,
     mass_mail, mass_mail_sent,
 )
 
@@ -32,4 +33,12 @@ urlpatterns = [
 
     url(_(r'^mass_mail/$'), mass_mail, name='mass_mail'),
     url(_(r'^mass_mail_sent/$'), mass_mail_sent, name='mass_mail_sent'),
+
+    url(_(r'^mark-invalid-email/(?P<pk>\d+)/$'),
+        MarkInvalidEmailView.as_view(), name='mark_invalid_email'),
+    url(_(r'^mark-valid-email/(?P<pk>\d+)/$'),
+        MarkInvalidEmailView.as_view(valid=True), name='mark_valid_email'),
+
+    url(_(r'^mass-mail/$'), mass_mail, name='mass_mail'),
+    url(_(r'^mass-mail-sent/$'), mass_mail_sent, name='mass_mail_sent'),
 ]
