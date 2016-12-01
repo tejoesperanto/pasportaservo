@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
 
 from .models import Profile, Place, Phone
 from .models import ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR
@@ -137,11 +138,7 @@ class FamilyMemberAuthMixin(object):
 
 class DeleteMixin(object):
     def delete(self, request, *args, **kwargs):
-        """
-        Set the flag 'deleted' to True on the object
-        and then redirects to the success URL
-        """
         self.object = self.get_object()
-        self.object.deleted = True
+        self.object.deleted_on = timezone.now()
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())

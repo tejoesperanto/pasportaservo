@@ -3,8 +3,6 @@ from django.db.models import BooleanField, Case, When
 from django.conf import settings
 from django.utils import timezone
 
-validity_start = timezone.now() - settings.CONFIRMATION_VALIDITY_PERIOD
-
 
 class TrackingManager(models.Manager):
     """ Adds the following boolean fields from their datetime counterpart:
@@ -12,6 +10,7 @@ class TrackingManager(models.Manager):
     """
 
     def get_queryset(self):
+        validity_start = timezone.now() - settings.CONFIRMATION_VALIDITY_PERIOD
         return super().get_queryset().annotate(deleted=Case(
             When(deleted_on__isnull=True, then=False),
             default=True,
