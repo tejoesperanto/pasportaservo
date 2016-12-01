@@ -20,7 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from hosting.models import Place, Profile
 from hosting.mixins import SupervisorMixin
-from .forms import MassMailForm, UserRegistrationForm
+from .forms import MassMailForm, StaffUpdateEmailForm, UserRegistrationForm
 from .utils import send_mass_html_mail
 
 User = get_user_model()
@@ -61,6 +61,23 @@ class RegisterView(AnonymousRequiredMixin, generic.CreateView):
         return result
 
 register = RegisterView.as_view()
+
+
+class StaffUpdateEmailView(LoginRequiredMixin, SupervisorMixin, generic.UpdateView):
+    model = get_user_model()
+    form_class = StaffUpdateEmailForm
+    template_name = 'core/system_email_form.html'
+
+    def get_success_url(self, *args, **kwargs):
+        if 'next' in self.request.GET:
+            return self.request.GET.get('next')
+
+    def dispatch(self, request, *args, **kwargs):
+        self.user = get_object_or_404(User, pk=kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+staff_update_email = StaffUpdateEmailView.as_view()
+
 
 
 class MarkInvalidEmailView(LoginRequiredMixin, SupervisorMixin, generic.View):

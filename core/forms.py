@@ -40,6 +40,11 @@ class UserRegistrationForm(UserCreationForm):
         return user
 
 
+class StaffUpdateEmailForm(forms.ModelForm):
+    class Meta:
+        model = get_user_model()
+        fields = ['email']
+
 class MassMailForm(forms.Form):
     heading = forms.CharField(label=_("Heading"), initial="Anonco")
     body = forms.CharField(label=_("Body"), widget=forms.Textarea, initial="Kara {nomo},\n\n")

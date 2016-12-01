@@ -160,7 +160,7 @@
         <samp><small>{{ place.profile.user.username }}</small></samp>&nbsp;
         {% if INVALID_PREFIX in place.profile.user.email %}
             <span class="email text-danger" title="{% trans "invalid email"%}" data-toggle="tooltip">
-                {{ place.profile.user.email|cut:"INVALID_" }}
+                {{ place.profile.user.email|cut:INVALID_PREFIX }}
                 <span class="glyphicon glyphicon-warning-sign"></span>
             </span>
         {% else %}
@@ -177,6 +177,10 @@
                 </button>
             </form>
         {% endif %}
+        
+        <a href="{% url 'staff_update_email' place.profile.user.pk %}?next={{ request.get_full_path|urlencode }}" class="btn btn-default btn-sm">
+            {% trans "Update email" %}
+        </a>
     </div>
 </div>
 
