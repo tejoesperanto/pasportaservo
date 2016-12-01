@@ -84,7 +84,6 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
 
                 'postman.context_processors.inbox',
-                'core.context_processors.domain',
                 'core.context_processors.some_settings',
             ],
         },
