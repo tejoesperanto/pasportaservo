@@ -1,4 +1,4 @@
-{% load i18n %}{% blocktrans trimmed %}
+{% load i18n %}{% load domain %}{% blocktrans trimmed %}
     Dear {{ user_first_name }},
 {% endblocktrans %}
 
@@ -10,7 +10,7 @@
 {% blocktrans trimmed %}
     Follow this link to see this accommodation:
 {% endblocktrans %}
-{% if request.is_secure %}https{% else %}http{% endif %}://{{ site_domain }}{% url 'place_detail' place_id %}
+{% domain %}{% url 'place_detail' place_id %}
 
 
 {% blocktrans trimmed %}
