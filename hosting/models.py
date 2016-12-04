@@ -94,6 +94,11 @@ class Profile(TrackingModel, TimeStampedModel):
         null=True, blank=True,
         validators=[TooFarPastValidator(200), validate_not_in_future],
         help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))
+    email = models.EmailField(_("profile email"),
+        blank=True,
+        help_text=_("This email address will be used for the book. "
+            "Leave blank if you don’t want this email to be public.\n"
+            "The system will never send emails to this address."))
     description = models.TextField(_("description"),
         blank=True,
         help_text=_("Short biography."))
