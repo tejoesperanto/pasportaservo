@@ -1349,12 +1349,12 @@ msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/phone/create/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/telefono/krei/$"
 
 #: urls.py:55
-msgid "^profile/(?P<pk>\\d+)/phone/(?P<num>[\\w-]+)/update/$"
-msgstr "^profilo/(?P<pk>\\d+)/telefono/(?P<num>[\\w-]+)/redakti/$"
+msgid "^profile/(?P<profile_pk>\\d+)/phone/(?P<pk>\\d+)/update/$"
+msgstr "^profilo/(?P<profile_pk>\\d+)/telefono/(?P<pk>\\d+)/redakti/$"
 
 #: urls.py:56
-msgid "^profile/(?P<pk>\\d+)/phone/(?P<num>[\\w-]+)/delete/$"
-msgstr "^profilo/(?P<pk>\\d+)/telefono/(?P<num>[\\w-]+)/forigi/$"
+msgid "^profile/(?P<profile_pk>\\d+)/phone/(?P<pk>\\d+)/delete/$"
+msgstr "^profilo/(?P<profile_pk>\\d+)/telefono/(?P<pk>\\d+)/forigi/$"
 
 #: urls.py:58
 msgid "^current/confirm/$"

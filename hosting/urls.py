@@ -52,8 +52,8 @@ urlpatterns = [
         name='country_place_list'),
 
     url(_(r'^profile/(?P<pk>\d+)(?:/(?P<slug>[\w-]+))?/phone/create/$'), phone_create, name='phone_create'),
-    url(_(r'^profile/(?P<pk>\d+)/phone/(?P<num>[\w-]+)/update/$'), phone_update, name='phone_update'),
-    url(_(r'^profile/(?P<pk>\d+)/phone/(?P<num>[\w-]+)/delete/$'), phone_delete, name='phone_delete'),
+    url(_(r'^profile/(?P<profile_pk>\d+)/phone/(?P<pk>\d+)/update/$'), phone_update, name='phone_update'),
+    url(_(r'^profile/(?P<profile_pk>\d+)/phone/(?P<pk>\d+)/delete/$'), phone_delete, name='phone_delete'),
 
     url(_(r'^current/confirm/$'), confirm_hosting_info, name='confirm_hosting_info'),
     url(_(r'^place/(?P<pk>\d+)/check/$'), place_check, name='place_check'),

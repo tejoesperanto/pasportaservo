@@ -90,13 +90,13 @@
 
 {% block phone_edit_buttons %}
     <div class="btn-group pull-right">
-        <a href="{% url 'phone_update' profile.pk phone.number.as_e164|slugify %}"
+        <a href="{% url 'phone_update' profile.pk phone.pk %}"
            class="btn btn-success"
            title="{% trans "Update" %}">
             <span class="glyphicon glyphicon-pencil"></span>
             <span class="hidden-xs">{% trans "Update" %}</span>
         </a>
-        <a href="{% url 'phone_delete' profile.pk phone.number.as_e164|cut:"+"|cut:" " %}"
+        <a href="{% url 'phone_delete' profile.pk phone.pk %}"
            class="btn btn-danger"
            title="{% trans "Remove a phone number" %}">
             <span class="glyphicon glyphicon-trash"></span>

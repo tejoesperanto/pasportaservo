@@ -101,8 +101,8 @@ class PhoneAuthMixin(object):
 
     def get_object(self, queryset=None):
         number = get_object_or_404(Phone,
-            profile=self.kwargs['pk'],
-            number__icontains=self.kwargs['num'].replace('-', ' '))
+            pk=self.kwargs['pk'],
+            profile=self.kwargs['profile_pk'])
         self.role = get_role(self.request, profile=number.profile)
         if self.role >= self.minimum_role:
             return number
