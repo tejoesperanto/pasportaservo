@@ -101,12 +101,6 @@ class ProfileCreateForm(ProfileForm):
         return profile
 
 
-class ProfileSettingsForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ['email']
-
-
 class PlaceForm(forms.ModelForm):
     class Meta:
         model = Place
@@ -154,7 +148,7 @@ class PlaceForm(forms.ModelForm):
                         self.add_error('have_a_drink', "")
                     message = _("The minimum age to be allowed meeting with visitors is {age:d}.")
                 raise forms.ValidationError(format_lazy(message, age=allowed_age))
-        
+
         # Sets some fields as required if user wants their data to be printed in book.
         required_fields = ['address', 'city', 'postcode', 'country',
             'short_description', 'available', 'latitude', 'longitude']
@@ -302,3 +296,9 @@ class FamilyMemberCreateForm(FamilyMemberForm):
         family_member = super(FamilyMemberCreateForm, self).save()
         self.place.family_members.add(family_member)
         return family_member
+
+
+class EmailUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['email']

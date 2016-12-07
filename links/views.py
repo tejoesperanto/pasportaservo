@@ -11,6 +11,7 @@ from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from hosting.models import Place
+from core.views import email_update_confirm
 
 
 class UniqueLinkView(generic.TemplateView):
@@ -51,6 +52,9 @@ class UniqueLinkView(generic.TemplateView):
         login(request, place.owner.user)
         messages.info(request, _("You've been automatically logged in. Happy editing!"))
         return HttpResponseRedirect(place.owner.get_absolute_url())
+
+    def redirect_email_update(self, request, payload):
+        return email_update_confirm(request, pk=payload['pk'], email=payload['email'])
 
 unique_link = UniqueLinkView.as_view()
 

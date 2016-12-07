@@ -1,7 +1,13 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
+from django.core.mail import send_mail
+from django.template.loader import get_template
+from django.template import Context
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
+
+from links.utils import create_unique_url
 
 User = get_user_model()
 
@@ -40,10 +46,47 @@ class UserRegistrationForm(UserCreationForm):
         return user
 
 
+class EmailUpdateForm(forms.ModelForm):
+    class Meta:
+        model = get_user_model()
+        fields = ['email']
+
+    def save(self):
+        """ Saves nothing but sends a warning email to old email,
+            and sends a confirmation link to the new email address.
+        """
+        old_email = self.instance.email
+        new_email = self.cleaned_data['email']
+        url = create_unique_url({
+            'action': 'email_update',
+            'pk': self.instance.pk,
+            'email': new_email,
+        })
+        context = Context({
+            'site_name': settings.SITE_NAME,
+            'url': url,
+            'user': self.instance,
+            'email': new_email,
+        })
+        subject = _("You changed your email address")
+        for old_new in ['old', 'new']:
+            message = get_template('email/%s_email_update.txt' % old_new)
+            html_message = get_template('email/%s_email_update.html' % old_new)
+            send_mail(
+                subject,
+                message.render(context),
+                settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[{'old': old_email, 'new': new_email}[old_new]],
+                html_message=html_message.render(context),
+                fail_silently=False)
+        return self.instance
+
+
 class StaffUpdateEmailForm(forms.ModelForm):
     class Meta:
         model = get_user_model()
         fields = ['email']
+
 
 class MassMailForm(forms.Form):
     heading = forms.CharField(label=_("Heading"), initial="Anonco")

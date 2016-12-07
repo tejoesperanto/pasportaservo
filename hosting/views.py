@@ -35,8 +35,9 @@ from .mixins import (
 )
 from .forms import (
     AuthorizeUserForm, AuthorizedOnceUserForm,
-    ProfileForm, ProfileSettingsForm, ProfileCreateForm, PhoneForm, PhoneCreateForm,
+    ProfileForm, ProfileCreateForm, PhoneForm, PhoneCreateForm,
     PlaceForm, PlaceCreateForm, FamilyMemberForm, FamilyMemberCreateForm,
+    EmailUpdateForm,
 )
 
 
@@ -192,13 +193,12 @@ class ProfileEditView(ProfileDetailView):
 profile_edit = ProfileEditView.as_view()
 
 
-class ProfileSettingsView(LoginRequiredMixin, ProfileMixin, generic.UpdateView):
-    model = User
-    template_name = 'hosting/base_form.html'
-    form_class = ProfileSettingsForm
+class ProfileSettingsView(ProfileDetailView):
+    template_name = 'hosting/settings.html'
 
-    def get_object(self, queryset=None):
-        return self.request.user
+    @property
+    def profile_email_help_text(self):
+        return Profile._meta.get_field('email').help_text
 
 profile_settings = ProfileSettingsView.as_view()
 
@@ -558,3 +558,11 @@ class FamilyMemberDeleteView(LoginRequiredMixin, DeleteMixin, FamilyMemberAuthMi
         return redirect
 
 family_member_delete = FamilyMemberDeleteView.as_view()
+
+
+class EmailUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, generic.UpdateView):
+    model = User
+    template_name = 'hosting/base_form.html'
+    form_class = EmailUpdateForm
+
+profile_email_update = EmailUpdateView.as_view()

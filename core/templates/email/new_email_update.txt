@@ -1,0 +1,16 @@
+{% load i18n %}{% load domain %}{% autoescape off %}{% trans "Dear user," %}
+
+{% blocktrans %}You're receiving this email because you requested the change of this email address at {{ site_name }}.{% endblocktrans %}
+
+{% trans "Please go to the following page to confirm your email address:" %}
+
+{% domain url %}
+
+
+{% trans "Your username, in case you've forgotten:" %} {{ user.get_username }}
+
+{% trans "Thanks for using our site!" %}
+
+{% blocktrans %}The {{ site_name }} team{% endblocktrans %}
+
+{% endautoescape %}

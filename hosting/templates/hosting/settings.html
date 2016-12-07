@@ -1,0 +1,60 @@
+{% extends 'hosting/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block head_title %}
+        {% trans "Settings" %}
+{% endblock %}
+
+{% block page %}
+    <h2>{% trans "Settings" %}</h2>
+    <section class="callout">
+        <h4 id="{% trans "password" %}">{% trans "Password" %}</h4>
+        <a href="{% url 'password_change' %}" class="btn btn-default">
+            <span class="hidden-xs">{% trans "Change password" %}</span>
+        </a>
+    </section>
+
+    <section class="callout">
+        <h4 id="{% trans "email" %}">{% trans "Email" %}</h4>
+        <samp><small>{{ profile.user.email }}</small></samp>
+        {% if role == profile.OWNER %}
+            <a href="{% url 'email_update' profile.user.pk %}" class="btn btn-default">
+                {% trans "Update system email" %}
+            </a>
+        {% else %}
+            <a href="{% url 'staff_update_email' profile.user.pk %}" class="btn btn-default">
+                {% trans "Update system email" %}
+            </a>
+        {% endif %}
+        <p class="help-block">{% trans "We send emails to this address. It will never be shown." %}</p>
+
+        <section class="well well-sm">
+            <a href="#profile-email" class="btn btn-default btn-xs" data-toggle="collapse" >{% trans "Other email?" %}</a>
+            <div id="profile-email" class="collapse">
+                {% trans "no email to display" as no_email %}
+                <samp><small>{% firstof profile.email no_email %}</small></samp>
+                <a href="{% url 'profile_email_update' profile.pk profile.user.username|slugify %}?next={{ request.get_full_path|urlencode }}" class="btn btn-default">
+                    {% trans "Update profile email" %}
+                </a>
+                <p class="help-block">{{ view.profile_email_help_text|linebreaksbr }}</p>
+            </div>
+        </section>
+    </section>
+
+    <section class="callout callout-danger">
+        <h4>{% trans "Delete account" %}</h4>
+        <a href="{% url 'profile_delete' profile.pk profile.user.username|slugify %}"
+            class="btn btn-danger">
+            <span class="glyphicon glyphicon-trash"></span>
+            {% trans "Delete account" %}
+        </a>
+    </section>
+        
+    <div class="pull-left">
+        <a href="{% url 'profile_edit' profile.pk profile.user.username|slugify %}" class="btn btn-default" title="{% trans "Back" %}">
+            <span class="glyphicon glyphicon-arrow-left"></span>
+            <span class="hidden-xxs">{% trans "Back" %}</span>
+        </a>
+    </div>
+{% endblock page %}

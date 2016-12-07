@@ -4,7 +4,7 @@ from markdown2 import markdown
 from braces.views import AnonymousRequiredMixin, SuperuserRequiredMixin
 
 from django.views import generic
-from django.http import JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.template.response import TemplateResponse
 from django.conf import settings
 from django.contrib import messages
@@ -16,11 +16,12 @@ from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.template import Context
 from django.utils.safestring import mark_safe
+from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from hosting.models import Place, Profile
 from hosting.mixins import SupervisorMixin
-from .forms import MassMailForm, StaffUpdateEmailForm, UserRegistrationForm
+from .forms import MassMailForm, EmailUpdateForm, StaffUpdateEmailForm, UserRegistrationForm
 from .utils import send_mass_html_mail
 
 User = get_user_model()
@@ -63,18 +64,50 @@ class RegisterView(AnonymousRequiredMixin, generic.CreateView):
 register = RegisterView.as_view()
 
 
-class StaffUpdateEmailView(LoginRequiredMixin, SupervisorMixin, generic.UpdateView):
-    model = get_user_model()
-    form_class = StaffUpdateEmailForm
-    template_name = 'core/system_email_form.html'
+class EmailUpdateView(LoginRequiredMixin, generic.UpdateView):
+    model = User
+    template_name = 'hosting/base_form.html'
+    form_class = EmailUpdateForm
+
+    def get_object(self, queryset=None):
+        return self.request.user
 
     def get_success_url(self, *args, **kwargs):
-        if 'next' in self.request.GET:
-            return self.request.GET.get('next')
+        return self.object.profile.get_edit_url()
+
+email_update = EmailUpdateView.as_view()
+
+
+class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
+    def dispatch(self, request, *args, **kwargs):
+        user = get_object_or_404(User, pk=kwargs['pk'])
+        if user.pk != request.user.pk:
+            raise Http404('Only current user can use this view')
+        old_email, new_email = user.email, kwargs['email']
+        user.email = new_email
+        user.save()
+        if user.profile.email == old_email:  # Keep profile email sync
+            user.profile.email = new_email
+            user.profile.save()
+        messages.info(request, _("Your email address has been successfuly updated!"))
+        return HttpResponseRedirect(reverse_lazy('profile_settings', kwargs={
+            'pk': user.profile.pk, 'slug': slugify(user.username)}))
+
+email_update_confirm = EmailUpdateConfirmView.as_view()
+
+
+class StaffUpdateEmailView(LoginRequiredMixin, SupervisorMixin, generic.UpdateView):
+    model = User
+    form_class = StaffUpdateEmailForm
+    template_name = 'core/system_email_form.html'
 
     def dispatch(self, request, *args, **kwargs):
         self.user = get_object_or_404(User, pk=kwargs['pk'])
         return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self, *args, **kwargs):
+        if 'next' in self.request.GET:
+            return self.request.GET.get('next')
 
 staff_update_email = StaffUpdateEmailView.as_view()
 

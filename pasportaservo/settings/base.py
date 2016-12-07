@@ -134,7 +134,7 @@ CSRF_COOKIE_HTTPONLY = True
 SITE_NAME = "Pasporta Servo"
 
 SALT = 'salo'
-TOKEN_MAX_AGE = 3600 * 24 * 30 * 2  # 2 months
+TOKEN_MAX_AGE = 3600 * 24 * 2  # 2 days
 
 # Delay after which an object is no longer considered as confirmed
 CONFIRMATION_VALIDITY_PERIOD = timedelta(weeks=42)

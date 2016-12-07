@@ -10,7 +10,7 @@ from django.contrib.auth.views import (
 from .views import (
     home,
     register,
-    staff_update_email,
+    email_update, staff_update_email,
     MarkInvalidEmailView,
     mass_mail, mass_mail_sent,
 )
@@ -32,6 +32,7 @@ urlpatterns = [
         view=password_reset_confirm, name='password_reset_confirm'),
     url(_(r'^reset/done/$'), view=password_reset_complete, name='password_reset_complete'),
 
+    url(_(r'^email-update/(?P<pk>\d+)/$'), email_update, name='email_update'),
     url(_(r'^staff-update-email/(?P<pk>\d+)/$'), staff_update_email, name='staff_update_email'),
 
     url(_(r'^mark-invalid-email/(?P<pk>\d+)/$'),
