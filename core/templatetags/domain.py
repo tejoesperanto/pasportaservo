@@ -16,5 +16,8 @@ def domain(context, url=''):
         _domain = context['site'].domain
         protocol = 'https' if 'pasportaservo.org' in _domain else 'http'
     else:  # Fallback
-        protocol, _domain = 'https', settings.ALLOWED_HOSTS[0]
+        if settings.DEBUG:
+            protocol, _domain = 'http', 'localhost:8000'
+        else:
+            protocol, _domain = 'https', settings.ALLOWED_HOSTS[0]
     return '://'.join([protocol, _domain]) + url
