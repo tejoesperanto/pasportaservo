@@ -46,6 +46,12 @@ class UserRegistrationForm(UserCreationForm):
         return user
 
 
+class UsernameUpdateForm(forms.ModelForm):
+    class Meta:
+        model = get_user_model()
+        fields = ['username']
+
+
 class EmailUpdateForm(forms.ModelForm):
     class Meta:
         model = get_user_model()

@@ -8,14 +8,23 @@
 
 {% block page %}
     <h2>{% trans "Settings" %}</h2>
-    <section class="callout">
+
+    <section class="callout callout-primary">
+        <h4 id="{% trans "username" %}">{% trans "username"|capfirst %}</h4>
+        <samp><small>{{ profile.user.username }}</small></samp>
+        <a href="{% url 'username_update' profile.user.pk %}" class="btn btn-default">
+            <span class="hidden-xs">{% trans "Change username" %}</span>
+        </a>
+    </section>
+
+    <section class="callout callout-primary">
         <h4 id="{% trans "password" %}">{% trans "Password" %}</h4>
         <a href="{% url 'password_change' %}" class="btn btn-default">
             <span class="hidden-xs">{% trans "Change password" %}</span>
         </a>
     </section>
 
-    <section class="callout">
+    <section class="callout callout-primary">
         <h4 id="{% trans "email" %}">{% trans "Email" %}</h4>
         <samp><small>{{ profile.user.email }}</small></samp>
         {% if role == profile.OWNER %}
@@ -27,12 +36,12 @@
                 {% trans "Update system email" %}
             </a>
         {% endif %}
-        <p class="help-block">{% trans "We send emails to this address. It will never be shown." %}</p>
+        <p class="help-block">{% trans "We send e-mails to this address. It will never be public." %}</p>
 
         <section class="well well-sm">
             <a href="#profile-email" class="btn btn-default btn-xs" data-toggle="collapse" >{% trans "Other email?" %}</a>
             <div id="profile-email" class="collapse">
-                {% trans "no email to display" as no_email %}
+                {% trans "no email" as no_email %}
                 <samp><small>{% firstof profile.email no_email %}</small></samp>
                 <a href="{% url 'profile_email_update' profile.pk profile.user.username|slugify %}?next={{ request.get_full_path|urlencode }}" class="btn btn-default">
                     {% trans "Update profile email" %}
