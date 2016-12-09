@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-01 10:32+0100\n"
-"PO-Revision-Date: 2016-12-01 10:32+0100\n"
+"POT-Creation-Date: 2016-12-09 11:52+0000\n"
+"PO-Revision-Date: 2016-12-09 13:05+0100\n"
 "Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -18,148 +18,224 @@ msgstr ""
 "X-Generator: Poedit 1.8.11\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: core/forms.py:10
+#: forms.py:16
 msgid "Email"
 msgstr "Retadreso"
 
-#: core/forms.py:13
+#: forms.py:19
 msgid "Leave blank"
 msgstr "Lasu malplena"
 
-#: core/forms.py:25
+#: forms.py:31
 msgid "User address already in use."
 msgstr "Uzanta adreso jam uzita."
 
-#: core/forms.py:44
+#: forms.py:77
+msgid "You changed your email address"
+msgstr "Vi ŝanĝis vian retadreson"
+
+#: forms.py:98
 msgid "Heading"
 msgstr "Titolo"
 
-#: core/forms.py:45
+#: forms.py:99
 msgid "Body"
 msgstr "Mesaĝo"
 
-#: core/forms.py:46
+#: forms.py:100
 msgid "Subject"
 msgstr "Temo"
 
-#: core/forms.py:47
+#: forms.py:101
 msgid "Preheader"
 msgstr "Antaŭkapo"
 
-#: core/forms.py:49
+#: forms.py:103
 msgid "Categories"
 msgstr "Kategorioj"
 
-#: core/forms.py:50
+#: forms.py:104
 msgid "test"
 msgstr "Provo (sendas al: )"
 
-#: core/forms.py:51
+#: forms.py:105
 msgid "old system"
 msgstr "Gastigantoj: neniam ensalutis en la nova retejo"
 
-#: core/forms.py:52
+#: forms.py:106
 msgid "not in book"
 msgstr "Nova retejo: ne en la libreto"
 
-#: core/forms.py:53
+#: forms.py:107
 msgid "in book"
 msgstr "Nova retejo: EN la libreto"
 
-#: core/forms.py:54
+#: forms.py:108
 msgid "just user"
 msgstr "Ne gastigantoj (malnova aŭ nova retejo)"
 
-#: core/forms.py:56
+#: forms.py:110
 msgid "Your email for test"
 msgstr "Via retpoŝtadreso por testi"
 
-#: core/templates/core/home.html:26
+#: templates/core/home.html:26
 msgid "log out"
 msgstr "elsaluti"
 
-#: core/templates/core/home.html:29
+#: templates/core/home.html:29
 msgid "admin site"
 msgstr "administrilo"
 
-#: core/templates/core/home.html:32
+#: templates/core/home.html:32
 msgid "log in"
 msgstr "ensaluti"
 
-#: core/templates/core/home.html:43
+#: templates/core/home.html:43
 msgid "register"
 msgstr "registriĝi"
 
-#: core/templates/core/home.html:51
+#: templates/core/home.html:51
 msgid "test version"
 msgstr "Prova versio: tiu ĉi retejo ankoraŭ ne estas finpreta"
 
-#: core/templates/core/home.html:61
+#: templates/core/home.html:61
 msgid "Budapest, London, Venezuela, etc."
 msgstr "Budapeŝto, Londono, Venezuelo, ktp."
 
-#: core/templates/core/home.html:79
+#: templates/core/home.html:79
 msgid "Find accomodation<br>anywhere in the world."
 msgstr "Trovu loĝejon<br>ĉie ajn sur la planedo"
 
-#: core/templates/core/home.html:90 core/templates/core/home.html:93
-#: core/templates/core/home.html:96
+#: templates/core/home.html:90 templates/core/home.html:93
+#: templates/core/home.html:96
 msgid "at"
 msgstr "ĉe"
 
-#: core/templates/core/home.html:96
+#: templates/core/home.html:96
 msgid "About us"
 msgstr "Pri ni"
 
-#: core/templates/core/home.html:103
+#: templates/core/home.html:103
 msgid "Contact us via Skype"
 msgstr "Kontaktu nin per Skajpo"
 
-#: core/templates/core/home.html:106
+#: templates/core/home.html:106
 msgid "Contact us via email"
 msgstr "Kontaktu nin per retpoŝto"
 
-#: core/templates/core/home.html:109
+#: templates/core/home.html:109
 msgid "Your ideas and suggestions"
 msgstr "Viaj ideoj kaj proponoj"
 
-#: core/templates/core/home.html:112
+#: templates/core/home.html:112
 msgid "Pasporta Servo's source code"
 msgstr "Fontkodo de Pasporta Servo"
 
-#: core/templates/email/base_email.html:191
+#: templates/email/base_email.html:191
 msgid "Unsubscribe"
 msgstr "Malregistriĝi"
 
-#: core/urls.py:21
+#: templates/email/new_email_update.html:3
+#: templates/email/new_email_update.html:25
+#: templates/email/old_email_update.html:3
+msgid "Confirm email"
+msgstr "Konfirmi retadreson"
+
+#: templates/email/new_email_update.html:6
+#: templates/email/new_email_update.txt:3
+#, python-format
+msgid ""
+"You're receiving this email because you requested the change of this email "
+"address at %(site_name)s."
+msgstr ""
+"Vi ricevas tiun mesaĝon ĉar vi petis ŝanĝon de vian retadreson ĉe "
+"%(site_name)s."
+
+#: templates/email/new_email_update.html:12
+#: templates/email/new_email_update.txt:5
+msgid "Please go to the following page to confirm your email address:"
+msgstr "Bonvolu iri al la jena paĝo por konfirmi vian retadreson:"
+
+#: templates/email/new_email_update.html:21
+#: templates/email/new_email_update.txt:10
+#: templates/email/old_email_update.html:18
+#: templates/email/old_email_update.txt:10
+msgid "Your username, in case you've forgotten:"
+msgstr ""
+
+#: templates/email/new_email_update.txt:1
+#: templates/email/old_email_update.txt:1
+msgid "Dear user,"
+msgstr ""
+
+#: templates/email/new_email_update.txt:12
+#: templates/email/old_email_update.txt:12
+msgid "Thanks for using our site!"
+msgstr ""
+
+#: templates/email/new_email_update.txt:14
+#: templates/email/old_email_update.txt:14
+#, python-format
+msgid "The %(site_name)s team"
+msgstr "La teamo de %(site_name)s"
+
+#: templates/email/old_email_update.html:6
+#: templates/email/old_email_update.html:10
+#, python-format
+msgid ""
+"You're receiving this email because you requested the change of your email "
+"address at %(site_name)s:"
+msgstr ""
+"Vi ricevas tiun mesaĝon ĉar vi petis ŝanĝon de vian retadreson ĉe "
+"%(site_name)s:"
+
+#: templates/email/old_email_update.html:15
+#: templates/email/old_email_update.txt:7
+msgid ""
+"In case you did not requested this change and you think it’s a fraud, please "
+"contact us ASAP!"
+msgstr ""
+"Se vi ne petis tiun ŝanĝon kaj pensas ke estas fraŭdo, bonvolu rapide "
+"kontakti nin!"
+
+#: templates/email/old_email_update.txt:3
+#, python-format
+msgid ""
+"You're receiving this email because you requested the change of your email "
+"address at %(site_name)s."
+msgstr ""
+"Vi ricevas tiun mesaĝon ĉar vi petis ŝanĝon de vian retadreson ĉe "
+"%(site_name)s."
+
+#: urls.py:23
 msgid "^register/$"
 msgstr "^registrado/$"
 
-#: core/urls.py:22
+#: urls.py:24
 msgid "^login/$"
 msgstr "^ensaluti/$"
 
-#: core/urls.py:23
+#: urls.py:25
 msgid "^logout/$"
 msgstr "^elsaluti/$"
 
-#: core/urls.py:25
+#: urls.py:27
 msgid "^password/$"
 msgstr "^pasvorto/$"
 
-#: core/urls.py:26
+#: urls.py:28
 msgid "^password/done/$"
 msgstr "^pasvorto/fino/$"
 
-#: core/urls.py:27
+#: urls.py:29
 msgid "^password/reset/$"
 msgstr "^pasvorto/nova/$"
 
-#: core/urls.py:29
+#: urls.py:31
 msgid "^password/reset/done/$"
 msgstr "^pasvorto/nova/fino/$"
 
-#: core/urls.py:30
+#: urls.py:32
 msgid ""
 "^reset/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]"
 "{1,20})/$"
@@ -167,40 +243,51 @@ msgstr ""
 "^nova-pasvorto/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-"
 "[0-9A-Za-z]{1,20})/$"
 
-#: core/urls.py:32
+#: urls.py:34
 msgid "^reset/done/$"
 msgstr "^nova-pasvorto/fino/$"
 
-#: core/urls.py:34
-msgid "^mass_mail/$"
-msgstr "^amassendado/$"
+#: urls.py:36
+msgid "^username-update/(?P<pk>\\d+)/$"
+msgstr "^uzantnomo-redakti/(?P<pk>\\d+)/$"
 
-#: core/urls.py:35
-msgid "^mass_mail_sent/$"
-msgstr "^amassendado-sukcesa/$"
+#: urls.py:37
+msgid "^email-update/(?P<pk>\\d+)/$"
+msgstr "^retadreso-redakti/(?P<pk>\\d+)/$"
 
-#: core/urls.py:37
+#: urls.py:38
+msgid "^staff-update-email/(?P<pk>\\d+)/$"
+msgstr "^personaro-retadreso-redakti/(?P<pk>\\d+)/$"
+
+#: urls.py:40
 msgid "^mark-invalid-email/(?P<pk>\\d+)/$"
 msgstr "^marki-nevalida-retadreso/(?P<pk>\\d+)/$"
 
-#: core/urls.py:39
+#: urls.py:42
 msgid "^mark-valid-email/(?P<pk>\\d+)/$"
 msgstr "^marki-valida-retadreso/(?P<pk>\\d+)/$"
 
-#: core/urls.py:42
+#: urls.py:45
 msgid "^mass-mail/$"
 msgstr "^amassendado/$"
 
-#: core/urls.py:43
+#: urls.py:46
 msgid "^mass-mail-sent/$"
 msgstr "^amassendado-sukcesa/$"
 
-#: core/views.py:60
+#: views.py:64
 msgid "You are logged in."
 msgstr "Vi nun estas ensalutinta."
 
-#~ msgid "^staff-update-email/(?P<pk>\\d+)/$"
-#~ msgstr "^personaro-retadreso-redakti/(?P<pk>\\d+)/$"
+#: views.py:109
+msgid "Your email address has been successfuly updated!"
+msgstr "Vi sukcese ŝanĝis vian retadreson!"
+
+#~ msgid "^mass_mail/$"
+#~ msgstr "^amassendado/$"
+
+#~ msgid "^mass_mail_sent/$"
+#~ msgstr "^amassendado-sukcesa/$"
 
 #~ msgid "Personal info"
 #~ msgstr "Personaj informoj"
@@ -586,9 +673,6 @@ msgstr "Vi nun estas ensalutinta."
 
 #~ msgid "Delete"
 #~ msgstr "Forigi"
-
-#~ msgid "Confirm"
-#~ msgstr "Konfirmi"
 
 #~ msgid "Dear %(user_first_name)s,"
 #~ msgstr "Kara %(user_first_name)s,"
@@ -997,9 +1081,6 @@ msgstr "Vi nun estas ensalutinta."
 
 #~ msgid "New password link"
 #~ msgstr "Nova pasvorta ligilo"
-
-#~ msgid "The %(site_name)s team"
-#~ msgstr "La teamo de %(site_name)s"
 
 #~ msgid "Send"
 #~ msgstr "Sendi"
