@@ -213,7 +213,8 @@ class Profile(TrackingModel, TimeStampedModel):
             )
         countries = countries if countries else []
         if not countries:
-            countries = profile.owned_places.filter(available=True, deleted=False).values_list('country', flat=True)
+            countries = profile.owned_places.filter(
+                available=True, deleted=False).values_list('country', flat=True)
         supervised = self.user.groups.values_list('name', flat=True)
         return any(set(supervised) & set(countries))
 
@@ -223,21 +224,27 @@ class Profile(TrackingModel, TimeStampedModel):
             return self.user.groups.remove(group)
         return self.user.groups.add(group)
 
-    @staticmethod
-    def mark_invalid_emails(emails=None):
-        return get_user_model().objects.filter(
-            email__in=emails).exclude(
-            email__startswith=settings.INVALID_PREFIX).update(
-            email=Concat(V(settings.INVALID_PREFIX), F('email'))
-        )
+    @classmethod
+    def mark_invalid_emails(cls, emails=None):
+        models = {cls: None, get_user_model(): None}
+        for model in models:
+            models[model] = model.objects.filter(
+                email__in=emails).exclude(
+                email__istartswith=settings.INVALID_PREFIX).update(
+                email=Concat(V(settings.INVALID_PREFIX), F('email'))
+            )
+        return models
 
-    @staticmethod
-    def mark_valid_emails(emails=None):
-        return get_user_model().objects.filter(
-            email__in=emails,
-            email__startswith=settings.INVALID_PREFIX).update(
-            email=Substr(F('email'), len(settings.INVALID_PREFIX) + 1)
-        )
+    @classmethod
+    def mark_valid_emails(cls, emails=None):
+        models = {cls: None, get_user_model(): None}
+        for model in models:
+            models[model] = model.objects.filter(
+                email__in=emails,
+                email__istartswith=settings.INVALID_PREFIX).update(
+                email=Substr(F('email'), len(settings.INVALID_PREFIX) + 1)
+            )
+        return models
 
     def __str__(self):
         if self.full_name.strip():
