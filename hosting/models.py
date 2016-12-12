@@ -98,7 +98,8 @@ class Profile(TrackingModel, TimeStampedModel):
         blank=True,
         help_text=_("This email address will be used for the book. "
             "Leave blank if you don’t want this email to be public.\n"
-            "The system will never send emails to this address."))
+            "The system will never send emails to this address, "
+            "neither publish it on the site without your permission."))
     description = models.TextField(_("description"),
         blank=True,
         help_text=_("Short biography."))
@@ -107,8 +108,8 @@ class Profile(TrackingModel, TimeStampedModel):
         upload_to=UploadAndRenameAvatar("avatars"),
         validators=[validate_image, validate_size],
         help_text=_("Small image under 100kB. Ideal size: 140x140 px."))
-    contact_preferences = models.ManyToManyField('hosting.ContactPreference', verbose_name=_("contact preferences"),
-        blank=True)
+    contact_preferences = models.ManyToManyField('hosting.ContactPreference',
+        blank=True, verbose_name=_("contact preferences"))
 
     class Meta:
         verbose_name = _("profile")
