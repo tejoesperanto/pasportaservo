@@ -8,7 +8,7 @@
         {% if place.available %}
             {% trans "A place in" %}
         {% else %}
-            {{ place.owner.anonymous_name }}, 
+            {{ place.owner.anonymous_name }},
         {% endif %}
         {% if place.city %}{{ place.city }}, {% endif %}{{ place.get_country_display }}
     {% endif %}
@@ -27,7 +27,7 @@
                     {% endif %}
                 </div>
             </div>
-            
+
             <div class="row">
                 <div class="col-xs-3 avatar">
                     <a href="{{ place.owner.get_absolute_url }}">
@@ -90,7 +90,7 @@
                                     {{ place.postcode }}
                                 {% endif %}
                                 {{ place.get_country_display }}
-                                
+
                                 &nbsp; {% include 'hosting/snippets/checked.html' with object=place %}
                             </p>
                         {% endif %}
@@ -164,6 +164,21 @@
                         {% endif %}
                     </p>
                 </div>
+
+                {% if INVALID_PREFIX in place.owner.user.email %}
+                    <ul class="list-group phone-list col-xs-12 hidden-xs hidden-sm">
+                        {% for phone in place.owner.phones.all %}
+                            <li class="list-group-item list-vertical-align">
+                                <p class="details">
+                                    {{ phone.icon }}
+                                    <b class="number">{{ phone.number.as_international }}</b>
+                                    <br class="visible-xs-inline" />
+                                    <em class="comment">{{ phone.comments }}</em>
+                                </p>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             {% else %}
                 {% include 'hosting/snippets/registration.html' %}
             {% endif %}
@@ -202,13 +217,34 @@
                 {% if place.conditions.all %}
                     {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all only %}
                 {% endif %}
+
+                {% if INVALID_PREFIX in place.owner.user.email %}
+                    <ul class="list-group phone-list col-xs-12 col-md-6">
+                        {% for phone in place.owner.phones.all %}
+                            <li class="list-group-item list-vertical-align">
+                                <p class="details">
+                                    {{ phone.icon }}
+                                    <b class="number">{{ phone.number.as_international }}</b>
+                                    <br class="visible-xs-inline" />
+                                    <em class="comment">{{ phone.comments }}</em>
+                                </p>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             </div>
 
             <p class="col-xs-12">
                 {% if user.profile != place.owner %}
-                    <a href="{% url 'postman:write' place.owner.user.username %}" class="btn btn-primary btn-vert-space">
-                        <span class="glyphicon glyphicon-send"></span>&nbsp; {% trans "Write message" %}
-                    </a>
+                    {% if INVALID_PREFIX in place.owner.user.email %}
+                        <a href="#" class="btn btn-danger btn-vert-space disabled"
+                            title="{% trans "The user’s email address seems invalid" %}"
+                            data-toggle="tooltip">
+                    {% else %}
+                        <a href="{% url 'postman:write' place.owner.user.username %}" class="btn btn-primary btn-vert-space">
+                    {% endif %}
+                            <span class="glyphicon glyphicon-send"></span>&nbsp; {% trans "Write message" %}
+                        </a>
                 {% endif %}
                 {% if user.profile == place.owner or user.is_staff %}
                     <span class="btn-group btn-vert-space">
@@ -216,11 +252,11 @@
                             {% trans "my " as kin %}
                         {% endif %}
                         <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% blocktrans %}Update {{ kin }}place{% endblocktrans %}">
-                            <span class="glyphicon glyphicon-pencil"></span> 
+                            <span class="glyphicon glyphicon-pencil"></span>
                             <span class="">{% trans "Update" %}</span>
                         </a>
                         {% if user.profile == place.owner %}
-                            <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}" 
+                            <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}"
                                class="btn btn-warning"
                                title="{% trans "Authorized users" %}">
                                 <span class="glyphicon glyphicon-eye-open"></span>
@@ -251,12 +287,12 @@
                     <em class="same-as-body"><small>{{ place.short_description|default:"&ndash;" }}</small></em>
                 </p>
                 <p class="help-block">
-                    {% trans "Available" %}:&nbsp; 
+                    {% trans "Available" %}:&nbsp;
                     <span class="glyphicon glyphicon-{{ place.available|yesno:'ok,remove' }}"></span>
                     {{ place.available|yesno }}
                 </p>
                 <p class="help-block">
-                    {% trans "Print in book" %}:&nbsp; 
+                    {% trans "Print in book" %}:&nbsp;
                     <span class="glyphicon glyphicon-{{ place.in_book|yesno:'ok,remove' }}"></span>
                     {{ place.in_book|yesno }}
                 </p>

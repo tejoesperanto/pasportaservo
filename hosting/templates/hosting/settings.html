@@ -26,7 +26,14 @@
 
     <section class="callout callout-primary">
         <h4 id="{% trans "email" %}">{% trans "Email" %}</h4>
-        <samp><small>{{ profile.user.email }}</small></samp>
+        {% if INVALID_PREFIX in profile.user.email %}
+            <span class="email text-danger" title="{% trans "invalid email"%}" data-toggle="tooltip">
+                {{ profile.user.email|cut:INVALID_PREFIX }}
+                <span class="glyphicon glyphicon-warning-sign"></span>
+            </span>
+        {% else %}
+            <samp><small>{{ profile.user.email }}</small></samp>
+        {% endif %}
         {% if role == profile.OWNER %}
             <a href="{% url 'email_update' profile.user.pk %}" class="btn btn-default">
                 {% trans "Update system email" %}
@@ -42,7 +49,14 @@
             <a href="#profile-email" class="btn btn-default btn-xs" data-toggle="collapse" >{% trans "Other email?" %}</a>
             <div id="profile-email" class="collapse">
                 {% trans "no email" as no_email %}
-                <samp><small>{% firstof profile.email no_email %}</small></samp>
+                {% if INVALID_PREFIX in profile.email %}
+                    <span class="email text-danger" title="{% trans "invalid email"%}" data-toggle="tooltip">
+                        {{ profile.email|cut:INVALID_PREFIX }}
+                        <span class="glyphicon glyphicon-warning-sign"></span>
+                    </span>
+                {% else %}
+                    <samp><small>{% firstof profile.email no_email %}</small></samp>
+                {% endif %}
                 <a href="{% url 'profile_email_update' profile.pk profile.user.username|slugify %}?next={{ request.get_full_path|urlencode }}" class="btn btn-default">
                     {% trans "Update profile email" %}
                 </a>

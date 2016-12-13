@@ -79,10 +79,16 @@
                 <div class="btn-group edit-buttons">
                     {% block profile_edit_buttons %}
                         {% if profile != user.profile %}
-                            <a href="{% url 'postman:write' profile.user.username %}" class="btn btn-primary">
-                                <span class="glyphicon glyphicon-send"></span>&nbsp; 
-                                <strong>{% trans "Write message" %}</strong>
-                            </a>
+                            {% if INVALID_PREFIX in profile.user.email %}
+                                <a href="#" class="btn btn-danger disabled"
+                                   title="{% trans "The user’s email address seems invalid" %}"
+                                   data-toggle="tooltip" data-placement="bottom">
+                            {% else %}
+                                <a href="{% url 'postman:write' profile.user.username %}" class="btn btn-primary">
+                            {% endif %}
+                                    <span class="glyphicon glyphicon-send"></span>&nbsp; 
+                                    {% trans "Write message" %}
+                                </a>
                         {% endif %}
                         {% if profile == user.profile or role >= profile.SUPERVISOR %}
                             {% trans "Update user's details" as update_title %}
@@ -288,7 +294,7 @@
 
     {% block place_add_buttons %}{% endblock %}
 
-    {% if not view.public_view %}
+    {% if not view.public_view or INVALID_PREFIX in profile.user.email %}
         <hr />
 
         <h2 class="owner">{% trans "Phones" %}</h2>
