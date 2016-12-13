@@ -96,6 +96,7 @@ class ProfileCreateForm(ProfileForm):
     def save(self, commit=True):
         profile = super(ProfileForm, self).save(commit=False)
         profile.user = self.user
+        profile.email = self.user.email
         if commit:
             profile.save()
         return profile
