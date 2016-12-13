@@ -59,7 +59,7 @@
                                     <img src="{% static 'img/city_drink.svg' %}"
                                          onerror="this.onerror = null; this.src = this.src.replace(/\.svg$/, '.png');"
                                          alt="[&nbsp;{% trans "have a drink" %}&nbsp;]"
-                                         title="{% trans "I'd like to have a drink together" %}"
+                                         title="{% trans "I’d like to have a drink together" %}"
                                          style="width: 1.5em; height: 1.5em;" />
                                 {% endif %}
 
@@ -164,6 +164,21 @@
                         {% endif %}
                     </p>
                 </div>
+
+                {% if INVALID_PREFIX in place.owner.user.email %}
+                    <ul class="list-group phone-list col-xs-12 hidden-xs hidden-sm">
+                        {% for phone in place.owner.phones.all %}
+                            <li class="list-group-item list-vertical-align">
+                                <p class="details">
+                                    {{ phone.icon }}
+                                    <b class="number">{{ phone.number.as_international }}</b>
+                                    <br class="visible-xs-inline" />
+                                    <em class="comment">{{ phone.comments }}</em>
+                                </p>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             {% else %}
                 {% include 'hosting/snippets/registration.html' %}
             {% endif %}
@@ -202,13 +217,34 @@
                 {% if place.conditions.all %}
                     {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all only %}
                 {% endif %}
+
+                {% if INVALID_PREFIX in place.owner.user.email %}
+                    <ul class="list-group phone-list col-xs-12 col-md-6">
+                        {% for phone in place.owner.phones.all %}
+                            <li class="list-group-item list-vertical-align">
+                                <p class="details">
+                                    {{ phone.icon }}
+                                    <b class="number">{{ phone.number.as_international }}</b>
+                                    <br class="visible-xs-inline" />
+                                    <em class="comment">{{ phone.comments }}</em>
+                                </p>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             </div>
 
             <p class="col-xs-12">
                 {% if user.profile != place.owner %}
-                    <a href="{% url 'postman:write' place.owner.user.username %}" class="btn btn-primary btn-vert-space">
-                        <span class="glyphicon glyphicon-send"></span>&nbsp; {% trans "Write message" %}
-                    </a>
+                    {% if INVALID_PREFIX in place.owner.user.email %}
+                        <a href="#" class="btn btn-danger btn-vert-space disabled"
+                            title="{% trans "The user’s email address seems invalid" %}"
+                            data-toggle="tooltip">
+                    {% else %}
+                        <a href="{% url 'postman:write' place.owner.user.username %}" class="btn btn-primary btn-vert-space">
+                    {% endif %}
+                            <span class="glyphicon glyphicon-send"></span>&nbsp; {% trans "Write message" %}
+                        </a>
                 {% endif %}
                 {% if user.profile == place.owner or user.is_staff %}
                     <span class="btn-group btn-vert-space">

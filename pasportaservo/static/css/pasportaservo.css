@@ -501,6 +501,7 @@ header:not(.home) #subtitle,
     opacity: 0;
 }
 
+.btn.disabled { pointer-events: auto; } /* Bootstrap hack for tooltip */
 
 /* Bootstrap Callout */
 
