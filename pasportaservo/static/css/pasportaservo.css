@@ -562,6 +562,15 @@ header:not(.home) #subtitle,
     color: #5cb85c;
 }
 
+.input-lg {
+    height: 44px;
+    line-height: 30px;
+    padding: 11px 19px;
+    margin-bottom: 10px;
+    font-size: 1.5em;
+    border-radius: 6px;
+}
+
 /* XXS */
 @media (max-width: 479px) {
     .visible-xxs-block {

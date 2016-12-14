@@ -5,7 +5,7 @@ from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 from django.utils.text import slugify
 from django.db import models, transaction
-from django.db.models import F, Value as V
+from django.db.models import Q, F, Value as V
 from django.db.models.functions import Concat, Substr
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -125,7 +125,7 @@ class Profile(TrackingModel, TimeStampedModel):
             combined_name = (self.first_name, self.last_name)
         else:
             combined_name = (self.last_name, self.first_name)
-        real_name = " ".join(combined_name).strip() 
+        real_name = " ".join(combined_name).strip()
         return real_name or (self.user.username.title() if self.user else " ")
 
     @property
@@ -185,7 +185,10 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @property
     def is_in_book(self):
-        return self.owned_places.filter(available=True, deleted=False, in_book=True).count()
+        return self.owned_places.filter(
+            Q(confirmed=True) | Q(checked=True),
+            available=True, deleted=False, in_book=True,
+        ).exists()
 
     @property
     def places_confirmed(self):

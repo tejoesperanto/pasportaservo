@@ -54,6 +54,7 @@ INSTALLED_APPS = (
     'links',
     'pages',
     'book',
+    'shop',
 )
 
 MIDDLEWARE_CLASSES = (
