@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo pages\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-24 02:26+0100\n"
-"PO-Revision-Date: 2016-11-24 02:27+0100\n"
+"POT-Creation-Date: 2016-12-30 19:24+0000\n"
+"PO-Revision-Date: 2016-12-30 20:25+0100\n"
 "Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
 "Language-Team: EO <info@pasportaservo.org>\n"
 "Language: eo\n"
@@ -19,7 +19,7 @@ msgstr ""
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #: templates/pages/supervisors.html:5 templates/pages/supervisors.html:11
-#: templates/pages/supervisors.html:34
+#: templates/pages/supervisors.html:35
 msgid "Supervisors"
 msgstr "Landaj Organizantoj"
 
@@ -30,6 +30,18 @@ msgstr "kodo"
 #: templates/pages/supervisors.html:33
 msgid "country"
 msgstr "lando"
+
+#: templates/pages/supervisors.html:34
+msgid "Progress"
+msgstr "Progreso"
+
+#: templates/pages/supervisors.html:60
+msgid "places checked"
+msgstr "adresoj kontrolitaj"
+
+#: templates/pages/supervisors.html:65
+msgid "places confirmed"
+msgstr "adresoj konfirmitaj de uzanto"
 
 #: urls.py:8
 msgid "^about/$"
