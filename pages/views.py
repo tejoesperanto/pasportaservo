@@ -29,7 +29,11 @@ class SupervisorsView(generic.TemplateView):
                 country.supervisors = sorted(user.profile for user in group.user_set.all())
             except Group.DoesNotExist:
                 pass
-            country.place_count = places.filter(country=country).count()
+            places_for_country = places.filter(country=country)
+            country.place_count = places_for_country.count()
+            country.checked_count = places_for_country.filter(checked=True).count()
+            country.only_confirmed_count = places_for_country.filter(
+                confirmed=True, checked=False).count()
         return countries
 
 supervisors = SupervisorsView.as_view()

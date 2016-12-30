@@ -27,41 +27,58 @@
         <li class="list-group-item">Helpi informi pri PS per komunikiloj de la landa movado (revuoj, forumoj, dissendolistoj ktp.) kaj instigi homojn al uzado kiel gastoj kaj kiel gastigantoj.</li>
     </ul>
     <table class="table table-striped table-condensed">
-        <thead>
-            <tr>
-                <th>{% trans "code"|capfirst %}</th>
-                <th>{% trans "country"|capfirst %}</th>
-                <th>{% trans "Supervisors" %}</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for country in view.countries %}
-                <tr{% if user|is_supervisor_of:country %} class="info"{% endif %}>
-                    <td>{{ country.code }}</td>
-                    <td>
-                        <a class="btn btn-primary"
-                            {% if user.is_staff or user|is_supervisor_of:country %}
-                                 href="{% url "country_place_list" country 1 %}"
-                            {% else %}
-                                disabled="disabled"
-                            {% endif %}>
-                            <strong>{{ country.name }}</strong>&nbsp;
-                            <span class="badge">{{ country.place_count }}</span>
-                        </a>
-                    </td>
-                    <td>
-                        {% for supervisor in country.supervisors %}
-                            <a href="{{ supervisor.get_absolute_url }}">
-                                {{ supervisor }}
-                            </a><br>
-                        {% endfor %}
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
+      <thead>
+        <tr>
+          <th>{% trans "code"|capfirst %}</th>
+          <th>{% trans "country"|capfirst %}</th>
+          <th width="60%">{% trans "Progress" %}</th>
+          <th>{% trans "Supervisors" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for country in view.countries %}
+          <tr{% if user|is_supervisor_of:country %} class="info"{% endif %}>
+            <td>{{ country.code }}</td>
+            <td>
+                <a class="btn btn-primary"
+                    {% if user.is_staff or user|is_supervisor_of:country %}
+                          href="{% url "country_place_list" country 1 %}"
+                    {% else %}
+                        disabled="disabled"
+                    {% endif %}>
+                    <strong>{{ country.name }}</strong>&nbsp;
+                    <span class="badge">{{ country.place_count }}</span>
+                </a>
+            </td>
+            <td>
+              {% widthratio country.checked_count country.place_count 100 as checked_progress %}
+              {% widthratio country.only_confirmed_count country.place_count 100 as confirmed_progress %}
+              <strong>{{ checked_progress }}%</strong>
+              <div class="progress">
+                <div class="progress-bar progress-bar-success"
+                     style="width: {{ checked_progress }}%"
+                     data-toggle="tooltip" title="{{ country.checked_count }} {% trans "places checked" %}">
+                  <strong>{{ country.checked_count }}</strong>
+                </div>
+                <div class="progress-bar progress-bar-info progress-bar-striped"
+                     style="width: {{ confirmed_progress }}%"
+                     data-toggle="tooltip" title="{{ country.only_confirmed_count }} {% trans "places confirmed" %}">
+                  {{ country.only_confirmed_count }}
+                </div>
+              </div>
+            </td>
+            <td>
+                {% for supervisor in country.supervisors %}
+                    <a href="{{ supervisor.get_absolute_url }}">
+                        {{ supervisor }}
+                    </a><br>
+                {% endfor %}
+            </td>
+            <td>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
     </table>
 
 {% endblock page %}
