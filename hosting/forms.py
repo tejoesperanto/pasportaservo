@@ -151,8 +151,8 @@ class PlaceForm(forms.ModelForm):
                 raise forms.ValidationError(format_lazy(message, age=allowed_age))
 
         # Sets some fields as required if user wants their data to be printed in book.
-        required_fields = ['address', 'city', 'postcode', 'country',
-            'short_description', 'available', 'latitude', 'longitude']
+        required_fields = ['address', 'city', 'closest_city', 'country',
+            'available', 'latitude', 'longitude']
         all_filled = all([cleaned_data.get(field, False) for field in required_fields])
         message = _("You want to be in the printed edition of Pasporta Servo. "
                     "In order to have a quality product, some fields a required. "
