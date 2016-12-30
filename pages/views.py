@@ -1,8 +1,7 @@
 from django.views import generic
 from django.contrib.auth.models import Group
 
-from django_countries.fields import Country
-from hosting.models import Profile, Place
+from hosting.models import Place
 from hosting.utils import sort_by_name
 
 class AboutView(generic.TemplateView):
@@ -21,7 +20,7 @@ class SupervisorsView(generic.TemplateView):
     template_name = 'pages/supervisors.html'
 
     def countries(self):
-        places = Place.objects.filter(in_book=True)
+        places = Place.available_objects.filter(in_book=True)
         groups = Group.objects.exclude(user=None)
         countries = sort_by_name({p.country for p in places})
         for country in countries:
