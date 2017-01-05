@@ -98,7 +98,7 @@
             {% else %}
                 <form action="{% url 'place_check' place.pk %}" method="POST" class="unwrap-after-success">
                     {% csrf_token %}
-                    <button type="button" id="place-{{ place.pk }}" class="btn btn-warning ajax" 
+                    <button type="button" id="place-{{ place.pk }}" class="btn btn-warning ajax"
                         data-csrf="{{ csrf_token }}"
                         data-hover-text="{% trans "check?"|capfirst %}"
                         data-success-text="{% trans "Checked" %}"
@@ -109,7 +109,7 @@
                 </form>
             {% endif %}
             </div>
-        
+
             <div class="btn-group" role="group">
                 <a class="btn btn-success" href="{% url 'place_update' place.pk %}" target="_blank">
                     <span class="glyphicon glyphicon-pencil"></span>
@@ -117,6 +117,11 @@
                 </a>
             </div>
         </div>
+
+        <h4 class="text-right" title="{{ place.modified }}" data-toggle="tooltip" data-placement="bottom">
+          <small class="glyphicon glyphicon-time"></small>
+          <small>{{ place.modified|date:"Y-m-d H:i" }} UTC</small>
+        </h4>
     </div>
 
     <address>
@@ -177,7 +182,7 @@
                 </button>
             </form>
         {% endif %}
-        
+
         <a href="{% url 'staff_update_email' place.profile.user.pk %}?next={{ request.get_full_path|urlencode }}" class="btn btn-default btn-sm">
             {% trans "Update email" %}
         </a>
