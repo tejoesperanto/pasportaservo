@@ -86,6 +86,7 @@ TEMPLATES = [
 
                 'postman.context_processors.inbox',
                 'core.context_processors.some_settings',
+                'shop.context_processors.reservation',
             ],
         },
     },
