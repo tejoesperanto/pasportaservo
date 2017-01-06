@@ -118,7 +118,15 @@
             </div>
         </div>
 
-        <h4 class="text-right" title="{{ place.modified }}" data-toggle="tooltip" data-placement="bottom">
+        <br>
+        <h4 class="text-right" title="{% trans "last login" %}<br>{{ place.owner.user.last_login }}"
+            data-toggle="tooltip" data-placement="bottom">
+          <small class="glyphicon glyphicon-user"></small>
+          <small>{{ place.owner.user.last_login|date:"Y-m-d H:i" }} UTC</small>
+        </h4>
+
+        <h4 class="text-right" title="{% trans "place" %}<br>{{ place.modified }}"
+            data-toggle="tooltip" data-placement="bottom">
           <small class="glyphicon glyphicon-time"></small>
           <small>{{ place.modified|date:"Y-m-d H:i" }} UTC</small>
         </h4>

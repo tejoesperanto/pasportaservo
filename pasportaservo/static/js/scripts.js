@@ -100,12 +100,12 @@ $(document).ready(function() {
         $('.anchor-notify').popover({
             trigger: "manual",
             html: true,
-            content: $('#status-anchors_notification').data("content") 
+            content: $('#status-anchors_notification').data("content")
         });
     }
 
     // Bootstrap tooltips and popovers
-    $('[data-toggle=tooltip]').tooltip();
+    $('[data-toggle=tooltip]').tooltip({html: true});
     $('[data-toggle=tooltip-lasting]').tooltip({ delay: { show: 0, hide: 2000, } });
     $('[data-toggle=popover]').popover();
 });
@@ -115,12 +115,12 @@ $(document).ready(function() {
 function displayAnchorsNotification() {
     var blockSmallDescription = $('.description-small');
     $('html, body').animate({ scrollTop: blockSmallDescription.offset().top - 10 }, 500);
-    
+
     var origin = $('.anchor-notify');
     origin.popover("show");
     var notify = origin.next('.popover');
     origin.filter('.status').next('.popover').addClass('hidden-xs hidden-sm');
-    
+
     notify.animate({ opacity: 0.95 }, 600);
     window.setTimeout(function() {
         notify.animate({ opacity: 0 }, 600, function() { origin.popover("hide") });
