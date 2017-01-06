@@ -62,14 +62,16 @@ def migrate():
     run("./manage.py migrate --noinput")
 
 @task
-def deploy(branch='devel', remote='origin'):
+def deploy(mode='full', remote='origin'):
     require('site', provided_by=[staging, prod])
     require('branch', provided_by=[staging, prod])
 
     with prefix('workon %s' % env.site):
         checkout(remote, env.branch, False)
         pull(remote, env.branch, False)
-        requirements()
-        collectstatic()
-        migrate()
-    sudo("supervisorctl restart %s" % env.site)
+        if mode == 'full':
+            requirements()
+            collectstatic()
+            migrate()
+    if mode != 'html':
+        sudo("supervisorctl restart %s" % env.site)
