@@ -49,8 +49,8 @@
                   {% if place.postcode %}{{ place.postcode|escape_latex }}~{% endif %}{{ place.city|escape_latex|ctx:"semibold" }}
                   {{ place.address|escape_latex }} {% for phone in place.owner.phones.all %}
                   {{ phone.latex }} {{ phone.comments|escape_latex|ctx:"lightitalic,footnotesize" }} {% endfor %}{% if place.owner.email and INVALID_PREFIX not in place.owner.email %}
-              {{ place.owner.email|escape_latex|cmd:"texttt"|ctx:"footnotesize" }}{% endif %}{% if place.display_conditions_latex %}
-                  ~{{ place.display_conditions_latex }}~{% endif %}
+              {{ place.owner.email|escape_latex|cmd:"texttt"|ctx:"footnotesize" }}{% endif %}{% if place.latexdisplay_conditions %}
+                  ~{{ place.latexdisplay_conditions }}~{% endif %}
                   {% if place.max_guest %}{{ place.max_guest }}g\,{% endif %}{% if place.max_night %}\,{{ place.max_night }}n\,{% endif %}{% if place.contact_before %}\,{{ place.contact_before }}t{% endif %}
                   {{ place.short_description|escape_latex|cmd:"light" }}
               }

@@ -9,11 +9,11 @@
 
         {# "TODO: Remove by mid February 2017" #}
         {% if not BOOK_RESERVED %}
-          {% url "reserve" "PS2017" as reserve_url %}
-          {% blocktrans asvar reserve_msg %}
-            <a href="{{ reserve_url }}">Rezervu nun la libreton <big>Pasporta Servo 2017</big>!</a>
-          {% endblocktrans %}
-          {% include "message.html" with message=reserve_msg|safe level='info' daily=True sticky_class='PS2017' %}
+            {% url "reserve" "PS2017" as reserve_url %}
+            {% blocktrans asvar reserve_msg trimmed %}
+                <a href="{{ reserve_url }}">Rezervu nun la libreton <big>Pasporta Servo 2017</big>!</a>
+            {% endblocktrans %}
+            {% include "message.html" with message=reserve_msg|safe level='info' daily=True sticky_class='PS2017' %}
         {% endif %}
     </section>
     <header class="container-fluid{% block header_class %}{% endblock %}">
@@ -23,11 +23,12 @@
                     <a href="{% url 'home' %}">P<span class="hidden-xs">asporta&nbsp;</span>S<span class="hidden-xs">ervo</span></a>
                 </div>
                 <div class="hidden-xs col-sm-3 col-md-3" id="subtitle">
-                  {% if BOOK_RESERVED %}
-                    E-gastigantoj tra la mondo
-                  {% else %}
-                    <a href="{% url "reserve" "PS2017" %}">Rezervu nun la novan adreslibron 2017!</a>
-                  {% endif %}
+                    {# "TODO: Remove by mid February 2017" #}
+                    {% if BOOK_RESERVED %}
+                        E-gastigantoj tra la mondo
+                    {% else %}
+                        <a href="{{ reserve_url }}">Rezervu nun la novan adreslibron 2017!</a>
+                    {% endif %}
                 </div>
                 <div class="col-xs-3 col-sm-2 col-md-1 col-md-offset-4 enveloppe links">
                     {% if user.is_authenticated %}

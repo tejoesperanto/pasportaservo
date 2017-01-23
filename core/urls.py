@@ -10,9 +10,9 @@ from django.contrib.auth.views import (
 from .views import (
     home,
     register,
-    username_update,
+    username_change,
     email_update, staff_update_email,
-    MarkInvalidEmailView,
+    mark_email_invalid, mark_email_valid,
     mass_mail, mass_mail_sent,
 )
 
@@ -33,15 +33,12 @@ urlpatterns = [
         view=password_reset_confirm, name='password_reset_confirm'),
     url(_(r'^reset/done/$'), view=password_reset_complete, name='password_reset_complete'),
 
-    url(_(r'^username-update/(?P<pk>\d+)/$'), username_update, name='username_update'),
-    url(_(r'^email-update/(?P<pk>\d+)/$'), email_update, name='email_update'),
-    url(_(r'^staff-update-email/(?P<pk>\d+)/$'), staff_update_email, name='staff_update_email'),
+    url(_(r'^username/$'), username_change, name='username_change'),
+    url(_(r'^email/$'), email_update, name='email_update'),
+    url(_(r'^profile/(?P<pk>\d+)/staff/email/update/$'), staff_update_email, name='staff_update_email'),
+    url(_(r'^profile/(?P<pk>\d+)/staff/email/mark-invalid/$'), mark_email_invalid, name='staff_mark_email_invalid'),
+    url(_(r'^profile/(?P<pk>\d+)/staff/email/mark-valid/$'), mark_email_valid, name='staff_mark_email_valid'),
 
-    url(_(r'^mark-invalid-email/(?P<pk>\d+)/$'),
-        MarkInvalidEmailView.as_view(), name='mark_invalid_email'),
-    url(_(r'^mark-valid-email/(?P<pk>\d+)/$'),
-        MarkInvalidEmailView.as_view(valid=True), name='mark_valid_email'),
-
-    url(_(r'^mass-mail/$'), mass_mail, name='mass_mail'),
-    url(_(r'^mass-mail-sent/$'), mass_mail_sent, name='mass_mail_sent'),
+    url(_(r'^admin/mass-mail/$'), mass_mail, name='mass_mail'),
+    url(_(r'^admin/mass-mail/sent/$'), mass_mail_sent, name='mass_mail_sent'),
 ]

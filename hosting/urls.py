@@ -28,14 +28,13 @@ router.register(r'users', UserViewSet)
 
 urlpatterns = [
     url(_(r'^profile/create/$'), profile_create, name='profile_create'),
-    url(_(r'^profile/(?P<pk>\d+)(?:/(?P<slug>[\w-]+))?/edit/$'), profile_edit, name='profile_edit'),
-    url(_(r'^profile/(?P<pk>\d+)(?:/(?P<slug>[\w-]+))?/update/$'), profile_update, name='profile_update'),
-    url(_(r'^profile/(?P<pk>\d+)(?:/(?P<slug>[\w-]+))?/delete/$'), profile_delete, name='profile_delete'),
-    url(_(r'^profile/(?P<pk>\d+)(?:/(?P<slug>[\w-]+))?/settings/$'), profile_settings, name='profile_settings'),
     url(_(r'^profile(?:/(?P<pk>\d+))?/$'), profile_redirect, name='profile_redirect'),
     url(_(r'^profile/(?P<pk>\d+)(?:/(?P<slug>[\w-]+))?/$'), profile_detail, name='profile_detail'),
-
+    url(_(r'^profile/(?P<pk>\d+)(?:/(?P<slug>[\w-]+))?/edit/$'), profile_edit, name='profile_edit'),
+    url(_(r'^profile/(?P<pk>\d+)(?:/(?P<slug>[\w-]+))?/update/$'), profile_update, name='profile_update'),
     url(_(r'^profile/(?P<pk>\d+)(?:/(?P<slug>[\w-]+))?/email/$'), profile_email_update, name='profile_email_update'),
+    url(_(r'^profile/(?P<pk>\d+)(?:/(?P<slug>[\w-]+))?/delete/$'), profile_delete, name='profile_delete'),
+    url(_(r'^profile/(?P<pk>\d+)(?:/(?P<slug>[\w-]+))?/settings/$'), profile_settings, name='profile_settings'),
 
     url(_(r'^place/(?P<pk>\d+)/$'), place_detail, name='place_detail'),
     url(_(r'^place/(?P<pk>\d+)/detailed/$'), place_detail_verbose, name='place_detail_verbose'),

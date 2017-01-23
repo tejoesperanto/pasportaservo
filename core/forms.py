@@ -74,7 +74,7 @@ class EmailUpdateForm(forms.ModelForm):
             'user': self.instance,
             'email': new_email,
         })
-        subject = _("You changed your email address")
+        subject = _("Change of email address at Pasporta Servo")
         for old_new in ['old', 'new']:
             message = get_template('email/%s_email_update.txt' % old_new)
             html_message = get_template('email/%s_email_update.html' % old_new)

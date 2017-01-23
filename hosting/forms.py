@@ -102,6 +102,12 @@ class ProfileCreateForm(ProfileForm):
         return profile
 
 
+class EmailUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['email']
+
+
 class PlaceForm(forms.ModelForm):
     class Meta:
         model = Place
@@ -301,8 +307,3 @@ class FamilyMemberCreateForm(FamilyMemberForm):
         self.place.family_members.add(family_member)
         return family_member
 
-
-class EmailUpdateForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ['email']

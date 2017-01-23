@@ -238,7 +238,7 @@
                 {% if user.profile != place.owner %}
                     {% if INVALID_PREFIX in place.owner.user.email %}
                         <a href="#" class="btn btn-danger btn-vert-space disabled"
-                            title="{% trans "The user’s email address seems invalid" %}"
+                            title="{% trans "The user's email address seems invalid" %}"
                             data-toggle="tooltip">
                     {% else %}
                         <a href="{% url 'postman:write' place.owner.user.username %}" class="btn btn-primary btn-vert-space">

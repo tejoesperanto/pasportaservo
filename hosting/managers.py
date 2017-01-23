@@ -38,7 +38,7 @@ class AvailableManager(NotDeletedManager):
         return super().get_queryset().filter(available=True)
 
 
-class WithCoordManager(AvailableManager):
+class AvailableWithCoordManager(AvailableManager):
     def get_queryset(self):
         return super().get_queryset().filter(
             latitude__isnull=False,

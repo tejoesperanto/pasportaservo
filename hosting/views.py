@@ -108,7 +108,7 @@ class ProfileUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, Form
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
     def form_valid(self, form):
-        self.object.checks(self.request)
+        self.object.set_check_status(self.request.user)
         return super(ProfileUpdateView, self).form_valid(form)
 
 profile_update = ProfileUpdateView.as_view()
@@ -201,6 +201,14 @@ class ProfileSettingsView(ProfileDetailView):
         return Profile._meta.get_field('email').help_text
 
 profile_settings = ProfileSettingsView.as_view()
+
+
+class EmailUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, generic.UpdateView):
+    model = User
+    template_name = 'hosting/base_form.html'
+    form_class = EmailUpdateForm
+
+profile_email_update = EmailUpdateView.as_view()
 
 
 class PlaceCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixin, CreateMixin, generic.CreateView):
@@ -315,8 +323,9 @@ class PlaceCheckView(LoginRequiredMixin, PlaceAuthMixin, generic.View):
     minimum_role = SUPERVISOR
     template_name = '404.html'
 
+    @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
-        self.get_object().checks(self.request)
+        self.get_object().set_check_status(self.request.user)
         if request.is_ajax():
             return JsonResponse({'success': 'checked'})
         else:  # Not tested/implemented
@@ -559,10 +568,3 @@ class FamilyMemberDeleteView(LoginRequiredMixin, DeleteMixin, FamilyMemberAuthMi
 
 family_member_delete = FamilyMemberDeleteView.as_view()
 
-
-class EmailUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, generic.UpdateView):
-    model = User
-    template_name = 'hosting/base_form.html'
-    form_class = EmailUpdateForm
-
-profile_email_update = EmailUpdateView.as_view()

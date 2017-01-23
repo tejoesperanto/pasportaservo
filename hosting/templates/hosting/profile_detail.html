@@ -81,7 +81,7 @@
                         {% if profile != user.profile %}
                             {% if INVALID_PREFIX in profile.user.email %}
                                 <a href="#" class="btn btn-danger disabled"
-                                   title="{% trans "The user’s email address seems invalid" %}"
+                                   title="{% trans "The user's email address seems invalid" %}"
                                    data-toggle="tooltip" data-placement="bottom">
                             {% else %}
                                 <a href="{% url 'postman:write' profile.user.username %}" class="btn btn-primary">
@@ -109,7 +109,7 @@
                         {% trans "last confirmed on" as confirm_title %}
                         {% firstof "text-warning" as confirm_color %}
                     {% else %}
-                        {% trans "not confirmed" as confirm_title %}
+                        {% blocktrans count counter=1 asvar confirm_title %}not confirmed{% plural %}not confirmed{% endblocktrans %}
                         {% firstof "text-warning" as confirm_color %}
                     {% endif %}
                     <div class="edit-buttons btn history-link"

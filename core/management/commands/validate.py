@@ -11,4 +11,4 @@ class Command(InvalidateCommand):
     def action(self, file_name, emails):
         results = Profile.mark_valid_emails(emails=emails)
         for model, updated in results.items():
-            print(updated, model.__name__, 'emails marked as valid from', file_name)
+            print(updated, model.__name__, "emails marked as valid from", file_name)
