@@ -7,11 +7,7 @@ from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.utils.deconstruct import deconstructible
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext_lazy as _
-try:
-    from django.utils.text import format_lazy  # coming in Django 1.11
-except ImportError:
-    from django.utils.functional import keep_lazy_text
-    format_lazy = keep_lazy_text(lambda s, *args, **kwargs: s.format(*args, **kwargs))
+from .utils import format_lazy
 
 from .utils import split, title_with_particule
 

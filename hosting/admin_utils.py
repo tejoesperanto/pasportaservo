@@ -3,6 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.html import format_html
 from django.utils.formats import date_format
 from django.contrib.admin.utils import display_for_value
+from django.conf import settings
 
 
 class ShowConfirmedMixin(object):
@@ -63,6 +64,37 @@ class CountryMentionedOnlyFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         value_list = set([v.strip() for v in self.values() if len(v.strip()) == 2])
         return queryset.filter(country__in=value_list) if value_list else queryset
+
+
+class SupervisorFilter(admin.SimpleListFilter):
+    title = _("supervisor status")
+    parameter_name = 'is_supervisor'
+
+    def lookups(self, request, model_admin):
+        return ((1, _('Yes')), (0, _('No')))
+
+    def queryset(self, request, queryset):
+        if str(self.value()).isdigit():
+            country_filter = r'^[A-Z]{2}$'
+            if int(self.value()) == 0:
+                return queryset.exclude(groups__name__regex=country_filter)
+            else:
+                return queryset.filter(groups__name__regex=country_filter)
+
+
+class EmailValidityFilter(admin.SimpleListFilter):
+    title = _("invalid email")
+    parameter_name = 'email_invalid'
+
+    def lookups(self, request, model_admin):
+        return ((1, _('Yes')), (0, _('No')))
+
+    def queryset(self, request, queryset):
+        if str(self.value()).isdigit():
+            if int(self.value()) == 0:
+                return queryset.exclude(user__email__istartswith=settings.INVALID_PREFIX).exclude(user__isnull=True)
+            else:
+                return queryset.filter(user__email__istartswith=settings.INVALID_PREFIX)
 
 
 class ProfileHasUserFilter(admin.SimpleListFilter):

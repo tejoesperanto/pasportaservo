@@ -196,16 +196,14 @@ class Profile(TrackingModel, TimeStampedModel):
     def places_confirmed(self):
         return all(p.confirmed for p in self.owned_places.filter(deleted=False, in_book=True))
 
-    @property
     def supervised_by(self):
         places = self.owned_places.filter(deleted=False)
-        return [superv for p in places for superv in p.supervised_by]
+        return [superv for p in places for superv in p.supervised_by()]
 
     @property
     def is_supervisor(self):
-        return any(self.supervisor_of)
+        return any(self.supervisor_of())
 
-    @property
     def supervisor_of(self, code=False):
         countries = (Country(g.name) for g in self.user.groups.all() if len(g.name) == 2)
         return countries if code else [c.name for c in countries]
@@ -394,7 +392,6 @@ class Place(TrackingModel, TimeStampedModel):
     def owner_available(self):
         return self.tour_guide or self.have_a_drink
 
-    @property
     def supervised_by(self):
         group = Group.objects.get(name=self.country.code)
         return [user.profile for user in group.user_set.all()]

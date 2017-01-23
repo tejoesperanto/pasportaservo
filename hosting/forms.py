@@ -2,11 +2,7 @@ from django import forms
 from django.conf import settings
 from datetime import date
 from django.utils.translation import ugettext_lazy as _
-try:
-    from django.utils.text import format_lazy  # coming in Django 1.11
-except ImportError:
-    from django.utils.functional import keep_lazy_text
-    format_lazy = keep_lazy_text(lambda s, *args, **kwargs: s.format(*args, **kwargs))
+from .utils import format_lazy
 from django.contrib.auth import get_user_model
 
 from .models import Profile, Place, Phone
