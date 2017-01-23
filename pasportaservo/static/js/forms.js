@@ -146,10 +146,24 @@ $(function() {
             }
         }
 
-        if (constraint_failed)
+        if (constraint_failed) {
             this.setCustomValidity(errors.join("\n"));
-        if (!constraint_failed)
+            if (!$this.data('original-title')) {
+                $this.data('original-title', $this.attr('title') || "[NULL]");
+            }
+            $this.attr('title', errors.join("\n"));
+        }
+        if (!constraint_failed) {
             this.setCustomValidity("");
+            if ($this.data('original-title')) {
+                $this.attr('title', $this.data('original-title') == "[NULL]" ? "" : $this.data('original-title'));
+                $this.removeData('original-title');
+                $this.removeAttr('original-title');
+            }
+            else if (!$this.attr('title')) {
+                $this.attr('title', "");
+            }
+        }
 
         if (($this.is('[type="radio"]') || $this.is('[type="checkbox"]')) && !dontPropagate) {
             // update similarly-named siblings (for radio/checkbox groups)
