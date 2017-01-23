@@ -15,14 +15,7 @@ $(function() {
     }
 
     $(window).bind("load", function() {
-        $('ul.chosen-choices').addClass('form-control');
-        $('.form-group .radio:has(.form-control-horizontal)')
-            .removeClass('radio').addClass('radio-inline').children('label').css('font-weight', "normal")
-            .each(function() {
-                $(this).data('blank-label', $(this).text().trim());
-            });
-        updatePersonNamesExample();
-        flasher = $('.alert.flyover');
+        var flasher = $('.alert.flyover');
         flasher.addClass('in');
         if (!flasher.hasClass('no-out')) {
             window.setTimeout(function () { flasher.addClass('out') }, 4000);
@@ -237,6 +230,16 @@ $(function() {
         updatePersonNamesExample = function() {};
     }
     $('#id_first_name, #id_last_name').change(updatePersonNamesExample);
+
+    +function() {
+        $('ul.chosen-choices').addClass('form-control');
+        $('.form-group .radio:has(.form-control-horizontal)')
+            .removeClass('radio').addClass('radio-inline').children('label').css('font-weight', "normal")
+            .each(function() {
+                $(this).data('blank-label', $(this).text().trim());
+            });
+        updatePersonNamesExample();
+    }();
 
     /* for mass mail form */
     $('#id_body').keyup(function() {
