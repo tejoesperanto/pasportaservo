@@ -57,11 +57,16 @@ class EmailUpdateForm(forms.ModelForm):
         model = get_user_model()
         fields = ['email']
 
+    def __init__(self, *args, **kwargs):
+        super(EmailUpdateForm, self).__init__(*args, **kwargs)
+        if not hasattr(self, 'email'):
+            self.email = self.instance.email # value before the change
+
     def save(self):
-        """ Saves nothing but sends a warning email to old email,
+        """ Saves nothing but sends a warning email to old email address,
             and sends a confirmation link to the new email address.
         """
-        old_email = self.instance.email
+        old_email = self.email
         new_email = self.cleaned_data['email']
         url = create_unique_url({
             'action': 'email_update',
