@@ -6,9 +6,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-03 17:59+0000\n"
-"PO-Revision-Date: 2017-01-03 18:59+0100\n"
-"Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
+"POT-Creation-Date: 2017-01-23 21:52+0000\n"
+"PO-Revision-Date: 2017-01-23 22:58+0100\n"
+"Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
 "MIME-Version: 1.0\n"
@@ -26,7 +26,7 @@ msgstr "Personaj informoj"
 msgid "Permissions"
 msgstr "Permesoj"
 
-#: admin.py:69 templates/hosting/base.html:79
+#: admin.py:69 templates/hosting/base.html:95
 msgid "Supervisors"
 msgstr "Landaj organizantoj"
 
@@ -42,8 +42,8 @@ msgstr "MD5 (malforta)"
 msgid "Password algorithm"
 msgstr "Pasvorta algoritmo"
 
-#: admin.py:87 admin.py:261 models.py:115 models.py:417 models.py:471
-#: templates/hosting/profile_detail.html:116
+#: admin.py:87 admin.py:261 models.py:117 models.py:425 models.py:491
+#: templates/hosting/profile_detail.html:125
 msgid "profile"
 msgstr "profilo"
 
@@ -55,23 +55,23 @@ msgstr "Retadreso"
 msgid "user"
 msgstr "uzanto"
 
-#: admin.py:181 admin.py:270 admin_utils.py:31 models.py:319 models.py:421
+#: admin.py:181 admin.py:270 admin_utils.py:31 models.py:324 models.py:429
 msgid "country"
 msgstr "lando"
 
-#: admin.py:186 models.py:320
+#: admin.py:186 models.py:325
 msgid "latitude"
 msgstr "latitudo"
 
-#: admin.py:191 models.py:322
+#: admin.py:191 models.py:327
 msgid "longitude"
 msgstr "longitudo"
 
-#: admin.py:196 models.py:297
+#: admin.py:196 models.py:302
 msgid "owner"
 msgstr "posedanto"
 
-#: admin.py:256 models.py:419
+#: admin.py:256 models.py:427
 msgid "number"
 msgstr "numero"
 
@@ -79,11 +79,11 @@ msgstr "numero"
 msgid "country code"
 msgstr "landa kodo"
 
-#: admin.py:282
+#: admin.py:284
 msgid "image"
 msgstr "bildo"
 
-#: admin_utils.py:15 models.py:53 templates/hosting/profile_detail.html:106
+#: admin_utils.py:15 models.py:55 templates/hosting/profile_detail.html:115
 msgid "confirmed on"
 msgstr "konfirmita je"
 
@@ -124,22 +124,22 @@ msgid "Names ordering"
 msgstr "Ordigo de la nomoj"
 
 # TODO: update for supervisors (you -> the user)
-#: forms.py:49 forms.py:147
+#: forms.py:49 forms.py:153
 #, python-brace-format
 msgid "The minimum age to be allowed hosting is {age:d}."
 msgstr "Vi ekpovos gastigi kiam estos {age:d}-jaraĝa."
 
 # TODO: update for supervisors (you -> the user)
-#: forms.py:52 forms.py:153
+#: forms.py:52 forms.py:159
 #, python-brace-format
 msgid "The minimum age to be allowed meeting with visitors is {age:d}."
 msgstr "Vi ekpovos renkonti vizitantojn kiam estos {age:d}-jaraĝa."
 
-#: forms.py:62 forms.py:169
+#: forms.py:62 forms.py:175
 msgid "This field is required to be printed in the book."
 msgstr "Tiu ĉi kampo estas deviga por esti printita en la libro."
 
-#: forms.py:78 forms.py:160
+#: forms.py:78 forms.py:166
 msgid ""
 "You want to be in the printed edition of Pasporta Servo. In order to have a "
 "quality product, some fields a required. If you think there is a problem, "
@@ -149,47 +149,47 @@ msgstr ""
 "produkton, kelkaj kampoj estas devigaj. Se vi pensas ke estas problemo, bv. "
 "kontaktu nin."
 
-#: forms.py:128
+#: forms.py:134
 msgid "Choose your conditions..."
 msgstr "Elektu viajn kondiĉojn…"
 
-#: forms.py:167
+#: forms.py:173
 msgid "Please click on the map to choose your location."
 msgstr "Bonvolu klaki la mapon por elekti vian lokon."
 
-#: forms.py:210
+#: forms.py:216
 msgid "You already have this telephone number."
 msgstr "Vi jam indikis tian telefonnumeron."
 
-#: forms.py:228
+#: forms.py:234
 msgid "Authorize user"
 msgstr "Permesi uzanton"
 
-#: forms.py:233 templates/hosting/profile_detail.html:147
+#: forms.py:239 templates/hosting/profile_detail.html:156
 #: templates/hosting/settings.html:13
 msgid "username"
 msgstr "uzantnomo"
 
-#: forms.py:245
+#: forms.py:251
 msgid "User does not exist"
 msgstr "Tiu ĉi uzanto ne ekzistas"
 
-#: forms.py:247
+#: forms.py:253
 msgid "User has not set up a profile"
 msgstr "Uzanto ne agordis profilon"
 
-#: forms.py:264
+#: forms.py:270
 msgid "A family member cannot be future-born (even if planned)."
 msgstr "Kunloĝanto ne povas naskiĝi estontece, eĉ se planita."
 
-#: forms.py:274
+#: forms.py:280
 msgid ""
 "Leave empty if you only want to indicate that other people are present in "
 "the house."
 msgstr ""
 "Lasu malplena se vi nure volas indiki ke kromaj homoj ĉeestas en la loĝejo."
 
-#: forms.py:290
+#: forms.py:296
 msgid ""
 "The name cannot be empty, at least first name or last name are required."
 msgstr ""
@@ -200,129 +200,130 @@ msgstr ""
 msgid "Only the supervisors of this country can see this page"
 msgstr "Nur la Landaj Organizantoj de tiu lando povas vidi tiun paĝon"
 
-#: models.py:38
+#: models.py:40
 msgid "Mrs"
 msgstr "S-ino"
 
-#: models.py:39
+#: models.py:41
 msgid "Mr"
 msgstr "S-ro"
 
-#: models.py:44
+#: models.py:46
 msgid "mobile"
 msgstr "poŝtelefono"
 
-#: models.py:45
+#: models.py:47
 msgid "home"
 msgstr "hejma"
 
-#: models.py:46
+#: models.py:48
 msgid "work"
 msgstr "laboreja"
 
-#: models.py:47
+#: models.py:49
 msgid "fax"
 msgstr "fakso"
 
-#: models.py:52
-msgid "delete on"
+#: models.py:54
+msgid "deleted on"
 msgstr "forigita je"
 
-#: models.py:54
+#: models.py:56
 msgid "checked on"
 msgstr "kontrolita je"
 
-#: models.py:55 templates/hosting/snippets/checked.html:7
+#: models.py:57 templates/hosting/snippets/checked.html:7
 msgid "approved by"
 msgstr "aprobita de"
 
-#: models.py:80
+#: models.py:82
 msgid "title"
 msgstr "titolo"
 
-#: models.py:83
+#: models.py:85
 msgid "first name"
 msgstr "persona nomo"
 
-#: models.py:87
+#: models.py:89
 msgid "last name"
 msgstr "familia nomo"
 
-#: models.py:91
+#: models.py:93
 msgid "names in inverse order"
 msgstr "nomoj en renversa ordo (familia unue)"
 
-#: models.py:93
+#: models.py:95
 msgid "birth date"
 msgstr "naskiĝtago"
 
-#: models.py:96
+# atentu, la traduka ĉeno enhavas nerompeblajn spacojn!
+#: models.py:98
 msgid "In the format year(4 digits)-month(2 digits)-day(2 digits)."
 msgstr ""
 "En la formato <nobr>jaro (4 ciferoj)−</nobr>​<wbr><nobr>monato (2 ciferoj)−</"
 "nobr>​<wbr><nobr>tago (2 ciferoj).</nobr>"
 
-#: models.py:97
-msgid "profile email"
-msgstr "profila retadreso"
-
 #: models.py:99
+msgid "public email"
+msgstr "publika retpoŝta adreso"
+
+#: models.py:101
 msgid ""
 "This email address will be used for the book. Leave blank if you don’t want "
 "this email to be public.\n"
 "The system will never send emails to this address, neither publish it on the "
 "site without your permission."
 msgstr ""
-"Tiu retadreso estos uzata por la PS-libreto. Lasu malplena se vi ne volas "
-"tiun adreson esti publikigita.\n"
-"La sistemo neniam sendos retmesaĝojn al tiu adreso, nek publikigos ĝin sur "
-"la retejo sen via permeso."
+"Tiu ĉi retadreso estos uzata por la PS-libreto. Lasu malplena se vi ne volas "
+"ke la retadreso estu publikigita.\n"
+"La sistemo neniam sendos retmesaĝojn al ĉi tiu adreso, nek publikigos ĝin "
+"sur la retejo sen via permeso."
 
-#: models.py:103 models.py:331
+#: models.py:105 models.py:336
 msgid "description"
 msgstr "priskribo"
 
-#: models.py:105
+#: models.py:107
 msgid "Short biography."
 msgstr "Mallonga sinprezento."
 
-#: models.py:106 templates/hosting/profile_detail.html:128
+#: models.py:108 templates/hosting/profile_detail.html:137
 msgid "avatar"
 msgstr "profilbildo"
 
-#: models.py:110
+#: models.py:112
 msgid "Small image under 100kB. Ideal size: 140x140 px."
 msgstr "Malgranda bildo, < 100 kB. Idealaj mezuroj: 140×140 punktoj."
 
-#: models.py:112 models.py:511
+#: models.py:114 models.py:533
 msgid "contact preferences"
 msgstr "preferataj kontaktmanieroj"
 
-#: models.py:116
+#: models.py:118
 msgid "profiles"
 msgstr "profiloj"
 
-#: models.py:299
+#: models.py:304
 msgid "address"
 msgstr "adreso"
 
-#: models.py:301
+#: models.py:306
 msgid "e.g.: Nieuwe Binnenweg 176"
 msgstr "ekz: Nieuwe Binnenweg 176"
 
-#: models.py:302 templates/hosting/snippets/place_owner_anchors.html:18
+#: models.py:307 templates/hosting/snippets/place_owner_anchors.html:18
 msgid "city"
 msgstr "urbo"
 
-#: models.py:306
+#: models.py:311
 msgid "Name in the official language, not in Esperanto (e.g.: Rotterdam)"
 msgstr "Nomo en la oficiala lingvo, ne en Esperanto (ekz: Rotterdam)"
 
-#: models.py:307
+#: models.py:312
 msgid "closest big city"
 msgstr "plej proksima granda urbo"
 
-#: models.py:311
+#: models.py:316
 msgid ""
 "If your place is in a town near a bigger city. Name in the official "
 "language, not in Esperanto."
@@ -330,176 +331,185 @@ msgstr ""
 "Se via loĝejo estas en urbeto proksime al granda urbo. Nomo en la oficiala "
 "lingvo, ne en Esperanto."
 
-#: models.py:313
+#: models.py:318
 msgid "postcode"
 msgstr "poŝtkodo"
 
-#: models.py:316
+#: models.py:321
 msgid "State / Province"
 msgstr "Ŝtato / Provinco"
 
-#: models.py:324
+#: models.py:329
 msgid "maximum number of guest"
 msgstr "maksimuma nombro de gastoj"
 
-#: models.py:326
+#: models.py:331
 msgid "maximum number of night"
 msgstr "maksimuma nombro de noktoj"
 
-#: models.py:328
+#: models.py:333
 msgid "contact before"
 msgstr "kontakti antaŭ"
 
-#: models.py:330
+#: models.py:335
 msgid "Number of days before people should contact host."
 msgstr "Kiom da tagoj antaŭe homoj devus kontakti la gastiganton."
 
-#: models.py:333
+#: models.py:338
 msgid "Description or remarks about your place."
 msgstr "Priskriboj aŭ rimarkoj pri via loĝejo."
 
-#: models.py:334
+#: models.py:339
 msgid "short description"
 msgstr "mallonga priskribo"
 
-#: models.py:337
+#: models.py:342
 msgid "Used in the book and on profile, 140 characters maximum."
 msgstr "Uzita en la libro kaj ĉe profilo, 140 signoj maksimume."
 
-#: models.py:338
+#: models.py:343
 msgid "available"
 msgstr "disponebla"
 
-#: models.py:340
+#: models.py:345
 msgid "If this place is searchable. If yes, you will be considered as host."
 msgstr ""
 "Ĉu tiu ĉi loĝejo estas serĉebla? Se jes, vi estos konsiderita kiel "
 "gastiganto."
 
-#: models.py:341
+#: models.py:346
 msgid "print in book"
-msgstr "printu en la PS libreto"
+msgstr "printu en la PS-libreto"
 
-#: models.py:343
+#: models.py:348
 msgid "If you want this place to be in the printed book. Must be available."
 msgstr ""
 "Se vi deziras ke tiu ĉi loĝejo estu printita en la libreto. Ĝi devas esti "
 "disponebla."
 
-#: models.py:344 templates/hosting/place_detail.html:54
+#: models.py:349 templates/hosting/place_detail.html:54
 msgid "tour guide"
 msgstr "ĉiĉeronado"
 
-#: models.py:346
+#: models.py:351
 msgid "If you are ready to show your area to visitors."
 msgstr "Se vi volonte montros vian ĉirkaŭaĵon al vizitantoj."
 
-#: models.py:347 templates/hosting/place_detail.html:61
+#: models.py:352 templates/hosting/place_detail.html:61
 msgid "have a drink"
 msgstr "trinkejumado"
 
-#: models.py:349
+#: models.py:354
 msgid "If you are ready to have a coffee or beer with visitors."
 msgstr "Se vi volonte kafumos aŭ bierumos kun vizitantoj."
 
-#: models.py:350
+#: models.py:355
 msgid "irregularly present"
 msgstr "nekonstanta troveblo"
 
-#: models.py:352
+#: models.py:357
 msgid "If you are not often at this address and need an advance notification."
 msgstr ""
 "Ĉu vi malofte/neantaŭvideble ĉeestas? Se jes, estos indikita bezono de frua "
 "anticipa kontakto."
 
-#: models.py:353 models.py:499
+#: models.py:358 models.py:521
 #: templates/hosting/snippets/place_conditions.html:5
 msgid "conditions"
 msgstr "kondiĉoj"
 
-#: models.py:355
+#: models.py:360
 msgid "family members"
 msgstr "kunloĝantoj"
 
-#: models.py:357
+#: models.py:362
 msgid "authorized users"
 msgstr "permesitaj uzantoj"
 
-#: models.py:359
+#: models.py:364
 msgid "List of users authorized to view most of data of this accommodation."
 msgstr ""
 "Listo de uzantoj kiuj estis permesitaj vidi la detalojn de tiu ĉi loĝejo."
 
-#: models.py:365 templates/hosting/place_detail.html:66
+#: models.py:370 templates/hosting/place_detail.html:66
 #: templates/hosting/place_form.html:12
+#: templates/hosting/place_list_supervisor.html:128
 #: templates/hosting/profile_confirm_delete.html:33
 msgid "place"
 msgstr "loĝejo"
 
-#: models.py:366
+#: models.py:371
 msgid "places"
 msgstr "loĝejoj"
 
-#: models.py:420
+#: models.py:428
 msgid ""
 "International number format begining with the plus sign (e.g.: +31 10 436 "
 "1044)"
 msgstr ""
 "En formato de internacia numero, komencu per pluso (ekz:  +31 10 436 1044)"
 
-#: models.py:422
+#: models.py:430
 msgid "comments"
 msgstr "komentoj"
 
-#: models.py:425
+#: models.py:433
 msgid "phone type"
 msgstr "tipo de telefono"
 
-#: models.py:430
+#: models.py:438
 msgid "phone"
 msgstr "telefono"
 
-#: models.py:431
+#: models.py:439
 msgid "phones"
 msgstr "telefonoj"
 
-#: models.py:472
+#: models.py:492
 msgid "URL"
 msgstr "URL"
 
-#: models.py:475
+#: models.py:495
 msgid "website"
 msgstr "retejo"
 
-#: models.py:476
+#: models.py:496
 msgid "websites"
 msgstr "retejoj"
 
-#: models.py:491 models.py:507
+#: models.py:511 models.py:529
 msgid "name"
 msgstr "nomo"
 
-#: models.py:492
+#: models.py:512
 msgid "E.g.: 'Ne fumu'."
 msgstr "Ekz.: 'Ne fumu'."
 
-#: models.py:493
+#: models.py:513
 msgid "abbreviation"
 msgstr "mallongigo"
 
-#: models.py:494
+#: models.py:514
 msgid "Official abbreviation as used in the book. E.g.: 'Nef.'"
 msgstr "Oficiala mallongigo tiel, kiel uzata en la libro. Ekz: 'Nef.'"
 
-#: models.py:495
+#: models.py:515
 msgid "URL friendly name"
 msgstr "URL-amikeca nomo"
 
-#: models.py:498
+#: models.py:516
+msgid "latex"
+msgstr "latex"
+
+#: models.py:517
+msgid "Latex symbol. E.g.: \\faBan"
+msgstr "Simbolo de Latex. Ekz: \\faBan"
+
+#: models.py:520
 msgid "condition"
 msgstr "kondiĉo"
 
-#: models.py:510
+#: models.py:532
 msgid "contact preference"
 msgstr "preferata kontaktmaniero"
 
@@ -518,38 +528,45 @@ msgstr "Mia profilo"
 msgid "Search"
 msgstr "Serĉi"
 
-#: templates/hosting/base.html:20
+#: templates/hosting/base.html:13
+#, python-format
+msgid ""
+"<a href=\"%(reserve_url)s\">Rezervu nun la libreton <big>Pasporta Servo "
+"2017</big>!</a>"
+msgstr ""
+
+#: templates/hosting/base.html:36
 msgid "inbox"
 msgstr "poŝtkesto"
 
-#: templates/hosting/base.html:25
+#: templates/hosting/base.html:41
 #, python-format
 msgid "%(unread)s new message"
 msgid_plural "%(unread)s new messages"
 msgstr[0] "%(unread)s nova mesaĝo"
 msgstr[1] "%(unread)s novaj mesaĝoj"
 
-#: templates/hosting/base.html:40
+#: templates/hosting/base.html:56
 msgid "log out"
 msgstr "elsaluti"
 
-#: templates/hosting/base.html:44
+#: templates/hosting/base.html:60
 msgid "log in"
 msgstr "ensaluti"
 
-#: templates/hosting/base.html:56
+#: templates/hosting/base.html:72
 msgid "register"
 msgstr "registriĝi"
 
-#: templates/hosting/base.html:73
+#: templates/hosting/base.html:89
 msgid "About us"
 msgstr "Pri ni"
 
-#: templates/hosting/base.html:75
+#: templates/hosting/base.html:91
 msgid "FAQ"
 msgstr "Oftaj demandoj"
 
-#: templates/hosting/base.html:77
+#: templates/hosting/base.html:93
 msgid "Terms"
 msgstr "Kondiĉoj"
 
@@ -593,6 +610,7 @@ msgid "Follow this link to see this accommodation:"
 msgstr "Klaku la ligilon por vidi tiun ĉi loĝejon:"
 
 #: templates/hosting/emails/new_authorization.txt:16
+#: templates/registration/password_reset_email.html:11
 #, python-format
 msgid "The %(site_name)s team."
 msgstr "La teamo de %(site_name)s."
@@ -678,13 +696,13 @@ msgstr "Reen al %(back_to)s"
 #: templates/hosting/place_authorized_users.html:20
 #: templates/hosting/place_authorized_users.html:22
 #: templates/hosting/profile_form.html:46
-#: templates/hosting/profile_form.html:48 templates/hosting/settings.html:78
-#: templates/hosting/settings.html:80
+#: templates/hosting/profile_form.html:48 templates/hosting/settings.html:82
+#: templates/hosting/settings.html:84
 msgid "Back"
 msgstr "Reen"
 
 #: templates/hosting/place_authorized_users.html:38
-#: templates/hosting/profile_detail.html:71
+#: templates/hosting/profile_detail.html:80
 msgid "Deleted profile"
 msgstr "Nuligita profilo"
 
@@ -721,12 +739,12 @@ msgid "The address is obsolete"
 msgstr "La adreso estas neaktuala"
 
 #: templates/hosting/place_detail.html:55 templates/hosting/place_list.html:69
-#: templates/hosting/profile_detail.html:215
+#: templates/hosting/profile_detail.html:224
 msgid "I can guide around the city"
 msgstr "mi povas ĉiĉeroni"
 
 #: templates/hosting/place_detail.html:62 templates/hosting/place_list.html:79
-#: templates/hosting/profile_detail.html:225
+#: templates/hosting/profile_detail.html:234
 msgid "I'd like to have a drink together"
 msgstr "mi emas trinkejumi"
 
@@ -759,12 +777,12 @@ msgid "I'm not present at this address at all times; contact me in advance."
 msgstr "Mi ne troviĝas konstante ĉe tiu ĉi adreso; kontaktiĝu anticipe."
 
 #: templates/hosting/place_detail.html:242
-#: templates/hosting/profile_detail.html:84
-msgid "The user’s email address seems invalid"
-msgstr ""
+#: templates/hosting/profile_detail.html:93
+msgid "The user's email address seems invalid"
+msgstr "La retpoŝta adreso de tiu ĉi uzanto ŝajne ne funkcias"
 
 #: templates/hosting/place_detail.html:247
-#: templates/hosting/profile_detail.html:90
+#: templates/hosting/profile_detail.html:99
 msgid "Write message"
 msgstr "Sendi mesaĝon"
 
@@ -776,7 +794,7 @@ msgstr "Redakti %(kin)sloĝejon"
 
 #: templates/hosting/place_detail.html:257
 #: templates/hosting/place_list_supervisor.html:116
-#: templates/hosting/profile_detail.html:99
+#: templates/hosting/profile_detail.html:108
 #: templates/hosting/profile_edit.html:10
 #: templates/hosting/profile_edit.html:31
 #: templates/hosting/profile_edit.html:58
@@ -795,7 +813,7 @@ msgid "View as an authorized user"
 msgstr "Rigardi kvazaŭ permesita uzanto"
 
 #: templates/hosting/place_detail.html:274
-#: templates/hosting/profile_detail.html:184
+#: templates/hosting/profile_detail.html:193
 #: templates/hosting/profile_edit.html:24
 msgid "View"
 msgstr "Rigardi"
@@ -810,7 +828,7 @@ msgstr "Disponebla"
 
 #: templates/hosting/place_detail.html:296
 msgid "Print in book"
-msgstr "Printi en la PS libreto"
+msgstr "Printi en la PS-libreto"
 
 #: templates/hosting/place_form.html:40
 msgid "Click on the map"
@@ -840,7 +858,7 @@ msgid "Budapest, London, Venezuela, etc."
 msgstr "Budapeŝto, Londono, Venezuelo, ktp."
 
 #: templates/hosting/place_list.html:91
-#: templates/hosting/place_list_supervisor.html:192
+#: templates/hosting/place_list_supervisor.html:205
 msgid "Sorry, no kind hosts found…"
 msgstr "Bedaŭrinde ni ne trovis gastigemulojn…"
 
@@ -858,7 +876,7 @@ msgstr[0] "konfirmita"
 msgstr[1] "konfirmitaj"
 
 #: templates/hosting/place_list_supervisor.html:19
-#: templates/hosting/profile_detail.html:112
+#: templates/hosting/profile_detail.html:121
 msgid "not confirmed"
 msgid_plural "not confirmed"
 msgstr[0] "ne konfirmita"
@@ -874,7 +892,7 @@ msgstr "Ne en la libreto"
 
 #: templates/hosting/place_list_supervisor.html:62
 msgid "invalid emails"
-msgstr "nevalidaj retadresoj"
+msgstr "nefunkciantaj retadresoj"
 
 #: templates/hosting/place_list_supervisor.html:66
 #: templates/hosting/place_list_supervisor.html:83
@@ -895,16 +913,20 @@ msgstr "ĉu kontroli?"
 msgid "not checked"
 msgstr "nekontrolita"
 
-#: templates/hosting/place_list_supervisor.html:162
-#: templates/hosting/settings.html:30 templates/hosting/settings.html:53
+#: templates/hosting/place_list_supervisor.html:122
+msgid "last login"
+msgstr "lasta ensaluto"
+
+#: templates/hosting/place_list_supervisor.html:175
+#: templates/hosting/settings.html:31 templates/hosting/settings.html:56
 msgid "invalid email"
-msgstr "nevalida retadreso"
+msgstr "nefunkcianta adreso"
 
-#: templates/hosting/place_list_supervisor.html:176
+#: templates/hosting/place_list_supervisor.html:189
 msgid "Mark invalid"
-msgstr "Marki kiel nevalida"
+msgstr "Marki kiel nefunkcianta"
 
-#: templates/hosting/place_list_supervisor.html:182
+#: templates/hosting/place_list_supervisor.html:195
 msgid "Update email"
 msgstr "Redakti retadreson"
 
@@ -927,7 +949,7 @@ msgstr ""
 "Ĉu vi certege volas forigi %(kin)sprofilon, kaj ĉiujn ligitajn datumojn "
 "(loĝejojn, telefonnumerojn…)?"
 
-#: templates/hosting/profile_detail.html:26
+#: templates/hosting/profile_detail.html:35
 #, python-format
 msgid ""
 "Are <a href=\"%(url)s\">your data</a> up-to-date? Please check your hosting "
@@ -936,80 +958,80 @@ msgstr ""
 "Ĉu <a href=\"%(url)s\">viaj datenoj</a> estas ĝustaj kaj ĝisdataj? Bonvole "
 "kontrolu vian profilon de gastiganto."
 
-#: templates/hosting/profile_detail.html:33
+#: templates/hosting/profile_detail.html:42
 #, python-format
 msgid "Are your data up-to-date? %(tag)sClick if yes%(endtag)s"
 msgstr ""
 "Ĉu viaj datenoj estas ĝustaj kaj ĝisdataj? %(tag)sKlaku se jes%(endtag)s"
 
-#: templates/hosting/profile_detail.html:40
+#: templates/hosting/profile_detail.html:49
 msgid "I confirm!"
 msgstr "Mi konfirmas!"
 
-#: templates/hosting/profile_detail.html:50
+#: templates/hosting/profile_detail.html:59
 #, python-format
 msgid "Supervisor of %(countries)s"
 msgstr "Landa Organizanto por %(countries)s"
 
-#: templates/hosting/profile_detail.html:60
+#: templates/hosting/profile_detail.html:69
 #: templates/hosting/snippets/confirmed.html:4
 #: templates/hosting/snippets/confirmed.html:12
 msgid "You confirmed your information"
 msgstr "Vi konfirmis viajn informojn"
 
-#: templates/hosting/profile_detail.html:72
+#: templates/hosting/profile_detail.html:81
 msgid "Your profile is deleted and does not appear in search results."
 msgstr "Via profilo estis nuligita kaj ne aperas en serĉrezultoj."
 
-#: templates/hosting/profile_detail.html:94
+#: templates/hosting/profile_detail.html:103
 #: templates/hosting/profile_form.html:7
 msgid "Update user's details"
 msgstr "Redakti informojn de uzanto"
 
-#: templates/hosting/profile_detail.html:95
+#: templates/hosting/profile_detail.html:104
 #: templates/hosting/profile_form.html:15
 msgid "Update my details"
 msgstr "Redakti miajn informojn"
 
-#: templates/hosting/profile_detail.html:109
+#: templates/hosting/profile_detail.html:118
 msgid "last confirmed on"
 msgstr "laste konfirmita je"
 
-#: templates/hosting/profile_detail.html:138
+#: templates/hosting/profile_detail.html:147
 #, python-format
 msgid "%(age)s y.o."
 msgstr "%(age)s-jaraĝa"
 
-#: templates/hosting/profile_detail.html:155
+#: templates/hosting/profile_detail.html:164
 msgid "About me"
 msgstr "Pri mi"
 
-#: templates/hosting/profile_detail.html:163
+#: templates/hosting/profile_detail.html:172
 msgid "Place"
 msgid_plural "Places"
 msgstr[0] "Loĝejo"
 msgstr[1] "Loĝejoj"
 
-#: templates/hosting/profile_detail.html:169
+#: templates/hosting/profile_detail.html:178
 msgid "Habitat"
 msgid_plural "Habitats"
 msgstr[0] "Loĝloko"
 msgstr[1] "Loĝlokoj"
 
-#: templates/hosting/profile_detail.html:182
+#: templates/hosting/profile_detail.html:191
 msgid "View details of this place"
 msgstr "Rigardi detalojn de tiu ĉi loĝejo"
 
-#: templates/hosting/profile_detail.html:191
+#: templates/hosting/profile_detail.html:200
 msgid "I'm hosting in:"
 msgstr "mi gastigas en:"
 
-#: templates/hosting/profile_detail.html:200
+#: templates/hosting/profile_detail.html:209
 #, python-format
 msgid "near %(closest_city)s"
 msgstr "proksime al %(closest_city)s"
 
-#: templates/hosting/profile_detail.html:231
+#: templates/hosting/profile_detail.html:240
 #: templates/hosting/snippets/place_description.html:33
 #, python-format
 msgid "I can accept %(max_host)s person"
@@ -1017,7 +1039,7 @@ msgid_plural "I can accept %(max_host)s persons"
 msgstr[0] "Mi povas akcepti %(max_host)s homon"
 msgstr[1] "Mi povas akcepti %(max_host)s homojn"
 
-#: templates/hosting/profile_detail.html:243
+#: templates/hosting/profile_detail.html:252
 #: templates/hosting/snippets/place_description.html:24
 #, python-format
 msgid "I can host during %(max_night)s night maximum"
@@ -1025,7 +1047,7 @@ msgid_plural "I can host during %(max_night)s nights maximum"
 msgstr[0] "Mi povas gastigi dum %(max_night)s nokto maksimume"
 msgstr[1] "Mi povas gastigi dum %(max_night)s noktoj maksimume"
 
-#: templates/hosting/profile_detail.html:300
+#: templates/hosting/profile_detail.html:309
 msgid "Phones"
 msgstr "Telefonoj"
 
@@ -1049,7 +1071,8 @@ msgstr "Rigardi publikan profilon"
 msgid "Add a place"
 msgstr "Aldoni loĝejon"
 
-#: templates/hosting/profile_edit.html:56 templates/hosting/profile_form.html:9
+#: templates/hosting/profile_edit.html:56
+#: templates/hosting/profile_form.html:9
 #: templates/hosting/profile_form.html:13
 msgid "Update a family member"
 msgstr "Redakti kunloĝanton"
@@ -1065,7 +1088,7 @@ msgstr "Aldoni telefon-numeron"
 
 #: templates/hosting/settings.html:16
 msgid "Change username"
-msgstr "Ŝanĝi uzantnomon"
+msgstr "Ŝanĝi salutnomon"
 
 #: templates/hosting/settings.html:21
 msgid "password"
@@ -1086,27 +1109,32 @@ msgstr "Ŝanĝi pasvorton"
 msgid "email"
 msgstr "retadreso"
 
-#: templates/hosting/settings.html:39 templates/hosting/settings.html:43
-msgid "Update system email"
-msgstr "Redakti sisteman retadreson"
+#: templates/hosting/settings.html:41 templates/hosting/settings.html:45
+msgid "Update account email"
+msgstr "Ŝanĝi retadreson por konto"
 
-#: templates/hosting/settings.html:46
+#: templates/hosting/settings.html:48
 msgid "We send e-mails to this address. It will never be public."
-msgstr "Ni sendas retmesaĝojn al tiu retadreso. Ĝi neniam estos publika."
+msgstr ""
+"Ni sendas retmesaĝojn al tiu ĉi retpoŝta adreso. Ĝi neniam estos publika."
 
-#: templates/hosting/settings.html:49
-msgid "Other email?"
-msgstr "Alia retadreso?"
+#: templates/hosting/settings.html:51 templates/hosting/settings.html:52
+msgid "set-public-email"
+msgstr "agordi-publikan-adreson"
 
 #: templates/hosting/settings.html:51
-msgid "no email"
-msgstr "neniu retadreso"
+msgid "Public email?"
+msgstr "Publika retadreso?"
 
-#: templates/hosting/settings.html:61
-msgid "Update profile email"
-msgstr "Ŝanĝi profilan retadreson"
+#: templates/hosting/settings.html:53
+msgid "[no email address]"
+msgstr "[neniu retpoŝta adreso]"
 
-#: templates/hosting/settings.html:69 templates/hosting/settings.html:73
+#: templates/hosting/settings.html:65
+msgid "Update public email"
+msgstr "Ŝanĝi retadreson por publikigo"
+
+#: templates/hosting/settings.html:73 templates/hosting/settings.html:77
 msgid "Delete account"
 msgstr "Forigi konton"
 
@@ -1302,11 +1330,6 @@ msgstr ""
 msgid "Thanks for using our site!"
 msgstr ""
 
-#: templates/registration/password_reset_email.html:12
-#, python-format
-msgid "The %(site_name)s team"
-msgstr "La teamo de %(site_name)s"
-
 #: templates/registration/password_reset_email_html.html:24
 msgid "Choose password"
 msgstr "Elekti pasvorton"
@@ -1325,83 +1348,75 @@ msgstr "Sendi"
 msgid "^profile/create/$"
 msgstr "^profilo/krei/$"
 
-# msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/edit/$"
 #: urls.py:31
-msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/edit/$"
-msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/redakti/$"
-
-# msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/update/$"
-#: urls.py:32
-msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/update/$"
-msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/aktualigi/$"
-
-# msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/delete/$"
-#: urls.py:33
-msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/delete/$"
-msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/forigi/$"
-
-# msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/settings/$"
-#: urls.py:34
-msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/settings/$"
-msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/agordoj/$"
-
-#: urls.py:35
 msgid "^profile(?:/(?P<pk>\\d+))?/$"
 msgstr "^profilo(?:/(?P<pk>\\d+))?/$"
 
-# msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/$"
-#: urls.py:36
+#: urls.py:32
 msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/$"
 
-# msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/edit/$"
-#: urls.py:38
+#: urls.py:33
+msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/edit/$"
+msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/redakti/$"
+
+#: urls.py:34
+msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/update/$"
+msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/aktualigi/$"
+
+#: urls.py:35
 msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/email/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/retadreso/$"
 
-#: urls.py:40
+#: urls.py:36
+msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/delete/$"
+msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/forigi/$"
+
+#: urls.py:37
+msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/settings/$"
+msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/agordoj/$"
+
+#: urls.py:39
 msgid "^place/(?P<pk>\\d+)/$"
 msgstr "^ejo/(?P<pk>\\d+)/$"
 
-#: urls.py:41
+#: urls.py:40
 msgid "^place/(?P<pk>\\d+)/detailed/$"
 msgstr "^ejo/(?P<pk>\\d+)/detale/$"
 
-# msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/place/create/$"
-#: urls.py:42
+#: urls.py:41
 msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/place/create/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/ejo/krei/$"
 
-#: urls.py:43
+#: urls.py:42
 msgid "^place/(?P<pk>\\d+)/update/$"
 msgstr "^ejo/(?P<pk>\\d+)/redakti/$"
 
-#: urls.py:44
+#: urls.py:43
 msgid "^place/(?P<pk>\\d+)/delete/$"
 msgstr "^ejo/(?P<pk>\\d+)/forigi/$"
 
-#: urls.py:46
+#: urls.py:45
 msgid "^place/(?P<pk>\\d+)/authorize/$"
 msgstr "^ejo/(?P<pk>\\d+)/permesi/$"
 
-#: urls.py:48
+#: urls.py:47
 msgid "^place/(?P<place_pk>\\d+)/family-member/create/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/krei/$"
 
-#: urls.py:49
+#: urls.py:48
 msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/update/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/redakti/$"
 
-#: urls.py:50
+#: urls.py:49
 msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/remove/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/forpreni/$"
 
-#: urls.py:51
+#: urls.py:50
 msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/delete/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/forigi/$"
 
-#: urls.py:53
-#, python-brace-format
+#: urls.py:52
 msgid ""
 "^lo/(?P<country_code>[A-Z]{2})(?:/book\\:(?P<in_book>(0|1)))?(?:/(?"
 "P<email>email))?/$"
@@ -1409,28 +1424,27 @@ msgstr ""
 "^lo/(?P<country_code>[A-Z]{2})(?:/libro\\:(?P<in_book>(0|1)))?(?:/(?"
 "P<email>email))?/$"
 
-# msgid "^profile/(?P<pk>\\d+)(?:_(?P<slug>[\\w-]+))?/phone/create/$"
-#: urls.py:57
+#: urls.py:56
 msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/phone/create/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/telefono/krei/$"
 
-#: urls.py:58
+#: urls.py:57
 msgid "^profile/(?P<profile_pk>\\d+)/phone/(?P<pk>\\d+)/update/$"
 msgstr "^profilo/(?P<profile_pk>\\d+)/telefono/(?P<pk>\\d+)/redakti/$"
 
-#: urls.py:59
+#: urls.py:58
 msgid "^profile/(?P<profile_pk>\\d+)/phone/(?P<pk>\\d+)/delete/$"
 msgstr "^profilo/(?P<profile_pk>\\d+)/telefono/(?P<pk>\\d+)/forigi/$"
 
-#: urls.py:61
+#: urls.py:60
 msgid "^current/confirm/$"
 msgstr "^aktualigo/konfirmi/$"
 
-#: urls.py:62
+#: urls.py:61
 msgid "^place/(?P<pk>\\d+)/check/$"
 msgstr "^ejo/(?P<pk>\\d+)/kontroli/$"
 
-#: urls.py:64
+#: urls.py:63
 msgid "^search(?:/(?P<query>.+))?/$"
 msgstr "^esplori(?:/(?P<query>.+))?/$"
 
@@ -1467,86 +1481,14 @@ msgstr "Dosiertipo ne akceptebla"
 msgid "Please keep filesize under {limit}. Current filesize {current}"
 msgstr "Bv. certigu ke dosiergrando estas sub {limit}. Nuna grando: {current}"
 
-#: views.py:87 views.py:108 views.py:209 views.py:221
+#: views.py:87 views.py:108 views.py:217 views.py:229
 msgid "The data is not saved yet! Note the specified errors."
 msgstr ""
 "La informoj ankoraŭ ne estas konservitaj! Atentu la indikitajn erarojn."
 
-#: views.py:466
+#: views.py:475
 msgid "[Pasporta Servo] You received an Authorization"
 msgstr "[Pasporta Servo] Vi ricevis permeson"
-
-#~ msgid "Leave blank"
-#~ msgstr "Lasu malplena"
-
-#~ msgid "User address already in use."
-#~ msgstr "Uzanta adreso jam uzita."
-
-#~ msgid "Subject"
-#~ msgstr "Temo"
-
-#~ msgid "Body"
-#~ msgstr "Mesaĝo"
-
-#~ msgid "Categories"
-#~ msgstr "Kategorioj"
-
-#~ msgid "test"
-#~ msgstr "Provo (sendas al: )"
-
-#~ msgid "old system"
-#~ msgstr "Gastigantoj: neniam ensalutis en la nova retejo"
-
-#~ msgid "not in book"
-#~ msgstr "Nova retejo: ne en la libreto"
-
-#~ msgid "in book"
-#~ msgstr "Nova retejo: EN la libreto"
-
-#~ msgid "just user"
-#~ msgstr "Ne gastigantoj (malnova aŭ nova retejo)"
-
-#~ msgid "Your email for test"
-#~ msgstr "Via retpoŝtadreso por testi"
-
-#~ msgid "admin site"
-#~ msgstr "administrilo"
-
-#~ msgid "test version"
-#~ msgstr "Prova versio: tiu ĉi retejo ankoraŭ ne estas finpreta"
-
-#~ msgid "Find accomodation<br>anywhere in the world."
-#~ msgstr "Trovu loĝejon<br>ĉie ajn sur la planedo"
-
-#~ msgid "Contact us via Skype"
-#~ msgstr "Kontaktu nin per Skajpo"
-
-#~ msgid "Contact us via email"
-#~ msgstr "Kontaktu nin per retpoŝto"
-
-#~ msgid "Your ideas and suggestions"
-#~ msgstr "Viaj ideoj kaj proponoj"
-
-#~ msgid "Pasporta Servo's source code"
-#~ msgstr "Fontkodo de Pasporta Servo"
-
-#~ msgid "^register/$"
-#~ msgstr "^registrado/$"
-
-#~ msgid "^mass_mail/$"
-#~ msgstr "^amassendado/$"
-
-#~ msgid "^mass_mail_sent/$"
-#~ msgstr "^amassendado_sukcesa/$"
-
-#~ msgid "You are logged in."
-#~ msgstr "Vi nun estas ensalutinta."
-
-#~ msgid "^phone/(?P<num>[\\w-]+)/update/$"
-#~ msgstr "^telefono/(?P<num>[\\w-]+)/redakti/$"
-
-#~ msgid "^phone/(?P<num>[\\w-]+)/delete/$"
-#~ msgstr "^telefono/(?P<num>[\\w-]+)/forigi/$"
 
 #~ msgid ""
 #~ "You need to confirm your profile if you would like to be in the book. <a "
@@ -1555,9 +1497,6 @@ msgstr "[Pasporta Servo] Vi ricevis permeson"
 #~ "Se vi volas aperi en la ĉi-jara eldono de PS-libro, necesas ke vi "
 #~ "kontrolu kaj konfirmu ĝustecon de viaj profilo kaj loĝejo. <a href="
 #~ "\"%(url)s\">Konfirmu nun!</a>"
-
-#~ msgid "^confirm/(?P<model>\\w+)/(?P<pk>\\d+)/$"
-#~ msgstr "^konfirmi/(?P<model>\\w+)/(?P<pk>\\d+)/$"
 
 #~ msgid "My location"
 #~ msgstr "Mia loko"
