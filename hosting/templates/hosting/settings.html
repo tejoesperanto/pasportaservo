@@ -37,11 +37,11 @@
             {% endif %}
         </small></samp> &nbsp;
         {% if role == profile.OWNER %}
-            <a href="{% url 'email_update' profile.user.pk %}" class="btn btn-default">
+            <a href="{% url 'email_update' %}" class="btn btn-default">
                 {% trans "Update account email" %}
             </a>
         {% else %}
-            <a href="{% url 'staff_update_email' profile.user.pk %}" class="btn btn-default">
+            <a href="{% url 'staff_update_email' profile.pk %}" class="btn btn-default">
                 {% trans "Update account email" %}
             </a>
         {% endif %}

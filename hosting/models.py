@@ -1,6 +1,5 @@
 from datetime import date
 
-from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 from django.utils.text import slugify
@@ -400,7 +399,7 @@ class Place(TrackingModel, TimeStampedModel):
         return reverse('place_detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return ", ".join([self.city, force_text(self.country.name)]) if self.city else force_text(self.country.name)
+        return ", ".join([self.city, str(self.country.name)]) if self.city else str(self.country.name)
 
     def __repr__(self):
         return "<{} #{}: {}>".format(self.__class__.__name__, self.id, self.__str__())

@@ -31,7 +31,7 @@ from .serializers import ProfileSerializer, PlaceSerializer, UserSerializer
 from .mixins import (
     ProfileMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
     FamilyMemberMixin, FamilyMemberAuthMixin,
-    SupervisorMixin, CreateMixin, DeleteMixin,
+    SupervisorRequiredMixin, CreateMixin, DeleteMixin,
 )
 from .forms import (
     AuthorizeUserForm, AuthorizedOnceUserForm,
@@ -340,7 +340,7 @@ class PlaceListView(generic.ListView):
 place_list = PlaceListView.as_view()
 
 
-class CountryPlaceListView(LoginRequiredMixin, SupervisorMixin, PlaceListView):
+class CountryPlaceListView(LoginRequiredMixin, SupervisorRequiredMixin, PlaceListView):
     template_name = "hosting/place_list_supervisor.html"
 
     def dispatch(self, request, *args, **kwargs):

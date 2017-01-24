@@ -178,7 +178,7 @@
             </span>
         {% else %}
             <span class="email">{{ place.profile.user.email|urlize }}</span>
-            <form action="{% url 'staff_mark_email_invalid' place.profile.user.pk %}" method="POST"
+            <form action="{% url 'staff_mark_email_invalid' place.profile.pk %}" method="POST"
                   class="unwrap-after-success" style="display:inline">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-xs btn-default ajax"
@@ -191,7 +191,7 @@
             </form>
         {% endif %}
 
-        <a href="{% url 'staff_update_email' place.profile.user.pk %}?next={{ request.get_full_path|urlencode }}" class="btn btn-default btn-sm">
+        <a href="{% url 'staff_update_email' place.profile.pk %}?next={{ request.get_full_path|urlencode }}" class="btn btn-default btn-sm">
             {% trans "Update email" %}
         </a>
     </div>

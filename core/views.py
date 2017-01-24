@@ -20,7 +20,7 @@ from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from hosting.models import Place, Profile
-from hosting.mixins import SupervisorMixin
+from hosting.mixins import SupervisorRequiredMixin
 from .forms import (
     UsernameUpdateForm, EmailUpdateForm, StaffUpdateEmailForm,
     MassMailForm, UserRegistrationForm
@@ -135,14 +135,17 @@ class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
 email_update_confirm = EmailUpdateConfirmView.as_view()
 
 
-class StaffUpdateEmailView(LoginRequiredMixin, SupervisorMixin, generic.UpdateView):
+class StaffUpdateEmailView(LoginRequiredMixin, SupervisorRequiredMixin, generic.UpdateView):
     model = User
     form_class = StaffUpdateEmailForm
     template_name = 'core/system_email_form.html'
 
     def dispatch(self, request, *args, **kwargs):
-        self.user = get_object_or_404(User, pk=kwargs['pk'])
+        self.user = get_object_or_404(Profile, pk=kwargs['pk']).user
         return super().dispatch(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        return self.user
 
     def get_success_url(self, *args, **kwargs):
         if 'next' in self.request.GET:
@@ -151,13 +154,13 @@ class StaffUpdateEmailView(LoginRequiredMixin, SupervisorMixin, generic.UpdateVi
 staff_update_email = StaffUpdateEmailView.as_view()
 
 
-class MarkEmailValidityView(LoginRequiredMixin, SupervisorMixin, generic.View):
+class MarkEmailValidityView(LoginRequiredMixin, SupervisorRequiredMixin, generic.View):
     http_method_names = ['post']
     template_name = '404.html'
     valid = False
 
     def dispatch(self, request, *args, **kwargs):
-        self.user = get_object_or_404(User, pk=kwargs['pk'])
+        self.user = get_object_or_404(Profile, pk=kwargs['pk']).user
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
