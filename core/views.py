@@ -20,7 +20,7 @@ from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from hosting.models import Place, Profile
-from hosting.mixins import SupervisorRequiredMixin
+from hosting.mixins import SupervisorRequiredMixin, ProfileMixin
 from .forms import (
     UsernameUpdateForm, EmailUpdateForm, StaffUpdateEmailForm,
     MassMailForm, UserRegistrationForm
@@ -107,8 +107,9 @@ class EmailUpdateView(LoginRequiredMixin, generic.UpdateView):
 
     def form_valid(self, form):
         response = super(EmailUpdateView, self).form_valid(form)
-        messages.warning(self.request, _("A confirmation email has been sent. "
-                                         "Please check your mailbox to complete the process."))
+        if form.previous_email != form.instance.email:
+            messages.warning(self.request, _("A confirmation email has been sent. "
+                                             "Please check your mailbox to complete the process."))
         return response
 
 email_update = EmailUpdateView.as_view()
@@ -135,7 +136,7 @@ class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
 email_update_confirm = EmailUpdateConfirmView.as_view()
 
 
-class StaffUpdateEmailView(LoginRequiredMixin, SupervisorRequiredMixin, generic.UpdateView):
+class StaffUpdateEmailView(LoginRequiredMixin, SupervisorRequiredMixin, ProfileMixin, generic.UpdateView):
     model = User
     form_class = StaffUpdateEmailForm
     template_name = 'core/system_email_form.html'
@@ -147,9 +148,11 @@ class StaffUpdateEmailView(LoginRequiredMixin, SupervisorRequiredMixin, generic.
     def get_object(self, queryset=None):
         return self.user
 
-    def get_success_url(self, *args, **kwargs):
-        if 'next' in self.request.GET:
-            return self.request.GET.get('next')
+    def get_context_data(self, **kwargs):
+        context = super(StaffUpdateEmailView, self).get_context_data(**kwargs)
+        # we want the displayed logged in user still be request.user and not the modified User instance
+        context['user'] = self.request.user
+        return context
 
 staff_update_email = StaffUpdateEmailView.as_view()
 
