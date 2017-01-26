@@ -35,9 +35,9 @@ from .mixins import (
 )
 from .forms import (
     AuthorizeUserForm, AuthorizedOnceUserForm,
-    ProfileForm, ProfileCreateForm, PhoneForm, PhoneCreateForm,
+    ProfileForm, ProfileCreateForm, ProfileEmailUpdateForm,
+    PhoneForm, PhoneCreateForm,
     PlaceForm, PlaceCreateForm, FamilyMemberForm, FamilyMemberCreateForm,
-    EmailUpdateForm,
 )
 
 
@@ -203,12 +203,12 @@ class ProfileSettingsView(ProfileDetailView):
 profile_settings = ProfileSettingsView.as_view()
 
 
-class EmailUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, generic.UpdateView):
-    model = User
+class ProfileEmailUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, generic.UpdateView):
+    model = Profile
     template_name = 'hosting/base_form.html'
-    form_class = EmailUpdateForm
+    form_class = ProfileEmailUpdateForm
 
-profile_email_update = EmailUpdateView.as_view()
+profile_email_update = ProfileEmailUpdateView.as_view()
 
 
 class PlaceCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixin, CreateMixin, generic.CreateView):

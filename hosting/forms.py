@@ -98,10 +98,16 @@ class ProfileCreateForm(ProfileForm):
         return profile
 
 
-class EmailUpdateForm(forms.ModelForm):
+class ProfileEmailUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['email']
+
+    def __init__(self, *args, **kwargs):
+        super(ProfileEmailUpdateForm, self).__init__(*args, **kwargs)
+        self.initial['email'] = (self.instance.email[len(settings.INVALID_PREFIX):]
+                                 if self.instance.email.startswith(settings.INVALID_PREFIX)
+                                 else self.instance.email) # display a clean value
 
 
 class PlaceForm(forms.ModelForm):
