@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-24 22:54+0000\n"
-"PO-Revision-Date: 2017-01-25 00:06+0100\n"
+"POT-Creation-Date: 2017-01-29 22:35+0000\n"
+"PO-Revision-Date: 2017-01-29 23:43+0100\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -109,7 +109,7 @@ msgid "No"
 msgstr "Ne"
 
 #: admin_utils.py:86 templates/hosting/place_list_supervisor.html:175
-#: templates/hosting/settings.html:31 templates/hosting/settings.html:56
+#: templates/hosting/settings.html:31 templates/hosting/settings.html:58
 msgid "invalid email"
 msgstr "nefunkcianta adreso"
 
@@ -134,22 +134,22 @@ msgid "Names ordering"
 msgstr "Ordigo de la nomoj"
 
 # TODO: update for supervisors (you -> the user)
-#: forms.py:45 forms.py:149
+#: forms.py:45 forms.py:155
 #, python-brace-format
 msgid "The minimum age to be allowed hosting is {age:d}."
 msgstr "Vi ekpovos gastigi kiam estos {age:d}-jaraĝa."
 
 # TODO: update for supervisors (you -> the user)
-#: forms.py:48 forms.py:155
+#: forms.py:48 forms.py:161
 #, python-brace-format
 msgid "The minimum age to be allowed meeting with visitors is {age:d}."
 msgstr "Vi ekpovos renkonti vizitantojn kiam estos {age:d}-jaraĝa."
 
-#: forms.py:58 forms.py:171
+#: forms.py:58 forms.py:177
 msgid "This field is required to be printed in the book."
 msgstr "Tiu ĉi kampo estas deviga por esti printita en la libro."
 
-#: forms.py:74 forms.py:162
+#: forms.py:74 forms.py:168
 msgid ""
 "You want to be in the printed edition of Pasporta Servo. In order to have a "
 "quality product, some fields a required. If you think there is a problem, "
@@ -159,47 +159,47 @@ msgstr ""
 "produkton, kelkaj kampoj estas devigaj. Se vi pensas ke estas problemo, bv. "
 "kontaktu nin."
 
-#: forms.py:130
+#: forms.py:136
 msgid "Choose your conditions..."
 msgstr "Elektu viajn kondiĉojn…"
 
-#: forms.py:169
+#: forms.py:175
 msgid "Please click on the map to choose your location."
 msgstr "Bonvolu klaki la mapon por elekti vian lokon."
 
-#: forms.py:212
+#: forms.py:218
 msgid "You already have this telephone number."
 msgstr "Vi jam indikis tian telefonnumeron."
 
-#: forms.py:230
+#: forms.py:236
 msgid "Authorize user"
 msgstr "Permesi uzanton"
 
-#: forms.py:235 templates/hosting/profile_detail.html:156
+#: forms.py:241 templates/hosting/profile_detail.html:156
 #: templates/hosting/settings.html:13
 msgid "username"
 msgstr "uzantnomo"
 
-#: forms.py:247
+#: forms.py:253
 msgid "User does not exist"
 msgstr "Tiu ĉi uzanto ne ekzistas"
 
-#: forms.py:249
+#: forms.py:255
 msgid "User has not set up a profile"
 msgstr "Uzanto ne agordis profilon"
 
-#: forms.py:266
+#: forms.py:272
 msgid "A family member cannot be future-born (even if planned)."
 msgstr "Kunloĝanto ne povas naskiĝi estontece, eĉ se planita."
 
-#: forms.py:276
+#: forms.py:282
 msgid ""
 "Leave empty if you only want to indicate that other people are present in "
 "the house."
 msgstr ""
 "Lasu malplena se vi nure volas indiki ke kromaj homoj ĉeestas en la loĝejo."
 
-#: forms.py:292
+#: forms.py:298
 msgid ""
 "The name cannot be empty, at least first name or last name are required."
 msgstr ""
@@ -290,8 +290,8 @@ msgid ""
 msgstr ""
 "Tiu ĉi retadreso estos uzata por la PS-libreto. Lasu malplena se vi ne volas "
 "ke la retadreso estu publikigita.\n"
-"La sistemo neniam sendos retmesaĝojn al ĉi tiu adreso, nek publikigos ĝin "
-"sur la retejo sen via permeso."
+"La sistemo neniam sendos retmesaĝojn al ĉi tiu adreso, nek afiŝos ĝin sur la "
+"retejo sen via permeso."
 
 #: models.py:104 models.py:333
 msgid "description"
@@ -681,7 +681,7 @@ msgstr "de %(name)s"
 
 #: templates/hosting/place_authorized_users.html:4
 #: templates/hosting/place_authorized_users.html:10
-#: templates/hosting/place_detail.html:262
+#: templates/hosting/place_detail.html:261
 #: templates/hosting/profile_edit.html:37
 msgid "Authorized users"
 msgstr "Permesitaj uzantoj"
@@ -710,8 +710,8 @@ msgstr "Reen al %(back_to)s"
 #: templates/hosting/place_authorized_users.html:20
 #: templates/hosting/place_authorized_users.html:22
 #: templates/hosting/profile_form.html:46
-#: templates/hosting/profile_form.html:48 templates/hosting/settings.html:82
-#: templates/hosting/settings.html:84
+#: templates/hosting/profile_form.html:48 templates/hosting/settings.html:84
+#: templates/hosting/settings.html:86
 msgid "Back"
 msgstr "Reen"
 
@@ -725,7 +725,7 @@ msgid "Remove user"
 msgstr "Forigi uzanton"
 
 #: templates/hosting/place_confirm_delete.html:6
-#: templates/hosting/place_detail.html:253 templates/hosting/place_form.html:9
+#: templates/hosting/place_detail.html:252 templates/hosting/place_form.html:9
 msgid "my "
 msgstr "mian "
 
@@ -795,18 +795,18 @@ msgstr "Mi ne troviĝas konstante ĉe tiu ĉi adreso; kontaktiĝu anticipe."
 msgid "The user's email address seems invalid"
 msgstr "La retpoŝta adreso de tiu ĉi uzanto ŝajne ne funkcias"
 
-#: templates/hosting/place_detail.html:247
+#: templates/hosting/place_detail.html:246
 #: templates/hosting/profile_detail.html:99
 msgid "Write message"
 msgstr "Sendi mesaĝon"
 
-#: templates/hosting/place_detail.html:255 templates/hosting/place_form.html:6
+#: templates/hosting/place_detail.html:254 templates/hosting/place_form.html:6
 #: templates/hosting/place_form.html:9 templates/hosting/profile_edit.html:29
 #, python-format
 msgid "Update %(kin)splace"
 msgstr "Redakti %(kin)sloĝejon"
 
-#: templates/hosting/place_detail.html:257
+#: templates/hosting/place_detail.html:256
 #: templates/hosting/place_list_supervisor.html:116
 #: templates/hosting/profile_detail.html:108
 #: templates/hosting/profile_edit.html:10
@@ -817,30 +817,30 @@ msgstr "Redakti %(kin)sloĝejon"
 msgid "Update"
 msgstr "Redakti"
 
-#: templates/hosting/place_detail.html:264
+#: templates/hosting/place_detail.html:263
 #: templates/hosting/profile_edit.html:39
 msgid "Authorizations"
 msgstr "Permesoj"
 
-#: templates/hosting/place_detail.html:269
+#: templates/hosting/place_detail.html:268
 msgid "View as an authorized user"
 msgstr "Rigardi kvazaŭ permesita uzanto"
 
-#: templates/hosting/place_detail.html:274
+#: templates/hosting/place_detail.html:273
 #: templates/hosting/profile_detail.html:193
 #: templates/hosting/profile_edit.html:24
 msgid "View"
 msgstr "Rigardi"
 
-#: templates/hosting/place_detail.html:287
+#: templates/hosting/place_detail.html:286
 msgid "Short description"
 msgstr "Mallonga priskribo"
 
-#: templates/hosting/place_detail.html:291
+#: templates/hosting/place_detail.html:290
 msgid "Available"
 msgstr "Disponebla"
 
-#: templates/hosting/place_detail.html:296
+#: templates/hosting/place_detail.html:295
 msgid "Print in book"
 msgstr "Printi en la PS-libreto"
 
@@ -938,6 +938,14 @@ msgstr "Marki kiel nefunkcianta"
 #: templates/hosting/place_list_supervisor.html:195
 msgid "Update email"
 msgstr "Redakti retadreson"
+
+#: templates/hosting/profile-email_form.html:6
+msgid "Change user's public email"
+msgstr "Modifi publikan adreson de uzanto"
+
+#: templates/hosting/profile-email_form.html:8
+msgid "My public email address"
+msgstr "Mia publika retpoŝta adreso"
 
 #: templates/hosting/profile_confirm_delete.html:12
 msgid "your "
@@ -1127,23 +1135,27 @@ msgid "We send e-mails to this address. It will never be public."
 msgstr ""
 "Ni sendas retmesaĝojn al tiu ĉi retpoŝta adreso. Ĝi neniam estos publika."
 
-#: templates/hosting/settings.html:51 templates/hosting/settings.html:52
+#: templates/hosting/settings.html:51 templates/hosting/settings.html:54
 msgid "set-public-email"
 msgstr "agordi-publikan-adreson"
 
-#: templates/hosting/settings.html:51
+#: templates/hosting/settings.html:52
 msgid "Public email?"
 msgstr "Publika retadreso?"
 
-#: templates/hosting/settings.html:53
+#: templates/hosting/settings.html:55
 msgid "[no email address]"
 msgstr "[neniu retpoŝta adreso]"
 
-#: templates/hosting/settings.html:65
+#: templates/hosting/settings.html:67
 msgid "Update public email"
 msgstr "Ŝanĝi retadreson por publikigo"
 
-#: templates/hosting/settings.html:73 templates/hosting/settings.html:77
+#: templates/hosting/settings.html:75
+msgid "End membership"
+msgstr "Malpasportservaniĝi"
+
+#: templates/hosting/settings.html:79
 msgid "Delete account"
 msgstr "Forigi konton"
 

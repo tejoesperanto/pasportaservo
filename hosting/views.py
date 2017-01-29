@@ -205,7 +205,7 @@ profile_settings = ProfileSettingsView.as_view()
 
 class ProfileEmailUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, generic.UpdateView):
     model = Profile
-    template_name = 'hosting/base_form.html'
+    template_name = 'hosting/profile-email_form.html'
     form_class = ProfileEmailUpdateForm
 
 profile_email_update = ProfileEmailUpdateView.as_view()

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-23 22:00+0000\n"
-"PO-Revision-Date: 2017-01-23 23:00+0100\n"
+"POT-Creation-Date: 2017-01-29 22:36+0000\n"
+"PO-Revision-Date: 2017-01-29 23:44+0100\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -18,63 +18,67 @@ msgstr ""
 "X-Generator: Poedit 1.8.11\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: forms.py:16
-msgid "Email"
-msgstr "Retadreso"
-
-#: forms.py:19
-msgid "Leave blank"
-msgstr "Lasu malplena"
+#: forms.py:27
+msgid "Enter a valid email address."
+msgstr ""
 
 #: forms.py:31
 msgid "User address already in use."
-msgstr "Uzanta adreso jam uzita."
+msgstr "Adreso de uzanto jam utiligita ĉe la retejo."
 
-#: forms.py:84
-msgid "Change of email address at Pasporta Servo"
-msgstr "Retpoŝtadreso ĉe Pasporta Servo ŝanĝita"
+#: forms.py:36
+msgid "Email"
+msgstr "Retadreso"
 
-#: forms.py:105
+#: forms.py:39
+msgid "Leave blank"
+msgstr "Lasu malplena"
+
+#: forms.py:98
+msgid "[Pasporta Servo] Change of email address"
+msgstr "[Pasporta Servo] Retpoŝtadreso ĉe retejo ŝanĝita"
+
+#: forms.py:120
 msgid "Heading"
 msgstr "Titolo"
 
-#: forms.py:106
+#: forms.py:121
 msgid "Body"
 msgstr "Mesaĝo"
 
-#: forms.py:107
+#: forms.py:122
 msgid "Subject"
 msgstr "Temo"
 
-#: forms.py:108
+#: forms.py:123
 msgid "Preheader"
 msgstr "Antaŭkapo"
 
-#: forms.py:110
+#: forms.py:125
 msgid "Categories"
 msgstr "Kategorioj"
 
-#: forms.py:111
+#: forms.py:126
 msgid "test"
 msgstr "Provo (sendas al: )"
 
-#: forms.py:112
+#: forms.py:127
 msgid "old system"
 msgstr "Gastigantoj: neniam ensalutis en la nova retejo"
 
-#: forms.py:113
+#: forms.py:128
 msgid "not in book"
 msgstr "Nova retejo: ne en la libreto"
 
-#: forms.py:114
+#: forms.py:129
 msgid "in book"
 msgstr "Nova retejo: EN la libreto"
 
-#: forms.py:115
+#: forms.py:130
 msgid "just user"
 msgstr "Ne gastigantoj (malnova aŭ nova retejo)"
 
-#: forms.py:117
+#: forms.py:132
 msgid "Your email for test"
 msgstr "Via retpoŝtadreso por testi"
 
@@ -106,8 +110,10 @@ msgstr "Budapeŝto, Londono, Venezuelo, ktp."
 msgid "Find accomodation<br>anywhere in the world."
 msgstr "Trovu loĝejon<br>ĉie ajn sur la planedo"
 
-#: templates/core/home.html:90 templates/core/home.html:93
+#: templates/core/home.html:90
+#: templates/core/home.html:93
 #: templates/core/home.html:96
+#: templates/core/username_change_form.html:5
 msgid "at"
 msgstr "ĉe"
 
@@ -131,6 +137,22 @@ msgstr "Viaj ideoj kaj proponoj"
 msgid "Pasporta Servo's source code"
 msgstr "Fontkodo de Pasporta Servo"
 
+#: templates/core/system-email_form.html:6
+msgid "Change user's account email"
+msgstr "Modifi adreson de uzanto"
+
+#: templates/core/system-email_form.html:8
+msgid "My email address"
+msgstr "Mia retpoŝta adreso"
+
+#: templates/core/username_change_form.html:4
+msgid "Settings"
+msgstr ""
+
+#: templates/core/username_change_form.html:4
+msgid "Change username"
+msgstr ""
+
 #: templates/email/base_email.html:191
 msgid "Unsubscribe"
 msgstr "Malaboni tiajn mesaĝojn"
@@ -142,12 +164,8 @@ msgstr "Adreso konfirmenda"
 #: templates/email/new_email_update.html:6
 #: templates/email/new_email_update.txt:3
 #, python-format
-msgid ""
-"You're receiving this email because you requested to change your email "
-"address at %(site_name)s."
-msgstr ""
-"Vi ricevas tiun ĉi mesaĝon ĉar vi petis ŝanĝon de via retpoŝta adreso ĉe "
-"%(site_name)s."
+msgid "You're receiving this email because you requested to change your email address at %(site_name)s."
+msgstr "Vi ricevas tiun ĉi mesaĝon ĉar vi petis ŝanĝon de via retpoŝta adreso ĉe %(site_name)s."
 
 #: templates/email/new_email_update.html:12
 #: templates/email/new_email_update.txt:7
@@ -163,15 +181,8 @@ msgstr ""
 
 #: templates/email/new_email_update.html:24
 #, python-format
-msgid ""
-"If it wasn't you who requested to use this email address at %(site_name)s, "
-"you can safely ignore this message. The confirmation link will expire soon "
-"and whoever requested the change will not be able to use your address."
-msgstr ""
-"Se ne estis vi kiu petis ekde nun uzi ĉe %(site_name)s tiun ĉi retpoŝtan "
-"adreson, vi povas trankvile malatenti tiun ĉi sciigon. La konfirma ligilo "
-"baldaŭ malvalidiĝos kaj la petanto de la ŝanĝo de havos eblecon uzi vian "
-"adreson."
+msgid "If it wasn't you who requested to use this email address at %(site_name)s, you can safely ignore this message. The confirmation link will expire soon and whoever requested the change will not be able to use your address."
+msgstr "Se ne estis vi kiu petis ekde nun uzi ĉe %(site_name)s tiun ĉi retpoŝtan adreson, vi povas trankvile malatenti tiun ĉi sciigon. La konfirma ligilo baldaŭ malvalidiĝos kaj la petanto de la ŝanĝo de havos eblecon uzi vian adreson."
 
 #: templates/email/new_email_update.html:32
 msgid "Confirm email"
@@ -201,21 +212,13 @@ msgstr "Adreso modifita"
 #: templates/email/old_email_update.html:13
 #: templates/email/old_email_update.txt:3
 #, python-format
-msgid ""
-"You're receiving this email because you (or someone on your behalf) "
-"requested a change of your email address at %(site_name)s"
-msgstr ""
-"Vi ricevas tiun ĉi mesaĝon ĉar vi (aŭ iu vianome) petis ŝanĝon de via "
-"retpoŝta adreso ĉe %(site_name)s"
+msgid "You're receiving this email because you (or someone on your behalf) requested a change of your email address at %(site_name)s"
+msgstr "Vi ricevas tiun ĉi mesaĝon ĉar vi (aŭ iu vianome) petis ŝanĝon de via retpoŝta adreso ĉe %(site_name)s"
 
 #: templates/email/old_email_update.html:24
 #: templates/email/old_email_update.txt:11
-msgid ""
-"In case you did not request this change and you suspect it is a fraud, "
-"please contact us urgently!"
-msgstr ""
-"Se vi ne petis tian ŝanĝon kaj pensas ke temas pri fraŭdo, bonvolu urĝe "
-"kontakti nin!"
+msgid "In case you did not request this change and you suspect it is a fraud, please contact us urgently!"
+msgstr "Se vi ne petis tian ŝanĝon kaj pensas ke temas pri fraŭdo, bonvolu urĝe kontakti nin!"
 
 #: templates/email/old_email_update.txt:8
 msgid "The new address is:"
@@ -250,12 +253,8 @@ msgid "^password/reset/done/$"
 msgstr "^pasvorto/nova/fino/$"
 
 #: urls.py:32
-msgid ""
-"^reset/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]"
-"{1,20})/$"
-msgstr ""
-"^nova-pasvorto/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-"
-"[0-9A-Za-z]{1,20})/$"
+msgid "^reset/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$"
+msgstr "^nova-pasvorto/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$"
 
 #: urls.py:34
 msgid "^reset/done/$"
@@ -293,14 +292,11 @@ msgstr "^admin/amassendado/sukceso/$"
 msgid "You are logged in."
 msgstr "Vi nun estas ensalutinta."
 
-#: views.py:110
-msgid ""
-"A confirmation email has been sent. Please check your mailbox to complete "
-"the process."
-msgstr ""
-"Konfirma mesaĝo estis sendita. Bonvole kontrolu vian retpoŝtkeston por "
-"kompletigi la procedon."
+#: views.py:111
+msgid "A confirmation email has been sent. Please check your mailbox to complete the process."
+msgstr "Konfirma mesaĝo estis sendita. Bonvole kontrolu vian retpoŝtkeston por kompletigi la procedon."
 
-#: views.py:125
+#: views.py:126
 msgid "Your email address has been successfuly updated!"
 msgstr "Vi sukcese ŝanĝis vian retpoŝtan adreson!"
+

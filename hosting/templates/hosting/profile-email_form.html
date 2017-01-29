@@ -1,0 +1,10 @@
+{% extends 'hosting/base_form.html' %}
+{% load i18n %}
+
+{% block head_title %}
+    {% if user.profile != profile %}
+        {% trans "Change user's public email" %}{% if profile.name %}: {{ profile.name }} {% else %} #{{ profile.id }} {% endif %}
+    {% else %}
+        {% trans "My public email address" %}
+    {% endif %}
+{% endblock %}

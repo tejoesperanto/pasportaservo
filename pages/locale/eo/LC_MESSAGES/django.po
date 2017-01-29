@@ -6,9 +6,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo pages\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-30 19:24+0000\n"
-"PO-Revision-Date: 2016-12-30 20:25+0100\n"
-"Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
+"POT-Creation-Date: 2017-01-29 22:41+0000\n"
+"PO-Revision-Date: 2017-01-29 23:45+0100\n"
+"Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <info@pasportaservo.org>\n"
 "Language: eo\n"
 "MIME-Version: 1.0\n"
@@ -18,30 +18,35 @@ msgstr ""
 "X-Generator: Poedit 1.8.11\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: templates/pages/supervisors.html:5 templates/pages/supervisors.html:11
-#: templates/pages/supervisors.html:35
+#: templates/pages/supervisors.html:5
+#: templates/pages/supervisors.html:11
+#: templates/pages/supervisors.html:45
 msgid "Supervisors"
 msgstr "Landaj Organizantoj"
 
-#: templates/pages/supervisors.html:32
+#: templates/pages/supervisors.html:42
 msgid "code"
 msgstr "kodo"
 
-#: templates/pages/supervisors.html:33
+#: templates/pages/supervisors.html:43
 msgid "country"
 msgstr "lando"
 
-#: templates/pages/supervisors.html:34
+#: templates/pages/supervisors.html:44
 msgid "Progress"
 msgstr "Progreso"
 
-#: templates/pages/supervisors.html:60
-msgid "places checked"
-msgstr "adresoj kontrolitaj"
+#: templates/pages/supervisors.html:71
+msgid "place checked"
+msgid_plural "places checked"
+msgstr[0] "adreso kontrolita"
+msgstr[1] "adresoj kontrolitaj"
 
-#: templates/pages/supervisors.html:65
-msgid "places confirmed"
-msgstr "adresoj konfirmitaj de uzanto"
+#: templates/pages/supervisors.html:77
+msgid "place confirmed"
+msgid_plural "places confirmed"
+msgstr[0] "adreso konfirmita fare de uzanto"
+msgstr[1] "adresoj konfirmitaj fare de uzanto"
 
 #: urls.py:8
 msgid "^about/$"
@@ -62,3 +67,4 @@ msgstr "^lo/$"
 #: urls.py:12
 msgid "^supervisors/$"
 msgstr "^landaj-organizantoj/$"
+

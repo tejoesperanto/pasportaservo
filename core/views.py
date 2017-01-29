@@ -69,7 +69,7 @@ register = RegisterView.as_view()
 
 class UsernameChangeView(LoginRequiredMixin, generic.UpdateView):
     model = User
-    template_name = 'hosting/base_form.html'
+    template_name = 'core/username_change_form.html'
     form_class = UsernameUpdateForm
 
     def get_object(self, queryset=None):
@@ -93,7 +93,7 @@ username_change = UsernameChangeView.as_view()
 
 class EmailUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = User
-    template_name = 'hosting/base_form.html'
+    template_name = 'core/system-email_form.html'
     form_class = EmailUpdateForm
 
     def get_object(self, queryset=None):
@@ -139,7 +139,8 @@ email_update_confirm = EmailUpdateConfirmView.as_view()
 class StaffUpdateEmailView(LoginRequiredMixin, SupervisorRequiredMixin, ProfileMixin, generic.UpdateView):
     model = User
     form_class = StaffUpdateEmailForm
-    template_name = 'core/system_email_form.html'
+    template_name = 'core/system-email_form.html'
+    staff_view = True
 
     def dispatch(self, request, *args, **kwargs):
         self.user = get_object_or_404(Profile, pk=kwargs['pk']).user

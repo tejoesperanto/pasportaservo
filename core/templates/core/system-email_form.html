@@ -1,0 +1,16 @@
+{% extends 'hosting/base_form.html' %}
+{% load i18n %}
+
+{% block head_title %}
+    {% if user != form.instance %}
+        {% trans "Change user's account email" %}{% if form.instance.profile.name %}: {{ form.instance.profile.name }} {% else %} #{{ form.instance.profile.id }} {% endif %}
+    {% else %}
+        {% trans "My email address" %}
+    {% endif %}
+{% endblock %}
+
+{% block form_title %}
+    {% if view.staff_view %}
+        {{ form.instance.profile.get_fullname_display }} <hr />
+    {% endif %}
+{% endblock %}

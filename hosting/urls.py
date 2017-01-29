@@ -10,6 +10,7 @@ from .views import (
     profile_create, profile_redirect, profile_detail,
     profile_edit, profile_update, profile_delete,
     profile_settings,
+    profile_email_update,
     place_detail, place_detail_verbose,
     place_create, place_update, place_delete, authorize_user,
     country_place_list,
@@ -17,7 +18,6 @@ from .views import (
     family_member_remove, family_member_delete,
     phone_create, phone_update, phone_delete,
     confirm_hosting_info, place_check,
-    profile_email_update,
     search,
 )
 
