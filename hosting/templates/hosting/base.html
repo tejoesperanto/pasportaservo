@@ -4,7 +4,7 @@
 {% block body %}
     <section class="messages">
         {% block messages %}
-            {% for message in messages %}{% include "message.html" %}{% endfor %}
+            {% for message in messages %}{% include "core/message.html" %}{% endfor %}
         {% endblock %}
 
         {# "TODO: Remove by mid February 2017" #}
@@ -13,7 +13,7 @@
             {% blocktrans asvar reserve_msg trimmed %}
                 <a href="{{ reserve_url }}">Rezervu nun la libreton <big>Pasporta Servo 2017</big>!</a>
             {% endblocktrans %}
-            {% include "message.html" with message=reserve_msg|safe level='info' daily=True sticky_class='PS2017' %}
+            {% include "core/message.html" with message=reserve_msg|safe level='info' daily=True sticky_class='PS2017' %}
         {% endif %}
     </section>
     <header class="container-fluid{% block header_class %}{% endblock %}">

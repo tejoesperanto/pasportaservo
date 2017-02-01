@@ -263,7 +263,7 @@ mass_mail = MassMailView.as_view()
 
 
 class MassMailSentView(SuperuserRequiredMixin, generic.TemplateView):
-    template_name = 'hosting/mass_mail_sent.html'
+    template_name = 'core/mass_mail_sent.html'
 
     def get_context_data(self, **kwargs):
         context = super(MassMailSentView, self).get_context_data(**kwargs)

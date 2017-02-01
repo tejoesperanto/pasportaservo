@@ -474,7 +474,7 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
     def send_email(self, user, place):
         subject = _("[Pasporta Servo] You received an Authorization")
         to = [user.email]
-        email_template_text = 'hosting/emails/new_authorization.txt'
+        email_template_text = 'email/new_authorization.txt'
         email_template_html = 'hosting/emails/mail_template.html'
         email_context = {
             'user_first_name': user.profile.name,
