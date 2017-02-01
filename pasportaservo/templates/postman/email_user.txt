@@ -1,4 +1,4 @@
-{% load i18n %}{% load domain %}{% autoescape off %}{% trans "Dear user," %}
+{% load i18n url_utils %}{% autoescape off %}{% trans "Dear user," %}
 {% if action == 'rejection' %}
 {% blocktrans with object.sent_at|date:"DATETIME_FORMAT" as date and object.obfuscated_recipient as recipient %}On {{ date }}, you asked to send a message to the user '{{ recipient }}'.{% endblocktrans %}
 

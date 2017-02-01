@@ -1,4 +1,4 @@
-{% load i18n %}{% load domain %}{% autoescape off %}
+{% load i18n url_utils %}{% autoescape off %}
 {% trans "Dear user," %}
 {% blocktrans trimmed %}
     You're receiving this email because you (or someone on your behalf) requested a change

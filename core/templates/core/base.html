@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n static %}
+{% load i18n static url_utils %}
 
 {% block body %}
     <section class="messages">
@@ -78,7 +78,7 @@
 
     {% block pre-page %}{% endblock %}
 
-    <div id="page" class="container{% block page_class %}{% endblock %}">
+    <div id="page" role="main" class="container{% block page_class %}{% endblock %}">
         {% block page %}{% endblock %}
     </div>
 
@@ -102,4 +102,8 @@
             </div>
         {% endblock footer %}
     </footer>
+
+    {% if user.is_authenticated %}
+    <!-- PageId:{% random_identifier %} -->
+    {% endif %}
 {% endblock body %}
