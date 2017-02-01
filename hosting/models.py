@@ -98,7 +98,7 @@ class Profile(TrackingModel, TimeStampedModel):
     email = models.EmailField(_("public email"),
         blank=True,
         help_text=_("This email address will be used for the book. "
-            "Leave blank if you don’t want this email to be public.\n"
+            "Leave blank if you don't want this email to be public.\n"
             "The system will never send emails to this address, "
             "neither publish it on the site without your permission."))
     description = models.TextField(_("description"),

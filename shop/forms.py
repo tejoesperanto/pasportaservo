@@ -7,7 +7,7 @@ from .models import Reservation
 class ReservationForm(forms.ModelForm):
     in_book = forms.BooleanField(
         initial=False, required=False,
-        label=_("I’m a host and I will appear in the book"),
+        label=_("I'm a host and I will appear in the book"),
         help_text=_("I can have my book at a discounted price"))
 
     class Meta:
@@ -21,11 +21,11 @@ class ReservationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['in_book'].initial = is_in_book
         self.fields['in_book'].widget.attrs.update({
-            'data-bind': 'checked: inBook'})
+            'data-bind': "checked: inBook"})
         self.fields['amount'].widget.attrs.update({
-            'class': 'form-control input-lg',
-            'data-bind': 'textInput: productAmount'})
-        self.fields['discount'].widget.attrs['data-bind'] = 'checked: hasTejoDiscount, cli'
+            'class': "form-control input-lg",
+            'data-bind': "textInput: productAmount"})
+        self.fields['discount'].widget.attrs['data-bind'] = "checked: hasTejoDiscount, cli"
         self.fields['support'].localize = True
         self.fields['support'].widget = forms.TextInput(attrs={
             'class': "form-control same-as-body",

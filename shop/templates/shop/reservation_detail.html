@@ -1,13 +1,12 @@
-{% extends "hosting/base.html" %}
-{% load static %}
-{% load i18n %}
+{% extends 'core/base.html' %}
+{% load i18n static %}
 
 {% block page %}
-  <h3 class="text-center">{% trans "Soon at your place!" %}</h3>
-  <div class="row">
-    <div class="col text-center">
-      <img src="{% static 'img/PS2017.png' %}" alt="PS2017" height="500px">
+    <h3 class="text-center">{% trans "Soon at your place!" %}</h3>
+    <div class="row">
+        <div class="col text-center">
+            <img src="{% static 'img/PS2017.png' %}" alt="PS2017" height="500px">
+        </div>
     </div>
-  </div>
-  <h1 class="text-center">{% trans "Thank you!" %}</h1>
+    <h1 class="text-center">{% trans "Thank you!" %}</h1>
 {% endblock page %}
