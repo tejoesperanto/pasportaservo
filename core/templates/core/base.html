@@ -86,18 +86,19 @@
         {% block footer %}
             <div class="row">
                 <div class="col-md-12">
-                    <a href="{% url 'about' %}">{% trans "About us" %}</a>
+                    <span class="text-nowrap"><a href="{% url 'about' %}">{% trans "About us" %}</a></span>
                     |
-                    <a href="{% url 'faq' %}">{% trans "FAQ" %}</a>
+                    <span class="text-nowrap"><a href="{% url 'faq' %}">{% trans "FAQ" %}</a></span>
                     |
-                    <a href="{% url 'terms_conditions' %}">{% trans "Terms" %}</a>
+                    <span class="text-nowrap"><a href="{% url 'terms_conditions' %}">{% trans "Terms" %}</a></span>
                     |
-                    <a href="{% url 'supervisors' %}">{% trans "Supervisors" %}</a>
-                    |
-                    <span class="text-nowrap"
-                        ><img src="{% static 'img/home/tejo.png' %}" width="39" height="18" style="vertical-align:-15%" alt="TEJO" />
-                        <a href="http://tejo.org" title="Tutmonda Esperantista Junulara Organizo">TEJO</a
-                        ></span>
+                    <span class="text-nowrap"><a href="{% url 'supervisors' %}">{% trans "Supervisors" %}</a></span>
+                    <span class="hidden-xs">|</span><br class="visible-xs-inline" style="margin-bottom: 10px" />
+                    <span class="text-nowrap">
+                        <a href="http://tejo.org" title="Tutmonda Esperantista Junulara Organizo">
+                            <img src="{% static 'img/home/tejo.png' %}" width="39" height="18" style="vertical-align:-15%" alt="TEJO" />
+                        </a>
+                    </span>
                 </div>
             </div>
         {% endblock footer %}

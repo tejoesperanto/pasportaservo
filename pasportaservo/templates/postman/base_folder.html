@@ -23,17 +23,13 @@
         {% else %}
             {% if pm_messages %}
                 {% block pm_by_modes %}
-                    <div id="pm_by_modes">
-                        <span class="pm_by_mode">
-                            {% if by_message %}<a href="{{ by_conversation_url }}">{% endif %}
+                    <div id="pm_by_modes" class="btn-group btn-group-xs">
+                        <a {% if by_message %}href="{{ by_conversation_url }}" {% else %}disabled {% endif %}role="button" class="btn btn-default">
                             {% trans "by conversation" %}
-                            {% if by_message %}</a>{% endif %}
-                        </span>
-                        <span class="pm_by_mode">
-                            {% if by_conversation %}<a href="{{ by_message_url }}">{% endif %}
+                        </a>
+                        <a {% if by_conversation %}href="{{ by_message_url }}" {% else %}disabled {% endif %}role="button" class="btn btn-default">
                             {% trans "by message" %}
-                            {% if by_conversation %}</a>{% endif %}
-                        </span>
+                        </a>
                     </div>
                 {% endblock pm_by_modes %}
                 <form action="{% block pm_form_action %}{% endblock %}" method="post">
@@ -52,29 +48,37 @@
                                 <th><a href="{% postman_order_by date %}">{% block pm_date %}{% trans "Date" %}{% endblock %}</a></th>
                             </tr>
                         </thead>
-                        <tbody>{% for message in pm_messages %}
-                            <tr>
+                        <tbody>
+                            {% for message in pm_messages %}
+                            <tr class="{% cycle "pm_row_odd" "pm_row_even" %}">
                                 <td>
                                     <input type="checkbox" {% if by_conversation and message.thread_id %}name="tpks" value="{{ message.thread_id }}"{% else %}name="pks" value="{{ message.pk }}"{% endif %} />
                                 </td>
                                 {% block pm_sender_cell %}
-                                    <td>{{ message.obfuscated_sender|or_me:user }}{% if message.count %} ({{ message.count }}){% endif %}</td>
+                                    <td>
+                                        {{ message.obfuscated_sender|or_me:user }}
+                                        {% if message.count %}<span class="badge">{{ message.count }}</span>{% endif %}
+                                        {% if message.is_new %}<span class="pm_sign_new">&bull;</span>{% endif %}
+                                    </td>
                                 {% endblock %}
                                 {% block pm_recipient_cell %}
-                                    <td>{{ message.obfuscated_recipient|or_me:user }}{% if message.count %} ({{ message.count }}){% endif %}</td>
+                                    <td>
+                                        {{ message.obfuscated_recipient|or_me:user }}
+                                        {% if message.count %}<span class="badge">{{ message.count }}</span>{% endif %}
+                                    </td>
                                 {% endblock %}
-
                                 <td>
-                                    {% if message.is_new %}<strong>{% endif %}{% if message.is_replied %}<em>{% endif %}
+                                    {% if message.is_new %}<strong>{% endif %}{% if not message.is_replied %}<em>{% endif %}
                                     {% block pm_subject %}
                                         <a href="{% if by_conversation and message.thread_id %}{% url 'postman:view_conversation' message.thread_id %}{% else %}{{message.get_absolute_url }}{% endif %}?next={{ current_url|urlencode }}">
                                             {% include "postman/inc_subject_ex.html" %}
                                         </a>
                                     {% endblock %}
-                                    {% if message.is_replied %}</em>{% endif %}{% if message.is_new %}</strong>{% endif %}
+                                    {% if not message.is_replied %}</em>{% endif %}{% if message.is_new %}</strong>{% endif %}
                                 </td>
                                 <td>{{ message.sent_at|compact_date:_("g:i A,M j,n/j/y") }}</td>
-                            </tr>{% endfor %}
+                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                     {% block pm_form_buttons %}
