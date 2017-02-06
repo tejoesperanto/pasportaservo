@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-29 22:35+0000\n"
-"PO-Revision-Date: 2017-01-29 23:43+0100\n"
+"POT-Creation-Date: 2017-02-03 14:53+0000\n"
+"PO-Revision-Date: 2017-02-06 13:46+0100\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -26,7 +26,7 @@ msgstr "Personaj informoj"
 msgid "Permissions"
 msgstr "Permesoj"
 
-#: admin.py:75 admin.py:129 templates/hosting/base.html:95
+#: admin.py:75 admin.py:129
 msgid "Supervisors"
 msgstr "Landaj organizantoj"
 
@@ -56,7 +56,7 @@ msgstr "LO statuso"
 msgid "country"
 msgstr "lando"
 
-#: admin.py:184 templates/hosting/settings.html:28
+#: admin.py:184 templates/hosting/settings.html:27
 msgid "Email"
 msgstr "Retadreso"
 
@@ -109,7 +109,7 @@ msgid "No"
 msgstr "Ne"
 
 #: admin_utils.py:86 templates/hosting/place_list_supervisor.html:175
-#: templates/hosting/settings.html:31 templates/hosting/settings.html:58
+#: templates/hosting/settings.html:30 templates/hosting/settings.html:57
 msgid "invalid email"
 msgstr "nefunkcianta adreso"
 
@@ -176,7 +176,7 @@ msgid "Authorize user"
 msgstr "Permesi uzanton"
 
 #: forms.py:241 templates/hosting/profile_detail.html:156
-#: templates/hosting/settings.html:13
+#: templates/hosting/settings.html:12
 msgid "username"
 msgstr "uzantnomo"
 
@@ -283,7 +283,7 @@ msgstr "publika retpoŝta adreso"
 
 #: models.py:100
 msgid ""
-"This email address will be used for the book. Leave blank if you don’t want "
+"This email address will be used for the book. Leave blank if you don't want "
 "this email to be public.\n"
 "The system will never send emails to this address, neither publish it on the "
 "site without your permission."
@@ -527,62 +527,29 @@ msgstr "kondiĉo"
 msgid "contact preference"
 msgstr "preferata kontaktmaniero"
 
-#: templates/base.html:6 templates/hosting/place_list.html:5
-#: templates/registration/login.html:4 templates/registration/register.html:4
-msgid "Find accomodation"
-msgstr "Trovu loĝejon"
-
-#: templates/base.html:17 templates/hosting/profile_detail.html:6
-#: templates/hosting/profile_form.html:21
-msgid "My profile"
-msgstr "Mia profilo"
-
-#: templates/base.html:18 templates/hosting/place_list.html:24
-#: templates/hosting/place_list.html:26
-msgid "Search"
-msgstr "Serĉi"
-
-#: templates/hosting/base.html:13
+#: templates/email/new_authorization.txt:1
 #, python-format
-msgid ""
-"<a href=\"%(reserve_url)s\">Rezervu nun la libreton <big>Pasporta Servo "
-"2017</big>!</a>"
-msgstr ""
+msgid "Dear %(user_first_name)s,"
+msgstr "Kara %(user_first_name)s,"
 
-#: templates/hosting/base.html:36
-msgid "inbox"
-msgstr "poŝtkesto"
-
-#: templates/hosting/base.html:41
+#: templates/email/new_authorization.txt:5
 #, python-format
-msgid "%(unread)s new message"
-msgid_plural "%(unread)s new messages"
-msgstr[0] "%(unread)s nova mesaĝo"
-msgstr[1] "%(unread)s novaj mesaĝoj"
+msgid "You've been authorized to see the complete address of %(owner_name)s!"
+msgstr "%(owner_name)s rajtigis vin vidi sian plenan adreson!"
 
-#: templates/hosting/base.html:56
-msgid "log out"
-msgstr "elsaluti"
+#: templates/email/new_authorization.txt:8
+#: templates/hosting/place_detail.html:9
+msgid "A place in"
+msgstr "Loĝejo en"
 
-#: templates/hosting/base.html:60
-msgid "log in"
-msgstr "ensaluti"
+#: templates/email/new_authorization.txt:10
+msgid "Follow this link to see this accommodation:"
+msgstr "Klaku la ligilon por vidi tiun ĉi loĝejon:"
 
-#: templates/hosting/base.html:72
-msgid "register"
-msgstr "registriĝi"
-
-#: templates/hosting/base.html:89
-msgid "About us"
-msgstr "Pri ni"
-
-#: templates/hosting/base.html:91
-msgid "FAQ"
-msgstr "Oftaj demandoj"
-
-#: templates/hosting/base.html:93
-msgid "Terms"
-msgstr "Kondiĉoj"
+#: templates/email/new_authorization.txt:16
+#, python-format
+msgid "The %(site_name)s team."
+msgstr "La teamo de %(site_name)s."
 
 #: templates/hosting/base_confirm.html:23
 msgid "Cancel operation"
@@ -597,37 +564,6 @@ msgstr "Ne, nuligu"
 #: templates/hosting/family_member_confirm_delete.html:26
 msgid "Delete"
 msgstr "Forigi"
-
-#: templates/hosting/base_form.html:39
-#: templates/hosting/snippets/confirmed.html:11
-#: templates/hosting/snippets/confirmed.html:14
-msgid "Confirm"
-msgstr "Konfirmi"
-
-#: templates/hosting/emails/new_authorization.txt:1
-#, python-format
-msgid "Dear %(user_first_name)s,"
-msgstr "Kara %(user_first_name)s,"
-
-#: templates/hosting/emails/new_authorization.txt:5
-#, python-format
-msgid "You've been authorized to see the complete address of %(owner_name)s!"
-msgstr "%(owner_name)s rajtigis vin vidi sian plenan adreson!"
-
-#: templates/hosting/emails/new_authorization.txt:8
-#: templates/hosting/place_detail.html:9
-msgid "A place in"
-msgstr "Loĝejo en"
-
-#: templates/hosting/emails/new_authorization.txt:10
-msgid "Follow this link to see this accommodation:"
-msgstr "Klaku la ligilon por vidi tiun ĉi loĝejon:"
-
-#: templates/hosting/emails/new_authorization.txt:16
-#: templates/registration/password_reset_email.html:11
-#, python-format
-msgid "The %(site_name)s team."
-msgstr "La teamo de %(site_name)s."
 
 #: templates/hosting/family_member_confirm_delete.html:5
 #: templates/hosting/profile_edit.html:64
@@ -651,15 +587,6 @@ msgstr "Nur forpreni"
 #: templates/hosting/family_member_confirm_delete.html:24
 msgid "Remove from list of family members"
 msgstr "Forpreni el listo de kunloĝantoj"
-
-#: templates/hosting/mass_mail_sent.html:5
-msgid "Emails sent"
-msgstr "Retmesaĝoj senditaj"
-
-#: templates/hosting/mass_mail_sent.html:7
-#, python-format
-msgid "You sent %(nb)s emails. Well done!"
-msgstr "Vi sendis %(nb)s mesaĝojn. Bonege!"
 
 #: templates/hosting/phone_confirm_delete.html:5
 #: templates/hosting/profile_edit.html:91
@@ -710,8 +637,8 @@ msgstr "Reen al %(back_to)s"
 #: templates/hosting/place_authorized_users.html:20
 #: templates/hosting/place_authorized_users.html:22
 #: templates/hosting/profile_form.html:46
-#: templates/hosting/profile_form.html:48 templates/hosting/settings.html:84
-#: templates/hosting/settings.html:86
+#: templates/hosting/profile_form.html:48 templates/hosting/settings.html:83
+#: templates/hosting/settings.html:85
 msgid "Back"
 msgstr "Reen"
 
@@ -860,16 +787,22 @@ msgstr "Kie mi estas?"
 msgid "Search with the address"
 msgstr "Serĉu laŭ la adreso"
 
+#: templates/hosting/place_list.html:5
+msgid "Find accomodation"
+msgstr "Trovu loĝejon"
+
 #: templates/hosting/place_list.html:7 templates/hosting/place_list.html:24
 #: templates/hosting/profile_form.html:27
-#: templates/registration/password_change_done.html:5
-#: templates/registration/password_change_form.html:5
 msgid "at"
 msgstr "ĉe"
 
 #: templates/hosting/place_list.html:21
 msgid "Budapest, London, Venezuela, etc."
 msgstr "Budapeŝto, Londono, Venezuelo, ktp."
+
+#: templates/hosting/place_list.html:24 templates/hosting/place_list.html:26
+msgid "Search"
+msgstr "Serĉi"
 
 #: templates/hosting/place_list.html:91
 #: templates/hosting/place_list_supervisor.html:205
@@ -965,6 +898,11 @@ msgid ""
 msgstr ""
 "Ĉu vi certege volas forigi %(kin)sprofilon, kaj ĉiujn ligitajn datumojn "
 "(loĝejojn, telefonnumerojn…)?"
+
+#: templates/hosting/profile_detail.html:6
+#: templates/hosting/profile_form.html:21
+msgid "My profile"
+msgstr "Mia profilo"
 
 #: templates/hosting/profile_detail.html:35
 #, python-format
@@ -1073,10 +1011,8 @@ msgid "Update profile"
 msgstr "Redakti profilon"
 
 #: templates/hosting/profile_edit.html:15
-#: templates/hosting/profile_edit.html:17 templates/hosting/settings.html:6
-#: templates/hosting/settings.html:10
-#: templates/registration/password_change_done.html:4
-#: templates/registration/password_change_form.html:4
+#: templates/hosting/profile_edit.html:17 templates/hosting/settings.html:5
+#: templates/hosting/settings.html:9
 msgid "Settings"
 msgstr "Agordoj"
 
@@ -1103,59 +1039,56 @@ msgstr "Aldoni kunloĝanton"
 msgid "Add a phone"
 msgstr "Aldoni telefon-numeron"
 
-#: templates/hosting/settings.html:16
+#: templates/hosting/settings.html:15
 msgid "Change username"
 msgstr "Ŝanĝi salutnomon"
 
-#: templates/hosting/settings.html:21
+#: templates/hosting/settings.html:20
 msgid "password"
 msgstr "pasvorto"
 
-#: templates/hosting/settings.html:21
+#: templates/hosting/settings.html:20
 msgid "Password"
 msgstr "Pasvorto"
 
-#: templates/hosting/settings.html:23
-#: templates/registration/password_change_done.html:4
-#: templates/registration/password_change_form.html:4
-#: templates/registration/password_change_form.html:7
+#: templates/hosting/settings.html:22
 msgid "Change password"
 msgstr "Ŝanĝi pasvorton"
 
-#: templates/hosting/settings.html:28
+#: templates/hosting/settings.html:27
 msgid "email"
 msgstr "retadreso"
 
-#: templates/hosting/settings.html:41 templates/hosting/settings.html:45
+#: templates/hosting/settings.html:40 templates/hosting/settings.html:44
 msgid "Update account email"
 msgstr "Ŝanĝi retadreson por konto"
 
-#: templates/hosting/settings.html:48
+#: templates/hosting/settings.html:47
 msgid "We send e-mails to this address. It will never be public."
 msgstr ""
 "Ni sendas retmesaĝojn al tiu ĉi retpoŝta adreso. Ĝi neniam estos publika."
 
-#: templates/hosting/settings.html:51 templates/hosting/settings.html:54
+#: templates/hosting/settings.html:50 templates/hosting/settings.html:53
 msgid "set-public-email"
 msgstr "agordi-publikan-adreson"
 
-#: templates/hosting/settings.html:52
+#: templates/hosting/settings.html:51
 msgid "Public email?"
 msgstr "Publika retadreso?"
 
-#: templates/hosting/settings.html:55
+#: templates/hosting/settings.html:54
 msgid "[no email address]"
 msgstr "[neniu retpoŝta adreso]"
 
-#: templates/hosting/settings.html:67
+#: templates/hosting/settings.html:66
 msgid "Update public email"
 msgstr "Ŝanĝi retadreson por publikigo"
 
-#: templates/hosting/settings.html:75
+#: templates/hosting/settings.html:74
 msgid "End membership"
 msgstr "Malpasportservaniĝi"
 
-#: templates/hosting/settings.html:79
+#: templates/hosting/settings.html:78
 msgid "Delete account"
 msgstr "Forigi konton"
 
@@ -1166,6 +1099,11 @@ msgstr "aprobanto nekonata"
 #: templates/hosting/snippets/checked.html:21
 msgid "Not checked"
 msgstr "Nekontrolita"
+
+#: templates/hosting/snippets/confirmed.html:11
+#: templates/hosting/snippets/confirmed.html:14
+msgid "Confirm"
+msgstr "Konfirmi"
 
 #: templates/hosting/snippets/place_city_complete.html:3
 #, python-format
@@ -1226,144 +1164,6 @@ msgstr "trinkos ion kun vi"
 #: templates/hosting/snippets/place_owner_anchors.html:32
 msgid "to have a drink together in the city"
 msgstr "trinkos ion kun vi en la urbo"
-
-#: templates/hosting/snippets/registration.html:6
-#: templates/registration/register.html:6
-msgid "Registration"
-msgstr "Registrado"
-
-#: templates/hosting/snippets/registration.html:8
-msgid "You must register to see this accomodation."
-msgstr "Vi devas registriĝi por vidi tiun ĉi loĝejon."
-
-#: templates/hosting/snippets/registration.html:15
-#: templates/registration/register.html:4
-#: templates/registration/register.html:9
-msgid "Register"
-msgstr "Registriĝu"
-
-#: templates/registration/login.html:4 templates/registration/login.html:6
-msgid "Log In"
-msgstr "Ensalutu"
-
-#: templates/registration/login.html:7
-msgid "Log in with your username and password."
-msgstr "Ensalutu per via uzantnomo kaj pasvorto"
-
-#: templates/registration/login.html:9
-msgid "Forgot password?"
-msgstr "Mi forgesis mian pasvorton"
-
-#: templates/registration/login.html:10
-#: templates/registration/password_reset_complete.html:7
-msgid "Log in"
-msgstr "Ensaluti"
-
-#: templates/registration/password_change_done.html:8
-msgid "Your password was changed."
-msgstr "La pasvorto estis ŝanĝita."
-
-#: templates/registration/password_change_form.html:8
-msgid ""
-"Please enter your old password, for security's sake, and then enter your new "
-"password twice so we can verify you typed it in correctly."
-msgstr ""
-
-#: templates/registration/password_change_form.html:10
-msgid "Change"
-msgstr "Ŝanĝi"
-
-#: templates/registration/password_reset_complete.html:5
-msgid "Password reset complete"
-msgstr "Nova pasvorto agordita"
-
-#: templates/registration/password_reset_complete.html:6
-msgid "Your password has been set. You may go ahead and log in now."
-msgstr "Vi sukcese ŝanĝis vian pasvorton. Vi nun povas ensaluti."
-
-#: templates/registration/password_reset_confirm.html:6
-msgid "Change my password"
-msgstr "Ŝanĝi mian pasvorton"
-
-#: templates/registration/password_reset_confirm.html:10
-msgid "Enter new password"
-msgstr "Enmeti novan pasvorton"
-
-#: templates/registration/password_reset_confirm.html:12
-msgid "Invalid password link"
-msgstr "Nevalida pasvorta ligilo"
-
-#: templates/registration/password_reset_confirm.html:18
-msgid ""
-"Please enter your new password twice so we can verify you typed it in "
-"correctly."
-msgstr ""
-
-#: templates/registration/password_reset_confirm.html:20
-msgid ""
-"It seems like you already used this link. A link to change your password can "
-"be used just once."
-msgstr ""
-"Ŝajnas ke vi jam uzis tiun ĉi ligilon. La ligilo por ŝanĝi pasvorton povas "
-"esti uzata nur unufoje."
-
-#: templates/registration/password_reset_confirm.html:40
-msgid "New password link"
-msgstr "Nova pasvorta ligilo"
-
-#: templates/registration/password_reset_done.html:5
-#: templates/registration/password_reset_email_html.html:3
-#: templates/registration/password_reset_form.html:5
-msgid "Password reset"
-msgstr "Nova pasvorto"
-
-#: templates/registration/password_reset_done.html:6
-msgid ""
-"We've emailed you instructions for setting your password, if an account "
-"exists with the email you entered. You should receive them shortly."
-msgstr ""
-
-#: templates/registration/password_reset_done.html:7
-msgid ""
-"If you don't receive an email, please make sure you've entered the address "
-"you registered with, and check your spam folder."
-msgstr ""
-
-#: templates/registration/password_reset_email.html:2
-#: templates/registration/password_reset_email_html.html:6
-#, python-format
-msgid ""
-"You're receiving this email because you requested a password reset for your "
-"user account at %(site_name)s."
-msgstr ""
-
-#: templates/registration/password_reset_email.html:4
-#: templates/registration/password_reset_email_html.html:10
-msgid "Please go to the following page and choose a new password:"
-msgstr ""
-
-#: templates/registration/password_reset_email.html:8
-#: templates/registration/password_reset_email_html.html:19
-msgid "Your username, in case you've forgotten:"
-msgstr ""
-
-#: templates/registration/password_reset_email.html:10
-msgid "Thanks for using our site!"
-msgstr ""
-
-#: templates/registration/password_reset_email_html.html:24
-msgid "Choose password"
-msgstr "Elekti pasvorton"
-
-#: templates/registration/password_reset_form.html:6
-msgid ""
-"Forgotten your password? Enter your email address below, and we'll email "
-"instructions for setting a new one."
-msgstr ""
-
-#: templates/registration/password_reset_form.html:8
-msgid "Send"
-msgstr "Sendi"
 
 #: urls.py:30
 msgid "^profile/create/$"

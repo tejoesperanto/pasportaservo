@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-22 00:10+0000\n"
+"POT-Creation-Date: 2017-02-03 14:55+0000\n"
 "PO-Revision-Date: 2016-10-22 02:18+0100\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
@@ -17,71 +17,74 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.8.8\n"
 
-#: links/templates/links/already_confirmed.html:4
-#: links/templates/links/confirmed.html:4
-#: links/templates/links/confirmed.html:8
+#: templates/links/already_confirmed.html:4 templates/links/confirmed.html:4
+#: templates/links/confirmed.html:8
 msgid "Data confirmed"
 msgstr "Informoj konfirmitaj"
 
-#: links/templates/links/already_confirmed.html:5
-#: links/templates/links/confirmed.html:5
+#: templates/links/already_confirmed.html:5 templates/links/confirmed.html:5
 msgid "at"
-msgstr ""
+msgstr "ĉe"
 
-#: links/templates/links/already_confirmed.html:8
+#: templates/links/already_confirmed.html:8
 msgid "Already confirmed"
 msgstr "Informoj jam konfirmitaj"
 
-#: links/templates/links/already_confirmed.html:9
+#: templates/links/already_confirmed.html:9
 msgid "You already confirmed the accuracy of your profile and address. Thanks!"
 msgstr "Vi jam konfirmis la aktualecon de viaj profilo kaj adreso. Dankon!"
 
-#: links/templates/links/bad_time_signature.html:4
+#: templates/links/bad_time_signature.html:4
 msgid "Bad Time Signature"
 msgstr "Malbona tempostampo"
 
-#: links/templates/links/bad_time_signature.html:5
+#: templates/links/bad_time_signature.html:5
 msgid "The link seems not valid"
 msgstr "La ligilo ne ŝajnas esti valida plu."
 
-#: links/templates/links/confirmed.html:9
-msgid "You just confirmed that your profile and address are up-to-date. Thanks!"
+#: templates/links/confirmed.html:9
+msgid ""
+"You just confirmed that your profile and address are up-to-date. Thanks!"
 msgstr "Vi ĵus konfirmis ke viaj profilo kaj adreso estas aktualaj. Dankon!"
 
-#: links/templates/links/invalid_link.html:4
+#: templates/links/invalid_link.html:4
 msgid "Invalid Link"
 msgstr "Malbona ligilo"
 
-#: links/templates/links/invalid_link.html:5
+#: templates/links/invalid_link.html:5
 msgid "The link is not valid"
 msgstr "La ligilo havas malbonan formon aŭ malĝustan konfirmo-ĵetonon."
 
-#: links/templates/links/signature_expired.html:4
+#: templates/links/signature_expired.html:4
 msgid "Signature Expired"
 msgstr "Tempostampo ne plu valida"
 
-#: links/templates/links/signature_expired.html:5
+#: templates/links/signature_expired.html:5
 msgid "The link is not valid anymore"
-msgstr "La ligilo estis kreita antaŭ tro da tempo kaj ĝi ne plu validas. Vi bezonas novan ligilon."
+msgstr ""
+"La ligilo estis kreita antaŭ tro da tempo kaj ĝi ne plu validas. Vi bezonas "
+"novan ligilon."
 
-#: links/urls.py:7
+#: urls.py:7
 msgid "^link/(?P<token>[\\w\\.\\-_]+)$"
 msgstr "^ligilo/(?P<token>[\\w\\.\\-_]+)$"
 
-#: links/urls.py:8
+#: urls.py:8
 msgid "^current/confirmed/$"
 msgstr "^aktualigo/konfirmita/$"
 
-#: links/urls.py:9
+#: urls.py:9
 msgid "^current/already_confirmed/$"
 msgstr "^aktualigo/jam_konfirmita/$"
 
-#: links/views.py:44
+#: views.py:45
 #, python-brace-format
-msgid "Good, your data are confirmed. Look at <a href=\"{url}\">your profile</a>!"
-msgstr "Bonege, vi konfirmis viajn datenojn. Vidu nun <a href=\"{url}\">vian profilon</a>!"
+msgid ""
+"Good, your data are confirmed. Look at <a href=\"{url}\">your profile</a>!"
+msgstr ""
+"Bonege, vi konfirmis viajn datenojn. Vidu nun <a href=\"{url}\">vian "
+"profilon</a>!"
 
-#: links/views.py:52
+#: views.py:53
 msgid "You've been automatically logged in. Happy editing!"
 msgstr "Vi estas aŭtomate ensalutita. Bonan redaktadon!"
-
