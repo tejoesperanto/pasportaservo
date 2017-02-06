@@ -15,6 +15,9 @@ from .views import (
     mark_email_invalid, mark_email_valid,
     mass_mail, mass_mail_sent,
 )
+from .forms import (
+    SystemPasswordResetRequestForm, SystemPasswordResetForm
+)
 
 
 urlpatterns = [
@@ -27,12 +30,14 @@ urlpatterns = [
     url(_(r'^password/$'), view=password_change, name='password_change'),
     url(_(r'^password/done/$'), view=password_change_done, name='password_change_done'),
     url(_(r'^password/reset/$'), view=password_reset, name='password_reset',
-        kwargs={'html_email_template_name': 'email/password_reset.html',
+        kwargs={'password_reset_form': SystemPasswordResetRequestForm,
+                'html_email_template_name': 'email/password_reset.html',
                 'email_template_name': 'email/password_reset.txt',
                 'subject_template_name': 'email/password_reset_subject.txt'}),
     url(_(r'^password/reset/done/$'), view=password_reset_done, name='password_reset_done'),
     url(_(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$'),
-        view=password_reset_confirm, name='password_reset_confirm'),
+        view=password_reset_confirm, name='password_reset_confirm',
+        kwargs={'set_password_form': SystemPasswordResetForm}),
     url(_(r'^reset/done/$'), view=password_reset_complete, name='password_reset_complete'),
 
     url(_(r'^username/$'), username_change, name='username_change'),

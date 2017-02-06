@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import (
+    UserCreationForm, PasswordResetForm, SetPasswordForm
+)
 from django.db.models import Q, Value as V
 from django.db.models.functions import Concat
 from django.core.mail import send_mail
@@ -9,6 +11,7 @@ from django.template import Context
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
+from hosting.models import Profile
 from links.utils import create_unique_url
 
 User = get_user_model()
@@ -64,13 +67,13 @@ class UserRegistrationForm(SystemEmailFormMixin, UserCreationForm):
 
 class UsernameUpdateForm(forms.ModelForm):
     class Meta:
-        model = get_user_model()
+        model = User
         fields = ['username']
 
 
 class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
     class Meta:
-        model = get_user_model()
+        model = User
         fields = ['email']
 
     def __init__(self, *args, **kwargs):
@@ -114,8 +117,29 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
 
 class StaffUpdateEmailForm(SystemEmailFormMixin, forms.ModelForm):
     class Meta:
-        model = get_user_model()
+        model = User
         fields = ['email']
+
+
+class SystemPasswordResetRequestForm(PasswordResetForm):
+    def get_users(self, email):
+        """Given an email, return a matching user who should receive a reset message."""
+        active_users = User._default_manager.filter(is_active=True)
+        invalid_email = Concat(V(settings.INVALID_PREFIX), V(email))
+        lookup_users = active_users.filter(Q(email__iexact=email) | Q(email__iexact=invalid_email))
+        def remove_invalid_prefix(user):
+            if user.email.startswith(settings.INVALID_PREFIX):
+                user.email = user.email[len(settings.INVALID_PREFIX):]
+            return user
+        return map(remove_invalid_prefix, (u for u in lookup_users if u.has_usable_password()))
+
+
+class SystemPasswordResetForm(SetPasswordForm):
+    def save(self, commit=True):
+        super(SystemPasswordResetForm, self).save(commit)
+        if commit:
+            Profile.mark_valid_emails([self.user.email])
+        return self.user
 
 
 class MassMailForm(forms.Form):
