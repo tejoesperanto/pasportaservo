@@ -18,6 +18,10 @@ MIDDLEWARE_CLASSES += (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
+DEBUG_TOOLBAR_CONFIG = {
+    'JQUERY_URL': '',
+}
+
 # MailDump
 # $ sudo pip install maildump (python 2 only)
 # $ maildump
