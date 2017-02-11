@@ -2,6 +2,7 @@ import os
 import re
 from uuid import uuid4
 
+from django.conf import settings
 from django.utils.deconstruct import deconstructible
 
 from pyuca import Collator
@@ -33,6 +34,10 @@ def title_with_particule(value, particules=None):
 def split(value):
     """Improvement of "".split(), with support of apostrophe."""
     return re.split('\W+', value)
+
+
+def value_without_invalid_marker(value):
+    return (value[len(settings.INVALID_PREFIX):] if value.startswith(settings.INVALID_PREFIX) else value)
 
 
 @deconstructible
