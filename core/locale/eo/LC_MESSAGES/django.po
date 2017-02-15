@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-03 14:53+0000\n"
-"PO-Revision-Date: 2017-02-06 13:48+0100\n"
+"POT-Creation-Date: 2017-02-15 22:24+0000\n"
+"PO-Revision-Date: 2017-02-15 23:37+0100\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -18,67 +18,67 @@ msgstr ""
 "X-Generator: Poedit 1.8.11\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: forms.py:27
+#: forms.py:30
 msgid "Enter a valid email address."
 msgstr ""
 
-#: forms.py:31
+#: forms.py:34
 msgid "User address already in use."
 msgstr "Adreso de uzanto jam utiligita ĉe la retejo."
 
-#: forms.py:36
-msgid "Email"
-msgstr "Retadreso"
-
 #: forms.py:39
+msgid "Email address"
+msgstr ""
+
+#: forms.py:42
 msgid "Leave blank"
 msgstr "Lasu malplena"
 
-#: forms.py:98
+#: forms.py:102
 msgid "[Pasporta Servo] Change of email address"
 msgstr "[Pasporta Servo] Retpoŝtadreso ĉe retejo ŝanĝita"
 
-#: forms.py:120
+#: forms.py:145
 msgid "Heading"
 msgstr "Titolo"
 
-#: forms.py:121
+#: forms.py:146
 msgid "Body"
 msgstr "Mesaĝo"
 
-#: forms.py:122
+#: forms.py:147
 msgid "Subject"
 msgstr "Temo"
 
-#: forms.py:123
+#: forms.py:148
 msgid "Preheader"
 msgstr "Antaŭkapo"
 
-#: forms.py:125
+#: forms.py:150
 msgid "Categories"
 msgstr "Kategorioj"
 
-#: forms.py:126
+#: forms.py:151
 msgid "test"
 msgstr "Provo (sendas al: )"
 
-#: forms.py:127
+#: forms.py:152
 msgid "old system"
 msgstr "Gastigantoj: neniam ensalutis en la nova retejo"
 
-#: forms.py:128
+#: forms.py:153
 msgid "not in book"
 msgstr "Nova retejo: ne en la libreto"
 
-#: forms.py:129
+#: forms.py:154
 msgid "in book"
 msgstr "Nova retejo: EN la libreto"
 
-#: forms.py:130
+#: forms.py:155
 msgid "just user"
 msgstr "Ne gastigantoj (malnova aŭ nova retejo)"
 
-#: forms.py:132
+#: forms.py:157
 msgid "Your email for test"
 msgstr "Via retpoŝtadreso por testi"
 
@@ -220,6 +220,19 @@ msgstr "Modifi adreson de uzanto"
 msgid "My email address"
 msgstr "Mia retpoŝta adreso"
 
+#: templates/core/system-email_verify_done.html:4
+#: templates/core/system-email_verify_done.html:7
+msgid "Email address verification"
+msgstr "Kontrolo de retpoŝta adreso"
+
+#: templates/core/system-email_verify_done.html:9
+msgid ""
+"We've sent a verification message to your email address. Please follow the "
+"instructions in the message to complete this step."
+msgstr ""
+"Ni sendis kontrolmesaĝon al via retpoŝtadreso. Bonvole sekvu la instrukciojn "
+"en tiu mesaĝo por kompletigi tiun ĉi paŝon."
+
 #: templates/core/username_change_form.html:4
 #: templates/registration/password_change_done.html:4
 #: templates/registration/password_change_form.html:4
@@ -235,6 +248,7 @@ msgid "Unsubscribe"
 msgstr "Malaboni tiajn mesaĝojn"
 
 #: templates/email/new_email_update.html:3
+#: templates/email/system-email_verify.html:3
 msgid "Email needs confirmation"
 msgstr "Adreso konfirmenda"
 
@@ -257,7 +271,9 @@ msgstr "Bonvole iru al la jena paĝo por konfirmi vian novan retadreson:"
 #: templates/email/new_email_update.txt:10
 #: templates/email/old_email_update.html:21
 #: templates/email/old_email_update.txt:9
-#: templates/email/password_reset.html:19 templates/email/password_reset.txt:9
+#: templates/email/password_reset.html:21 templates/email/password_reset.txt:9
+#: templates/email/system-email_verify.html:21
+#: templates/email/system-email_verify.txt:10
 msgid "Your username, in case you've forgotten:"
 msgstr ""
 
@@ -274,23 +290,27 @@ msgstr ""
 "adreson."
 
 #: templates/email/new_email_update.html:32
+#: templates/email/system-email_verify.html:25
 msgid "Confirm email"
 msgstr "Konfirmi retadreson"
 
 #: templates/email/new_email_update.txt:2
 #: templates/email/old_email_update.txt:2 templates/email/password_reset.txt:2
+#: templates/email/system-email_verify.txt:2
 msgid "Dear user,"
 msgstr ""
 
 #: templates/email/new_email_update.txt:12
 #: templates/email/old_email_update.txt:13
 #: templates/email/password_reset.txt:11
+#: templates/email/system-email_verify.txt:12
 msgid "Thanks for using our site!"
 msgstr ""
 
 #: templates/email/new_email_update.txt:13
 #: templates/email/old_email_update.txt:14
 #: templates/email/password_reset.txt:12
+#: templates/email/system-email_verify.txt:13
 #, python-format
 msgid "The %(site_name)s team."
 msgstr "La teamo de %(site_name)s."
@@ -337,13 +357,28 @@ msgid ""
 "user account at %(site_name)s."
 msgstr ""
 
-#: templates/email/password_reset.html:10 templates/email/password_reset.txt:5
+#: templates/email/password_reset.html:12 templates/email/password_reset.txt:5
 msgid "Please go to the following page and choose a new password:"
 msgstr ""
 
-#: templates/email/password_reset.html:24
+#: templates/email/password_reset.html:26
 msgid "Choose password"
 msgstr "Elekti pasvorton"
+
+#: templates/email/system-email_verify.html:6
+#: templates/email/system-email_verify.txt:3
+#, python-format
+msgid ""
+"You're receiving this email in order to verify your email address at "
+"%(site_name)s."
+msgstr ""
+"Vi ricevas tiun ĉi mesaĝon kun la celo kontroli la funkciadon de via "
+"retpoŝta adreso registrita ĉe %(site_name)s."
+
+#: templates/email/system-email_verify.html:12
+#: templates/email/system-email_verify.txt:7
+msgid "Please go to the following page to complete the verification:"
+msgstr "Bonvole iru al la jena paĝo por finaranĝi la kontroladon:"
 
 #: templates/registration/login.html:4 templates/registration/login.html:6
 msgid "Log In"
@@ -413,8 +448,8 @@ msgid ""
 "It seems like you already used this link. A link to change your password can "
 "be used just once."
 msgstr ""
-"Ŝajnas ke vi jam uzis tiun ĉi ligilon. La ligilo por ŝanĝi pasvorton "
-"povas esti uzata nur unufoje."
+"Ŝajnas ke vi jam uzis tiun ĉi ligilon. La ligilo por ŝanĝi pasvorton povas "
+"esti uzata nur unufoje."
 
 #: templates/registration/password_reset_confirm.html:40
 msgid "New password link"
@@ -442,35 +477,35 @@ msgstr ""
 msgid "Send"
 msgstr "Sendi"
 
-#: urls.py:23
+#: urls.py:26
 msgid "^register/$"
 msgstr "^registrado/$"
 
-#: urls.py:24
+#: urls.py:27
 msgid "^login/$"
 msgstr "^ensaluti/$"
 
-#: urls.py:25
+#: urls.py:28
 msgid "^logout/$"
 msgstr "^elsaluti/$"
 
-#: urls.py:27
+#: urls.py:30
 msgid "^password/$"
 msgstr "^pasvorto/$"
 
-#: urls.py:28
+#: urls.py:31
 msgid "^password/done/$"
 msgstr "^pasvorto/fino/$"
 
-#: urls.py:29
+#: urls.py:32
 msgid "^password/reset/$"
 msgstr "^pasvorto/nova/$"
 
-#: urls.py:33
+#: urls.py:37
 msgid "^password/reset/done/$"
 msgstr "^pasvorto/nova/fino/$"
 
-#: urls.py:34
+#: urls.py:38
 msgid ""
 "^reset/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]"
 "{1,20})/$"
@@ -478,43 +513,47 @@ msgstr ""
 "^nova-pasvorto/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-"
 "[0-9A-Za-z]{1,20})/$"
 
-#: urls.py:36
+#: urls.py:41
 msgid "^reset/done/$"
 msgstr "^nova-pasvorto/fino/$"
 
-#: urls.py:38
+#: urls.py:43
 msgid "^username/$"
 msgstr "^salutnomo/$"
 
-#: urls.py:39
+#: urls.py:44
 msgid "^email/$"
 msgstr "^retadreso/$"
 
-#: urls.py:40
+#: urls.py:45
 msgid "^profile/(?P<pk>\\d+)/staff/email/update/$"
 msgstr "^profilo/(?P<pk>\\d+)/reviziado/retadreso/redakti/$"
 
-#: urls.py:41
+#: urls.py:46
 msgid "^profile/(?P<pk>\\d+)/staff/email/mark-invalid/$"
 msgstr "^profilo/(?P<pk>\\d+)/reviziado/retadreso/funkcianta-ne/$"
 
-#: urls.py:42
+#: urls.py:47
 msgid "^profile/(?P<pk>\\d+)/staff/email/mark-valid/$"
 msgstr "^profilo/(?P<pk>\\d+)/reviziado/retadreso/funkcianta-jes/$"
 
-#: urls.py:44
+#: urls.py:48
+msgid "^email/verify/$"
+msgstr "^retadreso/kontroli/$"
+
+#: urls.py:50
 msgid "^admin/mass-mail/$"
 msgstr "^admin/amassendado/$"
 
-#: urls.py:45
+#: urls.py:51
 msgid "^admin/mass-mail/sent/$"
 msgstr "^admin/amassendado/sukceso/$"
 
-#: views.py:64
+#: views.py:70
 msgid "You are logged in."
 msgstr "Vi nun estas ensalutinta."
 
-#: views.py:111
+#: views.py:117
 msgid ""
 "A confirmation email has been sent. Please check your mailbox to complete "
 "the process."
@@ -522,6 +561,18 @@ msgstr ""
 "Konfirma mesaĝo estis sendita. Bonvole kontrolu vian retpoŝtkeston por "
 "kompletigi la procedon."
 
-#: views.py:126
-msgid "Your email address has been successfuly updated!"
+#: views.py:142
+msgid "[Pasporta Servo] Is this your email address?"
+msgstr "[Pasporta Servo] Ĉu estas la via retpoŝta adreso?"
+
+#: views.py:163
+msgid "email-addr"
+msgstr ""
+
+#: views.py:180
+msgid "Your email address has been successfully verified!"
+msgstr "Vi sukcese kontroligis vian retpoŝtan adreson!"
+
+#: views.py:182
+msgid "Your email address has been successfully updated!"
 msgstr "Vi sukcese ŝanĝis vian retpoŝtan adreson!"
