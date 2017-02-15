@@ -1,0 +1,27 @@
+{% extends "email/base_email.html" %}{% load i18n url_utils %}
+
+{% block heading %}{% trans "Email needs confirmation" %}{% endblock %}
+
+{% block preheader %}
+    {% blocktrans trimmed %}
+        You're receiving this email in order to verify your email address at {{ site_name }}.
+    {% endblocktrans %}
+{% endblock preheader %}
+
+{% block body %}
+    {% trans "Please go to the following page to complete the verification:" %}
+        <br>
+    {% block verify_link %}
+        <a href="{% domain url %}">
+            {% domain url %}
+        </a>
+    {% endblock %}
+        <br>
+        <br>
+    {% trans "Your username, in case you've forgotten:" %} {{ user.get_username }}
+{% endblock body %}
+
+{% block call_to_action %}
+    {% blocktrans asvar text %}Confirm email{% endblocktrans %}
+    {% include "email/snippets/button.html" %}
+{% endblock %}

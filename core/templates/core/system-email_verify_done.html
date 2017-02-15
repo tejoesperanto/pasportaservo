@@ -1,0 +1,11 @@
+{% extends 'core/base.html' %}
+{% load i18n %}
+
+{% block head_title %}{% trans "Email address verification" %}{% endblock %}
+
+{% block page %}
+    <h1 class="text-center">{% trans "Email address verification" %}</h1>
+    <h3 class="text-center">
+        {% trans "We've sent a verification message to your email address. Please follow the instructions in the message to complete this step." %}
+    </h3>
+{% endblock page %}

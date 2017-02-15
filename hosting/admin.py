@@ -181,7 +181,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
             return obj.user.email
         except AttributeError:
             return '-'
-    user__email.short_description = _("Email")
+    user__email.short_description = _("email address")
     user__email.admin_order_field = 'user__email'
 
     def user_link(self, obj):
