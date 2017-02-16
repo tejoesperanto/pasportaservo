@@ -1,7 +1,5 @@
 import re
 
-import geopy
-
 from django.views import generic
 from django.conf import settings
 from django.http import HttpResponseRedirect, Http404, JsonResponse
@@ -10,29 +8,30 @@ from django.views.decorators.vary import vary_on_headers
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
-from django.template.loader import render_to_string
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import send_mail
+from django.template.loader import get_template
+from django.template import Context
 from django.utils.translation import ugettext_lazy as _
-from django.utils.safestring import mark_safe
-from django.utils.html import linebreaks as tohtmlpara, urlize
 from django.utils.six.moves.urllib.parse import unquote_plus
 from django.utils.http import urlquote_plus
 from django.utils.encoding import uri_to_iri
 from django.utils import timezone
 
-from rest_framework import viewsets
-from braces.views import LoginRequiredMixin, UserPassesTestMixin, FormInvalidMessageMixin
+import geopy
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
-from django_countries.fields import Country
 
-from core.forms import UserRegistrationForm
+from django_countries.fields import Country
 from .models import Profile, Place, Phone, SUPERVISOR
+
+from rest_framework import viewsets
 from .serializers import ProfileSerializer, PlaceSerializer, UserSerializer
+from braces.views import LoginRequiredMixin, UserPassesTestMixin, FormInvalidMessageMixin
 from .mixins import (
     ProfileMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
     FamilyMemberMixin, FamilyMemberAuthMixin,
     SupervisorRequiredMixin, CreateMixin, DeleteMixin,
 )
+from core.forms import UserRegistrationForm
 from .forms import (
     AuthorizeUserForm, AuthorizedOnceUserForm,
     ProfileForm, ProfileCreateForm, ProfileEmailUpdateForm,
@@ -461,7 +460,8 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
             user = get_object_or_404(User, username=form.cleaned_data['user'])
             if user not in self.place.authorized_users.all():
                 self.place.authorized_users.add(user)
-                self.send_email(user, self.place)
+                if not user.email.startswith(settings.INVALID_PREFIX):
+                    self.send_email(user, self.place)
         else:
             # for removal, "user" is the primary key
             user = get_object_or_404(User, pk=form.cleaned_data['user'])
@@ -473,23 +473,21 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
 
     def send_email(self, user, place):
         subject = _("[Pasporta Servo] You received an Authorization")
-        to = [user.email]
-        email_template_text = 'email/new_authorization.txt'
-        email_template_html = 'hosting/emails/mail_template.html'
-        email_context = {
-            'user_first_name': user.profile.name,
-            'owner_name': place.owner.full_name,
-            'place_id': place.pk,
-            'place_address': str(place),
-            'site_domain': self.request.get_host(),
+        email_template_text = get_template('email/new_authorization.txt')
+        email_template_html = get_template('email/new_authorization.html')
+        email_context = Context({
             'site_name': settings.SITE_NAME,
-        }
-        message_text = render_to_string(email_template_text, email_context)
-        message_html = render_to_string(email_template_html, {'body': mark_safe(tohtmlpara(urlize(message_text))),})
-
-        message = EmailMultiAlternatives(subject, message_text, to=to)
-        message.attach_alternative(message_html, 'text/html')
-        message.send()
+            'user': user,
+            'place': place,
+        })
+        send_mail(
+            subject,
+            email_template_text.render(email_context),
+            settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=email_template_html.render(email_context),
+            fail_silently=False,
+        )
 
 authorize_user = AuthorizeUserView.as_view()
 

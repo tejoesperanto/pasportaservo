@@ -1,0 +1,20 @@
+{% extends "email/base_email.html" %}{% load i18n domain %}
+
+{% block heading %}
+    {% blocktrans with owner_name=place.owner.get_fullname_display trimmed %}
+        You've been authorized to see the complete address of {{ owner_name }}!
+    {% endblocktrans %}
+{% endblock %}
+
+{% block body %}
+    {% trans "Follow this link to see this accommodation:" %}
+        <br>
+    {% block place_link %}
+        <a href="{% domain %}{% url 'place_detail_verbose' place.pk %}">
+            {% domain %}{% url 'place_detail' place.pk %}
+        </a>
+    {% endblock %}
+        <br>
+        <br>
+    {% trans "A place in" %} {{ place }}.
+{% endblock %}
