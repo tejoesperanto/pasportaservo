@@ -39,7 +39,7 @@ class ProfileForm(forms.ModelForm):
         self.fields['last_name'].widget.attrs['inputmode'] = 'latin-name'
         self.fields['names_inversed'].label = _("Names ordering")
 
-        bd_field = self.fields['birth_date']
+        field_bd = self.fields['birth_date']
         if hasattr(self, 'instance') and (self.instance.is_hosting or self.instance.is_meeting):
             if self.instance.is_hosting:
                 message = _("The minimum age to be allowed hosting is {age:d}.")
@@ -48,11 +48,12 @@ class ProfileForm(forms.ModelForm):
                 message = _("The minimum age to be allowed meeting with visitors is {age:d}.")
                 allowed_age = settings.MEET_MIN_AGE
             message = format_lazy(message, age=allowed_age)
-            bd_field.required = True
-            bd_field.validators.append(TooNearPastValidator(settings.HOST_MIN_AGE))
-            bd_field.error_messages['max_value'] = message
-        bd_field.widget.attrs['placeholder'] = 'jjjj-mm-tt'
-        bd_field.widget.attrs['pattern'] = '[1-2][0-9]{3}-((0[1-9])|(1[0-2]))-((0[1-9])|([12][0-9])|(3[0-1]))'
+            field_bd.required = True
+            field_bd.validators.append(TooNearPastValidator(settings.HOST_MIN_AGE))
+            field_bd.error_messages['max_value'] = message
+        field_bd.widget.attrs['placeholder'] = 'jjjj-mm-tt'
+        field_bd.widget.attrs['data-date-end-date'] = '0d'
+        field_bd.widget.attrs['pattern'] = '[1-2][0-9]{3}-((0[1-9])|(1[0-2]))-((0[1-9])|([12][0-9])|(3[0-1]))'
 
         if hasattr(self, 'instance') and self.instance.is_in_book:
             message = _("This field is required to be printed in the book.")
@@ -132,11 +133,11 @@ class PlaceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(PlaceForm, self).__init__(*args, **kwargs)
+        self.fields['address'].widget.attrs['rows'] = 2
+        self.fields['short_description'].widget = forms.Textarea(
+            attrs={'rows': 3, 'maxlength': self.fields['short_description'].max_length})
         self.fields['conditions'].help_text = ""
         self.fields['conditions'].widget.attrs['data-placeholder'] = _("Choose your conditions...")
-        self.fields['address'].widget.attrs.update({'rows': 2})
-        self.fields['short_description'].widget = forms.Textarea(attrs={'rows': 3,
-            'maxlength': self.fields['short_description'].max_length})
 
     def clean(self):
         cleaned_data = super(PlaceForm, self).clean()
@@ -282,6 +283,7 @@ class FamilyMemberForm(forms.ModelForm):
                 "Leave empty if you only want to indicate that other people are present in the house.")
         self.fields['birth_date'].widget.attrs['pattern'] = (
             '[1-2][0-9]{3}-((0[1-9])|(1[0-2]))-((0[1-9])|([12][0-9])|(3[0-1]))')
+        self.fields['birth_date'].widget.attrs['data-date-end-date'] = '0d'
         self.fields['birth_date'].widget.attrs['placeholder'] = 'jjjj-mm-tt'
 
     def place_has_family_members(self):

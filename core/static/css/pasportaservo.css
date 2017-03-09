@@ -260,6 +260,12 @@ header.home form.search {
     font-size: 0.8em;
     color: #666;
 }
+.place-detail .status {
+    float: right;
+    width: 25%;
+    margin-right: -5px;
+    z-index: 10;
+}
 .place-overview .status {
     font-size: 0.6em;
 }

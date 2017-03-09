@@ -15,39 +15,30 @@
 {% endblock %}
 
 {% block page %}
-    <div class="row place-detail">
-        <div class="col-xs-12 col-md-6 owner">
-            <div class="row">
-                <div class="col-xs-12 warning">
-                    {% if place.deleted and user.is_authenticated %}
-                        <div class="alert alert-small alert-danger">
-                            <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;
-                            {% if user.is_staff %}{% trans "Deleted place" %} &ndash; {% endif %}{% trans "The address is obsolete" %}
-                        </div>
-                    {% endif %}
-                </div>
+<div class="row place-detail">
+    <div class="col-xs-12 col-md-6 owner">
+        <div class="row">
+            <div class="col-xs-12 warning">
+                {% if place.deleted and user.is_authenticated %}
+                    <div class="alert alert-small alert-danger">
+                        <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;
+                        {% if user.is_staff %}{% trans "Deleted place" %} &ndash; {% endif %}{% trans "The address is obsolete" %}
+                    </div>
+                {% endif %}
             </div>
+        </div> {# END place/owner warnings #}
 
-            <div class="row">
-                <div class="col-xs-3 avatar">
-                    <a href="{{ place.owner.get_absolute_url }}">
-                        <img src="{{ place.owner.avatar_url }}" />
-                    </a>
-                </div>
-                <div class="col-xs-9">
-                    <div class="row">
-                        <p class="col-xs-8 name">
-                            <a href="{{ place.owner.get_absolute_url }}">
-                                {% if user.is_authenticated %}
-                                    <span class="hidden-xxs">{{ place.owner.get_fullname_display }}</span>
-                                    <span class="visible-xxs-inline">{{ place.owner.anonymous_name }}</span>
-                                {% else %}
-                                    {{ place.owner.anonymous_name }}
-                                {% endif %}
-                            </a>
-                        </p>
-                        <p class="col-xs-4 status anchor-notify" data-placement="left" onclick="displayAnchorsNotification()">
-                            {% if user.is_authenticated %}
+        <div class="row">
+            <div class="col-xs-3 avatar">
+                <a href="{{ place.owner.get_absolute_url }}">
+                    <img src="{{ place.owner.avatar_url }}" />
+                </a>
+            </div>
+            <div class="col-xs-9">
+                <div class="row">
+                    <div class="col-xs-12">
+                        {% if user.is_authenticated %}
+                            <p class="status anchor-notify" data-placement="left" onclick="displayAnchorsNotification()">
                                 {% if place.tour_guide %}
                                     <img src="{% static 'img/city_guide.svg' %}"
                                          onerror="this.onerror = null; this.src = this.src.replace(/\.svg$/, '.png');"
@@ -62,19 +53,26 @@
                                          title="{% trans "I'd like to have a drink together" %}"
                                          style="width: 1.5em; height: 1.5em;" />
                                 {% endif %}
-
                                     <span title="{% trans "place" %} {{ place.available|yesno:_('available,unavailable') }}"
                                           class="glyphicon glyphicon-stack-large">
                                         <span class="place-marker glyphicon-stackbit-2x glyphicon-home"></span>
                                         <span class="place-availability glyphicon-stackbit-1x glyphicon-{{ place.available|yesno:'ok,remove' }}"></span>
                                     </span>
-                                    {% comment "povas esti utila por indiki portempan malĉeeston, en la futuro" %}
-                                    <em class="hidden-xs">{% trans "unavailable" %}</em>
-                                    {% endcomment %}
-                            {% endif %}
+                            </p>
+                        {% endif %}
+
+                        <p class="name">
+                            <a href="{{ place.owner.get_absolute_url }}">
+                                {% if user.is_authenticated %}
+                                    <span class="hidden-xxs">{{ place.owner.get_fullname_display }}</span>
+                                    <span class="visible-xxs-inline">{{ place.owner.anonymous_name }}</span>
+                                {% else %}
+                                    {{ place.owner.anonymous_name }}
+                                {% endif %}
+                            </a>
                         </p>
                         {% if user.is_authenticated %}
-                            <p class="col-xs-11 address">
+                            <p class="address">
                                 {% if view.verbose_view and place.address %}
                                     {{ place.address.strip|linebreaksbr }}
                                     <br />
@@ -94,209 +92,209 @@
                                 &nbsp; {% include 'hosting/snippets/checked.html' with object=place %}
                             </p>
                         {% endif %}
-
-                        {% if view.verbose_view %}
-                            {% for phone in place.owner.phones.all %}
-                                <p class="col-xs-12">
-                                    {{ phone.icon }}
-                                    {% if phone.country %}
-                                        <span title="{{ phone.get_country_display }}" data-toggle="tooltip" data-placement="bottom">({{ phone.country }})</span>
-                                    {% endif %}
-                                    {% spaceless %}
-                                        {% if phone.type != phone.FAX %}<a href="tel:{{ phone.number.as_e164 }}">{% endif %}
-                                        <span style="white-space: nowrap">{{ phone.number.as_international }}</span>
-                                        {% if phone.type != phone.FAX %}</a>{% endif %}
-                                        &nbsp;<br class="visible-xxs-inline" />
-                                    {% endspaceless %}
-                                    <em><small>{{ phone.comments }}</small></em>
-                                </p>
-                            {% endfor %}
-                        {% endif %}
                     </div>
 
-                </div>
-            </div>
-
-            <div class="row">
-            {% if user.is_authenticated %}
-                <div class="col-md-12 hidden-xs hidden-sm">
-                    {% if place.any_accommodation_details %}
-                        <h3>{% trans "Description" %}</h3>
-                        {% include 'hosting/snippets/place_description.html' with description=place.description place_available=place.available owner_available=place.owner_available contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
-                    {% endif %}
-                    {% if place.conditions.all %}
-                        {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all only %}
-                    {% endif %}
-
-                    {% if place.family_members.all and view.verbose_view %}
-                        <h3>{% trans "Family members" %}</h3>
-                        <ul>
-                            {% for member in place.family_members.all %}
-                                <li>
-                                    {% if member.user %}
-                                        <a href="{{ member.get_absolute_url }}" data-toggle="popover" data-trigger="hover focus" data-placement="top"
-                                           data-content="<img src='{{ member.avatar_url }}' height='90'>" data-html="true">
-                                    {% endif %}
-                                    {% if forloop.first and forloop.last and not member.full_name.strip %}
-                                        <em>{% trans "Other dwellers at this place." %}</em>
-                                    {% else %}
-                                        {{ member.get_fullname_always_display }}
-                                        {% if member.birth_date %}
-                                            ({{ member.age }})
-                                        {% endif %}
-                                    {% endif %}
-                                    {% if member.user %}
-                                        </a>
-                                    {% endif %}
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                    <p>
-                        {% if place.sporadic_presence %}
-                        {% if place.available or place.owner_available or view.verbose_view %}
-                            <span class="glyphicon glyphicon-asterisk" style="color: #f71"></span>
-                            {% trans "I'm not present at this address at all times; contact me in advance." %}
-                        {% endif %}
-                        {% endif %}
-                        {% if place.family_members.all and not view.verbose_view %}
-                            {% trans "Other dwellers at this place." %}
-                        {% endif %}
-                    </p>
-                </div>
-
-                {% if INVALID_PREFIX in place.owner.user.email %}
-                    <ul class="list-group phone-list col-xs-12 hidden-xs hidden-sm">
+                    {% if view.verbose_view %}
                         {% for phone in place.owner.phones.all %}
-                            <li class="list-group-item list-vertical-align">
-                                <p class="details">
-                                    {{ phone.icon }}
-                                    <b class="number">{{ phone.number.as_international }}</b>
-                                    <br class="visible-xs-inline" />
-                                    <em class="comment">{{ phone.comments }}</em>
-                                </p>
-                            </li>
+                            <p class="col-xs-12">
+                                {{ phone.icon }}
+                                {% if phone.country %}
+                                    <span title="{{ phone.get_country_display }}" data-toggle="tooltip" data-placement="bottom">({{ phone.country }})</span>
+                                {% endif %}
+                                {% spaceless %}
+                                    {% if phone.type != phone.FAX %}<a href="tel:{{ phone.number.as_e164 }}">{% endif %}
+                                    <span style="white-space: nowrap">{{ phone.number.as_international }}</span>
+                                    {% if phone.type != phone.FAX %}</a>{% endif %}
+                                    &nbsp;<br class="visible-xxs-inline" />
+                                {% endspaceless %}
+                                <em><small>{{ phone.comments }}</small></em>
+                            </p>
                         {% endfor %}
-                    </ul>
-                {% endif %}
-            {% else %}
-                {% include 'core/snippets/registration.html' %}
-            {% endif %}
+                    {% endif %}
+                </div>
             </div>
-        </div>
+        </div> {# END owner details #}
 
-        <div class="col-xs-12 col-md-6 map">
-            <div class="embed-responsive embed-responsive-16by9"> {% comment %} responsive map height with constant ratio to map width {% endcomment %}
-                <iframe width="100%"
-                    frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
-                    src="https://www.openstreetmap.org/export/embed.html?bbox={{ place.bbox }}{% if user.is_authenticated %}&amp;marker={{ place.latitude|stringformat:'f' }},{{ place.longitude|stringformat:'f' }}{% endif %}">
-                </iframe>
-            </div>
-        </div>
-
+        <div class="row">
         {% if user.is_authenticated %}
-            <div class="col-xs-12 hidden-md hidden-lg description-small">
-                <a id="status-anchors_notification" class="col-xs-12 anchor-notify" data-placement="bottom"
-                   data-content="{% include 'hosting/snippets/place_owner_anchors.html' %}"></a>
-                {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
-
-                {% if place.sporadic_presence %}
-                {% if place.available or place.owner_available or view.verbose_view %}
-                    <p>
-                        <span class="glyphicon glyphicon-list-alt" style="color: #737373"></span>&nbsp;
-                        {% trans "I'm not present at this address at all times; contact me in advance." %}
-                    </p>
-                {% endif %}
-                {% endif %}
-                {% if place.family_members.all %}
-                    <p>
-                        <span class="glyphicon glyphicon-user" style="color: #737373"></span>&nbsp;
-                        {% trans "Other dwellers at this place." %}
-                    </p>
+            <div class="col-md-12 hidden-xs hidden-sm">
+                {% if place.any_accommodation_details %}
+                    <h3>{% trans "Description" %}</h3>
+                    {% include 'hosting/snippets/place_description.html' with description=place.description place_available=place.available owner_available=place.owner_available contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
                 {% endif %}
                 {% if place.conditions.all %}
                     {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all only %}
                 {% endif %}
 
-                {% if INVALID_PREFIX in place.owner.user.email %}
-                    <ul class="list-group phone-list col-xs-12 col-md-6">
-                        {% for phone in place.owner.phones.all %}
-                            <li class="list-group-item list-vertical-align">
-                                <p class="details">
-                                    {{ phone.icon }}
-                                    <b class="number">{{ phone.number.as_international }}</b>
-                                    <br class="visible-xs-inline" />
-                                    <em class="comment">{{ phone.comments }}</em>
-                                </p>
+                {% if place.family_members.all and view.verbose_view %}
+                    <h3>{% trans "Family members" %}</h3>
+                    <ul>
+                        {% for member in place.family_members.all %}
+                            <li>
+                                {% if member.user %}
+                                    <a href="{{ member.get_absolute_url }}" data-toggle="popover" data-trigger="hover focus" data-placement="top"
+                                       data-content="<img src='{{ member.avatar_url }}' height='90'>" data-html="true">
+                                {% endif %}
+                                {% if forloop.first and forloop.last and not member.full_name.strip %}
+                                    <em>{% trans "Other dwellers at this place." %}</em>
+                                {% else %}
+                                    {{ member.get_fullname_always_display }}
+                                    {% if member.birth_date %}
+                                        ({{ member.age }})
+                                    {% endif %}
+                                {% endif %}
+                                {% if member.user %}
+                                    </a>
+                                {% endif %}
                             </li>
                         {% endfor %}
                     </ul>
                 {% endif %}
-            </div>
-
-            <p class="col-xs-12">
-                {% if user.profile != place.owner %}
-                    {% if INVALID_PREFIX in place.owner.user.email %}
-                        <a href="#" class="btn btn-danger btn-vert-space disabled" data-toggle="tooltip"
-                           title="{% trans "The user's email address seems invalid" %}">
-                    {% else %}
-                        <a href="{% url 'postman:write' place.owner.user.username %}" class="btn btn-primary btn-vert-space">
+                <p>
+                    {% if place.sporadic_presence %}
+                    {% if place.available or place.owner_available or view.verbose_view %}
+                        <span class="glyphicon glyphicon-asterisk" style="color: #f71"></span>
+                        {% trans "I'm not present at this address at all times; contact me in advance." %}
                     {% endif %}
-                            <span class="glyphicon glyphicon-send"></span>&nbsp; {% trans "Write message" %}
-                        </a>
-                {% endif %}
-                {% if user.profile == place.owner or user.is_staff %}
-                    <span class="btn-group btn-vert-space">
-                        {% if user.profile == place.owner %}
-                            {% trans "my " as kin %}
-                        {% endif %}
-                        <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% blocktrans %}Update {{ kin }}place{% endblocktrans %}">
-                            <span class="glyphicon glyphicon-pencil"></span>
-                            <span class="">{% trans "Update" %}</span>
-                        </a>
-                        {% if user.profile == place.owner %}
-                            <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}"
-                               class="btn btn-warning"
-                               title="{% trans "Authorized users" %}">
-                                <span class="glyphicon glyphicon-eye-open"></span>
-                                <span class="hidden-xxs">{% trans "Authorizations" %}</span>
-                            </a>
-                        {% endif %}
-                        {% if not view.verbose_view %}
-                        {% if place.authorized_users.all or user.is_staff %}
-                            <a href="{% url 'place_detail_verbose' place.pk %}" class="btn btn-primary" title="{% trans "View as an authorized user" %}">
-                                <span class="glyphicon glyphicon-stack-normal" style="font-size: .8em">
-                                    <span class="glyphicon-stackbit-1x glyphicon-eye-open"    style="top: -1.1ex"></span>
-                                    <span class="glyphicon-stackbit-1x glyphicon-arrow-right" style="top: +0.5ex"></span>
-                                </span>
-                                <span class="hidden-xxs">{% trans "View" %}</span>
-                            </a>
-                        {% endif %}
-                        {% endif %}
-                    </span>
-                {% endif %}
-            </p>
-        {% endif %}
-
-        {% if user.is_authenticated %}
-        {% if user.profile in place.family_members.all or user.profile == place.owner or user.is_staff %}
-            <div class="col-xs-12">
-                <p class="help-block">
-                    {% trans "Short description" %}:&nbsp;
-                    <em class="same-as-body"><small>{{ place.short_description|default:"&ndash;" }}</small></em>
-                </p>
-                <p class="help-block">
-                    {% trans "Available" %}:&nbsp;
-                    <span class="glyphicon glyphicon-{{ place.available|yesno:'ok,remove' }}"></span>
-                    {{ place.available|yesno }}
-                </p>
-                <p class="help-block">
-                    {% trans "Print in book" %}:&nbsp;
-                    <span class="glyphicon glyphicon-{{ place.in_book|yesno:'ok,remove' }}"></span>
-                    {{ place.in_book|yesno }}
+                    {% endif %}
+                    {% if place.family_members.all and not view.verbose_view %}
+                        {% trans "Other dwellers at this place." %}
+                    {% endif %}
                 </p>
             </div>
+
+            {% if INVALID_PREFIX in place.owner.user.email %}
+                <ul class="list-group phone-list col-xs-12 hidden-xs hidden-sm">
+                    {% for phone in place.owner.phones.all %}
+                        <li class="list-group-item list-vertical-align">
+                            <p class="details">
+                                {{ phone.icon }}
+                                <b class="number">{{ phone.number.as_international }}</b>
+                                <br class="visible-xs-inline" />
+                                <em class="comment">{{ phone.comments }}</em>
+                            </p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% else %}
+            {% include 'core/snippets/registration.html' with form=register_form %}
         {% endif %}
-        {% endif %}
+        </div> {# END accomodation details #}
     </div>
+
+    <div class="col-xs-12 col-md-6 map">
+        <div class="embed-responsive embed-responsive-16by9"> {% comment %} responsive map height with constant ratio to map width {% endcomment %}
+            <iframe width="100%"
+                frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
+                src="https://www.openstreetmap.org/export/embed.html?bbox={{ place.bbox }}{% if user.is_authenticated %}&amp;marker={{ place.latitude|stringformat:'f' }},{{ place.longitude|stringformat:'f' }}{% endif %}">
+            </iframe>
+        </div>
+    </div>
+
+    {% if user.is_authenticated %}
+        <div class="col-xs-12 hidden-md hidden-lg description-small">
+            <a id="status-anchors_notification" class="col-xs-12 anchor-notify" data-placement="bottom"
+               data-content="{% include 'hosting/snippets/place_owner_anchors.html' %}"></a>
+            {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
+
+            {% if place.sporadic_presence %}
+            {% if place.available or place.owner_available or view.verbose_view %}
+                <p>
+                    <span class="glyphicon glyphicon-list-alt" style="color: #737373"></span>&nbsp;
+                    {% trans "I'm not present at this address at all times; contact me in advance." %}
+                </p>
+            {% endif %}
+            {% endif %}
+            {% if place.family_members.all %}
+                <p>
+                    <span class="glyphicon glyphicon-user" style="color: #737373"></span>&nbsp;
+                    {% trans "Other dwellers at this place." %}
+                </p>
+            {% endif %}
+            {% if place.conditions.all %}
+                {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all only %}
+            {% endif %}
+
+            {% if INVALID_PREFIX in place.owner.user.email %}
+                <ul class="list-group phone-list col-xs-12 col-md-6">
+                    {% for phone in place.owner.phones.all %}
+                        <li class="list-group-item list-vertical-align">
+                            <p class="details">
+                                {{ phone.icon }}
+                                <b class="number">{{ phone.number.as_international }}</b>
+                                <br class="visible-xs-inline" />
+                                <em class="comment">{{ phone.comments }}</em>
+                            </p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <p class="col-xs-12">
+            {% if user.profile != place.owner %}
+                {% if INVALID_PREFIX in place.owner.user.email %}
+                    <a href="#" class="btn btn-danger btn-vert-space disabled" data-toggle="tooltip"
+                       title="{% trans "The user's email address seems invalid" %}">
+                {% else %}
+                    <a href="{% url 'postman:write' place.owner.user.username %}" class="btn btn-primary btn-vert-space">
+                {% endif %}
+                        <span class="glyphicon glyphicon-send"></span>&nbsp; {% trans "Write message" %}
+                    </a>
+            {% endif %}
+            {% if user.profile == place.owner or user.is_staff %}
+                <span class="btn-group btn-vert-space">
+                    {% if user.profile == place.owner %}
+                        {% trans "my " as kin %}
+                    {% endif %}
+                    <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% blocktrans %}Update {{ kin }}place{% endblocktrans %}">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                        <span class="">{% trans "Update" %}</span>
+                    </a>
+                    {% if user.profile == place.owner %}
+                        <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}"
+                           class="btn btn-warning"
+                           title="{% trans "Authorized users" %}">
+                            <span class="glyphicon glyphicon-eye-open"></span>
+                            <span class="hidden-xxs">{% trans "Authorizations" %}</span>
+                        </a>
+                    {% endif %}
+                    {% if not view.verbose_view %}
+                    {% if place.authorized_users.all or user.is_staff %}
+                        <a href="{% url 'place_detail_verbose' place.pk %}" class="btn btn-primary" title="{% trans "View as an authorized user" %}">
+                            <span class="glyphicon glyphicon-stack-normal" style="font-size: .8em">
+                                <span class="glyphicon-stackbit-1x glyphicon-eye-open"    style="top: -1.1ex"></span>
+                                <span class="glyphicon-stackbit-1x glyphicon-arrow-right" style="top: +0.5ex"></span>
+                            </span>
+                            <span class="hidden-xxs">{% trans "View" %}</span>
+                        </a>
+                    {% endif %}
+                    {% endif %}
+                </span>
+            {% endif %}
+        </p>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+    {% if user.profile in place.family_members.all or user.profile == place.owner or user.is_staff %}
+        <div class="col-xs-12">
+            <p class="help-block">
+                {% trans "Short description" %}:&nbsp;
+                <em class="same-as-body"><small>{{ place.short_description|default:"&ndash;" }}</small></em>
+            </p>
+            <p class="help-block">
+                {% trans "Available" %}:&nbsp;
+                <span class="glyphicon glyphicon-{{ place.available|yesno:'ok,remove' }}"></span>
+                {{ place.available|yesno }}
+            </p>
+            <p class="help-block">
+                {% trans "Print in book" %}:&nbsp;
+                <span class="glyphicon glyphicon-{{ place.in_book|yesno:'ok,remove' }}"></span>
+                {{ place.in_book|yesno }}
+            </p>
+        </div>
+    {% endif %}
+    {% endif %}
+</div>
 {% endblock page %}
