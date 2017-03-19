@@ -94,6 +94,10 @@ body, .same-as-body {
     font-size: 1.5em;
 }
 
+.datepicker-dropdown {
+    font-size: 13px;
+}
+
 .visible-xxs-block,
 .visible-xxs-inline,
 .visible-xxs-inline-block {
