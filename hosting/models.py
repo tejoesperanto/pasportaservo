@@ -356,6 +356,10 @@ class Place(TrackingModel, TimeStampedModel):
         blank=True)
     family_members = models.ManyToManyField('hosting.Profile', verbose_name=_("family members"),
         blank=True)
+    blocked_from = models.DateField(_("unavailable from"),
+        null=True, blank=True)
+    blocked_until = models.DateField(_("unavailable until"),
+        null=True, blank=True)
     authorized_users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("authorized users"),
         blank=True,
         help_text=_("List of users authorized to view most of data of this accommodation."))
@@ -390,6 +394,11 @@ class Place(TrackingModel, TimeStampedModel):
     @property
     def owner_available(self):
         return self.tour_guide or self.have_a_drink
+
+    @property
+    def is_blocked(self):
+        return any([self.blocked_until and self.blocked_until >= date.today(),
+                    self.blocked_from and not self.blocked_until])
 
     def supervised_by(self):
         group = Group.objects.get(name=self.country.code)

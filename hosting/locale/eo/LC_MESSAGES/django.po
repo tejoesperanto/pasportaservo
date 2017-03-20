@@ -167,7 +167,27 @@ msgstr "Elektu viajn kondiĉojn…"
 msgid "Please click on the map to choose your location."
 msgstr "Bonvolu klaki la mapon por elekti vian lokon."
 
-#: forms.py:218
+#: forms.py:216
+msgid "commencing on"
+msgstr "ekde"
+
+#: forms.py:217
+msgid "concluding on"
+msgstr "ĝis"
+
+#: forms.py:234 forms.py:236
+msgid "Preferably select a date in the future."
+msgstr "Prefere elektu daton en estonteco."
+
+#: forms.py:240
+msgid "Unavailability should finish after it starts."
+msgstr "Maldisponebleco finiĝu post sia komenco."
+
+#: forms.py:243
+msgid "Unavailability should start before it finishes."
+msgstr "Maldisponebleco komenciĝu antaŭ sia fino."
+
+#: forms.py:270
 msgid "You already have this telephone number."
 msgstr "Vi jam indikis tian telefonnumeron."
 
@@ -437,6 +457,14 @@ msgid "family members"
 msgstr "kunloĝantoj"
 
 #: models.py:359
+msgid "unavailable from"
+msgstr "maldisponebla ekde"
+
+#: models.py:361
+msgid "unavailable until"
+msgstr "maldisponebla ĝis"
+
+#: models.py:363
 msgid "authorized users"
 msgstr "permesitaj uzantoj"
 
@@ -679,7 +707,21 @@ msgstr "Nuligita loĝejo"
 msgid "The address is obsolete"
 msgstr "La adreso estas neaktuala"
 
-#: templates/hosting/place_detail.html:55 templates/hosting/place_list.html:69
+#: templates/hosting/place_detail.html:43
+msgid "The host is not available"
+msgstr "La gastiganto ne estas disponebla"
+
+#: templates/hosting/place_detail.html:45
+#, python-format
+msgid "from %(date)s"
+msgstr "ekde %(date)s"
+
+#: templates/hosting/place_detail.html:48
+#, python-format
+msgid "until %(date)s"
+msgstr "ĝis %(date)s"
+
+#: templates/hosting/place_detail.html:70 templates/hosting/place_list.html:69
 #: templates/hosting/profile_detail.html:224
 msgid "I can guide around the city"
 msgstr "mi povas ĉiĉeroni"
@@ -694,9 +736,10 @@ msgstr "mi emas trinkejumi"
 msgid "available,unavailable"
 msgstr "disponebla,maldisponebla"
 
-#: templates/hosting/place_detail.html:72 templates/hosting/place_list.html:43
-msgid "unavailable"
-msgstr "maldisponebla"
+#: templates/hosting/place_detail.html:89
+#: templates/hosting/place_detail.html:92
+msgid "set-blocking"
+msgstr "agordi-blokadon"
 
 #: templates/hosting/place_detail.html:124
 msgid "Description"
@@ -803,6 +846,10 @@ msgstr "Budapeŝto, Londono, Venezuelo, ktp."
 #: templates/hosting/place_list.html:24 templates/hosting/place_list.html:26
 msgid "Search"
 msgstr "Serĉi"
+
+#: templates/hosting/place_list.html:43
+msgid "unavailable"
+msgstr "maldisponebla"
 
 #: templates/hosting/place_list.html:91
 #: templates/hosting/place_list_supervisor.html:205
@@ -1119,6 +1166,18 @@ msgstr "Nekontrolita"
 msgid "Confirm"
 msgstr "Konfirmi"
 
+#: templates/hosting/snippets/place_blocking_form.html:6
+msgid "I am not available over here"
+msgstr "Mi ne disponeblas ĉi tie"
+
+#: templates/hosting/snippets/place_blocking_form.html:12
+msgid ""
+"Leave the corresponding field empty if the starting or the ending date is "
+"not known."
+msgstr ""
+"Lasu malplena la respektivan kampon se la komenca aŭ fina dato ne estas "
+"konata."
+
 #: templates/hosting/snippets/place_city_complete.html:3
 #, python-format
 msgid "%(city)s, near %(closest_city)s"
@@ -1231,7 +1290,11 @@ msgstr "^ejo/(?P<pk>\\d+)/redakti/$"
 msgid "^place/(?P<pk>\\d+)/delete/$"
 msgstr "^ejo/(?P<pk>\\d+)/forigi/$"
 
-#: urls.py:45
+#: urls.py:44
+msgid "^place/(?P<pk>\\d+)/block/$"
+msgstr "^ejo/(?P<pk>\\d+)/bloki/$"
+
+#: urls.py:46
 msgid "^place/(?P<pk>\\d+)/authorize/$"
 msgstr "^ejo/(?P<pk>\\d+)/permesi/$"
 

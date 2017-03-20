@@ -1,0 +1,16 @@
+{% load i18n %}
+<form class="place-blocking-form form-inline {{ form_class }}" action="{% url 'place_block' place.pk %}" method="PUT"
+      data-csrf="{{ csrf_token }}">
+    <div class="form-group">
+        <span class="glyphicon glyphicon-ok text-label-success blocking-success" style="visibility: hidden"></span>&nbsp;
+        {% trans "I am not available over here" %}
+    </div>
+    {% include 'bootstrapform/field.html' with field=form.blocked_from classes=form.render_classes.blocked_from %}
+    {% include 'bootstrapform/field.html' with field=form.blocked_until classes=form.render_classes.blocked_until %}
+    <input type="hidden" id="id_dirty" name="dirty" value="">
+    <div class="blocking-tip help-block text-left">
+        {% trans "Leave the corresponding field empty if the starting or the ending date is not known." %}
+    </div>
+    <div class="blocking-errors help-block text-label-warning text-left" style="display: none">
+    </div>
+</form>

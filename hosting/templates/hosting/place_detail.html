@@ -14,6 +14,17 @@
     {% endif %}
 {% endblock %}
 
+{% block extra_css %}
+        {{ block.super }}
+        <link rel="stylesheet" href="{% static 'datepicker/css/datepicker3.min.css' %}">
+{% endblock extra_css %}
+{% block extra_js %}
+        {{ block.super }}
+        <script src="{% static 'datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+        <script src="{% static 'datepicker/js/locales/bootstrap-datepicker.eo.js' %}"></script>
+        <script src="{% static 'js/ajax.js' %}"></script>
+{% endblock extra_js %}
+
 {% block page %}
 <div class="row place-detail">
     <div class="col-xs-12 col-md-6 owner">
@@ -23,6 +34,19 @@
                     <div class="alert alert-small alert-danger">
                         <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;
                         {% if user.is_staff %}{% trans "Deleted place" %} &ndash; {% endif %}{% trans "The address is obsolete" %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-xs-12 warning">
+                {% if blocking.enabled and user.is_authenticated %}
+                    <div class="alert alert-small alert-warning">
+                        {% trans "The host is not available" %}
+                        {% if blocking.display_from %}
+                            {% blocktrans with date=place.blocked_from|date:blocking.format_from %}from {{ date }}{% endblocktrans %}
+                        {% endif %}
+                        {% if blocking.display_until %}
+                            {% blocktrans with date=place.blocked_until|date:blocking.format_until %}until {{ date }}{% endblocktrans %}
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>
@@ -59,6 +83,16 @@
                                         <span class="place-availability glyphicon-stackbit-1x glyphicon-{{ place.available|yesno:'ok,remove' }}"></span>
                                     </span>
                             </p>
+                        {% endif %}
+                        {% if user.profile == place.owner and not place.deleted %}
+                            <div class="place-blocking text-right pull-right">
+                                <a href="#{% trans "set-blocking" %}" class="btn btn-default btn-sm" data-toggle="collapse">
+                                    <span class="glyphicon glyphicon-time"></span>
+                                </a>
+                                <div id="{% trans "set-blocking" %}" class="panel panel-default place-blocking-panel collapse">
+                                {% include 'hosting/snippets/place_blocking_form.html' with place=place form=blocking.form form_class="panel-body" csrf_token=csrf_token only %}
+                                </div>
+                            </div>
                         {% endif %}
 
                         <p class="name">

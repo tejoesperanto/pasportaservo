@@ -32,6 +32,32 @@ $(document).ready(function() {
         }
     });
 
+    // Date picker widget for date fields
+    if (typeof $().datepicker !== "undefined") {
+        $('#id_blocked_from, #id_blocked_until').each(function () {
+            var $input = $(this);
+            var $toggler = $(document.createElement('span'));
+            $toggler.addClass("glyphicon glyphicon-calendar form-control-feedback datepicker-btn-inline")
+                    .attr('aria-hidden', "true")
+                    .click(function() { $input.datepicker("show"); });
+            $input.after($toggler)
+                  .data({dateShowOnFocus: false, dateKeyboardNavigation: false})
+                  .parent().addClass("has-feedback");
+        });
+
+        var fields_date = [$('#id_birth_date'),
+                           $('#id_blocked_from, #id_blocked_until')];
+        $.each(fields_date, function() { (this instanceof jQuery ? this : $(this)).each(function(index) {
+            $(this).datepicker({
+                format: "yyyy-mm-dd",
+                maxViewMode: (this.id === 'id_birth_date' ? 3 : 2),
+                weekStart: 1,
+                startView: (this.id === 'id_birth_date' ? 2 : 1), // 0: month; 1: year; 2: decade;
+                language: document.documentElement.lang,
+            });
+        }) });
+    }
+
     // Image links with custom highlighting
     +function() {
         var set_highlight = function() {

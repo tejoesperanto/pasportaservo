@@ -12,7 +12,7 @@ from .views import (
     profile_settings,
     profile_email_update,
     place_detail, place_detail_verbose,
-    place_create, place_update, place_delete, authorize_user,
+    place_create, place_update, place_delete, place_block, authorize_user,
     country_place_list,
     family_member_create, family_member_update,
     family_member_remove, family_member_delete,
@@ -41,6 +41,7 @@ urlpatterns = [
     url(_(r'^profile/(?P<pk>\d+)(?:/(?P<slug>[\w-]+))?/place/create/$'), place_create, name='place_create'),
     url(_(r'^place/(?P<pk>\d+)/update/$'), place_update, name='place_update'),
     url(_(r'^place/(?P<pk>\d+)/delete/$'), place_delete, name='place_delete'),
+    url(_(r'^place/(?P<pk>\d+)/block/$'), place_block, name='place_block'),
 
     url(_(r'^place/(?P<pk>\d+)/authorize/$'), authorize_user, name='authorize_user'),
 
