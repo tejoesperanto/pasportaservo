@@ -39,11 +39,12 @@
             </div>
             <div class="col-xs-9 col-sm-10 col-md-11 name">
                 <div class="pull-right status">
-                    {% if user.is_authenticated and not place.available %}
+                    {% if user.is_authenticated and place.is_blocked %}
                         <span class="label label-default">&nbsp;{% trans "unavailable" %}&nbsp;</span>
                     {% endif %}
                 </div>
-                <a href="{{ place.owner.get_absolute_url }}">
+                <a href="{{ place.owner.get_absolute_url }}"
+                   class="{% if place.available or place.owner_available %}text-as-ps{% else %}{% endif %}">
                     {% if user.is_authenticated %}
                         <span class="hidden-xxs">{{ place.owner.get_fullname_display }}</span>
                         <span class="visible-xxs-inline">{{ place.owner.anonymous_name }}</span>
@@ -55,11 +56,23 @@
             <div class="col-xs-9 col-sm-10 col-md-11 address">
                 <div class="pull-right">{% include 'hosting/snippets/checked.html' with object=place %}</div>
                 <a href="{{ place.get_absolute_url }}">
-                    {% if place.city %}&bull;<strong>{{ place.city }}</strong>{% endif %}<br />
-                    {% if place.state_province %}{{ place.state_province }}, {% endif %} {{ place.country.name }}
+                    {% if user.is_authenticated %}
+                        {% if place.city %}&bull;<strong>{{ place.city }}</strong>{% endif %}<br />
+                        {% if place.state_province %}{{ place.state_province }}, {% endif %} {{ place.country.name }}
+                    {% else %}
+                        {{ place.country.name }}
+                    {% endif %}
                 </a>
                 <div class="status anchor-group">
                     {% if user.is_authenticated %}
+                        {% if place.available %}
+                            <div class="anchor-group-item anchor-vert-space-even">
+                            {% spaceless %}
+                                <span class="place-anchor glyphicon glyphicon-home text-label-info"></span>
+                                <span class="label label-info">{% trans "I'm hosting"|lower %}</span>
+                            {% endspaceless %}
+                            </div>
+                        {% endif %}
                         {% if place.tour_guide %}
                             <div class="anchor-group-item anchor-vert-space-even">
                             {% spaceless %}

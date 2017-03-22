@@ -36,22 +36,25 @@ body, .same-as-body {
     font-size: 14px;
 }
 
+.text-as-ps, a.text-as-ps:hover {
+    color: #f71;
+}
 .text-muted .glyphicon {
     color: #999;
 }
-.text-label-primary {
+.text-label-primary, a.text-label-primary:hover {
     color: #428bca;
 }
-.text-label-success {
+.text-label-success, a.text-label-success:hover {
     color: #5cb85c;
 }
-.text-label-info {
+.text-label-info, a.text-label-info:hover {
     color: #5bc0de;
 }
-.text-label-warning {
+.text-label-warning, a.text-label-warning:hover {
     color: #f0ad4e;
 }
-.text-label-danger {
+.text-label-danger, a.text-label-danger:hover {
     color: #d9534f;
 }
 
@@ -285,6 +288,10 @@ header.home form.search {
     width: 2.5ex;
     height: 2.5ex;
     vertical-align: middle;
+}
+.place-list .status .place-anchor.glyphicon {
+    top: 2px;
+    font-size: 2.0ex;
 }
 .place-overview .place-anchor {
     width: 2.0ex;
