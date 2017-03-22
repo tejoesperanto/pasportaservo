@@ -452,19 +452,6 @@ class Phone(TrackingModel, TimeStampedModel):
         template = '<span class="glyphicon {cls}" title="{title}" data-toggle="tooltip" data-placement="left"></span>'
         return format_html(template, cls=cls, title=title)
 
-    @property
-    def latex(self):
-        if self.type == self.WORK:
-            icon = r"\faPhoneSquare"
-        elif self.type == self.MOBILE:
-            icon = r"\faMobilePhone"
-        elif self.type == self.FAX:
-            icon = r"\faFax"
-        else:  # self.HOME or ''
-            icon = r"\faPhone"
-        return " ".join([icon, self.number.as_international.replace(' ', '~')])
-
-
     def __str__(self):
         """ as_e164             '+31104361044'
             as_international    '+31 10 436 1044'
@@ -509,8 +496,6 @@ class Condition(models.Model):
     abbr = models.CharField(_("abbreviation"), max_length=20,
         help_text=_("Official abbreviation as used in the book. E.g.: 'Nef.'"))
     slug = models.SlugField(_("URL friendly name"))
-    latex = models.CharField(_("latex"), max_length=20,
-        help_text=_("Latex symbol. E.g.: \\faBan"))
 
     class Meta:
         verbose_name = _("condition")

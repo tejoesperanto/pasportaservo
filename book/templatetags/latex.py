@@ -48,3 +48,8 @@ def full_name(profile):
 def supervisors(country):
     group = Group.objects.get(name=country)
     return sorted(user.profile for user in group.user_set.all())
+
+@register.filter
+def map_for(country):
+    group = Group.objects.get(name=country)
+    return sorted(user.profile for user in group.user_set.all())
