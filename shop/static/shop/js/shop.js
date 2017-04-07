@@ -1,4 +1,4 @@
-// @source: https://github.com/tejo-esperanto/pasportaservo/blob/master/shop/static/js/shop.js
+// @source: https://github.com/tejo-esperanto/pasportaservo/blob/master/shop/static/shop/js/shop.js
 // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL v3
 
 
@@ -7,10 +7,14 @@ $(function() {
     var parse = function(txt) { return parseFloat(txt.replace(',', '.')) };
     // Format a float for the DOM
     var format = function(num) { return num.toFixed(2).toString().replace('.', ',') };
-    // Initiat the state of the Amount button group. See amountRange.
+    // Initiate the state of the Amount button group. See amountRange.
     var initButtonArray = function(amount) {
-        if (amount > 10) { $('.btn-group label:last').button('toggle') }
-        else { $('.btn-group label:nth-of-type('+ amount +')').button('toggle') }
+        if (amount >= 10) {
+            $('.btn-group label:last').button('toggle');
+        }
+        else {
+            $('.btn-group label:nth-of-type('+ (amount || 0) +')').button('toggle');
+        }
     };
 
     // The Knockout View model:
@@ -19,11 +23,11 @@ $(function() {
         this.productLowPrice = parse($("#product-low-price").text());
         this.productPrice =    parse($("#product-price").text());
         this.shipping =        parse($("#shipping").text());
-        this.amountRange = [1,2,3,4,5,6,7,8,9,10,'+']
+        this.amountRange = [1,2,3,4,5,6,7,8,9,'+']
         this.inBook = ko.observable($('#id_in_book').prop('checked'));
         this.productAmount = ko.observable($('#id_amount').val());
         this.productAmountComp = ko.computed(function() {
-            console.log(this.inBook());
+            //console.log(this.inBook());
             return this.inBook() ? this.productAmount() -1 : this.productAmount()
         }, this);
         this.supportInput = ko.observable($('#id_support').val());
@@ -81,6 +85,7 @@ $(function() {
     ko.applyBindings(new CalculationViewModel());
 
     initButtonArray($("#id_amount").val());
+    $("#id_amount").on('change input', function() { initButtonArray($(this).val()); });
 });
 
 

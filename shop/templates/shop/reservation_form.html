@@ -19,7 +19,7 @@
 {% endblock %}
 
 {% block form_title %}{% trans "Reservation" %}{% endblock %}
-{% block head_title %}{% trans "Reservation" %}{% endblock %}
+{% block head_title %}{% trans "Reservation" %}: {{ view.product.name }}{% endblock %}
 
 {% block fields %}
     <h5>{% trans "First, please select the number of books you would like to reserve." %}</h5>
@@ -30,7 +30,7 @@
     </div>
 
     <div class="row">
-        <div class="col col-xs-3" style="margin: 1em auto; float: none" data-bind="visible: productAmount() > 10">
+        <div class="col col-xxs-7 col-xs-4 col-sm-3 col-md-5 col-lg-4" style="margin: 1em auto; float: none" data-bind="visible: productAmount() >= 10">
         {{ form.amount }}
         </div>
     </div>
@@ -71,7 +71,7 @@
         </tr>
         <tr class="success" data-bind="visible: volumeDiscount">
             <td>{% trans "volume discount" %}</td>
-            <td><span id="tejo-discount-percent">33</span>%</td>
+            <td><span id="vol-discount-percent">33</span>%</td>
             <td data-bind="text: volumeDiscountFmt">0</td>
         </tr>
         <tr class="success" data-bind="visible: hasTejoDiscount">
@@ -93,7 +93,7 @@
     </table>
 
     <p>
-        {% blocktrans with link='<a href="http://katalogo.uea.org/">UEA katalogo</a>' trimmed %}
+        {% blocktrans with link='<a href="http://katalogo.uea.org/">katalogo de UEA</a>' trimmed %}
             You do not have to pay now. We will contact you when it will be possible to order from the {{ link }}.
         {% endblocktrans %}
     </p>

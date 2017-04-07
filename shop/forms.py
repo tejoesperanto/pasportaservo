@@ -23,7 +23,7 @@ class ReservationForm(forms.ModelForm):
         self.fields['in_book'].widget.attrs.update({
             'data-bind': "checked: inBook"})
         self.fields['amount'].widget.attrs.update({
-            'class': "form-control input-lg",
+            'class': "form-control input-lg text-center",
             'data-bind': "textInput: productAmount"})
         self.fields['discount'].widget.attrs['data-bind'] = "checked: hasTejoDiscount, cli"
         self.fields['support'].localize = True

@@ -17,9 +17,11 @@ User = get_user_model()
 class SystemEmailFormMixin(object):
     def __init__(self, *args, **kwargs):
         super(SystemEmailFormMixin, self).__init__(*args, **kwargs)
-        self.previous_email = (self.instance.email[len(settings.INVALID_PREFIX):]
-                               if self.instance.email.startswith(settings.INVALID_PREFIX)
-                               else self.instance.email) # value before the change
+        # store value before the change
+        if self.instance.email.startswith(settings.INVALID_PREFIX):
+            self.previous_email = self.instance.email[len(settings.INVALID_PREFIX):]
+        else:
+            self.previous_email = self.instance.email
 
     def clean_email(self):
         email = self.cleaned_data['email']

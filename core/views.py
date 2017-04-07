@@ -83,7 +83,7 @@ class UsernameChangeView(LoginRequiredMixin, generic.UpdateView):
             return reverse_lazy('profile_create')
 
     def get_context_data(self, **kwargs):
-        context = super(UsernameChangeView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         # avoid replacement of displayed username via template context when provided value is invalid
         context['user'].username = self.original_username
         return context

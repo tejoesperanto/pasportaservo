@@ -1,4 +1,4 @@
-{% load i18n url_utils %}{% autoescape off %}
+{% load i18n domain %}{% autoescape off %}
 {% trans "Dear user," %}
 {% blocktrans trimmed %}
     You're receiving this email because you requested to change your email address at {{ site_name }}.
