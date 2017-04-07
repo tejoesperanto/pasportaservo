@@ -1,55 +1,71 @@
 \documentclass[8pt, a6paper]{extbook}
-\usepackage[vmargin=14mm, hmargin=8mm]{geometry}
-\usepackage[cam, center, width=118mm, height=159mm]{crop}
+\usepackage[left=12mm, right=10mm, twoside, top=10mm, bottom=8mm, includeheadfoot]{geometry}
+{% if not ADDRESS_ONLY %}\usepackage[cam, center, width=118mm, height=159mm]{crop}{% endif %}
 
 \usepackage[sfdefault]{FiraSans}
 \usepackage{FiraMono}
 \usepackage{fontspec}
-\usepackage{xunicode}
+\usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{polyglossia}
-\usepackage[none]{hyphenat}
-\usepackage{needspace}
+\usepackage{needspace} % For avoiding orphan titles (country names)
+\usepackage{xunicode}  % For \textcolor{}
+\usepackage{xparse}    % For \NewDocumentCommand
 \usepackage{hyperref}  % For \url{} and \href{}
 \usepackage{titlesec}  % For \titleformat{}
 \usepackage{pgffor}    % For \foreach{}
 \usepackage[document]{ragged2e}  % For left-justified
 \usepackage{fontawesome}
-\usepackage{fancyhdr}
+\usepackage{fancyhdr}  % For fancy headers
+\usepackage[section]{placeins}
+
+\setmainlanguage{esperanto}
 
 \pagestyle{fancy}
 \renewcommand{\sectionmark}[1]{\markboth{}{#1}}
 \fancyhead[LO,RE]{\sectionmark}
 \renewcommand\thesection{}     % Remove numbers
 \renewcommand\thesubsection{}  % Remove numbers
+
 \titleformat{\part}[hang]{}{}{0pt}{\centering\Geotica\large}
+\assignpagestyle{\part}{empty}
 \setmainfont{Fira Sans}
-\setmainlanguage{esperanto}
+
 \newfontfamily\semibold{Fira Sans Medium}
 \newfontfamily\light{Fira Sans Light}
 \newfontfamily\lightitalic{Fira Sans Light Italic}
 \newfontfamily\Geotica[Scale=3]{Geotica Three}
 \setlength\parindent{0pt}  % No paragraph indentation
+\definecolor{light-gray}{gray}{0.8}
+\hypersetup{colorlinks=true, citecolor=black, filecolor=black, linkcolor=black, urlcolor=black}
+
+\newcommand*\blankpage{\newpage\thispagestyle{empty}\null\newpage}
 \newcommand*{\name}[2]{#1 \textsc{#2}}
 \newcommand*{\eastname}[2]{\textsc{#2} #1}
-
-\newenvironment{nopagebreakatall}
-  {\par\nobreak\vfil\penalty0\vfilneg
-   \vtop\bgroup}
-  {\par\xdef\tpd{\the\prevdepth}\egroup
-   \prevdepth=\tpd}
+\NewDocumentCommand\invisiblesection{ s m }{%  {star, mandatory}
+  \refstepcounter{section}%
+  \sectionmark{#2}%
+    \IfBooleanF#1{%  % If no star is seen
+      \addcontentsline{toc}{section}{\protect\numberline{\thesection}#2}}}
 
 \begin{document}
   {% if ADDRESS_ONLY %}
     \include{pages/address}
   {% else %}
+    \frontmatter\pagenumbering{Roman}
     \include{pages/title}
     \include{pages/colophon}
+    \include{pages/illustration1}
+    \include{pages/preface}
+    \include{pages/toc}
+    \mainmatter
     \include{pages/about}
     \include{pages/how_to_use}
-    \include{pages/statistics}
+    \include{pages/illustration2}
     \include{pages/address}
+    \include{pages/illustration3}
     \include{pages/maps}
     \include{pages/notes}
+    \include{pages/illustration4}
   {% endif %}
 \end{document}

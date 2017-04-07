@@ -1,13 +1,16 @@
-from os.path import join, isfile
+import csv
 from distutils.dir_util import copy_tree
+from os.path import join, isfile
 from tempfile import mkdtemp
 from subprocess import call
+
 from pyuca import Collator
 
 from django.core.management.base import CommandError
 from django.conf import settings
 from django.utils import translation
 from django.template import Template, Context
+
 from django_countries import countries
 
 from hosting.models import Place
@@ -47,23 +50,37 @@ class LatexCommand(object):
         self.make()
 
     def make(self):
-        prefix = 'ps_{}-'.format(self.country) if self.address_only else 'ps-'
+        prefix = 'ps-{}-'.format(self.country) if self.address_only else 'ps-'
         tempdir = mkdtemp(prefix=prefix)
         print('Copying in temp directory', tempdir)
         copy_tree('book/templates/book/', tempdir)
         self.context = self.get_context_data()
-        print('Rendering...')
+        print('Exportorting latlng.csv...')
+        self.export_latlng(tempdir)
+        print('Rendering Tex files...')
         for template_name in self.tex_files:
             self.render_tex(tempdir, template_name)
         if self.make_pdf:
-            call(['xelatex', 'PasportaServo.tex'], cwd=tempdir)
+            n = 1 if self.address_only else 2
+            for i in range(n):
+                call(['xelatex', 'PasportaServo.tex'], cwd=tempdir)
             if not isfile(join(tempdir, 'PasportaServo.pdf')):
                 print('\nCould not generate the PDF')
+            else:
+                call(['evince', 'PasportaServo.pdf'], cwd=tempdir)
             print('\n', tempdir)
+
+    def export_latlng(self, tempdir):
+        with open(join(tempdir, 'latlng.csv'), 'w') as f:
+            writer = csv.DictWriter(f, ['lat', 'lng'])
+            writer.writeheader()
+            for place in self.context['places']:
+                if all([place.latitude, place.longitude]):
+                    writer.writerow({'lat': place.latitude, 'lng': place.longitude})
 
     def get_objects(self):
         print('Grabbing data...')
-        places = Place.objects.filter(in_book=True, checked=True)
+        places = Place.objects.filter(in_book=True, checked=True).order_by('city')
         if self.address_only:
             print('  for', self.country)
             places = places.filter(country=self.country)

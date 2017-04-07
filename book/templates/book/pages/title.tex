@@ -1,15 +1,16 @@
+{% load latex %}
 \begin{titlepage}
-    \centering
+  \begin{center}
     \vspace*{10mm}
     {\Geotica
-      {\huge
-        Pasporta\\ Servo
+      {\huge Pasporta\\ Servo}
 
-        \vspace{20mm}
-        \textasciitilde
-      }
+      \vspace{20mm}
+
+      {\huge \textasciitilde}
 
         \vspace{24mm}
-        {\small ~~{{ year }}}
+        {{ year|ctx:"small" }}
     }
+  \end{center}
 \end{titlepage}

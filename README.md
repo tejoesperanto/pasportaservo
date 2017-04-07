@@ -10,7 +10,7 @@
 [![Kontaktu nin en Gitter https://gitter.im/tejo-esperanto/pasportaservo](https://img.shields.io/gitter/room/tejo-esperanto/pasportaservo.svg)](https://gitter.im/tejo-esperanto/pasportaservo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Twitter URL](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/pasportaservo)
 
-[Pasporta Servo](https://eo.wikipedia.org/wiki/Pasporta_servo/) estas senpaga tutmonda gastiga servo. La projekto komencis en 1974 kiel eta jarlibro, kaj ekde 2009 ankaŭ daŭras kiel retejo. En tiu ĉi deponejo kolektiĝas la kodo kiu ruligas la retejon [pasportaservo.org](https://pasportaservo.org).
+[Pasporta Servo](https://eo.wikipedia.org/wiki/Pasporta_Servo) estas senpaga tutmonda gastiga servo. La projekto komencis en 1974 kiel eta jarlibro, kaj ekde 2009 ankaŭ daŭras kiel retejo. En tiu ĉi deponejo kolektiĝas la kodo kiu ruligas la retejon [pasportaservo.org](https://pasportaservo.org).
 
 
 - [Kontribui](#kontribui)

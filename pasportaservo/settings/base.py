@@ -149,7 +149,7 @@ MEET_MIN_AGE = 13
 # Do not change the value without a data migration!
 INVALID_PREFIX = 'INVALID_'
 
-COUNTRIES_WITH_REGIONS = ('US', 'GB', 'FR', 'DE', 'BR')
+COUNTRIES_WITH_REGIONS = ('US', 'GB', 'FR', 'DE', 'BR', 'BE')
 
 
 CORS_ORIGIN_WHITELIST = (
