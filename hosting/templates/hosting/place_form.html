@@ -1,4 +1,4 @@
-{% extends 'hosting/base_form.html' %}
+{% extends 'core/base_form.html' %}
 {% load i18n static %}
 
 {% block head_title %}
@@ -24,7 +24,7 @@
 {% block extra_js %}
     {{ block.super }}
     <script src="{% static 'leaflet/leaflet.js' %}" type="text/javascript"></script>
-    <script src="{% static 'hosting/js/maps.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/maps.js' %}" type="text/javascript"></script>
     <script src="{% static 'chosen/chosen.jquery.min.js' %}" type="text/javascript"></script>
 {% endblock %}
 

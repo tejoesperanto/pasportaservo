@@ -15,14 +15,7 @@ $(function() {
     }
 
     $(window).bind("load", function() {
-        $('ul.chosen-choices').addClass('form-control');
-        $('.form-group .radio:has(.form-control-horizontal)')
-            .removeClass('radio').addClass('radio-inline').children('label').css('font-weight', "normal")
-            .each(function() {
-                $(this).data('blank-label', $(this).text().trim());
-            });
-        updatePersonNamesExample();
-        flasher = $('.alert.flyover');
+        var flasher = $('.alert.flyover');
         flasher.addClass('in');
         if (!flasher.hasClass('no-out')) {
             window.setTimeout(function () { flasher.addClass('out') }, 4000);
@@ -153,10 +146,24 @@ $(function() {
             }
         }
 
-        if (constraint_failed)
+        if (constraint_failed) {
             this.setCustomValidity(errors.join("\n"));
-        if (!constraint_failed)
+            if (!$this.data('original-title')) {
+                $this.data('original-title', $this.attr('title') || "[NULL]");
+            }
+            $this.attr('title', errors.join("\n"));
+        }
+        if (!constraint_failed) {
             this.setCustomValidity("");
+            if ($this.data('original-title')) {
+                $this.attr('title', $this.data('original-title') == "[NULL]" ? "" : $this.data('original-title'));
+                $this.removeData('original-title');
+                $this.removeAttr('original-title');
+            }
+            else if (!$this.attr('title')) {
+                $this.attr('title', "");
+            }
+        }
 
         if (($this.is('[type="radio"]') || $this.is('[type="checkbox"]')) && !dontPropagate) {
             // update similarly-named siblings (for radio/checkbox groups)
@@ -237,6 +244,16 @@ $(function() {
         updatePersonNamesExample = function() {};
     }
     $('#id_first_name, #id_last_name').change(updatePersonNamesExample);
+
+    +function() {
+        $('ul.chosen-choices').addClass('form-control');
+        $('.form-group .radio:has(.form-control-horizontal)')
+            .removeClass('radio').addClass('radio-inline').children('label').css('font-weight', "normal")
+            .each(function() {
+                $(this).data('blank-label', $(this).text().trim());
+            });
+        updatePersonNamesExample();
+    }();
 
     /* for mass mail form */
     $('#id_body').keyup(function() {

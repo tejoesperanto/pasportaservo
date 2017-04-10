@@ -1,4 +1,4 @@
-{% load i18n %}{% load domain %}{% blocktrans trimmed %}
+{% load i18n domain %}{% blocktrans trimmed %}
     Dear {{ user_first_name }},
 {% endblocktrans %}
 

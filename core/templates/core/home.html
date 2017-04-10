@@ -1,4 +1,4 @@
-{% extends 'hosting/base.html' %}
+{% extends 'core/base.html' %}
 {% load i18n static %}
 
 {% block header_class %} home{% endblock %}
@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{% static 'css/pasportaservo-home.css' %}">
 {% endblock %}
 {% block extra_js %}
-    <script src="{% static 'hosting/js/search.js' %}"></script>
+    <script src="{% static 'js/search.js' %}"></script>
 {% endblock %}
 
 
@@ -47,7 +47,7 @@
     <div class="row">
         <div class="col-md-12" id="title">
             {% block home_title %}
-                <i class="hidden-xs">&nbsp;</i>
+                <i class="hidden-xs hidden-sm">&nbsp;</i>
                 Pasporta Servo<small class="hidden-xs" title="{% trans "test version" %}"><em>beta</em></small>
             {% endblock %}
         </div>
@@ -100,9 +100,11 @@
     </div>
     <div class="social-links social-contact sm-icons pull-right">
         {% spaceless %}
+        <!--
         <a href="skype:pasporta.servo?chat" title="{% trans "Contact us via Skype" %}" class="highlight-custom">
             <img src="{% static 'img/home/social_skype-sm.png' %}" alt="[skype]"/>
         </a>
+        -->
         <a href="mailto:saluton [cxe] pasportaservo.org" title="{% trans "Contact us via email" %}" class="highlight-custom">
             <img src="{% static 'img/home/social_email-sm.png' %}" alt="[email]"/>
         </a>

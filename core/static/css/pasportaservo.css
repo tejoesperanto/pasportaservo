@@ -173,6 +173,9 @@ header {
     padding: 0.5em 0;
     margin-bottom: 1em;
 }
+header:not(.home) {
+    box-shadow: 0px 3px 5px 0px #d0d0d0;
+}
 header a {
     color: #fff;
 }
@@ -503,6 +506,7 @@ header:not(.home) #subtitle,
 
 .btn.disabled { pointer-events: auto; } /* Bootstrap hack for tooltip */
 
+
 /* Bootstrap Callout */
 
 .callout {
@@ -570,6 +574,7 @@ header:not(.home) #subtitle,
     font-size: 1.5em;
     border-radius: 6px;
 }
+
 
 /* XXS */
 @media (max-width: 479px) {

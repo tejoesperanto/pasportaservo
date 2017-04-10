@@ -14,5 +14,5 @@
 {% block call_to_action %}
     {% url 'postman:view' object.pk as url %}
     {% trans 'Reply' as text %}
-    {% include "email/button.html" %}
+    {% include "email/snippets/button.html" %}
 {% endblock %}

@@ -1,6 +1,5 @@
 from datetime import date
 
-from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 from django.utils.text import slugify
@@ -9,17 +8,19 @@ from django.db.models import Q, F, Value as V
 from django.db.models.functions import Concat, Substr
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 
 from django_extensions.db.models import TimeStampedModel
+from django.contrib.auth.models import Group
 from phonenumber_field.modelfields import PhoneNumberField
 from django_countries.fields import CountryField, Country
 
-from .managers import TrackingManager, NotDeletedManager, WithCoordManager, AvailableManager
+from .managers import (
+    TrackingManager, NotDeletedManager, AvailableWithCoordManager, AvailableManager,
+)
 from .validators import (
     validate_not_all_caps, validate_not_too_many_caps, validate_no_digit, validate_latin,
     validate_not_in_future, TooFarPastValidator, TooNearPastValidator,
@@ -49,7 +50,7 @@ PHONE_TYPE_CHOICES = (
 
 
 class TrackingModel(models.Model):
-    deleted_on = models.DateTimeField(_("delete on"), default=None, blank=True, null=True)
+    deleted_on = models.DateTimeField(_("deleted on"), default=None, blank=True, null=True)
     confirmed_on = models.DateTimeField(_("confirmed on"), default=None, blank=True, null=True)
     checked_on = models.DateTimeField(_("checked on"), default=None, blank=True, null=True)
     checked_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("approved by"),
@@ -62,9 +63,9 @@ class TrackingModel(models.Model):
     class Meta:
         abstract = True
 
-    def checks(self, request):
-        if self.owner.user != request.user:
-            self.checked_on, self.checked_by = timezone.now(), request.user
+    def set_check_status(self, set_by_user):
+        if self.owner.user != set_by_user:
+            self.checked_on, self.checked_by = timezone.now(), set_by_user
         else:
             self.checked_on, self.checked_by = None, None
         self.save()
@@ -94,10 +95,10 @@ class Profile(TrackingModel, TimeStampedModel):
         null=True, blank=True,
         validators=[TooFarPastValidator(200), validate_not_in_future],
         help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))
-    email = models.EmailField(_("profile email"),
+    email = models.EmailField(_("public email"),
         blank=True,
         help_text=_("This email address will be used for the book. "
-            "Leave blank if you don’t want this email to be public.\n"
+            "Leave blank if you don't want this email to be public.\n"
             "The system will never send emails to this address, "
             "neither publish it on the site without your permission."))
     description = models.TextField(_("description"),
@@ -194,16 +195,14 @@ class Profile(TrackingModel, TimeStampedModel):
     def places_confirmed(self):
         return all(p.confirmed for p in self.owned_places.filter(deleted=False, in_book=True))
 
-    @property
     def supervised_by(self):
         places = self.owned_places.filter(deleted=False)
-        return [superv for p in places for superv in p.supervised_by]
+        return [superv for p in places for superv in p.supervised_by()]
 
     @property
     def is_supervisor(self):
-        return any(self.supervisor_of)
+        return any(self.supervisor_of())
 
-    @property
     def supervisor_of(self, code=False):
         countries = (Country(g.name) for g in self.user.groups.all() if len(g.name) == 2)
         return countries if code else [c.name for c in countries]
@@ -226,28 +225,6 @@ class Profile(TrackingModel, TimeStampedModel):
         if remove:
             return self.user.groups.remove(group)
         return self.user.groups.add(group)
-
-    @classmethod
-    def mark_invalid_emails(cls, emails=None):
-        models = {cls: None, get_user_model(): None}
-        for model in models:
-            models[model] = model.objects.filter(
-                email__in=emails).exclude(
-                email__istartswith=settings.INVALID_PREFIX).update(
-                email=Concat(V(settings.INVALID_PREFIX), F('email'))
-            )
-        return models
-
-    @classmethod
-    def mark_valid_emails(cls, emails=None):
-        models = {cls: None, get_user_model(): None}
-        for model in models:
-            models[model] = model.objects.filter(
-                email__in=emails,
-                email__istartswith=settings.INVALID_PREFIX).update(
-                email=Substr(F('email'), len(settings.INVALID_PREFIX) + 1)
-            )
-        return models
 
     def __str__(self):
         if self.full_name.strip():
@@ -291,6 +268,31 @@ class Profile(TrackingModel, TimeStampedModel):
             self.phones.filter(deleted=False).update(confirmed_on=now)
             self.website_set.filter(deleted=False).update(confirmed_on=now)
             self.save()
+
+    @classmethod
+    def mark_invalid_emails(cls, emails=None):
+        models = {cls: None, get_user_model(): None}
+        for model in models:
+            models[model] = model.objects.filter(
+                email__in=emails
+            ).exclude(
+                email__istartswith=settings.INVALID_PREFIX
+            ).update(
+                email=Concat(V(settings.INVALID_PREFIX), F('email'))
+            )
+        return models
+
+    @classmethod
+    def mark_valid_emails(cls, emails=None):
+        models = {cls: None, get_user_model(): None}
+        for model in models:
+            models[model] = model.objects.filter(
+                email__in=emails,
+                email__istartswith=settings.INVALID_PREFIX
+            ).update(
+                email=Substr(F('email'), len(settings.INVALID_PREFIX) + 1)
+            )
+        return models
 
 
 class Place(TrackingModel, TimeStampedModel):
@@ -359,7 +361,7 @@ class Place(TrackingModel, TimeStampedModel):
         help_text=_("List of users authorized to view most of data of this accommodation."))
 
     available_objects = AvailableManager()
-    with_coord = WithCoordManager()
+    with_coord = AvailableWithCoordManager()
 
     class Meta:
         verbose_name = _("place")
@@ -389,7 +391,6 @@ class Place(TrackingModel, TimeStampedModel):
     def owner_available(self):
         return self.tour_guide or self.have_a_drink
 
-    @property
     def supervised_by(self):
         group = Group.objects.get(name=self.country.code)
         return [user.profile for user in group.user_set.all()]
@@ -398,7 +399,7 @@ class Place(TrackingModel, TimeStampedModel):
         return reverse('place_detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return ", ".join([self.city, force_text(self.country.name)]) if self.city else force_text(self.country.name)
+        return ", ".join([self.city, str(self.country.name)]) if self.city else str(self.country.name)
 
     def __repr__(self):
         return "<{} #{}: {}>".format(self.__class__.__name__, self.id, self.__str__())
@@ -410,7 +411,7 @@ class Place(TrackingModel, TimeStampedModel):
     def rawdisplay_conditions(self):
         return ", ".join(c.__str__() for c in self.conditions.all())
 
-    def display_conditions_latex(self):
+    def latexdisplay_conditions(self):
         return r"\, ".join(c.latex for c in self.conditions.all())
 
 

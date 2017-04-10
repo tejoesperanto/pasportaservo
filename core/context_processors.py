@@ -1,7 +1,7 @@
 from django.conf import settings
 
 
-def some_settings(request):
+def expose_selected_settings(request):
     SETTINGS = [
         'INVALID_PREFIX',
     ]

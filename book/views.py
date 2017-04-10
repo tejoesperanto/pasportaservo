@@ -8,7 +8,8 @@ from django.template.defaultfilters import yesno
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from hosting.mixins import StaffMixin
+from braces.views import StaffuserRequiredMixin
+
 from hosting.models import Place
 from links.utils import create_unique_url
 
@@ -16,7 +17,7 @@ from pyuca import Collator
 c = Collator()
 
 
-class ContactExport(StaffMixin, generic.ListView):
+class ContactExport(StaffuserRequiredMixin, generic.ListView):
     response_class = HttpResponse
     content_type = 'text/csv'
     place_fields = ['in_book', 'checked', 'city', 'closest_city', 'address',

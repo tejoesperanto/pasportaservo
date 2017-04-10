@@ -1,4 +1,4 @@
-{% extends 'hosting/base_form.html' %}
+{% extends 'core/base_form.html' %}
 {% load static %}
 
 {% block extra_js %}
@@ -12,7 +12,7 @@
 
 {% block form_after %}
     <div class="col-xs-12 col-md-7">
-        {% include 'email/preview_header.html' %}
+        {% include 'email/snippets/preview_header.html' %}
         {% include 'email/base_email.html' %}
     </div>
 {% endblock form_after %}

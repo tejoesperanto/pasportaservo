@@ -37,7 +37,7 @@
         stepMismatch__number__one: "Maltaŭga valoro; la plej proksima taŭga estas %(low)s.",
         stepMismatch: "Bonvole provizu taŭgan valoron.",
         badInput__number: "Bonvole provizu nur numeron, sen aldonaj signoj.",
-        badInput__email: "La retpoŝtadreso enhavas malpermesitajn signojn.",
+        badInput__email: "La retpoŝtadreso enhavas malpermesitajn signojn aŭ malhavas necesajn signojn.",
         badInput: "Bonvole provizu ĝusta-forman valoron.",
     };
 } (jQuery));

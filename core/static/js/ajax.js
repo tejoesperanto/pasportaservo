@@ -36,9 +36,9 @@ $(document).ready(function() {
             dataType: "json",
             csrfmiddlewaretoken: $this.data('csrf'),
             success: function(response) {
-                successCallback = window[$this.data('on-ajax-success')]
+                successCallback = window[$this.data('on-ajax-success')];
                 if (typeof(successCallback) === 'function') {
-                    successCallback($this)
+                    successCallback($this);
                 }
             },
             error: function(xhr) {
@@ -67,25 +67,27 @@ $(document).ready(function() {
     var ditchForm = function($this) {
         $this.unwrap('.unwrap-after-success');
         $this.prev('[name="csrfmiddlewaretoken"]').remove();
-    }
+    };
 
     window.confirmInfoSuccess = function($this) {
         $this.parents('.remove-after-success').slideUp();
-    }
+    };
 
     window.checkPlaceSuccess = function($this) {
         ditchForm($this);
         $this.removeClass('ajax');
         $this.removeClass('btn-warning').addClass('btn-success');
         $this.closest('.callout').addClass('callout-success');
-        if ($this.data('success-text')) { $this.text($this.data('success-text')) }
-    }
+        if ($this.data('success-text')) {
+            $this.text($this.data('success-text'));
+        }
+    };
 
     window.markInvalidEmailSuccess = function($this) {
         ditchForm($this);
         $this.prev('.email').addClass('text-danger').children('a').contents().unwrap('a');
         $this.remove();
-    }
+    };
 
 });
 

@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
-{% load i18n static %}
+{% load i18n static breach %}
 
 {% block body %}
     <section class="messages">
         {% block messages %}
-            {% for message in messages %}{% include "message.html" %}{% endfor %}
+            {% for message in messages %}{% include "core/message.html" %}{% endfor %}
         {% endblock %}
 
         {# "TODO: Remove by mid February 2017" #}
         {% if not BOOK_RESERVED %}
-          {% url "reserve" "PS2017" as reserve_url %}
-          {% blocktrans asvar reserve_msg %}
-            <a href="{{ reserve_url }}">Rezervu nun la libreton <big>Pasporta Servo 2017</big>!</a>
-          {% endblocktrans %}
-          {% include "message.html" with message=reserve_msg|safe level='info' daily=True sticky_class='PS2017' %}
+            {% url "reserve" "PS2017" as reserve_url %}
+            {% blocktrans asvar reserve_msg trimmed %}
+                <a href="{{ reserve_url }}">Rezervu nun la libreton <big>Pasporta Servo 2017</big>!</a>
+            {% endblocktrans %}
+            {% include "core/message.html" with message=reserve_msg|safe level='info' daily=True sticky_class='PS2017' %}
         {% endif %}
     </section>
     <header class="container-fluid{% block header_class %}{% endblock %}">
@@ -23,11 +23,12 @@
                     <a href="{% url 'home' %}">P<span class="hidden-xs">asporta&nbsp;</span>S<span class="hidden-xs">ervo</span></a>
                 </div>
                 <div class="hidden-xs col-sm-3 col-md-3" id="subtitle">
-                  {% if BOOK_RESERVED %}
-                    E-gastigantoj tra la mondo
-                  {% else %}
-                    <a href="{% url "reserve" "PS2017" %}">Rezervu nun la novan adreslibron 2017!</a>
-                  {% endif %}
+                    {# "TODO: Remove by mid February 2017" #}
+                    {% if BOOK_RESERVED %}
+                        E-gastigantoj tra la mondo
+                    {% else %}
+                        <a href="{{ reserve_url }}">Rezervu nun la novan adreslibron 2017!</a>
+                    {% endif %}
                 </div>
                 <div class="col-xs-3 col-sm-2 col-md-1 col-md-offset-4 enveloppe links">
                     {% if user.is_authenticated %}
@@ -77,7 +78,7 @@
 
     {% block pre-page %}{% endblock %}
 
-    <div id="page" class="container{% block page_class %}{% endblock %}">
+    <div id="page" role="main" class="container{% block page_class %}{% endblock %}">
         {% block page %}{% endblock %}
     </div>
 
@@ -85,20 +86,25 @@
         {% block footer %}
             <div class="row">
                 <div class="col-md-12">
-                    <a href="{% url 'about' %}">{% trans "About us" %}</a>
+                    <span class="text-nowrap"><a href="{% url 'about' %}">{% trans "About us" %}</a></span>
                     |
-                    <a href="{% url 'faq' %}">{% trans "FAQ" %}</a>
+                    <span class="text-nowrap"><a href="{% url 'faq' %}">{% trans "FAQ" %}</a></span>
                     |
-                    <a href="{% url 'terms_conditions' %}">{% trans "Terms" %}</a>
+                    <span class="text-nowrap"><a href="{% url 'terms_conditions' %}">{% trans "Terms" %}</a></span>
                     |
-                    <a href="{% url 'supervisors' %}">{% trans "Supervisors" %}</a>
-                    |
-                    <span class="text-nowrap"
-                        ><img src="{% static 'img/home/tejo.png' %}" width="39" height="18" style="vertical-align:-15%" alt="TEJO" />
-                        <a href="http://tejo.org" title="Tutmonda Esperantista Junulara Organizo">TEJO</a
-                        ></span>
+                    <span class="text-nowrap"><a href="{% url 'supervisors' %}">{% trans "Supervisors" %}</a></span>
+                    <span class="hidden-xs">|</span><br class="visible-xs-inline" style="margin-bottom: 10px" />
+                    <span class="text-nowrap">
+                        <a href="http://tejo.org" title="Tutmonda Esperantista Junulara Organizo">
+                            <img src="{% static 'img/home/tejo.png' %}" width="39" height="18" style="vertical-align:-15%" alt="TEJO" />
+                        </a>
+                    </span>
                 </div>
             </div>
         {% endblock footer %}
     </footer>
+
+    {% if user.is_authenticated %}
+    <!-- PageId:{% random_identifier %} -->
+    {% endif %}
 {% endblock body %}

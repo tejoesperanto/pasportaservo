@@ -1,7 +1,5 @@
-{% extends 'hosting/base_form.html' %}
-{% load i18n %}
-{% load static %}
-{% load bootstrap %}
+{% extends 'core/base_form.html' %}
+{% load i18n static bootstrap %}
 
 {% block extra_js %}
     {{ block.super }}
@@ -10,110 +8,112 @@
 {% endblock %}
 
 {% block pre-page %}
-  <p style="display: none" id="product-low-price">{{ view.product.low_price }}</p>
-  <p style="display: none" id="product-price">{{ view.product.price }}</p>
+    <p style="display: none" id="product-low-price">{{ view.product.low_price }}</p>
+    <p style="display: none" id="product-price">{{ view.product.price }}</p>
 {% endblock %}
 
 {% block form_before %}
-  <h1 class="text-center">
-    {% blocktrans with product_name=view.product.name %}Pre-order form of the {{ product_name }} book.{% endblocktrans %}
-  </h1>
+    <h1 class="text-center">
+        {% blocktrans with product_name=view.product.name %}Pre-order form of the {{ product_name }} book.{% endblocktrans %}
+    </h1>
 {% endblock %}
-{% block form_title %}{% trans "Reservation" %}{% endblock %}
-{% block head_title %}{% trans "Reservation" %}{% endblock %}
 
+{% block form_title %}{% trans "Reservation" %}{% endblock %}
+{% block head_title %}{% trans "Reservation" %}: {{ view.product.name }}{% endblock %}
 
 {% block fields %}
     <h5>{% trans "First, please select the number of books you would like to reserve." %}</h5>
     <div class="btn-group" data-toggle="buttons" data-bind="foreach: amountRange">
-      <label class="btn btn-default" data-bind="click: $parent.amountClicked">
-        <input type="radio" name="amount-radio" autocomplete="off"> <b data-bind="text: $data">1</b>
-      </label>
+        <label class="btn btn-default" data-bind="click: $parent.amountClicked">
+            <input type="radio" name="amount-radio" autocomplete="off"> <b data-bind="text: $data">1</b>
+        </label>
     </div>
 
     <div class="row">
-            <div class="col col-xs-3" style="margin: 1em auto; float: none" data-bind="visible: productAmount() > 10">
-            {{ form.amount }}
-            </div>
+        <div class="col col-xxs-7 col-xs-4 col-sm-3 col-md-5 col-lg-4" style="margin: 1em auto; float: none" data-bind="visible: productAmount() >= 10">
+        {{ form.amount }}
+        </div>
     </div>
 
-    <hr>
+    <hr />
 
     {{ form.discount|bootstrap }}
 
-  {% if form.in_book.initial %}
-    {{ form.in_book|bootstrap }}
-  {% endif %}
+    {% if form.in_book.initial %}
+        {{ form.in_book|bootstrap }}
+    {% endif %}
 {% endblock %}
 
 {% block fields_after %}
+    <table class="table table-hover">
+    <thead>
+        <tr>
+            <th></th>
+            <th width="20%">{% trans "amount" %}</th>
+            <th width="20%">{% trans "value" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr data-bind="visible: inBook">
+            <td>{{ view.product.code }} {% trans "low price" %}</td>
+            <td>1</td>
+            <td>{{ view.product.low_price }}</td>
+        </tr>
+        <tr data-bind="visible: productAmountComp() > 0">
+            <td>{{ view.product.code }} </td>
+            <td data-bind="text: productAmountComp"></td>
+            <td data-bind="text: productSumFmt">{{ view.product.price }}</td>
+        </tr>
+        <tr>
+            <td>{% trans "support" %}</td>
+            <td></td>
+            <td>{{ form.support }}</td>
+        </tr>
+        <tr class="success" data-bind="visible: volumeDiscount">
+            <td>{% trans "volume discount" %}</td>
+            <td><span id="vol-discount-percent">33</span>%</td>
+            <td data-bind="text: volumeDiscountFmt">0</td>
+        </tr>
+        <tr class="success" data-bind="visible: hasTejoDiscount">
+            <td>{% trans "TEJO discount" %}</td>
+            <td><span id="tejo-discount-percent">10</span>%</td>
+            <td data-bind="text: tejoDiscountFmt">0</td>
+        </tr>
+        <tr>
+            <td>{% trans "shipping" %}</td>
+            <td></td>
+            <td id="shipping">5,00</td>
+        </tr>
+        <tr class="info">
+            <td>{% trans "total" %}</td>
+            <td></td>
+            <td><span data-bind="text: totalFmt">13,99</span> <i class="currency">€</i></td>
+        </tr>
+    </tbody>
+    </table>
 
-<table class="table table-hover">
-<thead>
-    <tr>
-        <th></th>
-        <th width="20%">{% trans "amount" %}</th>
-        <th width="20%">{% trans "value" %}</th>
-    </tr>
-</thead>
-<tbody>
-    <tr data-bind="visible: inBook">
-        <td>{{ view.product.code }} {% trans "low price" %}</td>
-        <td>1</td>
-        <td>{{ view.product.low_price }}</td>
-    </tr>
-    <tr data-bind="visible: productAmountComp() > 0">
-        <td>{{ view.product.code }} </td>
-        <td data-bind="text: productAmountComp"></td>
-        <td data-bind="text: productSumFmt">{{ view.product.price }}</td>
-    </tr>
-    <tr>
-        <td>{% trans "support" %}</td>
-        <td></td>
-        <td>{{ form.support }}</td>
-    </tr>
-    <tr class="success" data-bind="visible: volumeDiscount">
-        <td>{% trans "volume discount" %}</td>
-        <td><span id="tejo-discount-percent">33</span>%</td>
-        <td data-bind="text: volumeDiscountFmt">0</td>
-    </tr>
-    <tr class="success" data-bind="visible: hasTejoDiscount">
-        <td>{% trans "TEJO discount" %}</td>
-        <td><span id="tejo-discount-percent">10</span>%</td>
-        <td data-bind="text: tejoDiscountFmt">0</td>
-    </tr>
-    <tr>
-        <td>{% trans "shipping" %}</td>
-        <td></td>
-        <td id="shipping">5,00</td>
-    </tr>
-    <tr class="info">
-        <td>{% trans "total" %}</td>
-        <td></td>
-        <td><span data-bind="text: totalFmt">13,99</span> <i class="currency">€</i></td>
-    </tr>
-</tbody>
-</table>
-
-<p>
-  {% blocktrans with link='<a href="http://katalogo.uea.org/">UEA katalogo</a>' trimmed %}
-    You do not have to pay now. We will contact you when it will be possible to order from the {{ link }}.
-  {% endblocktrans %}
-</p>
+    <p>
+        {% blocktrans with link='<a href="http://katalogo.uea.org/">katalogo de UEA</a>' trimmed %}
+            You do not have to pay now. We will contact you when it will be possible to order from the {{ link }}.
+        {% endblocktrans %}
+    </p>
 {% endblock fields_after %}
 
 {% block form_submit_button %}{% trans "Reserve" %}{% endblock %}
 
 {% block form_after %}
     <aside class="col-xs-12 text-center">
-      <p class="text-info">
-        {% trans "Reserving the book helps us to print the right quantity." %}
-        {% trans "Buying the book really helps the Pasporta Servo project." %}
-      </p>
-    {% if INVALID_PREFIX in user.email %}
-      <p class="text-danger">
-        {% trans "Your email address doesn’t appear to be valid, we probably won’t be able to send messages to that address. Please check it out." %}
-      </p>
-    {% endif %}
+        <p class="text-info">
+            {% trans "Reserving the book helps us to print the right quantity." %}
+            {% trans "Buying the book really helps the Pasporta Servo project." %}
+        </p>
+        {% if INVALID_PREFIX in user.email %}
+            <p class="text-danger">
+                {% blocktrans trimmed %}
+                    Your email address doesn't appear to be valid, we probably won't be able
+                    to send messages to that address. Please check it out.
+                {% endblocktrans %}
+            </p>
+        {% endif %}
     </aside>
 {% endblock %}

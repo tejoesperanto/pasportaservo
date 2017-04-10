@@ -18,7 +18,7 @@
 {% endblock %}
 {% block extra_details %}
     {% if profile != user.profile %}
-            {% if places %}<br>{% endif %}
+            {% if places %}<br />{% endif %}
             {{ profile.get_fullname_display }}
     {% endif %}
 {% endblock %}

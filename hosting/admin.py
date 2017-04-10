@@ -1,25 +1,27 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.admin.utils import display_for_value
 from django.utils.html import format_html
 from django.core import urlresolvers
 from django.conf import settings
 from django.core.cache import cache
 from django.db import models
 from django.contrib.auth.models import User, Group
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.admin import UserAdmin, GroupAdmin
+from django_countries.fields import Country
 
 from .models import Profile, Place, Phone, Website, Condition, ContactPreference
 from .admin_utils import (
     ShowConfirmedMixin, ShowDeletedMixin,
-    CountryMentionedOnlyFilter, ProfileHasUserFilter
+    CountryMentionedOnlyFilter, SupervisorFilter, EmailValidityFilter, ProfileHasUserFilter
 )
 from .widgets import AdminImageWithPreviewWidget
 
 
 admin.site.disable_action('delete_selected')
 
-# admin.site.unregister(Group)
 admin.site.unregister(User)
+admin.site.unregister(Group)
 
 
 class PlaceInLine(ShowConfirmedMixin, ShowDeletedMixin, admin.StackedInline):
@@ -55,11 +57,15 @@ class PhoneInLine(ShowDeletedMixin, admin.TabularInline):
 class CustomUserAdmin(UserAdmin):
     list_display = (
         'id', 'username', 'email', 'password_algorithm', 'profile_link',
-        'last_login', 'date_joined',
-        'is_active', 'is_staff', 'is_superuser',
+        'is_active', 'is_supervisor', 'last_login', 'date_joined',
+        'is_staff', 'is_superuser',
     )
     list_display_links = ('id', 'username')
     list_select_related = ('profile',)
+    list_filter = (
+        SupervisorFilter, 'is_active', 'is_staff', 'is_superuser',
+        ('groups', admin.RelatedOnlyFieldListFilter),
+    )
     date_hierarchy = 'date_joined'
 
     fieldsets = (
@@ -85,7 +91,54 @@ class CustomUserAdmin(UserAdmin):
         except AttributeError:
             return '[ - ]'
     profile_link.short_description = _("profile")
-    profile_link.admin_order_field = 'profile'
+
+    def is_supervisor(self, obj):
+        value = any(g for g in obj.groups.all() if len(g.name) == 2)
+        return display_for_value(value, None, boolean=True)
+    is_supervisor.short_description = _("supervisor status")
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('groups')
+
+    def get_field_queryset(self, db, db_field, request):
+        if db_field.name == 'groups':
+            return CustomGroupAdmin.CountryGroup.objects
+        return super().get_field_queryset(db, db_field, request)
+
+
+@admin.register(Group)
+class CustomGroupAdmin(GroupAdmin):
+    list_display = ('name', 'country', 'supervisors')
+    list_per_page = 50
+
+    def country(self, obj):
+        return Country(obj.name).name if len(obj.name) == 2 else "-"
+    country.short_description = _("country")
+
+    def supervisors(self, obj):
+        def get_formatted_list():
+            for u in obj.user_set.all():
+                link = urlresolvers.reverse('admin:auth_user_change', args=[u.id])
+                account_link = format_html('<a href="{url}">{username}</a>', url=link, username=u)
+                profile_link = ''
+                if u.profile:
+                    profile_link = format_html('<sup>(<a href="{url}">{name}</a>)</sup>',
+                                               url=u.profile.get_admin_url(), name=_("profile"))
+                yield " ".join([account_link, profile_link])
+        return format_html(", ".join(get_formatted_list()))
+    supervisors.short_description = _("Supervisors")
+
+    class CountryGroup(Group):
+        class Meta:
+            proxy = True
+        def __str__(self):
+            if len(self.name) != 2:
+                return self.name
+            return format_html("{country_code}&emsp;&ndash;&ensp;{country_name}",
+                               country_code=self.name, country_name=Country(self.name).name)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('user_set__profile')
 
 
 class TrackingModelAdmin(ShowConfirmedMixin):
@@ -108,15 +161,16 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         'id', 'first_name', 'last_name', 'user__email', 'user__username',
     ]
     list_filter = (
-        'confirmed_on', 'checked_on', 'deleted_on', ProfileHasUserFilter,
+        'confirmed_on', 'checked_on', 'deleted_on', EmailValidityFilter, ProfileHasUserFilter,
     )
     date_hierarchy = 'birth_date'
     fields = (
         'user', 'title', 'first_name', 'last_name', 'names_inversed', 'birth_date',
-        'description', 'avatar', 'contact_preferences',
+        'description', 'avatar', 'contact_preferences', 'email', 'supervisor',
     ) + TrackingModelAdmin.fields
     raw_id_fields = ('user', 'checked_by')
     radio_fields = {'title': admin.HORIZONTAL}
+    readonly_fields = ('supervisor',) + TrackingModelAdmin.readonly_fields
     formfield_overrides = {
         models.ImageField: {'widget': AdminImageWithPreviewWidget},
     }
@@ -138,6 +192,14 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
             return '-'
     user_link.short_description = _("user")
     user_link.admin_order_field = 'user'
+
+    def supervisor(self, obj):
+        country_list = CustomGroupAdmin.CountryGroup.objects.filter(user__pk=obj.user.id if obj.user else -1)
+        if country_list.count():
+            return format_html(",&nbsp; ".join(map(str, country_list)))
+        else:
+            return self.get_empty_value_display()
+    supervisor.short_description = _("supervisor status")
 
     def get_queryset(self, request):
         return super(ProfileAdmin, self).get_queryset(request).select_related('user', 'checked_by')

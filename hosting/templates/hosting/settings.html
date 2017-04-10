@@ -1,6 +1,5 @@
-{% extends 'hosting/base.html' %}
-{% load i18n %}
-{% load static %}
+{% extends 'core/base.html' %}
+{% load i18n static %}
 
 {% block head_title %}
         {% trans "Settings" %}
@@ -11,54 +10,60 @@
 
     <section class="callout callout-primary">
         <h4 id="{% trans "username" %}">{% trans "username"|capfirst %}</h4>
-        <samp><small>{{ profile.user.username }}</small></samp>
-        <a href="{% url 'username_update' profile.user.pk %}" class="btn btn-default">
-            <span class="hidden-xs">{% trans "Change username" %}</span>
+        <samp><small>{{ profile.user.username }}</small></samp> &nbsp;
+        <a href="{% url 'username_change' %}" class="btn btn-default btn-sm">
+            {% trans "Change username" %}
         </a>
     </section>
 
     <section class="callout callout-primary">
         <h4 id="{% trans "password" %}">{% trans "Password" %}</h4>
-        <a href="{% url 'password_change' %}" class="btn btn-default">
-            <span class="hidden-xs">{% trans "Change password" %}</span>
+        <a href="{% url 'password_change' %}" class="btn btn-default btn-sm">
+            {% trans "Change password" %}
         </a>
     </section>
 
     <section class="callout callout-primary">
         <h4 id="{% trans "email" %}">{% trans "Email" %}</h4>
-        {% if INVALID_PREFIX in profile.user.email %}
-            <span class="email text-danger" title="{% trans "invalid email"%}" data-toggle="tooltip">
-                {{ profile.user.email|cut:INVALID_PREFIX }}
-                <span class="glyphicon glyphicon-warning-sign"></span>
-            </span>
-        {% else %}
-            <samp><small>{{ profile.user.email }}</small></samp>
-        {% endif %}
+        <samp><small>
+            {% if INVALID_PREFIX in profile.user.email %}
+                <span class="email text-danger" title="{% trans "invalid email" %}" data-toggle="tooltip">
+                    {{ profile.user.email|cut:INVALID_PREFIX }}
+                    <span class="glyphicon glyphicon-warning-sign"></span>
+                </span>
+            {% else %}
+                {{ profile.user.email }}
+            {% endif %}
+        </small></samp> &nbsp;
         {% if role == profile.OWNER %}
-            <a href="{% url 'email_update' profile.user.pk %}" class="btn btn-default">
-                {% trans "Update system email" %}
+            <a href="{% url 'email_update' %}" class="btn btn-default btn-sm">
+                {% trans "Update account email" %}
             </a>
         {% else %}
-            <a href="{% url 'staff_update_email' profile.user.pk %}" class="btn btn-default">
-                {% trans "Update system email" %}
+            <a href="{% url 'staff_update_email' profile.pk %}" class="btn btn-default btn-sm">
+                {% trans "Update account email" %}
             </a>
         {% endif %}
         <p class="help-block">{% trans "We send e-mails to this address. It will never be public." %}</p>
 
         <section class="well well-sm">
-            <a href="#profile-email" class="btn btn-default btn-xs" data-toggle="collapse" >{% trans "Other email?" %}</a>
-            <div id="profile-email" class="collapse">
-                {% trans "no email" as no_email %}
-                {% if INVALID_PREFIX in profile.email %}
-                    <span class="email text-danger" title="{% trans "invalid email"%}" data-toggle="tooltip">
-                        {{ profile.email|cut:INVALID_PREFIX }}
-                        <span class="glyphicon glyphicon-warning-sign"></span>
-                    </span>
-                {% else %}
-                    <samp><small>{% firstof profile.email no_email %}</small></samp>
-                {% endif %}
-                <a href="{% url 'profile_email_update' profile.pk profile.user.username|slugify %}?next={{ request.get_full_path|urlencode }}" class="btn btn-default">
-                    {% trans "Update profile email" %}
+            <a href="#{% trans "set-public-email" %}" class="btn btn-primary btn-vert-space btn-xs" data-toggle="collapse" >
+                {% trans "Public email?" %}
+            </a>
+            <div id="{% trans "set-public-email" %}" class="collapse{% if profile.email %} in{% endif %}">
+                {% trans "[no email address]" as no_email %}
+                <samp><small>
+                    {% if INVALID_PREFIX in profile.email %}
+                        <span class="email text-danger" title="{% trans "invalid email" %}" data-toggle="tooltip">
+                            {{ profile.email|cut:INVALID_PREFIX }}
+                            <span class="glyphicon glyphicon-warning-sign"></span>
+                        </span>
+                    {% else %}
+                        {% firstof profile.email no_email %}
+                    {% endif %}
+                </small></samp> &nbsp;
+                <a href="{% url 'profile_email_update' profile.pk profile.user.username|slugify %}?next={{ request.get_full_path|urlencode }}" class="btn btn-default btn-sm">
+                    {% trans "Update public email" %}
                 </a>
                 <p class="help-block">{{ view.profile_email_help_text|linebreaksbr }}</p>
             </div>
@@ -66,9 +71,9 @@
     </section>
 
     <section class="callout callout-danger">
-        <h4>{% trans "Delete account" %}</h4>
+        <h4>{% trans "End membership" %}</h4>
         <a href="{% url 'profile_delete' profile.pk profile.user.username|slugify %}"
-            class="btn btn-danger">
+           class="btn btn-danger">
             <span class="glyphicon glyphicon-trash"></span>
             {% trans "Delete account" %}
         </a>
@@ -77,7 +82,7 @@
     <div class="pull-left">
         <a href="{% url 'profile_edit' profile.pk profile.user.username|slugify %}" class="btn btn-default" title="{% trans "Back" %}">
             <span class="glyphicon glyphicon-arrow-left"></span>
-            <span class="hidden-xxs">{% trans "Back" %}</span>
+            <span>{% trans "Back" %}</span>
         </a>
     </div>
 {% endblock page %}

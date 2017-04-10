@@ -1,16 +1,25 @@
-{% load i18n %}{% load domain %}{% autoescape off %}{% trans "Dear user," %}
+{% load i18n domain %}{% autoescape off %}
+{% trans "Dear user," %}
 {% if action == 'rejection' %}
-{% blocktrans with object.sent_at|date:"DATETIME_FORMAT" as date and object.obfuscated_recipient as recipient %}On {{ date }}, you asked to send a message to the user '{{ recipient }}'.{% endblocktrans %}
+{% blocktrans with object.sent_at|date:"DATETIME_FORMAT" as date and object.obfuscated_recipient as recipient trimmed %}
+    On {{ date }}, you asked to send a message to the user '{{ recipient }}'.
+{% endblocktrans %}
 
 {% trans "Your message has been rejected by the moderator" %}{% if object.moderation_reason %}{% trans ", for the following reason:" %}
     {{ object.moderation_reason }}{% else %}.{% endif %}
 
 {% else %}{# 'acceptance' #}
-{% if object.parent_id %}{% if object.parent.sender_id == object.recipient_id %}{% blocktrans with object.parent.sent_at|date:"DATETIME_FORMAT" as date and object.obfuscated_sender as sender %}On {{ date }}, you sent a message to the user '{{ sender }}'.{% endblocktrans %}
+{% if object.parent_id %}{% if object.parent.sender_id == object.recipient_id %}{% blocktrans with object.parent.sent_at|date:"DATETIME_FORMAT" as date and object.obfuscated_sender as sender trimmed %}
+    On {{ date }}, you sent a message to the user '{{ sender }}'.
+{% endblocktrans %}
 {% trans "Your correspondent has given you an answer." %}
-{% else %}{% blocktrans with object.obfuscated_sender as sender %}You have received a copy of a response from the user '{{ sender }}'.{% endblocktrans %}
+{% else %}{% blocktrans with object.obfuscated_sender as sender trimmed %}
+    You have received a copy of a response from the user '{{ sender }}'.
+{% endblocktrans %}
 {% endif %}
-{% else %}{% blocktrans with object.obfuscated_sender as sender %}You have received a message from the user '{{ sender }}'.{% endblocktrans %}
+{% else %}{% blocktrans with object.obfuscated_sender as sender trimmed %}
+    You have received a message from the user '{{ sender }}'.
+{% endblocktrans %}
 {% endif %}
 -------------------------------------------------------------------------------
 
@@ -19,7 +28,7 @@
 -------------------------------------------------------------------------------
 
 {% blocktrans trimmed %}
-To answer this message, follow this link:
+    To answer this message, follow this link:
 {% endblocktrans %}
 {% domain %}{% url 'postman:view' object.pk %}
 

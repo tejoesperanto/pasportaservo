@@ -14,7 +14,7 @@ $(document).ready(function() {
 
     // Button hover
     $('.btn').hover(function() {
-        $this = $(this)
+        var $this = $(this);
         $this.data('original-text', $this.text());
         if ($this.data('hover-text')) {
             $this.text($this.data('hover-text'));
@@ -23,14 +23,14 @@ $(document).ready(function() {
             $this.addClass($this.data('hover-class'));
         }
     }, function() {
+        var $this = $(this);
         if ($this.data('hover-text') && $this.data('original-text')) {
             $this.text($this.data('original-text'));
         }
         if ($this.data('hover-class')) {
             $this.removeClass($this.data('hover-class'));
         }
-
-    })
+    });
 
     // Image links with custom highlighting
     +function() {

@@ -72,6 +72,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
+            path.join(BASE_DIR, 'core/templates'),
             path.join(BASE_DIR, 'hosting/templates'),
             path.join(PROJECT_DIR, 'templates'),
         ],
@@ -85,7 +86,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
 
                 'postman.context_processors.inbox',
-                'core.context_processors.some_settings',
+                'core.context_processors.expose_selected_settings',
                 'shop.context_processors.reservation',
             ],
         },
@@ -144,6 +145,8 @@ CONFIRMATION_VALIDITY_PERIOD = timedelta(weeks=42)
 HOST_MIN_AGE = 16
 MEET_MIN_AGE = 13
 
+# Prefix for marking values (such as email addresses) as no longer valid
+# Do not change the value without a data migration!
 INVALID_PREFIX = 'INVALID_'
 
 COUNTRIES_WITH_REGIONS = ('US', 'GB', 'FR', 'DE', 'BR', 'BE')

@@ -6,7 +6,7 @@ from hosting.models import Profile
 class Command(LabelCommand):
     help = """
         Mark all emails from one or more CSV files as invalid.
-        Usage: ./manage.py validate suppression_*.csv
+        Usage: ./manage.py invalidate suppression_*.csv
         """
 
     def handle_label(self, file_name, **options):
@@ -25,4 +25,4 @@ class Command(LabelCommand):
     def action(self, file_name, emails):
         results = Profile.mark_invalid_emails(emails=emails)
         for model, updated in results.items():
-            print(updated, model.__name__, 'emails marked as invalid from', file_name)
+            print(updated, model.__name__, "emails marked as invalid from", file_name)

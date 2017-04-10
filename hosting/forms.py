@@ -2,11 +2,7 @@ from django import forms
 from django.conf import settings
 from datetime import date
 from django.utils.translation import ugettext_lazy as _
-try:
-    from django.utils.text import format_lazy  # coming in Django 1.11
-except ImportError:
-    from django.utils.functional import keep_lazy_text
-    format_lazy = keep_lazy_text(lambda s, *args, **kwargs: s.format(*args, **kwargs))
+from .utils import format_lazy
 from django.contrib.auth import get_user_model
 
 from .models import Profile, Place, Phone
@@ -100,6 +96,18 @@ class ProfileCreateForm(ProfileForm):
         if commit:
             profile.save()
         return profile
+
+
+class ProfileEmailUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['email']
+
+    def __init__(self, *args, **kwargs):
+        super(ProfileEmailUpdateForm, self).__init__(*args, **kwargs)
+        self.initial['email'] = (self.instance.email[len(settings.INVALID_PREFIX):]
+                                 if self.instance.email.startswith(settings.INVALID_PREFIX)
+                                 else self.instance.email) # display a clean value
 
 
 class PlaceForm(forms.ModelForm):
@@ -301,8 +309,3 @@ class FamilyMemberCreateForm(FamilyMemberForm):
         self.place.family_members.add(family_member)
         return family_member
 
-
-class EmailUpdateForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ['email']

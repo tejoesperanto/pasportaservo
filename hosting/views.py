@@ -31,13 +31,13 @@ from .serializers import ProfileSerializer, PlaceSerializer, UserSerializer
 from .mixins import (
     ProfileMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
     FamilyMemberMixin, FamilyMemberAuthMixin,
-    SupervisorMixin, CreateMixin, DeleteMixin,
+    SupervisorRequiredMixin, CreateMixin, DeleteMixin,
 )
 from .forms import (
     AuthorizeUserForm, AuthorizedOnceUserForm,
-    ProfileForm, ProfileCreateForm, PhoneForm, PhoneCreateForm,
+    ProfileForm, ProfileCreateForm, ProfileEmailUpdateForm,
+    PhoneForm, PhoneCreateForm,
     PlaceForm, PlaceCreateForm, FamilyMemberForm, FamilyMemberCreateForm,
-    EmailUpdateForm,
 )
 
 
@@ -108,7 +108,7 @@ class ProfileUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, Form
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
     def form_valid(self, form):
-        self.object.checks(self.request)
+        self.object.set_check_status(self.request.user)
         return super(ProfileUpdateView, self).form_valid(form)
 
 profile_update = ProfileUpdateView.as_view()
@@ -201,6 +201,14 @@ class ProfileSettingsView(ProfileDetailView):
         return Profile._meta.get_field('email').help_text
 
 profile_settings = ProfileSettingsView.as_view()
+
+
+class ProfileEmailUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, generic.UpdateView):
+    model = Profile
+    template_name = 'hosting/profile-email_form.html'
+    form_class = ProfileEmailUpdateForm
+
+profile_email_update = ProfileEmailUpdateView.as_view()
 
 
 class PlaceCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixin, CreateMixin, generic.CreateView):
@@ -315,8 +323,9 @@ class PlaceCheckView(LoginRequiredMixin, PlaceAuthMixin, generic.View):
     minimum_role = SUPERVISOR
     template_name = '404.html'
 
+    @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
-        self.get_object().checks(self.request)
+        self.get_object().set_check_status(self.request.user)
         if request.is_ajax():
             return JsonResponse({'success': 'checked'})
         else:  # Not tested/implemented
@@ -331,7 +340,7 @@ class PlaceListView(generic.ListView):
 place_list = PlaceListView.as_view()
 
 
-class CountryPlaceListView(LoginRequiredMixin, SupervisorMixin, PlaceListView):
+class CountryPlaceListView(LoginRequiredMixin, SupervisorRequiredMixin, PlaceListView):
     template_name = "hosting/place_list_supervisor.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -465,7 +474,7 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
     def send_email(self, user, place):
         subject = _("[Pasporta Servo] You received an Authorization")
         to = [user.email]
-        email_template_text = 'hosting/emails/new_authorization.txt'
+        email_template_text = 'email/new_authorization.txt'
         email_template_html = 'hosting/emails/mail_template.html'
         email_context = {
             'user_first_name': user.profile.name,
@@ -559,10 +568,3 @@ class FamilyMemberDeleteView(LoginRequiredMixin, DeleteMixin, FamilyMemberAuthMi
 
 family_member_delete = FamilyMemberDeleteView.as_view()
 
-
-class EmailUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, generic.UpdateView):
-    model = User
-    template_name = 'hosting/base_form.html'
-    form_class = EmailUpdateForm
-
-profile_email_update = EmailUpdateView.as_view()
