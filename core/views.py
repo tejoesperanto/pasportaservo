@@ -1,4 +1,5 @@
 from datetime import datetime
+from copy import copy
 
 from markdown2 import markdown
 from braces.views import AnonymousRequiredMixin, SuperuserRequiredMixin
@@ -15,6 +16,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.template import Context
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
@@ -25,6 +27,7 @@ from .forms import (
     UsernameUpdateForm, EmailUpdateForm, StaffUpdateEmailForm,
     MassMailForm, UserRegistrationForm
 )
+from hosting.utils import value_without_invalid_marker, format_lazy
 from .utils import send_mass_html_mail
 
 User = get_user_model()
@@ -187,7 +190,8 @@ class MassMailView(SuperuserRequiredMixin, generic.FormView):
     form_class = MassMailForm
 
     def get_success_url(self):
-        return reverse_lazy('mass_mail_sent') + "?nb=" + str(self.nb_sent)
+        return format_lazy("{success_url}?nb={sent}",
+            success_url=reverse_lazy('mass_mail_sent'), sent=self.nb_sent)
 
     def form_valid(self, form):
         body = form.cleaned_data['body']
@@ -246,14 +250,15 @@ class MassMailView(SuperuserRequiredMixin, generic.FormView):
             context = Context({
                 'preheader': preheader,
                 'heading': heading,
-                'body': mark_safe(md_body.format(nomo=profile.name)),
             })
             messages = [(
                 subject,
                 body.format(nomo=profile.name),
-                template.render(context),
+                template.render(copy(context).update(
+                    {'body': mark_safe(md_body.format(nomo=escape(profile.name)))}
+                )),
                 default_from,
-                [profile.user.email]
+                [value_without_invalid_marker(profile.user.email)]
             ) for profile in profiles] if profiles else []
 
         self.nb_sent = send_mass_html_mail(messages)
