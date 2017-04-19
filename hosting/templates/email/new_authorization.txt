@@ -1,18 +1,20 @@
-{% load i18n domain %}{% blocktrans trimmed %}
+{% load i18n domain %}{% autoescape off %}
+{% blocktrans with user_first_name=user.profile.name trimmed %}
     Dear {{ user_first_name }},
 {% endblocktrans %}
 
-{% blocktrans trimmed %}
+{% blocktrans with owner_name=place.owner.full_name trimmed %}
     You've been authorized to see the complete address of {{ owner_name }}!
 {% endblocktrans %}
-({% trans "A place in" %} {{ place_address }})
+({% trans "A place in" %} {{ place }})
 
 {% blocktrans trimmed %}
     Follow this link to see this accommodation:
 {% endblocktrans %}
-{% domain %}{% url 'place_detail' place_id %}
+{% domain %}{% url 'place_detail_verbose' place.pk %}
 
 
 {% blocktrans trimmed %}
     The {{ site_name }} team.
 {% endblocktrans %}
+{% endautoescape %}
