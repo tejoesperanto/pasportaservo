@@ -1,8 +1,13 @@
 {% extends 'core/base.html' %}
 {% load i18n static %}
+{% load is_invalid from profile %}
 
 {% block head_title %}
         {% trans "Settings" %}
+{% endblock %}
+
+{% block extra_js %}
+        <script src="{% static 'js/ajax.js' %}"></script>
 {% endblock %}
 
 {% block page %}
@@ -17,16 +22,16 @@
     </section>
 
     <section class="callout callout-primary">
-        <h4 id="{% trans "password" %}">{% trans "Password" %}</h4>
+        <h4 id="{% trans "password" %}">{% trans "password"|capfirst %}</h4>
         <a href="{% url 'password_change' %}" class="btn btn-default btn-sm">
             {% trans "Change password" %}
         </a>
     </section>
 
     <section class="callout callout-primary">
-        <h4 id="{% trans "email" %}">{% trans "Email" %}</h4>
+        <h4 id="{% trans "email-addr" %}">{% trans "Email" %}</h4>
         <samp><small>
-            {% if INVALID_PREFIX in profile.user.email %}
+            {% if profile.user.email|is_invalid %}
                 <span class="email text-danger" title="{% trans "invalid email" %}" data-toggle="tooltip">
                     {{ profile.user.email|cut:INVALID_PREFIX }}
                     <span class="glyphicon glyphicon-warning-sign"></span>
@@ -36,11 +41,35 @@
             {% endif %}
         </small></samp> &nbsp;
         {% if role == profile.OWNER %}
-            <a href="{% url 'email_update' %}" class="btn btn-default btn-sm">
+            <a href="{% url 'email_update' %}" class="btn btn-default btn-sm btn-vert-space-even">
                 {% trans "Update account email" %}
             </a>
+            {% if profile.user.email|is_invalid %}
+                <form action="{% url 'email_verify' %}" method="POST"
+                      class="unwrap-after-success" style="display: inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-default btn-sm btn-vert-space-even ajax"
+                            data-csrf="{{ csrf_token }}"
+                            data-success-text="{% trans "Awaiting verification..." %}"
+                            data-success-message="email-verification_notification"
+                            data-on-ajax-success="verifyEmailSuccess">
+                        {% trans "Re-verify address" %}
+                    </button>
+                    <div class="modal fade" id="email-verification_notification" tabindex="-1" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-body help-block">
+                                    <span class="">
+                                        {% trans "We've sent a verification message to your email address. Please follow the instructions in the message to complete this step." %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            {% endif %}
         {% else %}
-            <a href="{% url 'staff_update_email' profile.pk %}" class="btn btn-default btn-sm">
+            <a href="{% url 'staff_update_email' profile.pk %}" class="btn btn-default btn-sm btn-vert-space-even">
                 {% trans "Update account email" %}
             </a>
         {% endif %}
@@ -53,7 +82,7 @@
             <div id="{% trans "set-public-email" %}" class="collapse{% if profile.email %} in{% endif %}">
                 {% trans "[no email address]" as no_email %}
                 <samp><small>
-                    {% if INVALID_PREFIX in profile.email %}
+                    {% if profile.email|is_invalid %}
                         <span class="email text-danger" title="{% trans "invalid email" %}" data-toggle="tooltip">
                             {{ profile.email|cut:INVALID_PREFIX }}
                             <span class="glyphicon glyphicon-warning-sign"></span>
@@ -62,7 +91,8 @@
                         {% firstof profile.email no_email %}
                     {% endif %}
                 </small></samp> &nbsp;
-                <a href="{% url 'profile_email_update' profile.pk profile.user.username|slugify %}?next={{ request.get_full_path|urlencode }}" class="btn btn-default btn-sm">
+                <a href="{% url 'profile_email_update' profile.pk profile.user.username|slugify %}?next={{ request.get_full_path|urlencode }}"
+                   class="btn btn-default btn-sm btn-vert-space-even">
                     {% trans "Update public email" %}
                 </a>
                 <p class="help-block">{{ view.profile_email_help_text|linebreaksbr }}</p>

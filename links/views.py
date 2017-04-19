@@ -54,7 +54,8 @@ class UniqueLinkView(generic.TemplateView):
         return HttpResponseRedirect(place.owner.get_absolute_url())
 
     def redirect_email_update(self, request, payload):
-        return email_update_confirm(request, pk=payload['pk'], email=payload['email'])
+        return email_update_confirm(request, pk=payload['pk'], email=payload['email'],
+                                    verification=payload['v'] if 'v' in payload else False)
 
 unique_link = UniqueLinkView.as_view()
 

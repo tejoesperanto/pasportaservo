@@ -1,4 +1,5 @@
 from datetime import datetime
+from copy import copy
 
 from markdown2 import markdown
 from braces.views import AnonymousRequiredMixin, SuperuserRequiredMixin
@@ -6,6 +7,7 @@ from braces.views import AnonymousRequiredMixin, SuperuserRequiredMixin
 from django.views import generic
 from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.template.response import TemplateResponse
+from django.views.decorators.vary import vary_on_headers
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model, authenticate, login
@@ -13,8 +15,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.core.mail import send_mail
 from django.template.loader import get_template
 from django.template import Context
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
@@ -25,6 +29,8 @@ from .forms import (
     UsernameUpdateForm, EmailUpdateForm, StaffUpdateEmailForm,
     MassMailForm, UserRegistrationForm
 )
+from hosting.utils import value_without_invalid_marker, format_lazy
+from links.utils import create_unique_url
 from .utils import send_mass_html_mail
 
 User = get_user_model()
@@ -115,6 +121,53 @@ class EmailUpdateView(LoginRequiredMixin, generic.UpdateView):
 email_update = EmailUpdateView.as_view()
 
 
+class EmailVerifyView(LoginRequiredMixin, generic.View):
+    http_method_names = ['post', 'get']
+    template_name = 'core/system-email_verify_done.html'
+
+    @vary_on_headers('HTTP_X_REQUESTED_WITH')
+    def post(self, request, *args, **kwargs):
+        email_to_verify = value_without_invalid_marker(request.user.email)
+        url = create_unique_url({
+            'action': 'email_update',
+            'v': True,
+            'pk': request.user.pk,
+            'email': email_to_verify,
+        })
+        context = Context({
+            'site_name': settings.SITE_NAME,
+            'url': url,
+            'user': request.user,
+        })
+        subject = _("[Pasporta Servo] Is this your email address?")
+        email_template_text = get_template('email/system-email_verify.txt')
+        email_template_html = get_template('email/system-email_verify.html')
+        send_mail(
+            subject,
+            email_template_text.render(context),
+            settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email_to_verify],
+            html_message=email_template_html.render(context),
+            fail_silently=False)
+
+        if request.is_ajax():
+            return JsonResponse({'success': 'verification-requested'})
+        else:
+            return TemplateResponse(request, self.template_name)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            return HttpResponseRedirect(format_lazy("{settings_url}#{section_email}",
+                settings_url=reverse_lazy('profile_settings', kwargs={
+                    'pk': request.user.profile.pk, 'slug': slugify(request.user.username)}),
+                section_email=_("email-addr"))
+            )
+        except Profile.DoesNotExist:
+            return HttpResponseRedirect(reverse_lazy('email_update'))
+
+email_verify = EmailVerifyView.as_view()
+
+
 class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
     def dispatch(self, request, *args, **kwargs):
         user = get_object_or_404(User, pk=kwargs['pk'])
@@ -123,7 +176,10 @@ class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
         old_email, new_email = user.email, kwargs['email']
         user.email = new_email
         user.save()
-        messages.info(request, _("Your email address has been successfuly updated!"))
+        if 'verification' in kwargs and kwargs['verification']:
+            messages.info(request, _("Your email address has been successfully verified!"))
+        else:
+            messages.info(request, _("Your email address has been successfully updated!"))
         try:
             if user.profile.email == old_email:  # Keep profile email in sync
                 user.profile.email = new_email
@@ -167,6 +223,7 @@ class MarkEmailValidityView(LoginRequiredMixin, SupervisorRequiredMixin, generic
         self.user = get_object_or_404(Profile, pk=kwargs['pk']).user
         return super().dispatch(request, *args, **kwargs)
 
+    @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
         if self.valid:
             Profile.mark_valid_emails([self.user.email])
@@ -187,7 +244,8 @@ class MassMailView(SuperuserRequiredMixin, generic.FormView):
     form_class = MassMailForm
 
     def get_success_url(self):
-        return reverse_lazy('mass_mail_sent') + "?nb=" + str(self.nb_sent)
+        return format_lazy("{success_url}?nb={sent}",
+            success_url=reverse_lazy('mass_mail_sent'), sent=self.nb_sent)
 
     def form_valid(self, form):
         body = form.cleaned_data['body']
@@ -246,14 +304,15 @@ class MassMailView(SuperuserRequiredMixin, generic.FormView):
             context = Context({
                 'preheader': preheader,
                 'heading': heading,
-                'body': mark_safe(md_body.format(nomo=profile.name)),
             })
             messages = [(
                 subject,
                 body.format(nomo=profile.name),
-                template.render(context),
+                template.render(copy(context).update(
+                    {'body': mark_safe(md_body.format(nomo=escape(profile.name)))}
+                )),
                 default_from,
-                [profile.user.email]
+                [value_without_invalid_marker(profile.user.email)]
             ) for profile in profiles] if profiles else []
 
         self.nb_sent = send_mass_html_mail(messages)

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo Hosting\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-03 14:53+0000\n"
-"PO-Revision-Date: 2017-02-06 13:46+0100\n"
+"POT-Creation-Date: 2017-02-15 22:24+0000\n"
+"PO-Revision-Date: 2017-02-15 23:35+0100\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -56,13 +56,13 @@ msgstr "LO statuso"
 msgid "country"
 msgstr "lando"
 
-#: admin.py:184 templates/hosting/settings.html:27
-msgid "Email"
-msgstr "Retadreso"
+#: admin.py:184
+msgid "email address"
+msgstr ""
 
 #: admin.py:193 templates/hosting/snippets/checked.html:11
 msgid "user"
-msgstr "uzanto"
+msgstr ""
 
 #: admin.py:248 models.py:322
 msgid "latitude"
@@ -98,18 +98,18 @@ msgstr "forigita"
 
 #: admin_utils.py:49
 msgid "All"
-msgstr "Ĉio"
+msgstr ""
 
 #: admin_utils.py:74 admin_utils.py:90 admin_utils.py:105
 msgid "Yes"
-msgstr "Jes"
+msgstr ""
 
 #: admin_utils.py:74 admin_utils.py:90 admin_utils.py:105
 msgid "No"
-msgstr "Ne"
+msgstr ""
 
 #: admin_utils.py:86 templates/hosting/place_list_supervisor.html:175
-#: templates/hosting/settings.html:30 templates/hosting/settings.html:57
+#: templates/hosting/settings.html:35 templates/hosting/settings.html:86
 msgid "invalid email"
 msgstr "nefunkcianta adreso"
 
@@ -176,9 +176,9 @@ msgid "Authorize user"
 msgstr "Permesi uzanton"
 
 #: forms.py:241 templates/hosting/profile_detail.html:156
-#: templates/hosting/settings.html:12
+#: templates/hosting/settings.html:17
 msgid "username"
-msgstr "uzantnomo"
+msgstr ""
 
 #: forms.py:253
 msgid "User does not exist"
@@ -637,8 +637,8 @@ msgstr "Reen al %(back_to)s"
 #: templates/hosting/place_authorized_users.html:20
 #: templates/hosting/place_authorized_users.html:22
 #: templates/hosting/profile_form.html:46
-#: templates/hosting/profile_form.html:48 templates/hosting/settings.html:83
-#: templates/hosting/settings.html:85
+#: templates/hosting/profile_form.html:48 templates/hosting/settings.html:113
+#: templates/hosting/settings.html:115
 msgid "Back"
 msgstr "Reen"
 
@@ -1011,8 +1011,8 @@ msgid "Update profile"
 msgstr "Redakti profilon"
 
 #: templates/hosting/profile_edit.html:15
-#: templates/hosting/profile_edit.html:17 templates/hosting/settings.html:5
-#: templates/hosting/settings.html:9
+#: templates/hosting/profile_edit.html:17 templates/hosting/settings.html:6
+#: templates/hosting/settings.html:14
 msgid "Settings"
 msgstr "Agordoj"
 
@@ -1039,56 +1039,70 @@ msgstr "Aldoni kunloĝanton"
 msgid "Add a phone"
 msgstr "Aldoni telefon-numeron"
 
-#: templates/hosting/settings.html:15
+#: templates/hosting/settings.html:20
 msgid "Change username"
 msgstr "Ŝanĝi salutnomon"
 
-#: templates/hosting/settings.html:20
+#: templates/hosting/settings.html:25
 msgid "password"
-msgstr "pasvorto"
+msgstr ""
 
-#: templates/hosting/settings.html:20
-msgid "Password"
-msgstr "Pasvorto"
-
-#: templates/hosting/settings.html:22
+#: templates/hosting/settings.html:27
 msgid "Change password"
 msgstr "Ŝanĝi pasvorton"
 
-#: templates/hosting/settings.html:27
-msgid "email"
+#: templates/hosting/settings.html:32
+msgid "email-addr"
 msgstr "retadreso"
 
-#: templates/hosting/settings.html:40 templates/hosting/settings.html:44
+#: templates/hosting/settings.html:32
+msgid "Email"
+msgstr "Retpoŝto"
+
+#: templates/hosting/settings.html:45 templates/hosting/settings.html:73
 msgid "Update account email"
 msgstr "Ŝanĝi retadreson por konto"
 
-#: templates/hosting/settings.html:47
+#: templates/hosting/settings.html:53
+msgid "Awaiting verification..."
+msgstr "Konfirmo atendata..."
+
+#: templates/hosting/settings.html:56
+msgid "Re-verify address"
+msgstr "Re-kontroli retadreson"
+
+#: templates/hosting/settings.html:63
+msgid ""
+"We've sent a verification message to your email address. Please follow the "
+"instructions in the message to complete this step."
+msgstr ""
+
+#: templates/hosting/settings.html:76
 msgid "We send e-mails to this address. It will never be public."
 msgstr ""
 "Ni sendas retmesaĝojn al tiu ĉi retpoŝta adreso. Ĝi neniam estos publika."
 
-#: templates/hosting/settings.html:50 templates/hosting/settings.html:53
+#: templates/hosting/settings.html:79 templates/hosting/settings.html:82
 msgid "set-public-email"
 msgstr "agordi-publikan-adreson"
 
-#: templates/hosting/settings.html:51
+#: templates/hosting/settings.html:80
 msgid "Public email?"
 msgstr "Publika retadreso?"
 
-#: templates/hosting/settings.html:54
+#: templates/hosting/settings.html:83
 msgid "[no email address]"
 msgstr "[neniu retpoŝta adreso]"
 
-#: templates/hosting/settings.html:66
+#: templates/hosting/settings.html:96
 msgid "Update public email"
 msgstr "Ŝanĝi retadreson por publikigo"
 
-#: templates/hosting/settings.html:74
+#: templates/hosting/settings.html:104
 msgid "End membership"
 msgstr "Malpasportservaniĝi"
 
-#: templates/hosting/settings.html:78
+#: templates/hosting/settings.html:108
 msgid "Delete account"
 msgstr "Forigi konton"
 

@@ -38,7 +38,7 @@ class SystemEmailFormMixin(object):
 
 
 class UserRegistrationForm(SystemEmailFormMixin, UserCreationForm):
-    email = forms.EmailField(label=_("Email"), max_length=254)
+    email = forms.EmailField(label=_("Email address"), max_length=254)
     # Honeypot:
     name = forms.CharField(widget=forms.TextInput(attrs={'autocomplete': 'off'}),
         help_text=_("Leave blank"), required=False)
@@ -91,6 +91,7 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
 
         url = create_unique_url({
             'action': 'email_update',
+            'v': False,
             'pk': self.instance.pk,
             'email': new_email,
         })
@@ -102,14 +103,14 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
         })
         subject = _("[Pasporta Servo] Change of email address")
         for old_new in ['old', 'new']:
-            message = get_template('email/%s_email_update.txt' % old_new)
-            html_message = get_template('email/%s_email_update.html' % old_new)
+            email_template_text = get_template('email/%s_email_update.txt' % old_new)
+            email_template_html = get_template('email/%s_email_update.html' % old_new)
             send_mail(
                 subject,
-                message.render(context),
+                email_template_text.render(context),
                 settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[{'old': old_email, 'new': new_email}[old_new]],
-                html_message=html_message.render(context),
+                html_message=email_template_html.render(context),
                 fail_silently=False)
 
         return self.instance

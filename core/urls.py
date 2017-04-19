@@ -11,7 +11,7 @@ from .views import (
     home,
     register,
     username_change,
-    email_update, staff_update_email,
+    email_update, staff_update_email, email_verify,
     mark_email_invalid, mark_email_valid,
     mass_mail, mass_mail_sent,
 )
@@ -45,6 +45,7 @@ urlpatterns = [
     url(_(r'^profile/(?P<pk>\d+)/staff/email/update/$'), staff_update_email, name='staff_update_email'),
     url(_(r'^profile/(?P<pk>\d+)/staff/email/mark-invalid/$'), mark_email_invalid, name='staff_mark_email_invalid'),
     url(_(r'^profile/(?P<pk>\d+)/staff/email/mark-valid/$'), mark_email_valid, name='staff_mark_email_valid'),
+    url(_(r'^email/verify/$'), email_verify, name='email_verify'),
 
     url(_(r'^admin/mass-mail/$'), mass_mail, name='mass_mail'),
     url(_(r'^admin/mass-mail/sent/$'), mass_mail_sent, name='mass_mail_sent'),

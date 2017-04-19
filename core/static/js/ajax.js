@@ -73,6 +73,19 @@ $(document).ready(function() {
         $this.parents('.remove-after-success').slideUp();
     };
 
+    window.verifyEmailSuccess = function($this) {
+        ditchForm($this);
+        $this.removeClass('ajax');
+        $this.prop('disabled', true);
+        if ($this.data('success-text')) {
+            $this.text($this.data('success-text'));
+            $this.addClass('btn-warning');
+        }
+        if ($this.data('success-message')) {
+            $('#'+$this.data('success-message')).modal();
+        }
+    };
+
     window.checkPlaceSuccess = function($this) {
         ditchForm($this);
         $this.removeClass('ajax');

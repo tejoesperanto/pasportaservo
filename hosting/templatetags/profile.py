@@ -1,8 +1,11 @@
 from django import template
 from django_countries.fields import Country
+from django.conf import settings
 from ..models import Profile
 
+
 register = template.Library()
+
 
 @register.filter
 def is_supervisor_of(user, profile_or_countries):
@@ -21,3 +24,8 @@ def is_supervisor_of(user, profile_or_countries):
         profile = Profile.objects.get(pk=profile_or_countries)
         return user_profile.is_supervisor_of(profile=profile)
     return False
+
+
+@register.filter
+def is_invalid(value):
+    return str(value).startswith(settings.INVALID_PREFIX)
