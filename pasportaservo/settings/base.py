@@ -76,6 +76,8 @@ MIDDLEWARE_CLASSES = (
     'dnt.middleware.DoNotTrackMiddleware',
 )
 
+AUTHENTICATION_BACKENDS = ['core.auth.SupervisorAuthBackend']
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -129,7 +131,6 @@ USE_L10N = True
 USE_TZ = True
 
 SITE_ID = 1
-
 
 AUTH_PROFILE_MODULE = 'hosting.Profile'
 

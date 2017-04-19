@@ -22,11 +22,12 @@ import geopy
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
 from django_countries.fields import Country
-from .models import Profile, Place, Phone, SUPERVISOR
+from .models import Profile, Place, Phone
 
 from rest_framework import viewsets
 from .serializers import ProfileSerializer, PlaceSerializer, UserSerializer
 from braces.views import LoginRequiredMixin, UserPassesTestMixin, FormInvalidMessageMixin
+from core.auth import AuthMixin, PERM_SUPERVISOR, SUPERVISOR, OWNER, VISITOR
 from .mixins import (
     ProfileMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
     FamilyMemberMixin, FamilyMemberAuthMixin,

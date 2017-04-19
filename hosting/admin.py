@@ -131,6 +131,9 @@ class CustomGroupAdmin(GroupAdmin):
     class CountryGroup(Group):
         class Meta:
             proxy = True
+            permissions = (
+                ("can_supervise", "Can modify users from specific country"),
+            )
         def __str__(self):
             if len(self.name) != 2:
                 return self.name

@@ -26,3 +26,11 @@ def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None
         message.attach_alternative(html, 'text/html')
         messages.append(message)
     return connection.send_messages(messages) or 0
+
+
+def camel_case_split(identifier):
+    # stackoverflow.com/a/29920015/1019109 by stackoverflow.com/u/1157100/200-success
+    from re import finditer
+    matches = finditer('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', identifier)
+    return [m.group(0) for m in matches]
+

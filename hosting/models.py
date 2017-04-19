@@ -56,6 +56,7 @@ class TrackingModel(models.Model):
     checked_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("approved by"),
         blank=True, null=True,
         related_name="+", limit_choices_to={'is_staff': True}, on_delete=models.SET_NULL)
+        # is_superuser or in 2-letter groups...
 
     all_objects = TrackingManager()
     objects = NotDeletedManager()
@@ -74,7 +75,6 @@ class TrackingModel(models.Model):
 
 class Profile(TrackingModel, TimeStampedModel):
     TITLE_CHOICES = TITLE_CHOICES
-    ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR = ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
         null=True, blank=True, on_delete=models.SET_NULL)
@@ -220,12 +220,6 @@ class Profile(TrackingModel, TimeStampedModel):
                 available=True, deleted=False).values_list('country', flat=True)
         supervised = self.user.groups.values_list('name', flat=True)
         return any(set(supervised) & set(countries))
-
-    def set_supervisor_of(self, country=None, remove=False):
-        group = Group.objects.get(name=str(country))
-        if remove:
-            return self.user.groups.remove(group)
-        return self.user.groups.add(group)
 
     def __str__(self):
         if self.full_name.strip():

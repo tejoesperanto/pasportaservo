@@ -7,7 +7,7 @@ from .utils import format_lazy
 from django.utils import timezone
 
 from .models import Profile, Place, Phone
-from .models import ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR
+from core.auth import ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR
 
 from django_countries.fields import Country
 
