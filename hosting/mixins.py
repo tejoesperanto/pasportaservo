@@ -56,7 +56,7 @@ class SupervisorRequiredMixin(UserPassesTestMixin):
         return format_lazy(self.permission_denied_message, this_country=join_lazy(countries))
 
 
-class ProfileMixin(object):
+class ProfileModifyMixin(object):
     def get_success_url(self, *args, **kwargs):
         if 'next' in self.request.GET:
             return self.request.GET.get('next')
@@ -66,21 +66,43 @@ class ProfileMixin(object):
             return self.object.get_edit_url()
 
 
+class ProfileIsUserMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        print("~  ProfileIsUserMixin#dispatch")
+        try:
+            if not self.create_for.owner.user:
+                raise Http404("Detached profile (probably a family member).")
+        except AttributeError:
+            pass
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        print("~  ProfileIsUserMixin#get_object")
+        profile = super().get_object(queryset)
+        print("~  ProfileIsUserMixin#get_object:", profile)
+        if not profile.user:
+            raise Http404("Detached profile (probably a family member).")
+        return profile
+
+
 class CreateMixin(object):
     minimum_role = OWNER
 
     def dispatch(self, request, *args, **kwargs):
         if self.kwargs.get('pk'):
             profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
-            self.role = get_role(self.request, profile=profile)
+            self.create_for = profile
+            #self.role = get_role(self.request, profile=profile)
         elif self.kwargs.get('place_pk'):
             place = get_object_or_404(Place, pk=self.kwargs['place_pk'])
-            self.role = get_role(self.request, profile=place.owner)
+            self.create_for = place
+            #self.role = get_role(self.request, profile=place.owner)
 
-        if self.role >= self.minimum_role:
-            return super().dispatch(request, *args, **kwargs)
-        else:
-            raise Http404("Not allowed to create object.")
+        #if self.role >= self.minimum_role:
+        #    return super().dispatch(request, *args, **kwargs)
+        #else:
+        #    raise Http404("Not allowed to create object.")
+        return super().dispatch(request, *args, **kwargs)
 
 
 class ProfileAuthMixin(object):

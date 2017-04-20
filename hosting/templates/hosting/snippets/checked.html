@@ -1,6 +1,6 @@
 {% load i18n %}
 {% spaceless %}
-{% if user.is_staff %}
+{% if perms.hosting.can_supervise %}
     {% if object.checked %}
         <span class="staff label label-success"
               title="{% if object.checked_by %}

@@ -1,6 +1,5 @@
 {% extends 'hosting/profile_detail.html' %}
-{% load i18n %}
-{% load static %}
+{% load i18n static %}
 
 {% block profile_edit_buttons %}
                 <a href="{% url 'profile_update' profile.pk profile.user.username|slugify %}"
@@ -9,14 +8,12 @@
                     <span class="glyphicon glyphicon-pencil"></span>
                     <span class="hidden-xxs">{% trans "Update" %}</span>
                 </a>
-                {% if profile == user.profile %}
-                    <a href="{% url 'profile_settings' profile.pk profile.user.username|slugify %}"
-                       class="btn btn-info"
-                       title="{% trans "Settings" %}">
-                        <span class="glyphicon glyphicon-cog"></span>
-                        <span class="hidden-xxs">{% trans "Settings" %}</span>
-                    </a>
-                {% endif %}
+                <a href="{% url 'profile_settings' profile.pk profile.user.username|slugify %}"
+                   class="btn btn-info"
+                   title="{% trans "Settings" %}">
+                    <span class="glyphicon glyphicon-cog"></span>
+                    <span class="hidden-xxs">{% trans "Settings" %}{% if view.role >= roles.SUPERVISOR %}: {% trans "Account" %}{% endif %}</span>
+                </a>
                 <a href="{% url 'profile_detail' profile.pk profile.user.username|slugify %}" 
                    class="btn btn-primary"
                    title="{% trans "View public profile" %}">
@@ -33,7 +30,7 @@
     <a href="{% url 'place_delete' place.pk %}" class="btn btn-danger" title="{% blocktrans with kin=_("this ") %}Remove {{ kin }}place{% endblocktrans %}">
         <span class="glyphicon glyphicon-trash"></span>
     </a>
-    {% if profile == user.profile %}
+    {% if view.role == roles.OWNER %}
         <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}" class="btn btn-warning" title="{% trans "Authorized users" %}">
             <span class="glyphicon glyphicon-eye-open"></span>
             <span class="hidden-xxs">{% trans "Authorizations" %}</span>
@@ -58,7 +55,6 @@
                 <span class="hidden-xs">{% trans "Update" %}</span>
             </a>
         {% endif %}
-
         <a href="{% url 'family_member_remove' place.pk member.pk %}"
            class="btn btn-danger"
            title="{% trans "Remove a family member" %}">

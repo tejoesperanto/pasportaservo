@@ -29,7 +29,7 @@ from .serializers import ProfileSerializer, PlaceSerializer, UserSerializer
 from braces.views import LoginRequiredMixin, UserPassesTestMixin, FormInvalidMessageMixin
 from core.auth import AuthMixin, PERM_SUPERVISOR, SUPERVISOR, OWNER, VISITOR
 from .mixins import (
-    ProfileMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
+    ProfileModifyMixin, ProfileIsUserMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
     FamilyMemberMixin, FamilyMemberAuthMixin,
     SupervisorRequiredMixin, CreateMixin, DeleteMixin,
 )
@@ -84,7 +84,7 @@ class PlaceViewSet(viewsets.ModelViewSet):
         return qs
 
 
-class ProfileCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixin, generic.CreateView):
+class ProfileCreateView(LoginRequiredMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.CreateView):
     model = Profile
     form_class = ProfileCreateForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
@@ -94,25 +94,31 @@ class ProfileCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixi
             # Redirect to profile edit page if user is logged in & profile already exists.
             return HttpResponseRedirect(self.request.user.profile.get_edit_url(), status=301)
         except Profile.DoesNotExist:
-            return super(ProfileCreateView, self).dispatch(request, *args, **kwargs)
+            return super().dispatch(request, *args, **kwargs)
         except AttributeError:
             # Redirect to registration page when user is not authenticated.
             return HttpResponseRedirect(reverse_lazy('register'), status=303)
 
     def get_form(self, form_class=ProfileCreateForm):
-        user = self.request.user
-        return form_class(user=user, **self.get_form_kwargs())
+        return form_class(user=self.request.user, **self.get_form_kwargs())
 
 profile_create = ProfileCreateView.as_view()
 
 
-class ProfileUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, FormInvalidMessageMixin, generic.UpdateView):
+class ProfileUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.UpdateView):
+    model = Profile
     form_class = ProfileForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
     def form_valid(self, form):
         self.object.set_check_status(self.request.user)
         return super(ProfileUpdateView, self).form_valid(form)
+
+    def get_object(self, queryset=None):
+        print("~  ProfileUpdateView#get_object")
+        profile = super().get_object(queryset)
+        print("~  ProfileUpdateView#get_object", profile)
+        return profile
 
 profile_update = ProfileUpdateView.as_view()
 
@@ -166,7 +172,11 @@ class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         if kwargs.get('pk', None):
-            return get_object_or_404(Profile, pk=kwargs['pk']).get_absolute_url()
+            profile = get_object_or_404(Profile, pk=kwargs['pk'])
+            if profile.user:
+                return profile.get_absolute_url()
+            else:
+                raise Http404("Detached profile (probably a family member).")
         try:
             return self.request.user.profile.get_edit_url()
         except Profile.DoesNotExist:
@@ -175,15 +185,23 @@ class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
 profile_redirect = ProfileRedirectView.as_view()
 
 
-class ProfileDetailView(LoginRequiredMixin, ProfileAuthMixin, generic.DetailView):
+class ProfileDetailView(AuthMixin, ProfileIsUserMixin, generic.DetailView):
     model = Profile
     public_view = True
+    minimum_role = VISITOR
+
+    def get_object(self, queryset=None):
+        print("~  ProfileDetailView#get_object")
+        profile = super().get_object(queryset)
+        print("~  ProfileDetailView#get_object", profile)
+        if profile.deleted and self.role == VISITOR and not self.request.user.has_perm(PERM_SUPERVISOR):
+            raise Http404("Profile was deleted.")
+        return profile
 
     def get_context_data(self, **kwargs):
-        context = super(ProfileDetailView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['places'] = self.object.owned_places.filter(deleted=False)
         context['phones'] = self.object.phones.filter(deleted=False)
-        context['role'] = self.role
         return context
 
 profile_detail = ProfileDetailView.as_view()
@@ -198,6 +216,7 @@ profile_edit = ProfileEditView.as_view()
 
 class ProfileSettingsView(ProfileDetailView):
     template_name = 'hosting/settings.html'
+    minimum_role = OWNER
 
     @property
     def profile_email_help_text(self):
@@ -206,7 +225,7 @@ class ProfileSettingsView(ProfileDetailView):
 profile_settings = ProfileSettingsView.as_view()
 
 
-class ProfileEmailUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, generic.UpdateView):
+class ProfileEmailUpdateView(LoginRequiredMixin, ProfileModifyMixin, ProfileAuthMixin, generic.UpdateView):
     model = Profile
     template_name = 'hosting/profile-email_form.html'
     form_class = ProfileEmailUpdateForm
@@ -214,7 +233,7 @@ class ProfileEmailUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin,
 profile_email_update = ProfileEmailUpdateView.as_view()
 
 
-class PlaceCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixin, CreateMixin, generic.CreateView):
+class PlaceCreateView(LoginRequiredMixin, ProfileModifyMixin, FormInvalidMessageMixin, CreateMixin, generic.CreateView):
     model = Place
     form_class = PlaceCreateForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
@@ -227,7 +246,7 @@ class PlaceCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixin,
 place_create = PlaceCreateView.as_view()
 
 
-class PlaceUpdateView(LoginRequiredMixin, ProfileMixin, PlaceAuthMixin, FormInvalidMessageMixin, generic.UpdateView):
+class PlaceUpdateView(LoginRequiredMixin, ProfileModifyMixin, PlaceAuthMixin, FormInvalidMessageMixin, generic.UpdateView):
     form_class = PlaceForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
@@ -240,7 +259,7 @@ class PlaceUpdateView(LoginRequiredMixin, ProfileMixin, PlaceAuthMixin, FormInva
 place_update = PlaceUpdateView.as_view()
 
 
-class PlaceDeleteView(LoginRequiredMixin, DeleteMixin, ProfileMixin, PlaceAuthMixin, generic.DeleteView):
+class PlaceDeleteView(LoginRequiredMixin, DeleteMixin, ProfileModifyMixin, PlaceAuthMixin, generic.DeleteView):
     pass
 
 place_delete = PlaceDeleteView.as_view()
@@ -322,7 +341,7 @@ class PlaceBlockView(LoginRequiredMixin, generic.View):
 place_block = PlaceBlockView.as_view()
 
 
-class PhoneCreateView(LoginRequiredMixin, ProfileMixin, CreateMixin, generic.CreateView):
+class PhoneCreateView(LoginRequiredMixin, ProfileModifyMixin, CreateMixin, generic.CreateView):
     model = Phone
     form_class = PhoneCreateForm
 
@@ -334,13 +353,13 @@ class PhoneCreateView(LoginRequiredMixin, ProfileMixin, CreateMixin, generic.Cre
 phone_create = PhoneCreateView.as_view()
 
 
-class PhoneUpdateView(LoginRequiredMixin, ProfileMixin, PhoneAuthMixin, generic.UpdateView):
+class PhoneUpdateView(LoginRequiredMixin, ProfileModifyMixin, PhoneAuthMixin, generic.UpdateView):
     form_class = PhoneForm
 
 phone_update = PhoneUpdateView.as_view()
 
 
-class PhoneDeleteView(LoginRequiredMixin, ProfileMixin, PhoneAuthMixin, generic.DeleteView):
+class PhoneDeleteView(LoginRequiredMixin, ProfileModifyMixin, PhoneAuthMixin, generic.DeleteView):
     pass
 
 phone_delete = PhoneDeleteView.as_view()
@@ -436,7 +455,7 @@ class SearchView(PlaceListView):
                 self.locations = geocoder.geocode(self.query, language=lang, exactly_one=False)
             except (GeocoderTimedOut, GeocoderServiceError) as e:
                 self.locations = []
-        return super(SearchView, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         """Find location by bounding box. Filters also by country,

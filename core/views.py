@@ -26,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from blog.models import Post
 from hosting.models import Place, Profile
-from hosting.mixins import SupervisorRequiredMixin, ProfileMixin
+from hosting.mixins import SupervisorRequiredMixin, ProfileModifyMixin
 from .forms import (
     UsernameUpdateForm, EmailUpdateForm, StaffUpdateEmailForm,
     MassMailForm, UserRegistrationForm
@@ -203,7 +203,7 @@ class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
 email_update_confirm = EmailUpdateConfirmView.as_view()
 
 
-class StaffUpdateEmailView(LoginRequiredMixin, SupervisorRequiredMixin, ProfileMixin, generic.UpdateView):
+class StaffUpdateEmailView(LoginRequiredMixin, SupervisorRequiredMixin, ProfileModifyMixin, generic.UpdateView):
     model = User
     form_class = StaffUpdateEmailForm
     template_name = 'core/system-email_form.html'
