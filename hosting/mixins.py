@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.views.decorators.cache import never_cache
 from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import keep_lazy_text
 from .utils import format_lazy
@@ -57,6 +58,12 @@ class SupervisorRequiredMixin(UserPassesTestMixin):
 
 
 class ProfileModifyMixin(object):
+    def get_object(self, queryset=None):
+        print("~  ProfileMixin#get_object")
+        object = super().get_object(queryset)
+        print("~  ProfileMixin#get_object:", object)
+        return object
+
     def get_success_url(self, *args, **kwargs):
         if 'next' in self.request.GET:
             return self.request.GET.get('next')
@@ -89,6 +96,7 @@ class CreateMixin(object):
     minimum_role = OWNER
 
     def dispatch(self, request, *args, **kwargs):
+        print("~  CreateMixin#dispatch")
         if self.kwargs.get('pk'):
             profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
             self.create_for = profile
@@ -129,17 +137,9 @@ class PlaceAuthMixin(object):
         raise Http404("Not allowed to edit this place.")
 
 
-class PhoneAuthMixin(object):
-    minimum_role = OWNER
-
+class PhoneMixin(object):
     def get_object(self, queryset=None):
-        number = get_object_or_404(Phone,
-            pk=self.kwargs['pk'],
-            profile=self.kwargs['profile_pk'])
-        self.role = get_role(self.request, profile=number.profile)
-        if self.role >= self.minimum_role:
-            return number
-        raise Http404("Not allowed to edit this phone number.")
+        return get_object_or_404(Phone, pk=self.kwargs['pk'], profile=self.kwargs['profile_pk'])
 
 
 class FamilyMemberMixin(object):
@@ -171,9 +171,31 @@ class FamilyMemberAuthMixin(object):
         return profile
 
 
+class UpdateMixin(object):
+    minimum_role = OWNER
+
+    @never_cache
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object.set_check_status(self.request.user)
+        return super().form_valid(form)
+
+
 class DeleteMixin(object):
+    minimum_role = OWNER
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.deleted:
+            return HttpResponseRedirect(self.get_success_url())
+        else:
+            return super().get(request, *args, **kwargs)
+
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        self.object.deleted_on = timezone.now()
-        self.object.save()
+        if not self.object.deleted:
+            self.object.deleted_on = timezone.now()
+            self.object.save()
         return HttpResponseRedirect(self.get_success_url())

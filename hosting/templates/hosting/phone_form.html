@@ -2,8 +2,11 @@
 {% load i18n %}
 
 {% block head_title %}
-    {% trans "Phone number" %} {{ phone }}
-    {% if user.is_staff %}
+    {% trans "Phone number" %}
+    {% if phone %}
+        +{{ phone.number.country_code }}&thinsp;&hellip;{{ phone.number.as_e164|slice:"-3:" }}
+    {% endif %}
+    {% if view.role >= roles.SUPERVISOR %}
         {% blocktrans with name=form.profile.name %}of {{ name }}{% endblocktrans %}
     {% endif %}
 {% endblock %}

@@ -452,13 +452,13 @@ class Phone(TrackingModel, TimeStampedModel):
     @property
     def icon(self):
         if self.type == self.WORK:
-            cls = "glyphicon-phone-alt"
+            cls = "glyphicon-earphone"
         elif self.type == self.MOBILE:
             cls = "glyphicon-phone"
         elif self.type == self.FAX:
             cls = "glyphicon-print"
         else:  # self.HOME or ''
-            cls = "glyphicon-earphone"
+            cls = "glyphicon-phone-alt"
         title = self.get_type_display().capitalize()
         template = '<span class="glyphicon {cls}" title="{title}" data-toggle="tooltip" data-placement="left"></span>'
         return format_html(template, cls=cls, title=title)

@@ -29,9 +29,9 @@ from .serializers import ProfileSerializer, PlaceSerializer, UserSerializer
 from braces.views import LoginRequiredMixin, UserPassesTestMixin, FormInvalidMessageMixin
 from core.auth import AuthMixin, PERM_SUPERVISOR, SUPERVISOR, OWNER, VISITOR
 from .mixins import (
-    ProfileModifyMixin, ProfileIsUserMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
+    ProfileModifyMixin, ProfileIsUserMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneMixin,
     FamilyMemberMixin, FamilyMemberAuthMixin,
-    SupervisorRequiredMixin, CreateMixin, DeleteMixin,
+    SupervisorRequiredMixin, CreateMixin, UpdateMixin, DeleteMixin,
 )
 from core.forms import UserRegistrationForm
 from core.models import SiteConfiguration
@@ -105,14 +105,10 @@ class ProfileCreateView(LoginRequiredMixin, ProfileModifyMixin, FormInvalidMessa
 profile_create = ProfileCreateView.as_view()
 
 
-class ProfileUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.UpdateView):
+class ProfileUpdateView(UpdateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.UpdateView):
     model = Profile
     form_class = ProfileForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
-
-    def form_valid(self, form):
-        self.object.set_check_status(self.request.user)
-        return super(ProfileUpdateView, self).form_valid(form)
 
     def get_object(self, queryset=None):
         print("~  ProfileUpdateView#get_object")
@@ -210,6 +206,7 @@ profile_detail = ProfileDetailView.as_view()
 class ProfileEditView(ProfileDetailView):
     template_name = 'hosting/profile_edit.html'
     public_view = False
+    minimum_role = OWNER
 
 profile_edit = ProfileEditView.as_view()
 
@@ -341,25 +338,25 @@ class PlaceBlockView(LoginRequiredMixin, generic.View):
 place_block = PlaceBlockView.as_view()
 
 
-class PhoneCreateView(LoginRequiredMixin, ProfileModifyMixin, CreateMixin, generic.CreateView):
+class PhoneCreateView(CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, generic.CreateView):
     model = Phone
     form_class = PhoneCreateForm
 
     def get_form_kwargs(self):
-        kwargs = super(PhoneCreateView, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs['profile'] = get_object_or_404(Profile, pk=self.kwargs['pk'])
         return kwargs
 
 phone_create = PhoneCreateView.as_view()
 
 
-class PhoneUpdateView(LoginRequiredMixin, ProfileModifyMixin, PhoneAuthMixin, generic.UpdateView):
+class PhoneUpdateView(UpdateMixin, AuthMixin, PhoneMixin, ProfileModifyMixin, generic.UpdateView):
     form_class = PhoneForm
 
 phone_update = PhoneUpdateView.as_view()
 
 
-class PhoneDeleteView(LoginRequiredMixin, ProfileModifyMixin, PhoneAuthMixin, generic.DeleteView):
+class PhoneDeleteView(DeleteMixin, AuthMixin, PhoneMixin, ProfileModifyMixin, generic.DeleteView):
     pass
 
 phone_delete = PhoneDeleteView.as_view()
