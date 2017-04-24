@@ -98,9 +98,9 @@ class Profile(TrackingModel, TimeStampedModel):
     email = models.EmailField(_("public email"),
         blank=True,
         help_text=_("This email address will be used for the book. "
-            "Leave blank if you don't want this email to be public.\n"
-            "The system will never send emails to this address, "
-            "neither publish it on the site without your permission."))
+                    "Leave blank if you don't want this email to be public.\n"
+                    "The system will never send emails to this address, "
+                    "neither publish it on the site without your permission."))
     description = models.TextField(_("description"),
         blank=True,
         help_text=_("Short biography."))
@@ -356,6 +356,10 @@ class Place(TrackingModel, TimeStampedModel):
         blank=True)
     family_members = models.ManyToManyField('hosting.Profile', verbose_name=_("family members"),
         blank=True)
+    blocked_from = models.DateField(_("unavailable from"),
+        null=True, blank=True)
+    blocked_until = models.DateField(_("unavailable until"),
+        null=True, blank=True)
     authorized_users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("authorized users"),
         blank=True,
         help_text=_("List of users authorized to view most of data of this accommodation."))
@@ -390,6 +394,11 @@ class Place(TrackingModel, TimeStampedModel):
     @property
     def owner_available(self):
         return self.tour_guide or self.have_a_drink
+
+    @property
+    def is_blocked(self):
+        return any([self.blocked_until and self.blocked_until >= date.today(),
+                    self.blocked_from and not self.blocked_until])
 
     def supervised_by(self):
         group = Group.objects.get(name=self.country.code)

@@ -34,8 +34,8 @@
                         Are your data up-to-date? {{ tag }}Click if yes{{ endtag }}
                     {% endblocktrans %}&nbsp;
                     <button class="btn btn-primary btn-sm push-right ajax" type="submit"
-                        data-csrf="{{ csrf_token }}"
-                        data-on-ajax-success="confirmInfoSuccess">
+                            data-csrf="{{ csrf_token }}"
+                            data-on-ajax-success="confirmInfoSuccess">
                         <span class="glyphicon glyphicon-ok"></span>&nbsp;
                         <span class="hidden-xxs">{% trans "I confirm!" %}</span>
                     </button>

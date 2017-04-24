@@ -17,28 +17,26 @@ $(document).ready(function() {
         }
     });
 
-    $('.ajax').click(function(e) {
-        e.preventDefault();
-        $this = $(this);
+    function ajaxSetup($this) {
+        var setupCallback = window[$this.data('on-ajax-setup')];
+        if (typeof(setupCallback) === 'function') {
+            return setupCallback($this);
+        };
+    }
+
+    function ajaxPerform($this, target, requestType, requestData) {
         $this.addClass('disabled');
-        if ($this.is('a')) {
-            target = $this.attr('href');
-            requestType = $this.data('method') || "GET";
-        }
-        else {
-            // should be a button within a form
-            target = $this.parents('form').attr('action');
-            requestType = $this.parents('form').attr('method');
-        }
         $.ajax({
             type: requestType,
             url: target,
-            dataType: "json",
             csrfmiddlewaretoken: $this.data('csrf'),
+            data: requestData,
+            dataType: "json",
             success: function(response) {
-                successCallback = window[$this.data('on-ajax-success')];
+                var successCallback = window[$this.data('on-ajax-success')];
+                $this.removeClass('disabled');
                 if (typeof(successCallback) === 'function') {
-                    successCallback($this);
+                    successCallback($this, response);
                 }
             },
             error: function(xhr) {
@@ -58,8 +56,56 @@ $(document).ready(function() {
                 }).popover("show");
             }
         });
+    }
+
+    // allow interaction for any element and on any event
+    $('[class*=ajax]').each(function() {
+        var $this = $(this);
+        var re = /\bajax-on-([a-z]+)\b/gi;
+        var has_events = false;
+        while ((event = re.exec(this.className)) !== null) {
+            $this.on(event[1].toLowerCase(), function(e) {
+                if (ajaxSetup($this) === false)
+                    return;
+
+                var target = $this.data('ajaxAction');
+                var requestType = $this.data('ajaxMethod') || "GET";
+                var requestData = $this.serialize();
+                if (!target) {
+                    target = $this.parents('form').attr('action');
+                    requestType = $this.parents('form').attr('method');
+                    requestData = $this.parents('form').serialize();
+                }
+                if ($this.data('csrf') === undefined) {
+                    $this.data('csrf', $this.parents('form').data('csrf'));
+                }
+
+                ajaxPerform($this, target, requestType, requestData);
+            });
+            has_events = true;
+        }
+        if (has_events) {
+            $this.focus(function() {
+                $this.popover("destroy");
+            });
+        }
     });
 
+    // basic case of <a> or <button> element with a click event
+    $('.ajax').click(function(e) {
+        e.preventDefault();
+        var $this = $(this), target, requestType;
+        if ($this.is('a')) {
+            target = $this.attr('href');
+            requestType = $this.data('method') || "GET";
+        }
+        else {
+            // should be a button within a form
+            target = $this.parents('form').attr('action');
+            requestType = $this.parents('form').attr('method');
+        }
+        ajaxPerform($this, target, requestType);
+    });
     $('.ajax').focus(function(e) {
         $(this).popover("destroy");
     });
@@ -83,6 +129,35 @@ $(document).ready(function() {
         }
         if ($this.data('success-message')) {
             $('#'+$this.data('success-message')).modal();
+        }
+    };
+
+    window.blockPlaceSetup = function($this) {
+        if ($this.val() == $this.data('value')) {
+            return false;
+        }
+        $this.closest('form').find('#id_dirty').val($this.get(0).name);
+    };
+
+    window.blockPlaceSuccess = function($this, response) {
+        var $op_errors = $this.closest('form').find('.blocking-errors');
+        if (response.result === false) {
+            $this.parents('.form-group').addClass('has-error');
+            var specific_errors = response.err[$this.get(0).name],
+                general_errors = response.err["__all__"];
+            $op_errors.text([specific_errors != undefined ? specific_errors.join(" ") : undefined,
+                             general_errors != undefined ? general_errors.join(" ") : undefined].join("\n"));
+            $op_errors.show();
+        }
+        if (response.result === true) {
+            $this.parents('.form-group').removeClass('has-error');
+            $op_errors.text("");
+            $op_errors.hide();
+            var $marker = $this.closest('form').find('.blocking-success');
+            $marker.css({ "visibility": "visible", "opacity": 1 })
+                   .delay(2000)
+                   .animate({ opacity: 0 }, 400, function() { $(this).css("visibility", "hidden"); });
+            $this.data('value', $this.val());
         }
     };
 

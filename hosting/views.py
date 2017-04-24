@@ -1,8 +1,9 @@
 import re
+from datetime import date
 
 from django.views import generic
 from django.conf import settings
-from django.http import HttpResponseRedirect, Http404, JsonResponse
+from django.http import QueryDict, HttpResponseRedirect, Http404, JsonResponse
 from django.template.response import TemplateResponse
 from django.views.decorators.vary import vary_on_headers
 from django.core.urlresolvers import reverse_lazy
@@ -36,7 +37,7 @@ from .forms import (
     AuthorizeUserForm, AuthorizedOnceUserForm,
     ProfileForm, ProfileCreateForm, ProfileEmailUpdateForm,
     PhoneForm, PhoneCreateForm,
-    PlaceForm, PlaceCreateForm, FamilyMemberForm, FamilyMemberCreateForm,
+    PlaceForm, PlaceCreateForm, PlaceBlockForm, FamilyMemberForm, FamilyMemberCreateForm,
 )
 
 
@@ -248,8 +249,26 @@ class PlaceDetailView(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(PlaceDetailView, self).get_context_data(**kwargs)
-        context['form'] = UserRegistrationForm
+        context['register_form'] = UserRegistrationForm
+        context['blocking'] = self.calculate_blocking(self.object)
         return context
+
+    @staticmethod
+    def calculate_blocking(place):
+        block = {}
+        today = date.today()
+        if place.is_blocked:
+            block['enabled'] = True
+            if place.blocked_from and place.blocked_from > today:
+                block['display_from'] = True
+                block['format_from'] = "MONTH_DAY_FORMAT" if place.blocked_from.year == today.year else "DATE_FORMAT"
+            if place.blocked_until and place.blocked_until >= today:
+                block['display_until'] = True
+                block['format_until'] = "MONTH_DAY_FORMAT" if place.blocked_until.year == today.year else "DATE_FORMAT"
+        else:
+            block['enabled'] = False
+        block['form'] = PlaceBlockForm(instance=place)
+        return block
 
     def render_to_response(self, context, **response_kwargs):
         # Automatically redirect the user to the verbose view if permission granted (in authorized_users list).
@@ -276,6 +295,28 @@ class PlaceDetailVerboseView(UserPassesTestMixin, PlaceDetailView):
                 and (user.is_staff or user in object.authorized_users.all() or user.profile == object.owner))
 
 place_detail_verbose = PlaceDetailVerboseView.as_view()
+
+
+class PlaceBlockView(LoginRequiredMixin, generic.View):
+    http_method_names = ['put']
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Place,
+                                 pk=self.kwargs['pk'],
+                                 owner__user_id=self.request.user.pk,
+                                 deleted=False)
+
+    def put(self, request, *args, **kwargs):
+        form = PlaceBlockForm(data=QueryDict(request.body), instance=self.get_object())
+        data_correct = form.is_valid()
+        viewresponse = {'result': data_correct}
+        if data_correct:
+            form.save()
+        else:
+            viewresponse.update({'err': form.errors})
+        return JsonResponse(viewresponse)
+
+place_block = PlaceBlockView.as_view()
 
 
 class PhoneCreateView(LoginRequiredMixin, ProfileMixin, CreateMixin, generic.CreateView):

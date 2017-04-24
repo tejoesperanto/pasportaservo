@@ -2,12 +2,12 @@
 {% load i18n %}
 
 {% if place.available %}
-    <em>{% trans "I'm hosting :)" %}</em>
+    <em>{% trans "I'm hosting" %} :)</em>
 {% else %}
     <em>{% trans "I'm <b>not</b> hosting" %}</em>
 {% endif %}
 
-{% if place.tour_guide or place.have_a_drink %}
+{% if place.owner_available %}
     {% if place.available %}
         <em>{% trans "&nbsp; and will be glad " %}</em>
     {% else %}
