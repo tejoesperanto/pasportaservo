@@ -7,14 +7,10 @@
             {% for message in messages %}{% include "core/message.html" %}{% endfor %}
         {% endblock %}
 
-        {# "TODO: Remove by mid February 2017" #}
-        {% if not BOOK_RESERVED %}
-            {% url "reserve" "PS2017" as reserve_url %}
-            {% blocktrans asvar reserve_msg trimmed %}
-                <a href="{{ reserve_url }}">Rezervu nun la libreton <big>Pasporta Servo 2017</big>!</a>
-            {% endblocktrans %}
-            {% include "core/message.html" with message=reserve_msg|safe level='info' daily=True sticky_class='PS2017' %}
-        {% endif %}
+        {% blocktrans asvar msg trimmed %}
+            <a href="http://katalogo.uea.org/katalogo.php?inf=3474" target="_blank">Aĉetu nun la libreton <big>Pasporta Servo 2017</big>!</a>
+        {% endblocktrans %}
+        {% include "core/message.html" with message=msg|safe level='success' monthly=True sticky_class='PS_2017' %}
     </section>
     <header class="container-fluid{% block header_class %}{% endblock %}">
         {% block header %}
@@ -23,12 +19,7 @@
                     <a href="{% url 'home' %}">P<span class="hidden-xs">asporta&nbsp;</span>S<span class="hidden-xs">ervo</span></a>
                 </div>
                 <div class="hidden-xs col-sm-3 col-md-3" id="subtitle">
-                    {# "TODO: Remove by mid February 2017" #}
-                    {% if BOOK_RESERVED %}
-                        E-gastigantoj tra la mondo
-                    {% else %}
-                        <a href="{{ reserve_url }}">Rezervu nun la novan adreslibron 2017!</a>
-                    {% endif %}
+                    <a href="http://katalogo.uea.org/katalogo.php?inf=3474" target="_blank">Aĉetu nun la novan adreslibron 2017!</a>
                 </div>
                 <div class="col-xs-3 col-sm-2 col-md-1 col-md-offset-4 enveloppe links">
                     {% if user.is_authenticated %}
