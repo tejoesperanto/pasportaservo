@@ -44,6 +44,10 @@ class Reservation(TimeStampedModel):
     def __str__(self):
         return " - ".join((self.product.code, str(self.user)))
 
+    def __repr__(self):
+        st = "{} + subteno: {}" if self.support else "{}"
+        return st.format(self.amount, self.support)
+
     def get_absolute_url(self):
         return reverse('reservation', kwargs={'product_code': self.product.code})
 
