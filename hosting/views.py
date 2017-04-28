@@ -12,6 +12,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.template.loader import get_template
 from django.template import Context
+from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from django.utils.six.moves.urllib.parse import unquote_plus
 from django.utils.http import urlquote_plus
@@ -28,10 +29,11 @@ from rest_framework import viewsets
 from .serializers import ProfileSerializer, PlaceSerializer, UserSerializer
 from braces.views import LoginRequiredMixin, UserPassesTestMixin, FormInvalidMessageMixin
 from core.auth import AuthMixin, PERM_SUPERVISOR, SUPERVISOR, OWNER, VISITOR
+from core.mixins import SupervisorRequiredMixin
 from .mixins import (
-    ProfileModifyMixin, ProfileIsUserMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneMixin,
+    ProfileModifyMixin, ProfileIsUserMixin, PlaceAuthMixin, PhoneMixin,
     FamilyMemberMixin, FamilyMemberAuthMixin,
-    SupervisorRequiredMixin, CreateMixin, UpdateMixin, DeleteMixin,
+    CreateMixin, UpdateMixin, DeleteMixin,
 )
 from core.forms import UserRegistrationForm
 from core.models import SiteConfiguration
@@ -119,26 +121,25 @@ class ProfileUpdateView(UpdateMixin, AuthMixin, ProfileIsUserMixin, ProfileModif
 profile_update = ProfileUpdateView.as_view()
 
 
-class ProfileDeleteView(LoginRequiredMixin, DeleteMixin, ProfileAuthMixin, generic.DeleteView):
+class ProfileDeleteView(DeleteMixin, AuthMixin, ProfileIsUserMixin, generic.DeleteView):
+    model = Profile
     form_class = ProfileForm
     success_url = reverse_lazy('logout')
 
-    def get_object(self, queryset=None):
-        object = super(ProfileDeleteView, self).get_object(queryset)
-        if not object.user:
-            raise Http404("Detached profile (probably a family member).")
-        return object
-
     def get_context_data(self, **kwargs):
-        context = super(ProfileDeleteView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['places'] = self.object.owned_places.filter(deleted=False)
         return context
 
     def get_success_url(self):
         # Administrators will be redirected to the deleted profile's page.
-        if self.object.user != self.request.user:
+        if self.role >= SUPERVISOR:
             return self.object.get_absolute_url()
         return self.success_url
+
+    def get_failure_url(self):
+        return reverse_lazy('profile_settings', kwargs={
+            'pk': self.object.pk, 'slug': slugify(self.object.user.username)})
 
     def delete(self, request, *args, **kwargs):
         """
@@ -148,17 +149,18 @@ class ProfileDeleteView(LoginRequiredMixin, DeleteMixin, ProfileAuthMixin, gener
         """
         now = timezone.now()
         self.object = self.get_object()
-        for place in self.object.owned_places.all():
-            place.deleted_on = now
-            place.save()
-            for member in place.family_members.all():
-                if not member.user:
-                    member.deleted_on = now
-                    member.save()
-        self.object.phones.all().delete()
-        self.object.user.is_active = False
-        self.object.user.save()
-        return super(ProfileDeleteView, self).delete(request, *args, **kwargs)
+        if not self.object.deleted:
+            for place in self.object.owned_places.all():
+                place.deleted_on = now
+                place.save()
+                for member in place.family_members.all():
+                    if not member.user:
+                        member.deleted_on = now
+                        member.save()
+            self.object.phones.all().delete()
+            self.object.user.is_active = False
+            self.object.user.save()
+        return super().delete(request, *args, **kwargs)
 
 profile_delete = ProfileDeleteView.as_view()
 
@@ -222,10 +224,11 @@ class ProfileSettingsView(ProfileDetailView):
 profile_settings = ProfileSettingsView.as_view()
 
 
-class ProfileEmailUpdateView(LoginRequiredMixin, ProfileModifyMixin, ProfileAuthMixin, generic.UpdateView):
+class ProfileEmailUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, generic.UpdateView):
     model = Profile
     template_name = 'hosting/profile-email_form.html'
     form_class = ProfileEmailUpdateForm
+    minimum_role = OWNER
 
 profile_email_update = ProfileEmailUpdateView.as_view()
 

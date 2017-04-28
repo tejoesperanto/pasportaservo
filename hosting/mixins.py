@@ -1,16 +1,11 @@
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
-from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.decorators.cache import never_cache
 from django.utils.translation import ugettext_lazy as _
-from django.utils.functional import keep_lazy_text
-from .utils import format_lazy
 from django.utils import timezone
 
 from .models import Profile, Place, Phone
 from core.auth import ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR
-
-from django_countries.fields import Country
 
 
 def get_role(request, profile):
@@ -28,33 +23,6 @@ def get_role(request, profile):
     if user_profile.is_supervisor_of(profile):
         return SUPERVISOR
     return VISITOR
-
-
-class SupervisorRequiredMixin(UserPassesTestMixin):
-    raise_exception = True
-    permission_denied_message = _("Only the supervisors of {this_country} can access this page")
-
-    def test_func(self):
-        if self.request.user.is_staff:
-            return True
-        try:
-            return self.request.user.profile.is_supervisor_of(countries=[self.country])
-        except AttributeError:
-            return self.request.user.profile.is_supervisor_of(self.user.profile)
-        except Profile.DoesNotExist:
-            return False
-
-    def get_permission_denied_message(self):
-        try:
-            countries = [self.country]
-        except AttributeError:
-            countries = set(self.user.profile.owned_places.filter(
-                available=True, deleted=False).values_list('country', flat=True))
-            if not countries:
-                return _("Only administrators can access this page")
-        to_string = lambda item: str(Country(item).name)
-        join_lazy = keep_lazy_text(lambda items: ", ".join(map(to_string, items)))
-        return format_lazy(self.permission_denied_message, this_country=join_lazy(countries))
 
 
 class ProfileModifyMixin(object):
@@ -113,17 +81,17 @@ class CreateMixin(object):
         return super().dispatch(request, *args, **kwargs)
 
 
-class ProfileAuthMixin(object):
-    def get_object(self, queryset=None):
-        profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
-        self.role = get_role(self.request, profile=profile)
-        if self.role == VISITOR:
-            public = getattr(self, 'public_view', False)
-            if not public:
-                raise Http404("Not allowed to edit this profile.")
-            if profile.deleted:
-                raise Http404("Profile was deleted.")
-        return profile
+#class ProfileAuthMixin(object):
+#    def get_object(self, queryset=None):
+#        profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
+#        self.role = get_role(self.request, profile=profile)
+#        if self.role == VISITOR:
+#            public = getattr(self, 'public_view', False)
+#            if not public:
+#                raise Http404("Not allowed to edit this profile.")
+#            if profile.deleted:
+#                raise Http404("Profile was deleted.")
+#        return profile
 
 
 class PlaceAuthMixin(object):
@@ -189,7 +157,10 @@ class DeleteMixin(object):
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if self.object.deleted:
-            return HttpResponseRedirect(self.get_success_url())
+            if hasattr(self, 'get_failure_url'):
+                return HttpResponseRedirect(self.get_failure_url())
+            else:
+                return HttpResponseRedirect(self.get_success_url())
         else:
             return super().get(request, *args, **kwargs)
 

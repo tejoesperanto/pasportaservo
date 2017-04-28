@@ -26,9 +26,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from blog.models import Post
 from hosting.models import Place, Profile
-from hosting.mixins import SupervisorRequiredMixin, ProfileModifyMixin
+from .auth import AuthMixin, SUPERVISOR, OWNER
+from hosting.mixins import ProfileIsUserMixin, ProfileModifyMixin
+from .mixins import SupervisorRequiredMixin, UserModifyMixin
 from .forms import (
-    UsernameUpdateForm, EmailUpdateForm, StaffUpdateEmailForm,
+    UsernameUpdateForm, EmailUpdateForm, EmailStaffUpdateForm,
     MassMailForm, UserRegistrationForm
 )
 from hosting.utils import value_without_invalid_marker, format_lazy
@@ -66,12 +68,12 @@ class RegisterView(AnonymousRequiredMixin, generic.CreateView):
             return self.request.user.profile.get_edit_url()
         except Profile.DoesNotExist:
             # If profile does not exist yet, redirect to profile creation page.
-            return reverse_lazy('profile_create')
+            return self.success_url
 
     def form_valid(self, form):
         self.object = form.save()
         # Keeping this on ice; it interferes with the inline login, probably by wiping the session vars.
-        result = super(RegisterView, self).form_valid(form)
+        result = super().form_valid(form)
         # Log in user.
         user = authenticate(
             username=form.cleaned_data['username'],
@@ -83,7 +85,7 @@ class RegisterView(AnonymousRequiredMixin, generic.CreateView):
 register = RegisterView.as_view()
 
 
-class UsernameChangeView(LoginRequiredMixin, generic.UpdateView):
+class UsernameChangeView(LoginRequiredMixin, UserModifyMixin, generic.UpdateView):
     model = User
     template_name = 'core/username_change_form.html'
     form_class = UsernameUpdateForm
@@ -92,37 +94,40 @@ class UsernameChangeView(LoginRequiredMixin, generic.UpdateView):
         self.original_username = self.request.user.username
         return self.request.user
 
-    def get_success_url(self, *args, **kwargs):
-        try:
-            return self.object.profile.get_edit_url()
-        except Profile.DoesNotExist:
-            return reverse_lazy('profile_create')
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # avoid replacement of displayed username via template context when provided value is invalid
+        # Avoid replacement of displayed username via template context when provided value is invalid.
         context['user'].username = self.original_username
         return context
 
 username_change = UsernameChangeView.as_view()
 
 
-class EmailUpdateView(LoginRequiredMixin, generic.UpdateView):
+class EmailUpdateView(AuthMixin, UserModifyMixin, generic.UpdateView):
     model = User
     template_name = 'core/system-email_form.html'
     form_class = EmailUpdateForm
+    exact_role = OWNER
+
+    def dispatch(self, request, *args, **kwargs):
+        print("~  EmailUpdateView#dispatch:1", "[", getattr(self, 'user', None), " / ", self.kwargs.get(self.pk_url_kwarg), "]")
+        if not hasattr(self, 'user'):
+            self.user = self.request.user
+            self.kwargs[self.pk_url_kwarg] = self.user.id
+        print("~  EmailUpdateView#dispatch:2", "[", getattr(self, 'user', None), " / ", self.kwargs.get(self.pk_url_kwarg), "]")
+        return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
-        return self.request.user
+        print("~  EmailUpdateView#get_object:1", "[", self.user, "]")
+        super().get_object(queryset)
+        print("~  EmailUpdateView#get_object:2", "[", self.user, "]")
+        return self.user
 
-    def get_success_url(self, *args, **kwargs):
-        try:
-            return self.object.profile.get_edit_url()
-        except Profile.DoesNotExist:
-            return reverse_lazy('profile_create')
+    def get_owner(self, object):
+        return self
 
     def form_valid(self, form):
-        response = super(EmailUpdateView, self).form_valid(form)
+        response = super().form_valid(form)
         if form.previous_email != form.instance.email:
             messages.warning(self.request, extra_tags='eminent',
                              message=_("A confirmation email has been sent. "
@@ -133,6 +138,7 @@ email_update = EmailUpdateView.as_view()
 
 
 class EmailVerifyView(LoginRequiredMixin, generic.View):
+    """Allows the current user (only) to request a re-verification of their email address."""
     http_method_names = ['post', 'get']
     template_name = 'core/system-email_verify_done.html'
 
@@ -180,6 +186,12 @@ email_verify = EmailVerifyView.as_view()
 
 
 class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
+    """
+    Confirms for the current user (only) the email address in the request as valid
+    and updates it in the database.
+    This is an internal view not accessible via a URL.
+    """
+
     def dispatch(self, request, *args, **kwargs):
         user = get_object_or_404(User, pk=kwargs['pk'])
         if user.pk != request.user.pk:
@@ -203,29 +215,26 @@ class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
 email_update_confirm = EmailUpdateConfirmView.as_view()
 
 
-class StaffUpdateEmailView(LoginRequiredMixin, SupervisorRequiredMixin, ProfileModifyMixin, generic.UpdateView):
-    model = User
-    form_class = StaffUpdateEmailForm
+class EmailStaffUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, generic.UpdateView):
+    model = Profile
     template_name = 'core/system-email_form.html'
-    staff_view = True
-
-    def dispatch(self, request, *args, **kwargs):
-        self.user = get_object_or_404(Profile, pk=kwargs['pk']).user
-        return super().dispatch(request, *args, **kwargs)
+    form_class = EmailStaffUpdateForm
+    minimum_role = SUPERVISOR
 
     def get_object(self, queryset=None):
+        self.user = super().get_object(queryset).user
         return self.user
 
     def get_context_data(self, **kwargs):
-        context = super(StaffUpdateEmailView, self).get_context_data(**kwargs)
-        # we want the displayed logged in user still be request.user and not the modified User instance
+        context = super().get_context_data(**kwargs)
+        # We want the displayed logged in user still be request.user and not the modified User instance.
         context['user'] = self.request.user
         return context
 
-staff_update_email = StaffUpdateEmailView.as_view()
+staff_email_update = EmailStaffUpdateView.as_view()
 
 
-class MarkEmailValidityView(LoginRequiredMixin, SupervisorRequiredMixin, generic.View):
+class EmailValidityMarkView(LoginRequiredMixin, SupervisorRequiredMixin, generic.View):
     http_method_names = ['post']
     template_name = '404.html'
     valid = False
@@ -246,8 +255,8 @@ class MarkEmailValidityView(LoginRequiredMixin, SupervisorRequiredMixin, generic
         else:
             return TemplateResponse(request, self.template_name)
 
-mark_email_invalid = MarkEmailValidityView.as_view()
-mark_email_valid = MarkEmailValidityView.as_view(valid=True)
+email_mark_invalid = EmailValidityMarkView.as_view()
+email_mark_valid = EmailValidityMarkView.as_view(valid=True)
 
 
 class MassMailView(SuperuserRequiredMixin, generic.FormView):

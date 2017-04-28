@@ -11,8 +11,8 @@ from .views import (
     home,
     register,
     username_change,
-    email_update, staff_update_email, email_verify,
-    mark_email_invalid, mark_email_valid,
+    email_update, staff_email_update, email_verify,
+    email_mark_invalid, email_mark_valid,
     mass_mail, mass_mail_sent,
 )
 from .forms import (
@@ -42,9 +42,9 @@ urlpatterns = [
 
     url(_(r'^username/$'), username_change, name='username_change'),
     url(_(r'^email/$'), email_update, name='email_update'),
-    url(_(r'^profile/(?P<pk>\d+)/staff/email/update/$'), staff_update_email, name='staff_update_email'),
-    url(_(r'^profile/(?P<pk>\d+)/staff/email/mark-invalid/$'), mark_email_invalid, name='staff_mark_email_invalid'),
-    url(_(r'^profile/(?P<pk>\d+)/staff/email/mark-valid/$'), mark_email_valid, name='staff_mark_email_valid'),
+    url(_(r'^profile/(?P<pk>\d+)/staff/email/update/$'), staff_email_update, name='staff_email_update'),
+    url(_(r'^profile/(?P<pk>\d+)/staff/email/mark-invalid/$'), email_mark_invalid, name='staff_email_mark_invalid'),
+    url(_(r'^profile/(?P<pk>\d+)/staff/email/mark-valid/$'), email_mark_valid, name='staff_email_mark_valid'),
     url(_(r'^email/verify/$'), email_verify, name='email_verify'),
 
     url(_(r'^admin/mass-mail/$'), mass_mail, name='mass_mail'),

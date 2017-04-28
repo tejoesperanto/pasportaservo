@@ -89,7 +89,7 @@ class SupervisorAuthBackend(ModelBackend):
         """
         Return a list of permission strings that this user has through their groups.
         If an object is passed in, only permissions matching this object are returned.
-        """ 
+        """
         perms = super().get_group_permissions(user_obj, obj)
         print("\tUser's built in perms: ", perms)
         groups = set(self.get_user_supervisor_of(user_obj, code=True))
@@ -168,11 +168,12 @@ class AuthMixin(AccessMixin):
 
     def _auth_verify(self, object):
         self.role = get_role_in_context(self.request, profile=self.get_owner(object))
-        print("minimum role allowed: {-", self.minimum_role, "-} , current role: {-", self.role, "-}")
-        if hasattr(self, 'exact_role'):
+        if getattr(self, 'exact_role', None):
+            print("exact role allowed: {-", self.exact_role, "-} , current role: {-", self.role, "-}")
             if self.role == self.exact_role:
                 return object
         else:
+            print("minimum role allowed: {-", self.minimum_role, "-} , current role: {-", self.role, "-}")
             if self.role >= self.minimum_role:
                 return object
         if settings.DEBUG:

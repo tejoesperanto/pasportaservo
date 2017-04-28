@@ -9,6 +9,7 @@ from core.models import SiteConfiguration
 from .models import Profile, Place, Phone
 from .validators import TooNearPastValidator, client_side_validated
 from .widgets import ClearableWithPreviewImageInput
+from .utils import value_without_invalid_marker
 
 config = SiteConfiguration.objects.get()
 User = get_user_model()
@@ -108,9 +109,8 @@ class ProfileEmailUpdateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ProfileEmailUpdateForm, self).__init__(*args, **kwargs)
-        self.initial['email'] = (self.instance.email[len(settings.INVALID_PREFIX):]
-                                 if self.instance.email.startswith(settings.INVALID_PREFIX)
-                                 else self.instance.email) # display a clean value
+        # Displays a clean value of the address in the form.
+        self.initial['email'] = value_without_invalid_marker(self.instance.email)
 
 
 class PlaceForm(forms.ModelForm):

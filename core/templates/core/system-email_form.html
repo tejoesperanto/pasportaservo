@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block head_title %}
-    {% if user != form.instance %}
+    {% if view.role != roles.OWNER %}
         {% trans "Change user's account email" %}{% if form.instance.profile.name %}: {{ form.instance.profile.name }} {% else %} #{{ form.instance.profile.id }} {% endif %}
     {% else %}
         {% trans "My email address" %}
@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block form_title %}
-    {% if view.staff_view %}
+    {% if view.role >= roles.SUPERVISOR %}
         {{ form.instance.profile.get_fullname_display }} <hr />
     {% endif %}
 {% endblock %}

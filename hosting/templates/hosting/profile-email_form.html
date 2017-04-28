@@ -2,9 +2,15 @@
 {% load i18n %}
 
 {% block head_title %}
-    {% if user.profile != profile %}
+    {% if view.role != roles.OWNER %}
         {% trans "Change user's public email" %}{% if profile.name %}: {{ profile.name }} {% else %} #{{ profile.id }} {% endif %}
     {% else %}
         {% trans "My public email address" %}
+    {% endif %}
+{% endblock %}
+
+{% block form_title %}
+    {% if view.role >= roles.SUPERVISOR %}
+        {{ profile.get_fullname_display }} <hr />
     {% endif %}
 {% endblock %}

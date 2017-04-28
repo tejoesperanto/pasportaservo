@@ -2,7 +2,7 @@
 {% load i18n static %}
 
 {% block head_title %}
-    {% if user.is_staff and profile and user.profile != profile %}
+    {% if view.role >= roles.SUPERVISOR and profile %}
         {% if profile.user %}
             {% trans "Update user's details" %}{% if profile.name %}: {{ profile.name }} {% else %} #{{ profile.id }} {% endif %}
         {% else %}
