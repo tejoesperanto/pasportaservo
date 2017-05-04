@@ -13,9 +13,9 @@ class Command(BaseCommand):
         book = Group.objects.get(name='libro2017')
         writer = csv.writer(f)
         users = (
-            User.objects.filter(groups__name='libro2017') |
+            User.objects.filter(groups__name='libro2017') &
             User.objects.exclude(reservation__isnull=True)
-        ).order_by('reservation__amount', 'first_name')
+        ).order_by('reservation__amount', 'first_name').distinct()
         for user in users:
             writer.writerow([
                 user.profile.full_name,
@@ -26,5 +26,3 @@ class Command(BaseCommand):
                 'http://pspt.se' + user.profile.get_absolute_url(),
             ])
         print(f.name)
-
-
