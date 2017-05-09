@@ -26,7 +26,7 @@ from .validators import (
     validate_not_in_future, TooFarPastValidator, TooNearPastValidator,
     validate_image, validate_size,
 )
-from .utils import UploadAndRenameAvatar
+from .utils import UploadAndRenameAvatar, value_without_invalid_marker
 from .gravatar import email_to_gravatar
 
 
@@ -148,6 +148,7 @@ class Profile(TrackingModel, TimeStampedModel):
             return self.avatar.url
         else:
             email = self.user.email if self.user else "family.member@pasportaservo.org"
+            email = value_without_invalid_marker(email)
             return email_to_gravatar(email, settings.DEFAULT_AVATAR_URL)
 
     @property
@@ -276,7 +277,7 @@ class Profile(TrackingModel, TimeStampedModel):
             models[model] = model.objects.filter(
                 email__in=emails
             ).exclude(
-                email__istartswith=settings.INVALID_PREFIX
+                email__startswith=settings.INVALID_PREFIX
             ).update(
                 email=Concat(V(settings.INVALID_PREFIX), F('email'))
             )
@@ -288,7 +289,7 @@ class Profile(TrackingModel, TimeStampedModel):
         for model in models:
             models[model] = model.objects.filter(
                 email__in=emails,
-                email__istartswith=settings.INVALID_PREFIX
+                email__startswith=settings.INVALID_PREFIX
             ).update(
                 email=Substr(F('email'), len(settings.INVALID_PREFIX) + 1)
             )

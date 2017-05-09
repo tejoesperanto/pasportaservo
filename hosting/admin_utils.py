@@ -92,9 +92,9 @@ class EmailValidityFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         if str(self.value()).isdigit():
             if int(self.value()) == 0:
-                return queryset.exclude(user__email__istartswith=settings.INVALID_PREFIX).exclude(user__isnull=True)
+                return queryset.exclude(user__email__startswith=settings.INVALID_PREFIX).exclude(user__isnull=True)
             else:
-                return queryset.filter(user__email__istartswith=settings.INVALID_PREFIX)
+                return queryset.filter(user__email__startswith=settings.INVALID_PREFIX)
 
 
 class ProfileHasUserFilter(admin.SimpleListFilter):

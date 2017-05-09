@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load i18n static %}
+{% load is_invalid from profile %}
 
 {% block head_title %}
     {% if user.profile == profile %}
@@ -79,7 +80,7 @@
                 <div class="btn-group edit-buttons">
                     {% block profile_edit_buttons %}
                         {% if profile != user.profile %}
-                            {% if INVALID_PREFIX in profile.user.email %}
+                            {% if profile.user.email|is_invalid %}
                                 <a href="#" class="btn btn-danger disabled"
                                    title="{% trans "The user's email address seems invalid" %}"
                                    data-toggle="tooltip" data-placement="bottom">

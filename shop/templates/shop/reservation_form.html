@@ -1,5 +1,6 @@
 {% extends 'core/base_form.html' %}
 {% load i18n static bootstrap %}
+{% load is_invalid from profile %}
 
 {% block extra_js %}
     {{ block.super }}
@@ -107,7 +108,7 @@
             {% trans "Reserving the book helps us to print the right quantity." %}
             {% trans "Buying the book really helps the Pasporta Servo project." %}
         </p>
-        {% if INVALID_PREFIX in user.email %}
+        {% if user.email|is_invalid %}
             <p class="text-danger">
                 {% blocktrans trimmed %}
                     Your email address doesn't appear to be valid, we probably won't be able

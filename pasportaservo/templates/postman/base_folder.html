@@ -24,10 +24,12 @@
             {% if pm_messages %}
                 {% block pm_by_modes %}
                     <div id="pm_by_modes" class="btn-group btn-group-xs">
-                        <a {% if by_message %}href="{{ by_conversation_url }}" {% else %}disabled {% endif %}role="button" class="btn btn-default">
+                        <a {% if by_message %}href="{{ by_conversation_url }}" {% endif %}role="button"
+                           class="btn btn-default {% if by_conversation %}active" aria-pressed="true" {% else %}"{% endif %}>
                             {% trans "by conversation" %}
                         </a>
-                        <a {% if by_conversation %}href="{{ by_message_url }}" {% else %}disabled {% endif %}role="button" class="btn btn-default">
+                        <a {% if by_conversation %}href="{{ by_message_url }}" {% endif %}role="button"
+                           class="btn btn-default {% if by_message %}active" aria-pressed="true" {% else %}"{% endif %}>
                             {% trans "by message" %}
                         </a>
                     </div>

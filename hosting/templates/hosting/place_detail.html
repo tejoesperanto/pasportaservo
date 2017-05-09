@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load i18n static %}
+{% load is_invalid from profile %}
 
 {% block head_title %}
     {% if user.profile == place.owner %}
@@ -187,7 +188,7 @@
                 <p>
                     {% if place.sporadic_presence %}
                     {% if place.available or place.owner_available or view.verbose_view %}
-                        <span class="glyphicon glyphicon-asterisk" style="color: #f71"></span>
+                        <span class="glyphicon glyphicon-asterisk text-as-ps"></span>
                         {% trans "I'm not present at this address at all times; contact me in advance." %}
                     {% endif %}
                     {% endif %}
@@ -235,14 +236,14 @@
             {% if place.sporadic_presence %}
             {% if place.available or place.owner_available or view.verbose_view %}
                 <p>
-                    <span class="glyphicon glyphicon-list-alt" style="color: #737373"></span>&nbsp;
+                    <span class="glyphicon glyphicon-list-alt text-muted"></span>&nbsp;
                     {% trans "I'm not present at this address at all times; contact me in advance." %}
                 </p>
             {% endif %}
             {% endif %}
             {% if place.family_members.all %}
                 <p>
-                    <span class="glyphicon glyphicon-user" style="color: #737373"></span>&nbsp;
+                    <span class="glyphicon glyphicon-user text-muted"></span>&nbsp;
                     {% trans "Other dwellers at this place." %}
                 </p>
             {% endif %}
@@ -268,7 +269,7 @@
 
         <p class="col-xs-12">
             {% if user.profile != place.owner %}
-                {% if INVALID_PREFIX in place.owner.user.email %}
+                {% if place.owner.user.email|is_invalid %}
                     <a href="#" class="btn btn-danger btn-vert-space disabled" data-toggle="tooltip"
                        title="{% trans "The user's email address seems invalid" %}">
                 {% else %}

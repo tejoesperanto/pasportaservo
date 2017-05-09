@@ -1,5 +1,7 @@
 {% load i18n url_utils %}{% autoescape off %}
-{% trans "Dear user," %}
+{% if user.profile %}{% blocktrans with user_first_name=user.profile.name trimmed %}
+    Dear {{ user_first_name }},
+{% endblocktrans %}{% else %}{% trans "Dear user," %}{% endif %}
 {% blocktrans trimmed %}
     You're receiving this email in order to verify your email address at {{ site_name }}.
 {% endblocktrans %}

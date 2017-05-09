@@ -2,6 +2,7 @@ from django import template
 from django_countries.fields import Country
 from django.conf import settings
 from ..models import Profile
+from ..utils import value_without_invalid_marker
 
 
 register = template.Library()
@@ -29,3 +30,8 @@ def is_supervisor_of(user, profile_or_countries):
 @register.filter
 def is_invalid(value):
     return str(value).startswith(settings.INVALID_PREFIX)
+
+
+@register.filter
+def clear_invalid(value):
+    return value_without_invalid_marker(value)

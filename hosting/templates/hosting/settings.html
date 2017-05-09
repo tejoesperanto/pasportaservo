@@ -1,6 +1,6 @@
 {% extends 'core/base.html' %}
 {% load i18n static %}
-{% load is_invalid from profile %}
+{% load is_invalid clear_invalid from profile %}
 
 {% block head_title %}
         {% trans "Settings" %}
@@ -33,7 +33,7 @@
         <samp><small>
             {% if profile.user.email|is_invalid %}
                 <span class="email text-danger" title="{% trans "invalid email" %}" data-toggle="tooltip">
-                    {{ profile.user.email|cut:INVALID_PREFIX }}
+                    {{ profile.user.email|clear_invalid }}
                     <span class="glyphicon glyphicon-warning-sign"></span>
                 </span>
             {% else %}
@@ -84,7 +84,7 @@
                 <samp><small>
                     {% if profile.email|is_invalid %}
                         <span class="email text-danger" title="{% trans "invalid email" %}" data-toggle="tooltip">
-                            {{ profile.email|cut:INVALID_PREFIX }}
+                            {{ profile.email|clear_invalid }}
                             <span class="glyphicon glyphicon-warning-sign"></span>
                         </span>
                     {% else %}
