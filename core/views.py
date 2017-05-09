@@ -118,8 +118,9 @@ class EmailUpdateView(LoginRequiredMixin, generic.UpdateView):
     def form_valid(self, form):
         response = super(EmailUpdateView, self).form_valid(form)
         if form.previous_email != form.instance.email:
-            messages.warning(self.request, _("A confirmation email has been sent. "
-                                             "Please check your mailbox to complete the process."))
+            messages.warning(self.request, extra_tags='eminent',
+                             message=_("A confirmation email has been sent. "
+                                       "Please check your mailbox to complete the process."))
         return response
 
 email_update = EmailUpdateView.as_view()
@@ -181,9 +182,9 @@ class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
         user.email = new_email
         user.save()
         if 'verification' in kwargs and kwargs['verification']:
-            messages.info(request, _("Your email address has been successfully verified!"))
+            messages.info(request, _("Your email address has been successfully verified!"), extra_tags='eminent')
         else:
-            messages.info(request, _("Your email address has been successfully updated!"))
+            messages.info(request, _("Your email address has been successfully updated!"), extra_tags='eminent')
         try:
             if user.profile.email == old_email:  # Keep profile email in sync
                 user.profile.email = new_email

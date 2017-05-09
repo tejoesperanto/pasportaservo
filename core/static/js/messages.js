@@ -10,6 +10,23 @@ $(document).ready(function() {
         e.preventDefault();
     });
 
+    +function() {
+        var messages = $('.message.eminent');
+        if (!messages.length)
+            return;
+        var msgbox = messages.filter('.error').first();
+        if (!msgbox.length)
+            msgbox = messages.filter('.warning').first();
+        if (!msgbox.length)
+            msgbox = messages.filter('.info').first();
+        if (!msgbox.length)
+            msgbox = messages.filter('.success').first();
+        messages.first().before(messages.clone(true).removeClass('eminent'));
+        messages.not(msgbox).hide();
+        window.setTimeout(function () { msgbox.addClass('out') }, 3000);
+        window.setTimeout(function () { messages.children('.close').click() }, 5000);
+    }();
+
     // Close sticky message
     if (window.localStorage) {
         // Save sticky message class into localStorage when closing

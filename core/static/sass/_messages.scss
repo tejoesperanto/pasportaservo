@@ -16,6 +16,28 @@
     &.warning { background: #d99c5f; }
     &.error { background: #d95f5f; }
 
+    &.eminent {
+        position: fixed;
+        top: 50%;
+        left: 30%;
+        width: 40%;
+        border: solid 4px #bbb;
+        border-radius: 3px;
+        z-index: 1030;
+        opacity: 0.98;
+        transition: top 1.5s ease-in, opacity 2s;
+
+        &.out {
+            top: -40px !important;
+            opacity: 0;
+        }
+
+        /* XS */
+        @media (max-width: 767px) {
+            display: none;
+        }
+    }
+
     a {
         color: white;
         opacity: .8;
