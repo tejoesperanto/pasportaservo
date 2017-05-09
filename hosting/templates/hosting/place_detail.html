@@ -270,7 +270,7 @@
         <p class="col-xs-12">
             {% if user.profile != place.owner %}
                 {% if place.owner.user.email|is_invalid %}
-                    <a href="#" class="btn btn-danger btn-vert-space disabled" data-toggle="tooltip"
+                    <a href="#" class="btn btn-danger btn-vert-space disabled" data-toggle="tooltip" data-container="body"
                        title="{% trans "The user's email address seems invalid" %}">
                 {% else %}
                     <a href="{% url 'postman:write' place.owner.user.username %}" class="btn btn-primary btn-vert-space">

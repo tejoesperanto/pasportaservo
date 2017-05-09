@@ -83,7 +83,7 @@
                             {% if profile.user.email|is_invalid %}
                                 <a href="#" class="btn btn-danger disabled"
                                    title="{% trans "The user's email address seems invalid" %}"
-                                   data-toggle="tooltip" data-placement="bottom">
+                                   data-toggle="tooltip" data-container="body" data-placement="bottom">
                             {% else %}
                                 <a href="{% url 'postman:write' profile.user.username %}" class="btn btn-primary">
                             {% endif %}

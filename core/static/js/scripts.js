@@ -126,12 +126,12 @@ $(document).ready(function() {
         $('.anchor-notify').popover({
             trigger: "manual",
             html: true,
-            content: $('#status-anchors_notification').data("content")
+            content: $('#status-anchors_notification').data('content')
         });
     }
 
     // Bootstrap tooltips and popovers
-    $('[data-toggle=tooltip]').tooltip({html: true});
+    $('[data-toggle=tooltip]').tooltip();
     $('[data-toggle=tooltip-lasting]').tooltip({ delay: { show: 0, hide: 2000, } });
     $('[data-toggle=popover]').popover();
 });

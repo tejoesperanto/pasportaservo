@@ -67,7 +67,7 @@
             <a href="#{% trans "not-confirmed" %}">
                 <span class="badge">{{ not_confirmed_count }}</span>
                 {{ not_confirmed|capfirst }}
-                {% if not not_confirmed_count %}<span class="glyphicon glyphicon-save"></span>{% endif %}
+                {% if not_confirmed_count %}<span class="glyphicon glyphicon-save"></span>{% endif %}
             </a>
         </li>
     </ul>
@@ -122,14 +122,14 @@
 
         <br>
         <h4 class="text-right" title="{% trans "last login" %}<br>{{ place.owner.user.last_login }}"
-            data-toggle="tooltip" data-placement="bottom">
-          <small class="glyphicon glyphicon-user"></small>
+            data-toggle="tooltip" data-html="true" data-placement="bottom">
+          <small class="glyphicon glyphicon-log-in"></small>
           <small>{{ place.owner.user.last_login|date:"Y-m-d H:i" }} UTC</small>
         </h4>
 
         <h4 class="text-right" title="{% trans "place" %}<br>{{ place.modified }}"
-            data-toggle="tooltip" data-placement="bottom">
-          <small class="glyphicon glyphicon-time"></small>
+            data-toggle="tooltip" data-html="true" data-placement="bottom">
+          <small class="glyphicon glyphicon-edit"></small>
           <small>{{ place.modified|date:"Y-m-d H:i" }} UTC</small>
         </h4>
     </div>
