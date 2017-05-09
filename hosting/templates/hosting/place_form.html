@@ -3,11 +3,11 @@
 
 {% block head_title %}
     {% if user.is_staff and place and user.profile != place.owner %}
-        {% blocktrans %}Update {{kin}}place{% endblocktrans %}: {{ place.owner.name }},
-        {% if place.city %} {{ place.city }} ({{ place.get_country_display }}) {% else %} {{ place.get_country_display }} {% endif %}
+        {% blocktrans %}Update {{kin}}place{% endblocktrans %}:
+        {{ place.owner.name }}, {{ place.get_locality_display }}
     {% elif place %}
         {% blocktrans with kin=_("my ") %}Update {{kin}}place{% endblocktrans %}
-        ({% if place.city %}{{ place.city }}, {% endif %}{{ place.get_country_display }})
+        ({{ place }})
     {% else %}
         {% trans "place"|title %}
         {% if user.is_staff %}

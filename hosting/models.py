@@ -26,7 +26,7 @@ from .validators import (
     validate_not_in_future, TooFarPastValidator, TooNearPastValidator,
     validate_image, validate_size,
 )
-from .utils import UploadAndRenameAvatar, value_without_invalid_marker
+from .utils import UploadAndRenameAvatar, value_without_invalid_marker, format_lazy
 from .gravatar import email_to_gravatar
 
 
@@ -407,6 +407,12 @@ class Place(TrackingModel, TimeStampedModel):
 
     def get_absolute_url(self):
         return reverse('place_detail', kwargs={'pk': self.pk})
+
+    def get_locality_display(self):
+        if self.city:
+            return format_lazy("{city} ({state})", city=self.city, state=self.country.name)
+        else:
+            return self.country.name
 
     def __str__(self):
         return ", ".join([self.city, str(self.country.name)]) if self.city else str(self.country.name)

@@ -11,7 +11,7 @@
         {% else %}
             {{ place.owner.anonymous_name }},
         {% endif %}
-        {% if place.city %}{{ place.city }}, {% endif %}{{ place.get_country_display }}
+        {{ place }}
     {% endif %}
 {% endblock %}
 
