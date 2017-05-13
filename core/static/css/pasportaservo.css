@@ -190,10 +190,10 @@ header {
 header:not(.home) {
     box-shadow: 0px 3px 5px 0px #d0d0d0;
 }
-header a {
-    color: #fff;
-}
-header a:hover {
+header a,
+header a:hover,
+header a:focus,
+header a:active {
     color: #fff;
 }
 header .links {
@@ -205,7 +205,9 @@ header #title, .same-as-title {
     font-family: Geotica, sans-serif;
     font-size: 1.6em;
 }
-header #title a:hover {
+header #title a:hover,
+header #title a:active {
+    outline: none;
     text-decoration: none;
 }
 header #subtitle {
@@ -791,4 +793,11 @@ header:not(.home) #subtitle,
     .fixed-md-6 {
         width: 570px;
     }
+}
+
+/* Postman */
+.pm_body {
+    margin: .2em 1em 1em;
+    padding: .2em 1em;
+    border-left: lightgray 2px solid;
 }

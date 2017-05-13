@@ -56,7 +56,8 @@
                                 </td>
                                 {% block pm_sender_cell %}
                                     <td>
-                                        {{ message.obfuscated_sender|or_me:user }}
+                                        {% firstof message.sender.profile.get_absolute_url '#' as profile_url %}
+                                        <a href="{{ profile_url }}">{{ message.obfuscated_sender|or_me:user }}</a>
                                         {% if message.count %}<span class="badge">{{ message.count }}</span>{% endif %}
                                         {% if message.is_new %}<span class="pm_sign_new">&bull;</span>{% endif %}
                                     </td>

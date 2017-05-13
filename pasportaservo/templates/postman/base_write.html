@@ -16,10 +16,22 @@
     <div id="postman">
         <h1>{% block pm_write_title %}{% endblock %}</h1>
         <form action="{% if next_url %}?next={{ next_url|urlencode }}{% endif %}" method="post">{% csrf_token %}
-            <table>
-                {% block pm_write_recipient %}{% endblock %}
-                {{ form.as_table }}
-            </table>
+              {% block pm_write_recipient %}{% endblock %}
+              <div class="form-group">
+                <p class="required">
+                  <label class="required" for="id_recipients">{% trans 'recipient'|capfirst %}</label>
+                  <input id="id_recipients" class="form-control" name="recipients" value="{{ view.kwargs.recipients }}" required type="text">
+                </p>
+                <p class="required">
+                  <label class="required" for="id_subject">{% trans 'subject'|capfirst %}</label>
+                  <input id="id_subject" class="form-control" maxlength="120" name="subject"
+                    required type="text">
+                </p>
+                <p>
+                  <label class="required" for="id_body">{% trans 'message'|capfirst %}</label>
+                  <textarea id="id_body" class="form-control" name="body" rows="12" cols="55"></textarea>
+                </p>
+              </div>
             <button type="submit" class="btn btn-primary">
                 <span class="glyphicon glyphicon-share-alt"></span>&nbsp;
                 {% trans "Send" %}
