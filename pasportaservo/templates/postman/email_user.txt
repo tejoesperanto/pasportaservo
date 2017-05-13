@@ -32,6 +32,11 @@
 {% endblocktrans %}
 {% domain %}{% url 'postman:view' object.pk %}
 
+{% blocktrans trimmed %}
+    The sender's profile page:
+{% endblocktrans %}
+{% domain %}{{ object.sender.profile.get_absolute_url }}
+
 {% endif %}{# 'acceptance' #}
 
 {% blocktrans %}Note: This message is issued by an automated system.

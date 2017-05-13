@@ -6,7 +6,7 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def domain(context, url=''):
+def domain(context, url='', asvar=None):
     if 'request' in context:
         protocol = 'https' if context['request'].is_secure else 'http'
         _domain = get_current_site(context['request']).domain
@@ -20,4 +20,9 @@ def domain(context, url=''):
             protocol, _domain = 'http', 'localhost:8000'
         else:
             protocol, _domain = 'https', settings.ALLOWED_HOSTS[0]
-    return '://'.join([protocol, _domain]) + url
+
+    link = '{}://{}{}'.format(protocol, _domain, url)
+    if asvar:
+        context[asvar] = link
+        return ''
+    return link
