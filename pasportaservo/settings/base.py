@@ -1,6 +1,7 @@
 from os import environ, path
 from datetime import timedelta
 from django.core.exceptions import ObjectDoesNotExist
+from django.conf import global_settings
 
 
 def get_env_setting(setting):
@@ -48,6 +49,7 @@ INSTALLED_APPS = (
     'phonenumber_field',
     'bootstrapform',
     'postman',
+    'sass_processor',
     'simplemde',
 
     'core',
@@ -99,6 +101,9 @@ ROOT_URLCONF = 'pasportaservo.urls'
 
 WSGI_APPLICATION = 'pasportaservo.wsgi.application'
 
+STATICFILES_FINDERS = global_settings.STATICFILES_FINDERS + [
+    'sass_processor.finders.CssFinder',
+]
 
 # Database
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases

@@ -1,0 +1,14 @@
+@font-face {
+    font-family: Geotica;
+    src: url('../fonts/Geotica_Three.woff2') format('woff2'),
+         url('../fonts/Geotica_Three.woff')  format('woff');
+}
+
+@font-face {
+    font-family: Fira;
+    src: url('../fonts/firasans-regular.woff2') format('woff2'),
+         url('../fonts/firasans-regular.woff')  format('woff');
+}
+
+$font-stack: Fira, "Trebuchet MS", Helvetica, Tahoma, sans-serif;
+$title-font-stack: Geotica, Impact, serif;

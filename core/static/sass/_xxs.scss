@@ -1,0 +1,30 @@
+/* XXS */
+
+@media (max-width: 479px) {
+    .visible-xxs-block {
+        display: block !important;
+    }
+    .visible-xxs-inline {
+        display: inline !important;
+    }
+    .visible-xxs-inline-block {
+        display: inline-block !important;
+    }
+    .hidden-xxs {
+        display: none !important;
+    }
+    .col-xxs- {
+        &12 { float: left; width: 12 / 12 * 100%; }
+        &11 { float: left; width: 11 / 12 * 100%; }
+        &10 { float: left; width: 10 / 12 * 100%; }
+        &9  { float: left; width:  9 / 12 * 100%; }
+        &8  { float: left; width:  8 / 12 * 100%; }
+        &7  { float: left; width:  7 / 12 * 100%; }
+        &6  { float: left; width:  6 / 12 * 100%; }
+        &5  { float: left; width:  5 / 12 * 100%; }
+        &4  { float: left; width:  4 / 12 * 100%; }
+        &3  { float: left; width:  3 / 12 * 100%; }
+        &2  { float: left; width:  2 / 12 * 100%; }
+        &1  { float: left; width:  1 / 12 * 100%; }
+    }
+}
