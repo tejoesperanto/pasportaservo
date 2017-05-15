@@ -9,7 +9,7 @@ from django.conf import settings
 from django.views import generic
 
 from django_countries.fields import Country
-from hosting.models import Profile
+from hosting.models import Profile, Place
 
 from .utils import camel_case_split
 
@@ -35,14 +35,17 @@ class SupervisorAuthBackend(ModelBackend):
             user_countries = frozenset(Country(g.name) for g in user_groups if len(g.name) == 2)
             setattr(user_obj, cache_name, user_countries)
         supervised = getattr(user_obj, cache_name)
+        print("\tobject is", repr(obj))
         if obj is not None:
             if isinstance(obj, Country):
                 countries = [obj]
                 print("\t\tGot a Country,", countries)
             elif isinstance(obj, Profile):
-                countries = obj.owned_places.filter(
-                    available=True, deleted=False).values_list('country', flat=True)
+                countries = obj.owned_places.filter(deleted=False).values_list('country', flat=True)
                 print("\t\tGot a Profile,", countries)
+            elif isinstance(obj, Place):
+                countries = [obj.country]
+                print("\t\tGot a Place,", countries)
             elif hasattr(obj, '__iter__') and not isinstance(obj, str):
                 countries = obj  # assume an iterable of countries
                 print("\t\tGot an iterable,", countries)
@@ -113,9 +116,10 @@ class SupervisorAuthBackend(ModelBackend):
         return perms
 
 
-def get_role_in_context(request, profile):
+def get_role_in_context(request, profile=None, place=None):
+    print("~  ~  PROFILE", repr(profile), "PLACE", repr(place))
     user = request.user
-    if user == profile.user:
+    if profile and user == profile.user:
         return OWNER
     if user.is_superuser:
         return ADMIN
@@ -123,7 +127,7 @@ def get_role_in_context(request, profile):
     #Once enabled, the interaction with perms.hosting.can_supervise has to be verified.
     #if user.is_staff:
     #    return STAFF
-    if user.has_perm(PERM_SUPERVISOR, profile):
+    if user.has_perm(PERM_SUPERVISOR, place or profile or object):
         return SUPERVISOR
     return VISITOR
 
@@ -164,10 +168,21 @@ class AuthMixin(AccessMixin):
         return super().dispatch(request, *args, **kwargs)
 
     def get_owner(self, object):
-        return object.owner
+        try:
+            return super().get_owner(object)
+        except AttributeError:
+            return object.owner
+
+    def get_location(self, object):
+        try:
+            return super().get_location(object)
+        except AttributeError:
+            return None
 
     def _auth_verify(self, object):
-        self.role = get_role_in_context(self.request, profile=self.get_owner(object))
+        self.role = get_role_in_context(self.request,
+                                        profile=self.get_owner(object),
+                                        place=self.get_location(object))
         if getattr(self, 'exact_role', None):
             print("exact role allowed: {-", self.exact_role, "-} , current role: {-", self.role, "-}")
             if self.role == self.exact_role:

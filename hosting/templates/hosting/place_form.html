@@ -2,7 +2,7 @@
 {% load i18n static %}
 
 {% block head_title %}
-    {% if user.is_staff and place and user.profile != place.owner %}
+    {% if view.role >= roles.SUPERVISOR and place %}
         {% blocktrans %}Update {{kin}}place{% endblocktrans %}:
         {{ place.owner.name }}, {{ place.get_locality_display }}
     {% elif place %}
@@ -10,8 +10,8 @@
         ({{ place }})
     {% else %}
         {% trans "place"|title %}
-        {% if user.is_staff %}
-            {% blocktrans with name=form.profile.name %}of {{ name }}{% endblocktrans %}
+        {% if view.role >= roles.SUPERVISOR %}
+            {% blocktrans with name=view.create_for.name %}of {{ name }}{% endblocktrans %}
         {% endif %}
     {% endif %}
 {% endblock %}
@@ -60,5 +60,5 @@
 {% block form_keyboard_shortcut %}Save{% endblock %}
 
 {% block form_after %}
-    <script type="text/javascript">$("#id_conditions").chosen();</script>
+    <script type="text/javascript">$('#id_conditions').chosen();</script>
 {% endblock form_after %}

@@ -132,12 +132,13 @@ class PlaceForm(forms.ModelForm):
             'conditions',
             'latitude', 'longitude',
         ]
+        widgets = {
+            'short_description': forms.Textarea(attrs={'rows': 3}),
+        }
 
     def __init__(self, *args, **kwargs):
         super(PlaceForm, self).__init__(*args, **kwargs)
         self.fields['address'].widget.attrs['rows'] = 2
-        self.fields['short_description'].widget = forms.Textarea(
-            attrs={'rows': 3, 'maxlength': self.fields['short_description'].max_length})
         self.fields['conditions'].help_text = ""
         self.fields['conditions'].widget.attrs['data-placeholder'] = _("Choose your conditions...")
 

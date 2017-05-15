@@ -31,7 +31,7 @@ from braces.views import LoginRequiredMixin, UserPassesTestMixin, FormInvalidMes
 from core.auth import AuthMixin, PERM_SUPERVISOR, SUPERVISOR, OWNER, VISITOR
 from core.mixins import SupervisorRequiredMixin
 from .mixins import (
-    ProfileModifyMixin, ProfileIsUserMixin, PlaceAuthMixin, PhoneMixin,
+    ProfileModifyMixin, ProfileIsUserMixin, PlaceAuthMixin, PlaceMixin, PhoneMixin,
     FamilyMemberMixin, FamilyMemberAuthMixin,
     CreateMixin, UpdateMixin, DeleteMixin,
 )
@@ -233,33 +233,33 @@ class ProfileEmailUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, 
 profile_email_update = ProfileEmailUpdateView.as_view()
 
 
-class PlaceCreateView(LoginRequiredMixin, ProfileModifyMixin, FormInvalidMessageMixin, CreateMixin, generic.CreateView):
+class PlaceCreateView(CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.CreateView):
     model = Place
     form_class = PlaceCreateForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
     def get_form_kwargs(self):
-        kwargs = super(PlaceCreateView, self).get_form_kwargs()
-        kwargs['profile'] = get_object_or_404(Profile, pk=self.kwargs['pk'])
+        kwargs = super().get_form_kwargs()
+        kwargs['profile'] = self.create_for
         return kwargs
 
 place_create = PlaceCreateView.as_view()
 
 
-class PlaceUpdateView(LoginRequiredMixin, ProfileModifyMixin, PlaceAuthMixin, FormInvalidMessageMixin, generic.UpdateView):
+class PlaceUpdateView(UpdateMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.UpdateView):
     form_class = PlaceForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
-    def form_valid(self, form):
-        self.object.checked = self.object.owner.user != self.request.user
-        self.object.checked_by = self.request.user if self.object.checked else None
-        self.object.save()
-        return super(PlaceUpdateView, self).form_valid(form)
+    def get_object(self, queryset=None):
+        print("~  PlaceUpdateView#get_object")
+        object = super().get_object(queryset)
+        print("~  PlaceUpdateView#get_object:", object)
+        return object
 
 place_update = PlaceUpdateView.as_view()
 
 
-class PlaceDeleteView(LoginRequiredMixin, DeleteMixin, ProfileModifyMixin, PlaceAuthMixin, generic.DeleteView):
+class PlaceDeleteView(DeleteMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, generic.DeleteView):
     pass
 
 place_delete = PlaceDeleteView.as_view()
@@ -347,7 +347,7 @@ class PhoneCreateView(CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyM
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['profile'] = get_object_or_404(Profile, pk=self.kwargs['pk'])
+        kwargs['profile'] = self.create_for
         return kwargs
 
 phone_create = PhoneCreateView.as_view()
@@ -366,31 +366,37 @@ phone_delete = PhoneDeleteView.as_view()
 
 
 class ConfirmInfoView(LoginRequiredMixin, generic.View):
+    """Allows the current user (only) to confirm their profile and accommodation details as up-to-date."""
     http_method_names = ['post']
     template_name = 'links/confirmed.html'
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
-        request.user.profile.confirm_all_info()
-        if request.is_ajax():
-            return JsonResponse({'success': 'confirmed'})
-        else:
-            return TemplateResponse(request, self.template_name)
+        try:
+            request.user.profile.confirm_all_info()
+            if request.is_ajax():
+                return JsonResponse({'success': 'confirmed'})
+            else:
+                return TemplateResponse(request, self.template_name)
+        except Profile.DoesNotExist:
+            return HttpResponseRedirect(reverse_lazy('profile_create'))
 
 confirm_hosting_info = ConfirmInfoView.as_view()
 
 
-class PlaceCheckView(LoginRequiredMixin, PlaceAuthMixin, generic.View):
+class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
+    """Allows a supervisor to confirm accommodation details of a user as up-to-date."""
     http_method_names = ['post']
-    minimum_role = SUPERVISOR
     template_name = '404.html'
+    minimum_role = SUPERVISOR
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
         self.get_object().set_check_status(self.request.user)
         if request.is_ajax():
             return JsonResponse({'success': 'checked'})
-        else:  # Not tested/implemented
+        else:
+            # Not tested/implemented.
             return TemplateResponse(request, self.template_name)
 
 place_check = PlaceCheckView.as_view()
@@ -443,7 +449,7 @@ class SearchView(PlaceListView):
 
     def get(self, request, *args, **kwargs):
         if 'ps_q' in request.GET:
-            # Keeping Unicode in URL, replacing space with '+'
+            # Keeping Unicode in URL, replacing space with '+'.
             query = uri_to_iri(urlquote_plus(request.GET['ps_q']))
             params = {'query': query} if query else None
             return HttpResponseRedirect(reverse_lazy('search', kwargs=params))
@@ -458,8 +464,9 @@ class SearchView(PlaceListView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        """Find location by bounding box. Filters also by country,
-        because some bbox for some countres are huge (e.g. France, USA).
+        """
+        Find location by bounding box. Filters also by country,
+        because some bbox for some countries are huge (e.g. France, USA).
         """
         qs = Place.objects.none()
         if self.query and self.locations:
@@ -473,7 +480,7 @@ class SearchView(PlaceListView):
                 qs = qs.filter(latitude__range=lats, longitude__range=lngs)
                 qs = qs.filter(country=country_code.upper()) if country_code else qs
 
-        """Search in the Profile name and username too."""
+        # Search in the Profile name and username too.
         if len(self.query) <= 3:
             return qs
         qs |= Place.objects.filter(owner__user__username__icontains=self.query)

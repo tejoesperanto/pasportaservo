@@ -94,11 +94,21 @@ class CreateMixin(object):
 #        return profile
 
 
+class PlaceMixin(object):
+    def get_object(self, queryset=None):
+        return get_object_or_404(Place, pk=self.kwargs['pk'])
+
+    def get_location(self, object):
+        return object.country
+
+
 class PlaceAuthMixin(object):
     minimum_role = OWNER
 
     def get_object(self, queryset=None):
+        print("~  PlaceAuthMixin#get_object")
         place = get_object_or_404(Place, pk=self.kwargs['pk'])
+        print("~  PlaceAuthMixin#get_object:", place)
         self.role = get_role(self.request, profile=place.owner)
         if self.role >= self.minimum_role:
             return place
