@@ -71,17 +71,38 @@
 {% endblock header %}
 
 {% block pre-page %}
-    <div id="home-explain" class="lazy">
-        <div class="container">
-            <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <p>
-                        {% trans "Find accomodation<br>anywhere in the world." %}
-                    </p>
-                </div>
+    <section id="home-explain" class="container">
+        <div class="row">
+            <div class="col-xs-12 col-md-6">
+              <h2 class="text-center"><strong>
+                <a href="{% url 'blog:posts' %}">{% trans 'News' %}</a>
+                </strong></h2>
+
+                {% for post in view.news %}
+                  {% include 'blog/post.html' with post=post only %}
+                {% endfor %}
+            </div>
+
+            <div class="col-xs-12 col-md-5 col-md-offset-1">
+              <h2 class="text-center">
+                <strong>{% trans 'How to use?' %}</strong>
+              </h2>
+
+              <div class="callout callout-warning">
+                <h4><big>1 &bull;</big> Komencu serĉi gastiganton</h4>
+                <p>Vi bezonas <a href="{% url 'register' %}">krei konton</a> por vidi pli da informoj</p>
+              </div>
+              <div class="callout callout-primary">
+                <h4><big>2 &bull;</big> Kontaktu la gastiganton kaj interkonsentu</h4>
+                <p>Legi la konidĉojn kaj decidu ĉu taŭgus por vi</p>
+              </div>
+              <div class="callout callout-success">
+                <h4><big>3 &bull;</big> Vojaĝu kaj travivu Esperantajn spertojn</h4>
+                <p></p>
+              </div>
             </div>
         </div>
-    </div>
+    </section>
 {% endblock pre-page %}
 
 {% block page %}

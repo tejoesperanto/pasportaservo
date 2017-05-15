@@ -8,6 +8,7 @@ urlpatterns = [
     url('', include('core.urls')),
     url(_(r'^admin/'), admin.site.urls),
     url(_(r'^messages/'), include('postman.urls', namespace='postman', app_name='postman')),
+    url(_(r'^blog/'), include('blog.urls', namespace='blog')),
     url('', include('hosting.urls')),
     url('', include('pages.urls')),
     url('', include('links.urls')),

@@ -1,0 +1,10 @@
+<article>
+  <h3 class="title">
+    <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+    <small class="pull-right">{{ post.pub_date.date }}</small>
+  </h3>
+
+  <blockquote>
+    {{ post.description|safe }}
+  </blockquote>
+</article>

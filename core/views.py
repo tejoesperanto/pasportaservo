@@ -23,6 +23,7 @@ from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 
+from blog.models import Post
 from hosting.models import Place, Profile
 from hosting.mixins import SupervisorRequiredMixin, ProfileMixin
 from .forms import (
@@ -38,6 +39,9 @@ User = get_user_model()
 
 class HomeView(generic.TemplateView):
     template_name = 'core/home.html'
+
+    def news(self):
+        return Post.objects.published(3).defer('content', 'body')
 
 home = HomeView.as_view()
 

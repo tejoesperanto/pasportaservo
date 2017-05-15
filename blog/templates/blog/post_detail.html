@@ -1,0 +1,41 @@
+{% extends 'core/base.html' %}{% load i18n %}
+
+{% block page %}
+<section class="blog">
+  <div class="col-md-offset-2 col-md-8">
+    <article>
+      <div class="btn-toolbar pull-right" role="toolbar">
+      {% if perms.blog %}
+        <div class="btn-group" role="group">
+          <a href="{% url 'admin:blog_post_change' post.pk %}" class="btn btn-primary pull-right" title="{% trans Update %}">
+              <span class="glyphicon glyphicon-pencil"></span>
+              {% trans "Update" %}
+          </a>
+        </div>
+      {% endif %}
+      {% include 'blog/subscribe.html' %}
+      </div>
+
+      <h1 class="title">{{ post.title }}</h1>
+
+      {{ post.body|safe }}
+    </article>
+
+    <hr>
+
+    {% if next_post %}
+    <a href="{{ next_post.get_absolute_url }}" class="btn btn-default pull-right">
+      {{ next_post }}
+      <span class="glyphicon glyphicon-chevron-right"></span>
+    </a>
+    {% endif %}
+
+    {% if previous_post %}
+    <a href="{{ previous_post.get_absolute_url }}" class="btn btn-default pull-left">
+      <span class="glyphicon glyphicon-chevron-left"></span>
+      {{ previous_post }}
+    </a>
+    {% endif %}
+  </div>
+</section>
+{% endblock page %}

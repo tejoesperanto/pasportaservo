@@ -1,0 +1,27 @@
+{% extends 'core/base.html' %}
+{% load i18n %}
+
+{% block page %}
+<section class="blog row">
+  <div class="col-md-offset-2 col-md-8">
+    <h1 class="title">{% trans 'News' %}</h1>
+    {% if perms.blog %}
+        <a href="{% url 'admin:blog_post_add' %}" class="btn btn-primary pull-right">
+            <span class="glyphicon glyphicon-plus"></span>
+            <strong>{% trans "Add" %}</strong>
+        </a>
+    {% endif %}
+
+    {% for post in post_list %}
+      <article>
+        <h2><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h2>
+
+        {{ post.description|safe }}
+
+        <a href="{{ post.get_absolute_url }}" class="text-center">legu pli</a>
+      </article>
+      <hr>
+    {% endfor %}
+  </div>
+</section>
+{% endblock page %}

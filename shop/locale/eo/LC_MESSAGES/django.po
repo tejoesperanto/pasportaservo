@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-07 18:27+0000\n"
+"POT-Creation-Date: 2017-05-15 19:37+0000\n"
 "PO-Revision-Date: 2017-04-07 20:27+0100\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: \n"
@@ -17,111 +17,115 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.8.11\n"
 
-#: apps.py:7
+#: shop/apps.py:7
 msgid "Shop"
 msgstr "Butiko"
 
-#: forms.py:10
+#: shop/forms.py:10
 msgid "I'm a host and I will appear in the book"
 msgstr "Mi estas gastiganto kaj mi aperos en la libro"
 
-#: forms.py:11
+#: shop/forms.py:11
 msgid "I can have my book at a discounted price"
 msgstr "Mi povas havi mian libron je rabatita prezo"
 
-#: models.py:10
+#: shop/models.py:10
 msgid "name"
 msgstr "nomo"
 
-#: models.py:11
+#: shop/models.py:11
 msgid "code"
 msgstr "kodo"
 
-#: models.py:12
+#: shop/models.py:12
 msgid "price"
 msgstr "prezo"
 
-#: models.py:14 templates/shop/reservation_form.html:58
+#: shop/models.py:14 shop/templates/shop/reservation_form.html:58
 msgid "low price"
 msgstr "rabata prezo"
 
-#: models.py:18 models.py:29
+#: shop/models.py:18 shop/models.py:29
 msgid "product"
 msgstr "produkto"
 
-#: models.py:19
+#: shop/models.py:19
 msgid "products"
 msgstr "produktoj"
 
-#: models.py:31
+#: shop/models.py:31
 msgid "user"
 msgstr "uzanto"
 
-#: models.py:33 templates/shop/reservation_form.html:52
+#: shop/models.py:33 shop/templates/shop/reservation_form.html:52
 msgid "amount"
 msgstr "kvanto"
 
-#: models.py:34 templates/shop/reservation_form.html:78
+#: shop/models.py:34 shop/templates/shop/reservation_form.html:78
 msgid "TEJO discount"
 msgstr "TEJO-rabato"
 
-#: models.py:35
+#: shop/models.py:35
+#, fuzzy, python-format
+#| msgid ""
+#| "If you are member of TEJO or UEA and the 10% discount applies (twice a "
+#| "year)."
 msgid ""
 "If you are member of TEJO or UEA and the 10% discount applies (twice a year)."
 msgstr ""
 "Se vi estas membro de TEJO aŭ UEA kaj la 10%-a rabato validas (dufoje jare)."
 
-#: models.py:36 templates/shop/reservation_form.html:68
+#: shop/models.py:36 shop/templates/shop/reservation_form.html:68
 msgid "support"
 msgstr "subteno"
 
-#: models.py:40
+#: shop/models.py:40
 msgid "reservation"
 msgstr "rezervo"
 
-#: models.py:41
+#: shop/models.py:41
 msgid "reservations"
 msgstr "rezervoj"
 
-#: templates/shop/reservation_detail.html:5
+#: shop/templates/shop/reservation_detail.html:5
 msgid "Soon at your place!"
 msgstr "Baldaŭ ĉe vi!"
 
-#: templates/shop/reservation_detail.html:11
+#: shop/templates/shop/reservation_detail.html:11
 msgid "Thank you!"
 msgstr "Dankon!"
 
-#: templates/shop/reservation_form.html:17
+#: shop/templates/shop/reservation_form.html:17
 #, python-format
 msgid "Pre-order form of the %(product_name)s book."
 msgstr "Antaŭmendado de la libreto %(product_name)s!"
 
-#: templates/shop/reservation_form.html:21
-#: templates/shop/reservation_form.html:22
+#: shop/templates/shop/reservation_form.html:21
+#: shop/templates/shop/reservation_form.html:22
 msgid "Reservation"
 msgstr "Rezervado"
 
-#: templates/shop/reservation_form.html:25
+#: shop/templates/shop/reservation_form.html:25
 msgid "First, please select the number of books you would like to reserve."
 msgstr "Unue bonvolu elekti la nombron de libroj, kiujn vi deziras mendi."
 
-#: templates/shop/reservation_form.html:53
+#: shop/templates/shop/reservation_form.html:53
 msgid "value"
 msgstr "valoro"
 
-#: templates/shop/reservation_form.html:73
+#: shop/templates/shop/reservation_form.html:73
 msgid "volume discount"
 msgstr "kvanta rabato"
 
-#: templates/shop/reservation_form.html:83
+#: shop/templates/shop/reservation_form.html:83
 msgid "shipping"
 msgstr "sendokostoj"
 
-#: templates/shop/reservation_form.html:88
+#: shop/templates/shop/reservation_form.html:88
 msgid "total"
 msgstr "sumo"
 
-#: templates/shop/reservation_form.html:96
+#: shop/templates/shop/reservation_form.html:96
 #, python-format
 msgid ""
 "You do not have to pay now. We will contact you when it will be possible to "
@@ -129,19 +133,19 @@ msgid ""
 msgstr ""
 "Vi ne devas nun pagi. Ni kontaktos vin kiam eblos mendi el la %(link)s."
 
-#: templates/shop/reservation_form.html:102
+#: shop/templates/shop/reservation_form.html:102
 msgid "Reserve"
 msgstr "Rezervu"
 
-#: templates/shop/reservation_form.html:107
+#: shop/templates/shop/reservation_form.html:107
 msgid "Reserving the book helps us to print the right quantity."
 msgstr "Rezervi la libreton helpas nin printi la ĝustan kvanton."
 
-#: templates/shop/reservation_form.html:108
+#: shop/templates/shop/reservation_form.html:108
 msgid "Buying the book really helps the Pasporta Servo project."
 msgstr "Aĉeti la libron vere helpas la projekton Pasporta Servo!"
 
-#: templates/shop/reservation_form.html:112
+#: shop/templates/shop/reservation_form.html:112
 msgid ""
 "Your email address doesn't appear to be valid, we probably won't be able to "
 "send messages to that address. Please check it out."
@@ -149,14 +153,14 @@ msgstr ""
 "Via retpoŝta adreso aspektas nefunkcianta, ni verŝajne ne sukcesos sendi "
 "mesaĝojn al tiu ĉi adreso. Bv kontrolu ĝin."
 
-#: urls.py:8
+#: shop/urls.py:8
 msgid "^reserve/$"
 msgstr "^rezervu/$"
 
-#: urls.py:10
+#: shop/urls.py:10
 msgid "^reserve/(?P<product_code>\\w+)/$"
 msgstr "^rezervu/(?P<product_code>\\w+)/$"
 
-#: urls.py:12
+#: shop/urls.py:12
 msgid "^reservation/(?P<product_code>\\w+)/$"
 msgstr "^rezervado/(?P<product_code>\\w+)/$"

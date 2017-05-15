@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-{% load i18n static %}
+{% load i18n static sass_tags %}
+
 <html lang="eo">
     <head>
         <meta charset="utf-8">
         <title>{% block head_title %}{% trans "Find accomodation" %}{% endblock %} {% block head_title_separator %}|{% endblock %} Pasporta Servo</title>
         <meta name="description" content="{% block head_description %}Esperantaj gastigantoj tra la mondo{% endblock %}">
-        
+
         <link rel="shortcut icon"         href="{% static 'img/marker/PS_favicon.ico' %}?v=1">
         <link rel="icon" type="image/png" href="{% static 'img/marker/PS_favicon-32.png' %}"  sizes="32x32">
         <link rel="icon" type="image/png" href="{% static 'img/marker/PS_android-192.png' %}" sizes="192x192">
@@ -23,9 +24,11 @@
         <meta name="mobile-web-app-capable" content="yes">
         <link rel="manifest" href="{% static 'img/marker/android-manifest.json' %}?v=1">
         <meta name="theme-color" content="#ee6600">
-        
+
+        <link rel="alternate" type="application/atom+xml" title="Pasporta Servo" href="{% url 'blog:atom' %}">
+
         <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
-        <link rel="stylesheet" href="{% static 'css/pasportaservo.css' %}">
+        <link rel="stylesheet" href="{% sass_src 'sass/pasportaservo.scss' %}">
         {% block extra_css %}{% endblock %}
         <script src="{% static 'js/jquery.min.js' %}"></script>
         <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>

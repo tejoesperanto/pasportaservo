@@ -48,8 +48,10 @@ INSTALLED_APPS = (
     'phonenumber_field',
     'bootstrapform',
     'postman',
+    'simplemde',
 
     'core',
+    'blog',
     'hosting',
     'links',
     'pages',
