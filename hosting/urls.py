@@ -17,7 +17,7 @@ from .views import (
     family_member_create, family_member_update,
     family_member_remove, family_member_delete,
     phone_create, phone_update, phone_delete,
-    confirm_hosting_info, place_check,
+    hosting_info_confirm, place_check,
     search,
 )
 
@@ -58,7 +58,7 @@ urlpatterns = [
     url(_(r'^profile/(?P<profile_pk>\d+)/phone/(?P<pk>\d+)/update/$'), phone_update, name='phone_update'),
     url(_(r'^profile/(?P<profile_pk>\d+)/phone/(?P<pk>\d+)/delete/$'), phone_delete, name='phone_delete'),
 
-    url(_(r'^current/confirm/$'), confirm_hosting_info, name='confirm_hosting_info'),
+    url(_(r'^current/confirm/$'), hosting_info_confirm, name='hosting_info_confirm'),
     url(_(r'^place/(?P<pk>\d+)/check/$'), place_check, name='place_check'),
 
     url(_(r'^search(?:/(?P<query>.+))?/$'), search, name='search'),

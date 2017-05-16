@@ -29,7 +29,7 @@
                     {% endblocktrans %}
                 </p>
             {% else %}
-                <form class="col-xs-12 text-center" action="{% url 'confirm_hosting_info' %}" method="POST">
+                <form class="col-xs-12 text-center" action="{% url 'hosting_info_confirm' %}" method="POST">
                     {% csrf_token %}
                     {% blocktrans with tag="<span class='text-nowrap'>" endtag="</span>" trimmed %}
                         Are your data up-to-date? {{ tag }}Click if yes{{ endtag }}

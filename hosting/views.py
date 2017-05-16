@@ -38,10 +38,10 @@ from .mixins import (
 from core.forms import UserRegistrationForm
 from core.models import SiteConfiguration
 from .forms import (
-    AuthorizeUserForm, AuthorizedOnceUserForm,
     ProfileForm, ProfileCreateForm, ProfileEmailUpdateForm,
     PhoneForm, PhoneCreateForm,
     PlaceForm, PlaceCreateForm, PlaceBlockForm, FamilyMemberForm, FamilyMemberCreateForm,
+    UserAuthorizeForm, UserAuthorizedOnceForm,
 )
 
 
@@ -365,7 +365,7 @@ class PhoneDeleteView(DeleteMixin, AuthMixin, PhoneMixin, ProfileModifyMixin, ge
 phone_delete = PhoneDeleteView.as_view()
 
 
-class ConfirmInfoView(LoginRequiredMixin, generic.View):
+class InfoConfirmView(LoginRequiredMixin, generic.View):
     """Allows the current user (only) to confirm their profile and accommodation details as up-to-date."""
     http_method_names = ['post']
     template_name = 'links/confirmed.html'
@@ -381,7 +381,7 @@ class ConfirmInfoView(LoginRequiredMixin, generic.View):
         except Profile.DoesNotExist:
             return HttpResponseRedirect(reverse_lazy('profile_create'))
 
-confirm_hosting_info = ConfirmInfoView.as_view()
+hosting_info_confirm = InfoConfirmView.as_view()
 
 
 class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
@@ -496,20 +496,19 @@ class SearchView(PlaceListView):
 search = SearchView.as_view()
 
 
-class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
-    """Form view to add a user to the list of authorized users
-    for a place to be able to see more details."""
+class UserAuthorizeView(AuthMixin, generic.FormView):
+    """Form view to add a user to the list of authorized users for a place to be able to see more details."""
     template_name = 'hosting/place_authorized_users.html'
-    form_class = AuthorizeUserForm
+    form_class = UserAuthorizeForm
+    exact_role = OWNER
 
     def dispatch(self, request, *args, **kwargs):
-        self.place = get_object_or_404(Place,
-                                       pk=self.kwargs['pk'],
-                                       owner__user_id=self.request.user.pk)
-        return super(AuthorizeUserView, self).dispatch(request, *args, **kwargs)
+        self.place = get_object_or_404(Place, pk=self.kwargs['pk'])
+        kwargs['auth_base'] = self.place
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(AuthorizeUserView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['place'] = self.place
         m = re.match(r'^/([a-zA-Z]+)/', self.request.GET.get('next', default=''))
         if m:
@@ -519,21 +518,21 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
                 return (" ".join((user.profile.first_name, user.profile.last_name)).strip() or user.username).lower()
             except Profile.DoesNotExist:
                 return user.username.lower()
-        context['authorized_set'] = [(user, AuthorizedOnceUserForm(initial={'user': user.pk}, auto_id=False))
+        context['authorized_set'] = [(user, UserAuthorizedOnceForm(initial={'user': user.pk}, auto_id=False))
                                      for user
                                      in sorted(self.place.authorized_users.all(), key=order_by_name)]
         return context
 
     def form_valid(self, form):
         if not form.cleaned_data['remove']:
-            # for addition, "user" is the username
+            # For addition, "user" is the username.
             user = get_object_or_404(User, username=form.cleaned_data['user'])
             if user not in self.place.authorized_users.all():
                 self.place.authorized_users.add(user)
                 if not user.email.startswith(settings.INVALID_PREFIX):
                     self.send_email(user, self.place)
         else:
-            # for removal, "user" is the primary key
+            # For removal, "user" is the primary key.
             user = get_object_or_404(User, pk=form.cleaned_data['user'])
             self.place.authorized_users.remove(user)
         return HttpResponseRedirect(self.get_success_url())
@@ -559,7 +558,7 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
             fail_silently=False,
         )
 
-authorize_user = AuthorizeUserView.as_view()
+authorize_user = UserAuthorizeView.as_view()
 
 
 class FamilyMemberCreateView(LoginRequiredMixin, CreateMixin, FamilyMemberMixin, generic.CreateView):

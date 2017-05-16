@@ -149,29 +149,29 @@ class AuthMixin(AccessMixin):
 
     def dispatch(self, request, *args, **kwargs):
         """
-        Permission check for create views.
+        Permission check for create and general views.
         The context is determined according to the parent object, which is expected
         to be already retrieved by previous dispatch() methods, and stored in the
-        create_for instance variable.
+        auth_base keyword argument.
         """
         print("~  AuthMixin#dispatch .... ", "Create" if isinstance(self, generic.CreateView) else "Other")
         if not request.user.is_authenticated:
             return self.handle_no_permission() # authorization implies a logged-in user
-        if isinstance(self, generic.CreateView):
-            object = getattr(self, 'create_for', None)
-            if object is None:
-                raise ImproperlyConfigured(
-                    "Creation base not found. Make sure {View}.create_for is accessible by "
-                    "AuthMixin.".format(View=self.__class__.__name__)
-                )
+        if 'auth_base' in kwargs:
+            object = kwargs['auth_base']
             self._auth_verify(object)
+        elif isinstance(self, generic.CreateView):
+            raise ImproperlyConfigured(
+                "Creation base not found. Make sure {View}'s auth_base is accessible by "
+                "AuthMixin as a dispatch kwarg.".format(View=self.__class__.__name__)
+            )
         return super().dispatch(request, *args, **kwargs)
 
     def get_owner(self, object):
         try:
             return super().get_owner(object)
         except AttributeError:
-            return object.owner
+            return object.owner if object else None
 
     def get_location(self, object):
         try:

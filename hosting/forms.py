@@ -287,17 +287,17 @@ class PhoneCreateForm(PhoneForm):
         return phone
 
 
-class AuthorizeUserForm(forms.Form):
+class UserAuthorizeForm(forms.Form):
     user = forms.CharField(label=_("Authorize user"), max_length=254)
     remove = forms.BooleanField(required=False, initial=False, widget=forms.widgets.HiddenInput)
 
     def __init__(self, *args, **kwargs):
-        super(AuthorizeUserForm, self).__init__(*args, **kwargs)
+        super(UserAuthorizeForm, self).__init__(*args, **kwargs)
         self.fields['user'].widget.attrs['placeholder'] = _("username")
         self.fields['user'].widget.attrs['inputmode'] = 'verbatim'
 
     def clean(self):
-        cleaned_data = super(AuthorizeUserForm, self).clean()
+        cleaned_data = super(UserAuthorizeForm, self).clean()
         if 'user' not in cleaned_data:
             return
         user_qualifier = cleaned_data['user']
@@ -311,9 +311,9 @@ class AuthorizeUserForm(forms.Form):
         return cleaned_data
 
 
-class AuthorizedOnceUserForm(AuthorizeUserForm):
+class UserAuthorizedOnceForm(UserAuthorizeForm):
     def __init__(self, *args, **kwargs):
-        super(AuthorizedOnceUserForm, self).__init__(*args, **kwargs)
+        super(UserAuthorizedOnceForm, self).__init__(*args, **kwargs)
         self.fields['user'].widget = forms.widgets.HiddenInput()
         self.fields['remove'].initial = True
 
