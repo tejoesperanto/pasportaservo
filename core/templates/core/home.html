@@ -1,6 +1,6 @@
 {% extends 'core/base.html' %}
 {% load i18n static %}
-
+{% load flatpages %}
 {% block header_class %} home{% endblock %}
 
 {% block extra_css %}
@@ -84,22 +84,7 @@
             </div>
 
             <div class="col-xs-12 col-md-5 col-md-offset-1">
-              <h2 class="text-center">
-                <strong>{% trans 'How to use?' %}</strong>
-              </h2>
-
-              <div class="callout callout-warning">
-                <h4><big>1 &bull;</big> Komencu serĉi gastiganton</h4>
-                <p>Vi bezonas <a href="{% url 'register' %}">krei konton</a> por vidi pli da informoj</p>
-              </div>
-              <div class="callout callout-primary">
-                <h4><big>2 &bull;</big> Kontaktu la gastiganton kaj interkonsentu</h4>
-                <p>Legi la konidĉojn kaj decidu ĉu taŭgus por vi</p>
-              </div>
-              <div class="callout callout-success">
-                <h4><big>3 &bull;</big> Vojaĝu kaj travivu Esperantajn spertojn</h4>
-                <p></p>
-              </div>
+              {{ view.right_block.content|safe }}
             </div>
         </div>
     </section>

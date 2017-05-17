@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic.base import TemplateView
 
 
 urlpatterns = [
@@ -19,3 +20,10 @@ if settings.DEBUG:
     urlpatterns += [
         url(r'^__debug__/', include(debug_toolbar.urls)),
     ]
+
+
+urlpatterns += [
+    url(r'^editor/$', TemplateView.as_view(
+        template_name="editor.html"
+    ), name='editor'),
+]

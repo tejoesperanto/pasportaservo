@@ -7,6 +7,7 @@ geopy==1.11
 django-braces==1.9.0
 django-bootstrap-form==3.2.1
 django-countries==4.0
+djangocodemirror==1.1.0
 django-extensions==1.7.4
 django-phonenumber-field==1.1.0
 django-postman==3.4.0

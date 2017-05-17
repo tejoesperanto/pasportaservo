@@ -10,6 +10,7 @@ from django.template.response import TemplateResponse
 from django.views.decorators.vary import vary_on_headers
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.flatpages.models import FlatPage
 from django.contrib.auth import get_user_model, authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse_lazy
@@ -42,6 +43,9 @@ class HomeView(generic.TemplateView):
 
     def news(self):
         return Post.objects.published(3).defer('content', 'body')
+
+    def right_block(self):
+        return FlatPage.objects.filter(url='/home-right-block/').values('content').first()
 
 home = HomeView.as_view()
 

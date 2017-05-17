@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.flatpages',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
@@ -44,6 +45,7 @@ INSTALLED_APPS = (
 
     'django_extensions',
     'django_countries',
+    'djangocodemirror',
     'rest_framework',
     'corsheaders',
     'phonenumber_field',
@@ -70,6 +72,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
 TEMPLATES = [
@@ -155,6 +158,9 @@ MEET_MIN_AGE = 13
 # Prefix for marking values (such as email addresses) as no longer valid
 # Do not change the value without a data migration!
 INVALID_PREFIX = 'INVALID_'
+
+
+from djangocodemirror.settings import *  # noqa
 
 COUNTRIES_WITH_REGIONS = ('US', 'GB', 'FR', 'DE', 'BR', 'BE')
 
