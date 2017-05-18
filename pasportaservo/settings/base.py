@@ -29,7 +29,7 @@ MEDIA_ROOT = path.join(WWW_DIR, 'media')
 
 STATICFILES_DIRS = (path.join(PROJECT_DIR, 'static'), )
 
-LOCALE_PATHS = (path.join(PROJECT_DIR, 'locale'), )
+LOCALE_PATHS = (path.join(BASE_DIR, 'locale'), )
 
 # Application definition
 
