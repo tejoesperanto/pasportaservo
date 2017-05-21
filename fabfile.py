@@ -55,6 +55,7 @@ def requirements():
 
 @task
 def collectstatic():
+    run("./manage.py compilescss")
     run("./manage.py collectstatic --noinput")
 
 @task
