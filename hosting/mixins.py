@@ -74,7 +74,8 @@ class CreateMixin(object):
             self.create_for = place
             #self.role = get_role(self.request, profile=place.owner)
 
-        kwargs['auth_base'] = self.create_for
+        kwargs['auth_base'] = getattr(self, 'create_for', None)
+        print("~  ~  base:  ", repr(kwargs['auth_base']))
         #if self.role >= self.minimum_role:
         #    return super().dispatch(request, *args, **kwargs)
         #else:
@@ -122,21 +123,41 @@ class PhoneMixin(object):
 
 
 class FamilyMemberMixin(object):
-    minimum_role = OWNER
+    #minimum_role = OWNER
 
     def dispatch(self, request, *args, **kwargs):
-        self.place = get_object_or_404(Place, pk=self.kwargs['place_pk'])
+        self.get_place()
         return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
-        self.role = get_role(self.request, self.place.owner)
-        if self.role >= self.minimum_role:
-            profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
+            print("~  FamilyMemberMixin#get_object")
+        #self.role = get_role(self.request, self.place.owner)
+        #if self.role >= self.minimum_role:
+        #    profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
+            profile = super().get_object(queryset)
+            print("~  FamilyMemberMixin#get_object:", profile)
             if profile in self.place.family_members.all():
                 return profile
             else:
-                raise Http404("Profile " + str(profile.id) + " is not a family member at place " + str(self.place.id) + ".")
-        raise Http404("You don't own this place.")
+                raise Http404("Profile {} is not a family member at place {}.".format(profile.id, self.place.id))
+        #raise Http404("You don't own this place.")
+
+    def get_place(self):
+        if not hasattr(self, 'place'):
+            self.place = getattr(self, 'create_for', None) or get_object_or_404(Place, pk=self.kwargs['place_pk'])
+        return self.place
+
+    @property
+    def other_places(self):
+        if not hasattr(self, '_places_cache'):
+            self._places_cache = Place.objects.filter(family_members__pk=self.object.pk).exclude(pk=self.place.pk)
+        return self._places_cache
+
+    def get_owner(self, object):
+        return self.get_place().owner
+
+    def get_location(self, object):
+        return self.get_place().country
 
     def get_success_url(self, *args, **kwargs):
         return self.place.owner.get_edit_url()
@@ -144,7 +165,9 @@ class FamilyMemberMixin(object):
 
 class FamilyMemberAuthMixin(object):
     def get_object(self, queryset=None):
+        print("~  FamilyMemberAuthMixin#get_object")
         profile = super().get_object(queryset)
+        print("~  FamilyMemberAuthMixin#get_object:", profile)
         if profile.user:
             raise Http404("Only the user can modify their profile.")
         return profile
@@ -165,6 +188,11 @@ class UpdateMixin(object):
 class DeleteMixin(object):
     minimum_role = OWNER
 
+    def get_object(self, queryset=None):
+        if getattr(self, 'object', None) is not None:
+            return self.object
+        return super().get_object(queryset)
+
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if self.object.deleted:
@@ -176,7 +204,8 @@ class DeleteMixin(object):
             return super().get(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
-        self.object = self.get_object()
+        if getattr(self, 'object', None) is None:
+            self.object = self.get_object()
         if not self.object.deleted:
             self.object.deleted_on = timezone.now()
             self.object.save()

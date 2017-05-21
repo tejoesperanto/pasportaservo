@@ -54,7 +54,7 @@ class SupervisorAuthBackend(ModelBackend):
                     "Supervisor check needs either a profile, a country, or a list of countries."
                 )
             print("\t\trequested:", set(countries), "supervised:", set(supervised),
-                  "result", set(supervised) & set(countries))
+                  "\n\t\tresult", set(supervised) & set(countries))
             supervised = set(supervised) & set(countries)
         return supervised if code else [c.name for c in supervised]
 

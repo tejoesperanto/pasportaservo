@@ -39,6 +39,12 @@
         <script src="{% static 'popup/magnific-popup.min.js' %}"></script>
 {% endblock %}
 
+{% block form_title %}
+    {% if view.place and view.role >= roles.SUPERVISOR %}
+        {{ view.place }} <hr />
+    {% endif %}
+{% endblock %}
+
 {% block enctype %}enctype='multipart/form-data'{% endblock %}
 
 {% block form_back_link %}

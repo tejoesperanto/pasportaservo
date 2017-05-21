@@ -344,7 +344,7 @@ class FamilyMemberForm(forms.ModelForm):
         members = self.place.family_members
         if members.count() != 1:
             return members.count() > 1
-        return members.all()[0].full_name.strip() != ""
+        return members.first().full_name.strip() != ""
 
     def clean(self):
         """Verifies that first name and last name convey some information together."""

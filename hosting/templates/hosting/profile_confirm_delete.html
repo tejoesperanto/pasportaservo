@@ -2,7 +2,8 @@
 {% load i18n %}
 
 {% block head_title %}
-    {% if view.role == roles.OWNER %}&#9872;{% endif %}
+    {# Confirmation is displayed both for deletion of regular profiles and of family member profiles. #}
+    {% if view.role == roles.OWNER and profile == user.profile %}&#9872;{% endif %}
     {% trans "Delete profile" %}
     {% if view.role >= roles.SUPERVISOR and profile.user %} ({{ profile.anonymous_name.strip }}) {% endif %}
 {% endblock %}
@@ -13,13 +14,19 @@
             {% else %}
                 {% trans "this " as kin %}
             {% endif %}
-            <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;
-            {% blocktrans %}Are you sure you want to delete {{ kin }}profile and all linked data (place, phone…)?{% endblocktrans %}
+            {% if profile.user %}
+                <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;
+                {% blocktrans trimmed %}
+                    Are you sure you want to delete {{ kin }}profile and all linked data (place, phone…)?
+                {% endblocktrans %}
+            {% else %}
+                {% trans "Are you sure you want to delete the profile of this family member?" %}
+            {% endif %}
 {% endblock %}
 {% block extra_details %}
     {% if places %}<br />{% endif %}
-    {% if view.role >= roles.SUPERVISOR %}
-            {{ profile.get_fullname_display }}
+    {% if view.role >= roles.SUPERVISOR or not profile.user %}
+            {{ profile.get_fullname_always_display }}
     {% endif %}
 {% endblock %}
 {% block extra_details_block %}

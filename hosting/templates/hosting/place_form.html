@@ -3,10 +3,10 @@
 
 {% block head_title %}
     {% if view.role >= roles.SUPERVISOR and place %}
-        {% blocktrans %}Update {{kin}}place{% endblocktrans %}:
+        {% blocktrans %}Update {{ kin }}place{% endblocktrans %}:
         {{ place.owner.name }}, {{ place.get_locality_display }}
     {% elif place %}
-        {% blocktrans with kin=_("my ") %}Update {{kin}}place{% endblocktrans %}
+        {% blocktrans with kin=_("my ") %}Update {{ kin }}place{% endblocktrans %}
         ({{ place }})
     {% else %}
         {% trans "place"|title %}
