@@ -53,6 +53,7 @@ INSTALLED_APPS = (
     'postman',
     'sass_processor',
     'simplemde',
+    'solo',
 
     'core',
     'blog',
@@ -195,6 +196,7 @@ JSON_API_FORMAT_KEYS = 'dasherize'
 PHONENUMBER_DEFAULT_REGION = 'PL'
 PHONENUMBER_DEFAULT_FORMAT = 'INTERNATIONAL'
 
+SOLO_CACHE = 'default'
 
 DEFAULT_AVATAR_URL = "mm"
 

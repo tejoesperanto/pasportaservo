@@ -5,6 +5,8 @@ from django.db import models
 
 from djangocodemirror.widgets import CodeMirrorAdminWidget
 
+from .models import SiteConfiguration
+
 admin.site.unregister(FlatPage)
 
 
@@ -14,3 +16,7 @@ class FlatPageAdmin(FlatPageAdmin):
         models.TextField: {'widget': CodeMirrorAdminWidget(config_name='html')},
     }
 
+
+@admin.register(SiteConfiguration)
+class SiteConfigurationAdmin(admin.ModelAdmin):
+    pass
