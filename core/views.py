@@ -33,8 +33,10 @@ from .forms import (
 )
 from hosting.utils import value_without_invalid_marker, format_lazy
 from links.utils import create_unique_url
+from .models import SiteConfiguration
 from .utils import send_mass_html_mail
 
+config = SiteConfiguration.objects.get()
 User = get_user_model()
 
 
@@ -144,7 +146,7 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
             'email': email_to_verify,
         })
         context = Context({
-            'site_name': settings.SITE_NAME,
+            'site_name': config.site_name,
             'url': url,
             'user': request.user,
         })

@@ -1,7 +1,10 @@
 from django.db import models
 from django.db.models import BooleanField, Case, When
-from django.conf import settings
 from django.utils import timezone
+
+from core.models import SiteConfiguration
+
+config = SiteConfiguration.objects.get()
 
 
 class TrackingManager(models.Manager):
@@ -10,7 +13,7 @@ class TrackingManager(models.Manager):
     """
 
     def get_queryset(self):
-        validity_start = timezone.now() - settings.CONFIRMATION_VALIDITY_PERIOD
+        validity_start = timezone.now() - config.confirmation_validity_period
         return super().get_queryset().annotate(deleted=Case(
             When(deleted_on__isnull=True, then=False),
             default=True,

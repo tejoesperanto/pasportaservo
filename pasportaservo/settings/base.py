@@ -1,5 +1,4 @@
 from os import environ, path
-from datetime import timedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import global_settings
 
@@ -146,16 +145,7 @@ CSRF_COOKIE_HTTPONLY = True
 
 # Non-Django settings:
 
-SITE_NAME = "Pasporta Servo"
-
-SALT = 'salo'
-TOKEN_MAX_AGE = 3600 * 24 * 2  # 2 days
-
-# Delay after which an object is no longer considered as confirmed
-CONFIRMATION_VALIDITY_PERIOD = timedelta(weeks=42)
-
-HOST_MIN_AGE = 16
-MEET_MIN_AGE = 13
+COUNTRIES_WITH_REGIONS = ('US', 'GB', 'FR', 'DE', 'BR', 'BE')
 
 # Prefix for marking values (such as email addresses) as no longer valid
 # Do not change the value without a data migration!
@@ -163,8 +153,6 @@ INVALID_PREFIX = 'INVALID_'
 
 
 from djangocodemirror.settings import *  # noqa
-
-COUNTRIES_WITH_REGIONS = ('US', 'GB', 'FR', 'DE', 'BR', 'BE')
 
 
 CORS_ORIGIN_WHITELIST = (

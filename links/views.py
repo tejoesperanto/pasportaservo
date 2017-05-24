@@ -11,15 +11,18 @@ from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from hosting.models import Place
+from core.models import SiteConfiguration
 from core.views import email_update_confirm
+
+config = SiteConfiguration.objects.get()
 
 
 class UniqueLinkView(generic.TemplateView):
     def get(self, request, *args, **kwargs):
         self.token = kwargs.pop('token')
-        s = URLSafeTimedSerializer(settings.SECRET_KEY, salt=settings.SALT)
+        s = URLSafeTimedSerializer(settings.SECRET_KEY, salt=config.salt)
         try:
-            payload = s.loads(self.token, max_age=settings.TOKEN_MAX_AGE)
+            payload = s.loads(self.token, max_age=config.token_max_age)
         except SignatureExpired:
             self.template_name = 'links/signature_expired.html'
         except BadTimeSignature:

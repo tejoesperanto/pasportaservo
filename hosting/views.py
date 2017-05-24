@@ -33,6 +33,7 @@ from .mixins import (
     SupervisorRequiredMixin, CreateMixin, DeleteMixin,
 )
 from core.forms import UserRegistrationForm
+from core.models import SiteConfiguration
 from .forms import (
     AuthorizeUserForm, AuthorizedOnceUserForm,
     ProfileForm, ProfileCreateForm, ProfileEmailUpdateForm,
@@ -41,6 +42,7 @@ from .forms import (
 )
 
 
+config = SiteConfiguration.objects.get()
 User = get_user_model()
 lang = settings.LANGUAGE_CODE
 
@@ -517,7 +519,7 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
         email_template_text = get_template('email/new_authorization.txt')
         email_template_html = get_template('email/new_authorization.html')
         email_context = Context({
-            'site_name': settings.SITE_NAME,
+            'site_name': config.site_name,
             'user': user,
             'place': place,
         })

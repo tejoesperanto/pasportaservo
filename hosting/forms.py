@@ -5,10 +5,12 @@ from django.utils.translation import ugettext_lazy as _
 from .utils import format_lazy
 from django.contrib.auth import get_user_model
 
+from core.models import SiteConfiguration
 from .models import Profile, Place, Phone
 from .validators import TooNearPastValidator, client_side_validated
 from .widgets import ClearableWithPreviewImageInput
 
+config = SiteConfiguration.objects.get()
 User = get_user_model()
 
 
@@ -43,13 +45,13 @@ class ProfileForm(forms.ModelForm):
         if hasattr(self, 'instance') and (self.instance.is_hosting or self.instance.is_meeting):
             if self.instance.is_hosting:
                 message = _("The minimum age to be allowed hosting is {age:d}.")
-                allowed_age = settings.HOST_MIN_AGE
+                allowed_age = config.host_min_age
             else:
                 message = _("The minimum age to be allowed meeting with visitors is {age:d}.")
-                allowed_age = settings.MEET_MIN_AGE
+                allowed_age = config.meet_min_age
             message = format_lazy(message, age=allowed_age)
             field_bd.required = True
-            field_bd.validators.append(TooNearPastValidator(settings.HOST_MIN_AGE))
+            field_bd.validators.append(TooNearPastValidator(config.host_min_age))
             field_bd.error_messages['max_value'] = message
         field_bd.widget.attrs['placeholder'] = 'jjjj-mm-tt'
         field_bd.widget.attrs['data-date-end-date'] = '0d'
@@ -148,7 +150,7 @@ class PlaceForm(forms.ModelForm):
         if any([is_hosting, is_meeting]):
             profile = self.profile if hasattr(self, 'profile') else self.instance.owner
             try:
-                allowed_age = settings.HOST_MIN_AGE if is_hosting else settings.MEET_MIN_AGE
+                allowed_age = config.host_min_age if is_hosting else config.meet_min_age
                 TooNearPastValidator(allowed_age)(profile.birth_date or date.today())
             except forms.ValidationError:
                 if is_hosting:

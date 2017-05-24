@@ -13,7 +13,9 @@ from django.conf import settings
 
 from hosting.models import Profile
 from links.utils import create_unique_url
+from .models import SiteConfiguration
 
+config = SiteConfiguration.objects.get()
 User = get_user_model()
 
 
@@ -96,7 +98,7 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
             'email': new_email,
         })
         context = Context({
-            'site_name': settings.SITE_NAME,
+            'site_name': config.site_name,
             'url': url,
             'user': self.instance,
             'email': new_email,
