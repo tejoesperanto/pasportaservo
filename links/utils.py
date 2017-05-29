@@ -1,6 +1,7 @@
 from itsdangerous import URLSafeTimedSerializer
 
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from core.models import SiteConfiguration
 
