@@ -15,7 +15,7 @@ from .utils import camel_case_split
 
 
 PERM_SUPERVISOR = 'hosting.can_supervise'
-ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR = 50, 40, 30, 20, 10
+ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR, ANONYMOUS = 50, 40, 30, 20, 10, 0
 
 
 class SupervisorAuthBackend(ModelBackend):
@@ -134,6 +134,7 @@ def get_role_in_context(request, profile=None, place=None):
 
 class AuthMixin(AccessMixin):
     minimum_role = OWNER
+    allow_anonymous = False
 
     def get_object(self, queryset=None):
         """
@@ -155,7 +156,9 @@ class AuthMixin(AccessMixin):
         auth_base keyword argument.
         """
         print("~  AuthMixin#dispatch .... ", "Create" if isinstance(self, generic.CreateView) else "Other")
-        if not request.user.is_authenticated:
+        if getattr(self, 'exact_role', None) == ANONYMOUS or self.minimum_role == ANONYMOUS:
+            self.allow_anonymous = True
+        if not request.user.is_authenticated and not self.allow_anonymous:
             return self.handle_no_permission() # authorization implies a logged-in user
         if 'auth_base' in kwargs:
             object = kwargs['auth_base']

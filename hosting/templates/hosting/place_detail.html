@@ -1,9 +1,8 @@
 {% extends 'core/base.html' %}
-{% load i18n static %}
-{% load is_invalid from profile %}
+{% load i18n static profile %}
 
 {% block head_title %}
-    {% if user.profile == place.owner %}
+    {% if view.role == roles.OWNER %}
         {% trans "My habitat" %}
     {% else %}
         {% if place.available %}
@@ -27,19 +26,37 @@
 {% endblock extra_js %}
 
 {% block page %}
+    {% if view.role == roles.OWNER or user|is_supervisor_of:place %}
+        {% firstof "True" as place_owner_or_supervisor %}
+    {% endif %}
+
+    {% if view.verbose_view %}
+    {% if view.role == roles.OWNER or user.profile in place.family_members.all %}
+    {# PAGE-TOP NOTIFICATION TO OWNER AND FAMILY MEMBERS ABOUT DETAILED (VERBOSE) PREVIEW #}
+        <div class="row bg-info top-notice">
+            <p class="col-xs-12 text-center">
+                {% trans "This is a preview of your place" %}.
+                {% trans "Authorized users will receive access to these details." %}
+            </p>
+        </div>
+    {% endif %}
+    {% endif %}
+
 <div class="row place-detail">
     <div class="col-xs-12 col-md-6 owner">
         <div class="row">
             <div class="col-xs-12 warning">
+            {# ALERT ABOUT A PLACE THAT WAS DELETED #}
                 {% if place.deleted and user.is_authenticated %}
                     <div class="alert alert-small alert-danger">
                         <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;
-                        {% if user.is_staff %}{% trans "Deleted place" %} &ndash; {% endif %}{% trans "The address is obsolete" %}
+                        {% if perms.hosting.can_supervise %}{% trans "Deleted place" %} &ndash; {% endif %}{% trans "The address is obsolete" %}
                     </div>
                 {% endif %}
             </div>
             <div class="col-xs-12 warning">
-                {% if blocking.enabled and user.is_authenticated %}
+            {# ALERT ABOUT NON-AVAILABILITY OF A PLACE #}
+                {% if blocking.enabled and not place.deleted and user.is_authenticated %}
                     <div class="alert alert-small alert-warning">
                         {% trans "The host is not available" %}
                         {% if blocking.display_from %}
@@ -51,9 +68,11 @@
                     </div>
                 {% endif %}
             </div>
-        </div> {# END place/owner warnings #}
+        {# END OF PLACE AND OWNER WARNINGS #}
+        </div>
 
         <div class="row">
+        {# OWNER'S DETAILS: NAME, ADDRESS, PHONE NUMBERS (IN VERBOSE VIEW) #}
             <div class="col-xs-3 avatar">
                 <a href="{{ place.owner.get_absolute_url }}">
                     <img src="{{ place.owner.avatar_url }}" />
@@ -85,7 +104,7 @@
                                     </span>
                             </p>
                         {% endif %}
-                        {% if user.profile == place.owner and not place.deleted %}
+                        {% if view.role == roles.OWNER and not place.deleted %}
                             <div class="place-blocking text-right pull-right">
                                 <a href="#{% trans "set-blocking" %}" class="btn btn-default btn-sm" data-toggle="collapse">
                                     <span class="glyphicon glyphicon-time"></span>
@@ -148,9 +167,11 @@
                     {% endif %}
                 </div>
             </div>
-        </div> {# END owner details #}
+        {# END OF OWNER'S DETAILS #}
+        </div>
 
         <div class="row">
+        {# DETAILS AND CONDITIONS OF THE PLACE ON LARGE SCREENS - ACCESSIBLE ONLY TO AUTHENTICATED USERS #}
         {% if user.is_authenticated %}
             <div class="col-md-12 hidden-xs hidden-sm">
                 {% if place.any_accommodation_details %}
@@ -164,6 +185,11 @@
                 {% if place.family_members.all and view.verbose_view %}
                     <h3>{% trans "Family members" %}</h3>
                     <ul>
+                        {% comment %}
+                            TODO: display deleted profiles only to owners (grey text) and supervisors (grey link)
+                            TODO: order family members by date of birth
+                            TODO: family members for small screens in a collapsible section, hidden by default
+                        {% endcomment %}
                         {% for member in place.family_members.all %}
                             <li>
                                 {% if member.user %}
@@ -213,12 +239,15 @@
                 </ul>
             {% endif %}
         {% else %}
+            {# UNAUTHENTICATED USERS ARE INVITED TO REGISTER #}
             {% include 'core/snippets/registration.html' with form=register_form %}
         {% endif %}
-        </div> {# END accomodation details #}
+        {# END OF PLACE DETAILS #}
+        </div>
     </div>
 
     <div class="col-xs-12 col-md-6 map">
+    {# LOCATION ON WORLD MAP #}
         <div class="embed-responsive embed-responsive-16by9"> {% comment %} responsive map height with constant ratio to map width {% endcomment %}
             <iframe width="100%"
                 frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
@@ -229,6 +258,7 @@
 
     {% if user.is_authenticated %}
         <div class="col-xs-12 hidden-md hidden-lg description-small">
+        {# DETAILS AND CONDITIONS OF THE PLACE ON SMALL SCREENS - ACCESSIBLE ONLY TO AUTHENTICATED USERS #}
             <a id="status-anchors_notification" class="col-xs-12 anchor-notify" data-placement="bottom"
                data-content="{% include 'hosting/snippets/place_owner_anchors.html' %}"></a>
             {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
@@ -265,10 +295,12 @@
                     {% endfor %}
                 </ul>
             {% endif %}
+        {# END OF PLACE DETAILS #}
         </div>
 
         <p class="col-xs-12">
-            {% if user.profile != place.owner %}
+        {# CONTACT AND CONTROL BUTTONS #}
+            {% if view.role != roles.OWNER %}
                 {% if place.owner.user.email|is_invalid %}
                     <a href="#" class="btn btn-danger btn-vert-space disabled" data-toggle="tooltip" data-container="body"
                        title="{% trans "The user's email address seems invalid" %}">
@@ -278,16 +310,18 @@
                         <span class="glyphicon glyphicon-send"></span>&nbsp; {% trans "Write message" %}
                     </a>
             {% endif %}
-            {% if user.profile == place.owner or user.is_staff %}
+            {% if place_owner_or_supervisor or user.profile in place.family_members.all %}
                 <span class="btn-group btn-vert-space">
-                    {% if user.profile == place.owner %}
+                    {% if view.role == roles.OWNER %}
                         {% trans "my " as kin %}
                     {% endif %}
-                    <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% blocktrans %}Update {{ kin }}place{% endblocktrans %}">
-                        <span class="glyphicon glyphicon-pencil"></span>
-                        <span class="">{% trans "Update" %}</span>
-                    </a>
-                    {% if user.profile == place.owner %}
+                    {% if place_owner_or_supervisor %}
+                        <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% blocktrans %}Update {{ kin }}place{% endblocktrans %}">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                            <span class="">{% trans "Update" %}</span>
+                        </a>
+                    {% endif %}
+                    {% if view.role == roles.OWNER %}
                         <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}"
                            class="btn btn-warning"
                            title="{% trans "Authorized users" %}">
@@ -296,7 +330,6 @@
                         </a>
                     {% endif %}
                     {% if not view.verbose_view %}
-                    {% if place.authorized_users.all or user.is_staff %}
                         <a href="{% url 'place_detail_verbose' place.pk %}" class="btn btn-primary" title="{% trans "View as an authorized user" %}">
                             <span class="glyphicon glyphicon-stack-normal" style="font-size: .8em">
                                 <span class="glyphicon-stackbit-1x glyphicon-eye-open"    style="top: -1.1ex"></span>
@@ -305,15 +338,14 @@
                             <span class="hidden-xxs">{% trans "View" %}</span>
                         </a>
                     {% endif %}
-                    {% endif %}
                 </span>
             {% endif %}
         </p>
     {% endif %}
 
-    {% if user.is_authenticated %}
-    {% if user.profile in place.family_members.all or user.profile == place.owner or user.is_staff %}
+    {% if place_owner_or_supervisor or user.profile in place.family_members.all %}
         <div class="col-xs-12">
+        {# PREVIEW OF PLACE SETTINGS. NOT FOR VISITORS. #}
             <p class="help-block">
                 {% trans "Short description" %}:&nbsp;
                 <em class="same-as-body"><small>{{ place.short_description|default:"&ndash;" }}</small></em>
@@ -329,7 +361,6 @@
                 {{ place.in_book|yesno }}
             </p>
         </div>
-    {% endif %}
     {% endif %}
 </div>
 {% endblock page %}

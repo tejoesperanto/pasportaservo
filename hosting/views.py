@@ -28,11 +28,11 @@ from .models import Profile, Place, Phone
 from rest_framework import viewsets
 from .serializers import ProfileSerializer, PlaceSerializer, UserSerializer
 from braces.views import LoginRequiredMixin, UserPassesTestMixin, FormInvalidMessageMixin
-from core.auth import AuthMixin, PERM_SUPERVISOR, SUPERVISOR, OWNER, VISITOR
+from core.auth import AuthMixin, PERM_SUPERVISOR, SUPERVISOR, OWNER, VISITOR, ANONYMOUS
 from core.mixins import SupervisorRequiredMixin
 from .mixins import (
-    ProfileModifyMixin, ProfileIsUserMixin, PlaceAuthMixin, PlaceMixin, PhoneMixin,
-    FamilyMemberMixin, FamilyMemberAuthMixin,
+    ProfileModifyMixin, ProfileIsUserMixin,
+    PhoneMixin, PlaceMixin, FamilyMemberMixin, FamilyMemberAuthMixin,
     CreateMixin, UpdateMixin, DeleteMixin,
 )
 from core.forms import UserRegistrationForm
@@ -40,7 +40,8 @@ from core.models import SiteConfiguration
 from .forms import (
     ProfileForm, ProfileCreateForm, ProfileEmailUpdateForm,
     PhoneForm, PhoneCreateForm,
-    PlaceForm, PlaceCreateForm, PlaceBlockForm, FamilyMemberForm, FamilyMemberCreateForm,
+    PlaceForm, PlaceCreateForm, PlaceBlockForm,
+    FamilyMemberForm, FamilyMemberCreateForm,
     UserAuthorizeForm, UserAuthorizedOnceForm,
 )
 
@@ -265,12 +266,17 @@ class PlaceDeleteView(DeleteMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, ge
 place_delete = PlaceDeleteView.as_view()
 
 
-class PlaceDetailView(generic.DetailView):
+class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
+    """
+    View with details about a place; allows also anonymous (unauthenticated) user access.
+    For such users, the registration form will be displayed.
+    """
     model = Place
+    minimum_role = ANONYMOUS
     verbose_view = False
 
     def get_context_data(self, **kwargs):
-        context = super(PlaceDetailView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['register_form'] = UserRegistrationForm
         context['blocking'] = self.calculate_blocking(self.object)
         return context
@@ -294,27 +300,45 @@ class PlaceDetailView(generic.DetailView):
 
     def render_to_response(self, context, **response_kwargs):
         # Automatically redirect the user to the verbose view if permission granted (in authorized_users list).
-        if (self.request.user in self.object.authorized_users.all() and not self.request.user.is_staff
-            and not isinstance(self, PlaceDetailVerboseView)):
+        is_authorized = self.request.user in self.object.authorized_users.all()
+        is_supervisor = self.role >= SUPERVISOR
+        if is_authorized and not is_supervisor and not isinstance(self, PlaceDetailVerboseView):
             return HttpResponseRedirect(reverse_lazy('place_detail_verbose', kwargs={'pk': self.kwargs['pk']}))
         else:
-            return super(PlaceDetailView, self).render_to_response(context)
+            return super().render_to_response(context)
 
 place_detail = PlaceDetailView.as_view()
 
 
-class PlaceDetailVerboseView(UserPassesTestMixin, PlaceDetailView):
+class PlaceDetailVerboseView(PlaceDetailView):
     redirect_field_name = ''
     redirect_unauthenticated_users = True
     verbose_view = True
 
     def get_login_url(self):
+        #TODO: logic must be modified for Django's UserPassesTestMixin
         return reverse_lazy('place_detail', kwargs={'pk': self.kwargs['pk']})
 
     def test_func(self, user):
+        print("~  PlaceDetailVerboseView#test_func")
         object = self.get_object()
         return (user is not None and user.is_authenticated()
                 and (user.is_staff or user in object.authorized_users.all() or user.profile == object.owner))
+
+    def render_to_response(self, context, **response_kwargs):
+        # Automatically redirect the user to the scarce view if permission to details not granted.
+        user = self.request.user
+        is_authorized = user in self.object.authorized_users.all()
+        is_family_member = getattr(user, 'profile', None) in self.object.family_members.all()
+        print("PlaceDetailVerboseView",
+              "role:", self.role, ", auth:", is_authorized, ", family:", is_family_member,
+              ", redirect: ", end="")
+        if self.role >= OWNER or is_authorized or is_family_member:
+            print(False)
+            return super().render_to_response(context)
+        else:
+            print(True)
+            return HttpResponseRedirect(reverse_lazy('place_detail', kwargs={'pk': self.kwargs['pk']}))
 
 place_detail_verbose = PlaceDetailVerboseView.as_view()
 

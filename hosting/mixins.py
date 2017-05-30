@@ -104,17 +104,17 @@ class PlaceMixin(object):
         return object.country
 
 
-class PlaceAuthMixin(object):
-    minimum_role = OWNER
-
-    def get_object(self, queryset=None):
-        print("~  PlaceAuthMixin#get_object")
-        place = get_object_or_404(Place, pk=self.kwargs['pk'])
-        print("~  PlaceAuthMixin#get_object:", place)
-        self.role = get_role(self.request, profile=place.owner)
-        if self.role >= self.minimum_role:
-            return place
-        raise Http404("Not allowed to edit this place.")
+#class PlaceAuthMixin(object):
+#    minimum_role = OWNER
+#
+#    def get_object(self, queryset=None):
+#        print("~  PlaceAuthMixin#get_object")
+#        place = get_object_or_404(Place, pk=self.kwargs['pk'])
+#        print("~  PlaceAuthMixin#get_object:", place)
+#        self.role = get_role(self.request, profile=place.owner)
+#        if self.role >= self.minimum_role:
+#            return place
+#        raise Http404("Not allowed to edit this place.")
 
 
 class PhoneMixin(object):
