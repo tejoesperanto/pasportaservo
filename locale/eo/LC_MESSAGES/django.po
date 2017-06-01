@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-19 09:33+0000\n"
-"PO-Revision-Date: 2016-12-01 10:35+0100\n"
+"POT-Creation-Date: 2017-06-01 20:11+0000\n"
+"PO-Revision-Date: 2017-06-01 22:44+0200\n"
 "Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.11\n"
+"X-Generator: Poedit 1.8.12\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
 msgid "Published"
@@ -37,7 +37,7 @@ msgid "HTML content"
 msgstr "HTML enhavo"
 
 msgid "HTML description"
-msgstr ""
+msgstr "HTML priskribo"
 
 msgid "author"
 msgstr "aŭtoro"
@@ -58,10 +58,10 @@ msgid "News"
 msgstr "Novaĵoj"
 
 msgid "Add"
-msgstr ""
+msgstr "Aldoni"
 
 msgid "Subscribe"
-msgstr ""
+msgstr "Aboni"
 
 msgid "The last news about Pasporta Servo"
 msgstr "La lastaj novaĵoj pri Pasporta Servo"
@@ -70,15 +70,13 @@ msgid "yes,no"
 msgstr "jes,ne"
 
 msgid "Enter a valid email address."
-msgstr ""
+msgstr "Enigu validan retadreson"
 
 msgid "User address already in use."
 msgstr "Adreso de uzanto jam utiligita ĉe la retejo."
 
-#, fuzzy
-#| msgid "My email address"
 msgid "Email address"
-msgstr "Mia retpoŝta adreso"
+msgstr "Retpoŝta adreso"
 
 msgid "Leave blank"
 msgstr "Lasu malplena"
@@ -119,6 +117,35 @@ msgstr "Ne gastigantoj (malnova aŭ nova retejo)"
 msgid "Your email for test"
 msgstr "Via retpoŝtadreso por testi"
 
+msgid "site name"
+msgstr "reteja nomo"
+
+msgid "encryption salt"
+msgstr "cifera salo"
+
+msgid "Salt used for encoded unique links. Change it to invalidate all links."
+msgstr ""
+"Salo uzita por cifrigi unikaj ligilojn. Ŝanĝu por malfunkciigi ĉiujn "
+"ligilojn."
+
+msgid "Minumum age for hosting"
+msgstr "Minimuma aĝo por gastigi"
+
+msgid "Minumum age for meeting"
+msgstr "Minimuma aĝo por renkonti"
+
+msgid "In seconds: 2 days = 3600 x 24 x 2 = 172800"
+msgstr "En sekundoj: 2 tagoj = 3600 x 24 x 2 = 172800"
+
+msgid "confirmation validity period"
+msgstr "konfirma valideca periodo"
+
+msgid "Delay after which an object is no longer considered as confirmed"
+msgstr "Periodo post kiu objekto ne plu estas konfirmita"
+
+msgid "Site Configuration"
+msgstr "Retejaj agordoj"
+
 msgid "Find accomodation"
 msgstr "Trovu loĝejon"
 
@@ -132,6 +159,8 @@ msgid ""
 "<a href=\"http://katalogo.uea.org/katalogo.php?inf=3474\" target=\"_blank"
 "\">Aĉetu nun la libreton <big>Pasporta Servo 2017</big>!</a>"
 msgstr ""
+"<a href=\"http://katalogo.uea.org/katalogo.php?inf=3474\" target=\"_blank"
+"\">Aĉetu nun la libreton <big>Pasporta Servo 2017</big>!</a>"
 
 msgid "inbox"
 msgstr "poŝtkesto"
@@ -249,7 +278,7 @@ msgid "Please go to the following page to confirm your new email address:"
 msgstr "Bonvole iru al la jena paĝo por konfirmi vian novan retadreson:"
 
 msgid "Your username, in case you've forgotten:"
-msgstr ""
+msgstr "Via uzantnomo, kaze ke vi forgesis:"
 
 #, python-format
 msgid ""
@@ -270,10 +299,10 @@ msgid "Dear %(user_first_name)s,"
 msgstr "Kara %(user_first_name)s,"
 
 msgid "Dear user,"
-msgstr ""
+msgstr "Kara uzanto,"
 
 msgid "Thanks for using our site!"
-msgstr ""
+msgstr "Dankon por uzi nian servon!"
 
 #, python-format
 msgid "The %(site_name)s team."
@@ -465,23 +494,15 @@ msgstr ""
 "Konfirma mesaĝo estis sendita. Bonvole kontrolu vian retpoŝtkeston por "
 "kompletigi la procedon."
 
-#, fuzzy
-#| msgid "[Pasporta Servo] Change of email address"
 msgid "[Pasporta Servo] Is this your email address?"
-msgstr "[Pasporta Servo] Retpoŝtadreso ĉe retejo ŝanĝita"
+msgstr "[Pasporta Servo] Ĉu tiu estas via retadreso?"
 
-#, fuzzy
-#| msgid "email"
 msgid "email-addr"
 msgstr "retadreso"
 
-#, fuzzy
-#| msgid "Your email address has been successfuly updated!"
 msgid "Your email address has been successfully verified!"
-msgstr "Vi sukcese ŝanĝis vian retpoŝtan adreson!"
+msgstr "Vi sukcese konfirmis vian retpoŝtan adreson!"
 
-#, fuzzy
-#| msgid "Your email address has been successfuly updated!"
 msgid "Your email address has been successfully updated!"
 msgstr "Vi sukcese ŝanĝis vian retpoŝtan adreson!"
 
@@ -509,10 +530,8 @@ msgstr "LO statuso"
 msgid "country"
 msgstr "lando"
 
-#, fuzzy
-#| msgid "[no email address]"
 msgid "email address"
-msgstr "[neniu retpoŝta adreso]"
+msgstr "retpoŝta adreso"
 
 msgid "user"
 msgstr "uzanto"
@@ -1462,7 +1481,7 @@ msgid "The link is not valid"
 msgstr "La ligilo havas malbonan formon aŭ malĝustan konfirmo-ĵetonon."
 
 msgid "Signature Expired"
-msgstr "Tempostampo ne plu valida"
+msgstr "Tempostampo ne plu validas"
 
 msgid "The link is not valid anymore"
 msgstr ""
@@ -1519,6 +1538,225 @@ msgstr "^lo/$"
 msgid "^supervisors/$"
 msgstr "^landaj-organizantoj/$"
 
+msgid "Server error"
+msgstr "Servila eraro"
+
+msgid "No no, that page is off-limits"
+msgstr "Ne ne ne, tiun paĝon vi evitu"
+
+msgid ""
+"If you see this page after choosing PS from bookmarks, <a href=\"\">reload</"
+"a> the page."
+msgstr ""
+"Se vi vidas tiun ĉi paĝon elektinte PS el favoratoj, <a href=\"\">ŝargu "
+"denove</a> la paĝon."
+
+msgid ""
+"If this page appears each time you're trying to edit something, you are "
+"using an insecure network. Please connect to a different network."
+msgstr ""
+"Se tiu ĉi paĝo aperas ĉiufoje kiam vi provas redakti ion, vi uzas ne-sekuran "
+"reton. Bonvole konektiĝu al alia reto."
+
+msgid ""
+"Otherwise, we just prevented an attack on your Pasporta Servo account. "
+"Please close all other windows / tabs of the browser."
+msgstr ""
+"Alikaze, ni ĵus haltigis atakon je via konto ĉe Pasporta Servo. Bonvole "
+"fermu ĉiujn kromajn fenestrojn / langetojn de via retumilo."
+
+msgid "Page not found"
+msgstr "Paĝo ne trovita"
+
+msgid "Programmation error on the server"
+msgstr "Programa eraro sur la servilo"
+
+msgid ""
+"The administrators have been informed of the problem and will fix it as soon "
+"as possible."
+msgstr ""
+"La administrantoj estas informitaj pri la problemo kaj ĝin korektos kieleble "
+"plej baldaŭ."
+
+msgid "Archives"
+msgstr ""
+
+msgid "Archived Messages"
+msgstr ""
+
+msgid ""
+"Messages in this folder will never be removed. You can use this folder for "
+"long term storage."
+msgstr ""
+
+msgid "Inbox"
+msgstr ""
+
+msgid "Messaging"
+msgstr ""
+
+msgid "Write"
+msgstr ""
+
+msgid "Sent Messages"
+msgstr ""
+
+msgid "Trash"
+msgstr ""
+
+msgid "Sorry, this page number is invalid."
+msgstr ""
+
+msgid "by conversation"
+msgstr ""
+
+msgid "by message"
+msgstr ""
+
+msgid "Action"
+msgstr ""
+
+msgid "Sender"
+msgstr ""
+
+msgid "Recipient"
+msgstr ""
+
+msgid "Date"
+msgstr ""
+
+msgid "g:i A,M j,n/j/y"
+msgstr ""
+
+msgid "Archive"
+msgstr ""
+
+msgid "Undelete"
+msgstr ""
+
+msgid "No messages."
+msgstr ""
+
+msgid "recipient"
+msgstr ""
+
+msgid "subject"
+msgstr ""
+
+msgid "message"
+msgstr ""
+
+#, python-format
+msgid "<a href=\"%(url)s\">%(sender)s</a> wrote to you!"
+msgstr "<a href=\"%(url)s\">%(sender)s</a> skribis al vi!"
+
+#, python-format
+msgid "%(sender)s wrote to you!"
+msgstr "%(sender)s skribis al vi!"
+
+msgid "Reply"
+msgstr "Respondu"
+
+#, python-format
+msgid "On %(date)s, you asked to send a message to the user '%(recipient)s'."
+msgstr ""
+
+msgid "Your message has been rejected by the moderator"
+msgstr ""
+
+msgid ", for the following reason:"
+msgstr ""
+
+#, python-format
+msgid "On %(date)s, you sent a message to the user '%(sender)s'."
+msgstr ""
+
+msgid "Your correspondent has given you an answer."
+msgstr ""
+
+#, python-format
+msgid "You have received a copy of a response from the user '%(sender)s'."
+msgstr ""
+
+#, python-format
+msgid "You have received a message from the user '%(sender)s'."
+msgstr ""
+
+msgid "To answer this message, follow this link:"
+msgstr "Por respondi tiun ĉi mesaĝon, klaku la ligilon:"
+
+msgid "The sender's profile page:"
+msgstr ""
+
+msgid ""
+"Note: This message is issued by an automated system.\n"
+"Do not reply, this would not be taken into account."
+msgstr ""
+
+#, python-format
+msgid "From %(sender)s: %(subject)s"
+msgstr "El %(sender)s: %(subject)s"
+
+msgid "Dear visitor,"
+msgstr ""
+
+msgid "As a reminder, please find below the content of your message."
+msgstr ""
+
+msgid "Please find below the answer from your correspondent."
+msgstr ""
+
+msgid "Thank you again for your interest in our services."
+msgstr ""
+
+msgid "For more comfort, we encourage you to open an account on the site."
+msgstr ""
+
+msgid "The site administrator"
+msgstr "La administranto de la retejo"
+
+#, python-format
+msgid "Message \"%(subject)s\" on the site %(sitename)s"
+msgstr ""
+
+msgid "Received Messages"
+msgstr ""
+
+msgid "Received"
+msgstr ""
+
+msgid "Sent"
+msgstr ""
+
+msgid "Deleted Messages"
+msgstr ""
+
+msgid ""
+"Messages in this folder can be removed from time to time. For long term "
+"storage, use instead the archive folder."
+msgstr ""
+
+msgid "Conversation"
+msgstr ""
+
+msgid "Message"
+msgstr ""
+
+msgid "Rejected"
+msgstr ""
+
+msgid ":"
+msgstr ""
+
+msgid "^admin/"
+msgstr "^administrilo/"
+
+msgid "^messages/"
+msgstr "^leteroj/"
+
+msgid "^blog/"
+msgstr "^blogo/"
+
 msgid "Shop"
 msgstr "Butiko"
 
@@ -1546,10 +1784,7 @@ msgstr "kvanto"
 msgid "TEJO discount"
 msgstr "TEJO-rabato"
 
-#, fuzzy, python-format
-#| msgid ""
-#| "If you are member of TEJO or UEA and the 10% discount applies (twice a "
-#| "year)."
+#, python-format
 msgid ""
 "If you are member of TEJO or UEA and the 10% discount applies (twice a year)."
 msgstr ""
@@ -1615,94 +1850,11 @@ msgstr ""
 "Via retpoŝta adreso aspektas nefunkcianta, ni verŝajne ne sukcesos sendi "
 "mesaĝojn al tiu ĉi adreso. Bv kontrolu ĝin."
 
-#, fuzzy
-#~| msgid "^reserve/$"
-#~ msgctxt "__name__"
-#~ msgid "^reserve/$"
-#~ msgstr "^rezervu/$"
+msgid "^reserve/$"
+msgstr "^rezervu/$"
 
-#, fuzzy
-#~| msgid "^reserve/(?P<product_code>\\w+)/$"
-#~ msgctxt "__name__"
-#~ msgid "^reserve/(?P<product_code>\\w+)/$"
-#~ msgstr "^rezervu/(?P<product_code>\\w+)/$"
+msgid "^reserve/(?P<product_code>\\w+)/$"
+msgstr "^rezervu/(?P<product_code>\\w+)/$"
 
-#, fuzzy
-#~| msgid "^reservation/(?P<product_code>\\w+)/$"
-#~ msgctxt "__name__"
-#~ msgid "^reservation/(?P<product_code>\\w+)/$"
-#~ msgstr "^rezervado/(?P<product_code>\\w+)/$"
-
-#~ msgid "Server error"
-#~ msgstr "Servila eraro"
-
-#~ msgid "No no, that page is off-limits"
-#~ msgstr "Ne ne ne, tiun paĝon vi evitu"
-
-#~ msgid ""
-#~ "If you see this page after choosing PS from bookmarks, <a href="
-#~ "\"\">reload</a> the page."
-#~ msgstr ""
-#~ "Se vi vidas tiun ĉi paĝon elektinte PS el favoratoj, <a href=\"\">ŝargu "
-#~ "denove</a> la paĝon."
-
-#~ msgid ""
-#~ "If this page appears each time you're trying to edit something, you are "
-#~ "using an insecure network. Please connect to a different network."
-#~ msgstr ""
-#~ "Se tiu ĉi paĝo aperas ĉiufoje kiam vi provas redakti ion, vi uzas ne-"
-#~ "sekuran reton. Bonvole konektiĝu al alia reto."
-
-#~ msgid ""
-#~ "Otherwise, we just prevented an attack on your Pasporta Servo account. "
-#~ "Please close all other windows / tabs of the browser."
-#~ msgstr ""
-#~ "Alikaze, ni ĵus haltigis atakon je via konto ĉe Pasporta Servo. Bonvole "
-#~ "fermu ĉiujn kromajn fenestrojn / langetojn de via retumilo."
-
-#~ msgid "Page not found"
-#~ msgstr "Paĝo ne trovita"
-
-#~ msgid "Programmation error on the server"
-#~ msgstr "Programa eraro sur la servilo"
-
-#~ msgid ""
-#~ "The administrators have been informed of the problem and will fix it as "
-#~ "soon as possible."
-#~ msgstr ""
-#~ "La administrantoj estas informitaj pri la problemo kaj ĝin korektos "
-#~ "kieleble plej baldaŭ."
-
-#, fuzzy
-#~| msgid "^messages/"
-#~ msgid "message"
-#~ msgstr "^leteroj/"
-
-#, fuzzy
-#~| msgid "%(sender)s wrote to you!"
-#~ msgid "<a href=\"%(url)s\">%(sender)s</a> wrote to you!"
-#~ msgstr "%(sender)s skribis al vi!"
-
-#~ msgid "%(sender)s wrote to you!"
-#~ msgstr "%(sender)s skribis al vi!"
-
-#~ msgid "Reply"
-#~ msgstr "Respondu"
-
-#~ msgid "To answer this message, follow this link:"
-#~ msgstr "Por respondi tiun ĉi mesaĝon, klaku la ligilon:"
-
-#~ msgid "From %(sender)s: %(subject)s"
-#~ msgstr "El %(sender)s: %(subject)s"
-
-#~ msgid "The site administrator"
-#~ msgstr "La administranto de la retejo"
-
-#~ msgid "^admin/"
-#~ msgstr "^administrilo/"
-
-#~ msgid "^messages/"
-#~ msgstr "^leteroj/"
-
-#~ msgid "^blog/"
-#~ msgstr "^blogo/"
+msgid "^reservation/(?P<product_code>\\w+)/$"
+msgstr "^rezervado/(?P<product_code>\\w+)/$"
