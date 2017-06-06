@@ -26,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from blog.models import Post
 from hosting.models import Place, Profile
-from .auth import AuthMixin, SUPERVISOR, OWNER
+from .auth import AuthMixin, ADMIN, SUPERVISOR, OWNER
 from hosting.mixins import ProfileIsUserMixin, ProfileModifyMixin
 from .mixins import SupervisorRequiredMixin, UserModifyMixin
 from .forms import (
@@ -261,9 +261,15 @@ email_mark_invalid = EmailValidityMarkView.as_view()
 email_mark_valid = EmailValidityMarkView.as_view(valid=True)
 
 
-class MassMailView(SuperuserRequiredMixin, generic.FormView):
+class MassMailView(AuthMixin, generic.FormView):
     template_name = 'core/mass_mail_form.html'
     form_class = MassMailForm
+    display_permission_denied = False
+    exact_role = ADMIN
+
+    def dispatch(self, request, *args, **kwargs):
+        kwargs['auth_base'] = None
+        return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
         return format_lazy("{success_url}?nb={sent}",
@@ -338,16 +344,22 @@ class MassMailView(SuperuserRequiredMixin, generic.FormView):
             ) for profile in profiles] if profiles else []
 
         self.nb_sent = send_mass_html_mail(messages)
-        return super(MassMailView, self).form_valid(form)
+        return super().form_valid(form)
 
 mass_mail = MassMailView.as_view()
 
 
-class MassMailSentView(SuperuserRequiredMixin, generic.TemplateView):
+class MassMailSentView(AuthMixin, generic.TemplateView):
     template_name = 'core/mass_mail_sent.html'
+    display_permission_denied = False
+    exact_role = ADMIN
+
+    def dispatch(self, request, *args, **kwargs):
+        kwargs['auth_base'] = None
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(MassMailSentView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['nb'] = int(self.request.GET['nb']) if self.request.GET.get('nb', '').isdigit() else '??'
         return context
 

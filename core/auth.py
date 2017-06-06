@@ -119,10 +119,11 @@ class SupervisorAuthBackend(ModelBackend):
         return perms
 
 
-def get_role_in_context(request, profile=None, place=None):
+def get_role_in_context(request, profile=None, place=None, no_obj_context=False):
     print("~  ~  PROFILE", repr(profile), "PLACE", repr(place))
     user = request.user
-    if profile and user == profile.user:
+    context = place or profile or object
+    if profile and user.pk == profile.user_id:
         return OWNER
     if user.is_superuser:
         return ADMIN
@@ -130,7 +131,7 @@ def get_role_in_context(request, profile=None, place=None):
     #Once enabled, the interaction with perms.hosting.can_supervise has to be verified.
     #if user.is_staff:
     #    return STAFF
-    if user.has_perm(PERM_SUPERVISOR, place or profile or object):
+    if user.has_perm(PERM_SUPERVISOR, None if no_obj_context else context):
         return SUPERVISOR
     return VISITOR
 
@@ -167,7 +168,7 @@ class AuthMixin(AccessMixin):
             return self.handle_no_permission() # authorization implies a logged-in user
         if 'auth_base' in kwargs:
             object = kwargs['auth_base']
-            self._auth_verify(object)
+            self._auth_verify(object, context_omitted=object is None)
         elif isinstance(self, generic.CreateView):
             raise ImproperlyConfigured(
                 "Creation base not found. Make sure {View}'s auth_base is accessible by "
@@ -187,10 +188,11 @@ class AuthMixin(AccessMixin):
         except AttributeError:
             return None
 
-    def _auth_verify(self, object):
+    def _auth_verify(self, object, context_omitted=False):
         self.role = get_role_in_context(self.request,
                                         profile=self.get_owner(object),
-                                        place=self.get_location(object))
+                                        place=self.get_location(object),
+                                        no_obj_context=context_omitted)
         if getattr(self, 'exact_role', None):
             print("exact role allowed: {-", self.exact_role, "-} , current role: {-", self.role, "-}")
             if self.role == self.exact_role:
@@ -205,18 +207,21 @@ class AuthMixin(AccessMixin):
                 "Not allowed to {0} this {1}.".format(view_name[-2].lower(), " ".join(view_name[0:-2]).lower())
             )
         elif self.display_permission_denied and self.request.user.has_perm(PERM_SUPERVISOR):
-            raise PermissionDenied(self.get_permission_denied_message(object))
+            raise PermissionDenied(self.get_permission_denied_message(object, context_omitted))
         else:
             raise Http404("Operation not allowed.")
 
-    def get_permission_denied_message(self, object):
-        countries = [self.get_location(object)]
-        if not countries[0]:
-            countries = self.get_owner(object).owned_places.filter(
-                deleted=False
-            ).values_list('country', flat=True)
-        elif not countries[0].name:
-            countries = []
+    def get_permission_denied_message(self, object, context_omitted=False):
+        if not context_omitted:
+            countries = [self.get_location(object)]
+            if not countries[0]:
+                countries = self.get_owner(object).owned_places.filter(
+                    deleted=False
+                ).values_list('country', flat=True)
+            elif not countries[0].name:
+                countries = []
+        else:
+            countries = None
         if not countries:
             return _("Only administrators can access this page")
         to_string = lambda item: str(Country(item).name)
