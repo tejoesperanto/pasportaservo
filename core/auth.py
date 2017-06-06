@@ -19,6 +19,14 @@ from .utils import camel_case_split
 
 PERM_SUPERVISOR = 'hosting.can_supervise'
 ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR, ANONYMOUS = 50, 40, 30, 20, 10, 0
+ALL_ROLES = dict(
+    ADMIN=ADMIN,
+    STAFF=STAFF,
+    SUPERVISOR=SUPERVISOR,
+    OWNER=OWNER,
+    VISITOR=VISITOR,
+    ANONYMOUS=ANONYMOUS,
+)
 
 
 class SupervisorAuthBackend(ModelBackend):
@@ -204,10 +212,11 @@ class AuthMixin(AccessMixin):
         if settings.DEBUG:
             view_name = camel_case_split(self.__class__.__name__)
             raise PermissionDenied(
-                "Not allowed to {0} this {1}.".format(view_name[-2].lower(), " ".join(view_name[0:-2]).lower())
+                "Not allowed to {0} this {1}.".format(view_name[-2].lower(), " ".join(view_name[0:-2]).lower()),
+                self
             )
         elif self.display_permission_denied and self.request.user.has_perm(PERM_SUPERVISOR):
-            raise PermissionDenied(self.get_permission_denied_message(object, context_omitted))
+            raise PermissionDenied(self.get_permission_denied_message(object, context_omitted), self)
         else:
             raise Http404("Operation not allowed.")
 
@@ -230,6 +239,6 @@ class AuthMixin(AccessMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['roles'] = dict(VISITOR=VISITOR, OWNER=OWNER, SUPERVISOR=SUPERVISOR, STAFF=STAFF, ADMIN=ADMIN)
+        context['roles'] = ALL_ROLES
         return context
 
