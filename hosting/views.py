@@ -432,18 +432,26 @@ class PlaceListView(generic.ListView):
 place_list = PlaceListView.as_view()
 
 
-class CountryPlaceListView(LoginRequiredMixin, SupervisorRequiredMixin, PlaceListView):
+class PlaceStaffListView(AuthMixin, PlaceListView):
+    """A place for supervisors to see an overview of and manage hosts in their area of responsibility."""
     template_name = "hosting/place_list_supervisor.html"
+    minimum_role = SUPERVISOR
 
     def dispatch(self, request, *args, **kwargs):
-        self.country_code = self.kwargs['country_code']
-        self.country = Country(self.country_code)
+        self.country = Country(kwargs['country_code'])
+        kwargs['auth_base'] = self.country
         self.in_book = {'0': False, '1': True, None: True}[kwargs['in_book']]
         self.invalid_emails = kwargs['email']
         return super().dispatch(request, *args, **kwargs)
 
+    def get_owner(self, object):
+        return None
+
+    def get_location(self, object):
+        return object
+
     def get_queryset(self):
-        self.base_qs = self.model.available_objects.filter(country=self.country_code)
+        self.base_qs = self.model.available_objects.filter(country=self.country.code)
         qs = self.base_qs.filter(in_book=self.in_book)
         if self.invalid_emails:
             qs = qs.filter(owner__user__email__startswith=settings.INVALID_PREFIX)
@@ -461,7 +469,7 @@ class CountryPlaceListView(LoginRequiredMixin, SupervisorRequiredMixin, PlaceLis
             owner__user__email__startswith=settings.INVALID_PREFIX).count()
         return context
 
-country_place_list = CountryPlaceListView.as_view()
+staff_place_list = PlaceStaffListView.as_view()
 
 
 class SearchView(PlaceListView):

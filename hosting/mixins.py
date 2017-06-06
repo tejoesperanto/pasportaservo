@@ -45,7 +45,7 @@ class ProfileIsUserMixin(object):
     def dispatch(self, request, *args, **kwargs):
         print("~  ProfileIsUserMixin#dispatch")
         try:
-            if not self.create_for.owner.user:
+            if not kwargs.get('auth_base').owner.user:
                 raise Http404("Detached profile (probably a family member).")
         except AttributeError:
             pass

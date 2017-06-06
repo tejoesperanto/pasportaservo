@@ -7,6 +7,9 @@ from django.core.exceptions import PermissionDenied, ImproperlyConfigured
 from django.http import Http404
 from django.conf import settings
 from django.views import generic
+from django.utils.translation import ugettext_lazy as _
+from django.utils.functional import keep_lazy_text
+from hosting.utils import format_lazy
 
 from django_countries.fields import Country
 from hosting.models import Profile, Place
@@ -135,6 +138,8 @@ def get_role_in_context(request, profile=None, place=None):
 class AuthMixin(AccessMixin):
     minimum_role = OWNER
     allow_anonymous = False
+    display_permission_denied = True
+    permission_denied_message = _("Only the supervisors of {this_country} can access this page")
 
     def get_object(self, queryset=None):
         """
@@ -199,8 +204,24 @@ class AuthMixin(AccessMixin):
             raise PermissionDenied(
                 "Not allowed to {0} this {1}.".format(view_name[-2].lower(), " ".join(view_name[0:-2]).lower())
             )
+        elif self.display_permission_denied and self.request.user.has_perm(PERM_SUPERVISOR):
+            raise PermissionDenied(self.get_permission_denied_message(object))
         else:
             raise Http404("Operation not allowed.")
+
+    def get_permission_denied_message(self, object):
+        countries = [self.get_location(object)]
+        if not countries[0]:
+            countries = self.get_owner(object).owned_places.filter(
+                deleted=False
+            ).values_list('country', flat=True)
+        elif not countries[0].name:
+            countries = []
+        if not countries:
+            return _("Only administrators can access this page")
+        to_string = lambda item: str(Country(item).name)
+        join_lazy = keep_lazy_text(lambda items: ", ".join(map(to_string, items)))
+        return format_lazy(self.permission_denied_message, this_country=join_lazy(countries))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

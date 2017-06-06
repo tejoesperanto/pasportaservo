@@ -234,26 +234,28 @@ class EmailStaffUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, ge
 staff_email_update = EmailStaffUpdateView.as_view()
 
 
-class EmailValidityMarkView(LoginRequiredMixin, SupervisorRequiredMixin, generic.View):
+class EmailValidityMarkView(AuthMixin, ProfileIsUserMixin, generic.View):
     http_method_names = ['post']
     template_name = '404.html'
+    minimum_role = SUPERVISOR
     valid = False
 
     def dispatch(self, request, *args, **kwargs):
-        self.user = get_object_or_404(Profile, pk=kwargs['pk']).user
+        self.profile = get_object_or_404(Profile, pk=kwargs['pk'])
+        kwargs['auth_base'] = self.profile
         return super().dispatch(request, *args, **kwargs)
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
         if self.valid:
-            Profile.mark_valid_emails([self.user.email])
+            Profile.mark_valid_emails([self.profile.user.email])
         else:
-            Profile.mark_invalid_emails([self.user.email])
+            Profile.mark_invalid_emails([self.profile.user.email])
         if request.is_ajax():
             success_value = 'valid' if self.valid else 'invalid'
             return JsonResponse({'success': success_value})
         else:
-            return TemplateResponse(request, self.template_name)
+            return TemplateResponse(request, self.template_name, context={'view': self})
 
 email_mark_invalid = EmailValidityMarkView.as_view()
 email_mark_valid = EmailValidityMarkView.as_view(valid=True)

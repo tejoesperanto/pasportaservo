@@ -55,8 +55,7 @@ class TrackingModel(models.Model):
     checked_on = models.DateTimeField(_("checked on"), default=None, blank=True, null=True)
     checked_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("approved by"),
         blank=True, null=True,
-        related_name="+", limit_choices_to={'is_staff': True}, on_delete=models.SET_NULL)
-        # is_superuser or in 2-letter groups...
+        related_name="+", on_delete=models.SET_NULL)
 
     all_objects = TrackingManager()
     objects = NotDeletedManager()

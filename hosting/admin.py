@@ -37,7 +37,7 @@ class PlaceInLine(ShowConfirmedMixin, ShowDeletedMixin, admin.StackedInline):
         'available', 'in_book', ('tour_guide', 'have_a_drink'), 'sporadic_presence',
         'display_confirmed', 'is_deleted',
     )
-    raw_id_fields = ('owner', 'family_members', 'authorized_users', 'checked_by')
+    raw_id_fields = ('owner', 'family_members', 'authorized_users',) #'checked_by')
     readonly_fields = ('display_confirmed', 'is_deleted',)
     fk_name = 'owner'
     classes = ('collapse',)
@@ -120,10 +120,11 @@ class CustomGroupAdmin(GroupAdmin):
             for u in obj.user_set.all():
                 link = urlresolvers.reverse('admin:auth_user_change', args=[u.id])
                 account_link = format_html('<a href="{url}">{username}</a>', url=link, username=u)
-                profile_link = ''
-                if u.profile:
+                try:
                     profile_link = format_html('<sup>(<a href="{url}">{name}</a>)</sup>',
                                                url=u.profile.get_admin_url(), name=_("profile"))
+                except Profile.DoesNotExist:
+                    profile_link = ''
                 yield " ".join([account_link, profile_link])
         return format_html(", ".join(get_formatted_list()))
     supervisors.short_description = _("Supervisors")
@@ -150,6 +151,26 @@ class TrackingModelAdmin(ShowConfirmedMixin):
     )
     readonly_fields = ('display_confirmed',)
 
+    class InstanceApprover(User):
+        class Meta:
+            proxy = True
+        def __str__(self):
+            try:
+                fullname =  " : ".join([self.username, str(self.profile)])
+            except Profile.DoesNotExist:
+                fullname = self.username
+            return " ".join([fullname, "[N/A]" if not self.is_active else ""])
+
+    def get_field_queryset(self, db, db_field, request):
+        if db_field.name == 'checked_by':
+            from django.db.models import Q
+            return self.InstanceApprover.objects.filter(
+                    Q(is_superuser=True) | Q(groups__name__regex=r'[A-Z]{2}')
+                ).distinct(
+                ).select_related('profile').defer('profile__description'
+                ).order_by('username')
+        return super().get_field_queryset(db, db_field, request)
+
 
 @admin.register(Profile)
 class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
@@ -171,7 +192,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         'user', 'title', 'first_name', 'last_name', 'names_inversed', 'birth_date',
         'description', 'avatar', 'contact_preferences', 'email', 'supervisor',
     ) + TrackingModelAdmin.fields
-    raw_id_fields = ('user', 'checked_by')
+    raw_id_fields = ('user',) #'checked_by')
     radio_fields = {'title': admin.HORIZONTAL}
     readonly_fields = ('supervisor',) + TrackingModelAdmin.readonly_fields
     formfield_overrides = {
@@ -198,7 +219,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
 
     def supervisor(self, obj):
         country_list = CustomGroupAdmin.CountryGroup.objects.filter(user__pk=obj.user.id if obj.user else -1)
-        if country_list.count():
+        if len(country_list):
             return format_html(",&nbsp; ".join(map(str, country_list)))
         else:
             return self.get_empty_value_display()
@@ -238,7 +259,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         'available', 'in_book', ('tour_guide', 'have_a_drink'), 'sporadic_presence',
         'family_members', 'authorized_users',
     ) + TrackingModelAdmin.fields
-    raw_id_fields = ('owner', 'authorized_users', 'checked_by',)
+    raw_id_fields = ('owner', 'authorized_users',) #'checked_by',)
     filter_horizontal = ('family_members',)
 
     def display_country(self, obj):
