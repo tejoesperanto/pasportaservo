@@ -29,7 +29,7 @@
                     <a href="{% url 'admin:index' %}">{% trans "admin site" %}</a>
                 {% endif %}
             {% else %}
-                <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">{% trans "log in" %}</a>
+                <a href="{% url 'login' %}?{{ REDIRECT_FIELD_NAME }}={{ request.get_full_path|urlencode }}">{% trans "log in" %}</a>
             {% endif %}
         </div>
         <div class="col-xs-5 col-xs-offset-1 col-sm-5 col-sm-offset-0">
@@ -40,7 +40,7 @@
                     <a href="{% url 'profile_create' %}">{{ user.username }}</a>
                 {% endif %}
             {% else %}
-                <a href="{% url 'register' %}?next={{ request.get_full_path|urlencode }}">{% trans "register" %}</a>
+                <a href="{% url 'register' %}?{{ REDIRECT_FIELD_NAME }}={{ request.get_full_path|urlencode }}">{% trans "register" %}</a>
             {% endif %}
         </div>
     </div>

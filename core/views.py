@@ -2,7 +2,6 @@ from datetime import datetime
 from copy import copy
 
 from markdown2 import markdown
-from braces.views import AnonymousRequiredMixin, SuperuserRequiredMixin
 
 from django.views import generic
 from django.http import HttpResponseRedirect, JsonResponse, Http404
@@ -12,7 +11,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.auth import get_user_model, authenticate, login
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -28,7 +26,7 @@ from blog.models import Post
 from hosting.models import Place, Profile
 from .auth import AuthMixin, ADMIN, SUPERVISOR, OWNER
 from hosting.mixins import ProfileIsUserMixin, ProfileModifyMixin
-from .mixins import SupervisorRequiredMixin, UserModifyMixin
+from .mixins import LoginRequiredMixin, UserModifyMixin
 from .forms import (
     UsernameUpdateForm, EmailUpdateForm, EmailStaffUpdateForm,
     MassMailForm, UserRegistrationForm
@@ -54,15 +52,21 @@ class HomeView(generic.TemplateView):
 home = HomeView.as_view()
 
 
-class RegisterView(AnonymousRequiredMixin, generic.CreateView):
+class RegisterView(generic.CreateView):
     model = User
     template_name = 'registration/register.html'
     form_class = UserRegistrationForm
     success_url = reverse_lazy('profile_create')
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            # Only anonymous (non-authenticated) users should access the registration page.
+            return HttpResponseRedirect(self.get_authenticated_redirect_url())
+        return super().dispatch(request, *args, **kwargs)
+
     def get_authenticated_redirect_url(self):
-        if self.request.GET.get('next'):
-            return self.request.GET['next']
+        if self.request.GET.get(settings.REDIRECT_FIELD_NAME):
+            return self.request.GET[settings.REDIRECT_FIELD_NAME]
         try:
             # When user is already authenticated, redirect to profile edit page.
             return self.request.user.profile.get_edit_url()

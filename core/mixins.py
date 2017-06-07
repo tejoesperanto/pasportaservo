@@ -1,4 +1,6 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin as AuthenticatedUserRequiredMixin
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import keep_lazy_text
 from hosting.utils import format_lazy
@@ -33,6 +35,10 @@ class SupervisorRequiredMixin(UserPassesTestMixin):
         to_string = lambda item: str(Country(item).name)
         join_lazy = keep_lazy_text(lambda items: ", ".join(map(to_string, items)))
         return format_lazy(self.permission_denied_message, this_country=join_lazy(countries))
+
+
+class LoginRequiredMixin(AuthenticatedUserRequiredMixin):
+    redirect_field_name = settings.REDIRECT_FIELD_NAME
 
 
 class UserModifyMixin(object):

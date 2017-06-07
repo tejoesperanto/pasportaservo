@@ -8,7 +8,6 @@ from django.template.defaultfilters import yesno
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from braces.views import StaffuserRequiredMixin
 from core.auth import AuthMixin, ADMIN
 
 from hosting.models import Place

@@ -1,4 +1,5 @@
 from django.conf.urls import url
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.views import (
     login, logout,
@@ -24,7 +25,9 @@ urlpatterns = [
     url(r'^$', home, name='home'),
 
     url(_(r'^register/$'), register, name='register'),
-    url(_(r'^login/$'), view=login, name='login'),
+    url(_(r'^login/$'), view=login, name='login',
+        kwargs={'redirect_authenticated_user': True,
+                'redirect_field_name': settings.REDIRECT_FIELD_NAME}),
     url(_(r'^logout/$'), view=logout, kwargs={'next_page': '/'}, name='logout'),
 
     url(_(r'^password/$'), view=password_change, name='password_change'),

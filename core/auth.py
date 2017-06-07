@@ -147,6 +147,7 @@ def get_role_in_context(request, profile=None, place=None, no_obj_context=False)
 class AuthMixin(AccessMixin):
     minimum_role = OWNER
     allow_anonymous = False
+    redirect_field_name = settings.REDIRECT_FIELD_NAME
     display_permission_denied = True
     permission_denied_message = _("Only the supervisors of {this_country} can access this page")
 

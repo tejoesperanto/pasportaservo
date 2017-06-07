@@ -27,9 +27,9 @@ from .models import Profile, Place, Phone
 
 from rest_framework import viewsets
 from .serializers import ProfileSerializer, PlaceSerializer, UserSerializer
-from braces.views import LoginRequiredMixin, UserPassesTestMixin, FormInvalidMessageMixin
+from braces.views import FormInvalidMessageMixin
 from core.auth import AuthMixin, PERM_SUPERVISOR, SUPERVISOR, OWNER, VISITOR, ANONYMOUS
-from core.mixins import SupervisorRequiredMixin
+from core.mixins import LoginRequiredMixin
 from .mixins import (
     ProfileModifyMixin, ProfileIsUserMixin,
     PhoneMixin, PlaceMixin, FamilyMemberMixin, FamilyMemberAuthMixin,

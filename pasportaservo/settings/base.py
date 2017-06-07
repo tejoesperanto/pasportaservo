@@ -138,6 +138,8 @@ LOGIN_URL = 'login'
 LOGOUT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 
+REDIRECT_FIELD_NAME = "ps_m"
+
 DEFAULT_FROM_EMAIL = 'Pasporta Servo <saluton@pasportaservo.org>'
 
 CSRF_COOKIE_AGE = None
