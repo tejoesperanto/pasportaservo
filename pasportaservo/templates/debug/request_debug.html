@@ -26,4 +26,23 @@
     </tbody>
 </table>
 
+{% if context_role.extra %}
+    <table>
+        <thead>
+            <tr>
+                {% for k in context_role.extra.keys %}
+                    <th>{{ k|capfirst }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="djDebugOdd">
+                {% for v in context_role.extra.values %}
+                    <td><code>{{ v }}</code></td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+{% endif %}
+
 {% include 'debug_toolbar/panels/request.html' %}

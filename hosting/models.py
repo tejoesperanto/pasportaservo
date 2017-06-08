@@ -30,9 +30,6 @@ from .utils import UploadAndRenameAvatar, value_without_invalid_marker, format_l
 from .gravatar import email_to_gravatar
 
 
-ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR = 5, 4, 3, 2, 1
-
-
 MRS, MR = 'Mrs', 'Mr'
 TITLE_CHOICES = (
     (None, ""),
@@ -194,31 +191,6 @@ class Profile(TrackingModel, TimeStampedModel):
     @property
     def places_confirmed(self):
         return all(p.confirmed for p in self.owned_places.filter(deleted=False, in_book=True))
-
-    def supervised_by(self):
-        places = self.owned_places.filter(deleted=False)
-        return [superv for p in places for superv in p.supervised_by()]
-
-    @property
-    def is_supervisor(self):
-        return any(self.supervisor_of())
-
-    def supervisor_of(self, code=False):
-        countries = (Country(g.name) for g in self.user.groups.all() if len(g.name) == 2)
-        return countries if code else [c.name for c in countries]
-
-    def is_supervisor_of(self, profile=None, countries=None):
-        """Compare intersection between responsibilities and given countries."""
-        if all([profile, countries]) or not any([profile, countries]):
-            raise ImproperlyConfigured(
-                "Profile.is_supervisor_of() needs either a profile or a list of countries."
-            )
-        countries = countries if countries else []
-        if not countries:
-            countries = profile.owned_places.filter(
-                available=True, deleted=False).values_list('country', flat=True)
-        supervised = self.user.groups.values_list('name', flat=True)
-        return any(set(supervised) & set(countries))
 
     def __str__(self):
         if self.full_name.strip():
@@ -393,10 +365,6 @@ class Place(TrackingModel, TimeStampedModel):
     def is_blocked(self):
         return any([self.blocked_until and self.blocked_until >= date.today(),
                     self.blocked_from and not self.blocked_until])
-
-    def supervised_by(self):
-        group = Group.objects.get(name=self.country.code)
-        return [user.profile for user in group.user_set.all()]
 
     def get_absolute_url(self):
         return reverse('place_detail', kwargs={'pk': self.pk})

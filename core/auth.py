@@ -1,4 +1,5 @@
 import re
+import logging
 
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import Group
@@ -29,6 +30,10 @@ ALL_ROLES = dict(
 )
 
 
+auth_log = logging.getLogger('PasportaServo.auth')
+dprint = auth_log.debug
+
+
 class SupervisorAuthBackend(ModelBackend):
 
     _perm_sv_particular_re = re.compile(r'^%s\.[A-Z]{2}$' % PERM_SUPERVISOR.replace('.', '\\.'), re.I)
@@ -38,34 +43,34 @@ class SupervisorAuthBackend(ModelBackend):
         Calculate responsibilities, globally or for an optional object.
         The given object may be an iterable of countries, a single country, or a profile.
         """
-        print("\tcalculating countries")
+        dprint("\tcalculating countries")
         cache_name = '_countrygroup_cache'
         if not hasattr(user_obj, cache_name):
-            print("\t\t ... storing in cache %s ... " % cache_name)
+            dprint("\t\t ... storing in cache %s ... ", cache_name)
             user_groups = user_obj.groups.all() if not user_obj.is_superuser else Group.objects.all()
             user_countries = frozenset(Country(g.name) for g in user_groups if len(g.name) == 2)
             setattr(user_obj, cache_name, user_countries)
         supervised = getattr(user_obj, cache_name)
-        print("\tobject is", repr(obj))
+        dprint("\tobject is %s", repr(obj))
         if obj is not None:
             if isinstance(obj, Country):
                 countries = [obj]
-                print("\t\tGot a Country,", countries)
+                dprint("\t\tGot a Country, %s", countries)
             elif isinstance(obj, Profile):
                 countries = obj.owned_places.filter(deleted=False).values_list('country', flat=True)
-                print("\t\tGot a Profile,", countries)
+                dprint("\t\tGot a Profile, %s", countries)
             elif isinstance(obj, Place):
                 countries = [obj.country]
-                print("\t\tGot a Place,", countries)
+                dprint("\t\tGot a Place, %s", countries)
             elif hasattr(obj, '__iter__') and not isinstance(obj, str):
                 countries = obj  # assume an iterable of countries
-                print("\t\tGot an iterable,", countries)
+                dprint("\t\tGot an iterable, %s", countries)
             else:
                 raise ImproperlyConfigured(
                     "Supervisor check needs either a profile, a country, or a list of countries."
                 )
-            print("\t\trequested:", set(countries), "supervised:", set(supervised),
-                  "\n\t\tresult", set(supervised) & set(countries))
+            dprint("\t\trequested: %s supervised: %s\n\t\tresult: %s",
+                   set(countries), set(supervised), set(supervised) & set(countries))
             supervised = set(supervised) & set(countries)
         return supervised if code else [c.name for c in supervised]
 
@@ -82,14 +87,15 @@ class SupervisorAuthBackend(ModelBackend):
         Verify if this user has permission (to an optional object).
         Short-circuits when resposibility is not satisfied.
         """
-        print("checking permission: ", perm, " %s %s" % ("for object", repr(obj)) if obj else " for any records")
+        dprint("checking permission:  %s [ %s ] for %s",
+               perm, user_obj, "%s %s" % ("object", repr(obj)) if obj else "any records")
         if perm == PERM_SUPERVISOR and obj is not None:
             all_perms = self.get_all_permissions(user_obj, obj)
             allowed = any(self._perm_sv_particular_re.match(p) for p in all_perms)
         else:
             allowed = super().has_perm(user_obj, perm, obj)
         if perm == PERM_SUPERVISOR and not allowed:
-            print("permission to supervise not granted")
+            dprint("permission to supervise not granted")
             raise PermissionDenied
         return allowed
 
@@ -105,30 +111,29 @@ class SupervisorAuthBackend(ModelBackend):
         If an object is passed in, only permissions matching this object are returned.
         """
         perms = super().get_group_permissions(user_obj, obj)
-        print("\tUser's built in perms: ", perms)
+        dprint("\tUser's built in perms:  %s", perms)
         groups = set(self.get_user_supervisor_of(user_obj, code=True))
         if any(groups):
-            print("\tUser's groups: ", groups)
+            dprint("\tUser's groups:  %s", groups)
             if obj is None:
                 perms.update([PERM_SUPERVISOR])
             cache_name = '_countrygroup_perm_cache'
             if not hasattr(user_obj, cache_name):
-                print("\t\t ... storing in cache %s ... " % cache_name)
+                dprint("\t\t ... storing in cache %s ... ", cache_name)
                 setattr(user_obj, cache_name, frozenset("%s.%s" % (PERM_SUPERVISOR, g) for g in groups))
-            print("\tUser's group perms: ", set(getattr(user_obj, cache_name)))
+            dprint("\tUser's group perms:  %s", set(getattr(user_obj, cache_name)))
             if obj is None:
                 perms.update(getattr(user_obj, cache_name))
             else:
                 groups_for_obj = set(self.get_user_supervisor_of(user_obj, obj, code=True))
                 perms_for_obj = set("%s.%s" % (PERM_SUPERVISOR, g) for g in groups_for_obj)
-                print("\tUser's perms for object: ", perms_for_obj)
+                dprint("\tUser's perms for object:  %s", perms_for_obj)
                 perms.update(getattr(user_obj, cache_name) & perms_for_obj)
-        print("\tUser's all perms: ", perms)
+        dprint("\tUser's all perms:  %s", perms)
         return perms
 
 
 def get_role_in_context(request, profile=None, place=None, no_obj_context=False):
-    print("~  ~  PROFILE", repr(profile), "PLACE", repr(place))
     user = request.user
     context = place or profile or object
     if profile and user.pk == profile.user_id:
@@ -158,9 +163,7 @@ class AuthMixin(AccessMixin):
         reusing the already-retrieved object, to avoid overhead and multiple trips
         to the database.
         """
-        print("~  AuthMixin#get_object")
         object = super().get_object(queryset)
-        print("~  AuthMixin#get_object:", object)
         return self._auth_verify(object)
 
     def dispatch(self, request, *args, **kwargs):
@@ -170,7 +173,6 @@ class AuthMixin(AccessMixin):
         to be already retrieved by previous dispatch() methods, and stored in the
         auth_base keyword argument.
         """
-        print("~  AuthMixin#dispatch .... ", "Create" if isinstance(self, generic.CreateView) else "Other")
         if getattr(self, 'exact_role', None) == ANONYMOUS or self.minimum_role == ANONYMOUS:
             self.allow_anonymous = True
         if not request.user.is_authenticated and not self.allow_anonymous:
@@ -203,11 +205,11 @@ class AuthMixin(AccessMixin):
                                         place=self.get_location(object),
                                         no_obj_context=context_omitted)
         if getattr(self, 'exact_role', None):
-            print("exact role allowed: {-", self.exact_role, "-} , current role: {-", self.role, "-}")
+            auth_log.info("exact role allowed: {- %s -} , current role: {- %s -}", self.exact_role, self.role)
             if self.role == self.exact_role:
                 return object
         else:
-            print("minimum role allowed: {-", self.minimum_role, "-} , current role: {-", self.role, "-}")
+            auth_log.info("minimum role allowed: {- %s -} , current role: {- %s -}", self.minimum_role, self.role)
             if self.role >= self.minimum_role:
                 return object
         if settings.DEBUG:

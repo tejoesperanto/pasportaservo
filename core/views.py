@@ -114,17 +114,13 @@ class EmailUpdateView(AuthMixin, UserModifyMixin, generic.UpdateView):
     exact_role = OWNER
 
     def dispatch(self, request, *args, **kwargs):
-        print("~  EmailUpdateView#dispatch:1", "[", getattr(self, 'user', None), " / ", self.kwargs.get(self.pk_url_kwarg), "]")
         if not hasattr(self, 'user'):
             self.user = self.request.user
             self.kwargs[self.pk_url_kwarg] = self.user.id
-        print("~  EmailUpdateView#dispatch:2", "[", getattr(self, 'user', None), " / ", self.kwargs.get(self.pk_url_kwarg), "]")
         return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
-        print("~  EmailUpdateView#get_object:1", "[", self.user, "]")
         super().get_object(queryset)
-        print("~  EmailUpdateView#get_object:2", "[", self.user, "]")
         return self.user
 
     def get_owner(self, object):

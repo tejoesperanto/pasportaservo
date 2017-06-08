@@ -1,3 +1,5 @@
+import logging
+
 from django import template
 from django.contrib import auth
 from django.contrib.auth.models import AnonymousUser
@@ -11,6 +13,8 @@ from core.auth import PERM_SUPERVISOR
 
 register = template.Library()
 
+dprint = logging.getLogger('PasportaServo.auth').debug
+
 
 def _convert_profile_to_user(profile_obj):
     if isinstance(profile_obj, Profile):
@@ -22,14 +26,17 @@ def _convert_profile_to_user(profile_obj):
 @register.filter
 def is_supervisor(user_or_profile):
     user = _convert_profile_to_user(user_or_profile)
-    print("* checking if supervising...", "[", user, "for '%s' ]" % user_or_profile if user != user_or_profile else "]")
+    dprint("* checking if supervising... [ %s %s]",
+           user, "<~ '%s' " % user_or_profile if user != user_or_profile else "")
     return user.has_perm(PERM_SUPERVISOR)
 
 
 @register.filter
 def is_supervisor_of(user_or_profile, profile_or_countries):
     user = _convert_profile_to_user(user_or_profile)
-    print("* checking if object is supervised...", "[", user, "for '%s' ]" % user_or_profile if user != user_or_profile else "]")
+    dprint("* checking if object is supervised... [ %s %s] [ %s ]",
+           user, "<~ '%s' " % user_or_profile if user != user_or_profile else "",
+           repr(profile_or_countries))
     if isinstance(profile_or_countries, int):
         try:
             profile_or_countries = Profile.objects.get(pk=profile_or_countries)
@@ -55,7 +62,8 @@ def is_supervisor_of(user_or_profile, profile_or_countries):
 @register.filter
 def supervisor_of(user_or_profile):
     user = _convert_profile_to_user(user_or_profile)
-    print("* searching supervised objects...", "[", user, "for '%s' ]" % user_or_profile if user != user_or_profile else "]")
+    dprint("* searching supervised objects... [ %s %s]",
+           user, "<~ '%s' " % user_or_profile if user != user_or_profile else "")
     for backend in auth.get_backends():
         try:
             return sorted(backend.get_user_supervisor_of(user))

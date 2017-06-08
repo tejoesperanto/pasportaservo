@@ -113,12 +113,6 @@ class ProfileUpdateView(UpdateMixin, AuthMixin, ProfileIsUserMixin, ProfileModif
     form_class = ProfileForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
-    def get_object(self, queryset=None):
-        print("~  ProfileUpdateView#get_object")
-        profile = super().get_object(queryset)
-        print("~  ProfileUpdateView#get_object", profile)
-        return profile
-
 profile_update = ProfileUpdateView.as_view()
 
 
@@ -190,9 +184,7 @@ class ProfileDetailView(AuthMixin, ProfileIsUserMixin, generic.DetailView):
     minimum_role = VISITOR
 
     def get_object(self, queryset=None):
-        print("~  ProfileDetailView#get_object")
         profile = super().get_object(queryset)
-        print("~  ProfileDetailView#get_object", profile)
         if profile.deleted and self.role == VISITOR and not self.request.user.has_perm(PERM_SUPERVISOR):
             raise Http404("Profile was deleted.")
         return profile
@@ -251,12 +243,6 @@ class PlaceUpdateView(UpdateMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, Fo
     form_class = PlaceForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
-    def get_object(self, queryset=None):
-        print("~  PlaceUpdateView#get_object")
-        object = super().get_object(queryset)
-        print("~  PlaceUpdateView#get_object:", object)
-        return object
-
 place_update = PlaceUpdateView.as_view()
 
 
@@ -311,34 +297,23 @@ place_detail = PlaceDetailView.as_view()
 
 
 class PlaceDetailVerboseView(PlaceDetailView):
-    redirect_field_name = ''
-    redirect_unauthenticated_users = True
     verbose_view = True
-
-    def get_login_url(self):
-        #TODO: logic must be modified for Django's UserPassesTestMixin
-        return reverse_lazy('place_detail', kwargs={'pk': self.kwargs['pk']})
-
-    def test_func(self, user):
-        print("~  PlaceDetailVerboseView#test_func")
-        object = self.get_object()
-        return (user is not None and user.is_authenticated()
-                and (user.is_staff or user in object.authorized_users.all() or user.profile == object.owner))
 
     def render_to_response(self, context, **response_kwargs):
         # Automatically redirect the user to the scarce view if permission to details not granted.
         user = self.request.user
         is_authorized = user in self.object.authorized_users.all()
         is_family_member = getattr(user, 'profile', None) in self.object.family_members.all()
-        print("PlaceDetailVerboseView",
-              "role:", self.role, ", auth:", is_authorized, ", family:", is_family_member,
-              ", redirect: ", end="")
+        self.__dict__.setdefault('debug', {}).update(
+            {'authorized': is_authorized, 'family member': is_family_member}
+        )
         if self.role >= OWNER or is_authorized or is_family_member:
-            print(False)
             return super().render_to_response(context)
         else:
-            print(True)
             return HttpResponseRedirect(reverse_lazy('place_detail', kwargs={'pk': self.kwargs['pk']}))
+
+    def get_debug_data(self):
+        return self.debug
 
 place_detail_verbose = PlaceDetailVerboseView.as_view()
 
@@ -420,7 +395,7 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
         if request.is_ajax():
             return JsonResponse({'success': 'checked'})
         else:
-            # Not tested/implemented.
+            # Not implemented; only AJAX requests are expected.
             return TemplateResponse(request, self.template_name)
 
 place_check = PlaceCheckView.as_view()
