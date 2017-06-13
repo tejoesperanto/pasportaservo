@@ -1,10 +1,8 @@
-from django.db import models
+from django.db import models, ProgrammingError
 from django.db.models import BooleanField, Case, When
 from django.utils import timezone
 
 from core.models import SiteConfiguration
-
-config = SiteConfiguration.objects.get()
 
 
 class TrackingManager(models.Manager):
@@ -13,7 +11,12 @@ class TrackingManager(models.Manager):
     """
 
     def get_queryset(self):
-        validity_start = timezone.now() - config.confirmation_validity_period
+        try:
+            validity_period = SiteConfiguration.get_solo().confirmation_validity_period
+        except ProgrammingError:
+            from datetime import timedelta
+            validity_period = timedelta(weeks=42)
+        validity_start = timezone.now() - validity_period
         return super().get_queryset().annotate(deleted=Case(
             When(deleted_on__isnull=True, then=False),
             default=True,

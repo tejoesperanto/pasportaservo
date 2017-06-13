@@ -16,7 +16,6 @@ from links.utils import create_unique_url
 from .models import SiteConfiguration
 from hosting.utils import value_without_invalid_marker
 
-config = SiteConfiguration.objects.get()
 User = get_user_model()
 
 
@@ -86,6 +85,7 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
         Saves nothing but sends a warning email to old email address,
         and sends a confirmation link to the new email address.
         """
+        config = SiteConfiguration.get_solo()
         old_email = self.previous_email
         new_email = self.cleaned_data['email']
         if old_email == new_email:

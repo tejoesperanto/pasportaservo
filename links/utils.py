@@ -5,10 +5,10 @@ from django.conf import settings
 
 from core.models import SiteConfiguration
 
-config = SiteConfiguration.objects.get()
 
-
-def create_unique_url(payload, salt=config.salt):
+def create_unique_url(payload, salt=None):
+    config = SiteConfiguration.get_solo()
+    salt = config.salt if salt is None else salt
     s = URLSafeTimedSerializer(settings.SECRET_KEY, salt=salt)
     token = s.dumps(payload)
     return reverse('unique_link', kwargs={'token': token})

@@ -2,6 +2,6 @@
 
 bpython==0.15
 django-debug-toolbar==1.6
-fabric3==1.12
+fabric3==1.13.post1
 pytest-django==3.0.0
 coverage==4.2
