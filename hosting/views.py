@@ -41,8 +41,6 @@ from .forms import (
     PlaceForm, PlaceCreateForm, PlaceBlockForm, FamilyMemberForm, FamilyMemberCreateForm,
 )
 
-
-config = SiteConfiguration.objects.get()
 User = get_user_model()
 lang = settings.LANGUAGE_CODE
 
@@ -515,6 +513,7 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
         return reverse_lazy('authorize_user', kwargs={'pk': self.kwargs['pk']})
 
     def send_email(self, user, place):
+        config = SiteConfiguration.get_solo()
         subject = _("[Pasporta Servo] You received an Authorization")
         email_template_text = get_template('email/new_authorization.txt')
         email_template_html = get_template('email/new_authorization.html')

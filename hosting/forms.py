@@ -10,7 +10,6 @@ from .models import Profile, Place, Phone
 from .validators import TooNearPastValidator, client_side_validated
 from .widgets import ClearableWithPreviewImageInput
 
-config = SiteConfiguration.objects.get()
 User = get_user_model()
 
 
@@ -37,6 +36,7 @@ class ProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
+        config = SiteConfiguration.get_solo()
         self.fields['first_name'].widget.attrs['inputmode'] = 'latin-name'
         self.fields['last_name'].widget.attrs['inputmode'] = 'latin-name'
         self.fields['names_inversed'].label = _("Names ordering")
@@ -143,6 +143,7 @@ class PlaceForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super(PlaceForm, self).clean()
+        config = SiteConfiguration.get_solo()
 
         # Verifies that user is of correct age if they want to host or meet guests.
         is_hosting = cleaned_data['available']

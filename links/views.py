@@ -14,11 +14,10 @@ from hosting.models import Place
 from core.models import SiteConfiguration
 from core.views import email_update_confirm
 
-config = SiteConfiguration.objects.get()
-
 
 class UniqueLinkView(generic.TemplateView):
     def get(self, request, *args, **kwargs):
+        config = SiteConfiguration.get_solo()
         self.token = kwargs.pop('token')
         s = URLSafeTimedSerializer(settings.SECRET_KEY, salt=config.salt)
         try:

@@ -36,7 +36,6 @@ from links.utils import create_unique_url
 from .models import SiteConfiguration
 from .utils import send_mass_html_mail
 
-config = SiteConfiguration.objects.get()
 User = get_user_model()
 
 
@@ -138,6 +137,7 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
+        config = SiteConfiguration.get_solo()
         email_to_verify = value_without_invalid_marker(request.user.email)
         url = create_unique_url({
             'action': 'email_update',
