@@ -316,17 +316,15 @@ class PlaceDetailVerboseView(PlaceDetailView):
 place_detail_verbose = PlaceDetailVerboseView.as_view()
 
 
-class PlaceBlockView(LoginRequiredMixin, generic.View):
+class PlaceBlockView(AuthMixin, PlaceMixin, generic.View):
     http_method_names = ['put']
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(Place,
-                                 pk=self.kwargs['pk'],
-                                 owner__user_id=self.request.user.pk,
-                                 deleted=False)
+    exact_role = OWNER
 
     def put(self, request, *args, **kwargs):
-        form = PlaceBlockForm(data=QueryDict(request.body), instance=self.get_object())
+        place = self.get_object()
+        if place.deleted:
+            return JsonResponse({'result': False, 'err': {'__all__': [_("Deleted place"),]}})
+        form = PlaceBlockForm(data=QueryDict(request.body), instance=place)
         data_correct = form.is_valid()
         viewresponse = {'result': data_correct}
         if data_correct:
