@@ -164,10 +164,10 @@ msgstr "Serĉi"
 
 msgid ""
 "<a href=\"http://katalogo.uea.org/katalogo.php?inf=3474\" target=\"_blank"
-"\">Aĉetu nun la libreton <big>Pasporta Servo 2017</big>!</a>"
+"\">Buy now the booklet <big>Pasporta Servo 2017</big>&thinsp;!</a>"
 msgstr ""
 "<a href=\"http://katalogo.uea.org/katalogo.php?inf=3474\" target=\"_blank"
-"\">Aĉetu nun la libreton <big>Pasporta Servo 2017</big>!</a>"
+"\">Aĉetu nun la libreton <big>Pasporta Servo 2017</big>&thinsp;!</a>"
 
 msgid "inbox"
 msgstr "poŝtkesto"
@@ -1884,6 +1884,12 @@ msgstr "sendokostoj"
 
 msgid "total"
 msgstr "sumo"
+
+msgid "The prices appear on the right of the scrollable table."
+msgstr "La prezoj estas indikitaj en la dekstra flanko de la ŝovebla tabelo."
+
+msgid "<a href=\"http://katalogo.uea.org/\">UEA catalogue</a>"
+msgstr "<a href=\"http://katalogo.uea.org/\">katalogo de UEA</a>"
 
 #, python-format
 msgid ""

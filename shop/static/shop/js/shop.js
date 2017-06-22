@@ -3,11 +3,11 @@
 
 
 $(function() {
-    // Parse a float from the DOM
+    // Parses a float from the DOM
     var parse = function(txt) { return parseFloat(txt.replace(',', '.')) };
-    // Format a float for the DOM
+    // Formats a float for the DOM
     var format = function(num) { return num.toFixed(2).toString().replace('.', ',') };
-    // Initiate the state of the Amount button group. See amountRange.
+    // Initiates the state of the Amount button group. See amountRange.
     var initButtonArray = function(amount) {
         if (amount >= 10) {
             $('.btn-group label:last').button('toggle');
@@ -31,9 +31,10 @@ $(function() {
             return this.inBook() ? this.productAmount() -1 : this.productAmount()
         }, this);
         this.supportInput = ko.observable($('#id_support').val());
-        // Parsing Float field
+        // Parsed Float field
         this.support = ko.computed(function() {
-            return parse(this.supportInput())
+            var supportAmount = parse(this.supportInput());
+            return isNaN(supportAmount) ? 0 : Math.max(supportAmount, 0);
         }, this);
         this.hasTejoDiscount = ko.observable(false);
         this.productSum = ko.computed(function() {
@@ -42,7 +43,7 @@ $(function() {
         this.productTotal = ko.computed(function() {
             return this.inBook() ? this.productLowPrice + this.productSum() : this.productSum()
         }, this);
-        // Discount of one third (~33%) after 3 or more article
+        // Discount of one third (~33%) after 3 or more articles
         this.volumeDiscount = ko.computed(function() {
             if (this.productAmount() < 3) { return 0 }
             else { return this.productTotal() / 3 }
@@ -66,7 +67,7 @@ $(function() {
             else { self.productAmount(item) }
         }
 
-        // Formating values to display
+        // Formats the values for displaying
         this.productSumFmt = ko.computed(function() {
             return format(this.productSum())
         }, this);

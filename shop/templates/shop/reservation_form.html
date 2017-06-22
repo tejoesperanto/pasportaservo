@@ -7,6 +7,13 @@
     <script src="{% static 'shop/js/knockout.js' %}" type="text/javascript"></script>
     <script src="{% static 'shop/js/shop.js' %}" type="text/javascript"></script>
 {% endblock %}
+{% block extra_css %}
+    {{ block.super }}
+    <style type="text/css">
+        .text-padded { padding-right: calc(8px + 1em) !important }
+        .currency { width: 1em; display: inline-block; }
+    </style>
+{% endblock %}
 
 {% block pre-page %}
     <p style="display: none" id="product-low-price">{{ view.product.low_price }}</p>
@@ -29,7 +36,6 @@
             <input type="radio" name="amount-radio" autocomplete="off"> <b data-bind="text: $data">1</b>
         </label>
     </div>
-
     <div class="row">
         <div class="col col-xxs-7 col-xs-4 col-sm-3 col-md-5 col-lg-4" style="margin: 1em auto; float: none" data-bind="visible: productAmount() >= 10">
         {{ form.amount }}
@@ -46,55 +52,62 @@
 {% endblock %}
 
 {% block fields_after %}
+<div class="table-responsive">
     <table class="table table-hover">
     <thead>
         <tr>
             <th></th>
-            <th width="20%">{% trans "amount" %}</th>
-            <th width="20%">{% trans "value" %}</th>
+            <th width="20%" class="text-center">{% trans "amount" %}</th>
+            <th width="20%" class="text-center">{% trans "value" %}</th>
         </tr>
     </thead>
     <tbody>
         <tr data-bind="visible: inBook">
             <td>{{ view.product.code }} {% trans "low price" %}</td>
             <td>1</td>
-            <td>{{ view.product.low_price }}</td>
+            <td class="text-right text-padded">{{ view.product.low_price }}</td>
         </tr>
         <tr data-bind="visible: productAmountComp() > 0">
             <td>{{ view.product.code }} </td>
             <td data-bind="text: productAmountComp"></td>
-            <td data-bind="text: productSumFmt">{{ view.product.price }}</td>
+            <td data-bind="text: productSumFmt" class="text-right text-padded">{{ view.product.price }}</td>
         </tr>
         <tr>
             <td>{% trans "support" %}</td>
             <td></td>
-            <td>{{ form.support }}</td>
+            <td class="text-right">{{ form.support }}</td>
         </tr>
         <tr class="success" data-bind="visible: volumeDiscount">
             <td>{% trans "volume discount" %}</td>
             <td><span id="vol-discount-percent">33</span>%</td>
-            <td data-bind="text: volumeDiscountFmt">0</td>
+            <td data-bind="text: volumeDiscountFmt" class="text-right text-padded">0</td>
         </tr>
         <tr class="success" data-bind="visible: hasTejoDiscount">
             <td>{% trans "TEJO discount" %}</td>
             <td><span id="tejo-discount-percent">10</span>%</td>
-            <td data-bind="text: tejoDiscountFmt">0</td>
+            <td data-bind="text: tejoDiscountFmt" class="text-right text-padded">0</td>
         </tr>
         <tr>
             <td>{% trans "shipping" %}</td>
             <td></td>
-            <td id="shipping">5,00</td>
+            <td id="shipping" class="text-right text-padded">5,00</td>
         </tr>
         <tr class="info">
             <td>{% trans "total" %}</td>
             <td></td>
-            <td><span data-bind="text: totalFmt">13,99</span> <i class="currency">€</i></td>
+            <td class="text-right"><span data-bind="text: totalFmt">13,99</span><em class="currency">€</em></td>
         </tr>
     </tbody>
     </table>
-
+</div>
+    <p class="visible-xxs-block">
+        {% trans "The prices appear on the right of the scrollable table." %}
+    </p>
     <p>
-        {% blocktrans with link='<a href="http://katalogo.uea.org/">katalogo de UEA</a>' trimmed %}
+        {% blocktrans asvar order_target_link trimmed %}
+            <a href="http://katalogo.uea.org/">UEA catalogue</a>
+        {% endblocktrans %}
+        {% blocktrans with link=order_target_link|safe trimmed %}
             You do not have to pay now. We will contact you when it will be possible to order from the {{ link }}.
         {% endblocktrans %}
     </p>
