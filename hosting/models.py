@@ -186,9 +186,15 @@ class Profile(TrackingModel, TimeStampedModel):
     @property
     def is_in_book(self):
         return self.owned_places.filter(
-            #Q(confirmed=True) | Q(checked=True), #TODO: repair for shop
             available=True, deleted=False, in_book=True,
         ).count()
+
+    def is_ok_for_book(self, accept_confirmed=False, accept_approved=True):
+        book_filter = Q(confirmed=True) if accept_confirmed else Q()
+        book_filter |= Q(checked=True) if accept_approved else Q()
+        return self.owned_places.filter(
+            book_filter, available=True, in_book=True, deleted=False
+        ).exists()
 
     @property
     def places_confirmed(self):
