@@ -29,7 +29,10 @@ class ReserveView(LoginRequiredMixin, generic.UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['is_in_book'] = getattr(self.profile, 'is_in_book', False)
+        try:
+            kwargs['is_in_book'] = self.profile.is_ok_for_book(accept_confirmed=True, accept_approved=True)
+        except AttributeError:
+            kwargs['is_in_book'] = False
         kwargs['user'] = self.request.user
         kwargs['product'] = self.product
         return kwargs
