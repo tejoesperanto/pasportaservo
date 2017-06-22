@@ -19,6 +19,7 @@ class ReservationForm(forms.ModelForm):
         self.user = kwargs.pop('user')
         self.product = kwargs.pop('product')
         super().__init__(*args, **kwargs)
+
         self.fields['in_book'].initial = is_in_book
         self.fields['in_book'].widget.attrs.update({
             'data-bind': "checked: inBook"})
@@ -28,8 +29,8 @@ class ReservationForm(forms.ModelForm):
         self.fields['discount'].widget.attrs['data-bind'] = "checked: hasTejoDiscount, cli"
         self.fields['support'].localize = True
         self.fields['support'].widget = forms.TextInput(attrs={
-            'class': "form-control same-as-body",
-            'style': "width: 5em; text-align: center",
+            'class': "form-control pull-right same-as-body",
+            'style': "width: 5em; text-align: right; padding-right: calc(1em - 1px)",
             'pattern': "[0-9]{1,4},[0-9]{2}",
             'data-bind': "textInput: supportInput"})
 

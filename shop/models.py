@@ -30,10 +30,15 @@ class Reservation(TimeStampedModel):
         on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"),
         on_delete=models.CASCADE)
-    amount = models.PositiveSmallIntegerField(_("amount"), default=1)
-    discount = models.BooleanField(_("TEJO discount"), default=False, help_text=_(
-        "If you are member of TEJO or UEA and the 10% discount applies (twice a year)."))
-    support = models.DecimalField(_("support"), default=Decimal('0.00'),
+    amount = models.PositiveSmallIntegerField(_("amount"),
+        default=1)
+    discount = models.BooleanField(_("TEJO discount"),
+        default=False,
+        # Translator: xgettext:no-python-format
+        help_text=_("If you are member of TEJO or UEA "
+                    "and the 10% discount applies (twice a year)."))
+    support = models.DecimalField(_("support"),
+        default=Decimal('0.00'),
         max_digits=6, decimal_places=2)
 
     class Meta:
@@ -45,7 +50,7 @@ class Reservation(TimeStampedModel):
         return " - ".join((self.product.code, str(self.user)))
 
     def __repr__(self):
-        st = "{} + subteno: {}" if self.support else "{}"
+        st = "{} + support: {}" if self.support else "{}"
         return st.format(self.amount, self.support)
 
     def get_absolute_url(self):
@@ -53,3 +58,4 @@ class Reservation(TimeStampedModel):
 
     def get_edit_url(self):
         return reverse('reserve', kwargs={'product_code': self.product.code})
+

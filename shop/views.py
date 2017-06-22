@@ -1,5 +1,4 @@
 from django.views import generic
-from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse_lazy
 
@@ -20,14 +19,6 @@ class ReserveView(LoginRequiredMixin, generic.UpdateView):
     model = Reservation
     form_class = ReservationForm
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super().post(request, *args, **kwargs)
-
     def get_object(self):
         self.product = get_object_or_404(Product, code=self.kwargs['product_code'])
         self.profile = getattr(self.request.user, 'profile', None)
@@ -38,7 +29,7 @@ class ReserveView(LoginRequiredMixin, generic.UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['is_in_book'] = self.profile.is_in_book
+        kwargs['is_in_book'] = getattr(self.profile, 'is_in_book', False)
         kwargs['user'] = self.request.user
         kwargs['product'] = self.product
         return kwargs
@@ -51,6 +42,4 @@ class ReservationView(LoginRequiredMixin, generic.DetailView):
         self.product = get_object_or_404(Product, code=self.kwargs['product_code'])
         self.profile = getattr(self.request.user, 'profile', None)
         return Reservation.objects.get(product=self.product, user=self.request.user)
-
-
 
