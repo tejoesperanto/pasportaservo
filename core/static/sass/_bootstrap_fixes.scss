@@ -37,6 +37,31 @@
 /* Bootstrap hack for tooltip */
 .btn.disabled { pointer-events: auto; }
 
+.table-like-grid > .row {
+    margin-left: auto;
+    margin-right: auto;
+}
+.table-like-grid > .row > [class^="col-"] {
+    padding-left: 5px;
+}
+.table-like-grid > .row:nth-child(odd) {
+    background-color: #f8f8f8;
+}
+.table-like-grid > .row:nth-child(even) {
+    background-color: #fdfdfd;
+}
+.table-like-grid > .row.grid-header {
+    background-color: inherit;
+    padding-bottom: 3px;
+    border-bottom: solid 2px #ddd;
+}
+.table-like-grid > .row:not(.grid-header) {
+    border-bottom: solid 1px #eee;
+}
+.table-like-grid > .row:last-child:not(.grid-header) {
+    border-bottom: solid 2px #ddd;
+}
+
 .visible-xxs-block,
 .visible-xxs-inline,
 .visible-xxs-inline-block {
