@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n %}
+{% load i18n static %}
 {% load is_supervisor_of from profile %}
 
 {% block head_title %}{% trans "Supervisors" %}{% endblock %}
@@ -7,6 +7,18 @@
 {% block extra_css %}
         {{ block.super }}
         <style>
+            #tasks-header {
+                cursor: pointer;
+            }
+            #tasks-header .switch {
+                padding: 0px 2px 2px 2px;
+            }
+            .collapsing.initial {
+                transition: height 0.1s; -webkit-transition: height 0.1s; -moz-transition: height 0.1s; -o-transition: height 0.1s;
+            }
+            #wanted button.close {
+                margin-left: 10px;
+            }
             .countries-list > .row:not(.grid-header) > [class^="col-"]:first-child {
                 padding-top: 8px;
                 padding-bottom: 8px;
@@ -18,9 +30,13 @@
 {% endblock %}
 {% block extra_js %}
         {{ block.super }}
+        <script src="{% static 'js/cookies.min.js' %}"></script>
+        <script src="{% static 'js/pep.min.js' %}"></script>
+        <script src="{% static 'js/gestures.js' %}"></script>
         <script>
             {% if perms.hosting.can_supervise %}
-                if (localStorage) {
+                // Load and store remembered country list tab
+                if (window.localStorage) {
                     $(document).ready(function() {
                         var tabKey = 'supervisors.by-country.active-tab';
                         {% if view.kwargs.in_book == None %}
@@ -37,6 +53,44 @@
                 }
             {% endif %}
             $(document).ready(function() {
+                // Load and store the collapse status for the tasks box
+                if (window.localStorage) {
+                    var tasksKey = 'supervisors.tasks.collapsed';
+                    var $tasksSwitch = $('#tasks-header .switch');
+                    $('#tasks').on('hide.bs.collapse', function() {
+                        localStorage.setItem(tasksKey, true);
+                        $tasksSwitch.html("[&plus;]");
+                    }).on('hidden.bs.collapse', function() {
+                        $(this).removeClass('initial');
+                    }).on('show.bs.collapse', function() {
+                        localStorage.setItem(tasksKey, false);
+                        $tasksSwitch.html("[&minus;]");
+                    });
+                    if (localStorage.getItem(tasksKey) == 'true') {
+                        $('#tasks').addClass('initial').collapse("hide");
+                        $tasksSwitch.html("[&plus;]");
+                    }
+                    else {
+                        $tasksSwitch.html("[&minus;]");
+                    }
+                }
+                else {
+                    var tasksSwitch = $('#tasks-header .switch')[0];
+                    tasksSwitch.parentElement.removeChild(tasksSwitch);
+                }
+
+                // Load and store the hide status for "supervisors wanted" box
+                if (Cookies.get('lo-off')) {
+                    $('#wanted').hide();
+                }
+                function storeHideStatus() {
+                    Cookies.set('lo-off', new Date().getTime() / 1000, { expires: 90 });
+                }  
+                $('#wanted .close').on('click', function() {
+                    storeHideStatus();
+                    $(this).parent().slideUp();
+                }).parent().swipeoff(storeHideStatus);
+
                 $('.country-code').on('click', function(e) {
                     var $this = $(this);
                     $this.data('qqn', e.timeStamp - $this.data('qqt') < 1000 ? $this.data('qqn')+1 : 0);
@@ -54,32 +108,44 @@
 {% block page %}
     <h1>{% trans "Supervisors" %}</h1>
 
-    <p class="well">
+    <p class="well" id="wanted" touch-action="none">
+        <button type="button" class="close" title="{% trans "Hide" %}" aria-label="{% trans "Hide" %}"><span aria-hidden="true">&times;</span></button>
         Ni serĉas Landajn Organizantojn! Se ne estas nomo apud lando, tio signifas, ke la posteno estas vaka
         kaj ni bezonas vin. <br />
         Se vi volas iĝi LO, bonvole sendu mesaĝon al <a href="mailto:saluton [cxe] pasportaservo.org">saluton
         [cxe]  pasportaservo.org</a>. Dankon!
     </p>
 
-    <ul class="list-group">
-        <li class="list-group-item list-group-item-info">Taskoj de la Landaj Organizantoj</li>
-        <li class="list-group-item">
-            Esti la kontaktulo por homoj de la lando, kiuj volas informiĝi pri PS, precipe tiuj kiuj ne havas
-            facilan retaliron.
-        </li>
-        <li class="list-group-item">
-            Kontakti kaj peri petojn pri aliĝo, ŝanĝo, malaliĝo, k.s. de membroj de PS, ĉefe tiuj kiuj ne havas
-            facilan retaliron.
-        </li>
-        <li class="list-group-item">
-            Kontroli presprovaĵon de la papera adreslibro de PS rilate al landaj skribkutimoj (formo de adresoj,
-            telefonnumeroj, kaj simile).
-        </li>
-        <li class="list-group-item">
-            Helpi informi pri PS per komunikiloj de la landa movado (revuoj, forumoj, dissendolistoj, ktp.) kaj
-            instigi homojn al uzado kiel gastoj kaj kiel gastigantoj.
-        </li>
-    </ul>
+    <div class="panel-group" role="tablist">
+        <div class="panel panel-info">
+            <div class="panel-heading" id="tasks-header" role="tab"
+                 data-toggle="collapse" data-target="#tasks" aria-controls="tasks" aria-expanded="true">
+                <h4 class="panel-title">
+                    Taskoj de la Landaj Organizantoj
+                    <button class="btn switch pull-right bg-info" aria-hidden="true"></button>
+                </h4>
+            </div>
+            <div class="panel-collapse collapse in" id="tasks" role="tabpanel"
+                 aria-labelledby="tasks-header" aria-expanded="true">
+                <div class="panel-body panel-body-cosy">
+                    Esti la kontaktulo por homoj de la lando, kiuj volas informiĝi pri PS, precipe tiuj kiuj ne havas
+                    facilan retaliron.
+                </div>
+                <div class="panel-body panel-body-cosy">
+                    Kontakti kaj peri petojn pri aliĝo, ŝanĝo, malaliĝo, k.s. de membroj de PS, ĉefe tiuj kiuj ne havas
+                    facilan retaliron.
+                </div>
+                <div class="panel-body panel-body-cosy">
+                    Kontroli presprovaĵon de la papera adreslibro de PS rilate al landaj skribkutimoj (formo de adresoj,
+                    telefonnumeroj, kaj simile).
+                </div>
+                <div class="panel-body panel-body-cosy">
+                    Helpi informi pri PS per komunikiloj de la landa movado (revuoj, forumoj, dissendolistoj, ktp.) kaj
+                    instigi homojn al uzado kiel gastoj kaj kiel gastigantoj.
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <a name="{% trans "countries-list" %}"></a>

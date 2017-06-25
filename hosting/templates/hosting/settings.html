@@ -105,10 +105,10 @@
         <p class="help-block">{% trans "We send e-mails to this address. It will never be public." %}</p>
 
         <section class="well well-sm">
-            <a href="#{% trans "set-public-email" %}" class="btn btn-primary btn-vert-space btn-xs" data-toggle="collapse" >
+            <button data-target="#set-public-email" class="btn btn-primary btn-vert-space btn-xs" data-toggle="collapse" >
                 {% trans "Public email?" %}
-            </a>
-            <div id="{% trans "set-public-email" %}" class="collapse{% if profile.email %} in{% endif %}">
+            </button>
+            <div id="set-public-email" class="collapse{% if profile.email %} in{% endif %}">
                 {% trans "[no email address]" as no_email %}
                 <samp><small>
                     {% if profile.email|is_invalid %}
