@@ -219,7 +219,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
 
     def supervisor(self, obj):
         country_list = CustomGroupAdmin.CountryGroup.objects.filter(user__pk=obj.user.id if obj.user else -1)
-        if len(country_list):
+        if country_list:
             return format_html(",&nbsp; ".join(map(str, country_list)))
         else:
             return self.get_empty_value_display()
