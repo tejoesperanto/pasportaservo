@@ -45,8 +45,6 @@ INSTALLED_APPS = (
     'django_extensions',
     'django_countries',
     'djangocodemirror',
-    'rest_framework',
-    'corsheaders',
     'phonenumber_field',
     'bootstrapform',
     'postman',
@@ -64,7 +62,6 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

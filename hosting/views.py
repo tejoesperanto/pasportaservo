@@ -25,8 +25,6 @@ from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 from django_countries.fields import Country
 from .models import Profile, Place, Phone
 
-from rest_framework import viewsets
-from .serializers import ProfileSerializer, PlaceSerializer, UserSerializer
 from braces.views import FormInvalidMessageMixin
 from core.auth import AuthMixin, PERM_SUPERVISOR, SUPERVISOR, OWNER, VISITOR, ANONYMOUS
 from core.mixins import LoginRequiredMixin
@@ -48,41 +46,6 @@ from .forms import (
 User = get_user_model()
 lang = settings.LANGUAGE_CODE
 
-
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    queryset = User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
-    http_method_names = ['get']
-
-
-class ProfileViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows profiles to be viewed or edited.
-    """
-    serializer_class = ProfileSerializer
-    queryset = Profile.objects.all()
-    http_method_names = ['get']
-
-
-class PlaceViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows places to be viewed or edited.
-    """
-    serializer_class = PlaceSerializer
-    queryset = Place.with_coord.all()
-    http_method_names = ['get']
-
-    def get_queryset(self):
-        qs = self.queryset
-        qs = self.get_serializer_class().setup_eager_loading(qs)
-        bounds = {p: self.request.query_params.get(p, None) for p in 'nswe'}
-        if any(bounds.values()):
-            qs = qs.filter(latitude__range=(bounds['s'], bounds['n']))
-            qs = qs.filter(longitude__range=(bounds['w'], bounds['e']))
-        return qs
 
 
 class ProfileCreateView(LoginRequiredMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.CreateView):

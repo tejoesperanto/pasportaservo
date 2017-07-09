@@ -19,11 +19,11 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django_countries.fields import CountryField, Country
 
 from .managers import (
-    TrackingManager, NotDeletedManager, AvailableWithCoordManager, AvailableManager,
+    TrackingManager, NotDeletedManager, AvailableManager,
 )
 from .validators import (
     validate_not_all_caps, validate_not_too_many_caps, validate_no_digit, validate_latin,
-    validate_not_in_future, TooFarPastValidator, TooNearPastValidator,
+    validate_not_in_future, TooFarPastValidator,
     validate_image, validate_size,
 )
 from .utils import UploadAndRenameAvatar, value_without_invalid_marker, format_lazy
@@ -331,7 +331,6 @@ class Place(TrackingModel, TimeStampedModel):
         help_text=_("List of users authorized to view most of data of this accommodation."))
 
     available_objects = AvailableManager()
-    with_coord = AvailableWithCoordManager()
 
     class Meta:
         verbose_name = _("place")
