@@ -2,28 +2,35 @@
 {% load i18n %}
 
 {% block head_title %}
-    {% if profile == user.profile %}&#9872;{% endif %}
+    {# Confirmation is displayed both for deletion of regular profiles and of family member profiles. #}
+    {% if view.role == roles.OWNER and profile == user.profile %}&#9872;{% endif %}
     {% trans "Delete profile" %}
-    {% if profile != user.profile and profile.user %} ({{ profile.anonymous_name.strip }}) {% endif %}
+    {% if view.role >= roles.SUPERVISOR and profile.user %} ({{ profile.anonymous_name.strip }}) {% endif %}
 {% endblock %}
 
 {% block confirmation %}
-            {% if profile == user.profile %}
+            {% if view.role == roles.OWNER %}
                 {% trans "your " as kin %}
             {% else %}
                 {% trans "this " as kin %}
             {% endif %}
-            <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;
-            {% blocktrans %}Are you sure you want to delete {{ kin }}profile and all linked data (place, phone…)?{% endblocktrans %}
+            {% if profile.user %}
+                <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;
+                {% blocktrans trimmed %}
+                    Are you sure you want to delete {{ kin }}profile and all linked data (place, phone…)?
+                {% endblocktrans %}
+            {% else %}
+                {% trans "Are you sure you want to delete the profile of this family member?" %}
+            {% endif %}
 {% endblock %}
 {% block extra_details %}
-    {% if profile != user.profile %}
-            {% if places %}<br />{% endif %}
-            {{ profile.get_fullname_display }}
+    {% if places %}<br />{% endif %}
+    {% if view.role >= roles.SUPERVISOR or not profile.user %}
+            {{ profile.get_fullname_always_display }}
     {% endif %}
 {% endblock %}
 {% block extra_details_block %}
-    {% if places and profile != user.profile %}
+    {% if places %}
         <div class="row">
             <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
                 <ul class="list-group small">

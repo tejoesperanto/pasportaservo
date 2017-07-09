@@ -3,10 +3,10 @@
 
 {% block head_title %}
     {% if place.owner.user == user %}
-        {% blocktrans with kin=_("my ") %}Remove {{kin}}place{% endblocktrans %}
+        {% blocktrans with kin=_("my ") %}Remove {{ kin }}place{% endblocktrans %}
         ({{ place }})
     {% else %}
-        {% blocktrans %}Remove {{kin}}place{% endblocktrans %}:
+        {% blocktrans %}Remove {{ kin }}place{% endblocktrans %}:
         {{ place.owner.name }}, {{ place.get_locality_display }}
     {% endif %}
 {% endblock %}

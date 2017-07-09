@@ -1,9 +1,8 @@
 {% extends 'core/base.html' %}
-{% load i18n static %}
-{% load is_invalid from profile %}
+{% load i18n static profile %}
 
 {% block head_title %}
-    {% if user.profile == profile %}
+    {% if view.role == roles.OWNER %}
         {% trans "My profile" %}
     {% else %}
         {{ profile.anonymous_name }}
@@ -20,8 +19,9 @@
 
 {% block page %}
     {% if user.profile and user.profile.is_in_book and not user.profile.places_confirmed %}
+    {# PAGE-TOP REQUEST TO APPROVE HOSTING DATA #}
         <div class="row bg-info top-notice remove-after-success">
-            {% if profile != user.profile %}
+            {% if view.role != roles.OWNER %}
                 <p class="col-xs-12 text-center">
                     {% url 'profile_edit' user.profile.pk user.profile.user.username|slugify as current_user_profile %}
                     {% blocktrans with url=current_user_profile trimmed %}
@@ -29,7 +29,7 @@
                     {% endblocktrans %}
                 </p>
             {% else %}
-                <form class="col-xs-12 text-center" action="{% url 'confirm_hosting_info' %}" method="POST">
+                <form class="col-xs-12 text-center" action="{% url 'hosting_info_confirm' %}" method="POST">
                     {% csrf_token %}
                     {% blocktrans with tag="<span class='text-nowrap'>" endtag="</span>" trimmed %}
                         Are your data up-to-date? {{ tag }}Click if yes{{ endtag }}
@@ -45,17 +45,19 @@
         </div>
     {% endif %}
 
-    {% if profile.is_supervisor %}
+    {% if profile|is_supervisor and not profile.user.is_superuser %}
+    {# PAGE-TOP INFORMATION ABOUT COUNTRIES SUPERVISED BY THIS USER #}
         <div class="row bg-warning top-notice">
             <p class="col-xs-12 text-center">
-                {% blocktrans with countries=profile.supervisor_of|join:", " trimmed %}
+                {% blocktrans with countries=profile|supervisor_of|join:", " trimmed %}
                     Supervisor of {{ countries }}
                 {% endblocktrans %}
             </p>
         </div>
     {% endif %}
 
-    {% if profile.confirmed and role == profile.OWNER %}
+    {% if profile.confirmed and view.role == roles.OWNER %}
+    {# PAGE-TOP CONFIRMATION OF HOSTING DATA APPROVAL #}
         <div class="row bg-success top-notice">
             <p class="col-xs-12 text-center">
                 {% trans "You confirmed your information" %}
@@ -65,21 +67,19 @@
 
         <div class="row">
             <div class="col-xs-12 col-md-5">
-                {% if profile.deleted %}
-                {% if profile == user.profile or role >= profile.SUPERVISOR %}
+                {% if profile.deleted %} {# VISITORs are barred from accessing deleted profiles, on View level #}
                     <div class="alert alert-small alert-danger">
                         <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;
                         {% trans "Deleted profile" as delete_notice %}
-                        {% if profile == user.profile %}{% trans "Your profile is deleted and does not appear in search results." as delete_notice %}{% endif %}
+                        {% if view.role == roles.OWNER %}{% trans "Your profile is deleted and does not appear in search results." as delete_notice %}{% endif %}
                         {{ delete_notice }}
                     </div>
-                {% endif %}
                 {% endif %}
             </div>
             <div class="col-xs-12 col-md-7">
                 <div class="btn-group edit-buttons">
                     {% block profile_edit_buttons %}
-                        {% if profile != user.profile %}
+                        {% if view.role != roles.OWNER and not profile.deleted %}
                             {% if profile.user.email|is_invalid %}
                                 <a href="#" class="btn btn-danger disabled"
                                    title="{% trans "The user's email address seems invalid" %}"
@@ -91,18 +91,18 @@
                                     {% trans "Write message" %}
                                 </a>
                         {% endif %}
-                        {% if profile == user.profile or role >= profile.SUPERVISOR %}
+                        {% if view.role >= roles.OWNER %}
                             {% trans "Update user's details" as update_title %}
-                            {% if profile == user.profile %}{% trans "Update my details" as update_title %}{% endif %}
+                            {% if view.role == roles.OWNER %}{% trans "Update my details" as update_title %}{% endif %}
                             <a href="{% url 'profile_edit' profile.pk profile.user.username|slugify %}"
                                class="btn btn-success"
                                title="{{ update_title }}">
-                                <span class="glyphicon glyphicon-pencil"></span> {% trans "Update" %}
+                                <span class="glyphicon glyphicon-pencil"></span> {% trans "Modify account" %}
                             </a>
                         {% endif %}
                     {% endblock %}
                 </div>
-                {% if role >= profile.SUPERVISOR or user.profile.is_supervisor or user.is_staff %}
+                {% if perms.hosting.can_supervise %}
                     {% if profile.confirmed %}
                         {% trans "confirmed on" as confirm_title %}
                         {% firstof "text-success" as confirm_color %}
@@ -132,7 +132,7 @@
         <div class="col-xs-9 col-md-10">
             <h1><small>{{ profile.get_title_display }}</small> {{ profile.get_fullname_display }}</h1>
         </div>
-        {% if profile.birth_date or role >= profile.SUPERVISOR %}
+        {% if profile.birth_date or perms.hosting.can_supervise %}
             <div class="col-xs-8 col-sm-9">
                 <p>
                     {% if profile.birth_date %}
@@ -143,10 +143,16 @@
                 </p>
             </div>
         {% endif %}
-        {% if role >= profile.USER %}
+        {% if view.role >= roles.SUPERVISOR %}
             <div class="col-xs-8 col-sm-9">
                 <h4><small>{% trans "username"|capfirst %}</small> {{ profile.user.username }}</h4>
-                <h4>{{ profile.user.email }}</h4>
+                <h4>
+                    {{ profile.user.email|cut:INVALID_PREFIX }}&nbsp;
+                    {% if profile.user.email|is_invalid %}
+                        <small class="text-danger glyphicon glyphicon-warning-sign"
+                               title="{% trans "invalid email" %}" data-toggle="tooltip"></small>
+                    {% endif %}
+                </h4>
             </div>
         {% endif %}
     </div>
@@ -177,7 +183,7 @@
     {% endif %}
     {% for place in places %}
         <ul class="list-group">
-            <li class="list-group-item {% if role >= profile.SUPERVISOR and place.checked %}text-success{% endif %}">
+            <li class="list-group-item {% if perms.hosting.can_supervise and place.checked %}text-success{% endif %}">
                 <div class="btn-group pull-right">
                     {% block place_edit_buttons %}{% endblock %}
                     <a href="{% url 'place_detail' place.pk %}" class="btn btn-primary" title="{% trans "View details of this place" %}">
@@ -262,7 +268,7 @@
                     </div>
                 {% else %}
                     <div>
-                        {% if role >= profile.SUPERVISOR %}
+                        {% if perms.hosting.can_supervise %}
                             <p>{% include 'hosting/snippets/checked.html' with object=place %}</p>
                         {% endif %}
                         <h3>{{ place.address.strip }}</h3>
@@ -295,7 +301,7 @@
 
     {% block place_add_buttons %}{% endblock %}
 
-    {% if not view.public_view or INVALID_PREFIX in profile.user.email %}
+    {% if not view.public_view %}
         <hr />
 
         <h2 class="owner">{% trans "Phones" %}</h2>

@@ -1,0 +1,247 @@
+import re
+import logging
+
+from django.contrib.auth.backends import ModelBackend
+from django.contrib.auth.models import Group
+from django.contrib.auth.mixins import AccessMixin
+from django.core.exceptions import PermissionDenied, ImproperlyConfigured
+from django.http import Http404
+from django.conf import settings
+from django.views import generic
+from django.utils.translation import ugettext_lazy as _
+from django.utils.functional import keep_lazy_text
+from hosting.utils import format_lazy
+
+from django_countries.fields import Country
+from hosting.models import Profile, Place
+
+from .utils import camel_case_split
+
+
+PERM_SUPERVISOR = 'hosting.can_supervise'
+ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR, ANONYMOUS = 50, 40, 30, 20, 10, 0
+ALL_ROLES = dict(
+    ADMIN=ADMIN,
+    STAFF=STAFF,
+    SUPERVISOR=SUPERVISOR,
+    OWNER=OWNER,
+    VISITOR=VISITOR,
+    ANONYMOUS=ANONYMOUS,
+)
+
+
+auth_log = logging.getLogger('PasportaServo.auth')
+
+
+class SupervisorAuthBackend(ModelBackend):
+
+    _perm_sv_particular_re = re.compile(r'^%s\.[A-Z]{2}$' % PERM_SUPERVISOR.replace('.', '\\.'), re.I)
+
+    def get_user_supervisor_of(self, user_obj, obj=None, code=False):
+        """
+        Calculate responsibilities, globally or for an optional object.
+        The given object may be an iterable of countries, a single country, or a profile.
+        """
+        auth_log.debug("\tcalculating countries")
+        cache_name = '_countrygroup_cache'
+        if not hasattr(user_obj, cache_name):
+            auth_log.debug("\t\t ... storing in cache %s ... ", cache_name)
+            user_groups = user_obj.groups.all() if not user_obj.is_superuser else Group.objects.all()
+            user_countries = frozenset(Country(g.name) for g in user_groups if len(g.name) == 2)
+            setattr(user_obj, cache_name, user_countries)
+        supervised = getattr(user_obj, cache_name)
+        auth_log.debug("\tobject is %s", repr(obj))
+        if obj is not None:
+            if isinstance(obj, Country):
+                countries = [obj]
+                auth_log.debug("\t\tGot a Country, %s", countries)
+            elif isinstance(obj, Profile):
+                countries = obj.owned_places.filter(deleted=False).values_list('country', flat=True)
+                auth_log.debug("\t\tGot a Profile, %s", countries)
+            elif isinstance(obj, Place):
+                countries = [obj.country]
+                auth_log.debug("\t\tGot a Place, %s", countries)
+            elif hasattr(obj, '__iter__') and not isinstance(obj, str):
+                countries = obj  # assume an iterable of countries
+                auth_log.debug("\t\tGot an iterable, %s", countries)
+            else:
+                raise ImproperlyConfigured(
+                    "Supervisor check needs either a profile, a country, or a list of countries."
+                )
+            auth_log.debug("\t\trequested: %s supervised: %s\n\t\tresult: %s",
+                set(countries), set(supervised), set(supervised) & set(countries))
+            supervised = set(supervised) & set(countries)
+        return supervised if code else [c.name for c in supervised]
+
+    def is_user_supervisor_of(self, user_obj, obj=None):
+        """
+        Compare intersection between responsibilities and given countries.
+        The given object may be an iterable of countries, a single country, or a profile.
+        """
+        supervised = self.get_user_supervisor_of(user_obj, obj or object(), code=True)
+        return any(supervised)
+
+    def has_perm(self, user_obj, perm, obj=None):
+        """
+        Verify if this user has permission (to an optional object).
+        Short-circuits when resposibility is not satisfied.
+        """
+        auth_log.debug("checking permission:  %s [ %s ] for %s",
+            perm, user_obj, "%s %s" % ("object", repr(obj)) if obj else "any records")
+        if perm == PERM_SUPERVISOR and obj is not None:
+            all_perms = self.get_all_permissions(user_obj, obj)
+            allowed = any(self._perm_sv_particular_re.match(p) for p in all_perms)
+        else:
+            allowed = super().has_perm(user_obj, perm, obj)
+        if perm == PERM_SUPERVISOR and not allowed:
+            auth_log.debug("permission to supervise not granted")
+            raise PermissionDenied
+        return allowed
+
+    def get_all_permissions(self, user_obj, obj=None):
+        if obj is not None and user_obj.is_active and not user_obj.is_anonymous:
+            return self.get_group_permissions(user_obj, obj)
+        else:
+            return super().get_all_permissions(user_obj, obj)
+
+    def get_group_permissions(self, user_obj, obj=None):
+        """
+        Return a list of permission strings that this user has through their groups.
+        If an object is passed in, only permissions matching this object are returned.
+        """
+        perms = super().get_group_permissions(user_obj, obj)
+        auth_log.debug("\tUser's built in perms:  %s", perms)
+        groups = set(self.get_user_supervisor_of(user_obj, code=True))
+        if any(groups):
+            auth_log.debug("\tUser's groups:  %s", groups)
+            if obj is None:
+                perms.update([PERM_SUPERVISOR])
+            cache_name = '_countrygroup_perm_cache'
+            if not hasattr(user_obj, cache_name):
+                auth_log.debug("\t\t ... storing in cache %s ... ", cache_name)
+                setattr(user_obj, cache_name, frozenset("%s.%s" % (PERM_SUPERVISOR, g) for g in groups))
+            auth_log.debug("\tUser's group perms:  %s", set(getattr(user_obj, cache_name)))
+            if obj is None:
+                perms.update(getattr(user_obj, cache_name))
+            else:
+                groups_for_obj = set(self.get_user_supervisor_of(user_obj, obj, code=True))
+                perms_for_obj = set("%s.%s" % (PERM_SUPERVISOR, g) for g in groups_for_obj)
+                auth_log.debug("\tUser's perms for object:  %s", perms_for_obj)
+                perms.update(getattr(user_obj, cache_name) & perms_for_obj)
+        auth_log.debug("\tUser's all perms:  %s", perms)
+        return perms
+
+
+def get_role_in_context(request, profile=None, place=None, no_obj_context=False):
+    user = request.user
+    context = place or profile or object
+    if profile and user.pk == profile.user_id:
+        return OWNER
+    if user.is_superuser:
+        return ADMIN
+    #Staff users is a dormant feature. Exact role to be decided.
+    #Once enabled, the interaction with perms.hosting.can_supervise has to be verified.
+    #if user.is_staff:
+    #    return STAFF
+    if user.has_perm(PERM_SUPERVISOR, None if no_obj_context else context):
+        return SUPERVISOR
+    return VISITOR
+
+
+class AuthMixin(AccessMixin):
+    minimum_role = OWNER
+    allow_anonymous = False
+    redirect_field_name = settings.REDIRECT_FIELD_NAME
+    display_permission_denied = True
+    permission_denied_message = _("Only the supervisors of {this_country} can access this page")
+
+    def get_object(self, queryset=None):
+        """
+        Permission check for detail, update, and delete views.
+        As we need the context (the object manipulated), do the check in get_object()
+        reusing the already-retrieved object, to avoid overhead and multiple trips
+        to the database.
+        """
+        object = super().get_object(queryset)
+        return self._auth_verify(object)
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Permission check for create and general views.
+        The context is determined according to the parent object, which is expected
+        to be already retrieved by previous dispatch() methods, and stored in the
+        auth_base keyword argument.
+        """
+        if getattr(self, 'exact_role', None) == ANONYMOUS or self.minimum_role == ANONYMOUS:
+            self.allow_anonymous = True
+        if not request.user.is_authenticated and not self.allow_anonymous:
+            return self.handle_no_permission() # authorization implies a logged-in user
+        if 'auth_base' in kwargs:
+            object = kwargs['auth_base']
+            self._auth_verify(object, context_omitted=object is None)
+        elif isinstance(self, generic.CreateView):
+            raise ImproperlyConfigured(
+                "Creation base not found. Make sure {View}'s auth_base is accessible by "
+                "AuthMixin as a dispatch kwarg.".format(View=self.__class__.__name__)
+            )
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_owner(self, object):
+        try:
+            return super().get_owner(object)
+        except AttributeError:
+            return object.owner if object else None
+
+    def get_location(self, object):
+        try:
+            return super().get_location(object)
+        except AttributeError:
+            return None
+
+    def _auth_verify(self, object, context_omitted=False):
+        self.role = get_role_in_context(self.request,
+                                        profile=self.get_owner(object),
+                                        place=self.get_location(object),
+                                        no_obj_context=context_omitted)
+        if getattr(self, 'exact_role', None):
+            auth_log.info("exact role allowed: {- %s -} , current role: {- %s -}", self.exact_role, self.role)
+            if self.role == self.exact_role:
+                return object
+        else:
+            auth_log.info("minimum role allowed: {- %s -} , current role: {- %s -}", self.minimum_role, self.role)
+            if self.role >= self.minimum_role:
+                return object
+        if settings.DEBUG:
+            view_name = camel_case_split(self.__class__.__name__)
+            raise PermissionDenied(
+                "Not allowed to {action} this {obj}.".format(
+                    action=view_name[-2].lower(), obj=" ".join(view_name[0:-2]).lower()
+                ), self
+            )
+        elif self.display_permission_denied and self.request.user.has_perm(PERM_SUPERVISOR):
+            raise PermissionDenied(self.get_permission_denied_message(object, context_omitted), self)
+        else:
+            raise Http404("Operation not allowed.")
+
+    def get_permission_denied_message(self, object, context_omitted=False):
+        if not context_omitted:
+            countries = [self.get_location(object)]
+            if not countries[0]:
+                countries = self.get_owner(object).owned_places.filter(
+                    deleted=False
+                ).values_list('country', flat=True)
+            elif not countries[0].name:
+                countries = []
+        else:
+            countries = None
+        if not countries:
+            return _("Only administrators can access this page")
+        to_string = lambda item: str(Country(item).name)
+        join_lazy = keep_lazy_text(lambda items: ", ".join(map(to_string, items)))
+        return format_lazy(self.permission_denied_message, this_country=join_lazy(countries))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['roles'] = ALL_ROLES
+        return context
+

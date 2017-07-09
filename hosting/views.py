@@ -12,6 +12,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.template.loader import get_template
 from django.template import Context
+from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from django.utils.six.moves.urllib.parse import unquote_plus
 from django.utils.http import urlquote_plus
@@ -22,23 +23,26 @@ import geopy
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
 from django_countries.fields import Country
-from .models import Profile, Place, Phone, SUPERVISOR
+from .models import Profile, Place, Phone
 
 from rest_framework import viewsets
 from .serializers import ProfileSerializer, PlaceSerializer, UserSerializer
-from braces.views import LoginRequiredMixin, UserPassesTestMixin, FormInvalidMessageMixin
+from braces.views import FormInvalidMessageMixin
+from core.auth import AuthMixin, PERM_SUPERVISOR, SUPERVISOR, OWNER, VISITOR, ANONYMOUS
+from core.mixins import LoginRequiredMixin
 from .mixins import (
-    ProfileMixin, ProfileAuthMixin, PlaceAuthMixin, PhoneAuthMixin,
-    FamilyMemberMixin, FamilyMemberAuthMixin,
-    SupervisorRequiredMixin, CreateMixin, DeleteMixin,
+    ProfileModifyMixin, ProfileIsUserMixin,
+    PhoneMixin, PlaceMixin, FamilyMemberMixin, FamilyMemberAuthMixin,
+    CreateMixin, UpdateMixin, DeleteMixin,
 )
 from core.forms import UserRegistrationForm
 from core.models import SiteConfiguration
 from .forms import (
-    AuthorizeUserForm, AuthorizedOnceUserForm,
     ProfileForm, ProfileCreateForm, ProfileEmailUpdateForm,
     PhoneForm, PhoneCreateForm,
-    PlaceForm, PlaceCreateForm, PlaceBlockForm, FamilyMemberForm, FamilyMemberCreateForm,
+    PlaceForm, PlaceCreateForm, PlaceBlockForm,
+    FamilyMemberForm, FamilyMemberCreateForm,
+    UserAuthorizeForm, UserAuthorizedOnceForm,
 )
 
 User = get_user_model()
@@ -81,7 +85,7 @@ class PlaceViewSet(viewsets.ModelViewSet):
         return qs
 
 
-class ProfileCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixin, generic.CreateView):
+class ProfileCreateView(LoginRequiredMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.CreateView):
     model = Profile
     form_class = ProfileCreateForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
@@ -91,49 +95,44 @@ class ProfileCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixi
             # Redirect to profile edit page if user is logged in & profile already exists.
             return HttpResponseRedirect(self.request.user.profile.get_edit_url(), status=301)
         except Profile.DoesNotExist:
-            return super(ProfileCreateView, self).dispatch(request, *args, **kwargs)
+            return super().dispatch(request, *args, **kwargs)
         except AttributeError:
             # Redirect to registration page when user is not authenticated.
             return HttpResponseRedirect(reverse_lazy('register'), status=303)
 
     def get_form(self, form_class=ProfileCreateForm):
-        user = self.request.user
-        return form_class(user=user, **self.get_form_kwargs())
+        return form_class(user=self.request.user, **self.get_form_kwargs())
 
 profile_create = ProfileCreateView.as_view()
 
 
-class ProfileUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, FormInvalidMessageMixin, generic.UpdateView):
+class ProfileUpdateView(UpdateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.UpdateView):
+    model = Profile
     form_class = ProfileForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
-
-    def form_valid(self, form):
-        self.object.set_check_status(self.request.user)
-        return super(ProfileUpdateView, self).form_valid(form)
 
 profile_update = ProfileUpdateView.as_view()
 
 
-class ProfileDeleteView(LoginRequiredMixin, DeleteMixin, ProfileAuthMixin, generic.DeleteView):
+class ProfileDeleteView(DeleteMixin, AuthMixin, ProfileIsUserMixin, generic.DeleteView):
+    model = Profile
     form_class = ProfileForm
     success_url = reverse_lazy('logout')
 
-    def get_object(self, queryset=None):
-        object = super(ProfileDeleteView, self).get_object(queryset)
-        if not object.user:
-            raise Http404("Detached profile (probably a family member).")
-        return object
-
     def get_context_data(self, **kwargs):
-        context = super(ProfileDeleteView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['places'] = self.object.owned_places.filter(deleted=False)
         return context
 
     def get_success_url(self):
         # Administrators will be redirected to the deleted profile's page.
-        if self.object.user != self.request.user:
+        if self.role >= SUPERVISOR:
             return self.object.get_absolute_url()
         return self.success_url
+
+    def get_failure_url(self):
+        return reverse_lazy('profile_settings', kwargs={
+            'pk': self.object.pk, 'slug': slugify(self.object.user.username)})
 
     def delete(self, request, *args, **kwargs):
         """
@@ -143,17 +142,18 @@ class ProfileDeleteView(LoginRequiredMixin, DeleteMixin, ProfileAuthMixin, gener
         """
         now = timezone.now()
         self.object = self.get_object()
-        for place in self.object.owned_places.all():
-            place.deleted_on = now
-            place.save()
-            for member in place.family_members.all():
-                if not member.user:
-                    member.deleted_on = now
-                    member.save()
-        self.object.phones.all().delete()
-        self.object.user.is_active = False
-        self.object.user.save()
-        return super(ProfileDeleteView, self).delete(request, *args, **kwargs)
+        if not self.object.deleted:
+            for place in self.object.owned_places.all():
+                place.deleted_on = now
+                place.save()
+                for member in place.family_members.all():
+                    if not member.user:
+                        member.deleted_on = now
+                        member.save()
+            self.object.phones.all().delete()
+            self.object.user.is_active = False
+            self.object.user.save()
+        return super().delete(request, *args, **kwargs)
 
 profile_delete = ProfileDeleteView.as_view()
 
@@ -163,7 +163,11 @@ class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         if kwargs.get('pk', None):
-            return get_object_or_404(Profile, pk=kwargs['pk']).get_absolute_url()
+            profile = get_object_or_404(Profile, pk=kwargs['pk'])
+            if profile.user:
+                return profile.get_absolute_url()
+            else:
+                raise Http404("Detached profile (probably a family member).")
         try:
             return self.request.user.profile.get_edit_url()
         except Profile.DoesNotExist:
@@ -172,15 +176,21 @@ class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
 profile_redirect = ProfileRedirectView.as_view()
 
 
-class ProfileDetailView(LoginRequiredMixin, ProfileAuthMixin, generic.DetailView):
+class ProfileDetailView(AuthMixin, ProfileIsUserMixin, generic.DetailView):
     model = Profile
     public_view = True
+    minimum_role = VISITOR
+
+    def get_object(self, queryset=None):
+        profile = super().get_object(queryset)
+        if profile.deleted and self.role == VISITOR and not self.request.user.has_perm(PERM_SUPERVISOR):
+            raise Http404("Profile was deleted.")
+        return profile
 
     def get_context_data(self, **kwargs):
-        context = super(ProfileDetailView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['places'] = self.object.owned_places.filter(deleted=False)
         context['phones'] = self.object.phones.filter(deleted=False)
-        context['role'] = self.role
         return context
 
 profile_detail = ProfileDetailView.as_view()
@@ -189,12 +199,14 @@ profile_detail = ProfileDetailView.as_view()
 class ProfileEditView(ProfileDetailView):
     template_name = 'hosting/profile_edit.html'
     public_view = False
+    minimum_role = OWNER
 
 profile_edit = ProfileEditView.as_view()
 
 
 class ProfileSettingsView(ProfileDetailView):
     template_name = 'hosting/settings.html'
+    minimum_role = OWNER
 
     @property
     def profile_email_help_text(self):
@@ -203,52 +215,52 @@ class ProfileSettingsView(ProfileDetailView):
 profile_settings = ProfileSettingsView.as_view()
 
 
-class ProfileEmailUpdateView(LoginRequiredMixin, ProfileMixin, ProfileAuthMixin, generic.UpdateView):
+class ProfileEmailUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, generic.UpdateView):
     model = Profile
     template_name = 'hosting/profile-email_form.html'
     form_class = ProfileEmailUpdateForm
+    minimum_role = OWNER
 
 profile_email_update = ProfileEmailUpdateView.as_view()
 
 
-class PlaceCreateView(LoginRequiredMixin, ProfileMixin, FormInvalidMessageMixin, CreateMixin, generic.CreateView):
+class PlaceCreateView(CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.CreateView):
     model = Place
     form_class = PlaceCreateForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
     def get_form_kwargs(self):
-        kwargs = super(PlaceCreateView, self).get_form_kwargs()
-        kwargs['profile'] = get_object_or_404(Profile, pk=self.kwargs['pk'])
+        kwargs = super().get_form_kwargs()
+        kwargs['profile'] = self.create_for
         return kwargs
 
 place_create = PlaceCreateView.as_view()
 
 
-class PlaceUpdateView(LoginRequiredMixin, ProfileMixin, PlaceAuthMixin, FormInvalidMessageMixin, generic.UpdateView):
+class PlaceUpdateView(UpdateMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.UpdateView):
     form_class = PlaceForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
-
-    def form_valid(self, form):
-        self.object.checked = self.object.owner.user != self.request.user
-        self.object.checked_by = self.request.user if self.object.checked else None
-        self.object.save()
-        return super(PlaceUpdateView, self).form_valid(form)
 
 place_update = PlaceUpdateView.as_view()
 
 
-class PlaceDeleteView(LoginRequiredMixin, DeleteMixin, ProfileMixin, PlaceAuthMixin, generic.DeleteView):
+class PlaceDeleteView(DeleteMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, generic.DeleteView):
     pass
 
 place_delete = PlaceDeleteView.as_view()
 
 
-class PlaceDetailView(generic.DetailView):
+class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
+    """
+    View with details about a place; allows also anonymous (unauthenticated) user access.
+    For such users, the registration form will be displayed.
+    """
     model = Place
+    minimum_role = ANONYMOUS
     verbose_view = False
 
     def get_context_data(self, **kwargs):
-        context = super(PlaceDetailView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['register_form'] = UserRegistrationForm
         context['blocking'] = self.calculate_blocking(self.object)
         return context
@@ -272,42 +284,47 @@ class PlaceDetailView(generic.DetailView):
 
     def render_to_response(self, context, **response_kwargs):
         # Automatically redirect the user to the verbose view if permission granted (in authorized_users list).
-        if (self.request.user in self.object.authorized_users.all() and not self.request.user.is_staff
-            and not isinstance(self, PlaceDetailVerboseView)):
+        is_authorized = self.request.user in self.object.authorized_users.all()
+        is_supervisor = self.role >= SUPERVISOR
+        if is_authorized and not is_supervisor and not isinstance(self, PlaceDetailVerboseView):
             return HttpResponseRedirect(reverse_lazy('place_detail_verbose', kwargs={'pk': self.kwargs['pk']}))
         else:
-            return super(PlaceDetailView, self).render_to_response(context)
+            return super().render_to_response(context)
 
 place_detail = PlaceDetailView.as_view()
 
 
-class PlaceDetailVerboseView(UserPassesTestMixin, PlaceDetailView):
-    redirect_field_name = ''
-    redirect_unauthenticated_users = True
+class PlaceDetailVerboseView(PlaceDetailView):
     verbose_view = True
 
-    def get_login_url(self):
-        return reverse_lazy('place_detail', kwargs={'pk': self.kwargs['pk']})
+    def render_to_response(self, context, **response_kwargs):
+        # Automatically redirect the user to the scarce view if permission to details not granted.
+        user = self.request.user
+        is_authorized = user in self.object.authorized_users.all()
+        is_family_member = getattr(user, 'profile', None) in self.object.family_members.all()
+        self.__dict__.setdefault('debug', {}).update(
+            {'authorized': is_authorized, 'family member': is_family_member}
+        )
+        if self.role >= OWNER or is_authorized or is_family_member:
+            return super().render_to_response(context)
+        else:
+            return HttpResponseRedirect(reverse_lazy('place_detail', kwargs={'pk': self.kwargs['pk']}))
 
-    def test_func(self, user):
-        object = self.get_object()
-        return (user is not None and user.is_authenticated()
-                and (user.is_staff or user in object.authorized_users.all() or user.profile == object.owner))
+    def get_debug_data(self):
+        return self.debug
 
 place_detail_verbose = PlaceDetailVerboseView.as_view()
 
 
-class PlaceBlockView(LoginRequiredMixin, generic.View):
+class PlaceBlockView(AuthMixin, PlaceMixin, generic.View):
     http_method_names = ['put']
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(Place,
-                                 pk=self.kwargs['pk'],
-                                 owner__user_id=self.request.user.pk,
-                                 deleted=False)
+    exact_role = OWNER
 
     def put(self, request, *args, **kwargs):
-        form = PlaceBlockForm(data=QueryDict(request.body), instance=self.get_object())
+        place = self.get_object()
+        if place.deleted:
+            return JsonResponse({'result': False, 'err': {'__all__': [_("Deleted place"),]}})
+        form = PlaceBlockForm(data=QueryDict(request.body), instance=place)
         data_correct = form.is_valid()
         viewresponse = {'result': data_correct}
         if data_correct:
@@ -319,56 +336,62 @@ class PlaceBlockView(LoginRequiredMixin, generic.View):
 place_block = PlaceBlockView.as_view()
 
 
-class PhoneCreateView(LoginRequiredMixin, ProfileMixin, CreateMixin, generic.CreateView):
+class PhoneCreateView(CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, generic.CreateView):
     model = Phone
     form_class = PhoneCreateForm
 
     def get_form_kwargs(self):
-        kwargs = super(PhoneCreateView, self).get_form_kwargs()
-        kwargs['profile'] = get_object_or_404(Profile, pk=self.kwargs['pk'])
+        kwargs = super().get_form_kwargs()
+        kwargs['profile'] = self.create_for
         return kwargs
 
 phone_create = PhoneCreateView.as_view()
 
 
-class PhoneUpdateView(LoginRequiredMixin, ProfileMixin, PhoneAuthMixin, generic.UpdateView):
+class PhoneUpdateView(UpdateMixin, AuthMixin, PhoneMixin, ProfileModifyMixin, generic.UpdateView):
     form_class = PhoneForm
 
 phone_update = PhoneUpdateView.as_view()
 
 
-class PhoneDeleteView(LoginRequiredMixin, ProfileMixin, PhoneAuthMixin, generic.DeleteView):
+class PhoneDeleteView(DeleteMixin, AuthMixin, PhoneMixin, ProfileModifyMixin, generic.DeleteView):
     pass
 
 phone_delete = PhoneDeleteView.as_view()
 
 
-class ConfirmInfoView(LoginRequiredMixin, generic.View):
+class InfoConfirmView(LoginRequiredMixin, generic.View):
+    """Allows the current user (only) to confirm their profile and accommodation details as up-to-date."""
     http_method_names = ['post']
     template_name = 'links/confirmed.html'
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
-        request.user.profile.confirm_all_info()
-        if request.is_ajax():
-            return JsonResponse({'success': 'confirmed'})
-        else:
-            return TemplateResponse(request, self.template_name)
+        try:
+            request.user.profile.confirm_all_info()
+            if request.is_ajax():
+                return JsonResponse({'success': 'confirmed'})
+            else:
+                return TemplateResponse(request, self.template_name)
+        except Profile.DoesNotExist:
+            return HttpResponseRedirect(reverse_lazy('profile_create'))
 
-confirm_hosting_info = ConfirmInfoView.as_view()
+hosting_info_confirm = InfoConfirmView.as_view()
 
 
-class PlaceCheckView(LoginRequiredMixin, PlaceAuthMixin, generic.View):
+class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
+    """Allows a supervisor to confirm accommodation details of a user as up-to-date."""
     http_method_names = ['post']
-    minimum_role = SUPERVISOR
     template_name = '404.html'
+    minimum_role = SUPERVISOR
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
         self.get_object().set_check_status(self.request.user)
         if request.is_ajax():
             return JsonResponse({'success': 'checked'})
-        else:  # Not tested/implemented
+        else:
+            # Not implemented; only AJAX requests are expected.
             return TemplateResponse(request, self.template_name)
 
 place_check = PlaceCheckView.as_view()
@@ -380,18 +403,26 @@ class PlaceListView(generic.ListView):
 place_list = PlaceListView.as_view()
 
 
-class CountryPlaceListView(LoginRequiredMixin, SupervisorRequiredMixin, PlaceListView):
+class PlaceStaffListView(AuthMixin, PlaceListView):
+    """A place for supervisors to see an overview of and manage hosts in their area of responsibility."""
     template_name = "hosting/place_list_supervisor.html"
+    minimum_role = SUPERVISOR
 
     def dispatch(self, request, *args, **kwargs):
-        self.country_code = self.kwargs['country_code']
-        self.country = Country(self.country_code)
+        self.country = Country(kwargs['country_code'])
+        kwargs['auth_base'] = self.country
         self.in_book = {'0': False, '1': True, None: True}[kwargs['in_book']]
         self.invalid_emails = kwargs['email']
         return super().dispatch(request, *args, **kwargs)
 
+    def get_owner(self, object):
+        return None
+
+    def get_location(self, object):
+        return object
+
     def get_queryset(self):
-        self.base_qs = self.model.available_objects.filter(country=self.country_code)
+        self.base_qs = self.model.available_objects.filter(country=self.country.code)
         qs = self.base_qs.filter(in_book=self.in_book)
         if self.invalid_emails:
             qs = qs.filter(owner__user__email__startswith=settings.INVALID_PREFIX)
@@ -409,7 +440,7 @@ class CountryPlaceListView(LoginRequiredMixin, SupervisorRequiredMixin, PlaceLis
             owner__user__email__startswith=settings.INVALID_PREFIX).count()
         return context
 
-country_place_list = CountryPlaceListView.as_view()
+staff_place_list = PlaceStaffListView.as_view()
 
 
 class SearchView(PlaceListView):
@@ -421,7 +452,7 @@ class SearchView(PlaceListView):
 
     def get(self, request, *args, **kwargs):
         if 'ps_q' in request.GET:
-            # Keeping Unicode in URL, replacing space with '+'
+            # Keeping Unicode in URL, replacing space with '+'.
             query = uri_to_iri(urlquote_plus(request.GET['ps_q']))
             params = {'query': query} if query else None
             return HttpResponseRedirect(reverse_lazy('search', kwargs=params))
@@ -433,11 +464,12 @@ class SearchView(PlaceListView):
                 self.locations = geocoder.geocode(self.query, language=lang, exactly_one=False)
             except (GeocoderTimedOut, GeocoderServiceError) as e:
                 self.locations = []
-        return super(SearchView, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        """Find location by bounding box. Filters also by country,
-        because some bbox for some countres are huge (e.g. France, USA).
+        """
+        Find location by bounding box. Filters also by country,
+        because some bbox for some countries are huge (e.g. France, USA).
         """
         qs = Place.objects.none()
         if self.query and self.locations:
@@ -451,7 +483,7 @@ class SearchView(PlaceListView):
                 qs = qs.filter(latitude__range=lats, longitude__range=lngs)
                 qs = qs.filter(country=country_code.upper()) if country_code else qs
 
-        """Search in the Profile name and username too."""
+        # Search in the Profile name and username too.
         if len(self.query) <= 3:
             return qs
         qs |= Place.objects.filter(owner__user__username__icontains=self.query)
@@ -467,20 +499,19 @@ class SearchView(PlaceListView):
 search = SearchView.as_view()
 
 
-class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
-    """Form view to add a user to the list of authorized users
-    for a place to be able to see more details."""
+class UserAuthorizeView(AuthMixin, generic.FormView):
+    """Form view to add a user to the list of authorized users for a place to be able to see more details."""
     template_name = 'hosting/place_authorized_users.html'
-    form_class = AuthorizeUserForm
+    form_class = UserAuthorizeForm
+    exact_role = OWNER
 
     def dispatch(self, request, *args, **kwargs):
-        self.place = get_object_or_404(Place,
-                                       pk=self.kwargs['pk'],
-                                       owner__user_id=self.request.user.pk)
-        return super(AuthorizeUserView, self).dispatch(request, *args, **kwargs)
+        self.place = get_object_or_404(Place, pk=self.kwargs['pk'])
+        kwargs['auth_base'] = self.place
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(AuthorizeUserView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['place'] = self.place
         m = re.match(r'^/([a-zA-Z]+)/', self.request.GET.get('next', default=''))
         if m:
@@ -490,21 +521,21 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
                 return (" ".join((user.profile.first_name, user.profile.last_name)).strip() or user.username).lower()
             except Profile.DoesNotExist:
                 return user.username.lower()
-        context['authorized_set'] = [(user, AuthorizedOnceUserForm(initial={'user': user.pk}, auto_id=False))
+        context['authorized_set'] = [(user, UserAuthorizedOnceForm(initial={'user': user.pk}, auto_id=False))
                                      for user
                                      in sorted(self.place.authorized_users.all(), key=order_by_name)]
         return context
 
     def form_valid(self, form):
         if not form.cleaned_data['remove']:
-            # for addition, "user" is the username
+            # For addition, "user" is the username.
             user = get_object_or_404(User, username=form.cleaned_data['user'])
             if user not in self.place.authorized_users.all():
                 self.place.authorized_users.add(user)
                 if not user.email.startswith(settings.INVALID_PREFIX):
                     self.send_email(user, self.place)
         else:
-            # for removal, "user" is the primary key
+            # For removal, "user" is the primary key.
             user = get_object_or_404(User, pk=form.cleaned_data['user'])
             self.place.authorized_users.remove(user)
         return HttpResponseRedirect(self.get_success_url())
@@ -531,54 +562,55 @@ class AuthorizeUserView(LoginRequiredMixin, generic.FormView):
             fail_silently=False,
         )
 
-authorize_user = AuthorizeUserView.as_view()
+authorize_user = UserAuthorizeView.as_view()
 
 
-class FamilyMemberCreateView(LoginRequiredMixin, CreateMixin, FamilyMemberMixin, generic.CreateView):
+class FamilyMemberCreateView(CreateMixin, AuthMixin, FamilyMemberMixin, generic.CreateView):
     model = Profile
     form_class = FamilyMemberCreateForm
 
     def verify_anonymous_family(self):
         # Allow creation of only one completely anonymous family member.
-        if self.place.family_members.count() == 1 and not self.place.family_members.all()[0].full_name.strip():
+        if self.place.family_members.count() == 1 and not self.place.family_members.first().full_name.strip():
             return HttpResponseRedirect(
                 reverse_lazy('family_member_update',
-                    kwargs={'pk': self.place.family_members.all()[0].pk, 'place_pk': self.kwargs['place_pk']}))
+                    kwargs={'pk': self.place.family_members.first().pk, 'place_pk': self.kwargs['place_pk']}))
         else:
             return None
 
     def get(self, request, *args, **kwargs):
         redirect = self.verify_anonymous_family()
-        return redirect or super(FamilyMemberCreateView, self).get(request, *args, **kwargs)
+        return redirect or super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         redirect = self.verify_anonymous_family()
-        return redirect or super(FamilyMemberCreateView, self).post(request, *args, **kwargs)
+        return redirect or super().post(request, *args, **kwargs)
 
     def get_form_kwargs(self):
-        kwargs = super(FamilyMemberCreateView, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs['place'] = self.place
         return kwargs
 
 family_member_create = FamilyMemberCreateView.as_view()
 
 
-class FamilyMemberUpdateView(LoginRequiredMixin, FamilyMemberAuthMixin, FamilyMemberMixin, generic.UpdateView):
+class FamilyMemberUpdateView(UpdateMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin, generic.UpdateView):
     model = Profile
     form_class = FamilyMemberForm
 
     def get_form_kwargs(self):
-        kwargs = super(FamilyMemberUpdateView, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs['place'] = self.place
         return kwargs
 
 family_member_update = FamilyMemberUpdateView.as_view()
 
 
-class FamilyMemberRemoveView(LoginRequiredMixin, FamilyMemberMixin, generic.DeleteView):
+class FamilyMemberRemoveView(AuthMixin, FamilyMemberMixin, generic.DeleteView):
     """Remove the family member for the Place."""
     model = Profile
     template_name = 'hosting/family_member_confirm_delete.html'
+    minimum_role = OWNER
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -586,23 +618,25 @@ class FamilyMemberRemoveView(LoginRequiredMixin, FamilyMemberMixin, generic.Dele
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
-        context = super(FamilyMemberRemoveView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['place'] = self.place
         return context
 
 family_member_remove = FamilyMemberRemoveView.as_view()
 
 
-class FamilyMemberDeleteView(LoginRequiredMixin, DeleteMixin, FamilyMemberAuthMixin, FamilyMemberMixin, generic.DeleteView):
+class FamilyMemberDeleteView(DeleteMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin, generic.DeleteView):
     """Remove the family member for the Place and delete it."""
     model = Profile
 
-#    def get(self, request, *args, **kwargs):
-#        pass
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.other_places.count() > 0:
+            raise Http404("This family member is listed at other places as well; cannot delete the profile.")
+        return self.object
 
     def delete(self, request, *args, **kwargs):
-        redirect = super(FamilyMemberDeleteView, self).delete(request, *args, **kwargs)
-        self.object = self.get_object()
+        redirect = super().delete(request, *args, **kwargs)
         self.place.family_members.remove(self.object)
         return redirect
 

@@ -3,7 +3,22 @@
 {% load is_invalid clear_invalid from profile %}
 
 {% block head_title %}
+    {% if view.role == roles.OWNER %}
         {% trans "Settings" %}
+    {% else %}
+        {% trans "Account" %} {% blocktrans with name=profile.anonymous_name %}of {{ name }}{% endblocktrans %}
+    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+        <style type="text/css">
+            .row + .callout, [class|="col"] > .callout {
+                margin-top: -5px;
+            }
+            .row.setting {
+                margin-top: 25px;
+            }
+        </style>
 {% endblock %}
 
 {% block extra_js %}
@@ -11,22 +26,36 @@
 {% endblock %}
 
 {% block page %}
-    <h2>{% trans "Settings" %}</h2>
+    <h2>{% if view.role >= roles.SUPERVISOR %}{{ profile.get_fullname_display }}: {% endif %}
+        {% trans "Settings" %}</h2>
 
-    <section class="callout callout-primary">
-        <h4 id="{% trans "username" %}">{% trans "username"|capfirst %}</h4>
-        <samp><small>{{ profile.user.username }}</small></samp> &nbsp;
-        <a href="{% url 'username_change' %}" class="btn btn-default btn-sm">
-            {% trans "Change username" %}
-        </a>
-    </section>
+    {% if profile.deleted %}
+    <div class="alert alert-small alert-danger">
+        <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp; {% trans "Deleted profile" %}
+    </div>
+    {% endif %}
 
-    <section class="callout callout-primary">
-        <h4 id="{% trans "password" %}">{% trans "password"|capfirst %}</h4>
-        <a href="{% url 'password_change' %}" class="btn btn-default btn-sm">
-            {% trans "Change password" %}
-        </a>
-    </section>
+    {% if view.role == roles.OWNER %}
+    <div class="row setting">
+        <div class="col-xxs-12 col-xs-6">
+            <section class="callout callout-primary">
+                <h4 id="{% trans "password" %}">{% trans "password"|capfirst %}</h4>
+                <a href="{% url 'password_change' %}" class="btn btn-default btn-sm">
+                    {% trans "Change password" %}
+                </a>
+            </section>
+        </div>
+        <div class="col-xxs-12 col-xs-6">
+            <section class="callout callout-primary">
+                <h4 id="{% trans "username" %}">{% trans "username"|capfirst %}</h4>
+                <samp><small>{{ profile.user.username }}</small></samp> &nbsp;
+                <a href="{% url 'username_change' %}" class="btn btn-default btn-sm">
+                    {% trans "Change username" %}
+                </a>
+            </section>
+        </div>
+    </div>
+    {% endif %}
 
     <section class="callout callout-primary">
         <h4 id="{% trans "email-addr" %}">{% trans "Email" %}</h4>
@@ -40,7 +69,7 @@
                 {{ profile.user.email }}
             {% endif %}
         </small></samp> &nbsp;
-        {% if role == profile.OWNER %}
+        {% if view.role == roles.OWNER %}
             <a href="{% url 'email_update' %}" class="btn btn-default btn-sm btn-vert-space-even">
                 {% trans "Update account email" %}
             </a>
@@ -69,7 +98,7 @@
                 </form>
             {% endif %}
         {% else %}
-            <a href="{% url 'staff_update_email' profile.pk %}" class="btn btn-default btn-sm btn-vert-space-even">
+            <a href="{% url 'staff_email_update' profile.pk %}" class="btn btn-default btn-sm btn-vert-space-even">
                 {% trans "Update account email" %}
             </a>
         {% endif %}
@@ -100,14 +129,24 @@
         </section>
     </section>
 
+    {% if view.role == roles.OWNER %}
+    <!--
+    <section class="callout callout-warning">
+        <h4>{% trans "Privacy" %}</h4>
+    </section>
+    -->
+    {% endif %}
+
+    {% if not profile.deleted %}
     <section class="callout callout-danger">
-        <h4>{% trans "End membership" %}</h4>
+        <h4>{% if view.role == roles.OWNER %}{% trans "End my membership" %}{% else %}{% trans "End membership" %}{% endif %}</h4>
         <a href="{% url 'profile_delete' profile.pk profile.user.username|slugify %}"
            class="btn btn-danger">
             <span class="glyphicon glyphicon-trash"></span>
             {% trans "Delete account" %}
         </a>
     </section>
+    {% endif %}
         
     <div class="pull-left">
         <a href="{% url 'profile_edit' profile.pk profile.user.username|slugify %}" class="btn btn-default" title="{% trans "Back" %}">

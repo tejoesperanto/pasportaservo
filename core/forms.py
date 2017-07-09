@@ -14,6 +14,7 @@ from django.conf import settings
 from hosting.models import Profile
 from links.utils import create_unique_url
 from .models import SiteConfiguration
+from hosting.utils import value_without_invalid_marker
 
 User = get_user_model()
 
@@ -21,11 +22,8 @@ User = get_user_model()
 class SystemEmailFormMixin(object):
     def __init__(self, *args, **kwargs):
         super(SystemEmailFormMixin, self).__init__(*args, **kwargs)
-        # store value before the change
-        if self.instance.email.startswith(settings.INVALID_PREFIX):
-            self.previous_email = self.instance.email[len(settings.INVALID_PREFIX):]
-        else:
-            self.previous_email = self.instance.email
+        # Stores the value before the change.
+        self.previous_email = value_without_invalid_marker(self.instance.email)
 
     def clean_email(self):
         email = self.cleaned_data['email']
@@ -33,7 +31,7 @@ class SystemEmailFormMixin(object):
             raise forms.ValidationError(_("Enter a valid email address."))
         invalid_email = Concat(V(settings.INVALID_PREFIX), V(email))
         emails_lookup = Q(email=email) | Q(email=invalid_email)
-        if email and email != self.previous_email and User.objects.filter(emails_lookup):
+        if email and email != self.previous_email and User.objects.filter(emails_lookup).exists():
             raise forms.ValidationError(_("User address already in use."))
         return email
 
@@ -79,11 +77,13 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(EmailUpdateForm, self).__init__(*args, **kwargs)
-        self.initial['email'] = self.previous_email # display the clean value
+        # Displays the clean value of the address in the form.
+        self.initial['email'] = self.previous_email
 
     def save(self):
-        """ Saves nothing but sends a warning email to old email address,
-            and sends a confirmation link to the new email address.
+        """
+        Saves nothing but sends a warning email to old email address,
+        and sends a confirmation link to the new email address.
         """
         config = SiteConfiguration.get_solo()
         old_email = self.previous_email
@@ -118,10 +118,15 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
         return self.instance
 
 
-class StaffUpdateEmailForm(SystemEmailFormMixin, forms.ModelForm):
+class EmailStaffUpdateForm(SystemEmailFormMixin, forms.ModelForm):
     class Meta:
         model = User
         fields = ['email']
+
+    def __init__(self, *args, **kwargs):
+        super(EmailStaffUpdateForm, self).__init__(*args, **kwargs)
+        # Displays the clean value of the address in the form.
+        self.initial['email'] = self.previous_email
 
 
 class SystemPasswordResetRequestForm(PasswordResetForm):
@@ -131,8 +136,7 @@ class SystemPasswordResetRequestForm(PasswordResetForm):
         invalid_email = Concat(V(settings.INVALID_PREFIX), V(email))
         lookup_users = active_users.filter(Q(email__iexact=email) | Q(email__iexact=invalid_email))
         def remove_invalid_prefix(user):
-            if user.email.startswith(settings.INVALID_PREFIX):
-                user.email = user.email[len(settings.INVALID_PREFIX):]
+            user.email = value_without_invalid_marker(user.email)
             return user
         return map(remove_invalid_prefix, (u for u in lookup_users if u.has_usable_password()))
 

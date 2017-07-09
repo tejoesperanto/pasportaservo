@@ -76,6 +76,8 @@ MIDDLEWARE_CLASSES = (
     'dnt.middleware.DoNotTrackMiddleware',
 )
 
+AUTHENTICATION_BACKENDS = ['core.auth.SupervisorAuthBackend']
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -130,12 +132,13 @@ USE_TZ = True
 
 SITE_ID = 1
 
-
 AUTH_PROFILE_MODULE = 'hosting.Profile'
 
 LOGIN_URL = 'login'
 LOGOUT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
+
+REDIRECT_FIELD_NAME = "ps_m"
 
 DEFAULT_FROM_EMAIL = 'Pasporta Servo <saluton@pasportaservo.org>'
 

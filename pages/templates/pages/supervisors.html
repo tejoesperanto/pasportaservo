@@ -51,7 +51,7 @@
                 <td>
                     <a class="btn btn-primary"
                        {% if user.is_staff or user|is_supervisor_of:country %}
-                            href="{% url "country_place_list" country 1 %}"
+                            href="{% url "staff_place_list" country 1 %}"
                        {% else %}
                             disabled="disabled"
                        {% endif %}>

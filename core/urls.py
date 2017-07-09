@@ -1,4 +1,5 @@
 from django.conf.urls import url
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.views import (
     login, logout,
@@ -11,8 +12,8 @@ from .views import (
     home,
     register,
     username_change,
-    email_update, staff_update_email, email_verify,
-    mark_email_invalid, mark_email_valid,
+    email_update, staff_email_update, email_verify,
+    email_mark_invalid, email_mark_valid,
     mass_mail, mass_mail_sent,
 )
 from .forms import (
@@ -24,7 +25,9 @@ urlpatterns = [
     url(r'^$', home, name='home'),
 
     url(_(r'^register/$'), register, name='register'),
-    url(_(r'^login/$'), view=login, name='login'),
+    url(_(r'^login/$'), view=login, name='login',
+        kwargs={'redirect_authenticated_user': True,
+                'redirect_field_name': settings.REDIRECT_FIELD_NAME}),
     url(_(r'^logout/$'), view=logout, kwargs={'next_page': '/'}, name='logout'),
 
     url(_(r'^password/$'), view=password_change, name='password_change'),
@@ -42,9 +45,9 @@ urlpatterns = [
 
     url(_(r'^username/$'), username_change, name='username_change'),
     url(_(r'^email/$'), email_update, name='email_update'),
-    url(_(r'^profile/(?P<pk>\d+)/staff/email/update/$'), staff_update_email, name='staff_update_email'),
-    url(_(r'^profile/(?P<pk>\d+)/staff/email/mark-invalid/$'), mark_email_invalid, name='staff_mark_email_invalid'),
-    url(_(r'^profile/(?P<pk>\d+)/staff/email/mark-valid/$'), mark_email_valid, name='staff_mark_email_valid'),
+    url(_(r'^profile/(?P<pk>\d+)/staff/email/update/$'), staff_email_update, name='staff_email_update'),
+    url(_(r'^profile/(?P<pk>\d+)/staff/email/mark-invalid/$'), email_mark_invalid, name='staff_email_mark_invalid'),
+    url(_(r'^profile/(?P<pk>\d+)/staff/email/mark-valid/$'), email_mark_valid, name='staff_email_mark_valid'),
     url(_(r'^email/verify/$'), email_verify, name='email_verify'),
 
     url(_(r'^admin/mass-mail/$'), mass_mail, name='mass_mail'),

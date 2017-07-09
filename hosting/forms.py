@@ -9,6 +9,7 @@ from core.models import SiteConfiguration
 from .models import Profile, Place, Phone
 from .validators import TooNearPastValidator, client_side_validated
 from .widgets import ClearableWithPreviewImageInput
+from .utils import value_without_invalid_marker
 
 User = get_user_model()
 
@@ -108,9 +109,8 @@ class ProfileEmailUpdateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ProfileEmailUpdateForm, self).__init__(*args, **kwargs)
-        self.initial['email'] = (self.instance.email[len(settings.INVALID_PREFIX):]
-                                 if self.instance.email.startswith(settings.INVALID_PREFIX)
-                                 else self.instance.email) # display a clean value
+        # Displays a clean value of the address in the form.
+        self.initial['email'] = value_without_invalid_marker(self.instance.email)
 
 
 class PlaceForm(forms.ModelForm):
@@ -132,12 +132,13 @@ class PlaceForm(forms.ModelForm):
             'conditions',
             'latitude', 'longitude',
         ]
+        widgets = {
+            'short_description': forms.Textarea(attrs={'rows': 3}),
+        }
 
     def __init__(self, *args, **kwargs):
         super(PlaceForm, self).__init__(*args, **kwargs)
         self.fields['address'].widget.attrs['rows'] = 2
-        self.fields['short_description'].widget = forms.Textarea(
-            attrs={'rows': 3, 'maxlength': self.fields['short_description'].max_length})
         self.fields['conditions'].help_text = ""
         self.fields['conditions'].widget.attrs['data-placeholder'] = _("Choose your conditions...")
 
@@ -287,17 +288,17 @@ class PhoneCreateForm(PhoneForm):
         return phone
 
 
-class AuthorizeUserForm(forms.Form):
+class UserAuthorizeForm(forms.Form):
     user = forms.CharField(label=_("Authorize user"), max_length=254)
     remove = forms.BooleanField(required=False, initial=False, widget=forms.widgets.HiddenInput)
 
     def __init__(self, *args, **kwargs):
-        super(AuthorizeUserForm, self).__init__(*args, **kwargs)
+        super(UserAuthorizeForm, self).__init__(*args, **kwargs)
         self.fields['user'].widget.attrs['placeholder'] = _("username")
         self.fields['user'].widget.attrs['inputmode'] = 'verbatim'
 
     def clean(self):
-        cleaned_data = super(AuthorizeUserForm, self).clean()
+        cleaned_data = super(UserAuthorizeForm, self).clean()
         if 'user' not in cleaned_data:
             return
         user_qualifier = cleaned_data['user']
@@ -311,9 +312,9 @@ class AuthorizeUserForm(forms.Form):
         return cleaned_data
 
 
-class AuthorizedOnceUserForm(AuthorizeUserForm):
+class UserAuthorizedOnceForm(UserAuthorizeForm):
     def __init__(self, *args, **kwargs):
-        super(AuthorizedOnceUserForm, self).__init__(*args, **kwargs)
+        super(UserAuthorizedOnceForm, self).__init__(*args, **kwargs)
         self.fields['user'].widget = forms.widgets.HiddenInput()
         self.fields['remove'].initial = True
 
@@ -344,7 +345,7 @@ class FamilyMemberForm(forms.ModelForm):
         members = self.place.family_members
         if members.count() != 1:
             return members.count() > 1
-        return members.all()[0].full_name.strip() != ""
+        return members.first().full_name.strip() != ""
 
     def clean(self):
         """Verifies that first name and last name convey some information together."""

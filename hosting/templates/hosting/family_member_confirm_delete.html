@@ -12,10 +12,32 @@
     {{ profile.get_fullname_always_display }}
     {% if profile.birth_date %} &ensp;({{ profile.age }}) {% endif %}
 {% endblock %}
+{% block extra_details_block %}
+    {% if view.other_places %}
+        <hr />
+        <div class="help-block">
+            {% trans "This family member is also listed at" %}
+            {% if view.other_places|length == 1 %}
+                {% with p=view.other_places.0 %}
+                    {% trans "A place in"|lower %}
+                    <a href="{% url 'place_detail_verbose' p.pk %}" target="place_preview">{{ p }}</a>.
+                {% endwith %}
+            {% else %} :
+                <ul>
+                {% for p in view.other_places %}
+                    <li> {% trans "A place in" %}
+                         <a href="{% url 'place_detail_verbose' p.pk %}" target="place_preview">{{ p }}</a>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}
 
 {% block confirm_buttons %}
-    {% if user.profile != profile and place.owner != profile and not profile.user %}
-        <a href="{% url 'family_member_delete' place.pk profile.pk %}" class="btn btn-danger btn-vert-space" title="{% trans "Delete profile" %}">
+    {% if not profile.user %}
+        <a href="{% url 'family_member_delete' place.pk profile.pk %}" class="btn btn-danger btn-vert-space" title="{% trans "Delete profile" %}"
+           {% if view.other_places %}disabled{% endif %}>
             <span class="glyphicon glyphicon-trash"></span>
             <span class="hidden-xxs">{% trans "Delete profile" %}</span>
         </a>

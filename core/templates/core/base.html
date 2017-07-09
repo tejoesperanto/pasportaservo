@@ -47,7 +47,7 @@
                             <span class="glyphicon glyphicon-log-out" title="{% trans "log out" %}"></span>
                         </a>
                     {% elif user %} {# 500/403-CSRF error pages don't have a user object #}
-                        <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">
+                        <a href="{% url 'login' %}?{{ REDIRECT_FIELD_NAME }}={{ request.get_full_path|urlencode }}">
                             {% trans "log in" %}
                         </a>
                     {% endif %}
@@ -60,7 +60,7 @@
                             <a href="{% url 'profile_create' %}">{{ user.username }}</a>
                         {% endif %}
                     {% elif user %} {# 500/403-CSRF error pages don't have a user object #}
-                        <a href="{% url 'register' %}?next={{ request.get_full_path|urlencode }}">{% trans "register" %}</a>
+                        <a href="{% url 'register' %}?{{ REDIRECT_FIELD_NAME }}={{ request.get_full_path|urlencode }}">{% trans "register" %}</a>
                     {% endif %}
                 </div>
             </div>

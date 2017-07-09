@@ -30,9 +30,6 @@ from .utils import UploadAndRenameAvatar, value_without_invalid_marker, format_l
 from .gravatar import email_to_gravatar
 
 
-ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR = 5, 4, 3, 2, 1
-
-
 MRS, MR = 'Mrs', 'Mr'
 TITLE_CHOICES = (
     (None, ""),
@@ -55,7 +52,7 @@ class TrackingModel(models.Model):
     checked_on = models.DateTimeField(_("checked on"), default=None, blank=True, null=True)
     checked_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("approved by"),
         blank=True, null=True,
-        related_name="+", limit_choices_to={'is_staff': True}, on_delete=models.SET_NULL)
+        related_name="+", on_delete=models.SET_NULL)
 
     all_objects = TrackingManager()
     objects = NotDeletedManager()
@@ -74,7 +71,6 @@ class TrackingModel(models.Model):
 
 class Profile(TrackingModel, TimeStampedModel):
     TITLE_CHOICES = TITLE_CHOICES
-    ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR = ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
         null=True, blank=True, on_delete=models.SET_NULL)
@@ -188,44 +184,13 @@ class Profile(TrackingModel, TimeStampedModel):
     @property
     def is_in_book(self):
         return self.owned_places.filter(
-            Q(confirmed=True) | Q(checked=True),
+            #Q(confirmed=True) | Q(checked=True), #TODO: repair for shop
             available=True, deleted=False, in_book=True,
-        ).exists()
+        ).count()
 
     @property
     def places_confirmed(self):
         return all(p.confirmed for p in self.owned_places.filter(deleted=False, in_book=True))
-
-    def supervised_by(self):
-        places = self.owned_places.filter(deleted=False)
-        return [superv for p in places for superv in p.supervised_by()]
-
-    @property
-    def is_supervisor(self):
-        return any(self.supervisor_of())
-
-    def supervisor_of(self, code=False):
-        countries = (Country(g.name) for g in self.user.groups.all() if len(g.name) == 2)
-        return countries if code else [c.name for c in countries]
-
-    def is_supervisor_of(self, profile=None, countries=None):
-        """Compare intersection between responsibilities and given countries."""
-        if all([profile, countries]) or not any([profile, countries]):
-            raise ImproperlyConfigured(
-                "Profile.is_supervisor_of() needs either a profile or a list of countries."
-            )
-        countries = countries if countries else []
-        if not countries:
-            countries = profile.owned_places.filter(
-                available=True, deleted=False).values_list('country', flat=True)
-        supervised = self.user.groups.values_list('name', flat=True)
-        return any(set(supervised) & set(countries))
-
-    def set_supervisor_of(self, country=None, remove=False):
-        group = Group.objects.get(name=str(country))
-        if remove:
-            return self.user.groups.remove(group)
-        return self.user.groups.add(group)
 
     def __str__(self):
         if self.full_name.strip():
@@ -401,10 +366,6 @@ class Place(TrackingModel, TimeStampedModel):
         return any([self.blocked_until and self.blocked_until >= date.today(),
                     self.blocked_from and not self.blocked_until])
 
-    def supervised_by(self):
-        group = Group.objects.get(name=self.country.code)
-        return [user.profile for user in group.user_set.all()]
-
     def get_absolute_url(self):
         return reverse('place_detail', kwargs={'pk': self.pk})
 
@@ -458,13 +419,13 @@ class Phone(TrackingModel, TimeStampedModel):
     @property
     def icon(self):
         if self.type == self.WORK:
-            cls = "glyphicon-phone-alt"
+            cls = "glyphicon-earphone"
         elif self.type == self.MOBILE:
             cls = "glyphicon-phone"
         elif self.type == self.FAX:
             cls = "glyphicon-print"
         else:  # self.HOME or ''
-            cls = "glyphicon-earphone"
+            cls = "glyphicon-phone-alt"
         title = self.get_type_display().capitalize()
         template = '<span class="glyphicon {cls}" title="{title}" data-toggle="tooltip" data-placement="left"></span>'
         return format_html(template, cls=cls, title=title)

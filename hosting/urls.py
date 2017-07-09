@@ -13,11 +13,10 @@ from .views import (
     profile_email_update,
     place_detail, place_detail_verbose,
     place_create, place_update, place_delete, place_block, authorize_user,
-    country_place_list,
     family_member_create, family_member_update,
     family_member_remove, family_member_delete,
     phone_create, phone_update, phone_delete,
-    confirm_hosting_info, place_check,
+    staff_place_list, hosting_info_confirm, place_check,
     search,
 )
 
@@ -51,14 +50,14 @@ urlpatterns = [
     url(_(r'^place/(?P<place_pk>\d+)/family-member/(?P<pk>\d+)/delete/$'), family_member_delete, name='family_member_delete'),
 
     url(_(r'^lo/(?P<country_code>[A-Z]{2})(?:/book\:(?P<in_book>(0|1)))?(?:/(?P<email>email))?/$'),
-        country_place_list,
-        name='country_place_list'),
+        staff_place_list,
+        name='staff_place_list'),
 
     url(_(r'^profile/(?P<pk>\d+)(?:/(?P<slug>[\w-]+))?/phone/create/$'), phone_create, name='phone_create'),
     url(_(r'^profile/(?P<profile_pk>\d+)/phone/(?P<pk>\d+)/update/$'), phone_update, name='phone_update'),
     url(_(r'^profile/(?P<profile_pk>\d+)/phone/(?P<pk>\d+)/delete/$'), phone_delete, name='phone_delete'),
 
-    url(_(r'^current/confirm/$'), confirm_hosting_info, name='confirm_hosting_info'),
+    url(_(r'^current/confirm/$'), hosting_info_confirm, name='hosting_info_confirm'),
     url(_(r'^place/(?P<pk>\d+)/check/$'), place_check, name='place_check'),
 
     url(_(r'^search(?:/(?P<query>.+))?/$'), search, name='search'),

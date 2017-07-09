@@ -1,0 +1,48 @@
+<h4>Role information</h4>
+<table>
+    <thead>
+        <tr>
+            <th>Role</th>
+            <th>Can supervise here</th>
+            <th>Required role</th>
+            <th>Supervisor</th>
+            <th>Staff</th>
+            <th>Admin</th>
+            <th>Countries supervised</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="djDebugOdd">
+            <td>
+                <code>{{ context_role.role }} {% if context_role.role_name %}({{ context_role.role_name }}){% endif %}</code>
+            </td>
+            <td>{% if context_role.is_role_supervisor %}&#x2714;{% else %}&#x2718;{% endif %}</td>
+            <td><code>{{ context_role.role_required }}</code></td>
+            <td><code>{{ context_role.is_supervisor }}</code></td>
+            <td><code>{{ context_role.is_staff }}</code></td>
+            <td><code>{{ context_role.is_admin }}</code></td>
+            <td>{{ context_role.perms|join:"; " }}</td>
+        </tr>
+    </tbody>
+</table>
+
+{% if context_role.extra %}
+    <table>
+        <thead>
+            <tr>
+                {% for k in context_role.extra.keys %}
+                    <th>{{ k|capfirst }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="djDebugOdd">
+                {% for v in context_role.extra.values %}
+                    <td><code>{{ v }}</code></td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+{% endif %}
+
+{% include 'debug_toolbar/panels/request.html' %}

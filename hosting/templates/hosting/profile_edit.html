@@ -1,6 +1,5 @@
 {% extends 'hosting/profile_detail.html' %}
-{% load i18n %}
-{% load static %}
+{% load i18n static profile %}
 
 {% block profile_edit_buttons %}
                 <a href="{% url 'profile_update' profile.pk profile.user.username|slugify %}"
@@ -9,14 +8,12 @@
                     <span class="glyphicon glyphicon-pencil"></span>
                     <span class="hidden-xxs">{% trans "Update" %}</span>
                 </a>
-                {% if profile == user.profile %}
-                    <a href="{% url 'profile_settings' profile.pk profile.user.username|slugify %}"
-                       class="btn btn-info"
-                       title="{% trans "Settings" %}">
-                        <span class="glyphicon glyphicon-cog"></span>
-                        <span class="hidden-xxs">{% trans "Settings" %}</span>
-                    </a>
-                {% endif %}
+                <a href="{% url 'profile_settings' profile.pk profile.user.username|slugify %}"
+                   class="btn btn-info"
+                   title="{% trans "Settings" %}">
+                    <span class="glyphicon glyphicon-cog"></span>
+                    <span class="hidden-xxs">{% trans "Settings" %}{% if view.role >= roles.SUPERVISOR %}: {% trans "Account" %}{% endif %}</span>
+                </a>
                 <a href="{% url 'profile_detail' profile.pk profile.user.username|slugify %}" 
                    class="btn btn-primary"
                    title="{% trans "View public profile" %}">
@@ -26,14 +23,16 @@
 {% endblock %}
 
 {% block place_edit_buttons %}
-    <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% blocktrans with kin=_("this ") %}Update {{ kin }}place{% endblocktrans %}">
-        <span class="glyphicon glyphicon-pencil"></span>
-        <span class="hidden-xxs">{% trans "Update" %}</span>
-    </a>
-    <a href="{% url 'place_delete' place.pk %}" class="btn btn-danger" title="{% blocktrans with kin=_("this ") %}Remove {{ kin }}place{% endblocktrans %}">
-        <span class="glyphicon glyphicon-trash"></span>
-    </a>
-    {% if profile == user.profile %}
+    {% if view.role == roles.OWNER or user|is_supervisor_of:place %}
+        <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% blocktrans with kin=_("this ") %}Update {{ kin }}place{% endblocktrans %}">
+            <span class="glyphicon glyphicon-pencil"></span>
+            <span class="hidden-xxs">{% trans "Update" %}</span>
+        </a>
+        <a href="{% url 'place_delete' place.pk %}" class="btn btn-danger" title="{% blocktrans with kin=_("this ") %}Remove {{ kin }}place{% endblocktrans %}">
+            <span class="glyphicon glyphicon-trash"></span>
+        </a>
+    {% endif %}
+    {% if view.role == roles.OWNER %}
         <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}" class="btn btn-warning" title="{% trans "Authorized users" %}">
             <span class="glyphicon glyphicon-eye-open"></span>
             <span class="hidden-xxs">{% trans "Authorizations" %}</span>
@@ -49,31 +48,46 @@
 {% endblock %}
 
 {% block family_member_edit_buttons %}
-    <div class="btn-group pull-right">
-        {% if member != profile and not member.user %}
-            <a href="{% url 'family_member_update' place.pk member.pk %}?next={{ request.get_full_path|urlencode }}"
-               class="btn btn-success"
-               title="{% trans "Update a family member" %}">
-                <span class="glyphicon glyphicon-pencil"></span>
-                <span class="hidden-xs">{% trans "Update" %}</span>
-            </a>
-        {% endif %}
-
-        <a href="{% url 'family_member_remove' place.pk member.pk %}"
-           class="btn btn-danger"
-           title="{% trans "Remove a family member" %}">
-            <span class="glyphicon glyphicon-trash"></span>
-        </a>
-    </div>
+    {% if view.role == roles.OWNER or user|is_supervisor_of:place %}
+        {% firstof "True" as place_owner_or_supervisor %}
+    {% endif %}
+    {% if place_owner_or_supervisor or user|is_supervisor_of:member %}
+        <div class="btn-group pull-right">
+            {% if not member.user %}
+                <a href="{% url 'family_member_update' place.pk member.pk %}?next={{ request.get_full_path|urlencode }}"
+                   class="btn btn-success"
+                   title="{% trans "Update a family member" %}">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                    <span class="hidden-xs">{% trans "Update" %}</span>
+                </a>
+            {% elif user|is_supervisor_of:member %}
+                <a href="{% url 'profile_update' member.pk member.user.username|slugify %}"
+                   class="btn btn-success"
+                   title="{% trans "Update profile" %}">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                    <span class="hidden-xs">{% trans "Update" %}</span>
+                </a>
+            {% endif %}
+            {% if place_owner_or_supervisor %}
+                <a href="{% url 'family_member_remove' place.pk member.pk %}"
+                   class="btn btn-danger"
+                   title="{% trans "Remove a family member" %}">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block family_member_add_buttons %}
     <div class="row">
         <div class="col-xs-12">
-            <a class="btn btn-info" href="{% url 'family_member_create' place.pk %}?next={{ request.get_full_path|urlencode }}">
-                <span class="glyphicon glyphicon-user"></span>
-                <strong>{% trans "Add a family member" %}</strong>
-            </a>
+            {% if view.role == roles.OWNER or user|is_supervisor_of:place %}
+                <a class="btn btn-info" href="{% url 'family_member_create' place.pk %}?next={{ request.get_full_path|urlencode }}">
+                    <span class="glyphicon glyphicon-user"></span>
+                    <strong>{% trans "Add a family member" %}</strong>
+                </a>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

@@ -1,7 +1,7 @@
 {% extends 'core/base_form.html' %}
 {% load i18n %}
 
-{% block head_title %}{% trans "Authorized users" %}{% endblock %}
+{% block head_title %}{% trans "Authorized users" %}: {{ place }}{% endblock %}
 
 {% block form_action %}{% url 'authorize_user' pk=place.pk %}?next={{ request.GET.next }}{% endblock %}
 {% block form_submit_button %}<span class="glyphicon glyphicon-plus"></span> {% trans "Authorize" %}{% endblock %}

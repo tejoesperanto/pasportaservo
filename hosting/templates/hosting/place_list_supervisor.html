@@ -42,22 +42,22 @@
 
     <ul class="col nav nav-pills" role="tablist">
         <li role="presentation" {% if view.in_book %}aria-pressed="true" class="active {% else %}class="{% endif %}navbar-right">
-            <a href="{% url 'country_place_list' country_code=view.country in_book=1 %}">
+            <a href="{% url 'staff_place_list' country_code=view.country in_book=1 %}">
                 <span class="badge">{{ in_book_count }}</span>
                 {% trans "In the book" %}
             </a>
         </li>
         <li role="presentation" {% if not view.in_book %}aria-pressed="true" class="active {% else %}class="{% endif %}navbar-right">
-            <a href="{% url 'country_place_list' country_code=view.country in_book=0 %}">
+            <a href="{% url 'staff_place_list' country_code=view.country in_book=0 %}">
                 <span class="badge">{{ not_in_book_count }}</span>
                 {% trans "Not in the book" %}
             </a>
         </li>
         <li role="presentation" {% if view.kwargs.email %}aria-pressed="true" class="active {% else %}class="{% endif %}">
             {% if view.kwargs.email %}
-            <a href="{% url 'country_place_list' country_code=view.country in_book=view.in_book|yesno:"1,0" %}">
+            <a href="{% url 'staff_place_list' country_code=view.country in_book=view.in_book|yesno:"1,0" %}">
             {% else %}
-            <a href="{% url 'country_place_list' country_code=view.country in_book=view.in_book|yesno:"1,0" email='email' %}">
+            <a href="{% url 'staff_place_list' country_code=view.country in_book=view.in_book|yesno:"1,0" email='email' %}">
             {% endif %}
                 <span class="badge">{{ invalid_emails_count }}</span>
                 {% trans "invalid emails"|capfirst %}
@@ -144,7 +144,7 @@
         </a>
         <div class="address">
             {{ place.address }}<br>
-            {{ place.postcode}} | <strong>{{ place.city }}</strong><br>
+            {{ place.postcode}} <span class="glyphicon glyphicon-record"></span> <strong>{{ place.city }}</strong><br>
             {{ place.state_province }}
         </div>
         <div class="short-description">
@@ -180,7 +180,7 @@
             </span>
         {% else %}
             <span class="email">{{ place.profile.user.email|urlize }}</span>
-            <form action="{% url 'staff_mark_email_invalid' place.profile.pk %}" method="POST"
+            <form action="{% url 'staff_email_mark_invalid' place.profile.pk %}" method="POST"
                   class="unwrap-after-success" style="display:inline">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-xs btn-default ajax"
@@ -193,7 +193,7 @@
             </form>
         {% endif %}
 
-        <a href="{% url 'staff_update_email' place.profile.pk %}?next={{ request.get_full_path|urlencode }}" class="btn btn-default btn-sm">
+        <a href="{% url 'staff_email_update' place.profile.pk %}?next={{ request.get_full_path|urlencode }}" class="btn btn-default btn-sm">
             {% trans "Update email" %}
         </a>
     </div>

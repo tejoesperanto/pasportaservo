@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block head_title %}
-    {% trans "Remove a phone number" %} {{ phone }}
+    {% trans "Remove a phone number" %} +{{ phone.number.country_code }}&thinsp;&hellip;{{ phone.number.as_e164|slice:"-3:" }}
 {% endblock %}
 
 {% block confirmation %}

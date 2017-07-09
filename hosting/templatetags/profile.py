@@ -1,30 +1,75 @@
+import logging
+
 from django import template
+from django.contrib import auth
+from django.contrib.auth.models import AnonymousUser
 from django_countries.fields import Country
 from django.conf import settings
+
 from ..models import Profile
 from ..utils import value_without_invalid_marker
+from core.auth import PERM_SUPERVISOR
 
 
 register = template.Library()
 
+auth_log = logging.getLogger('PasportaServo.auth')
+
+
+def _convert_profile_to_user(profile_obj):
+    if isinstance(profile_obj, Profile):
+        return profile_obj.user or AnonymousUser()
+    else:
+        return profile_obj
+
 
 @register.filter
-def is_supervisor_of(user, profile_or_countries):
-    try:
-        user_profile = user.profile
-    except (Profile.DoesNotExist, AttributeError):
-        return False
-    if isinstance(profile_or_countries, Country):
-        return user_profile.is_supervisor_of(countries=[profile_or_countries])
-    if isinstance(profile_or_countries, str):
-        countries = profile_or_countries.split(' ')
-        return user_profile.is_supervisor_of(countries=countries)
-    if isinstance(profile_or_countries, Profile):
-        return user_profile.is_supervisor_of(profile=profile_or_countries)
+def is_supervisor(user_or_profile):
+    user = _convert_profile_to_user(user_or_profile)
+    auth_log.debug("* checking if supervising... [ %s %s]",
+        user, "<~ '%s' " % user_or_profile if user != user_or_profile else "")
+    return user.has_perm(PERM_SUPERVISOR)
+
+
+@register.filter
+def is_supervisor_of(user_or_profile, profile_or_countries):
+    user = _convert_profile_to_user(user_or_profile)
+    auth_log.debug("* checking if object is supervised... [ %s %s] [ %s ]",
+        user, "<~ '%s' " % user_or_profile if user != user_or_profile else "",
+        repr(profile_or_countries))
     if isinstance(profile_or_countries, int):
-        profile = Profile.objects.get(pk=profile_or_countries)
-        return user_profile.is_supervisor_of(profile=profile)
-    return False
+        try:
+            profile_or_countries = Profile.objects.get(pk=profile_or_countries)
+        except Profile.DoesNotExist:
+            return False
+    elif isinstance(profile_or_countries, str):
+        profile_or_countries = profile_or_countries.split(" ")
+
+    #supervisor = False
+    #for backend in auth.get_backends():
+    #    try:
+    #        supervisor = backend.is_user_supervisor_of(user, profile_or_countries)
+    #    except AttributeError as e:
+    #        pass
+    #    except:
+    #        supervisor = False
+    #    else:
+    #        break
+    #return supervisor
+    return user.has_perm(PERM_SUPERVISOR, profile_or_countries)
+
+
+@register.filter
+def supervisor_of(user_or_profile):
+    user = _convert_profile_to_user(user_or_profile)
+    auth_log.debug("* searching supervised objects... [ %s %s]",
+        user, "<~ '%s' " % user_or_profile if user != user_or_profile else "")
+    for backend in auth.get_backends():
+        try:
+            return sorted(backend.get_user_supervisor_of(user))
+        except:
+            pass
+    return ("",)
 
 
 @register.filter

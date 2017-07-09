@@ -2,7 +2,8 @@ from django.views import generic
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin
+
+from core.mixins import LoginRequiredMixin
 
 from .models import Product, Reservation
 from .forms import ReservationForm

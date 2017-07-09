@@ -25,8 +25,8 @@ class SupervisorsView(generic.TemplateView):
         countries = sort_by_name({p.country for p in places})
         for country in countries:
             try:
-                group = groups.get(name=str(country))
-                country.supervisors = sorted(user.profile for user in group.user_set.all())
+                group = groups.get(name=country.code)
+                country.supervisors = sorted(user.profile for user in group.user_set.all() if hasattr(user, 'profile'))
             except Group.DoesNotExist:
                 pass
             places_for_country = places.filter(country=country)

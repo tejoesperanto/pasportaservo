@@ -8,7 +8,7 @@ from django.template.defaultfilters import yesno
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from braces.views import StaffuserRequiredMixin
+from core.auth import AuthMixin, ADMIN
 
 from hosting.models import Place
 from links.utils import create_unique_url
@@ -17,15 +17,22 @@ from pyuca import Collator
 c = Collator()
 
 
-class ContactExport(StaffuserRequiredMixin, generic.ListView):
+class ContactExportView(AuthMixin, generic.ListView):
     response_class = HttpResponse
     content_type = 'text/csv'
+    display_permission_denied = False
+    exact_role = ADMIN
+
     place_fields = ['in_book', 'checked', 'city', 'closest_city', 'address',
         'postcode', 'state_province', 'country', 'short_description',
         'tour_guide', 'have_a_drink', 'max_guest', 'max_night', 'contact_before', 'confirmed_on']
     owner_fields = ['title', 'first_name', 'last_name', 'birth_date']
     user_fields = ['email', 'username', 'last_login', 'date_joined']
     other_fields = ['phones', 'family_members', 'conditions', 'update_url', 'confirm_url']
+
+    def dispatch(self, request, *args, **kwargs):
+        kwargs['auth_base'] = None
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         places = Place.objects.prefetch_related('owner__user')
@@ -86,4 +93,4 @@ class ContactExport(StaffuserRequiredMixin, generic.ListView):
     def get_url(self, place, action):
         return create_unique_url({'place': place.pk, 'action': action})
 
-contact_export = ContactExport.as_view()
+contact_export = ContactExportView.as_view()
