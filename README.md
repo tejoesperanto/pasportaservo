@@ -2,12 +2,11 @@
 
 [![TEJO](https://img.shields.io/badge/Projekto_de-TEJO-orange.svg)](http://tejo.org)
 [![Esperanto](https://img.shields.io/badge/Esperanto-jes-green.svg)](https://eo.wikipedia.org/wiki/Esperanto)
-[![Python 3.4](https://img.shields.io/badge/Python-3.4-blue.svg)](https://docs.python.org/3.4/)
+[![Python 3.5](https://img.shields.io/badge/Python-3.5-blue.svg)](https://docs.python.org/3.5/)
 [![Django 1.10](https://img.shields.io/badge/Django-1.10-0C4B33.svg)](https://docs.djangoproject.com/en/1.10/)
 [![HTTP](https://img.shields.io/badge/HTTP-2-blue.svg)](https://http2.github.io/)
 [![HTTPS](https://img.shields.io/badge/HTTPS-jes-green.svg)](https://letsencrypt.org/)
 [![GNU AGPLv3](https://img.shields.io/badge/licenco-GNU_AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0.html)
-[![Kontaktu nin en Gitter https://gitter.im/tejo-esperanto/pasportaservo](https://img.shields.io/gitter/room/tejo-esperanto/pasportaservo.svg)](https://gitter.im/tejo-esperanto/pasportaservo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Twitter URL](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/pasportaservo)
 
 [Pasporta Servo](https://eo.wikipedia.org/wiki/Pasporta_Servo) estas senpaga tutmonda gastiga servo. La projekto komencis en 1974 kiel eta jarlibro, kaj ekde 2009 ankaŭ daŭras kiel retejo. En tiu ĉi deponejo kolektiĝas la kodo kiu ruligas la retejon [pasportaservo.org](https://pasportaservo.org).

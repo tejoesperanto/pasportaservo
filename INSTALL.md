@@ -1,11 +1,11 @@
 # INSTALI
 
-Ubuntu 16.10 / Debian Jessie:
+Ubuntu 16.10 / Debian 9 Stretch:
 
     sudo apt install git python3-dev python3-pip libjpeg-dev zlib1g-dev \
       postgresql-contrib postgresql-server-dev-all postgresql-9.6-postgis
 
-Fedora 25:
+Fedora 26:
 
     sudo dnf install git python3-devel python3-crypto redhat-rpm-config zlib-devel libjpeg-devel libzip-devel \
       postgresql-server postgresql-contrib postgresql-devel

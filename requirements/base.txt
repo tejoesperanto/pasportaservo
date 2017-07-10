@@ -22,3 +22,5 @@ django-solo==1.1.2
 itsdangerous==0.24
 sendgrid-django==2.0.0
 pyuca==1.1.2
+
+gunicorn==19.7.1
