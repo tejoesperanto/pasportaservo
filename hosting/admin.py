@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.gis import admin as gis_admin
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.utils import display_for_value
 from django.utils.html import format_html
@@ -31,7 +32,7 @@ class PlaceInLine(ShowConfirmedMixin, ShowDeletedMixin, admin.StackedInline):
     show_change_link = True
     fields = (
         'country', 'state_province', ('city', 'closest_city'), 'postcode', 'address',
-        ('latitude', 'longitude'),
+        'location',
         'description', 'short_description',
         ('max_guest', 'max_night', 'contact_before'), 'conditions',
         'available', 'in_book', ('tour_guide', 'have_a_drink'), 'sporadic_presence',
@@ -230,10 +231,10 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
 
 
 @admin.register(Place)
-class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
+class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, gis_admin.OSMGeoAdmin):
     list_display = (
         'city', 'postcode', 'state_province', 'display_country',
-        'display_latitude', 'display_longitude',
+        'display_location',
         # 'max_host', 'max_night', 'contact_before',
         'available', 'in_book',
         'owner_link',
@@ -241,7 +242,6 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     )
     list_display_links = (
         'city', 'state_province', 'display_country',
-        'display_latitude', 'display_longitude',
     )
     search_fields = [
         'address', 'city', 'postcode', 'country', 'state_province',
@@ -253,7 +253,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     )
     fields = (
         'owner', 'country', 'state_province', ('city', 'closest_city'), 'postcode', 'address',
-        ('latitude', 'longitude'),
+        'location',
         'description', 'short_description',
         ('max_guest', 'max_night', 'contact_before'), 'conditions',
         'available', 'in_book', ('tour_guide', 'have_a_drink'), 'sporadic_presence',
@@ -267,15 +267,9 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     display_country.short_description = _("country")
     display_country.admin_order_field = 'country'
 
-    def display_latitude(self, obj):
-        return "%.4f" % float(obj.latitude) if obj.latitude else None
-    display_latitude.short_description = _("latitude")
-    display_latitude.admin_order_field = 'latitude'
-
-    def display_longitude(self, obj):
-        return "%.4f" % float(obj.longitude) if obj.longitude else None
-    display_longitude.short_description = _("longitude")
-    display_longitude.admin_order_field = 'longitude'
+    def display_location(self, obj):
+        return '{point.y:.4f} {point.x:.4f}'.format(point=obj.location) if obj.location else None
+    display_location.short_description = _("location")
 
     def owner_link(self, obj):
         return format_html('<a href="{url}">{name}</a>', url=obj.owner.get_admin_url(), name=obj.owner)

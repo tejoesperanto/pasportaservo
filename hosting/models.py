@@ -4,6 +4,7 @@ from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 from django.utils.text import slugify
 from django.db import models, transaction
+from django.contrib.gis.db.models import PointField
 from django.db.models import Q, F, Value as V
 from django.db.models.functions import Concat, Substr
 from django.conf import settings
@@ -285,6 +286,8 @@ class Place(TrackingModel, TimeStampedModel):
         blank=True,
         max_length=70)
     country = CountryField(_("country"))
+    location = PointField(_("location"), srid=4326,
+        null=True, blank=True)
     latitude = models.FloatField(_("latitude"),
         null=True, blank=True)
     longitude = models.FloatField(_("longitude"),
@@ -343,13 +346,20 @@ class Place(TrackingModel, TimeStampedModel):
         return self.owner
 
     @property
+    def lat(self):
+        return round(self.location.y, 2)
+
+    @property
+    def lng(self):
+        return round(self.location.x, 2)
+
+    @property
     def bbox(self):
         """Return an OpenStreetMap formated bounding box.
         See http://wiki.osm.org/wiki/Bounding_Box
         """
         dx, dy = 0.007, 0.003  # Delta lng and delta lat around position
-        lat, lng = self.latitude, self.longitude
-        boundingbox = (lng - dx, lat - dy, lng + dx, lat + dy)
+        boundingbox = (self.lng - dx, self.lat - dy, self.lng + dx, self.lat + dy)
         return ",".join([str(coord) for coord in boundingbox])
 
     @property

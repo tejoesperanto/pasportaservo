@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
 
     'django_extensions',
     'django_countries',
@@ -113,7 +114,7 @@ STATICFILES_FINDERS = global_settings.STATICFILES_FINDERS + [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'pasportaservo',
     }
 }
@@ -202,4 +203,4 @@ POSTMAN_DISALLOW_MULTIRECIPIENTS = True
 POSTMAN_DISALLOW_COPIES_ON_REPLY = True
 POSTMAN_NOTIFIER_APP = None
 
-OPENCAGE_KEY = 'a27f7e361bdfe11881a987a6e86fb5fd'
+OPENCAGE_API_KEY = 'a27f7e361bdfe11881a987a6e86fb5fd'

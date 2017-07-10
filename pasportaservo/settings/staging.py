@@ -6,7 +6,7 @@ MESSAGE_LEVEL = message_level.DEBUG
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'staging',
     }
 }
