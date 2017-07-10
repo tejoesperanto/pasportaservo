@@ -3,7 +3,7 @@ psycopg2==2.6.1
 Pillow==3.2.0
 markdown2==2.3.1
 
-geopy==1.11
+geocoder==1.23.0
 django-braces==1.9.0
 django-bootstrap-form==3.2.1
 django-compressor==2.1.1

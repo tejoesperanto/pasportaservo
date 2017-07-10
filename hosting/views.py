@@ -38,7 +38,7 @@ from core.models import SiteConfiguration
 from .forms import (
     ProfileForm, ProfileCreateForm, ProfileEmailUpdateForm,
     PhoneForm, PhoneCreateForm,
-    PlaceForm, PlaceCreateForm, PlaceBlockForm,
+    PlaceForm, PlaceCreateForm, PlaceBlockForm, PlaceLocationForm,
     FamilyMemberForm, FamilyMemberCreateForm,
     UserAuthorizeForm, UserAuthorizedOnceForm,
 )
@@ -204,7 +204,20 @@ class PlaceUpdateView(UpdateMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, Fo
     form_class = PlaceForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if '_gotomap' in self.request.POST or form.confidence < 8:
+            map_url = reverse_lazy('place_location_update', kwargs={'pk': self.object.pk})
+            return HttpResponseRedirect(map_url)
+        return response
+
 place_update = PlaceUpdateView.as_view()
+
+
+class PlaceLocationUpdateView(UpdateMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, generic.UpdateView):
+    form_class = PlaceLocationForm
+
+place_location_update = PlaceLocationUpdateView.as_view()
 
 
 class PlaceDeleteView(DeleteMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, generic.DeleteView):
@@ -591,4 +604,3 @@ class FamilyMemberDeleteView(DeleteMixin, AuthMixin, FamilyMemberAuthMixin, Fami
         return redirect
 
 family_member_delete = FamilyMemberDeleteView.as_view()
-

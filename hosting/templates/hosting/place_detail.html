@@ -311,6 +311,11 @@
                     </a>
             {% endif %}
             {% if place_owner_or_supervisor or user.profile in place.family_members.all %}
+                <a href="{% url 'place_location_update' place.pk %}" class="btn btn-primary right">
+                    <span class="glyphicon glyphicon-map-marker"></span>
+                    {% trans "Edit location" %}
+                </a>
+
                 <span class="btn-group btn-vert-space">
                     {% if view.role == roles.OWNER %}
                         {% trans "my " as kin %}

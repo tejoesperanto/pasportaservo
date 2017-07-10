@@ -2,17 +2,22 @@ import os
 import re
 from uuid import uuid4
 
+import geocoder
+
 from django.conf import settings
+from django.contrib.gis.geos import Point
 from django.utils.deconstruct import deconstructible
 
 from pyuca import Collator
 
 
-def extend_bbox(boundingbox):
-    """Extends the bounding box by x3 for its width, and x3 of its height."""
-    s, n, w, e = [float(coord) for coord in boundingbox]
-    delta_lat, delta_lng = n - s, e - w
-    return [s - delta_lat, n + delta_lat, w - delta_lng, e + delta_lng]
+def geocode(query):
+    key = settings.OPENCAGE_API_KEY
+    lang = settings.LANGUAGE_CODE
+    if query:
+        result = geocoder.opencage(query, key=key, params={'language': lang})
+        result.point = Point(result.xy, srid=4326) if result.xy else None
+        return result
 
 
 def title_with_particule(value, particules=None):
