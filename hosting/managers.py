@@ -42,11 +42,3 @@ class NotDeletedManager(TrackingManager):
 class AvailableManager(NotDeletedManager):
     def get_queryset(self):
         return super().get_queryset().filter(available=True)
-
-
-class AvailableWithCoordManager(AvailableManager):
-    def get_queryset(self):
-        return super().get_queryset().filter(
-            latitude__isnull=False,
-            longitude__isnull=False,
-        )

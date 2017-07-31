@@ -4,6 +4,7 @@ from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 from django.utils.text import slugify
 from django.db import models, transaction
+from django.contrib.gis.db.models import PointField
 from django.db.models import Q, F, Value as V
 from django.db.models.functions import Concat, Substr
 from django.conf import settings
@@ -19,11 +20,11 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django_countries.fields import CountryField, Country
 
 from .managers import (
-    TrackingManager, NotDeletedManager, AvailableWithCoordManager, AvailableManager,
+    TrackingManager, NotDeletedManager, AvailableManager,
 )
 from .validators import (
     validate_not_all_caps, validate_not_too_many_caps, validate_no_digit, validate_latin,
-    validate_not_in_future, TooFarPastValidator, TooNearPastValidator,
+    validate_not_in_future, TooFarPastValidator,
     validate_image, validate_size,
 )
 from .utils import UploadAndRenameAvatar, value_without_invalid_marker, format_lazy
@@ -285,6 +286,8 @@ class Place(TrackingModel, TimeStampedModel):
         blank=True,
         max_length=70)
     country = CountryField(_("country"))
+    location = PointField(_("location"), srid=4326,
+        null=True, blank=True)
     latitude = models.FloatField(_("latitude"),
         null=True, blank=True)
     longitude = models.FloatField(_("longitude"),
@@ -331,7 +334,6 @@ class Place(TrackingModel, TimeStampedModel):
         help_text=_("List of users authorized to view most of data of this accommodation."))
 
     available_objects = AvailableManager()
-    with_coord = AvailableWithCoordManager()
 
     class Meta:
         verbose_name = _("place")
@@ -344,13 +346,20 @@ class Place(TrackingModel, TimeStampedModel):
         return self.owner
 
     @property
+    def lat(self):
+        return round(self.location.y, 2)
+
+    @property
+    def lng(self):
+        return round(self.location.x, 2)
+
+    @property
     def bbox(self):
         """Return an OpenStreetMap formated bounding box.
         See http://wiki.osm.org/wiki/Bounding_Box
         """
         dx, dy = 0.007, 0.003  # Delta lng and delta lat around position
-        lat, lng = self.latitude, self.longitude
-        boundingbox = (lng - dx, lat - dy, lng + dx, lat + dy)
+        boundingbox = (self.lng - dx, self.lat - dy, self.lng + dx, self.lat + dy)
         return ",".join([str(coord) for coord in boundingbox])
 
     @property

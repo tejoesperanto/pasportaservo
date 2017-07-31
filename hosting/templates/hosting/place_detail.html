@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n static profile %}
+{% load i18n l10n static profile %}
 
 {% block head_title %}
     {% if view.role == roles.OWNER %}
@@ -251,7 +251,7 @@
         <div class="embed-responsive embed-responsive-16by9"> {% comment %} responsive map height with constant ratio to map width {% endcomment %}
             <iframe width="100%"
                 frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
-                src="https://www.openstreetmap.org/export/embed.html?bbox={{ place.bbox }}{% if user.is_authenticated %}&amp;marker={{ place.latitude|stringformat:'f' }},{{ place.longitude|stringformat:'f' }}{% endif %}">
+                src="https://www.openstreetmap.org/export/embed.html?bbox={{ place.bbox }}{% if user.is_authenticated %}&amp;marker={{ place.location.y|unlocalize }},{{ place.location.x|unlocalize }}{% endif %}">
             </iframe>
         </div>
     </div>
@@ -311,6 +311,11 @@
                     </a>
             {% endif %}
             {% if place_owner_or_supervisor or user.profile in place.family_members.all %}
+                <a href="{% url 'place_location_update' place.pk %}" class="btn btn-primary right">
+                    <span class="glyphicon glyphicon-map-marker"></span>
+                    {% trans "Edit location" %}
+                </a>
+
                 <span class="btn-group btn-vert-space">
                     {% if view.role == roles.OWNER %}
                         {% trans "my " as kin %}

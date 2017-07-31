@@ -14,7 +14,7 @@ env.user = 'ps'
 env.use_ssh_config = True
 env.directory = '/srv/%s/pasportaservo'
 env.site = 'staging'  # default
-env.branch = 'master'  # default
+env.branch = 'geo'  # default
 
 @task
 def prod():
@@ -24,7 +24,7 @@ def prod():
 @task
 def staging():
     env.site = 'staging'
-    env.branch = 'master'
+    env.branch = 'geo'
 
 @task
 def push(remote='origin', branch='master', runlocal=True):
@@ -63,7 +63,7 @@ def migrate():
     run("./manage.py migrate --noinput")
 
 @task
-def deploy(mode='full', remote='origin'):
+def deploy(mode='full', remote='batisteo'):
     require('site', provided_by=[staging, prod])
     require('branch', provided_by=[staging, prod])
 

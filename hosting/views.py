@@ -1,6 +1,8 @@
 import re
 from datetime import date
 
+from django.db.models import Q
+from django.contrib.gis.db.models.functions import Distance
 from django.views import generic
 from django.conf import settings
 from django.http import QueryDict, HttpResponseRedirect, Http404, JsonResponse
@@ -19,17 +21,13 @@ from django.utils.http import urlquote_plus
 from django.utils.encoding import uri_to_iri
 from django.utils import timezone
 
-import geopy
-from geopy.exc import GeocoderTimedOut, GeocoderServiceError
-
 from django_countries.fields import Country
 from .models import Profile, Place, Phone
 
-from rest_framework import viewsets
-from .serializers import ProfileSerializer, PlaceSerializer, UserSerializer
 from braces.views import FormInvalidMessageMixin
 from core.auth import AuthMixin, PERM_SUPERVISOR, SUPERVISOR, OWNER, VISITOR, ANONYMOUS
 from core.mixins import LoginRequiredMixin
+from .utils import geocode
 from .mixins import (
     ProfileModifyMixin, ProfileIsUserMixin,
     PhoneMixin, PlaceMixin, FamilyMemberMixin, FamilyMemberAuthMixin,
@@ -40,7 +38,7 @@ from core.models import SiteConfiguration
 from .forms import (
     ProfileForm, ProfileCreateForm, ProfileEmailUpdateForm,
     PhoneForm, PhoneCreateForm,
-    PlaceForm, PlaceCreateForm, PlaceBlockForm,
+    PlaceForm, PlaceCreateForm, PlaceBlockForm, PlaceLocationForm,
     FamilyMemberForm, FamilyMemberCreateForm,
     UserAuthorizeForm, UserAuthorizedOnceForm,
 )
@@ -48,41 +46,6 @@ from .forms import (
 User = get_user_model()
 lang = settings.LANGUAGE_CODE
 
-
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    queryset = User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
-    http_method_names = ['get']
-
-
-class ProfileViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows profiles to be viewed or edited.
-    """
-    serializer_class = ProfileSerializer
-    queryset = Profile.objects.all()
-    http_method_names = ['get']
-
-
-class PlaceViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows places to be viewed or edited.
-    """
-    serializer_class = PlaceSerializer
-    queryset = Place.with_coord.all()
-    http_method_names = ['get']
-
-    def get_queryset(self):
-        qs = self.queryset
-        qs = self.get_serializer_class().setup_eager_loading(qs)
-        bounds = {p: self.request.query_params.get(p, None) for p in 'nswe'}
-        if any(bounds.values()):
-            qs = qs.filter(latitude__range=(bounds['s'], bounds['n']))
-            qs = qs.filter(longitude__range=(bounds['w'], bounds['e']))
-        return qs
 
 
 class ProfileCreateView(LoginRequiredMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.CreateView):
@@ -241,7 +204,20 @@ class PlaceUpdateView(UpdateMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, Fo
     form_class = PlaceForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if '_gotomap' in self.request.POST or form.confidence < 8:
+            map_url = reverse_lazy('place_location_update', kwargs={'pk': self.object.pk})
+            return HttpResponseRedirect(map_url)
+        return response
+
 place_update = PlaceUpdateView.as_view()
+
+
+class PlaceLocationUpdateView(UpdateMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, generic.UpdateView):
+    form_class = PlaceLocationForm
+
+place_location_update = PlaceLocationUpdateView.as_view()
 
 
 class PlaceDeleteView(DeleteMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, generic.DeleteView):
@@ -444,11 +420,8 @@ staff_place_list = PlaceStaffListView.as_view()
 
 
 class SearchView(PlaceListView):
-
-    def first_with_bounds(self, locations):
-        for location in locations:
-            if 'bounds' in location.raw:
-                return location
+    queryset = Place.objects.filter(available=True)
+    paginate_by = 20
 
     def get(self, request, *args, **kwargs):
         if 'ps_q' in request.GET:
@@ -458,43 +431,33 @@ class SearchView(PlaceListView):
             return HttpResponseRedirect(reverse_lazy('search', kwargs=params))
         query = kwargs['query'] or ''  # Avoiding query=None
         self.query = unquote_plus(query)
-        if self.query:
-            try:
-                geocoder = geopy.geocoders.OpenCage(settings.OPENCAGE_KEY, timeout=5)
-                self.locations = geocoder.geocode(self.query, language=lang, exactly_one=False)
-            except (GeocoderTimedOut, GeocoderServiceError) as e:
-                self.locations = []
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        """
-        Find location by bounding box. Filters also by country,
-        because some bbox for some countries are huge (e.g. France, USA).
-        """
-        qs = Place.objects.none()
-        if self.query and self.locations:
-            location = self.first_with_bounds(self.locations)
-            if location:
-                country_code = location.raw['components'].get('country_code')
-                bounds = location.raw['bounds']
-                lats = (bounds['southwest']['lat'], bounds['northeast']['lat'])
-                lngs = (bounds['southwest']['lng'], bounds['northeast']['lng'])
-                qs = Place.objects.filter(available=True)
-                qs = qs.filter(latitude__range=lats, longitude__range=lngs)
-                qs = qs.filter(country=country_code.upper()) if country_code else qs
+        self.result = geocode(self.query)
+        if self.query and self.result.point:
+            if self.result.confidence == 1:
+                return (self.queryset.filter(country=self.result.country.upper())
+                                     .order_by('owner__user__last_login'))
+            return (self.queryset.annotate(distance=Distance('location', self.result.point))
+                                 .order_by('distance'))
+        return self.queryset.order_by('owner__user__last_login')
 
-        # Search in the Profile name and username too.
+    def get_detail_queryset(self):
         if len(self.query) <= 3:
-            return qs
-        qs |= Place.objects.filter(owner__user__username__icontains=self.query)
-        qs |= Place.objects.filter(owner__first_name__icontains=self.query)
-        qs |= Place.objects.filter(owner__last_name__icontains=self.query)
-        qs |= Place.objects.filter(closest_city__icontains=self.query)
-        return qs.select_related('owner__user').order_by('country', 'city')
+            return self.queryset
+        lookup = (
+            Q(owner__user__username__icontains=self.query) |
+            Q(owner__first_name__icontains=self.query) |
+            Q(owner__last_name__icontains=self.query) |
+            Q(closest_city__icontains=self.query)
+        )
+        return self.queryset.filter(lookup).select_related('owner__user')
 
     @property
     def get_query(self):
         return self.query
+
 
 search = SearchView.as_view()
 
@@ -641,4 +604,3 @@ class FamilyMemberDeleteView(DeleteMixin, AuthMixin, FamilyMemberAuthMixin, Fami
         return redirect
 
 family_member_delete = FamilyMemberDeleteView.as_view()
-

@@ -1,12 +1,15 @@
-from django import forms
-from django.conf import settings
 from datetime import date
+
+from django import forms
+from django.contrib.gis.forms import OSMWidget
 from django.utils.translation import ugettext_lazy as _
-from .utils import format_lazy
 from django.contrib.auth import get_user_model
+
+from django_countries.data import COUNTRIES
 
 from core.models import SiteConfiguration
 from .models import Profile, Place, Phone
+from .utils import format_lazy, geocode
 from .validators import TooNearPastValidator, client_side_validated
 from .widgets import ClearableWithPreviewImageInput
 from .utils import value_without_invalid_marker
@@ -117,12 +120,12 @@ class PlaceForm(forms.ModelForm):
     class Meta:
         model = Place
         fields = [
-            'closest_city',
-            'address',
-            'city',
-            'postcode',
-            'state_province',
             'country',
+            'state_province',
+            'postcode',
+            'city',
+            'address',
+            'closest_city',
             'max_guest', 'max_night', 'contact_before',
             'description', 'short_description',
             'available',
@@ -130,7 +133,6 @@ class PlaceForm(forms.ModelForm):
             'sporadic_presence',
             'in_book',
             'conditions',
-            'latitude', 'longitude',
         ]
         widgets = {
             'short_description': forms.Textarea(attrs={'rows': 3}),
@@ -167,8 +169,7 @@ class PlaceForm(forms.ModelForm):
                 raise forms.ValidationError(format_lazy(message, age=allowed_age))
 
         # Sets some fields as required if user wants their data to be printed in book.
-        required_fields = ['address', 'city', 'closest_city', 'country',
-            'available', 'latitude', 'longitude']
+        required_fields = ['address', 'city', 'closest_city', 'country', 'available']
         all_filled = all([cleaned_data.get(field, False) for field in required_fields])
         message = _("You want to be in the printed edition of Pasporta Servo. "
                     "In order to have a quality product, some fields a required. "
@@ -176,13 +177,32 @@ class PlaceForm(forms.ModelForm):
 
         if cleaned_data['in_book'] and not all_filled:
             for field in required_fields:
-                if not cleaned_data['latitude'] or not cleaned_data['longitude']:
-                    raise forms.ValidationError(_("Please click on the map to choose your location."))
                 if not cleaned_data.get(field, False):
                     self.add_error(field, _("This field is required to be printed in the book."))
             raise forms.ValidationError(message)
 
         return cleaned_data
+
+    def format_address(self):
+        address = {
+            'street': self.cleaned_data.get('address'),
+            'zip': self.cleaned_data.get('postcode').replace(' ', ''),
+            'city': self.cleaned_data.get('city'),
+            'state': self.cleaned_data.get('state_province'),
+            'country': COUNTRIES[self.cleaned_data.get('country')],
+        }
+        return '{street}, {zip} {city}, {state}, {country}'.format(**address)
+
+    def save(self, commit=True):
+        place = super().save(commit=False)
+        location = geocode(self.format_address())
+        if location.point and location.confidence > 1:
+            # https://geocoder.opencagedata.com/api#confidence
+            place.location = location.point
+        if commit:
+            place.save()
+        self.confidence = location.confidence
+        return place
 
 
 class PlaceCreateForm(PlaceForm):
@@ -191,11 +211,24 @@ class PlaceCreateForm(PlaceForm):
         super(PlaceCreateForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        place = super(PlaceForm, self).save(commit=False)
+        place = super().save(commit=False)
         place.owner = self.profile
         if commit:
             place.save()
         return place
+
+
+class PlaceLocationForm(forms.ModelForm):
+    class Meta:
+        model = Place
+        fields = ('location',)
+        widgets = {
+            'location': OSMWidget(attrs={
+                'template_name': "gis/openlayers-osm-custom.html",
+                'map_width': "100%",
+                'map_height': "500px"}),
+        }
+
 
 
 class PlaceBlockForm(forms.ModelForm):
