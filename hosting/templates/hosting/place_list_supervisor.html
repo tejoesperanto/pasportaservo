@@ -1,6 +1,6 @@
 {% extends 'core/base.html' %}
-{% load i18n static %}
-{% load is_invalid clear_invalid from profile %}
+{% load i18n static expression %}
+{% load is_invalid clear_invalid is_esperanto_surrogate from profile %}
 
 {% block head_title %}{{ view.country.name }}{% endblock %}
 
@@ -8,16 +8,57 @@
     <script src="{% static 'js/ajax.js' %}"></script>
 {% endblock %}
 
+{% block extra_css %}
+    <style>
+        .place-supervisor-detail .control-buttons .timestamp:first-of-type {
+            margin-top: 1em;
+        }
+        .place-supervisor-detail .control-buttons .timestamp {
+            margin-bottom: 0px;
+        }
+        .place-supervisor-detail .description-short.has-content {
+            margin: 10px 0px;
+        }
+        #check-place-check-errors .modal-dialog {
+            overflow-y: initial !important;
+        }
+        #check-place-check-errors .modal-dialog .modal-body {
+            max-height: 77vh;
+            overflow-y: auto;
+        }
+        @media (max-width: 479px) { /* XSS */
+            .place-supervisor-detail .name {
+                clear: both;
+            }
+            .place-supervisor-detail .control-buttons {
+                margin-bottom: 1em;
+            }
+            .place-supervisor-detail .control-buttons .timestamp {
+                font-size: 80%;
+            }
+            .place-supervisor-detail .phone-number:not(:last-child):after {
+                content: "\a";
+                white-space: pre;
+            }
+        }
+        @media (min-width: 480px) { /* NOT XSS */
+            .place-supervisor-detail .phone-number:not(:last-child) {
+                margin-right: 0.5em;
+            }
+        }
+    </style> {# TODO in stylesheet #}
+{% endblock %}
+
 {% block page %}
-    {% blocktrans count counter=checked_count asvar checked trimmed %}
+    {% blocktrans count counter=13 asvar checked_title trimmed %}
         checked{% plural %}checked
-    {% endblocktrans %}
+    {% endblocktrans %}  {# always show the plural adjective #}
 
-    {% blocktrans count counter=confirmed_count asvar confirmed trimmed %}
+    {% blocktrans count counter=13 asvar confirmed_title trimmed %}
         confirmed{% plural %}confirmed
-    {% endblocktrans %}
+    {% endblocktrans %}  {# always show the plural adjective #}
 
-    {% blocktrans count counter=not_confirmed_count asvar not_confirmed trimmed %}
+    {% blocktrans count counter=not_confirmed_count asvar not_confirmed_title trimmed %}
         not confirmed{% plural %}not confirmed
     {% endblocktrans %}
 
@@ -25,12 +66,12 @@
         <div>
             {% widthratio checked_count place_count 100 as checked_progress %}
             {% widthratio confirmed_count place_count 100 as confirmed_progress %}
-            <div class="progress" title="{{ checked }}" data-toggle="tooltip">
+            <div class="progress" title="{{ checked_title }}" data-toggle="tooltip">
                 <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ checked_progress }}" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em; width: {{ checked_progress }}%">
                     {{ checked_count }}
                 </div>
             </div>
-            <div class="progress" title="{{ confirmed }}" data-toggle="tooltip">
+            <div class="progress" title="{{ confirmed_title }}" data-toggle="tooltip">
                 <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="{{ confirmed_progress }}" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em; width: {{ confirmed_progress }}%">
                     {{ confirmed_count }}
                 </div>
@@ -38,35 +79,49 @@
         </div>
     {% endif %}
 
-<h1 class="text-center" style="padding: 10px;">{{ view.country.name }}</h1>
+    <h1 class="text-center" style="padding: 10px;">{{ view.country.name }}</h1>
 
     <ul class="col nav nav-pills" role="tablist">
-        <li role="presentation" {% if view.in_book %}aria-pressed="true" class="active {% else %}class="{% endif %}navbar-right">
+        <li role="presentation" {% if view.in_book == True %}aria-pressed="true" class="active {% else %}class="{% endif %}navbar-right btn-vert-space">
             <a href="{% url 'staff_place_list' country_code=view.country in_book=1 %}">
                 <span class="badge">{{ in_book_count }}</span>
                 {% trans "In the book" %}
             </a>
         </li>
-        <li role="presentation" {% if not view.in_book %}aria-pressed="true" class="active {% else %}class="{% endif %}navbar-right">
+        <li role="presentation" {% if view.in_book == False %}aria-pressed="true" class="active {% else %}class="{% endif %}navbar-right btn-vert-space">
             <a href="{% url 'staff_place_list' country_code=view.country in_book=0 %}">
                 <span class="badge">{{ not_in_book_count }}</span>
                 {% trans "Not in the book" %}
             </a>
         </li>
-        <li role="presentation" {% if view.kwargs.email %}aria-pressed="true" class="active {% else %}class="{% endif %}">
-            {% if view.kwargs.email %}
-            <a href="{% url 'staff_place_list' country_code=view.country in_book=view.in_book|yesno:"1,0" %}">
+        <li role="presentation" {% if view.in_book is None %}aria-pressed="true" class="active {% else %}class="{% endif %}navbar-right btn-vert-space">
+            <a href="{% url 'staff_place_list' country_code=view.country %}">
+                {% trans "All hosts" %}
+            </a>
+        </li>
+        <li role="presentation" {% if view.kwargs.email %}aria-pressed="true" class="active {% else %}class="{% endif %}btn-vert-space">
+            {% if view.in_book is not None %}
+                {% if view.kwargs.email %}
+                    {% url 'staff_place_list' country_code=view.country in_book=view.in_book|yesno:"1,0" as invalid_emails_list_url %}
+                {% else %}
+                    {% url 'staff_place_list' country_code=view.country in_book=view.in_book|yesno:"1,0" email=_("email-addr") as invalid_emails_list_url %}
+                {% endif %}
             {% else %}
-            <a href="{% url 'staff_place_list' country_code=view.country in_book=view.in_book|yesno:"1,0" email='email' %}">
+                {% if view.kwargs.email %}
+                    {% url 'staff_place_list' country_code=view.country as invalid_emails_list_url %}
+                {% else %}
+                    {% url 'staff_place_list' country_code=view.country email=_("email-addr") as invalid_emails_list_url %}
+                {% endif %}
             {% endif %}
+            <a href="{{ invalid_emails_list_url }}">
                 <span class="badge">{{ invalid_emails_count }}</span>
                 {% trans "invalid emails"|capfirst %}
             </a>
         </li>
-        <li role="presentation">
-            <a href="#{% trans "not-confirmed" %}">
+        <li role="presentation" class="btn-vert-space">
+            <a href="#{% trans "not-confirmed" context "URL" %}">
                 <span class="badge">{{ not_confirmed_count }}</span>
-                {{ not_confirmed|capfirst }}
+                {{ not_confirmed_title|capfirst }}
                 {% if not_confirmed_count %}<span class="glyphicon glyphicon-save"></span>{% endif %}
             </a>
         </li>
@@ -77,41 +132,41 @@
     {% for confirmed_state in confirmed_list %}
         <div>
             {% if confirmed_state.grouper %}
-                <h3 id="{% trans "confirmed" %}" class="text-center text-info">
-                    {{ confirmed|capfirst }}
-                    <small>{{ confirmed_state.list|length }}</small>
+                <h3 id="{% trans "confirmed" context "URL" %}" class="text-center text-info">
+                    {{ confirmed_title|capfirst }}
+                    <small>&bull;&nbsp; {{ confirmed_state.list|length }}</small>
                 </h3>
             {% else %}
-                <h3 id="{% trans "not-confirmed" %}" class="text-center text-warning">
-                    {{ not_confirmed|capfirst }}
-                    <small>{{ confirmed_state.list|length }}</small>
+                <h3 id="{% trans "not-confirmed" context "URL" %}" class="text-center text-warning">
+                    {{ not_confirmed_title|capfirst }}
+                    <small>&bull;&nbsp; {{ confirmed_state.list|length }}</small>
                 </h3>
             {% endif %}
             {% for place in confirmed_state.list %}
 
-<div class="callout {% if place.checked %}callout-success{% endif %} {% if not place.confirmed %}callout-warning{% endif %}">
-    <div class="pull-right">
+<div class="place-supervisor-detail callout {% if place.checked %}callout-success{% endif %} {% if not place.confirmed %}callout-warning{% endif %}"
+     id="place-{{ place.pk }}">
+    <div class="control-buttons pull-right">
         <div class="btn-toolbar" role="toolbar">
             <div class="btn-group" role="group">
-            {% if place.checked %}
-                <button disabled="disabled" type="button" id="place-{{ place.pk }}" class="btn btn-success" autocomplete="off">
-                    {% trans "Checked" %}
-                </button>
-            {% else %}
-                <form action="{% url 'place_check' place.pk %}" method="POST" class="unwrap-after-success">
-                    {% csrf_token %}
-                    <button type="button" id="place-{{ place.pk }}" class="btn btn-warning ajax"
-                        data-csrf="{{ csrf_token }}"
-                        data-hover-text="{% trans "check?"|capfirst %}"
-                        data-success-text="{% trans "Checked" %}"
-                        data-on-ajax-success="checkPlaceSuccess"
-                        autocomplete="off">
-                        {% trans "not checked"|capfirst %}
-                    </button>
-                </form>
-            {% endif %}
+                {% expr "check-place-"+str(place.pk) as id_check_status %}
+                {% if place.checked %}
+                    {% include 'hosting/snippets/checked.html' with object=place button=True button_id=id_check_status %}
+                {% else %}
+                    <form action="{% url 'place_check' place.pk %}" method="POST" class="unwrap-after-success">
+                        {% csrf_token %}
+                        <button type="button" id="{{ id_check_status }}" class="btn btn-warning ajax"
+                                data-csrf="{{ csrf_token }}"
+                                data-hover-text="{% trans "Check?" %}"
+                                data-success-text="{% trans "Checked" %}"
+                                data-on-ajax-setup="checkPlaceSetup"
+                                data-on-ajax-success="checkPlaceSuccess"
+                                autocomplete="off">
+                            {% trans "Not checked" %}
+                        </button>
+                    </form>
+                {% endif %}
             </div>
-
             <div class="btn-group" role="group">
                 <a class="btn btn-success" href="{% url 'place_update' place.pk %}" target="_blank">
                     <span class="glyphicon glyphicon-pencil"></span>
@@ -120,18 +175,16 @@
             </div>
         </div>
 
-        <br>
-        <h4 class="text-right" title="{% trans "last login" %}<br>{{ place.owner.user.last_login }}"
-            data-toggle="tooltip" data-html="true" data-placement="bottom">
-          <small class="glyphicon glyphicon-log-in"></small>
-          <small>{{ place.owner.user.last_login|date:"Y-m-d H:i" }} UTC</small>
-        </h4>
-
-        <h4 class="text-right" title="{% trans "place" %}<br>{{ place.modified }}"
-            data-toggle="tooltip" data-html="true" data-placement="bottom">
-          <small class="glyphicon glyphicon-edit"></small>
-          <small>{{ place.modified|date:"Y-m-d H:i" }} UTC</small>
-        </h4>
+        <p class="timestamp text-right text-muted" title="{% trans "last login" %}<br>{{ place.owner.user.last_login }}"
+           data-toggle="tooltip" data-html="true" data-placement="bottom">
+            <small class="glyphicon glyphicon-log-in" style="position: relative; left: -2px"></small>
+            <small><samp>{{ place.owner.user.last_login|date:"Y-m-d H:i" }} UTC</samp></small>
+        </p>
+        <p class="timestamp text-right text-muted" title="{% trans "last modification" %}<br>{{ place.modified }}"
+           data-toggle="tooltip" data-html="true" data-placement="bottom">
+            <small class="glyphicon glyphicon-edit"></small>
+            <small><samp>{{ place.modified|date:"Y-m-d H:i" }} UTC</samp></small>
+        </p>
     </div>
 
     <address>
@@ -139,7 +192,9 @@
             <h4 class="name">
                 <small>{{ place.profile.get_title_display }}</small>
                 {{ place.profile.get_fullname_display }}
-                <small>{{ place.profile.birth_date|date:"Y-m-d" }} ({{ place.profile.age }})</small>
+                {% if place.profile.birth_date %}
+                    <small>{{ place.profile.birth_date|date:"Y-m-d" }} ({% blocktrans with age=place.profile.age %}{{ age }} y.o.{% endblocktrans %})</small>
+                {% endif %}
             </h4>
         </a>
         <div class="address">
@@ -147,43 +202,65 @@
             {{ place.postcode}} <span class="glyphicon glyphicon-record"></span> <strong>{{ place.city }}</strong><br>
             {{ place.state_province }}
         </div>
-        <div class="short-description">
+        <div class="description-short {% if place.short_description.strip %}has-content{% endif %}">
             {% with desc=place.short_description %}
-            <small {% if '^' in desc or 'x' in desc or 'gh' in desc %}class="text-warning" {% endif %}>
-                {{ desc }}
-                {% if desc|length >= 135 %}
-                    <span class="text-danger"><span class="glyphicon glyphicon-warning-sign"></span>
-                    {{ desc|length }}</span>
+                {% if desc|is_esperanto_surrogate %}
+                    {% expr "text-surrogate text-warning" as description_color %}
+                    {% expr _("Esperanto letters?") as description_text_warning %}
                 {% endif %}
-            </small>
+                {% if desc|length > 135 %}
+                    {% expr _("Description too long.") as description_length_warning %}
+                {% endif %}
+                <small class="{{ description_color }}">
+                    {{ desc }}
+                    {% if description_length_warning %}
+                        <span class="text-danger text-nowrap">
+                            <span class="glyphicon glyphicon-warning-sign" data-toggle="tooltip" data-html="true"
+                                  title="{{ description_text_warning }}
+                                         {% if description_text_warning and description_length_warning %}<br>{% endif %}
+                                         {{ description_length_warning }}"></span>
+                            {{ desc|length }}&#8202;/&#8202;135
+                        </span>
+                    {% elif description_text_warning %}
+                        <span class="glyphicon glyphicon-warning-sign" data-toggle="tooltip"
+                              title="{{ description_text_warning }}"></span>
+                    {% endif %}
+                </small>
             {% endwith %}
         </div>
         <div>
             {% for phone in place.profile.phones.all %}
             {% if not phone.deleted %}
-                <small>
+                <small class="phone-number">
                     {{ phone.icon }}
                     <b class="number">{{ phone.number.as_international }}</b>
-                    <br class="visible-xs-inline" />
-                    <em class="comment">{{ phone.comments }}</em>
+                    <em class="comment{% if phone.comments|is_esperanto_surrogate %} text-surrogate text-warning{% endif %}">
+                        {{ phone.comments }}
+                        {% if phone.comments|is_esperanto_surrogate %}
+                            <span class="glyphicon glyphicon-warning-sign text-warning" data-toggle="tooltip"
+                                  title="{% trans "Esperanto letters?" %}"></span>
+                        {% endif %}
+                    </em>
                 </small>
             {% endif %}
             {% endfor %}
         </div>
     </address>
-    <div class="user">
-        <samp><small>{{ place.profile.user.username }}</small></samp>&nbsp;
+    <div class="host">
+        <h5>
+            <small>{% trans "username"|capfirst %}</small> {{ place.profile.user.username }}
+        </h5>
         {% if place.profile.user.email|is_invalid %}
             <span class="email text-danger" title="{% trans "invalid email"%}" data-toggle="tooltip">
                 {{ place.profile.user.email|clear_invalid }}
-                <span class="glyphicon glyphicon-warning-sign"></span>
+                <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
             </span>
         {% else %}
             <span class="email">{{ place.profile.user.email|urlize }}</span>
             <form action="{% url 'staff_email_mark_invalid' place.profile.pk %}" method="POST"
                   class="unwrap-after-success" style="display:inline">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-xs btn-default ajax"
+                <button type="submit" class="btn btn-default btn-xs btn-vert-space-even ajax"
                         data-csrf="{{ csrf_token }}"
                         data-hover-class="btn-danger"
                         data-on-ajax-success="markInvalidEmailSuccess"
@@ -192,7 +269,6 @@
                 </button>
             </form>
         {% endif %}
-
         <a href="{% url 'staff_email_update' place.profile.pk %}?next={{ request.get_full_path|urlencode }}" class="btn btn-default btn-sm">
             {% trans "Update email" %}
         </a>
@@ -208,4 +284,8 @@
             </div>
         </div>
     {% endfor %}
+
+    <script>
+        window.checkPlaceTextSurrogateWarning = "{% trans "The description or phone note seems to contain Esperanto written in a surrogate manner. Accept such text?" %}";
+    </script>
 {% endblock page %}

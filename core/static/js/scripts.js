@@ -17,7 +17,8 @@ $(document).ready(function() {
         var $this = $(this);
         $this.data('original-text', $this.text());
         if ($this.data('hover-text')) {
-            $this.text($this.data('hover-text'));
+            var preserveWidth = $this.width();
+            $this.text($this.data('hover-text')).width(preserveWidth);
         }
         if ($this.data('hover-class')) {
             $this.addClass($this.data('hover-class'));
@@ -25,7 +26,7 @@ $(document).ready(function() {
     }, function() {
         var $this = $(this);
         if ($this.data('hover-text') && $this.data('original-text')) {
-            $this.text($this.data('original-text'));
+            $this.text($this.data('original-text')).width("auto");
         }
         if ($this.data('hover-class')) {
             $this.removeClass($this.data('hover-class'));

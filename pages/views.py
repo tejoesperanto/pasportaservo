@@ -23,7 +23,7 @@ terms_conditions = TermsAndConditionsView.as_view()
 
 class SupervisorsView(generic.TemplateView):
     template_name = 'pages/supervisors.html'
-    book_codes = {False: '0', True: '1'}
+    book_codes = {False: '0', True: '1', None: None}
 
     def dispatch(self, request, *args, **kwargs):
         code_from_kwarg = {v: k for k, v in self.book_codes.items()}
@@ -58,7 +58,7 @@ class SupervisorsView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['countries'] = {'available': {
-            'active': not self.in_book, 'in_book': self.book_codes[False], 'data': self.get_countries()
+            'active': not self.in_book, 'in_book': self.book_codes[None], 'data': self.get_countries()
         }}
         if self.request.user.has_perm(PERM_SUPERVISOR):
             context['countries'].update({'in_book': {

@@ -39,7 +39,7 @@
                 if (window.localStorage) {
                     $(document).ready(function() {
                         var tabKey = 'supervisors.by-country.active-tab';
-                        {% if view.kwargs.in_book == None %}
+                        {% if view.kwargs.in_book is None %}
                             var storedTab = localStorage.getItem(tabKey);
                             if (storedTab && /^#countries-[a-z_-]+$/.test(storedTab)) {
                                 $('[data-toggle="tab"][href="'+storedTab+'"]').tab("show");
@@ -85,7 +85,7 @@
                 }
                 function storeHideStatus() {
                     Cookies.set('lo-off', new Date().getTime() / 1000, { expires: 90 });
-                }  
+                };
                 $('#wanted .close').on('click', function() {
                     storeHideStatus();
                     $(this).parent().slideUp();
@@ -199,7 +199,11 @@
                     {% endif %}
                     <a class="btn {{ country_name_class }}"
                        {% if user|is_supervisor_of:country %}
+                         {% if country_list.in_book is None %}
+                            href="{% url 'staff_place_list' country_code=country.code %}"
+                         {% else %}
                             href="{% url 'staff_place_list' country_code=country.code in_book=country_list.in_book %}"
+                         {% endif %}
                        {% elif not perms.hosting.can_supervise %}
                             href="{% url 'search' query=country.name %}"
                        {% else %}
