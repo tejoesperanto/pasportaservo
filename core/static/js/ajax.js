@@ -169,13 +169,39 @@ $(document).ready(function() {
         }
     };
 
-    window.checkPlaceSuccess = function($this) {
-        ditchForm($this);
-        $this.removeClass('ajax')
-             .removeClass('btn-warning').addClass('btn-success');
-        $this.closest('.callout').addClass('callout-success');
-        if ($this.data('success-text')) {
-            $this.text($this.data('success-text'));
+    window.checkPlaceSuccess = function($this, response) {
+        if (response.result === false) {
+            var $op_notify = $('#'+$this.data('failure-message'));
+            var $op_errors = $op_notify.find('ul');
+            var general_errors = response.err__all__;
+            $op_errors.empty();
+            if (general_errors != undefined) {
+                $op_errors.append($(document.createElement('li')).text(general_errors.join(" ")));
+            }
+            for (var field in response.err) {
+                $op_errors.append($(document.createElement('li')).text(
+                    field + ": " + response.err[field]
+                ));
+            }
+            $op_notify.modal();
+            $op_errors.parent()[0].scrollTop = 0;
+        }
+        if (response.result === true) {
+            var cleanup = function() {
+                ditchForm($this);
+                $this.removeClass('ajax')
+                     .removeClass('btn-warning').addClass('btn-success')
+                     .width("auto");
+                $this.closest('.callout').addClass('callout-success');
+                if ($this.data('success-text')) {
+                    $this.text($this.data('success-text'));
+                }
+            }
+            var $marker = $('<span class="glyphicon glyphicon-time">');
+            var buttonWidth = $this.width();
+            $this.prop('disabled', true).html($marker).width(buttonWidth);
+            $marker.delay(1000)
+                   .animate({ opacity: 0 }, 400, function() { $marker.remove(); cleanup(); });
         }
     };
 

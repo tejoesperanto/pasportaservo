@@ -1,11 +1,14 @@
-import re
+import re, json
 from datetime import date
+from collections import OrderedDict
 
 from django.db.models import Q
 from django.contrib.gis.db.models.functions import Distance
 from django.views import generic
 from django.conf import settings
 from django.db import models
+from django.core import serializers
+from django.core.exceptions import NON_FIELD_ERRORS
 from django.http import QueryDict, HttpResponseRedirect, Http404, JsonResponse
 from django.template.response import TemplateResponse
 from django.views.decorators.vary import vary_on_headers
@@ -367,9 +370,34 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
-        self.get_object().set_check_status(self.request.user)
+        place = self.get_object()
+        place_data = serializers.serialize('json', [place], fields=PlaceForm._meta.fields)
+        place_data = json.loads(place_data)[0]['fields']
+        owner_data = serializers.serialize('json', [place.owner], fields=ProfileForm._meta.fields)
+        owner_data = json.loads(owner_data)[0]['fields']
+
+        owner_form = ProfileForm(data=owner_data, instance=place.owner)
+        place_form = PlaceForm(data=place_data, instance=place)
+
+        data_correct = all([owner_form.is_valid(), place_form.is_valid()])  # We want both validations
+        viewresponse = {'result': data_correct}
+        if not data_correct:
+            viewresponse['err'] = OrderedDict()
+            data_problems = set()
+            for form in [owner_form, place_form]:
+                viewresponse['err'].update({str(form.fields[field_name].label) : list(field_errs)
+                    for field_name, field_errs
+                    in [(k, set(err for err in v if err)) for k, v in form.errors.items()]
+                    if field_name != NON_FIELD_ERRORS and len(field_errs)
+                })
+                data_problems.update(form.errors.get(NON_FIELD_ERRORS, []))
+            if len(data_problems):
+                viewresponse['err'+NON_FIELD_ERRORS] = list(data_problems)
+        else:
+            self.get_object().set_check_status(self.request.user)
+
         if request.is_ajax():
-            return JsonResponse({'success': 'checked'})
+            return JsonResponse(viewresponse)
         else:
             # Not implemented; only AJAX requests are expected.
             return TemplateResponse(request, self.template_name)
