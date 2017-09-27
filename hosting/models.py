@@ -400,6 +400,20 @@ class Place(TrackingModel, TimeStampedModel):
     def latexdisplay_conditions(self):
         return r"\, ".join(c.latex for c in self.conditions.all())
 
+    # GeoJSON properties
+
+    @property
+    def url(self):
+        return self.get_absolute_url()
+
+    @property
+    def owner_name(self):
+        return self.owner.name
+
+    @property
+    def owner_url(self):
+        return self.owner.get_absolute_url()
+
 
 class Phone(TrackingModel, TimeStampedModel):
     PHONE_TYPE_CHOICES = PHONE_TYPE_CHOICES

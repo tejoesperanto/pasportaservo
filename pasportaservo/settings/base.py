@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'django_extensions',
     'django_countries',
     'djangocodemirror',
+    'djgeojson',
     'phonenumber_field',
     'bootstrapform',
     'postman',
@@ -53,12 +54,13 @@ INSTALLED_APPS = (
     'simplemde',
     'solo',
 
-    'core',
     'blog',
+    'book',
+    'core',
     'hosting',
     'links',
+    'maps',
     'pages',
-    'book',
     'shop',
 )
 
