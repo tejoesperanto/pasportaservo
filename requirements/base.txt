@@ -19,6 +19,8 @@ django-cors-headers==1.1.0
 django-sass-processor==0.5.4
 django-simplemde==0.1.0
 django-solo==1.1.2
+django-geojson-2.10.0
+geojson==2.3.0
 itsdangerous==0.24
 sendgrid-django==2.0.0
 pyuca==1.1.2

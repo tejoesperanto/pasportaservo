@@ -436,7 +436,7 @@ class SearchView(PlaceListView):
     def get_queryset(self):
         self.result = geocode(self.query)
         if self.query and self.result.point:
-            if self.result.confidence == 1:
+            if not self.result.state:  # We assume it's a country
                 return (self.queryset.filter(country=self.result.country.upper())
                                      .order_by('owner__user__last_login'))
             return (self.queryset.annotate(distance=Distance('location', self.result.point))
