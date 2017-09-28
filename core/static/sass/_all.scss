@@ -86,6 +86,7 @@ header .links {
     padding-top: 0.5em;
     text-align: right;
 }
+
 header #title, .same-as-title {
     font-family: $title-font-stack;
     font-size: 1.6em;
@@ -101,11 +102,10 @@ header .enveloppe span {
     font-size: 1.3em;
 }
 
+/* Header on home page */
 header.home {
     margin-bottom: 0;
 }
-
-/* Header on home page */
 header.home .links {
     text-align: center;
 }
@@ -116,16 +116,13 @@ header.home #title, .same-as-home-title {
     margin-top: 1rem;
     padding-bottom: 0.25em;
 }
-
 header.home #title small {
     font-size: .3em;
     opacity: .5;
 }
-
 header.home #title small:hover {
     cursor: help;
 }
-
 header.home #subtitle {
     font-size: 1.5em;
     text-align: center;
@@ -302,22 +299,15 @@ header.home form.search {
     width: 100%;
     max-width: 140px;
 }
-.base-form {
-    text-align: center;
-    margin-top: 1em;
-}
 .owner .register {
     margin-top: 1em;
 }
 .register label, .login label {
     display: none;
 }
-.base-form h4 {
-    margin-top: 0;
-}
-.register .form-group:last-of-type {  /* Hiding honeypot */
+.register .form-group:last-of-type {
     position: absolute;
-    top: -10000px;
+    top: -10000px;  /* Hiding honeypot */
 }
 p.tip {
     font-size: 0.8em;
@@ -377,6 +367,46 @@ p.tip {
     top: .1em;
 }
 
+
+/* Supervisors */
+#tasks-header {
+    cursor: pointer;
+}
+#tasks-header .switch {
+    padding: 0px 2px 2px 2px;
+}
+#tasks .collapsing.initial {
+    transition: height 0.1s; -webkit-transition: height 0.1s; -moz-transition: height 0.1s; -o-transition: height 0.1s;
+}
+#supervisors-wanted button.close {
+    margin-left: 10px;
+}
+
+.countries-list > .row:not(.grid-header) > [class^="col-"]:first-child {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+.country-code {
+    width: 40px;
+}
+.place-supervisor-detail .control-buttons .timestamp:first-of-type {
+    margin-top: 1em;
+}
+.place-supervisor-detail .control-buttons .timestamp {
+    margin-bottom: 0px;
+}
+.place-supervisor-detail .description-short.has-content {
+    margin: 10px 0px;
+}
+#check-place-check-errors .modal-dialog {
+    overflow-y: initial !important;
+}
+#check-place-check-errors .modal-dialog .modal-body {
+    max-height: 77vh;
+    overflow-y: auto;
+}
+
+
 /* Footer */
 footer {
     text-align: center;
@@ -388,7 +418,16 @@ footer {
     padding-bottom: 3em;
 }
 
+
 /* Forms */
+.base-form {
+    text-align: center;
+    margin-top: 1em;
+}
+.base-form h4 {
+    margin-top: 0;
+}
+
 #id_conditions_chosen .chosen-choices {
     padding: 2px;
     padding-left: 5px;
@@ -407,7 +446,6 @@ footer {
     float: right;
     margin-right: 1ex;
 }
-
 header:not(.home) #subtitle,
 .message,
 .help-block,
@@ -417,6 +455,9 @@ header:not(.home) #subtitle,
 }
 .help-block {
     font-size: 0.9em;
+}
+.input-lg {
+    font-size: 1.5em;
 }
 
 :invalid {
@@ -445,16 +486,6 @@ header:not(.home) #subtitle,
 }
 
 
-.input-lg {
-    height: 44px;
-    line-height: 30px;
-    padding: 11px 19px;
-    margin-bottom: 10px;
-    font-size: 1.5em;
-    border-radius: 6px;
-}
-
-
 /* XXS */
 @media (max-width: 479px) {
     .list-vertical-align .member {
@@ -462,6 +493,25 @@ header:not(.home) #subtitle,
     }
     .list-vertical-align .details .comment {
         font-size: 14px;
+    }
+    .place-supervisor-detail .name {
+        clear: both;
+    }
+    .place-supervisor-detail .control-buttons {
+        margin-bottom: 1em;
+    }
+    .place-supervisor-detail .control-buttons .timestamp {
+        font-size: 80%;
+    }
+    .place-supervisor-detail .phone-number:not(:last-child):after {
+        content: "\a";
+        white-space: pre;
+    }
+}
+/* !XXS */
+@media (min-width: 480px) {
+    .place-supervisor-detail .phone-number:not(:last-child) {
+        margin-right: 0.5em;
     }
 }
 /* XS */

@@ -8,47 +8,6 @@
     <script src="{% static 'js/ajax.js' %}"></script>
 {% endblock %}
 
-{% block extra_css %}
-    <style>
-        .place-supervisor-detail .control-buttons .timestamp:first-of-type {
-            margin-top: 1em;
-        }
-        .place-supervisor-detail .control-buttons .timestamp {
-            margin-bottom: 0px;
-        }
-        .place-supervisor-detail .description-short.has-content {
-            margin: 10px 0px;
-        }
-        #check-place-check-errors .modal-dialog {
-            overflow-y: initial !important;
-        }
-        #check-place-check-errors .modal-dialog .modal-body {
-            max-height: 77vh;
-            overflow-y: auto;
-        }
-        @media (max-width: 479px) { /* XSS */
-            .place-supervisor-detail .name {
-                clear: both;
-            }
-            .place-supervisor-detail .control-buttons {
-                margin-bottom: 1em;
-            }
-            .place-supervisor-detail .control-buttons .timestamp {
-                font-size: 80%;
-            }
-            .place-supervisor-detail .phone-number:not(:last-child):after {
-                content: "\a";
-                white-space: pre;
-            }
-        }
-        @media (min-width: 480px) { /* NOT XSS */
-            .place-supervisor-detail .phone-number:not(:last-child) {
-                margin-right: 0.5em;
-            }
-        }
-    </style> {# TODO in stylesheet #}
-{% endblock %}
-
 {% block page %}
     {% blocktrans count counter=13 asvar checked_title trimmed %}
         checked{% plural %}checked
