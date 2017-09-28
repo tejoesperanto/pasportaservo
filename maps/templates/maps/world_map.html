@@ -1,0 +1,16 @@
+{% extends 'core/base.html' %}
+{% load i18n %}
+
+{% block head_title %}Mapo{% endblock %}
+
+{% block extra_head %}
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.40.1/mapbox-gl.js'></script>
+  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.40.1/mapbox-gl.css' rel='stylesheet' />
+  <script defer src='/static/world-map.js'></script>
+{% endblock extra_head %}
+
+{% block pre-page %}
+    <div id='map' style="position:absolute; top:52px; bottom:0; width:100%;"></div>
+{% endblock %}
+
+{% block footer %}{% endblock %}

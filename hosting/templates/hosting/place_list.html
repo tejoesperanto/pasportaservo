@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n static %}
+{% load i18n static geoformat %}
 
 {% block head_title %}
     {% trans "Find accomodation" %}
@@ -16,7 +16,7 @@
 
 {% block page %}
     <form class="form-inline row search" id="searchform" role="form" method="GET" action="{% url 'search' %}">
-        <div class="form-group col-xs-12" style="width: 100%">
+        <div class="form-group col-xs-12 col-md-offset-2 col-md-8">
             <div class="input-group" style="width: 100%">
                 <input class="form-control" type="search" id="searchinput" name="ps_q" value="{{ view.get_query }}" placeholder="{% trans "Budapest, London, Venezuela, etc." %}">
                 <span class="input-group-btn" style="width: 20%">
@@ -29,6 +29,19 @@
             </div>
         </div>
     </form>
+
+    <h4 class="text-center">
+      {% with result=view.result %}
+        {% if result.point %}
+          {{ result|format_result }}
+          <p><a href="{% url 'world_map' %}#6/{{ result.latlng|join:'/' }}">Vidi regionan mapon</a></p>
+        {% else %}
+          {% blocktrans with query=view.query trimmed %}
+            No results found for <em>{{ query }}</em>. Here is some active hosts!
+          {% endblocktrans %}
+        {% endif %}
+      {% endwith %}
+      </h4>
 
     {% for place in place_list %}
         <div class="row place-list">
@@ -57,7 +70,9 @@
                 <div class="pull-right">{% include 'hosting/snippets/checked.html' with object=place %}</div>
                 <a href="{{ place.get_absolute_url }}">
                     {% if user.is_authenticated %}
-                        {% if place.city %}&bull;<strong>{{ place.city }}</strong>{% endif %}<br />
+                        {% if place.city %}<strong>{{ place.city }}</strong>{% endif %}
+                        {% if place.distance %}<small>{{ place.distance.km|floatformat:0 }}&nbsp;km</small>{% endif %}
+                        <br>
                         {% if place.state_province %}{{ place.state_province }}, {% endif %} {{ place.country.name }}
                     {% else %}
                         {{ place.country.name }}

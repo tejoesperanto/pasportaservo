@@ -10,6 +10,7 @@ urlpatterns = [
     url(_(r'^admin/'), admin.site.urls),
     url(_(r'^messages/'), include('postman.urls', namespace='postman', app_name='postman')),
     url(_(r'^blog/'), include('blog.urls', namespace='blog')),
+    url(r'^mapo/', include('maps.urls')),
     url('', include('hosting.urls')),
     url('', include('pages.urls')),
     url('', include('links.urls')),

@@ -14,17 +14,17 @@ env.user = 'ps'
 env.use_ssh_config = True
 env.directory = '/srv/%s/pasportaservo'
 env.site = 'staging'  # default
-env.branch = 'master'  # default
+env.branch = 'devel'  # default
 
 @task
 def prod():
     env.site = 'prod'
-    env.branch = 'prod'
+    env.branch = 'master'
 
 @task
 def staging():
     env.site = 'staging'
-    env.branch = 'master'
+    env.branch = 'geo'
 
 @task
 def push(remote='origin', branch='master', runlocal=True):

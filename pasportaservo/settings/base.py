@@ -41,12 +41,12 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
 
     'django_extensions',
     'django_countries',
     'djangocodemirror',
-    'rest_framework',
-    'corsheaders',
+    'djgeojson',
     'phonenumber_field',
     'bootstrapform',
     'postman',
@@ -54,17 +54,17 @@ INSTALLED_APPS = (
     'simplemde',
     'solo',
 
-    'core',
     'blog',
+    'book',
+    'core',
     'hosting',
     'links',
+    'maps',
     'pages',
-    'book',
     'shop',
 )
 
 MIDDLEWARE_CLASSES = (
-    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -116,7 +116,7 @@ STATICFILES_FINDERS = global_settings.STATICFILES_FINDERS + [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'pasportaservo',
     }
 }
@@ -205,4 +205,4 @@ POSTMAN_DISALLOW_MULTIRECIPIENTS = True
 POSTMAN_DISALLOW_COPIES_ON_REPLY = True
 POSTMAN_NOTIFIER_APP = None
 
-OPENCAGE_KEY = 'a27f7e361bdfe11881a987a6e86fb5fd'
+OPENCAGE_API_KEY = 'a27f7e361bdfe11881a987a6e86fb5fd'

@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0037_auto_20170408_1510'),
+        ('hosting', '0037_add_countrygroup_proxy_model'),
     ]
 
     operations = [

@@ -14,7 +14,7 @@ from core.auth import PERM_SUPERVISOR
 
 register = template.Library()
 
-dprint = logging.getLogger('PasportaServo.auth').debug
+auth_log = logging.getLogger('PasportaServo.auth')
 
 
 def _convert_profile_to_user(profile_obj):
@@ -27,17 +27,17 @@ def _convert_profile_to_user(profile_obj):
 @register.filter
 def is_supervisor(user_or_profile):
     user = _convert_profile_to_user(user_or_profile)
-    dprint("* checking if supervising... [ %s %s]",
-           user, "<~ '%s' " % user_or_profile if user != user_or_profile else "")
+    auth_log.debug("* checking if supervising... [ %s %s]",
+        user, "<~ '%s' " % user_or_profile if user != user_or_profile else "")
     return user.has_perm(PERM_SUPERVISOR)
 
 
 @register.filter
 def is_supervisor_of(user_or_profile, profile_or_countries):
     user = _convert_profile_to_user(user_or_profile)
-    dprint("* checking if object is supervised... [ %s %s] [ %s ]",
-           user, "<~ '%s' " % user_or_profile if user != user_or_profile else "",
-           repr(profile_or_countries))
+    auth_log.debug("* checking if object is supervised... [ %s %s] [ %s ]",
+        user, "<~ '%s' " % user_or_profile if user != user_or_profile else "",
+        repr(profile_or_countries))
     if isinstance(profile_or_countries, int):
         try:
             profile_or_countries = Profile.objects.get(pk=profile_or_countries)
@@ -63,8 +63,8 @@ def is_supervisor_of(user_or_profile, profile_or_countries):
 @register.filter
 def supervisor_of(user_or_profile):
     user = _convert_profile_to_user(user_or_profile)
-    dprint("* searching supervised objects... [ %s %s]",
-           user, "<~ '%s' " % user_or_profile if user != user_or_profile else "")
+    auth_log.debug("* searching supervised objects... [ %s %s]",
+        user, "<~ '%s' " % user_or_profile if user != user_or_profile else "")
     for backend in auth.get_backends():
         try:
             return sorted(backend.get_user_supervisor_of(user))

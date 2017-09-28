@@ -123,7 +123,7 @@ class EmailUpdateView(AuthMixin, UserModifyMixin, generic.UpdateView):
         return self.user
 
     def get_owner(self, object):
-        return self
+        return self.user.profile
 
     def form_valid(self, form):
         response = super().form_valid(form)

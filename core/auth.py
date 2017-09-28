@@ -31,7 +31,6 @@ ALL_ROLES = dict(
 
 
 auth_log = logging.getLogger('PasportaServo.auth')
-dprint = auth_log.debug
 
 
 class SupervisorAuthBackend(ModelBackend):
@@ -43,34 +42,34 @@ class SupervisorAuthBackend(ModelBackend):
         Calculate responsibilities, globally or for an optional object.
         The given object may be an iterable of countries, a single country, or a profile.
         """
-        dprint("\tcalculating countries")
+        auth_log.debug("\tcalculating countries")
         cache_name = '_countrygroup_cache'
         if not hasattr(user_obj, cache_name):
-            dprint("\t\t ... storing in cache %s ... ", cache_name)
+            auth_log.debug("\t\t ... storing in cache %s ... ", cache_name)
             user_groups = user_obj.groups.all() if not user_obj.is_superuser else Group.objects.all()
             user_countries = frozenset(Country(g.name) for g in user_groups if len(g.name) == 2)
             setattr(user_obj, cache_name, user_countries)
         supervised = getattr(user_obj, cache_name)
-        dprint("\tobject is %s", repr(obj))
+        auth_log.debug("\tobject is %s", repr(obj))
         if obj is not None:
             if isinstance(obj, Country):
                 countries = [obj]
-                dprint("\t\tGot a Country, %s", countries)
+                auth_log.debug("\t\tGot a Country, %s", countries)
             elif isinstance(obj, Profile):
                 countries = obj.owned_places.filter(deleted=False).values_list('country', flat=True)
-                dprint("\t\tGot a Profile, %s", countries)
+                auth_log.debug("\t\tGot a Profile, %s", countries)
             elif isinstance(obj, Place):
                 countries = [obj.country]
-                dprint("\t\tGot a Place, %s", countries)
+                auth_log.debug("\t\tGot a Place, %s", countries)
             elif hasattr(obj, '__iter__') and not isinstance(obj, str):
                 countries = obj  # assume an iterable of countries
-                dprint("\t\tGot an iterable, %s", countries)
+                auth_log.debug("\t\tGot an iterable, %s", countries)
             else:
                 raise ImproperlyConfigured(
                     "Supervisor check needs either a profile, a country, or a list of countries."
                 )
-            dprint("\t\trequested: %s supervised: %s\n\t\tresult: %s",
-                   set(countries), set(supervised), set(supervised) & set(countries))
+            auth_log.debug("\t\trequested: %s supervised: %s\n\t\tresult: %s",
+                set(countries), set(supervised), set(supervised) & set(countries))
             supervised = set(supervised) & set(countries)
         return supervised if code else [c.name for c in supervised]
 
@@ -87,15 +86,15 @@ class SupervisorAuthBackend(ModelBackend):
         Verify if this user has permission (to an optional object).
         Short-circuits when resposibility is not satisfied.
         """
-        dprint("checking permission:  %s [ %s ] for %s",
-               perm, user_obj, "%s %s" % ("object", repr(obj)) if obj else "any records")
+        auth_log.debug("checking permission:  %s [ %s ] for %s",
+            perm, user_obj, "%s %s" % ("object", repr(obj)) if obj else "any records")
         if perm == PERM_SUPERVISOR and obj is not None:
             all_perms = self.get_all_permissions(user_obj, obj)
             allowed = any(self._perm_sv_particular_re.match(p) for p in all_perms)
         else:
             allowed = super().has_perm(user_obj, perm, obj)
         if perm == PERM_SUPERVISOR and not allowed:
-            dprint("permission to supervise not granted")
+            auth_log.debug("permission to supervise not granted")
             raise PermissionDenied
         return allowed
 
@@ -111,25 +110,25 @@ class SupervisorAuthBackend(ModelBackend):
         If an object is passed in, only permissions matching this object are returned.
         """
         perms = super().get_group_permissions(user_obj, obj)
-        dprint("\tUser's built in perms:  %s", perms)
+        auth_log.debug("\tUser's built in perms:  %s", perms)
         groups = set(self.get_user_supervisor_of(user_obj, code=True))
         if any(groups):
-            dprint("\tUser's groups:  %s", groups)
+            auth_log.debug("\tUser's groups:  %s", groups)
             if obj is None:
                 perms.update([PERM_SUPERVISOR])
             cache_name = '_countrygroup_perm_cache'
             if not hasattr(user_obj, cache_name):
-                dprint("\t\t ... storing in cache %s ... ", cache_name)
+                auth_log.debug("\t\t ... storing in cache %s ... ", cache_name)
                 setattr(user_obj, cache_name, frozenset("%s.%s" % (PERM_SUPERVISOR, g) for g in groups))
-            dprint("\tUser's group perms:  %s", set(getattr(user_obj, cache_name)))
+            auth_log.debug("\tUser's group perms:  %s", set(getattr(user_obj, cache_name)))
             if obj is None:
                 perms.update(getattr(user_obj, cache_name))
             else:
                 groups_for_obj = set(self.get_user_supervisor_of(user_obj, obj, code=True))
                 perms_for_obj = set("%s.%s" % (PERM_SUPERVISOR, g) for g in groups_for_obj)
-                dprint("\tUser's perms for object:  %s", perms_for_obj)
+                auth_log.debug("\tUser's perms for object:  %s", perms_for_obj)
                 perms.update(getattr(user_obj, cache_name) & perms_for_obj)
-        dprint("\tUser's all perms:  %s", perms)
+        auth_log.debug("\tUser's all perms:  %s", perms)
         return perms
 
 
@@ -215,8 +214,9 @@ class AuthMixin(AccessMixin):
         if settings.DEBUG:
             view_name = camel_case_split(self.__class__.__name__)
             raise PermissionDenied(
-                "Not allowed to {0} this {1}.".format(view_name[-2].lower(), " ".join(view_name[0:-2]).lower()),
-                self
+                "Not allowed to {action} this {obj}.".format(
+                    action=view_name[-2].lower(), obj=" ".join(view_name[0:-2]).lower()
+                ), self
             )
         elif self.display_permission_denied and self.request.user.has_perm(PERM_SUPERVISOR):
             raise PermissionDenied(self.get_permission_denied_message(object, context_omitted), self)

@@ -3,7 +3,7 @@ psycopg2==2.6.1
 Pillow==3.2.0
 markdown2==2.3.1
 
-geopy==1.11
+geocoder==1.23.0
 django-braces==1.9.0
 django-bootstrap-form==3.2.1
 django-compressor==2.1.1
@@ -19,6 +19,8 @@ django-cors-headers==1.1.0
 django-sass-processor==0.5.4
 django-simplemde==0.1.0
 django-solo==1.1.2
+django-geojson==2.10.0
+geojson==2.3.0
 itsdangerous==0.24
 sendgrid-django==2.0.0
 pyuca==1.1.2
