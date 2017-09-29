@@ -1,7 +1,7 @@
 -r base.txt
 
-bpython==0.15
-django-debug-toolbar==1.6
+bpython==0.16
+django-debug-toolbar==1.8
 fabric3<2
-pytest-django==3.0.0
-coverage==4.2
+pytest-django==3.1.2
+coverage==4.4.1

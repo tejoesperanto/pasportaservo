@@ -19,7 +19,7 @@ from django.template.loader import get_template
 from django.template import Context
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django.utils.text import slugify
+from django.utils.text import format_lazy, slugify
 from django.utils.translation import ugettext_lazy as _
 
 from blog.models import Post
@@ -31,7 +31,7 @@ from .forms import (
     UsernameUpdateForm, EmailUpdateForm, EmailStaffUpdateForm,
     MassMailForm, UserRegistrationForm
 )
-from hosting.utils import value_without_invalid_marker, format_lazy
+from hosting.utils import value_without_invalid_marker
 from links.utils import create_unique_url
 from .models import SiteConfiguration
 from .utils import send_mass_html_mail

@@ -2,14 +2,14 @@ from datetime import date
 
 from django import forms
 from django.contrib.gis.forms import OSMWidget
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import get_user_model
-
 from django_countries.data import COUNTRIES
 
 from core.models import SiteConfiguration
 from .models import Profile, Place, Phone
-from .utils import format_lazy, geocode
+from .utils import geocode
 from .validators import TooNearPastValidator, client_side_validated
 from .widgets import ClearableWithPreviewImageInput
 from .utils import value_without_invalid_marker
