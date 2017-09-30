@@ -6,16 +6,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-20 11:55+0000\n"
-"PO-Revision-Date: 2017-06-20 14:25+0100\n"
-"Last-Translator: Meir <interDist@users.noreply.github.com>\n"
+"POT-Creation-Date: 2017-09-30 01:15+0000\n"
+"PO-Revision-Date: 2017-09-30 03:21+0200\n"
+"Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.12\n"
+"X-Generator: Poedit 2.0.3\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
 msgid "Published"
@@ -28,7 +28,7 @@ msgid "title"
 msgstr "titolo"
 
 msgid "slug"
-msgstr "URL-titolo"
+msgstr "ligilero"
 
 msgid "Markdown content"
 msgstr "Markdown enhavo"
@@ -543,11 +543,8 @@ msgstr "retpoŝta adreso"
 msgid "user"
 msgstr "uzanto"
 
-msgid "latitude"
-msgstr "latitudo"
-
-msgid "longitude"
-msgstr "longitudo"
+msgid "location"
+msgstr "lokigo"
 
 msgid "owner"
 msgstr "posedanto"
@@ -618,9 +615,6 @@ msgstr ""
 
 msgid "Choose your conditions..."
 msgstr "Elektu viajn kondiĉojn…"
-
-msgid "Please click on the map to choose your location."
-msgstr "Bonvolu klaki la mapon por elekti vian lokon."
 
 msgid "commencing on"
 msgstr "ekde"
@@ -771,6 +765,12 @@ msgstr "poŝtkodo"
 
 msgid "State / Province"
 msgstr "Ŝtato / Provinco"
+
+msgid "latitude"
+msgstr "latitudo"
+
+msgid "longitude"
+msgstr "longitudo"
 
 msgid "maximum number of guest"
 msgstr "maksimuma nombro de gastoj"
@@ -1047,6 +1047,9 @@ msgstr "La retpoŝta adreso de tiu ĉi uzanto ŝajne ne funkcias"
 msgid "Write message"
 msgstr "Sendi mesaĝon"
 
+msgid "Edit location"
+msgstr "Redakti lokigon"
+
 #, python-format
 msgid "Update %(kin)splace"
 msgstr "Redakti %(kin)sloĝejon"
@@ -1069,17 +1072,12 @@ msgstr "Disponebla"
 msgid "Print in book"
 msgstr "Printi en la PS-libreto"
 
-msgid "Click on the map"
-msgstr "Klaku la mapon"
+msgid "Confirm and edit location"
+msgstr "Konfirmi kaj redakti lokigon"
 
-msgid "to select your location"
-msgstr "por elekti vian lokon"
-
-msgid "Where am I?"
-msgstr "Kie mi estas?"
-
-msgid "Search with the address"
-msgstr "Serĉu laŭ la adreso"
+#, python-format
+msgid "No results found for <em>%(query)s</em>. Here is some active hosts!"
+msgstr "Neniu rezultoj por <em>%(query)s</em>. Jen kelkaj aktivaj gastigantoj!"
 
 msgid "unavailable"
 msgstr "maldisponebla"
@@ -1401,6 +1399,9 @@ msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/ejo/krei/$"
 msgid "^place/(?P<pk>\\d+)/update/$"
 msgstr "^ejo/(?P<pk>\\d+)/redakti/$"
 
+msgid "^place/(?P<pk>\\d+)/location/update/$"
+msgstr "^ejo/(?P<pk>\\d+)/lokigo/redakti/$"
+
 msgid "^place/(?P<pk>\\d+)/delete/$"
 msgstr "^ejo/(?P<pk>\\d+)/forigi/$"
 
@@ -1422,6 +1423,7 @@ msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/forpreni/$"
 msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/delete/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/forigi/$"
 
+#, python-brace-format
 msgid ""
 "^lo/(?P<country_code>[A-Z]{2})(?:/book\\:(?P<in_book>(0|1)))?(?:/(?"
 "P<email>email))?/$"
@@ -1810,6 +1812,10 @@ msgstr "kvanto"
 msgid "TEJO discount"
 msgstr "TEJO-rabato"
 
+#, fuzzy, python-format
+#| msgid ""
+#| "If you are member of TEJO or UEA and the 10% discount applies (twice a "
+#| "year)."
 msgid ""
 "If you are member of TEJO or UEA and the 10% discount applies (twice a year)."
 msgstr ""
@@ -1883,3 +1889,18 @@ msgstr "^rezervu/(?P<product_code>\\w+)/$"
 
 msgid "^reservation/(?P<product_code>\\w+)/$"
 msgstr "^rezervado/(?P<product_code>\\w+)/$"
+
+#~ msgid "Please click on the map to choose your location."
+#~ msgstr "Bonvolu klaki la mapon por elekti vian lokon."
+
+#~ msgid "Click on the map"
+#~ msgstr "Klaku la mapon"
+
+#~ msgid "to select your location"
+#~ msgstr "por elekti vian lokon"
+
+#~ msgid "Where am I?"
+#~ msgstr "Kie mi estas?"
+
+#~ msgid "Search with the address"
+#~ msgstr "Serĉu laŭ la adreso"
