@@ -214,8 +214,11 @@ class PlaceUpdateView(UpdateMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, Fo
 place_update = PlaceUpdateView.as_view()
 
 
-class PlaceLocationUpdateView(UpdateMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, generic.UpdateView):
+class PlaceLocationUpdateView(UpdateMixin, AuthMixin, PlaceMixin, generic.UpdateView):
     form_class = PlaceLocationForm
+
+    def get_success_url(self, *args, **kwargs):
+        return reverse_lazy('place_detail_verbose', kwargs={'pk': self.object.pk})
 
 place_location_update = PlaceLocationUpdateView.as_view()
 

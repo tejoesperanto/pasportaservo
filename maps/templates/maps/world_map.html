@@ -1,12 +1,12 @@
 {% extends 'core/base.html' %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block head_title %}Mapo{% endblock %}
 
 {% block extra_head %}
-  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.40.1/mapbox-gl.js'></script>
-  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.40.1/mapbox-gl.css' rel='stylesheet' />
-  <script defer src='/static/world-map.js'></script>
+    <link href="{{ MAPBOX_GL_CSS }}" rel="stylesheet" />
+    <script src="{{ MAPBOX_GL_JS }}"></script>
+    <script src="{% static 'maps/world-map.js' %}"></script>
 {% endblock extra_head %}
 
 {% block pre-page %}

@@ -11,6 +11,9 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django_countries.fields import Country
 
+from django.contrib.gis.db.models import PointField
+from maps.widgets import MapboxGlWidget
+
 from .models import Profile, Place, Phone, Website, Condition, ContactPreference
 from .admin_utils import (
     ShowConfirmedMixin, ShowDeletedMixin,
@@ -231,7 +234,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
 
 
 @admin.register(Place)
-class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, gis_admin.OSMGeoAdmin):
+class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     list_display = (
         'city', 'postcode', 'state_province', 'display_country',
         'display_location',
@@ -259,6 +262,9 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, gis_admin.OSMGeoAdmin):
         'available', 'in_book', ('tour_guide', 'have_a_drink'), 'sporadic_presence',
         'family_members', 'authorized_users',
     ) + TrackingModelAdmin.fields
+    formfield_overrides = {
+        PointField: {'widget': MapboxGlWidget},
+    }
     raw_id_fields = ('owner', 'authorized_users',) #'checked_by',)
     filter_horizontal = ('family_members',)
 
