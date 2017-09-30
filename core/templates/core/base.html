@@ -6,11 +6,6 @@
         {% block messages %}
             {% for message in messages %}{% include "core/message.html" %}{% endfor %}
         {% endblock %}
-
-        {% blocktrans asvar msg trimmed %}
-            <a href="http://katalogo.uea.org/katalogo.php?inf=3474" target="_blank">Aĉetu nun la libreton <big>Pasporta Servo 2017</big>!</a>
-        {% endblocktrans %}
-        {% include "core/message.html" with message=msg|safe level='success' monthly=True sticky_class='PS_2017' %}
     </section>
     <header class="container-fluid{% block header_class %}{% endblock %}">
         {% block header %}
@@ -19,7 +14,7 @@
                     <a href="{% url 'home' %}">P<span class="hidden-xs">asporta&nbsp;</span>S<span class="hidden-xs">ervo</span></a>
                 </div>
                 <div class="hidden-xs col-sm-3 col-md-3" id="subtitle">
-                    <a href="http://katalogo.uea.org/katalogo.php?inf=3474" target="_blank">Aĉetu nun la novan adreslibron 2017!</a>
+                    La fama gastiga servo por esperantistoj
                 </div>
                 <div class="col-xs-3 col-sm-2 col-md-1 col-md-offset-4 enveloppe links">
                     {% if user.is_authenticated %}

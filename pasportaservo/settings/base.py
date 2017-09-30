@@ -132,6 +132,10 @@ USE_TZ = True
 
 SITE_ID = 1
 
+ADMINS = (
+    ('Pasporta Servo', 'saluton@pasportaservo.org'),
+)
+
 AUTH_PROFILE_MODULE = 'hosting.Profile'
 
 LOGIN_URL = 'login'
@@ -156,31 +160,6 @@ INVALID_PREFIX = 'INVALID_'
 
 
 from djangocodemirror.settings import *  # noqa
-
-
-CORS_ORIGIN_WHITELIST = (
-    'pasportaservo.org',
-    'localhost:4200',
-    'localhost:8000',
-)
-
-REST_FRAMEWORK = {
-    'PAGE_SIZE': 50,
-    'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
-    'DEFAULT_PAGINATION_CLASS':
-        'rest_framework_json_api.pagination.PageNumberPagination',
-    'DEFAULT_PARSER_CLASSES': (
-        'rest_framework_json_api.parsers.JSONParser',
-        'rest_framework.parsers.FormParser',
-        'rest_framework.parsers.MultiPartParser'
-    ),
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework_json_api.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ),
-    'DEFAULT_METADATA_CLASS': 'rest_framework_json_api.metadata.JSONAPIMetadata',
-}
-JSON_API_FORMAT_KEYS = 'dasherize'
 
 # Helps entering phone numbers with "00" instead of "+"
 # This means: Interpret phone number as dialed in Poland
