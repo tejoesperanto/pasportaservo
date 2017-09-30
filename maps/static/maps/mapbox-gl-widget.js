@@ -3,7 +3,9 @@
 window.addEventListener("load", loaded);
 
 function loaded() {
+
     let field = document.getElementById('id_location');
+
     try {
         var initial = JSON.parse(field.value).coordinates;
     } catch (error) {
@@ -12,7 +14,7 @@ function loaded() {
 
     var map = new mapboxgl.Map({
         container: 'map',
-        style: 'https://openmaptiles.github.io/positron-gl-style/style-cdn.json',
+        style: '/mapo/positron-gl-style.json',
         minZoom: 1,
         maxZoom: 17,
         zoom: 1.5,

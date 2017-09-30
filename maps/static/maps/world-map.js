@@ -3,20 +3,11 @@
 window.addEventListener("load", loaded);
 
 
-// https://openmaptiles.org/styles/
-const STYLES = {
-    'osm-bright': 'https://openmaptiles.github.io/osm-bright-gl-style/style-cdn.json',
-    'positron': 'https://openmaptiles.github.io/positron-gl-style/style-cdn.json',
-    'dark-matter': 'https://openmaptiles.github.io/dark-matter-gl-style/style-cdn.json',
-    'klokantech-basic': 'https://openmaptiles.github.io/klokantech-basic-gl-style/style-cdn.json',
-    'liberty': 'http://osm-liberty.lukasmartinelli.ch/style.json',
-}
-
 function loaded() {
 
     var map = new mapboxgl.Map({
         container: 'map',
-        style: 'https://openmaptiles.github.io/positron-gl-style/style-cdn.json',
+        style: '/mapo/positron-gl-style.json',
         hash: true,
         minZoom: 1.5,
         maxZoom: 15,
