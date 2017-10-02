@@ -18,11 +18,6 @@ ALLOWED_HOSTS = [
     'pasportaservo.org',
 ]
 
-ADMINS = (
-    ('Pasporta Servo', 'saluton@pasportaservo.org'),
-    ('Baptiste Darthenay', 'baptiste.darthenay@gmail.com'),
-)
-
 SECURE_SSL_REDIRECT = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 SESSION_COOKIE_SECURE = True

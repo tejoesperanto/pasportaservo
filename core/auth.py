@@ -8,11 +8,12 @@ from django.core.exceptions import PermissionDenied, ImproperlyConfigured
 from django.http import Http404
 from django.conf import settings
 from django.views import generic
-from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import keep_lazy_text
-from hosting.utils import format_lazy
+from django.utils.translation import ugettext_lazy as _
+from django.utils.text import format_lazy
 
 from django_countries.fields import Country
+
 from hosting.models import Profile, Place
 
 from .utils import camel_case_split

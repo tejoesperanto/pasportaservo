@@ -132,6 +132,10 @@ USE_TZ = True
 
 SITE_ID = 1
 
+ADMINS = (
+    ('Pasporta Servo', 'saluton@pasportaservo.org'),
+)
+
 AUTH_PROFILE_MODULE = 'hosting.Profile'
 
 LOGIN_URL = 'login'
@@ -157,31 +161,6 @@ INVALID_PREFIX = 'INVALID_'
 
 from djangocodemirror.settings import *  # noqa
 
-
-CORS_ORIGIN_WHITELIST = (
-    'pasportaservo.org',
-    'localhost:4200',
-    'localhost:8000',
-)
-
-REST_FRAMEWORK = {
-    'PAGE_SIZE': 50,
-    'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
-    'DEFAULT_PAGINATION_CLASS':
-        'rest_framework_json_api.pagination.PageNumberPagination',
-    'DEFAULT_PARSER_CLASSES': (
-        'rest_framework_json_api.parsers.JSONParser',
-        'rest_framework.parsers.FormParser',
-        'rest_framework.parsers.MultiPartParser'
-    ),
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework_json_api.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ),
-    'DEFAULT_METADATA_CLASS': 'rest_framework_json_api.metadata.JSONAPIMetadata',
-}
-JSON_API_FORMAT_KEYS = 'dasherize'
-
 # Helps entering phone numbers with "00" instead of "+"
 # This means: Interpret phone number as dialed in Poland
 PHONENUMBER_DEFAULT_REGION = 'PL'
@@ -197,6 +176,7 @@ def user_first_name(user):
     except ObjectDoesNotExist:
         return user.username
 
+
 POSTMAN_AUTO_MODERATE_AS = True
 POSTMAN_MAILER_APP = None
 POSTMAN_SHOW_USER_AS = user_first_name
@@ -206,3 +186,21 @@ POSTMAN_DISALLOW_COPIES_ON_REPLY = True
 POSTMAN_NOTIFIER_APP = None
 
 OPENCAGE_API_KEY = 'a27f7e361bdfe11881a987a6e86fb5fd'
+
+MAPBOX_GL_BASE_STATIC = 'https://api.tiles.mapbox.com/mapbox-gl-js/v0.40.1/mapbox-gl.{ext}'
+MAPBOX_GL_CSS = MAPBOX_GL_BASE_STATIC.format(ext='css')
+MAPBOX_GL_JS = MAPBOX_GL_BASE_STATIC.format(ext='js')
+
+# https://openmaptiles.com/hosting/
+OPENMAPTILES_API_KEY = 'iQbjILhp2gs0dgNfTlIV'
+
+# https://github.com/openmaptiles/openmaptiles/openmaptiles.yaml
+OPENMAPTILES_LANGUAGES = (
+    # 'eo',
+    'ar', 'az', 'be', 'bg', 'br', 'bs', 'ca', 'cs', 'cy', 'da', 'de', 'el',
+    'en', 'es', 'et', 'fi', 'fr', 'fy', 'ga', 'gd', 'he', 'hr', 'hu',
+    'hy', 'is', 'it', 'ja', 'ja_kana', 'ja_rm', 'ka', 'kk', 'kn', 'ko',
+    'ko_rm', 'la', 'lb', 'lt', 'lv', 'mk', 'mt', 'nl', 'no', 'pl', 'pt',
+    'rm', 'ro', 'ru', 'sk', 'sl', 'sq', 'sr', 'sr-Latn', 'sv', 'th', 'tr',
+    'uk', 'zh',
+)

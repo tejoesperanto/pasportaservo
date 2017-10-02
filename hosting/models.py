@@ -13,6 +13,7 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
+from django.utils.text import format_lazy
 
 from django_extensions.db.models import TimeStampedModel
 from django.contrib.auth.models import Group
@@ -27,7 +28,7 @@ from .validators import (
     validate_not_in_future, TooFarPastValidator,
     validate_image, validate_size,
 )
-from .utils import UploadAndRenameAvatar, value_without_invalid_marker, format_lazy
+from .utils import UploadAndRenameAvatar, value_without_invalid_marker
 from .gravatar import email_to_gravatar
 
 

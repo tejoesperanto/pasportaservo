@@ -67,11 +67,3 @@ def sort_by_name(iterable):
     c = Collator()
     key = lambda obj: c.sort_key(str(obj.name))
     return sorted(iterable, key=key)
-
-
-try:
-    from django.utils.text import format_lazy as _format_lazy  # coming in Django 1.11
-    format_lazy = _format_lazy
-except ImportError:
-    from django.utils.functional import keep_lazy_text
-    format_lazy = keep_lazy_text(lambda s, *args, **kwargs: s.format(*args, **kwargs))

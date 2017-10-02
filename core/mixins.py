@@ -1,9 +1,9 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.mixins import LoginRequiredMixin as AuthenticatedUserRequiredMixin
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import keep_lazy_text
-from hosting.utils import format_lazy
+from django.utils.translation import ugettext_lazy as _
+from django.utils.text import format_lazy
 
 from django_countries.fields import Country
 

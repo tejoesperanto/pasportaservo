@@ -111,7 +111,7 @@ header.home .links {
 }
 
 header.home #title, .same-as-home-title {
-    font-size: 7em;
+    font-size: 5em;
     text-align: center;
     margin-top: 1rem;
     padding-bottom: 0.25em;
@@ -557,7 +557,7 @@ header:not(.home) #subtitle,
 /* LG */
 @media (min-width: 1170px) {
     header.home form.search {
-        margin-bottom: 8em;
+        margin-bottom: 5em;
     }
     header.home #title {
         margin-top: 1em;

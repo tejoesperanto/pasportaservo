@@ -6,8 +6,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.utils.deconstruct import deconstructible
 from django.template.defaultfilters import filesizeformat
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
-from .utils import format_lazy
 
 from .utils import split, title_with_particule
 
