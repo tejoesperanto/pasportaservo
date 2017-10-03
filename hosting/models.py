@@ -348,10 +348,14 @@ class Place(TrackingModel, TimeStampedModel):
 
     @property
     def lat(self):
+        if not self.location or self.location.empty:
+            return 0
         return round(self.location.y, 2)
 
     @property
     def lng(self):
+        if not self.location or self.location.empty:
+            return 0
         return round(self.location.x, 2)
 
     @property
