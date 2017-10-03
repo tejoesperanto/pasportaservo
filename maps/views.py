@@ -28,7 +28,12 @@ class MapStyleView(generic.TemplateView):
         return ['maps/styles/{}-gl-style.json'.format(self.style)]
 
     def get_language(self):
-        languages = parse_accept_language(self.request.META['HTTP_ACCEPT_LANGUAGE'])
+        try:
+            language_string = self.request.META['HTTP_ACCEPT_LANGUAGE']
+        except KeyError:
+            return 'en'
+
+        languages = parse_accept_language(language_string)
         for lang in languages:
             if lang.language in settings.OPENMAPTILES_LANGUAGES:
                 return lang.language
