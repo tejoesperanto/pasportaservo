@@ -34,7 +34,7 @@
       {% with result=view.result %}
         {% if result.point %}
           {{ result|format_result }}
-          <p><a href="{% url 'world_map' %}#6/{{ result.latlng|join:'/' }}">Vidi regionan mapon</a></p>
+          <p><a href="{% url 'world_map' %}{{ result|geo_url_hash }}">Vidi regionan mapon</a></p>
         {% else %}
           {% blocktrans with query=view.query trimmed %}
             No results found for <em>{{ query }}</em>. Here is some active hosts!
