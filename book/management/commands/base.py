@@ -9,7 +9,7 @@ from pyuca import Collator
 from django.core.management.base import CommandError
 from django.conf import settings
 from django.utils import translation
-from django.template import Template, Context
+from django.template import Template
 
 from django_countries import countries
 
@@ -90,13 +90,13 @@ class LatexCommand(object):
         return sorted(sorted(sorted(places, key=city_key), key=region_key), key=country_key)
 
     def get_context_data(self):
-        return Context({
+        return {
             'year': 2017,
             'places': self.get_objects(),
             'INVALID_PREFIX': settings.INVALID_PREFIX,
             'ADDRESS_ONLY': self.address_only,
             'COUNTRIES_WITH_REGIONS': settings.COUNTRIES_WITH_REGIONS,
-        })
+        }
 
     def render_tex(self, tmp, template_name):
         with open(join(tmp, template_name), 'r') as f:

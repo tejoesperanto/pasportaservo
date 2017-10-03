@@ -13,7 +13,6 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.template.loader import get_template
-from django.template import Context
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from django.utils.six.moves.urllib.parse import unquote_plus
@@ -514,11 +513,11 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
         subject = _("[Pasporta Servo] You received an Authorization")
         email_template_text = get_template('email/new_authorization.txt')
         email_template_html = get_template('email/new_authorization.html')
-        email_context = Context({
+        email_context = {
             'site_name': config.site_name,
             'user': user,
             'place': place,
-        })
+        }
         send_mail(
             subject,
             email_template_text.render(email_context),

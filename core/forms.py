@@ -7,7 +7,6 @@ from django.db.models import Q, Value as V
 from django.db.models.functions import Concat
 from django.core.mail import send_mail
 from django.template.loader import get_template
-from django.template import Context
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
@@ -97,12 +96,12 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
             'pk': self.instance.pk,
             'email': new_email,
         })
-        context = Context({
+        context = {
             'site_name': config.site_name,
             'url': url,
             'user': self.instance,
             'email': new_email,
-        })
+        }
         subject = _("[Pasporta Servo] Change of email address")
         for old_new in ['old', 'new']:
             email_template_text = get_template('email/%s_email_update.txt' % old_new)

@@ -16,7 +16,6 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
 from django.template.loader import get_template
-from django.template import Context
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy, slugify
@@ -151,11 +150,11 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
             'pk': request.user.pk,
             'email': email_to_verify,
         })
-        context = Context({
+        context = {
             'site_name': config.site_name,
             'url': url,
             'user': request.user,
-        })
+        }
         subject = _("[Pasporta Servo] Is this your email address?")
         email_template_text = get_template('email/system-email_verify.txt')
         email_template_html = get_template('email/system-email_verify.html')
@@ -315,11 +314,11 @@ class MassMailView(AuthMixin, generic.FormView):
 
         if category == 'test':
             test_email = form.cleaned_data['test_email']
-            context = Context({
+            context = {
                 'preheader': preheader,
                 'heading': heading,
                 'body': mark_safe(md_body.format(nomo=test_email)),
-            })
+            }
             messages = [(
                 subject,
                 body.format(nomo=test_email),
@@ -329,10 +328,10 @@ class MassMailView(AuthMixin, generic.FormView):
             )]
 
         else:
-            context = Context({
+            context = {
                 'preheader': preheader,
                 'heading': heading,
-            })
+            }
             messages = [(
                 subject,
                 body.format(nomo=profile.name),
