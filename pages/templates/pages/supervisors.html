@@ -11,7 +11,9 @@
         <script src="{% static 'js/supervisors.js' %}"></script>
         <script>
             {% if perms.hosting.can_supervise %}
-                window.switchActiveTab({% if view.kwargs.in_book is None %}true{% endif %});
+                $(document).ready(function() {
+                    window.switchActiveTab({% if view.kwargs.in_book is None %}true{% endif %});
+                });
             {% endif %}
         </script>
 {% endblock %}
