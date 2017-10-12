@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.contrib.gis.db.models.functions import Distance
 from django.views import generic
 from django.conf import settings
+from django.db import models
 from django.http import QueryDict, HttpResponseRedirect, Http404, JsonResponse
 from django.template.response import TemplateResponse
 from django.views.decorators.vary import vary_on_headers
@@ -389,7 +390,7 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
     def dispatch(self, request, *args, **kwargs):
         self.country = Country(kwargs['country_code'])
         kwargs['auth_base'] = self.country
-        self.in_book = {'0': False, '1': True, None: True}[kwargs['in_book']]
+        self.in_book = {'0': False, '1': True, None: None}[kwargs['in_book']]
         self.invalid_emails = kwargs['email']
         return super().dispatch(request, *args, **kwargs)
 
@@ -401,7 +402,10 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
 
     def get_queryset(self):
         self.base_qs = self.model.available_objects.filter(country=self.country.code)
-        qs = self.base_qs.filter(in_book=self.in_book)
+        if self.in_book is not None:
+            qs = self.base_qs.filter(in_book=self.in_book)
+        else:
+            qs = self.base_qs
         if self.invalid_emails:
             qs = qs.filter(owner__user__email__startswith=settings.INVALID_PREFIX)
         return qs.prefetch_related('owner__user', 'owner__phones').order_by('-confirmed', 'checked', 'owner__last_name')
@@ -410,9 +414,14 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
         context = super().get_context_data(**kwargs)
         context['in_book_count'] = self.base_qs.filter(in_book=True).count()
         context['not_in_book_count'] = self.base_qs.filter(in_book=False).count()
-        context['place_count'] = self.base_qs.filter(in_book=self.in_book).count()
-        context['checked_count'] = self.base_qs.filter(in_book=self.in_book, checked=True).count()
-        context['confirmed_count'] = self.base_qs.filter(in_book=self.in_book, confirmed_on__isnull=False).count()
+        if self.in_book is not None:
+            book_filter = models.Q(in_book=self.in_book)
+            context['place_count'] = context['in_book_count'] if self.in_book else context['not_in_book_count']
+        else:
+            book_filter = models.Q()
+            context['place_count'] = context['in_book_count'] + context['not_in_book_count']
+        context['checked_count'] = self.base_qs.filter(book_filter, checked=True).count()
+        context['confirmed_count'] = self.base_qs.filter(book_filter, confirmed=True).count()
         context['not_confirmed_count'] = context['place_count'] - context['confirmed_count']
         context['invalid_emails_count'] = self.base_qs.filter(
             owner__user__email__startswith=settings.INVALID_PREFIX).count()

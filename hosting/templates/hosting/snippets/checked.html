@@ -2,7 +2,8 @@
 {% spaceless %}
 {% if perms.hosting.can_supervise %}
     {% if object.checked %}
-        <span class="staff label label-success"
+        <{% if button %}button type="button" {% if button_id %}id="{{ button_id }}"{% endif %}{% else %}span{% endif %}
+              class="staff {% if button %}btn btn-success disabled{% else %}label label-success{% endif %}"
               title="{% if object.checked_by %}
                         {% trans "approved by"|capfirst %}
                         {% if object.checked_by.profile %}
@@ -13,13 +14,14 @@
                      {% else %}
                         {% trans "approver unknown"|capfirst %}
                      {% endif %}"
-              data-toggle="tooltip-lasting" data-placement="bottom" data-html="true">
+              data-toggle="tooltip-lasting" data-placement="bottom" data-container="body" data-html="true">
             <span class="glyphicon glyphicon-ok-circle"></span> <span>&nbsp;{% trans "Checked" %}</span>
-        </span>
+        </{% if button %}button{% else %}span{% endif%}>
     {% else %}
-        <span class="staff label label-warning">
+        <{% if button %}button type="button" {% if button_id %}id="{{ button_id }}"{% endif %}{% else %}span{% endif %}
+              class="staff {% if button %}btn btn-warning disabled{% else %}label label-warning{% endif %}">
             <span class="glyphicon glyphicon-remove-circle"></span> <span>&nbsp;{% trans "Not checked" %}</span>
-        </span>
+        </{% if button %}button{% else %}span{% endif%}>
     {% endif %}
 {% endif %}
 {% endspaceless %}

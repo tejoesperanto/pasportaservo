@@ -285,7 +285,7 @@ msgid "Please go to the following page to confirm your new email address:"
 msgstr "Bonvole iru al la jena paĝo por konfirmi vian novan retadreson:"
 
 msgid "Your username, in case you've forgotten:"
-msgstr "Via uzantnomo, kaze ke vi forgesis:"
+msgstr "Via salutnomo, kaze ke vi forgesis:"
 
 #, python-format
 msgid ""
@@ -1109,29 +1109,57 @@ msgstr "En la libreto"
 msgid "Not in the book"
 msgstr "Ne en la libreto"
 
+msgid "All hosts"
+msgstr "Ĉiuj gastigantoj"
+
 msgid "invalid emails"
 msgstr "nefunkciantaj retadresoj"
 
+msgctxt "URL"
 msgid "not-confirmed"
-msgstr "ne-konfirmita"
+msgstr "ne-konfirmite"
+
+msgctxt "URL"
+msgid "confirmed"
+msgstr "konfirmite"
+
+msgid "Check?"
+msgstr "Ĉu kontroli?"
 
 msgid "Checked"
 msgstr "Kontrolita"
 
-msgid "check?"
-msgstr "ĉu kontroli?"
-
-msgid "not checked"
-msgstr "nekontrolita"
+msgid "Not checked"
+msgstr "Nekontrolita"
 
 msgid "last login"
 msgstr "lasta ensaluto"
+
+msgid "last modification"
+msgstr "lasta redakto"
+
+#, python-format
+msgid "%(age)s y.o."
+msgstr "%(age)s-jaraĝa"
+
+msgid "Esperanto letters?"
+msgstr "Esperantaj literoj?"
+
+msgid "Description too long."
+msgstr "Priskribo tro longa."
 
 msgid "Mark invalid"
 msgstr "Marki kiel nefunkcianta"
 
 msgid "Update email"
 msgstr "Redakti retadreson"
+
+msgid ""
+"The description or phone note seems to contain Esperanto written in a "
+"surrogate manner. Accept such text?"
+msgstr ""
+"La priskribo aŭ la rimarkigo pri telefona numero ŝajne enhavas ne-normajn "
+"Esperanto-literojn (anstataŭ ĉapelitajn). Ĉu akcepti tian tekston?"
 
 msgid "Change user's public email"
 msgstr "Modifi publikan adreson de uzanto"
@@ -1194,9 +1222,8 @@ msgstr "Modifi konton"
 msgid "last confirmed on"
 msgstr "laste konfirmita je"
 
-#, python-format
-msgid "%(age)s y.o."
-msgstr "%(age)s-jaraĝa"
+msgid "Not confirmed"
+msgstr "Ne konfirmita"
 
 msgid "About me"
 msgstr "Pri mi"
@@ -1279,9 +1306,6 @@ msgid "We send e-mails to this address. It will never be public."
 msgstr ""
 "Ni sendas retmesaĝojn al tiu ĉi retpoŝta adreso. Ĝi neniam estos publika."
 
-msgid "set-public-email"
-msgstr "agordi-publikan-adreson"
-
 msgid "Public email?"
 msgstr "Publika retadreso?"
 
@@ -1305,9 +1329,6 @@ msgstr "Forigi konton"
 
 msgid "approver unknown"
 msgstr "aprobanto nekonata"
-
-msgid "Not checked"
-msgstr "Nekontrolita"
 
 msgid "I am not available over here"
 msgstr "Mi ne disponeblas ĉi tie"
@@ -1429,7 +1450,7 @@ msgid ""
 "P<email>email))?/$"
 msgstr ""
 "^lo/(?P<country_code>[A-Z]{2})(?:/libro\\:(?P<in_book>(0|1)))?(?:/(?"
-"P<email>email))?/$"
+"P<email>retadreso))?/$"
 
 msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/phone/create/$"
 msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/telefono/krei/$"
@@ -1535,11 +1556,14 @@ msgstr ""
 msgid "You've been automatically logged in. Happy editing!"
 msgstr "Vi estas aŭtomate ensalutita. Bonan redaktadon!"
 
+msgid "countries-list"
+msgstr "landolisto"
+
 msgid "code"
 msgstr "kodo"
 
-msgid "Progress"
-msgstr "Progreso"
+msgid "status"
+msgstr "stato"
 
 msgid "place checked"
 msgid_plural "places checked"
@@ -1560,8 +1584,8 @@ msgstr "^kond/$"
 msgid "^faq/$"
 msgstr "^oftaj-demandoj/$"
 
-msgid "^lo/$"
-msgstr "^lo/$"
+msgid "^lo(?:/book\\:(?P<in_book>1))?/$"
+msgstr "^lo(?:/libro\\:(?P<in_book>1))?/$"
 
 msgid "^supervisors/$"
 msgstr "^landaj-organizantoj/$"
@@ -1714,7 +1738,7 @@ msgid "To answer this message, follow this link:"
 msgstr "Por respondi tiun ĉi mesaĝon, klaku la ligilon:"
 
 msgid "The sender's profile page:"
-msgstr ""
+msgstr "La profilpaĝo de la mesaĝanto:"
 
 msgid ""
 "Note: This message is issued by an automated system.\n"

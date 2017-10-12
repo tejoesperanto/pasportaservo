@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n static profile %}
+{% load i18n static expression profile %}
 
 {% block head_title %}
     {% if view.role == roles.OWNER %}
@@ -105,13 +105,13 @@
                 {% if perms.hosting.can_supervise %}
                     {% if profile.confirmed %}
                         {% trans "confirmed on" as confirm_title %}
-                        {% firstof "text-success" as confirm_color %}
+                        {% expr "text-success" as confirm_color %}
                     {% elif profile.confirmed_on %}
                         {% trans "last confirmed on" as confirm_title %}
-                        {% firstof "text-warning" as confirm_color %}
+                        {% expr "text-warning" as confirm_color %}
                     {% else %}
-                        {% blocktrans count counter=1 asvar confirm_title %}not confirmed{% plural %}not confirmed{% endblocktrans %}
-                        {% firstof "text-warning" as confirm_color %}
+                        {% trans "Not confirmed"|lower as confirm_title %}
+                        {% expr "text-warning" as confirm_color %}
                     {% endif %}
                     <div class="edit-buttons btn history-link"
                          title="{% trans "profile" %} {{ confirm_title }} <br> {{ profile.confirmed_on|date:"DATE_FORMAT" }}"

@@ -95,6 +95,8 @@ $(document).ready(function() {
     $('.ajax').click(function(e) {
         e.preventDefault();
         var $this = $(this), target, requestType;
+        if (ajaxSetup($this) === false)
+            return;
         if ($this.is('a')) {
             target = $this.attr('href');
             requestType = $this.data('method') || "GET";
@@ -161,10 +163,16 @@ $(document).ready(function() {
         }
     };
 
+    window.checkPlaceSetup = function($this) {
+        if ($this.parents('.place-supervisor-detail').find('.text-surrogate').length > 0) {
+            return window.confirm(window.checkPlaceTextSurrogateWarning);
+        }
+    };
+
     window.checkPlaceSuccess = function($this) {
         ditchForm($this);
-        $this.removeClass('ajax');
-        $this.removeClass('btn-warning').addClass('btn-success');
+        $this.removeClass('ajax')
+             .removeClass('btn-warning').addClass('btn-success');
         $this.closest('.callout').addClass('callout-success');
         if ($this.data('success-text')) {
             $this.text($this.data('success-text'));

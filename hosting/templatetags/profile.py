@@ -1,4 +1,5 @@
 import logging
+import re
 
 from django import template
 from django.contrib import auth
@@ -80,3 +81,10 @@ def is_invalid(value):
 @register.filter
 def clear_invalid(value):
     return value_without_invalid_marker(value)
+
+
+@register.filter
+def is_esperanto_surrogate(value):
+    return re_esperanto.search(value)
+
+re_esperanto = re.compile(r'cx|gx|hx|jx|sx|ux|ch|gh|hh|jh|sh|c\^|g\^|h\^|j\^|s\^|u\^|u~|\^c|\^g|\^h|\^j|\^s|\^u|~u')
