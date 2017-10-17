@@ -1,9 +1,9 @@
-// @source: https://github.com/tejo-esperanto/pasportaservo/blob/master/pasportaservo/static/js/gestures.js
+// @source: https://github.com/tejo-esperanto/pasportaservo/blob/master/core/static/js/gestures.js
 // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL v3
 
 
 (function ($) {
-    $.fn.swipeoff = function (callback) {
+    var gestureSwipeOff = function (callback) {
         var $el = $(this);
         var moveStartX = undefined, moveStartY = undefined;
         var origOffset = $el.offset().left;
@@ -12,11 +12,13 @@
         var $container =
             $(document.createElement('div'))
                 .css({'position': 'relative', 'overflow': 'hidden',
+                      'width': '100%',
                       'border-style': 'dotted', 'border-width': 0,
                       'border-left-color': $el.css('border-left-color'),
                       'border-right-color': $el.css('border-right-color'),
                       'margin-bottom': $el.css('margin-bottom')})
-                .insertBefore($el).append($el);
+                .insertBefore($el).append($el)
+                .parent().css('overflow', 'hidden').end();
         $el.css({'position': 'relative', 'margin-bottom': 0});
 
         // Cancelation
@@ -43,10 +45,8 @@
                 cancelSwipe();
                 return;
             }
-            if (diffX > 0)
-                $container.css('border-right-width', '1px');
-            else
-                $container.css('border-left-width', '1px');
+            $container.css('border-right-width', diffX > 0 ? '1px' : '0');
+            $container.css('border-left-width', diffX > 0 ? '0' : '1px');
             $el.animate({ left: diffX }, 0);
 
             // If threshold exceeded (to the left or to the right),
@@ -70,6 +70,10 @@
         })
         .on('pointerup pointerout pointercancel', cancelSwipe);
     };
+
+    $.fn.swipeoff = function (callback) {
+        $(this).each(function() { gestureSwipeOff.call(this, callback); });
+    }
 }(jQuery));
 
 
