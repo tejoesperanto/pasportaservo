@@ -1,10 +1,28 @@
-<article>
-  <h3 class="title">
-    <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
-    <small class="pull-right">{{ post.pub_date.date }}</small>
-  </h3>
+{% load i18n %}
+<article class="blog-post">
+    <h{{ header_level|default:3 }} class="post-title clearfix">
+        <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+        <small class="post-published pull-right">
+            <span class="sr-only">{% trans "published on" %} :</span>
+            {{ post.pub_date.date }}
+        </small>
+    </h{{ header_level|default:3 }}>
 
-  <blockquote>
-    {{ post.description|safe }}
-  </blockquote>
+    {% if quote %}<blockquote>{% endif %}
+        {{ post.description|safe }}
+
+        {% if post.description != post.body and more_type == 1 %}
+            <a href="{{ post.get_absolute_url }}" class="text-center text-nowrap {{ more_class }}">
+                <em>{% trans "read more" %} &#x279e;</em>
+            </a>
+        {% endif %}
+        {% if post.description != post.body and more_type == 2 %}
+            <p>
+                &nbsp;
+                <span class="help-block text-nowrap {{ more_class }}">
+                    [&nbsp;&bull;&thinsp;&bull;&thinsp;&bull;&nbsp;]
+                </span>
+            </p>
+        {% endif %}
+    {% if quote %}</blockquote>{% endif %}
 </article>

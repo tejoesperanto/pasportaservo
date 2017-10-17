@@ -1,27 +1,28 @@
-{% extends 'core/base.html' %}
+{% extends 'blog/base_blog.html' %}
 {% load i18n %}
 
+{% block head_title %}{% trans "News" %}{% endblock %}
+
 {% block page %}
-<section class="blog row">
-  <div class="col-md-offset-2 col-md-8">
-    <h1 class="title">{% trans 'News' %}</h1>
-    {% if perms.blog %}
-        <a href="{% url 'admin:blog_post_add' %}" class="btn btn-primary pull-right">
-            <span class="glyphicon glyphicon-plus"></span>
-            <strong>{% trans "Add" %}</strong>
-        </a>
-    {% endif %}
+    <section class="blog row">
+        <div class="col-xxs-12 col-xs-offset-1 col-xs-10 col-md-offset-2 col-md-8">
+            <div class="btn-toolbar pull-right" role="toolbar">
+                {% if perms.blog %}
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'admin:blog_post_add' %}" class="btn btn-primary" title="{% trans "Add" %}">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            {% trans "Add" %}
+                        </a>
+                    </div>
+                {% endif %}
+                {% include 'blog/subscribe.html' %}
+            </div>
+            <h1 class="title">{% trans "The last news about Pasporta Servo" %}</h1>
 
-    {% for post in post_list %}
-      <article>
-        <h2><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h2>
-
-        {{ post.description|safe }}
-
-        <a href="{{ post.get_absolute_url }}" class="text-center">legu pli</a>
-      </article>
-      <hr>
-    {% endfor %}
-  </div>
-</section>
+            {% for post in post_list %}
+                {% include 'blog/post.html' with post=post header_level=2 more_type=1 only %}
+                <hr />
+            {% endfor %}
+        </div>
+    </section>
 {% endblock page %}

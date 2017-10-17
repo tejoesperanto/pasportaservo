@@ -31,13 +31,19 @@ class PublishedManager(models.Manager):
 
 
 class Post(TimeStampedModel):
-    title = models.CharField(_("title"), max_length=200)
-    slug = models.SlugField(_("slug"), unique=True)
+    title = models.CharField(_("title"),
+        max_length=200)
+    slug = models.SlugField(_("slug"),
+        unique=True)
     content = SimpleMDEField(_("Markdown content"))
-    body = models.TextField(_("HTML content"), blank=True)
-    description = models.TextField(_("HTML description"), blank=True)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("author"))
-    pub_date = models.DateTimeField(_("publication date"), null=True, blank=True)
+    body = models.TextField(_("HTML content"),
+        blank=True)
+    description = models.TextField(_("HTML description"),
+        blank=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("author"),
+        blank=True, null=True, on_delete=models.SET_NULL)
+    pub_date = models.DateTimeField(_("publication date"),
+        null=True, blank=True)
 
     objects = PublishedManager()
 
@@ -50,14 +56,14 @@ class Post(TimeStampedModel):
         return self.title
 
     def __repr__(self):
-        return '<Post: {}>'.format(self.slug)
+        return "<Post: {}>".format(self.slug)
 
     def get_absolute_url(self):
         return reverse_lazy('blog:post', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
-        content = self.content.split('----', 1)
-        self.body = markdown(''.join(content))
+        content = self.content.split("----", 1)
+        self.body = markdown("".join(content))
         self.description = markdown(content[0])
         return super().save(*args, **kwargs)
 

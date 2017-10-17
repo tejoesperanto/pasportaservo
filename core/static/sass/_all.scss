@@ -51,7 +51,9 @@ body, .same-as-body {
     margin-top: 2px;
     margin-bottom: 2px;
 }
-
+ul.dropdown-menu li img:first-child {
+    margin-right: 0.5em;
+}
 .datepicker-dropdown {
     font-size: 13px;
 }
@@ -417,6 +419,10 @@ footer {
     padding-top: 4em;
     padding-bottom: 3em;
 }
+.blog-post .post-title .post-published {
+    position: relative;
+    top: 0.7ex;
+}
 
 
 /* Forms */
@@ -488,12 +494,22 @@ header:not(.home) #subtitle,
 
 /* XXS */
 @media (max-width: 479px) {
+    .blog-post .post-title a:after {
+        display: table;
+        content: " ";
+        clear: right;
+    }
+    .blog-post .post-title .post-published {
+        top: 0.85ex;
+    }
+
     .list-vertical-align .member {
         margin-right: .5em;
     }
     .list-vertical-align .details .comment {
         font-size: 14px;
     }
+
     .place-supervisor-detail .name {
         clear: both;
     }

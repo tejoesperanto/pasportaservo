@@ -15,7 +15,7 @@ class PostAdmin(admin.ModelAdmin):
         'description',
         'pub_date',
     )
-    prepopulated_fields = {"slug": ("title",)}
+    prepopulated_fields = {'slug': ('title',)}
     date_hierarchy = 'created'
 
     published = lambda self, obj: obj.published
