@@ -35,6 +35,9 @@ class PostsFeed(Feed):
     def item_description(self, item):
         return item.description
 
+    def item_pubdate(self, item):
+        return item.pub_date
+
 
 class PostsAtomFeed(PostsFeed):
     feed_type = Atom1Feed

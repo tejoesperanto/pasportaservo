@@ -23,5 +23,8 @@
         .col-xs-pull-#{$i} {
             right: auto;
         }
+        .col-xs-offset-#{$i} {
+            margin-left: auto;
+        }
     }
 }

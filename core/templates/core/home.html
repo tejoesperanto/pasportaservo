@@ -77,7 +77,7 @@
                 </strong></h2>
 
                 {% for post in view.news %}
-                  {% include 'blog/post.html' with post=post only %}
+                    {% include 'blog/post.html' with post=post header_level=3 quote=True more_class='pull-right' more_type=2 only %}
                 {% endfor %}
             </div>
 

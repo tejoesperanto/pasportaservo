@@ -1,11 +1,21 @@
-{% load i18n %}
+{% load i18n static %}
 <div class="btn-group" role="group">
-  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    {% trans 'Subscribe' %}
-    <span class="caret"></span>
-  </button>
-  <ul class="dropdown-menu">
-    <li><a href="{% url 'blog:atom' %}">Atom</a></li>
-    <li><a href="{% url 'blog:rss' %}">RSS</a></li>
-  </ul>
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {% trans "Subscribe" %}
+        <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-right">
+        <li>
+            <a href="{% url 'blog:atom' %}">
+                <img src="{% static 'img/feed_atom-16px.png' %}" width="16" height="16" aria-hidden="true" />
+                Atom
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'blog:rss' %}">
+                <img src="{% static 'img/feed_rss-16px.png' %}" width="16" height="16" aria-hidden="true" />
+                RSS
+            </a>
+        </li>
+    </ul>
 </div>
