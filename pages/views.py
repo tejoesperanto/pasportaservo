@@ -2,10 +2,11 @@ from django.views import generic
 from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse_lazy
+from django.utils.text import format_lazy
 
 from core.auth import PERM_SUPERVISOR
 from hosting.models import Place
-from hosting.utils import sort_by_name, format_lazy
+from hosting.utils import sort_by_name
 from django.utils.translation import ugettext_lazy as _
 
 
