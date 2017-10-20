@@ -120,6 +120,7 @@
                                 data-success-text="{% trans "Checked" %}"
                                 data-on-ajax-setup="checkPlaceSetup"
                                 data-on-ajax-success="checkPlaceSuccess"
+                                data-failure-message="check-place-check-errors"
                                 autocomplete="off">
                             {% trans "Not checked" %}
                         </button>
@@ -244,6 +245,18 @@
         </div>
     {% endfor %}
 
+    <div class="modal fade" id="check-place-check-errors" tabindex="-1" role="dialog" aria-labelledby="check-place-check-errors-title">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="check-place-check-errors-title">{% trans "There is a problem with this host's data…" %}</h5>
+                </div>
+                <div class="modal-body">
+                    <ul></ul>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
         window.checkPlaceTextSurrogateWarning = "{% trans "The description or phone note seems to contain Esperanto written in a surrogate manner. Accept such text?" %}";
     </script>
