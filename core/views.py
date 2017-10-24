@@ -122,7 +122,12 @@ class EmailUpdateView(AuthMixin, UserModifyMixin, generic.UpdateView):
         return self.user
 
     def get_owner(self, object):
-        return self.user.profile
+        try:
+            return self.user.profile
+        except Profile.DoesNotExist:
+            # For users without a profile, we must create a dummy one, because AuthMixin
+            # expects all owners to be instances of Profile (which is not unreasonable).
+            return Profile(user=copy(self.user))
 
     def form_valid(self, form):
         response = super().form_valid(form)
