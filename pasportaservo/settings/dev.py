@@ -15,6 +15,8 @@ ALLOWED_HOSTS = [
 
 logging.getLogger('PasportaServo.auth').setLevel(logging.INFO)
 
+SASS_PROCESSOR_ROOT = path.join(BASE_DIR, 'core', 'static')
+
 INSTALLED_APPS += (
     'debug_toolbar',
 )
