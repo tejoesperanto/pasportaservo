@@ -19,6 +19,7 @@ BASE_DIR = path.dirname(PROJECT_DIR)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
+
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
@@ -29,6 +30,8 @@ MEDIA_ROOT = path.join(WWW_DIR, 'media')
 STATICFILES_DIRS = (path.join(PROJECT_DIR, 'static'), )
 
 LOCALE_PATHS = (path.join(BASE_DIR, 'locale'), )
+
+SASS_PRECISION = 8
 
 # Application definition
 
