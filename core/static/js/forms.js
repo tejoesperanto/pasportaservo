@@ -166,7 +166,7 @@ $(function() {
         var $this = $(this);
         // initialize localized error messages for this field
         this.checkValidity();
-        $('#id_form_submit').click(function() {
+        $('#id_form_submit, #id_form_submit_alt').click(function() {
             // mark the field as visited on form submit
             $this.triggerHandler('blur', true);
         });
