@@ -243,6 +243,8 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # The foreign key does not expose the attributes added by the manager :-|
+        context['place'].owner = Profile.all_objects.get(pk=self.object.owner_id)
         context['register_form'] = UserRegistrationForm
         context['blocking'] = self.calculate_blocking(self.object)
         return context

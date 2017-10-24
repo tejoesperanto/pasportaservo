@@ -34,11 +34,16 @@
                     <img src="{{ auth_user.profile.avatar_url }}" height="30">&nbsp;
                     <span class="authorized-user">
                         <a href="{{ auth_user.profile.get_absolute_url }}">
-                            {% if auth_user.profile.deleted %}
+                            {% comment %}
+                                TODO: don't allow to add deleted users
+                                TODO: link to deleted profiles (grey link) only for supervisors
+                                TODO: when typing, should perform a db query (via chosen?) and show pictures
+                            {% endcomment %}
+                            {% if auth_user.profile.deleted_on %}
                                 <del datetime="{{ auth_user.profile.modified|date:"Y-m-d" }}" title="{% trans "Deleted profile" %}">
                             {% endif %}
                                 {{ auth_user.profile.get_fullname_display }}
-                            {% if auth_user.profile.deleted %}
+                            {% if auth_user.profile.deleted_on %}
                                 </del>
                             {% endif %}
                         </a>
