@@ -1,0 +1,5 @@
+    {% spaceless %}
+    <img {% if field_name %}id="{{ field_name }}-preview_id"{% else %}name="image-preview"{% endif %} src="{{ url }}"
+         data-mfp-always height="42" style="margin: .1em 1em .1em .1em" />
+    <br class="visible-xxs-inline" />
+    {% endspaceless %}
