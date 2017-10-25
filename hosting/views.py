@@ -15,7 +15,7 @@ from django.http import (
 )
 from django.template.response import TemplateResponse
 from django.views.decorators.vary import vary_on_headers
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail

@@ -9,11 +9,11 @@ urlpatterns = [
     url('', include('core.urls')),
     url(_(r'^admin/'), admin.site.urls),
     url(_(r'^messages/'), include('postman.urls', namespace='postman', app_name='postman')),
-    url(_(r'^blog/'), include('blog.urls', namespace='blog')),
-    url(r'^mapo/', include('maps.urls')),
     url('', include('hosting.urls')),
     url('', include('pages.urls')),
     url('', include('links.urls')),
+    url(_(r'^blog/'), include('blog.urls', namespace='blog')),
+    url(r'^mapo/', include('maps.urls')),
 ]
 
 handler403 = 'pasportaservo.debug.custom_permission_denied_view'
@@ -21,7 +21,7 @@ handler403 = 'pasportaservo.debug.custom_permission_denied_view'
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns += [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
+        url(r'^__debug__/', debug_toolbar.urls),
     ]
 
 

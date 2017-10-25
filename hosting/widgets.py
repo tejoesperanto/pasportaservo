@@ -9,9 +9,17 @@ class ClearableWithPreviewImageInput(form_widgets.ClearableFileInput):
         '<br class="visible-xxs-inline" />'
     )
 
-    def render(self, name, value, attrs=None):
+    class ImagePreviewValue(object):
+        def __init__(self, value, template):
+            self.url = value.url
+            self.template = template
+
+        def __str__(self):
+            return self.template
+
+    def render(self, name, value, attrs=None, renderer=None):
         self.field_name = name
-        return super(ClearableWithPreviewImageInput, self).render(name, value, attrs)
+        return super().render(name, value, attrs, renderer)
 
     def get_template_substitution_values(self, value, **kwargs):
         substitute = super(ClearableWithPreviewImageInput, self).get_template_substitution_values(value)

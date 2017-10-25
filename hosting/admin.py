@@ -3,7 +3,7 @@ from django.contrib.gis import admin as gis_admin
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.utils import display_for_value
 from django.utils.html import format_html
-from django.core import urlresolvers
+from django.urls import reverse
 from django.conf import settings
 from django.core.cache import cache
 from django.db import models
@@ -122,7 +122,7 @@ class CustomGroupAdmin(GroupAdmin):
     def supervisors(self, obj):
         def get_formatted_list():
             for u in obj.user_set.all():
-                link = urlresolvers.reverse('admin:auth_user_change', args=[u.id])
+                link = reverse('admin:auth_user_change', args=[u.id])
                 account_link = format_html('<a href="{url}">{username}</a>', url=link, username=u)
                 try:
                     profile_link = format_html('<sup>(<a href="{url}">{name}</a>)</sup>',
@@ -214,7 +214,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
 
     def user_link(self, obj):
         try:
-            link = urlresolvers.reverse('admin:auth_user_change', args=[obj.user.id])
+            link = reverse('admin:auth_user_change', args=[obj.user.id])
             return format_html('<a href="{url}">{username}</a>', url=link, username=obj.user)
         except AttributeError:
             return '-'
