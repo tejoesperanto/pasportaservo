@@ -13,7 +13,7 @@
 
 {% block header %}
     <div class="row links">
-        <div class="col-xs-3 col-sm-1 enveloppe">
+        <div class="col-xs-3 col-sm-1 enveloppe" role="navigation">
             {% if user.is_authenticated %}
                 <a href="{% url 'postman:inbox' %}">
                     <span class="glyphicon glyphicon-envelope"></span>
@@ -21,7 +21,7 @@
                 </a>
             {% endif %}
         </div>
-        <div class="col-xs-2 col-sm-5">
+        <div class="col-xs-2 col-sm-5" role="navigation">
             {% if user.is_authenticated %}
                 <a href="{% url 'logout' %}">{% trans "log out" %}</a>
                 {% if user.is_staff and user.is_superuser %}
@@ -32,7 +32,7 @@
                 <a href="{% url 'login' %}?{{ REDIRECT_FIELD_NAME }}={{ request.get_full_path|urlencode }}">{% trans "log in" %}</a>
             {% endif %}
         </div>
-        <div class="col-xs-5 col-xs-offset-1 col-sm-5 col-sm-offset-0">
+        <div class="col-xs-5 col-xs-offset-1 col-sm-5 col-sm-offset-0" role="navigation">
             {% if user.is_authenticated %}
                 {% if user.profile %}
                     <a href="{{ user.profile.get_absolute_url }}">{{ user.username }}</a>
@@ -44,14 +44,14 @@
             {% endif %}
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-12" id="title">
+    <div class="row" role="heading">
+        <div class="col-md-12" id="title" aria-level="1">
             {% block home_title %}Pasporta Servo{% endblock %}
         </div>
-        <div class="col-md-12" id="subtitle">{% block home_subtitle %}La fama gastiga servo por esperantistoj{% endblock %}</div>
+        <div class="col-md-12" id="subtitle" aria-level="2">{% block home_subtitle %}La fama gastiga servo por esperantistoj{% endblock %}</div>
     </div>
 
-    <form class="form-inline row search" id="searchform" role="form" method="GET" action="{% url 'search' %}">
+    <form class="form-inline row search" id="searchform" role="search form" method="GET" action="{% url 'search' %}">
         <div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
             <div class="form-group" style="width: 100%">
                 <div class="input-group" style="width: 100%">
@@ -70,7 +70,7 @@
 
 {% block pre-page %}
     {% with ps_news=view.news ps_notifications=view.right_block %}
-    <section id="home-explain" class="container{% if ps_news or ps_notifications %} has-content{% endif %}">
+    <section id="home-explain" class="container{% if ps_news or ps_notifications %} has-content{% endif %}" role="complementary">
         <div class="row">
             <div class="col-xs-12 col-md-6">
                 {% if ps_news %}
@@ -90,6 +90,8 @@
     </section>
     {% endwith %}
 {% endblock pre-page %}
+
+{% block page_role %}toolbar{% endblock %}
 
 {% block page %}
     <div class="social-links social-networks sm-icons pull-left">
@@ -124,3 +126,5 @@
         {% endspaceless %}
     </div>
 {% endblock page %}
+
+{% block footer_role %}complementary{% endblock %}
