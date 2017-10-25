@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n l10n static profile %}
+{% load i18n l10n static profile expression %}
 
 {% block head_title %}
     {% if view.role == roles.OWNER %}
@@ -27,7 +27,7 @@
 
 {% block page %}
     {% if view.role == roles.OWNER or user|is_supervisor_of:place %}
-        {% firstof "True" as place_owner_or_supervisor %}
+        {% expr True as place_owner_or_supervisor %}
     {% endif %}
 
     {% if view.verbose_view %}

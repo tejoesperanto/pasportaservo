@@ -1,5 +1,5 @@
 {% extends 'hosting/profile_detail.html' %}
-{% load i18n static profile %}
+{% load i18n static profile expression %}
 
 {% block profile_edit_buttons %}
                 <a href="{% url 'profile_update' profile.pk profile.user.username|slugify %}"
@@ -49,7 +49,7 @@
 
 {% block family_member_edit_buttons %}
     {% if view.role == roles.OWNER or user|is_supervisor_of:place %}
-        {% firstof "True" as place_owner_or_supervisor %}
+        {% expr True as place_owner_or_supervisor %}
     {% endif %}
     {% if place_owner_or_supervisor or user|is_supervisor_of:member %}
         <div class="btn-group pull-right">
