@@ -300,7 +300,7 @@
 
         <p class="col-xs-12">
         {# CONTACT AND CONTROL BUTTONS #}
-            {% if view.role != roles.OWNER %}
+            {% if view.role != roles.OWNER and not place.owner.deleted %}
                 {% if place.owner.user.email|is_invalid %}
                     <a href="#" class="btn btn-danger btn-vert-space disabled" data-toggle="tooltip" data-container="body"
                        title="{% trans "The user's email address seems invalid" %}">
