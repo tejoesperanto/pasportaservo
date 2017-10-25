@@ -9,7 +9,10 @@ from django.conf import settings
 from django.db import models
 from django.core import serializers
 from django.core.exceptions import NON_FIELD_ERRORS
-from django.http import QueryDict, HttpResponseRedirect, Http404, JsonResponse
+from django.http import (
+    QueryDict, Http404,
+    HttpResponseRedirect, HttpResponseBadRequest, JsonResponse
+)
 from django.template.response import TemplateResponse
 from django.views.decorators.vary import vary_on_headers
 from django.core.urlresolvers import reverse_lazy
@@ -353,12 +356,18 @@ class InfoConfirmView(LoginRequiredMixin, generic.View):
     def post(self, request, *args, **kwargs):
         try:
             request.user.profile.confirm_all_info()
+        except Profile.DoesNotExist:
+            if request.is_ajax():
+                return HttpResponseBadRequest(
+                    "Cannot confirm data; a profile must be created first.",
+                    content_type="text/plain")
+            else:
+                return HttpResponseRedirect(reverse_lazy('profile_create'))
+        else:
             if request.is_ajax():
                 return JsonResponse({'success': 'confirmed'})
             else:
                 return TemplateResponse(request, self.template_name)
-        except Profile.DoesNotExist:
-            return HttpResponseRedirect(reverse_lazy('profile_create'))
 
 hosting_info_confirm = InfoConfirmView.as_view()
 
