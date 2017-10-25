@@ -1447,7 +1447,6 @@ msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/forpreni/$"
 msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/delete/$"
 msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/forigi/$"
 
-#, python-brace-format
 msgid ""
 "^lo/(?P<country_code>[A-Z]{2})(?:/book\\:(?P<in_book>(0|1)))?(?:/(?"
 "P<email>email))?/$"
@@ -1839,10 +1838,7 @@ msgstr "kvanto"
 msgid "TEJO discount"
 msgstr "TEJO-rabato"
 
-#, fuzzy, python-format
-#| msgid ""
-#| "If you are member of TEJO or UEA and the 10% discount applies (twice a "
-#| "year)."
+#, no-python-format
 msgid ""
 "If you are member of TEJO or UEA and the 10% discount applies (twice a year)."
 msgstr ""

@@ -155,4 +155,10 @@ function displayAnchorsNotification() {
 }
 
 
+// Utility function for determining Ctrl or Cmd keyboard combinations
+$.Event.prototype.isCommandKey = function() {
+    return (this.ctrlKey && !this.altKey) || this.metaKey;
+}
+
+
 // @license-end

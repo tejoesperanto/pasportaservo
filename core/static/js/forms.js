@@ -266,7 +266,7 @@ $(function() {
         var shortcutY = ($('#id_form_submit').data('kbdshortcut') || '\0').charAt(0).toLowerCase();
         var shortcutN = ($('#id_form_cancel').data('kbdshortcut') || '\0').charAt(0).toLowerCase();
         $(window).bind("keydown", function(event) {
-            if ((event.ctrlKey && !event.altKey) || event.metaKey) {
+            if (event.isCommandKey()) {
                 var pressedKey = String.fromCharCode(event.which).toLowerCase()
                 if (pressedKey === shortcutY) {
                     event.preventDefault();

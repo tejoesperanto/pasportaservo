@@ -23,10 +23,3 @@ if settings.DEBUG:
     urlpatterns += [
         url(r'^__debug__/', debug_toolbar.urls),
     ]
-
-
-urlpatterns += [
-    url(r'^editor/$', TemplateView.as_view(
-        template_name="editor.html"
-    ), name='editor'),
-]

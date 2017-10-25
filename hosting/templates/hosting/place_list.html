@@ -10,10 +10,6 @@
 
 {% block page_class %} search{% endblock %}
 
-{% block extra_js %}
-    <script src="{% static 'js/search.js' %}"></script>
-{% endblock %}
-
 {% block page %}
     <form class="form-inline row search" id="searchform" role="form" method="GET" action="{% url 'search' %}">
         <div class="form-group col-xs-12 col-md-offset-2 col-md-8">

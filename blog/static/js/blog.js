@@ -40,7 +40,7 @@ $(document).ready(function() {
     });
 
     $(window).bind('keydown', function(event) {
-        if ((event.ctrlKey && !event.altKey) || event.metaKey) {
+        if (event.isCommandKey()) {
             var $whereto = event.keyCode == 39 ? $gotoNext :
                           (event.keyCode == 37 ? $gotoPrev : undefined);
             if ($whereto !== undefined && $whereto.length == 1) {
