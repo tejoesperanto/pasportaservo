@@ -11,7 +11,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.auth import get_user_model, authenticate, login
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail

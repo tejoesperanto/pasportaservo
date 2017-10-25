@@ -1,7 +1,7 @@
 from django.views import generic
 from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.utils.text import format_lazy
 
 from core.auth import PERM_SUPERVISOR

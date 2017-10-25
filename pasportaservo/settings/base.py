@@ -67,7 +67,7 @@ INSTALLED_APPS = (
     'shop',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -77,7 +77,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'dnt.middleware.DoNotTrackMiddleware',
-)
+]
 
 AUTHENTICATION_BACKENDS = ['core.auth.SupervisorAuthBackend']
 

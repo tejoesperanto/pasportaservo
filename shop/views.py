@@ -1,6 +1,6 @@
 from django.views import generic
 from django.shortcuts import get_object_or_404
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 
 from core.mixins import LoginRequiredMixin
 

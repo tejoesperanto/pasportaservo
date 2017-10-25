@@ -9,7 +9,7 @@ from django.db.models import Q, F, Value as V
 from django.db.models.functions import Concat, Substr
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone

@@ -3,6 +3,7 @@ from django.conf.urls import url
 from .views import PostsAtomFeed, PostsFeed, PostListView, PostDetailView
 
 
+app_name = 'blog'
 urlpatterns = [
     url(r'^rss.xml$', PostsAtomFeed(), name='rss'),
     url(r'^atom.xml$', PostsFeed(), name='atom'),
