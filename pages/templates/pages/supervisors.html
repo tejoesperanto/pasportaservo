@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n static %}
+{% load i18n static expression %}
 {% load is_supervisor_of from profile %}
 
 {% block head_title %}{% trans "Supervisors" %}{% endblock %}
@@ -108,9 +108,9 @@
                         <img src="{{ country.flag }}" alt="" style="display: none">
                     </div>
                     {% if user|is_supervisor_of:country or not perms.hosting.can_supervise %}
-                        {% firstof "btn-primary" as country_name_class %}
+                        {% expr "btn-primary" as country_name_class %}
                     {% else %}
-                        {% firstof "btn-default" as country_name_class %}
+                        {% expr "btn-default" as country_name_class %}
                     {% endif %}
                     <a class="btn {{ country_name_class }}"
                        {% if user|is_supervisor_of:country %}
@@ -134,9 +134,9 @@
                     <small><strong>{{ checked_progress }}%</strong></small>
                     <div class="progress">
                         {% if perms.hosting.can_supervise and not user|is_supervisor_of:country %}
-                            {% firstof "opacity: .55" as dimmed %}
+                            {% expr "opacity: .55" as dimmed %}
                         {% else %}
-                            {% firstof " " as dimmed %}
+                            {% expr "" as dimmed %}
                         {% endif %}
                         <div class="progress-bar progress-bar-success"
                              style="width: {{ checked_progress }}%; {{ dimmed }}"
@@ -161,9 +161,9 @@
                 <div class="col-xxs-12 col-xs-8 col-sm-3 col-lg-3">
                     {% for supervisor in country.supervisors %}
                         {% if user.is_authenticated %}
-                            {% firstof supervisor.get_fullname_display as supervisor_name %}
+                            {% expr supervisor.get_fullname_display() as supervisor_name %}
                         {% else %}
-                            {% firstof supervisor.name as supervisor_name %}
+                            {% expr supervisor.name as supervisor_name %}
                         {% endif %}
                         <a href="{{ supervisor.get_absolute_url }}">{{ supervisor_name }}</a>&nbsp;{% if not forloop.last %},{% endif %}
                     {% endfor %}
