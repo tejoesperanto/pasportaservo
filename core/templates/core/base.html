@@ -2,12 +2,12 @@
 {% load i18n static breach %}
 
 {% block body %}
-    <section class="messages">
+    <section class="messages" role="complementary">
         {% block messages %}
             {% for message in messages %}{% include "core/message.html" %}{% endfor %}
         {% endblock %}
     </section>
-    <header class="container-fluid{% block header_class %}{% endblock %}">
+    <header class="container-fluid{% block header_class %}{% endblock %}" role="banner">
         {% block header %}
             <div class="row">
                 <div class="col-xs-2 col-sm-3 col-md-2" id="title">
@@ -16,7 +16,7 @@
                 <div class="hidden-xs col-sm-3 col-md-3" id="subtitle">
                     La fama gastiga servo por esperantistoj
                 </div>
-                <div class="col-xs-3 col-sm-2 col-md-1 col-md-offset-4 enveloppe links">
+                <div class="col-xs-3 col-sm-2 col-md-1 col-md-offset-4 enveloppe links" role="navigation">
                     {% if user.is_authenticated %}
                         <a href="{% url 'postman:inbox' %}" style="text-decoration: none">
                             {% trans "inbox" as title_inbox %}
@@ -36,7 +36,7 @@
                         &nbsp;
                     {% endif %}
                 </div>
-                <div class="col-xs-2 col-sm-2 col-md-1 links">
+                <div class="col-xs-2 col-sm-2 col-md-1 links" role="navigation">
                     {% if user.is_authenticated %}
                         <a href="{% url 'logout' %}" style="text-decoration: none">
                             <span class="glyphicon glyphicon-log-out" title="{% trans "log out" %}"></span>
@@ -47,7 +47,7 @@
                         </a>
                     {% endif %}
                 </div>
-                <div class="col-xs-5 col-sm-2 col-md-1 links">
+                <div class="col-xs-5 col-sm-2 col-md-1 links" role="navigation">
                     {% if user.is_authenticated %}
                         {% if user.profile %}
                             <a href="{{ user.profile.get_absolute_url }}">{{ user.username }}</a>
@@ -64,14 +64,14 @@
 
     {% block pre-page %}{% endblock %}
 
-    <div id="page" role="main" class="container{% block page_class %}{% endblock %}">
+    <div id="page" role="{% block page_role %}main{% endblock %}" class="container{% block page_class %}{% endblock %}">
         {% block page %}{% endblock %}
     </div>
 
-    <footer class="container-fluid">
+    <footer class="container-fluid" role="{% block footer_role %}note{% endblock %}">
         {% block footer %}
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-12" role="navigation">
                     <span class="text-nowrap"><a href="{% url 'about' %}">{% trans "About us" %}</a></span>
                     |
                     <span class="text-nowrap"><a href="{% url 'faq' %}">{% trans "FAQ" %}</a></span>
