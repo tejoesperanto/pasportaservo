@@ -203,7 +203,7 @@ class PlaceForm(forms.ModelForm):
             place.location = location.point
         if commit:
             place.save()
-        self.confidence = location.confidence
+        self.confidence = location.confidence or 0
         return place
 
 
