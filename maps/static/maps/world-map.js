@@ -79,11 +79,23 @@ function loaded() {
             }
         });
         map.on('click', 'places', function(e) {
-            const p = e.features[0].properties
-            const TEMPLATE = `<h4><a href="${p.url}">${p.owner_name} de <strong>${p.city}</strong></a></h4>`
+            function htmlEscape(value) {
+                return value.replace(/&/g,  "&amp;")
+                            .replace(/"/g,  "&#34;").replace(/'/g,  "&#39;")
+                            .replace(/</g,  "&lt;") .replace(/>/g,  "&gt;")
+                            .replace(/\//g, "&#47;");
+            }
+            var TEMPLATE = '<h4><a href="[URL]">[NAME] de <strong>[CITY]</strong></a></h4>';
+            var popupHtml = "";
+            e.features.forEach(function(feature) {
+                var p = feature.properties;
+                popupHtml += TEMPLATE.replace("[URL]", p.url)
+                                     .replace("[NAME]", htmlEscape(p.owner_name))
+                                     .replace("[CITY]", htmlEscape(p.city));
+            });
             new mapboxgl.Popup()
                 .setLngLat(e.features[0].geometry.coordinates)
-                .setHTML(TEMPLATE)
+                .setHTML(popupHtml)
                 .addTo(map);
         });
 

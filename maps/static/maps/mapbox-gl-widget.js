@@ -4,7 +4,7 @@ window.addEventListener("load", loaded);
 
 function loaded() {
 
-    let field = document.getElementById('id_location');
+    var field = document.getElementById('id_location');
 
     try {
         var initial = JSON.parse(field.value).coordinates;
