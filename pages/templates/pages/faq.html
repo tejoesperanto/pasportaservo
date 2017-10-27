@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n static %}
+{% load i18n static expression %}
 
 {% block head_title %}Oftaj demandoj{% endblock %}
 
@@ -7,6 +7,7 @@
 
 {% block page %}
     <h1>Oftaj Demandoj</h1>
+    {% expr "saluton [cxe] pasportaservo.org" as contact_email %}
 
     <section>
         <h3 name="pri-registrigho">Pri kaj post la registriĝo.</h3>
@@ -14,27 +15,44 @@
             <dt class="list-group-item list-group-item-info">Mi forgesis mian pasvorton! Kion mi faru?</dt>
             <dd class="list-group-item">
                 <ul>
-                    <li>Petu novan per via retpoŝta adreso tie: <a href="/pasvorto/nova/">pasportaservo.org/pasvorto/nova</a>.</li>
-                    <li>Enskribu vian retpoŝtadreson kaj klaku “Sendu”, vi ricevos retleteron kun ligilo.</li>
+                    <li>
+                        {% url 'password_reset' as pwd_reset_url %}
+                        Petu novan per via retpoŝta adreso ĉi tie: <a href="{{ pwd_reset_url }}">pasportaservo.org{{ pwd_reset_url }}</a>.
+                    </li>
+                    <li>Entajpu vian retpoŝtadreson kaj klaku “Sendi”, vi ricevos retleteron kun ligilo.</li>
                     <li>Klaku la ligilon kaj vi povos registri vian novan pasvorton.</li>
                 </ul>
             </dd>
 
-            <dt class="list-group-item list-group-item-info">Mi forgesis mian uzantnomon! Kion mi faru?</dt>
+            <dt class="list-group-item list-group-item-info">Mi forgesis mian salutnomon! Kion mi faru?</dt>
             <dd class="list-group-item">
-                <a href="mailto:saluton [cxe] pasportaservo.org">Skribu al ni</a>, kaj ni sendos al vi rememorigilon.
+                <a href="mailto:{{ contact_email }}">Skribu al ni</a>, kaj ni sendos al vi rememorigilon.
             </dd>
 
             <dt class="list-group-item list-group-item-info">Mia retadreso ne plu aktualas / mi volas ŝanĝi mian registritan retadreson. Kion mi faru?</dt>
             <dd class="list-group-item">
-                <a href="mailto:saluton [cxe] pasportaservo.org">Skribu al ni</a> kaj donu al ni vian novan retpoŝtan adreson.
+                <ul>
+                    <li>
+                        {% url 'email_update' as email_update_url %}
+                        Provizu vian novan retpoŝtan adreson ĉi tie: <a href="{{ email_update_url }}">pasportaservo.org{{ email_update_url }}</a>.
+                    </li>
+                    <li>
+                        Atentu ke vi devas klaki la ligilon en konfirma retletero kiun ni sendos al la nova adreso,
+                        antaŭ ol via retadreso ŝanĝiĝos en la retejo.
+                    </li>
+                    <li>
+                        Dum ankoraŭ vi ne klakis tiun ligilon, la retejo daŭre uzos la malnovan retadreson.
+                    </li>
+                    <li>
+                        Se vi ne ricevas la konfirman retleteron, <a href="mailto:{{ contact_email }}">skribu al ni</a>.
+                    </li>
+                </ul>
             </dd>
 
-            <dt class="list-group-item list-group-item-info">Kie estas la mapo? Kial mi ne povas serĉi per la mapo!?</dt>
+            <dt class="list-group-item list-group-item-info">Kie estas la mapo de gastigantoj?</dt>
             <dd class="list-group-item">
-                Vi havos mapon! Ni samtempe laboras pri la mapo de la libro kaj de la retejo.
-                <br />
-                La prioritato de Pasporta Servo estas la sekureco de viaj datenoj. Ni bezonas mapon, kiu protektas viajn datenojn.
+                La mapo estas esplorebla <a href="{% url 'world_map' %}">ĉi tie</a>.
+                Ĉiun fojon kiam vi serĉas gastigantojn, vi vidos ankaŭ ligilon al la mapo de la petata regiono.
             </dd>
         </dl>
     </section>
@@ -58,11 +76,20 @@
             <dd class="list-group-item">
                 La gastoj ĉiam devas anonci sin antaŭ ol veni al vi, do vi vidos, ĉu vi tiam estos hejme aŭ ne.
             </dd>
+            <dd class="list-group-item">
+                Vi krome povas indiki ĉe via loĝejo periodon kiam vi ne havas eblecon gastigi, se vi anticipe konas la datojn.
+                <br />
+                En via <a href="{% url 'profile_redirect' %}">profilo</a> estas la “Loĝejo”-parto de la paĝo.
+                Klaku sur la butono dekstre <span class="btn btn-primary btn-sm disabled"><span class="glyphicon glyphicon-arrow-right"></span> Rigardi</span>.
+                Aperos la paĝo de via loĝejo, tie klaku sur la butono
+                <span class="btn btn-default btn-sm disabled"><span class="sr-only">Maldisponebla?</span><span class="glyphicon glyphicon-time"></span></span>.
+                Elektu la datojn kiam via maldisponebleco komenciĝas kaj/aŭ finiĝas.
+            </dd>
 
             <dt class="list-group-item list-group-item-info">Eĉ se mi havas dormlokon, mi ne havas tempon/emon prizorgi gasto(j)n.</dt>
             <dd class="list-group-item">
                 La gastoj devas esti memstaraj. La ideo de Pasporta Servo estas, ke oni helpas pri la tranoktado,
-                ĉiu aldona bonkoreco/servo/ĉiĉeronado dependas de la gastiganto.
+                ĉiu aldona bonkoreco&thinsp;/&thinsp;servo&thinsp;/&thinsp;ĉiĉeronado dependas de la gastiganto.
                 Se vi ne havas tempon/emon, do vi ne havas. Neniu devigas vin tion fari.
             </dd>
 
@@ -101,7 +128,7 @@
             <dd class="list-group-item">
                 Kelkaj gastigantoj pretas akcepti gastojn sen antaŭa anonco, sed nur por malmultaj tio estas tute akceptebla.
                 <br />
-                En la paĝo de loĝloko (kaj en la libro, apud la adreso) vi ĉiam vidas la kondiĉojn indikitajn de la gastiganto.
+                En la paĝo de loĝloko (kaj en la libreto, apud la adreso) vi ĉiam vidas la kondiĉojn indikitajn de la gastiganto.
                 Se oni petas interkonsenton kontakti pli frue telefone, do faru tion; se retletere, tion.
                 <br />
                 Bonvolu ĉiam respekti la petitajn limigojn de la gastiganto.
@@ -137,12 +164,12 @@
             <dd class="list-group-item">
                 En la paĝo de via loĝejo, sube, “printi en la PS-libreto”: devas esti <strong>jes</strong>.
                 <br />
-                Krome, se vi estis ĝis nun en la libro, kaj vi denove volas aperi en ĝi, vi konfirmu per la retletero, kiun ni sendos al vi.
+                Krome, se vi estis ĝis nun en la libreto, kaj vi denove volas aperi en ĝi, vi konfirmu per la retletero, kiun ni sendos al vi.
             </dd>
 
             <dt class="list-group-item list-group-item-info">Mi ne plu volas aperi en la libro. Kion mi faru?</dt>
             <dd class="list-group-item">
-                En via <a href="/profilo/">profilo</a> estas la “Loĝejo”-parto de la paĝo.
+                En via <a href="{% url 'profile_redirect' %}">profilo</a> estas la “Loĝejo”-parto de la paĝo.
                 Klaku sur la butono dekstre <span class="btn btn-primary btn-sm disabled"><span class="glyphicon glyphicon-arrow-right"></span> Rigardi</span>.
                 Aperos la paĝo de via loĝejo, tie klaku sur la butono <span class="btn btn-success btn-sm disabled"><span class="glyphicon glyphicon-pencil"></span> Redakti</span>.
                 <br />
@@ -150,19 +177,17 @@
                 se jes, forigu ĝin kaj konservu.
             </dd>
             <dd class="list-group-item">
-                Se vi ne scias kiel ŝanĝi vian profilon, <a href="mailto:saluton [cxe] pasportaservo.org">skribu al ni</a>.
+                Se vi ne scias kiel ŝanĝi vian profilon, <a href="mailto:{{ contact_email }}">skribu al ni</a>.
             </dd>
 
             <dt class="list-group-item list-group-item-info">Mi ankoraŭ neniam estis en la libro, sed nun volas aperi en ĝi. Kion mi faru?</dt>
             <dd class="list-group-item">
-                En la paĝo de via loĝejo, sube, kontrolu kio aperas ĉe “printi en la PS-libreto”. Se <strong>jes</strong>, vi aperos en la libro! Se ne:
+                En la paĝo de via loĝejo, sube, kontrolu kio aperas ĉe “printi en la PS-libreto”. Se <strong>jes</strong>, vi aperos en la libreto! Se ne:
                 <br />
                 Klaku sur la butono <span class="btn btn-success btn-sm disabled"><span class="glyphicon glyphicon-pencil"></span> Redakti</span> tie.
                 En la redakta formularo iru tute malsupren kaj certiĝu ke estas markilo <span class="glyphicon glyphicon-ok"></span> apud “Printu en la PS-libreto”, konservu.
                 <br />
-                Se vi ankoraŭ ne havas profilon en la retejo, <a href="/profilo/krei/">kreu unu</a>, kaj poste nepre elektu esti printita en la libro.</dd>
-            <dd class="list-group-item">
-                La limdato por la PS-libreto estas la 30-a de oktobro.
+                Se vi ankoraŭ ne havas profilon en la retejo, <a href="{% url 'profile_create' %}">kreu ĝin</a>, kaj poste nepre elektu esti printita en la libreto.
             </dd>
         </dl>
     </section>
