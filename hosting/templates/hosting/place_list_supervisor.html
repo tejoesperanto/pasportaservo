@@ -59,17 +59,19 @@
             </a>
         </li>
         <li role="presentation" {% if view.kwargs.email %}aria-pressed="true" class="active {% else %}class="{% endif %}btn-vert-space">
+            {# Translators: must be identical to the <email> parameter value in staff_place_list url. #}
+            {% trans "email-addr" context "URL" as email_url_part %}
             {% if view.in_book is not None %}
                 {% if view.kwargs.email %}
                     {% url 'staff_place_list' country_code=view.country in_book=view.in_book|yesno:"1,0" as invalid_emails_list_url %}
                 {% else %}
-                    {% url 'staff_place_list' country_code=view.country in_book=view.in_book|yesno:"1,0" email=_("email-addr") as invalid_emails_list_url %}
+                    {% url 'staff_place_list' country_code=view.country in_book=view.in_book|yesno:"1,0" email=email_url_part as invalid_emails_list_url %}
                 {% endif %}
             {% else %}
                 {% if view.kwargs.email %}
                     {% url 'staff_place_list' country_code=view.country as invalid_emails_list_url %}
                 {% else %}
-                    {% url 'staff_place_list' country_code=view.country email=_("email-addr") as invalid_emails_list_url %}
+                    {% url 'staff_place_list' country_code=view.country email=email_url_part as invalid_emails_list_url %}
                 {% endif %}
             {% endif %}
             <a href="{{ invalid_emails_list_url }}">

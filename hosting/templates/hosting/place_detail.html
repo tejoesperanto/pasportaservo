@@ -106,10 +106,11 @@
                         {% endif %}
                         {% if view.role == roles.OWNER and not place.deleted %}
                             <div class="place-blocking text-right pull-right">
-                                <a href="#{% trans "set-blocking" %}" class="btn btn-default btn-sm" data-toggle="collapse">
-                                    <span class="glyphicon glyphicon-time"></span>
-                                </a>
-                                <div id="{% trans "set-blocking" %}" class="panel panel-default place-blocking-panel collapse">
+                                <button data-target="#set-blocking" class="btn btn-default btn-sm" data-toggle="collapse" aria-haspopup="true" aria-expanded="false">
+                                    <span class="sr-only">{% trans "unavailable" %} ?</span>
+                                    <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+                                </button>
+                                <div id="set-blocking" class="panel panel-default place-blocking-panel collapse">
                                 {% include 'hosting/snippets/place_blocking_form.html' with place=place form=blocking.form form_class="panel-body" csrf_token=csrf_token only %}
                                 </div>
                             </div>

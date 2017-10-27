@@ -51,23 +51,38 @@ msgstr "afiŝo"
 msgid "posts"
 msgstr "afiŝoj"
 
-msgid "Update"
-msgstr "Redakti"
+msgid "published on"
+msgstr "publikigita je"
+
+msgid "read more"
+msgstr "legi pli"
 
 msgid "News"
 msgstr "Novaĵoj"
 
+msgid "Update"
+msgstr "Redakti"
+
+msgid "Previous news"
+msgstr "Antaŭa novaĵo"
+
+msgid "Next news"
+msgstr "Sekva novaĵo"
+
 msgid "Add"
 msgstr "Aldoni"
-
-msgid "Subscribe"
-msgstr "Aboni"
 
 msgid "The last news about Pasporta Servo"
 msgstr "La lastaj novaĵoj pri Pasporta Servo"
 
+msgid "Subscribe"
+msgstr "Aboni"
+
 msgid "yes,no"
 msgstr "jes,ne"
+
+msgid "Hosting Service Core"
+msgstr "Kerno"
 
 #, python-brace-format
 msgid "Only the supervisors of {this_country} can access this page"
@@ -128,27 +143,34 @@ msgid "site name"
 msgstr "reteja nomo"
 
 msgid "encryption salt"
-msgstr "cifera salo"
+msgstr "ĉifra salo"
 
 msgid "Salt used for encoded unique links. Change it to invalidate all links."
 msgstr ""
-"Salo uzita por cifrigi unikaj ligilojn. Ŝanĝu por malfunkciigi ĉiujn "
+"Salo uzata por kodigi unikajn ligilojn. Ŝanĝu por malfunkciigi ĉiujn "
 "ligilojn."
 
-msgid "Minumum age for hosting"
-msgstr "Minimuma aĝo por gastigi"
-
-msgid "Minumum age for meeting"
-msgstr "Minimuma aĝo por renkonti"
+msgid "unique link lifetime"
+msgstr "vivdaŭro de unika ligilo"
 
 msgid "In seconds: 2 days = 3600 x 24 x 2 = 172800"
 msgstr "En sekundoj: 2 tagoj = 3600 x 24 x 2 = 172800"
 
-msgid "confirmation validity period"
-msgstr "konfirma valideca periodo"
+msgid "minumum age for hosting"
+msgstr "minimuma aĝo por gastigi"
 
-msgid "Delay after which an object is no longer considered as confirmed"
-msgstr "Periodo post kiu objekto ne plu estas konfirmita"
+msgid "minumum age for meeting"
+msgstr "minimuma aĝo por renkonti"
+
+msgid "confirmation validity period"
+msgstr "periodo de konfirmo-valideco"
+
+msgid ""
+"Delay (in days/hours) after which an object is no longer considered as "
+"confirmed."
+msgstr ""
+"Periodo (en tagoj/horoj) post kiu objekto ne plu estas konsiderata "
+"konfirmita."
 
 msgid "Site Configuration"
 msgstr "Retejaj agordoj"
@@ -156,18 +178,14 @@ msgstr "Retejaj agordoj"
 msgid "Find accomodation"
 msgstr "Trovu loĝejon"
 
+msgid "Esperanto-hosts around the world"
+msgstr "Esperantaj gastigantoj tra la mondo"
+
 msgid "My profile"
 msgstr "Mia profilo"
 
 msgid "Search"
 msgstr "Serĉi"
-
-msgid ""
-"<a href=\"http://katalogo.uea.org/katalogo.php?inf=3474\" target=\"_blank"
-"\">Buy now the booklet <big>Pasporta Servo 2017</big>&thinsp;!</a>"
-msgstr ""
-"<a href=\"http://katalogo.uea.org/katalogo.php?inf=3474\" target=\"_blank"
-"\">Aĉetu nun la libreton <big>Pasporta Servo 2017</big>&thinsp;!</a>"
 
 msgid "inbox"
 msgstr "poŝtkesto"
@@ -205,11 +223,11 @@ msgstr "Konfirmi"
 msgid "admin site"
 msgstr "administrilo"
 
-msgid "test version"
-msgstr "Prova versio: tiu ĉi retejo ankoraŭ ne estas finpreta"
+msgid "The famous hosting service for Esperanto-speakers"
+msgstr "La fama gastiga servo por esperantistoj"
 
-msgid "Budapest, London, Venezuela, etc."
-msgstr "Budapeŝto, Londono, Venezuelo, ktp."
+msgid "Search for a country, a region, or a city…"
+msgstr "Serĉu per lando, regiono aŭ urbo…"
 
 msgid "at"
 msgstr "ĉe"
@@ -236,6 +254,7 @@ msgstr "Vi sendis %(nb)s mesaĝojn. Bonege!"
 msgid "Hide"
 msgstr "Kaŝi"
 
+msgctxt "Title"
 msgid "Registration"
 msgstr "Registrado"
 
@@ -243,7 +262,7 @@ msgid "You must register to see this accomodation."
 msgstr "Vi devas registriĝi por vidi tiun ĉi loĝejon."
 
 msgid "Register"
-msgstr "Registriĝu"
+msgstr "Registriĝi"
 
 msgid "Change user's account email"
 msgstr "Modifi adreson de uzanto"
@@ -362,8 +381,13 @@ msgstr ""
 msgid "Please go to the following page to complete the verification:"
 msgstr "Bonvole iru al la jena paĝo por finaranĝi la kontroladon:"
 
-msgid "Log In"
+msgctxt "Imperative"
+msgid "Log in"
 msgstr "Ensalutu"
+
+msgctxt "Title"
+msgid "Log In"
+msgstr "Ensaluto"
 
 msgid "Log in with your username and password."
 msgstr "Ensalutu per via uzantnomo kaj pasvorto"
@@ -436,6 +460,10 @@ msgstr ""
 msgid "Send"
 msgstr "Sendi"
 
+msgctxt "Imperative"
+msgid "Register"
+msgstr "Registriĝu"
+
 msgid "^register/$"
 msgstr "^registrado/$"
 
@@ -504,6 +532,8 @@ msgstr ""
 msgid "[Pasporta Servo] Is this your email address?"
 msgstr "[Pasporta Servo] Ĉu tiu estas via retadreso?"
 
+#. Translators: must be identical to the <email> parameter value in staff_place_list url.
+msgctxt "URL"
 msgid "email-addr"
 msgstr "retadreso"
 
@@ -602,7 +632,7 @@ msgid "The minimum age to be allowed meeting with visitors is {age:d}."
 msgstr "Vi ekpovos renkonti vizitantojn kiam estos {age:d}-jaraĝa."
 
 msgid "This field is required to be printed in the book."
-msgstr "Tiu ĉi kampo estas deviga por esti printita en la libro."
+msgstr "Tiu ĉi kampo estas deviga por esti printita en la libreto."
 
 msgid ""
 "You want to be in the printed edition of Pasporta Servo. In order to have a "
@@ -638,7 +668,7 @@ msgid "Authorize user"
 msgstr "Permesi uzanton"
 
 msgid "username"
-msgstr "uzantnomo"
+msgstr "salutnomo"
 
 msgid "User does not exist"
 msgstr "Tiu ĉi uzanto ne ekzistas"
@@ -791,7 +821,7 @@ msgid "short description"
 msgstr "mallonga priskribo"
 
 msgid "Used in the book and on profile, 140 characters maximum."
-msgstr "Uzita en la libro kaj ĉe profilo, 140 signoj maksimume."
+msgstr "Uzita en la libreto kaj ĉe profilo, 140 signoj maksimume."
 
 msgid "available"
 msgstr "disponebla"
@@ -891,10 +921,10 @@ msgid "abbreviation"
 msgstr "mallongigo"
 
 msgid "Official abbreviation as used in the book. E.g.: 'Nef.'"
-msgstr "Oficiala mallongigo tiel, kiel uzata en la libro. Ekz: 'Nef.'"
+msgstr "Oficiala mallongigo tiel, kiel uzata en la libreto. Ekz: 'Nef.'"
 
 msgid "URL friendly name"
-msgstr "URL-amikeca nomo"
+msgstr "URL-amika nomo"
 
 msgid "condition"
 msgstr "kondiĉo"
@@ -1026,8 +1056,8 @@ msgstr "mi emas trinkejumi"
 msgid "available,unavailable"
 msgstr "disponebla,maldisponebla"
 
-msgid "set-blocking"
-msgstr "agordi-blokadon"
+msgid "unavailable"
+msgstr "maldisponebla"
 
 msgid "Description"
 msgstr "Priskribo"
@@ -1075,12 +1105,15 @@ msgstr "Printi en la PS-libreto"
 msgid "Confirm and edit location"
 msgstr "Konfirmi kaj redakti lokigon"
 
-#, python-format
-msgid "No results found for <em>%(query)s</em>. Here is some active hosts!"
-msgstr "Neniu rezultoj por <em>%(query)s</em>. Jen kelkaj aktivaj gastigantoj!"
+msgid "Nothing found for"
+msgstr "Nenio trovita por"
 
-msgid "unavailable"
-msgstr "maldisponebla"
+msgid "Open map of the region"
+msgstr "Vidi regionan mapon"
+
+#, python-format
+msgid "No results found for <em>%(query)s</em>. Here are some active hosts!"
+msgstr "Neniu rezulto por <em>%(query)s</em>. Jen kelkaj aktivaj gastigantoj!"
 
 msgid "I'm hosting"
 msgstr "Mi gastigas"
@@ -1293,6 +1326,7 @@ msgstr "Aldoni telefon-numeron"
 msgid "password"
 msgstr "pasvorto"
 
+msgctxt "Title"
 msgid "Email"
 msgstr "Retadreso"
 
@@ -1474,7 +1508,7 @@ msgstr "^esplori(?:/(?P<query>.+))?/$"
 
 #, python-brace-format
 msgid "Today is not CapsLock day. Please try with '{correct_value}'."
-msgstr "La CapsLock tago ne estas hodiaŭ. Bv. provu “{correct_value}”."
+msgstr "La CapsLock-tago ne estas hodiaŭ. Bv. provu “{correct_value}”."
 
 #, python-brace-format
 msgid ""
@@ -1558,6 +1592,10 @@ msgstr ""
 msgid "You've been automatically logged in. Happy editing!"
 msgstr "Vi estas aŭtomate ensalutita. Bonan redaktadon!"
 
+msgid "Map of hosts"
+msgstr "Mapo de gastigantoj"
+
+msgctxt "URL"
 msgid "countries-list"
 msgstr "landolisto"
 
@@ -1709,7 +1747,7 @@ msgid "%(sender)s wrote to you!"
 msgstr "%(sender)s skribis al vi!"
 
 msgid "Reply"
-msgstr "Respondu"
+msgstr "Respondi"
 
 #, python-format
 msgid "On %(date)s, you asked to send a message to the user '%(recipient)s'."
@@ -1811,14 +1849,14 @@ msgstr "^leteroj/"
 msgid "^blog/"
 msgstr "^blogo/"
 
-msgid "Shop"
+msgid "PS Shop"
 msgstr "Butiko"
 
 msgid "I'm a host and I will appear in the book"
-msgstr "Mi estas gastiganto kaj mi aperos en la libro"
+msgstr "Mi estas gastiganto kaj mi aperos en la libreto"
 
 msgid "I can have my book at a discounted price"
-msgstr "Mi povas havi mian libron je rabatita prezo"
+msgstr "Mi povas havi mian libreton je rabatita prezo"
 
 msgid "price"
 msgstr "prezo"
@@ -1867,7 +1905,7 @@ msgid "Reservation"
 msgstr "Rezervado"
 
 msgid "First, please select the number of books you would like to reserve."
-msgstr "Unue bonvolu elekti la nombron de libroj, kiujn vi deziras mendi."
+msgstr "Unue bonvolu elekti la nombron de libretoj, kiujn vi deziras mendi."
 
 msgid "value"
 msgstr "valoro"
@@ -1895,13 +1933,13 @@ msgstr ""
 "Vi ne devas nun pagi. Ni kontaktos vin kiam eblos mendi el la %(link)s."
 
 msgid "Reserve"
-msgstr "Rezervu"
+msgstr "Rezervi"
 
 msgid "Reserving the book helps us to print the right quantity."
 msgstr "Rezervi la libreton helpas nin printi la ĝustan kvanton."
 
 msgid "Buying the book really helps the Pasporta Servo project."
-msgstr "Aĉeti la libron vere helpas la projekton Pasporta Servo!"
+msgstr "Aĉeti la libreton vere helpas la projekton Pasporta Servo!"
 
 msgid ""
 "Your email address doesn't appear to be valid, we probably won't be able to "
@@ -1911,25 +1949,14 @@ msgstr ""
 "mesaĝojn al tiu ĉi adreso. Bv kontrolu ĝin."
 
 msgid "^reserve/$"
-msgstr "^rezervu/$"
+msgstr "^rezervi/$"
 
 msgid "^reserve/(?P<product_code>\\w+)/$"
-msgstr "^rezervu/(?P<product_code>\\w+)/$"
+msgstr "^rezervi/(?P<product_code>\\w+)/$"
 
 msgid "^reservation/(?P<product_code>\\w+)/$"
 msgstr "^rezervado/(?P<product_code>\\w+)/$"
 
-#~ msgid "Please click on the map to choose your location."
-#~ msgstr "Bonvolu klaki la mapon por elekti vian lokon."
+#~ msgid "Budapest, London, Venezuela, etc."
+#~ msgstr "Budapeŝto, Londono, Venezuelo, ktp."
 
-#~ msgid "Click on the map"
-#~ msgstr "Klaku la mapon"
-
-#~ msgid "to select your location"
-#~ msgstr "por elekti vian lokon"
-
-#~ msgid "Where am I?"
-#~ msgstr "Kie mi estas?"
-
-#~ msgid "Search with the address"
-#~ msgstr "Serĉu laŭ la adreso"

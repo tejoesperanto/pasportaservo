@@ -14,7 +14,7 @@
                     <a href="{% url 'home' %}">P<span class="hidden-xs">asporta&nbsp;</span>S<span class="hidden-xs">ervo</span></a>
                 </div>
                 <div class="hidden-xs col-sm-3 col-md-3" id="subtitle">
-                    La fama gastiga servo por esperantistoj
+                    {% trans "Esperanto-hosts around the world" %}
                 </div>
                 <div class="col-xs-3 col-sm-2 col-md-1 col-md-offset-4 enveloppe links" role="navigation">
                     {% if user.is_authenticated %}

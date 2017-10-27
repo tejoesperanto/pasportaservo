@@ -43,5 +43,7 @@
 {% endblock %}
 
 {% block form_after %}
-    <script type="text/javascript">$("#id_conditions, #id_country").chosen();</script>
+    <script type="text/javascript">
+        $('#id_conditions, #id_country').chosen({no_results_text: "{% trans "Nothing found for" %}",});
+    </script>
 {% endblock form_after %}

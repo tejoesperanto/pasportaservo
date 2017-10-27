@@ -14,7 +14,7 @@
     <form class="form-inline row search" id="searchform" role="form" method="GET" action="{% url 'search' %}">
         <div class="form-group col-xs-12 col-md-offset-2 col-md-8">
             <div class="input-group" style="width: 100%">
-                <input class="form-control" type="search" id="searchinput" name="ps_q" value="{{ view.get_query }}" placeholder="{% trans "Budapest, London, Venezuela, etc." %}">
+                <input class="form-control" type="search" id="searchinput" name="ps_q" value="{{ view.get_query }}" placeholder="{% trans "Search for a country, a region, or a city…" %}">
                 <span class="input-group-btn" style="width: 20%">
                     <button class="btn btn-default" type="submit" id="search" style="min-width: 40px; width: 50%;"
                             title="{% trans "Search" %} {% trans "at" %} Pasporta Servo">
@@ -30,10 +30,10 @@
       {% with result=view.result %}
         {% if result.point %}
           {{ result|format_result }}
-          <p><a href="{% url 'world_map' %}{{ result|geo_url_hash }}">Vidi regionan mapon</a></p>
+          <p><a href="{% url 'world_map' %}{{ result|geo_url_hash }}">{% trans "Open map of the region" %}</a></p>
         {% else %}
           {% blocktrans with query=view.query trimmed %}
-            No results found for <em>{{ query }}</em>. Here is some active hosts!
+            No results found for <em>{{ query }}</em>. Here are some active hosts!
           {% endblocktrans %}
         {% endif %}
       {% endwith %}
