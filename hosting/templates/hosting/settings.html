@@ -58,7 +58,7 @@
     {% endif %}
 
     <section class="callout callout-primary">
-        <h4 id="{% trans "email-addr" %}">{% trans "Email" %}</h4>
+        <h4 id="{% trans "email-addr" context "URL" %}">{% trans "Email" context "Title" %}</h4>
         <samp><small>
             {% if profile.user.email|is_invalid %}
                 <span class="email text-danger" title="{% trans "invalid email" %}" data-toggle="tooltip">

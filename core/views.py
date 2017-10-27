@@ -19,7 +19,7 @@ from django.template.loader import get_template
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy, slugify
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 
 from blog.models import Post
 from hosting.models import Place, Profile
@@ -181,7 +181,7 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
             return HttpResponseRedirect(format_lazy("{settings_url}#{section_email}",
                 settings_url=reverse_lazy('profile_settings', kwargs={
                     'pk': request.user.profile.pk, 'slug': slugify(request.user.username)}),
-                section_email=_("email-addr"))
+                section_email=pgettext_lazy("URL", "email-addr"))
             )
         except Profile.DoesNotExist:
             return HttpResponseRedirect(reverse_lazy('email_update'))

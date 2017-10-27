@@ -1,7 +1,7 @@
 {% extends 'core/base.html' %}
 {% load i18n static %}
 
-{% block head_title %}Mapo{% endblock %}
+{% block head_title %}{% trans "Map of hosts" %}{% endblock %}
 
 {% block extra_head %}
     <link href="{{ MAPBOX_GL_CSS }}" rel="stylesheet" />

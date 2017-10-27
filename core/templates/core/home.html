@@ -45,7 +45,9 @@
         <div class="col-md-12" id="title" aria-level="1">
             {% block home_title %}Pasporta Servo{% endblock %}
         </div>
-        <div class="col-md-12" id="subtitle" aria-level="2">{% block home_subtitle %}La fama gastiga servo por esperantistoj{% endblock %}</div>
+        <div class="col-md-12" id="subtitle" aria-level="2">
+            {% block home_subtitle %}{% trans "The famous hosting service for Esperanto-speakers" %}{% endblock %}
+        </div>
     </div>
 
     <form class="form-inline row search" id="searchform" role="search form" method="GET" action="{% url 'search' %}">
@@ -53,7 +55,7 @@
             <div class="form-group" style="width: 100%">
                 <div class="input-group" style="width: 100%">
                     <input class="form-control" type="search" id="searchinput" name="ps_q"
-                           placeholder="{% trans "Serĉu per lando, regiono aŭ urbo…" %}">
+                           placeholder="{% trans "Search for a country, a region, or a city…" %}">
                     <span class="input-group-btn">
                         <button class="btn btn-default" type="submit" id="search" style="min-width: 40px; width: 100%;">
                             <span class="glyphicon glyphicon-search"></span>
