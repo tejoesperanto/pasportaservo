@@ -6,10 +6,10 @@ from django.utils.decorators import method_decorator
 from accept_language import parse_accept_language
 from djgeojson.views import GeoJSONLayerView
 
-
 from hosting.models import Place
 
-hours = 3600
+
+HOURS = 3600
 
 
 class WorldMapView(generic.TemplateView):
@@ -46,7 +46,7 @@ class MapStyleView(generic.TemplateView):
         }
 
 
-@method_decorator(cache_page(12 * hours), name='dispatch')
+@method_decorator(cache_page(12 * HOURS), name='dispatch')
 class PublicDataView(GeoJSONLayerView):
     geometry_field = 'location'
     precision = 2  # 0.01

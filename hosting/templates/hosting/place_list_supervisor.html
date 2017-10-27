@@ -87,7 +87,7 @@
             </a>
         </li>
     </ul>
-    <br>
+    <br />
 
     {% regroup place_list by confirmed as confirmed_list %}
     {% for confirmed_state in confirmed_list %}
@@ -137,12 +137,12 @@
             </div>
         </div>
 
-        <p class="timestamp text-right text-muted" title="{% trans "last login" %}<br>{{ place.owner.user.last_login }}"
+        <p class="timestamp text-right text-muted" title="{% trans "last login" %}<br />{{ place.owner.user.last_login }}"
            data-toggle="tooltip" data-html="true" data-placement="bottom">
             <small class="glyphicon glyphicon-log-in" style="position: relative; left: -2px"></small>
             <small><samp>{{ place.owner.user.last_login|date:"Y-m-d H:i" }} UTC</samp></small>
         </p>
-        <p class="timestamp text-right text-muted" title="{% trans "last modification" %}<br>{{ place.modified }}"
+        <p class="timestamp text-right text-muted" title="{% trans "last modification" %}<br />{{ place.modified }}"
            data-toggle="tooltip" data-html="true" data-placement="bottom">
             <small class="glyphicon glyphicon-edit"></small>
             <small><samp>{{ place.modified|date:"Y-m-d H:i" }} UTC</samp></small>
@@ -160,8 +160,8 @@
             </h4>
         </a>
         <div class="address">
-            {{ place.address }}<br>
-            {{ place.postcode}} <span class="glyphicon glyphicon-record"></span> <strong>{{ place.city }}</strong><br>
+            {{ place.address }}<br />
+            {{ place.postcode}} <span class="glyphicon glyphicon-record"></span> <strong>{{ place.city }}</strong><br />
             {{ place.state_province }}
         </div>
         <div class="description-short {% if place.short_description.strip %}has-content{% endif %}">
@@ -179,7 +179,7 @@
                         <span class="text-danger text-nowrap">
                             <span class="glyphicon glyphicon-warning-sign" data-toggle="tooltip" data-html="true"
                                   title="{{ description_text_warning }}
-                                         {% if description_text_warning and description_length_warning %}<br>{% endif %}
+                                         {% if description_text_warning and description_length_warning %}<br />{% endif %}
                                          {{ description_length_warning }}"></span>
                             {{ desc|length }}&#8202;/&#8202;135
                         </span>

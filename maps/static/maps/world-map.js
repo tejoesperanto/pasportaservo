@@ -1,9 +1,8 @@
 // @source: https://github.com/tejo-esperanto/pasportaservo/blob/master/maps/static/maps/world-map.js
 // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL v3
-window.addEventListener("load", loaded);
 
 
-function loaded() {
+window.addEventListener("load", function() {
 
     var map = new mapboxgl.Map({
         container: 'map',
@@ -55,15 +54,15 @@ function loaded() {
         });
 
         map.addLayer({
-        id: "cluster-count",
-        type: "symbol",
-        source: "lokoj",
-        filter: ["has", "point_count"],
-        layout: {
-            "text-field": "{point_count}",
-            "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-            "text-size": 12
-        }
+            id: "cluster-count",
+            type: "symbol",
+            source: "lokoj",
+            filter: ["has", "point_count"],
+            layout: {
+                "text-field": "{point_count}",
+                "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+                "text-size": 11
+            }
         });
 
         map.addLayer({
@@ -108,21 +107,26 @@ function loaded() {
 
         // Change the cursor to a pointer when the mouse is over the clusters layer.
         map.on('mouseenter', 'clusters', function() {
-            map.getCanvas().style.cursor = 'pointer';
+            map.getCanvas().style.cursor = "pointer";
         });
 
-        // Change it back to a pointer when it leaves.
+        // Change it back to a hand when it leaves.
         map.on('mouseleave', 'clusters', function() {
-            map.getCanvas().style.cursor = '';
+            map.getCanvas().style.cursor = "";
         });
 
+        // Change the cursor to a pointer when the mouse is over the places layer.
         map.on('mouseenter', 'places', function() {
-            map.getCanvas().style.cursor = 'pointer';
+            map.getCanvas().style.cursor = "pointer";
         });
 
-        // Change it back to a pointer when it leaves.
+        // Change it back to a hand when it leaves.
         map.on('mouseleave', 'places', function() {
-            map.getCanvas().style.cursor = '';
+            map.getCanvas().style.cursor = "";
         });
     });
-}
+
+});
+
+
+// @license-end

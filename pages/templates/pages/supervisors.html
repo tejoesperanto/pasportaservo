@@ -105,7 +105,7 @@
                 <div class="col-xxs-12 col-xs-8 col-sm-5 col-lg-4">
                     <div class="btn btn-sm country-code">
                         <span>{{ country.code }}</span>
-                        <img src="{{ country.flag }}" alt="" style="display: none">
+                        <img src="{{ country.flag }}" alt="" style="display: none" aria-hidden="true" />
                     </div>
                     {% if user|is_supervisor_of:country or not perms.hosting.can_supervise %}
                         {% expr "btn-primary" as country_name_class %}

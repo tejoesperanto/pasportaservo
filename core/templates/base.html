@@ -7,23 +7,23 @@
         <title>{% block head_title %}{% trans "Find accomodation" %}{% endblock %} {% block head_title_separator %}|{% endblock %} Pasporta Servo</title>
         <meta name="description" content="{% block head_description %}{% trans "Esperanto-hosts around the world" %}{% endblock %}">
 
-        <link rel="shortcut icon"         href="{% static 'img/marker/PS_favicon.ico' %}?v=1">
-        <link rel="icon" type="image/png" href="{% static 'img/marker/PS_favicon-32.png' %}"  sizes="32x32">
-        <link rel="icon" type="image/png" href="{% static 'img/marker/PS_android-192.png' %}" sizes="192x192">
-        <link rel="icon" type="image/png" href="{% static 'img/marker/PS_favicon-16.png' %}"  sizes="16x16">
-        <link rel="apple-touch-icon"      href="{% static 'img/marker/PS_apple.png' %}"       sizes="180x180">
-        <link rel="mask-icon"             href="{% static 'img/marker/PS_safari.svg' %}"      color="#ee6600">
-        <meta name="application-name" content="Pasporta Servo">
-        <meta name="msapplication-config" content="{% static 'img/marker/ms-browser-config.xml' %}?v=1">
-        <meta name="msapplication-task"   content="name={% trans "My profile" %}; action-uri={% url 'profile_redirect' %}?utm_source=ms-pinned-site; icon-uri={% static 'img/marker/avatar.ico' %}" />
-        <meta name="msapplication-task"   content="name={% trans "Search" %}; action-uri={% url 'search' %}?utm_source=ms-pinned-site; icon-uri={% static 'img/marker/search.ico' %}" />
-        <meta name="viewport" content="width=device-width">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black">
-        <meta name="apple-mobile-web-app-title" content="Pasporta Servo">
-        <meta name="mobile-web-app-capable" content="yes">
-        <link rel="manifest" href="{% static 'img/marker/android-manifest.json' %}?v=1">
-        <meta name="theme-color" content="#ee6600">
+        <link rel="shortcut icon"                           href="{% static 'img/marker/PS_favicon.ico' %}?v=1">
+        <link rel="icon" type="image/png"                   href="{% static 'img/marker/PS_favicon-32.png' %}"  sizes="32x32">
+        <link rel="icon" type="image/png"                   href="{% static 'img/marker/PS_android-192.png' %}" sizes="192x192">
+        <link rel="icon" type="image/png"                   href="{% static 'img/marker/PS_favicon-16.png' %}"  sizes="16x16">
+        <link rel="apple-touch-icon"                        href="{% static 'img/marker/PS_apple.png' %}"       sizes="180x180">
+        <link rel="mask-icon"                               href="{% static 'img/marker/PS_safari.svg' %}"      color="#ee6600">
+        <meta name="application-name"                       content="Pasporta Servo">
+        <meta name="msapplication-config"                   content="{% static 'img/marker/ms-browser-config.xml' %}?v=1">
+        <meta name="msapplication-task"                     content="name={% trans "My profile" %}; action-uri={% url 'profile_redirect' %}?utm_source=ms-pinned-site; icon-uri={% static 'img/marker/avatar.ico' %}" />
+        <meta name="msapplication-task"                     content="name={% trans "Search" %}; action-uri={% url 'search' %}?utm_source=ms-pinned-site; icon-uri={% static 'img/marker/search.ico' %}" />
+        <meta name="viewport"                               content="width=device-width">
+        <meta name="apple-mobile-web-app-capable"           content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style"  content="black">
+        <meta name="apple-mobile-web-app-title"             content="Pasporta Servo">
+        <meta name="mobile-web-app-capable"                 content="yes">
+        <link rel="manifest"                                href="{% static 'img/marker/android-manifest.json' %}?v=1">
+        <meta name="theme-color"                            content="#ee6600">
 
         <link rel="alternate" type="application/atom+xml" title="Pasporta Servo" href="{% url 'blog:atom' %}">
 

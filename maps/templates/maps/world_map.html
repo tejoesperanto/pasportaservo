@@ -3,14 +3,16 @@
 
 {% block head_title %}{% trans "Map of hosts" %}{% endblock %}
 
-{% block extra_head %}
-    <link href="{{ MAPBOX_GL_CSS }}" rel="stylesheet" />
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ MAPBOX_GL_CSS }}">
+{% endblock %}
+{% block extra_js %}
     <script src="{{ MAPBOX_GL_JS }}"></script>
     <script src="{% static 'maps/world-map.js' %}"></script>
-{% endblock extra_head %}
+{% endblock %}
 
 {% block pre-page %}
-    <div id='map' style="position:absolute; top:52px; bottom:0; width:100%;"></div>
+    <div id="map" style="position: absolute; top: 52px; bottom: 0; width: 100%;"></div>
 {% endblock %}
 
 {% block footer %}{% endblock %}

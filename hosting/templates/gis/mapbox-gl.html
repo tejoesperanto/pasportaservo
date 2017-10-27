@@ -1,16 +1,16 @@
 <style>
-  #map {
-    text-align: initial;
-    height: 400px
-  }
-  .mapboxgl-marker {
-    width: 1rem;
-    height: 1rem;
-    border-radius: 1rem;
-    background: #f71;
-  }
-  {% if not debug %}#{{ id }} { display: none; } {% endif %}
+    #map {
+        text-align: initial;
+        height: 400px;
+    }
+    .mapboxgl-marker {
+        width: 1rem;
+        height: 1rem;
+        border-radius: 1rem;
+        background: #f71;
+    }
+    {% if not debug %}#{{ id }} { display: none; } {% endif %}
 </style>
 
-<div id='map'></div>
-  <textarea id="{{ id }}" class="required" cols="54" rows="2" name="{{ name }}">{{ serialized }}</textarea>
+<div id="map"></div>
+<textarea id="{{ id }}" class="required" cols="54" rows="2" name="{{ name }}">{{ serialized }}</textarea>

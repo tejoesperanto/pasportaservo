@@ -1,10 +1,10 @@
-// @source: https://github.com/tejo-esperanto/pasportaservo/blob/master/pasportaservo/static/js/forms.js
+// @source: https://github.com/tejo-esperanto/pasportaservo/blob/master/core/static/js/forms.js
 // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL v3
 
 
 $(function() {
 
-    $(window).bind("load", function() {
+    $(window).bind('load', function() {
         var flasher = $('.alert.flyover');
         flasher.addClass('in');
         if (!flasher.hasClass('no-out')) {
@@ -193,7 +193,7 @@ $(function() {
             }
         });
         if (pwd_elements.length > 0) {
-            var options = pwd_elements.data("pwstrength-bootstrap");
+            var options = pwd_elements.data('pwstrength-bootstrap');
             var t_fallback = options.i18n.t;
             options.i18n.t = function (key) {
                 var dict = $.fn.pwstrength.localui[document.documentElement.lang];
@@ -201,7 +201,7 @@ $(function() {
                     return dict[key];
                 return t_fallback(key);
             };
-            $('#id_username, #id_email').on("input", function () {
+            $('#id_username, #id_email').on('input', function () {
                 pwd_elements.pwstrength("forceUpdate");
             });
         }
@@ -263,9 +263,9 @@ $(function() {
 
     /* form submit/cancel keyboard shortcut key implementation */
     if ($('#id_form_submit, #id_form_cancel').is(function() { return $(this).data('kbdshortcut') })) {
-        var shortcutY = ($('#id_form_submit').data('kbdshortcut') || '\0').charAt(0).toLowerCase();
-        var shortcutN = ($('#id_form_cancel').data('kbdshortcut') || '\0').charAt(0).toLowerCase();
-        $(window).bind("keydown", function(event) {
+        var shortcutY = ($('#id_form_submit').data('kbdshortcut') || "\0").charAt(0).toLowerCase();
+        var shortcutN = ($('#id_form_cancel').data('kbdshortcut') || "\0").charAt(0).toLowerCase();
+        $(window).bind('keydown', function(event) {
             if (event.isCommandKey()) {
                 var pressedKey = String.fromCharCode(event.which).toLowerCase()
                 if (pressedKey === shortcutY) {
