@@ -1,8 +1,8 @@
 // @source: https://github.com/tejo-esperanto/pasportaservo/blob/master/maps/static/maps/mapbox-gl-widget.js
 // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL v3
-window.addEventListener("load", loaded);
 
-function loaded() {
+
+window.addEventListener("load", function() {
 
     var field = document.getElementById('id_location');
 
@@ -32,9 +32,10 @@ function loaded() {
 
         map.getCanvas().style.cursor = 'pointer';
 
-
         map.on('click', function(e) {
-            if (marker) marker.setLngLat(e.lngLat);
+            if (marker) {
+                marker.setLngLat(e.lngLat);
+            }
             else {
                 var marker = new mapboxgl.Marker()
                     .setLngLat(e.lngLat)
@@ -56,4 +57,8 @@ function loaded() {
         var nav = new mapboxgl.NavigationControl();
         map.addControl(nav, 'top-left');
     });
-}
+
+});
+
+
+// @license-end

@@ -1,4 +1,4 @@
-// @source: https://github.com/tejo-esperanto/pasportaservo/blob/master/pasportaservo/static/js/scripts.js
+// @source: https://github.com/tejo-esperanto/pasportaservo/blob/master/core/static/js/scripts.js
 // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL v3
 
 
@@ -38,12 +38,12 @@ $(document).ready(function() {
         $('#id_blocked_from, #id_blocked_until').each(function () {
             var $input = $(this);
             var $toggler = $(document.createElement('span'));
-            $toggler.addClass("glyphicon glyphicon-calendar form-control-feedback datepicker-btn-inline")
+            $toggler.addClass('glyphicon glyphicon-calendar form-control-feedback datepicker-btn-inline')
                     .attr('aria-hidden', "true")
                     .click(function() { $input.datepicker("show"); });
             $input.after($toggler)
                   .data({dateShowOnFocus: false, dateKeyboardNavigation: false})
-                  .parent().addClass("has-feedback");
+                  .parent().addClass('has-feedback');
         });
 
         var fields_date = [$('#id_birth_date'),

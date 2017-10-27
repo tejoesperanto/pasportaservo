@@ -85,8 +85,8 @@
                     {% if user.is_authenticated %}
                         {% if place.city %}<strong>{{ place.city }}</strong>{% endif %}
                         {% if place.distance %}<small>{{ place.distance.km|floatformat:0 }}&nbsp;km</small>{% endif %}
-                        <br>
-                        {% if place.state_province %}{{ place.state_province }}, {% endif %} {{ place.country.name }}
+                        <br />
+                        {% if place.state_province %}{{ place.state_province }}, {% endif %}{{ place.country.name }}
                     {% else %}
                         {{ place.country.name }}
                     {% endif %}

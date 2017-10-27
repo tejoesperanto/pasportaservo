@@ -90,7 +90,7 @@
         {% endblock footer %}
     </footer>
 
-    {% include "core/snippets/google_analytics.html" with DNT=request.DNT DEBUG=debug only %}
+    {% include 'core/snippets/google_analytics.html' with DNT=request.DNT DEBUG=debug only %}
 
     {% if user.is_authenticated %}
     <!-- PageId:{% random_identifier %} -->

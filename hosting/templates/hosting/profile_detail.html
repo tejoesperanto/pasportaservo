@@ -114,7 +114,7 @@
                         {% expr "text-warning" as confirm_color %}
                     {% endif %}
                     <div class="edit-buttons btn history-link"
-                         title="{% trans "profile" %} {{ confirm_title }} <br> {{ profile.confirmed_on|date:"DATE_FORMAT" }}"
+                         title="{% trans "profile" %} {{ confirm_title }} <br /> {{ profile.confirmed_on|date:"DATE_FORMAT" }}"
                          data-toggle="tooltip" data-placement="left auto" data-html="true">
                         <span class="glyphicon glyphicon-list {{ confirm_color }}"></span>
                         <span class="glyphicon glyphicon-{{ profile.confirmed|yesno:"check,unchecked" }} {{ confirm_color }}"></span>

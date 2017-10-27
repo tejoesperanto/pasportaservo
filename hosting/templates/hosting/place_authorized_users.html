@@ -31,7 +31,7 @@
         <div class="col-xs-12 col-md-6 col-md-offset-3">
             <form method="POST" action="{{ auth_form_url }}?next={{ request.GET.next }}">
                 <p class="col-xs-12 well">
-                    <img src="{{ auth_user.profile.avatar_url }}" height="30">&nbsp;
+                    <img src="{{ auth_user.profile.avatar_url }}" height="30" />&nbsp;
                     <span class="authorized-user">
                         <a href="{{ auth_user.profile.get_absolute_url }}">
                             {% comment %}
