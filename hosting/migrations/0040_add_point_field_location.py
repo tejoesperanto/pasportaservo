@@ -14,11 +14,12 @@ def populate_location(app_registry, schema_editor):
     places = Place._default_manager.filter(
         latitude__isnull=False,
         longitude__isnull=False,
-    ).only('latitude', 'longitude')
+    ).only('latitude', 'longitude').order_by('pk')
     for place in places:
-        print(place.longitude, place.latitude)
+        print(place.pk, place.longitude, place.latitude)
         place.location = Point(place.longitude, place.latitude)
-        place.save()
+        if not place.location.empty:
+            place.save()
 
 
 
