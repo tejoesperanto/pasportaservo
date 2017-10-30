@@ -105,13 +105,16 @@ class FamilyMemberAuthMixin(object):
 
 class UpdateMixin(object):
     minimum_role = OWNER
+    update_partial = False
 
     @never_cache
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        self.object.set_check_status(self.request.user)
+        self.object.set_check_status(
+            self.request.user,
+            clear_only=getattr(self, 'update_partial', False))
         return super().form_valid(form)
 
 

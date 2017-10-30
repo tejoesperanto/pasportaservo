@@ -62,9 +62,10 @@ class TrackingModel(models.Model):
     class Meta:
         abstract = True
 
-    def set_check_status(self, set_by_user):
+    def set_check_status(self, set_by_user, clear_only=False):
         if self.owner.user != set_by_user:
-            self.checked_on, self.checked_by = timezone.now(), set_by_user
+            if not clear_only:
+                self.checked_on, self.checked_by = timezone.now(), set_by_user
         else:
             self.checked_on, self.checked_by = None, None
         self.save()
