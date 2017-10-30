@@ -223,12 +223,11 @@ class PlaceCreateForm(PlaceForm):
 class PlaceLocationForm(forms.ModelForm):
     class Meta:
         model = Place
-        fields = ('location',)
+        fields = ['location']
         widgets = {
             'location': MapboxGlWidget(),
             # 'location': OSMWidget(attrs={'template_name': "gis/openlayers-osm-custom.html", 'display_raw': True, 'map_width': "100%", 'map_height': "500px"}),
         }
-
 
 
 class PlaceBlockForm(forms.ModelForm):
