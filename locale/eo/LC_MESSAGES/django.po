@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-09-30 01:15+0000\n"
-"PO-Revision-Date: 2017-09-30 03:21+0200\n"
+"POT-Revision-Date: 2017-11-04 16:18+0000\n"
 "Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -265,7 +265,7 @@ msgid "Register"
 msgstr "Registriĝi"
 
 msgid "Change user's account email"
-msgstr "Modifi adreson de uzanto"
+msgstr "Modifi retadreson de uzanto"
 
 msgid "My email address"
 msgstr "Mia retpoŝta adreso"
@@ -608,6 +608,9 @@ msgstr "nefunkcianta adreso"
 
 msgid "user is defined"
 msgstr "uzanto havebla"
+
+msgid "location is defined"
+msgstr "lokigo havebla"
 
 msgid "Hosting Service"
 msgstr "Gastiga Servo"

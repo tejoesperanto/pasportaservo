@@ -17,7 +17,8 @@ from maps.widgets import MapboxGlWidget
 from .models import Profile, Place, Phone, Website, Condition, ContactPreference
 from .admin_utils import (
     ShowConfirmedMixin, ShowDeletedMixin,
-    CountryMentionedOnlyFilter, SupervisorFilter, EmailValidityFilter, ProfileHasUserFilter
+    CountryMentionedOnlyFilter, SupervisorFilter, EmailValidityFilter,
+    ProfileHasUserFilter, PlaceHasLocationFilter,
 )
 from .widgets import AdminImageWithPreviewWidget
 
@@ -251,7 +252,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         'owner__first_name', 'owner__last_name', 'owner__user__email',
     ]
     list_filter = (
-        'confirmed_on', 'checked_on', 'in_book', 'available', 'deleted_on',
+        'confirmed_on', 'checked_on', 'in_book', 'available', PlaceHasLocationFilter, 'deleted_on',
         CountryMentionedOnlyFilter,
     )
     fields = (
