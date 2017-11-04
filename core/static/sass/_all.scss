@@ -140,6 +140,19 @@ header.home form.search {
 /* Search & Accommodation details */
 #page.search form.search {
     margin-bottom: 1em;
+    #maplink.pull-left {
+        margin-right: 1em;
+    }
+    #maplink.pull-right {
+        margin-left: 1em;
+    }
+}
+#page.search #georesult {
+    margin-bottom: 1em;
+    .maplink {
+        margin-top: 5px;
+        margin-bottom: 10px;
+    }
 }
 .place-list {
     padding-bottom: 0.5em;
