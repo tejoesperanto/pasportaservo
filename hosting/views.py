@@ -475,13 +475,15 @@ class SearchView(PlaceListView):
     paginate_by = 20
 
     def get(self, request, *args, **kwargs):
+        def unwhitespace(val):
+            return " ".join(val.split())
         if 'ps_q' in request.GET:
             # Keeping Unicode in URL, replacing space with '+'.
-            query = uri_to_iri(urlquote_plus(request.GET['ps_q']))
+            query = uri_to_iri(urlquote_plus(unwhitespace(request.GET['ps_q'])))
             params = {'query': query} if query else None
             return HttpResponseRedirect(reverse_lazy('search', kwargs=params))
         query = kwargs['query'] or ''  # Avoiding query=None
-        self.query = unquote_plus(query)
+        self.query = unwhitespace(unquote_plus(query))
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -507,11 +509,6 @@ class SearchView(PlaceListView):
             Q(closest_city__icontains=self.query)
         )
         return self.queryset.filter(lookup).select_related('owner__user')
-
-    @property
-    def get_query(self):
-        return self.query
-
 
 search = SearchView.as_view()
 
