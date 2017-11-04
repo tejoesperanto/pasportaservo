@@ -3,8 +3,8 @@
 
 {% block head_title %}
     {% trans "Find accomodation" %}
-    {% if view.get_query %}
-        {% trans "at" %} {{ view.get_query.strip }}
+    {% if view.query %}
+        {% trans "at" %} {{ view.result|format_geo_result|default:view.query.strip }}
     {% endif %}
 {% endblock %}
 
@@ -14,7 +14,7 @@
     <form class="form-inline row search" id="searchform" role="form" method="GET" action="{% url 'search' %}">
         <div class="form-group col-xs-12 col-md-offset-2 col-md-8">
             <div class="input-group" style="width: 100%">
-                <input class="form-control" type="search" id="searchinput" name="ps_q" value="{{ view.get_query }}" placeholder="{% trans "Search for a country, a region, or a city…" %}">
+                <input class="form-control" type="search" id="searchinput" name="ps_q" value="{{ view.query }}" placeholder="{% trans "Search for a country, a region, or a city…" %}">
                 <span class="input-group-btn" style="width: 20%">
                     <button class="btn btn-default" type="submit" id="search" style="min-width: 40px; width: 50%;"
                             title="{% trans "Search" %} {% trans "at" %} Pasporta Servo">
@@ -29,9 +29,9 @@
     <h4 class="text-center">
       {% with result=view.result %}
         {% if result.point %}
-          {{ result|format_result }}
+          {{ result|format_geo_result }}
           <p><a href="{% url 'world_map' %}{{ result|geo_url_hash }}">{% trans "Open map of the region" %}</a></p>
-        {% else %}
+        {% elif view.query %}
           {% blocktrans with query=view.query trimmed %}
             No results found for <em>{{ query }}</em>. Here are some active hosts!
           {% endblocktrans %}
@@ -111,7 +111,7 @@
     {% empty %}
         <div class="row place-list">
             <div class="col-xs-12 help-block" style="color: #333">
-                {% if request.GET.ps_q or view.get_query %}
+                {% if request.GET.ps_q or view.query %}
                     {% trans "Sorry, no kind hosts found…" %}
                 {% else %}
                     &nbsp;
