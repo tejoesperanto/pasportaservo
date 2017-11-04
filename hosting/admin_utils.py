@@ -108,3 +108,14 @@ class ProfileHasUserFilter(admin.SimpleListFilter):
         if str(self.value()).isdigit():
             return queryset.filter(user__isnull=(int(self.value()) == 0))
 
+
+class PlaceHasLocationFilter(admin.SimpleListFilter):
+    title = _("location is defined")
+    parameter_name = 'has_location'
+
+    def lookups(self, request, model_admin):
+        return ((1, _('Yes')), (0, _('No')))
+
+    def queryset(self, request, queryset):
+        if str(self.value()).isdigit():
+            return queryset.filter(location__isnull=(int(self.value()) == 0))
