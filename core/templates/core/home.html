@@ -25,7 +25,7 @@
                     <b class="hidden-xs">|</b>
                     <a href="{% url 'admin:index' %}">{% trans "admin site" %}</a>
                 {% endif %}
-            {% else %}
+            {% elif user %} {# 500/403-CSRF error pages don't have a user object or custom context #}
                 <a href="{% url 'login' %}?{{ REDIRECT_FIELD_NAME }}={{ request.get_full_path|urlencode }}">{% trans "log in" %}</a>
             {% endif %}
         </div>
@@ -36,7 +36,7 @@
                 {% else %}
                     <a href="{% url 'profile_create' %}">{{ user.username }}</a>
                 {% endif %}
-            {% else %}
+            {% elif user %} {# 500/403-CSRF error pages don't have a user object or custom context #}
                 <a href="{% url 'register' %}?{{ REDIRECT_FIELD_NAME }}={{ request.get_full_path|urlencode }}">{% trans "register" %}</a>
             {% endif %}
         </div>
