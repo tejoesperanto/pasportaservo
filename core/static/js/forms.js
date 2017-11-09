@@ -128,10 +128,17 @@ $(function() {
             errors.push(value_error || this.validationMessage);
             constraint_failed = true;
         }
-        if ($this.is(':file') && !isNaN($this.attr('maxlength'))) {
+        if ($this.is('input[type="file"]') && !isNaN($this.attr('maxlength'))) {
             var data = event.originalEvent.target.files[0];
             if (data && data.size > Number($this.attr('maxlength'))) {
                 errors.push($this.data('error-maxlength') || localui["max__file"] || "The file provided by you is too large.");
+                constraint_failed = true;
+            }
+        }
+        if ($this.is('input[type="password"]') && $($this.data('coupling')).length == 1) {
+            var data = $($this.data('coupling')).val();
+            if ($this.val() && $this.val() != data) {
+                errors.push(localui["valueMismatch__password"] || "The two password fields do not match.");
                 constraint_failed = true;
             }
         }
@@ -171,6 +178,10 @@ $(function() {
             $this.triggerHandler('blur', true);
         });
     });
+
+    /* password fields coupling for client-side validation of correctly typed value */
+    $('#id_password2').data('coupling', '#id_password1');
+    $('#id_new_password2').data('coupling', '#id_new_password1');
 
     /* password strength meter for password input fields (registration, password change) */
     if (typeof $().pwstrength !== "undefined") {
