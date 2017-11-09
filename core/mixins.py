@@ -38,6 +38,11 @@ class SupervisorRequiredMixin(UserPassesTestMixin):
 
 
 class LoginRequiredMixin(AuthenticatedUserRequiredMixin):
+    """
+    An own mixin enabling the usage of a custom URL parameter name
+    for the redirection after successful authentication. Needed due to
+    arbitrary limitations on the parameter name customization by Django.
+    """
     redirect_field_name = settings.REDIRECT_FIELD_NAME
 
 

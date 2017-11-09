@@ -1,4 +1,4 @@
-{% load i18n url_utils %}{% autoescape off %}
+{% load i18n domain %}{% autoescape off %}
 {% if user.profile %}{% blocktrans with user_first_name=user.profile.name trimmed %}
     Dear {{ user_first_name }},
 {% endblocktrans %}{% else %}{% trans "Dear user," %}{% endif %}
