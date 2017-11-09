@@ -194,9 +194,11 @@ class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
     Confirms for the current user (only) the email address in the request as valid
     and updates it in the database.
     This is an internal view not accessible via a URL.
+    The check that the user is authenticated is performed in the dispatch() method
+    of the mixin.
     """
 
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         user = get_object_or_404(User, pk=kwargs['pk'])
         if user.pk != request.user.pk:
             raise Http404("Only user the token was created for can use this view.")
