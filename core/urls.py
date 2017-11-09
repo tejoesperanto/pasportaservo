@@ -1,20 +1,20 @@
-from django.conf.urls import url
+from django.conf.urls import include, url
 from django.conf import settings
+from django.views.generic import RedirectView
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.views import (
-    login, logout,
-    password_change, password_change_done,
-    password_reset, password_reset_done,
-    password_reset_confirm, password_reset_complete,
+    LoginView, LogoutView,
+    #PasswordChangeView, PasswordChangeDoneView,
+    PasswordResetView, PasswordResetDoneView,
+    PasswordResetConfirmView, PasswordResetCompleteView,
 )
 
 from .views import (
-    home,
-    register,
-    username_change,
-    email_update, staff_email_update, email_verify,
-    email_mark_invalid, email_mark_valid,
-    mass_mail, mass_mail_sent,
+    HomeView,
+    RegisterView,
+    PasswordChangeView, PasswordChangeDoneView, UsernameChangeView,
+    EmailUpdateView, EmailVerifyView,
+    MassMailView, MassMailSentView,
 )
 from .forms import (
     SystemPasswordResetRequestForm, SystemPasswordResetForm
@@ -22,34 +22,52 @@ from .forms import (
 
 
 urlpatterns = [
-    url(r'^$', home, name='home'),
+    url(r'^$', HomeView.as_view(), name='home'),
 
-    url(_(r'^register/$'), register, name='register'),
-    url(_(r'^login/$'), view=login, name='login',
-        kwargs={'redirect_authenticated_user': True,
-                'redirect_field_name': settings.REDIRECT_FIELD_NAME}),
-    url(_(r'^logout/$'), view=logout, kwargs={'next_page': '/'}, name='logout'),
+    url(_(r'^register/$'), RegisterView.as_view(), name='register'),
+    url(_(r'^login/$'),
+        view=LoginView.as_view(
+            redirect_authenticated_user=True,
+            redirect_field_name=settings.REDIRECT_FIELD_NAME,
+        ),
+        name='login'),
+    url(_(r'^logout/$'), view=LogoutView.as_view(next_page='/'), name='logout'),
 
-    url(_(r'^password/$'), view=password_change, name='password_change'),
-    url(_(r'^password/done/$'), view=password_change_done, name='password_change_done'),
-    url(_(r'^password/reset/$'), view=password_reset, name='password_reset',
-        kwargs={'password_reset_form': SystemPasswordResetRequestForm,
-                'html_email_template_name': 'email/password_reset.html',
-                'email_template_name': 'email/password_reset.txt',
-                'subject_template_name': 'email/password_reset_subject.txt'}),
-    url(_(r'^password/reset/done/$'), view=password_reset_done, name='password_reset_done'),
-    url(_(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$'),
-        view=password_reset_confirm, name='password_reset_confirm',
-        kwargs={'set_password_form': SystemPasswordResetForm}),
-    url(_(r'^reset/done/$'), view=password_reset_complete, name='password_reset_complete'),
+    url(_(r'^password/'), include([
+        url(r'^$', view=PasswordChangeView.as_view(), name='password_change'),
+        url(_(r'^done/$'), view=PasswordChangeDoneView.as_view(), name='password_change_done'),
+        url(_(r'^reset/'), include([
+            url(r'^$',
+                view=PasswordResetView.as_view(
+                    form_class=SystemPasswordResetRequestForm,
+                    html_email_template_name='email/password_reset.html',
+                    email_template_name='email/password_reset.txt',
+                    subject_template_name='email/password_reset_subject.txt',
+                ),
+                name='password_reset'),
+            url(_(r'^sent/$'), view=PasswordResetDoneView.as_view(), name='password_reset_done'),
+            url(r'^(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+                view=PasswordResetConfirmView.as_view(
+                    form_class=SystemPasswordResetForm,
+                ),
+                name='password_reset_confirm'),
+            url(_(r'^done/$'), view=PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+        ])),
+    ])),
+    # Backwards-compatibility for older password reset URLs. They become invalid
+    # quickly, so can be removed after 31 Dec 2017.
+    url(_(r'^reset-password/(?P<uidb64>.+?)/(?P<token>.+?)/$'),
+        RedirectView.as_view(pattern_name='password_reset_confirm', permanent=True)),
+    url(_(r'^username/$'), UsernameChangeView.as_view(), name='username_change'),
+    url(_(r'^email/'), include([
+        url(r'^$', EmailUpdateView.as_view(), name='email_update'),
+        url(_(r'^verify/$'), EmailVerifyView.as_view(), name='email_verify'),
+    ])),
 
-    url(_(r'^username/$'), username_change, name='username_change'),
-    url(_(r'^email/$'), email_update, name='email_update'),
-    url(_(r'^profile/(?P<pk>\d+)/staff/email/update/$'), staff_email_update, name='staff_email_update'),
-    url(_(r'^profile/(?P<pk>\d+)/staff/email/mark-invalid/$'), email_mark_invalid, name='staff_email_mark_invalid'),
-    url(_(r'^profile/(?P<pk>\d+)/staff/email/mark-valid/$'), email_mark_valid, name='staff_email_mark_valid'),
-    url(_(r'^email/verify/$'), email_verify, name='email_verify'),
-
-    url(_(r'^admin/mass-mail/$'), mass_mail, name='mass_mail'),
-    url(_(r'^admin/mass-mail/sent/$'), mass_mail_sent, name='mass_mail_sent'),
+    url(_(r'^admin/'), include([
+        url(_(r'^mass-mail/'), include([
+            url(r'^$', MassMailView.as_view(), name='mass_mail'),
+            url(_(r'^sent/$'), MassMailSentView.as_view(), name='mass_mail_sent'),
+        ])),
+    ])),
 ]

@@ -20,7 +20,7 @@ User = get_user_model()
 
 class SystemEmailFormMixin(object):
     def __init__(self, *args, **kwargs):
-        super(SystemEmailFormMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # Stores the value before the change.
         self.previous_email = value_without_invalid_marker(self.instance.email)
 
@@ -42,7 +42,7 @@ class UserRegistrationForm(SystemEmailFormMixin, UserCreationForm):
         help_text=_("Leave blank"), required=False)
 
     def __init__(self, *args, **kwargs):
-        super(UserRegistrationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         User._meta.get_field('email')._unique = True
         for fieldname in ['username', 'password1', 'password2', 'email']:
             self.fields[fieldname].help_text = None
@@ -56,7 +56,7 @@ class UserRegistrationForm(SystemEmailFormMixin, UserCreationForm):
         return flies
 
     def save(self, commit=True):
-        user = super(UserRegistrationForm, self).save(commit=False)
+        user = super().save(commit=False)
         user.email = self.cleaned_data['email']
         if commit:
             user.save()
@@ -75,7 +75,7 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
         fields = ['email']
 
     def __init__(self, *args, **kwargs):
-        super(EmailUpdateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # Displays the clean value of the address in the form.
         self.initial['email'] = self.previous_email
 
@@ -123,7 +123,7 @@ class EmailStaffUpdateForm(SystemEmailFormMixin, forms.ModelForm):
         fields = ['email']
 
     def __init__(self, *args, **kwargs):
-        super(EmailStaffUpdateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # Displays the clean value of the address in the form.
         self.initial['email'] = self.previous_email
 
@@ -142,7 +142,7 @@ class SystemPasswordResetRequestForm(PasswordResetForm):
 
 class SystemPasswordResetForm(SetPasswordForm):
     def save(self, commit=True):
-        super(SystemPasswordResetForm, self).save(commit)
+        super().save(commit)
         if commit:
             Profile.mark_valid_emails([self.user.email])
         return self.user

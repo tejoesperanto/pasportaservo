@@ -41,7 +41,7 @@ class ProfileForm(forms.ModelForm):
         book_required_fields = ['title', 'first_name', 'last_name']
 
     def __init__(self, *args, **kwargs):
-        super(ProfileForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         config = SiteConfiguration.get_solo()
         self.fields['first_name'].widget.attrs['inputmode'] = 'latin-name'
         self.fields['last_name'].widget.attrs['inputmode'] = 'latin-name'
@@ -75,7 +75,7 @@ class ProfileForm(forms.ModelForm):
 
     def clean(self):
         """Sets some fields as required if user wants their data to be printed in book."""
-        cleaned_data = super(ProfileForm, self).clean()
+        cleaned_data = super().clean()
         if hasattr(self, 'instance'):
             profile = self.instance
             in_book = profile.is_in_book
@@ -96,10 +96,10 @@ class ProfileForm(forms.ModelForm):
 class ProfileCreateForm(ProfileForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
-        super(ProfileCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        profile = super(ProfileForm, self).save(commit=False)
+        profile = super().save(commit=False)
         profile.user = self.user
         profile.email = self.user.email
         if commit:
@@ -113,7 +113,7 @@ class ProfileEmailUpdateForm(forms.ModelForm):
         fields = ['email']
 
     def __init__(self, *args, **kwargs):
-        super(ProfileEmailUpdateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # Displays a clean value of the address in the form.
         self.initial['email'] = value_without_invalid_marker(self.instance.email)
 
@@ -141,13 +141,13 @@ class PlaceForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(PlaceForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['address'].widget.attrs['rows'] = 2
         self.fields['conditions'].help_text = ""
         self.fields['conditions'].widget.attrs['data-placeholder'] = _("Choose your conditions...")
 
     def clean(self):
-        cleaned_data = super(PlaceForm, self).clean()
+        cleaned_data = super().clean()
         config = SiteConfiguration.get_solo()
 
         # Verifies that user is of correct age if they want to host or meet guests.
@@ -210,7 +210,7 @@ class PlaceForm(forms.ModelForm):
 class PlaceCreateForm(PlaceForm):
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
-        super(PlaceCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
         place = super().save(commit=False)
@@ -238,7 +238,7 @@ class PlaceBlockForm(forms.ModelForm):
                               widget=forms.HiddenInput, label="")
 
     def __init__(self, *args, **kwargs):
-        super(PlaceBlockForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         widget_settings = {
             'data-date-start-date': '-0d',
             'data-date-force-parse': 'false',
@@ -261,7 +261,7 @@ class PlaceBlockForm(forms.ModelForm):
 
     def clean(self):
         """Checks if starting date is earlier then the ending date."""
-        cleaned_data = super(PlaceBlockForm, self).clean()
+        cleaned_data = super().clean()
         cleaned_data = dict((k, v) for k, v in cleaned_data.items()
                             if k == cleaned_data.get('dirty', ""))
 
@@ -288,14 +288,14 @@ class PhoneForm(forms.ModelForm):
         fields = ['number', 'type', 'country', 'comments']
 
     def __init__(self, *args, **kwargs):
-        super(PhoneForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if not hasattr(self, 'profile'):
             self.profile = self.instance.profile
         self.fields['number'].widget.input_type = 'tel'
 
     def clean(self):
         """Checks if the number and the profile are unique together."""
-        cleaned_data = super(PhoneForm, self).clean()
+        cleaned_data = super().clean()
         if 'number' in cleaned_data:
             data = cleaned_data['number'].as_e164
             phones = Phone.objects.filter(number=data, profile=self.profile)
@@ -310,10 +310,10 @@ class PhoneForm(forms.ModelForm):
 class PhoneCreateForm(PhoneForm):
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
-        super(PhoneCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        phone = super(PhoneCreateForm, self).save(commit=False)
+        phone = super().save(commit=False)
         phone.profile = self.profile
         if commit:
             phone.save()
@@ -325,12 +325,12 @@ class UserAuthorizeForm(forms.Form):
     remove = forms.BooleanField(required=False, initial=False, widget=forms.widgets.HiddenInput)
 
     def __init__(self, *args, **kwargs):
-        super(UserAuthorizeForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['user'].widget.attrs['placeholder'] = _("username")
         self.fields['user'].widget.attrs['inputmode'] = 'verbatim'
 
     def clean(self):
-        cleaned_data = super(UserAuthorizeForm, self).clean()
+        cleaned_data = super().clean()
         if 'user' not in cleaned_data:
             return
         user_qualifier = cleaned_data['user']
@@ -346,7 +346,7 @@ class UserAuthorizeForm(forms.Form):
 
 class UserAuthorizedOnceForm(UserAuthorizeForm):
     def __init__(self, *args, **kwargs):
-        super(UserAuthorizedOnceForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['user'].widget = forms.widgets.HiddenInput()
         self.fields['remove'].initial = True
 
@@ -362,7 +362,7 @@ class FamilyMemberForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.place = kwargs.pop('place')
-        super(FamilyMemberForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['first_name'].widget.attrs['inputmode'] = 'latin-name'
         self.fields['last_name'].widget.attrs['inputmode'] = 'latin-name'
         if not self.place_has_family_members():
@@ -381,7 +381,7 @@ class FamilyMemberForm(forms.ModelForm):
 
     def clean(self):
         """Verifies that first name and last name convey some information together."""
-        cleaned_data = super(FamilyMemberForm, self).clean()
+        cleaned_data = super().clean()
         if 'first_name' in cleaned_data and 'last_name' in cleaned_data and self.place_has_family_members():
             if not "".join([cleaned_data['first_name'], cleaned_data['last_name']]):
                 raise forms.ValidationError(_("The name cannot be empty, "
@@ -391,10 +391,10 @@ class FamilyMemberForm(forms.ModelForm):
 
 class FamilyMemberCreateForm(FamilyMemberForm):
     def __init__(self, *args, **kwargs):
-        super(FamilyMemberCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def save(self):
-        family_member = super(FamilyMemberCreateForm, self).save()
+        family_member = super().save()
         self.place.family_members.add(family_member)
         return family_member
 

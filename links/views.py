@@ -12,7 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from hosting.models import Place
 from core.models import SiteConfiguration
-from core.views import email_update_confirm
+from core.views import EmailUpdateConfirmView
 
 
 class UniqueLinkView(generic.TemplateView):
@@ -56,19 +56,14 @@ class UniqueLinkView(generic.TemplateView):
         return HttpResponseRedirect(place.owner.get_absolute_url())
 
     def redirect_email_update(self, request, payload):
+        email_update_confirm = EmailUpdateConfirmView.as_view()
         return email_update_confirm(request, pk=payload['pk'], email=payload['email'],
                                     verification=payload['v'] if 'v' in payload else False)
-
-unique_link = UniqueLinkView.as_view()
 
 
 class ConfirmedView(generic.TemplateView):
     template_name = 'links/confirmed.html'
 
-info_confirmed = ConfirmedView.as_view()
-
 
 class AlreadyConfirmedView(generic.TemplateView):
     template_name = 'links/already_confirmed.html'
-
-info_already_confirmed = AlreadyConfirmedView.as_view()

@@ -98,7 +98,7 @@
                 </form>
             {% endif %}
         {% else %}
-            <a href="{% url 'staff_email_update' profile.pk %}" class="btn btn-default btn-sm btn-vert-space-even">
+            <a href="{% url 'staff_email_update' profile.pk profile.autoslug %}" class="btn btn-default btn-sm btn-vert-space-even">
                 {% trans "Update account email" %}
             </a>
         {% endif %}

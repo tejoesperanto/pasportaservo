@@ -1,4 +1,5 @@
 from django.contrib.syndication.views import Feed
+from django.urls import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.utils.feedgenerator import Atom1Feed
 from django.views import generic
@@ -23,7 +24,7 @@ class PostDetailView(generic.DetailView):
 
 class PostsFeed(Feed):
     title = "Pasporta Servo"
-    link = "/feed/"
+    link = reverse_lazy('blog:posts')
     description = _("The last news about Pasporta Servo")
 
     def items(self):

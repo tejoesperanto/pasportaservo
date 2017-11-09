@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
-from .views import contact_export
+from .views import ContactExportView
 
 urlpatterns = [
-    url(r'^eksporti/gastigantoj\.csv$', contact_export, name='contact_export'),
+    url(r'^eksporti/gastigantoj\.csv$', ContactExportView.as_view(), name='contact_export'),
 ]

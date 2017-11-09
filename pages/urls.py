@@ -1,13 +1,17 @@
-from django.conf.urls import url
+from django.conf.urls import include, url
 from django.views.generic import RedirectView
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import pgettext_lazy, ugettext_lazy as _
+from django.utils.text import format_lazy
 
-from .views import about, terms_conditions, supervisors, faq
+from .views import AboutView, TermsAndConditionsView, SupervisorsView, FaqView
 
 urlpatterns = [
-    url(_(r'^about/$'), about, name='about'),
-    url(_(r'^terms-and-conditions/$'), terms_conditions, name='terms_conditions'),
-    url(_(r'^faq/$'), faq, name='faq'),
-    url(_(r'^lo(?:/book\:(?P<in_book>1))?/$'), supervisors, name='supervisors'),
+    url(_(r'^about/$'), AboutView.as_view(), name='about'),
+    url(_(r'^terms-and-conditions/$'), TermsAndConditionsView.as_view(), name='terms_conditions'),
+    url(_(r'^faq/$'), FaqView.as_view(), name='faq'),
+    url(_(r'^sv/'), include([
+        url(format_lazy(r'^({book}\:(?P<in_book>1)/)?$', book=pgettext_lazy("URL", 'book')),
+            SupervisorsView.as_view(), name='supervisors'),
+    ])),
     url(_(r'^supervisors/$'), RedirectView.as_view(pattern_name='supervisors')),
 ]

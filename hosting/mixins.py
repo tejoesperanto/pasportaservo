@@ -38,8 +38,8 @@ class CreateMixin(object):
     minimum_role = OWNER
 
     def dispatch(self, request, *args, **kwargs):
-        if self.kwargs.get('pk'):
-            profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
+        if self.kwargs.get('profile_pk'):
+            profile = get_object_or_404(Profile, pk=self.kwargs['profile_pk'])
             self.create_for = profile
         elif self.kwargs.get('place_pk'):
             place = get_object_or_404(Place, pk=self.kwargs['place_pk'])
