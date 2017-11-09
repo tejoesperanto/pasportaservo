@@ -7,7 +7,7 @@ from django.views.generic.base import TemplateView
 
 urlpatterns = [
     url('', include('core.urls')),
-    url(_(r'^admin/'), admin.site.urls),
+    url(_(r'^management/'), admin.site.urls),
     url(_(r'^messages/'), include('postman.urls', namespace='postman', app_name='postman')),
     url('', include('hosting.urls')),
     url('', include('pages.urls')),

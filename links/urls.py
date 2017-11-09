@@ -1,10 +1,12 @@
-from django.conf.urls import url
+from django.conf.urls import include, url
 from django.utils.translation import ugettext_lazy as _
 
-from .views import unique_link, info_confirmed, info_already_confirmed
+from .views import UniqueLinkView, ConfirmedView, AlreadyConfirmedView
 
 urlpatterns = [
-    url(_(r'^link/(?P<token>[\w\.\-_]+)$'), unique_link, name='unique_link'),
-    url(_(r'^current/confirmed/$'), info_confirmed, name='info_confirmed'),
-    url(_(r'^current/already_confirmed/$'), info_already_confirmed, name='info_already_confirmed'),
+    url(_(r'^link/(?P<token>[\w\.\-_]+)$'), UniqueLinkView.as_view(), name='unique_link'),
+    url(_(r'^current/'), include([
+        url(_(r'^confirmed/$'), ConfirmedView.as_view(), name='info_confirmed'),
+        url(_(r'^already_confirmed/$'), AlreadyConfirmedView.as_view(), name='info_already_confirmed'),
+    ])),
 ]

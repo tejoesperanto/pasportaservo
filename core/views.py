@@ -4,6 +4,10 @@ from copy import copy
 from markdown2 import markdown
 
 from django.views import generic
+from django.contrib.auth.views import (
+    PasswordChangeView as PasswordChangeBuiltinView,
+    PasswordChangeDoneView as PasswordChangeDoneBuiltinView,
+)
 from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.template.response import TemplateResponse
 from django.views.decorators.vary import vary_on_headers
@@ -47,8 +51,6 @@ class HomeView(generic.TemplateView):
     def right_block(self):
         return FlatPage.objects.filter(url='/home-right-block/').values('content').first()
 
-home = HomeView.as_view()
-
 
 class RegisterView(generic.CreateView):
     model = User
@@ -84,7 +86,17 @@ class RegisterView(generic.CreateView):
         messages.success(self.request, _("You are logged in."))
         return result
 
-register = RegisterView.as_view()
+
+class PasswordChangeView(LoginRequiredMixin, PasswordChangeBuiltinView):
+    # Must use the custom LoginRequired mixin, otherwise redirection
+    # after the authentication will not work as expected.
+    pass
+
+
+class PasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneBuiltinView):
+    # Must use the custom LoginRequired mixin, otherwise redirection
+    # after the authentication will not work as expected.
+    pass
 
 
 class UsernameChangeView(LoginRequiredMixin, UserModifyMixin, generic.UpdateView):
@@ -101,8 +113,6 @@ class UsernameChangeView(LoginRequiredMixin, UserModifyMixin, generic.UpdateView
         # Avoid replacement of displayed username via template context when provided value is invalid.
         context['user'].username = self.original_username
         return context
-
-username_change = UsernameChangeView.as_view()
 
 
 class EmailUpdateView(AuthMixin, UserModifyMixin, generic.UpdateView):
@@ -136,8 +146,6 @@ class EmailUpdateView(AuthMixin, UserModifyMixin, generic.UpdateView):
                              message=_("A confirmation email has been sent. "
                                        "Please check your mailbox to complete the process."))
         return response
-
-email_update = EmailUpdateView.as_view()
 
 
 class EmailVerifyView(LoginRequiredMixin, generic.View):
@@ -186,8 +194,6 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
         except Profile.DoesNotExist:
             return HttpResponseRedirect(reverse_lazy('email_update'))
 
-email_verify = EmailVerifyView.as_view()
-
 
 class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
     """
@@ -218,8 +224,6 @@ class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
         except Profile.DoesNotExist:
             return HttpResponseRedirect(reverse_lazy('profile_create'))
 
-email_update_confirm = EmailUpdateConfirmView.as_view()
-
 
 class EmailStaffUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, generic.UpdateView):
     model = Profile
@@ -236,8 +240,6 @@ class EmailStaffUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, ge
         # We want the displayed logged in user still be request.user and not the modified User instance.
         context['user'] = self.request.user
         return context
-
-staff_email_update = EmailStaffUpdateView.as_view()
 
 
 class EmailValidityMarkView(AuthMixin, ProfileIsUserMixin, generic.View):
@@ -262,9 +264,6 @@ class EmailValidityMarkView(AuthMixin, ProfileIsUserMixin, generic.View):
             return JsonResponse({'success': success_value})
         else:
             return TemplateResponse(request, self.template_name, context={'view': self})
-
-email_mark_invalid = EmailValidityMarkView.as_view()
-email_mark_valid = EmailValidityMarkView.as_view(valid=True)
 
 
 class MassMailView(AuthMixin, generic.FormView):
@@ -352,8 +351,6 @@ class MassMailView(AuthMixin, generic.FormView):
         self.nb_sent = send_mass_html_mail(messages)
         return super().form_valid(form)
 
-mass_mail = MassMailView.as_view()
-
 
 class MassMailSentView(AuthMixin, generic.TemplateView):
     template_name = 'core/mass_mail_sent.html'
@@ -368,5 +365,3 @@ class MassMailSentView(AuthMixin, generic.TemplateView):
         context = super().get_context_data(**kwargs)
         context['nb'] = int(self.request.GET['nb']) if self.request.GET.get('nb', '').isdigit() else '??'
         return context
-
-mass_mail_sent = MassMailSentView.as_view()

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-30 01:15+0000\n"
+"POT-Creation-Date: 2017-11-08 17:00+0000\n"
 "POT-Revision-Date: 2017-11-04 16:18+0000\n"
 "Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
@@ -473,51 +473,35 @@ msgstr "^ensaluti/$"
 msgid "^logout/$"
 msgstr "^elsaluti/$"
 
-msgid "^password/$"
-msgstr "^pasvorto/$"
+msgid "^password/"
+msgstr "^pasvorto/"
 
-msgid "^password/done/$"
-msgstr "^pasvorto/fino/$"
+msgid "^done/$"
+msgstr "^fino/$"
 
-msgid "^password/reset/$"
-msgstr "^pasvorto/nova/$"
+msgid "^reset/"
+msgstr "^nova/"
 
-msgid "^password/reset/done/$"
-msgstr "^pasvorto/nova/fino/$"
+msgid "^sent/$"
+msgstr "^sukceso/$"
 
-msgid ""
-"^reset/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]"
-"{1,20})/$"
-msgstr ""
-"^nova-pasvorto/(?P<uidb64>[0-9A-Za-z_\\-]+)/(?P<token>[0-9A-Za-z]{1,13}-"
-"[0-9A-Za-z]{1,20})/$"
-
-msgid "^reset/done/$"
-msgstr "^nova-pasvorto/fino/$"
+msgid "^reset-password/(?P<uidb64>.+?)/(?P<token>.+?)/$"
+msgstr "^nova-pasvorto/(?P<uidb64>.+?)/(?P<token>.+?)/$"
 
 msgid "^username/$"
 msgstr "^salutnomo/$"
 
-msgid "^email/$"
-msgstr "^retadreso/$"
+msgid "^email/"
+msgstr "^retadreso/"
 
-msgid "^profile/(?P<pk>\\d+)/staff/email/update/$"
-msgstr "^profilo/(?P<pk>\\d+)/reviziado/retadreso/redakti/$"
+msgid "^verify/$"
+msgstr "^kontroli/$"
 
-msgid "^profile/(?P<pk>\\d+)/staff/email/mark-invalid/$"
-msgstr "^profilo/(?P<pk>\\d+)/reviziado/retadreso/funkcianta:0/$"
+msgid "^admin/"
+msgstr "^admin/"
 
-msgid "^profile/(?P<pk>\\d+)/staff/email/mark-valid/$"
-msgstr "^profilo/(?P<pk>\\d+)/reviziado/retadreso/funkcianta:1/$"
-
-msgid "^email/verify/$"
-msgstr "^retadreso/kontroli/$"
-
-msgid "^admin/mass-mail/$"
-msgstr "^admin/amassendado/$"
-
-msgid "^admin/mass-mail/sent/$"
-msgstr "^admin/amassendado/sukceso/$"
+msgid "^mass-mail/"
+msgstr "^amassendado/"
 
 msgid "You are logged in."
 msgstr "Vi nun estas ensalutinta."
@@ -1111,6 +1095,9 @@ msgstr "Konfirmi kaj redakti lokigon"
 msgid "Nothing found for"
 msgstr "Nenio trovita por"
 
+msgid "Map of hosts"
+msgstr "Mapo de gastigantoj"
+
 msgid "Open map of the region"
 msgstr "Vidi regionan mapon"
 
@@ -1424,87 +1411,76 @@ msgstr "trinkos ion kun vi"
 msgid "to have a drink together in the city"
 msgstr "trinkos ion kun vi en la urbo"
 
-msgid "^profile/create/$"
-msgstr "^profilo/krei/$"
 
-msgid "^profile(?:/(?P<pk>\\d+))?/$"
-msgstr "^profilo(?:/(?P<pk>\\d+))?/$"
+msgid "^profile/"
+msgstr "^profilo/"
 
-msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/$"
-msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/$"
+msgid "^create/$"
+msgstr "^krei/$"
 
-msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/edit/$"
-msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/redakti/$"
+msgid "^edit/$"
+msgstr "^aktualigi/$"
 
-msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/update/$"
-msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/aktualigi/$"
+msgid "^update/$"
+msgstr "^redakti/$"
 
-msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/email/$"
-msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/retadreso/$"
+msgid "^email/$"
+msgstr "^retadreso/$"
 
-msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/delete/$"
-msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/forigi/$"
+msgid "^delete/$"
+msgstr "^forigi/$"
 
-msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/settings/$"
-msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/agordoj/$"
+msgid "^settings/$"
+msgstr "^agordoj/$"
 
-msgid "^place/(?P<pk>\\d+)/$"
-msgstr "^ejo/(?P<pk>\\d+)/$"
+msgid "^staff/"
+msgstr "^reviziado/"
 
-msgid "^place/(?P<pk>\\d+)/detailed/$"
-msgstr "^ejo/(?P<pk>\\d+)/detale/$"
+msgid "^mark-invalid/$"
+msgstr "^funkcianta:0/$"
 
-msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/place/create/$"
-msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/ejo/krei/$"
+msgid "^mark-valid/$"
+msgstr "^funkcianta:1/$"
 
-msgid "^place/(?P<pk>\\d+)/update/$"
-msgstr "^ejo/(?P<pk>\\d+)/redakti/$"
+msgid "^place/"
+msgstr "^ejo/"
 
-msgid "^place/(?P<pk>\\d+)/location/update/$"
-msgstr "^ejo/(?P<pk>\\d+)/lokigo/redakti/$"
+msgid "^phone/"
+msgstr "^telefono/"
 
-msgid "^place/(?P<pk>\\d+)/delete/$"
-msgstr "^ejo/(?P<pk>\\d+)/forigi/$"
+msgid "^detailed/$"
+msgstr "^detale/$"
 
-msgid "^place/(?P<pk>\\d+)/block/$"
-msgstr "^ejo/(?P<pk>\\d+)/bloki/$"
+msgid "^location/update/$"
+msgstr "^lokigo/redakti/$"
 
-msgid "^place/(?P<pk>\\d+)/authorize/$"
-msgstr "^ejo/(?P<pk>\\d+)/permesi/$"
+msgid "^check/$"
+msgstr "^kontroli/$"
 
-msgid "^place/(?P<place_pk>\\d+)/family-member/create/$"
-msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/krei/$"
+msgid "^block/$"
+msgstr "^bloki/$"
 
-msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/update/$"
-msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/redakti/$"
+msgid "^authorize/$"
+msgstr "^permesi/$"
 
-msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/remove/$"
-msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/forpreni/$"
+msgid "^family-member/"
+msgstr "^kunloganto/"
 
-msgid "^place/(?P<place_pk>\\d+)/family-member/(?P<pk>\\d+)/delete/$"
-msgstr "^ejo/(?P<place_pk>\\d+)/kunloganto/(?P<pk>\\d+)/forigi/$"
+msgid "^remove/$"
+msgstr "^forpreni/$"
 
-msgid ""
-"^lo/(?P<country_code>[A-Z]{2})(?:/book\\:(?P<in_book>(0|1)))?(?:/(?"
-"P<email>email))?/$"
-msgstr ""
-"^lo/(?P<country_code>[A-Z]{2})(?:/libro\\:(?P<in_book>(0|1)))?(?:/(?"
-"P<email>retadreso))?/$"
+msgid "^current/"
+msgstr "^aktualigo/"
 
-msgid "^profile/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/phone/create/$"
-msgstr "^profilo/(?P<pk>\\d+)(?:/(?P<slug>[\\w-]+))?/telefono/krei/$"
+msgid "^confirm/$"
+msgstr "^konfirmi/$"
 
-msgid "^profile/(?P<profile_pk>\\d+)/phone/(?P<pk>\\d+)/update/$"
-msgstr "^profilo/(?P<profile_pk>\\d+)/telefono/(?P<pk>\\d+)/redakti/$"
+msgid "^sv/"
+msgstr "^lo/"
 
-msgid "^profile/(?P<profile_pk>\\d+)/phone/(?P<pk>\\d+)/delete/$"
-msgstr "^profilo/(?P<profile_pk>\\d+)/telefono/(?P<pk>\\d+)/forigi/$"
-
-msgid "^current/confirm/$"
-msgstr "^aktualigo/konfirmi/$"
-
-msgid "^place/(?P<pk>\\d+)/check/$"
-msgstr "^ejo/(?P<pk>\\d+)/kontroli/$"
+msgctxt "URL"
+msgid "book"
+msgstr "libro"
 
 msgid "^search(?:/(?P<query>.+))?/$"
 msgstr "^esplori(?:/(?P<query>.+))?/$"
@@ -1579,11 +1555,11 @@ msgstr ""
 msgid "^link/(?P<token>[\\w\\.\\-_]+)$"
 msgstr "^ligilo/(?P<token>[\\w\\.\\-_]+)$"
 
-msgid "^current/confirmed/$"
-msgstr "^aktualigo/konfirmita/$"
+msgid "^confirmed/$"
+msgstr "^konfirmita/$"
 
-msgid "^current/already_confirmed/$"
-msgstr "^aktualigo/jam_konfirmita/$"
+msgid "^already_confirmed/$"
+msgstr "^jam_konfirmita/$"
 
 #, python-brace-format
 msgid ""
@@ -1594,9 +1570,6 @@ msgstr ""
 
 msgid "You've been automatically logged in. Happy editing!"
 msgstr "Vi estas aŭtomate ensalutita. Bonan redaktadon!"
-
-msgid "Map of hosts"
-msgstr "Mapo de gastigantoj"
 
 msgctxt "URL"
 msgid "countries-list"
@@ -1626,9 +1599,6 @@ msgstr "^kond/$"
 
 msgid "^faq/$"
 msgstr "^oftaj-demandoj/$"
-
-msgid "^lo(?:/book\\:(?P<in_book>1))?/$"
-msgstr "^lo(?:/libro\\:(?P<in_book>1))?/$"
 
 msgid "^supervisors/$"
 msgstr "^landaj-organizantoj/$"
@@ -1843,7 +1813,7 @@ msgstr ""
 msgid ":"
 msgstr ""
 
-msgid "^admin/"
+msgid "^management/"
 msgstr "^administrilo/"
 
 msgid "^messages/"
@@ -1951,14 +1921,14 @@ msgstr ""
 "Via retpoŝta adreso aspektas nefunkcianta, ni verŝajne ne sukcesos sendi "
 "mesaĝojn al tiu ĉi adreso. Bv kontrolu ĝin."
 
-msgid "^reserve/$"
-msgstr "^rezervi/$"
+msgid "^reserve/"
+msgstr "^rezervi/"
 
-msgid "^reserve/(?P<product_code>\\w+)/$"
-msgstr "^rezervi/(?P<product_code>\\w+)/$"
+msgid "^reservation/"
+msgstr "^rezervado/"
 
-msgid "^reservation/(?P<product_code>\\w+)/$"
-msgstr "^rezervado/(?P<product_code>\\w+)/$"
+
+
 
 #~ msgid "Budapest, London, Venezuela, etc."
 #~ msgstr "Budapeŝto, Londono, Venezuelo, ktp."

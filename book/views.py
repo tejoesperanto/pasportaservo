@@ -92,5 +92,3 @@ class ContactExportView(AuthMixin, generic.ListView):
 
     def get_url(self, place, action):
         return create_unique_url({'place': place.pk, 'action': action})
-
-contact_export = ContactExportView.as_view()

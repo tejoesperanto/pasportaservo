@@ -72,15 +72,11 @@ class ProfileCreateView(LoginRequiredMixin, ProfileModifyMixin, FormInvalidMessa
     def get_form(self, form_class=ProfileCreateForm):
         return form_class(user=self.request.user, **self.get_form_kwargs())
 
-profile_create = ProfileCreateView.as_view()
-
 
 class ProfileUpdateView(UpdateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.UpdateView):
     model = Profile
     form_class = ProfileForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
-
-profile_update = ProfileUpdateView.as_view()
 
 
 class ProfileDeleteView(DeleteMixin, AuthMixin, ProfileIsUserMixin, generic.DeleteView):
@@ -124,8 +120,6 @@ class ProfileDeleteView(DeleteMixin, AuthMixin, ProfileIsUserMixin, generic.Dele
             self.object.user.save()
         return super().delete(request, *args, **kwargs)
 
-profile_delete = ProfileDeleteView.as_view()
-
 
 class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
     permanent = False
@@ -141,8 +135,6 @@ class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
             return self.request.user.profile.get_edit_url()
         except Profile.DoesNotExist:
             return reverse_lazy('profile_create')
-
-profile_redirect = ProfileRedirectView.as_view()
 
 
 class ProfileDetailView(AuthMixin, ProfileIsUserMixin, generic.DetailView):
@@ -162,15 +154,11 @@ class ProfileDetailView(AuthMixin, ProfileIsUserMixin, generic.DetailView):
         context['phones'] = self.object.phones.filter(deleted=False)
         return context
 
-profile_detail = ProfileDetailView.as_view()
-
 
 class ProfileEditView(ProfileDetailView):
     template_name = 'hosting/profile_edit.html'
     public_view = False
     minimum_role = OWNER
-
-profile_edit = ProfileEditView.as_view()
 
 
 class ProfileSettingsView(ProfileDetailView):
@@ -181,7 +169,16 @@ class ProfileSettingsView(ProfileDetailView):
     def profile_email_help_text(self):
         return Profile._meta.get_field('email').help_text
 
-profile_settings = ProfileSettingsView.as_view()
+
+class ProfileSettingsRedirectView(LoginRequiredMixin, generic.RedirectView):
+    permanent = False
+
+    def get_redirect_url(self, *args, **kwargs):
+        try:
+            return reverse_lazy('profile_settings', kwargs={
+                'pk': self.request.user.profile.pk, 'slug': slugify(self.request.user.username)})
+        except Profile.DoesNotExist:
+            return reverse_lazy('profile_create')
 
 
 class ProfileEmailUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, generic.UpdateView):
@@ -189,8 +186,6 @@ class ProfileEmailUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, 
     template_name = 'hosting/profile-email_form.html'
     form_class = ProfileEmailUpdateForm
     minimum_role = OWNER
-
-profile_email_update = ProfileEmailUpdateView.as_view()
 
 
 class PlaceCreateView(CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.CreateView):
@@ -202,8 +197,6 @@ class PlaceCreateView(CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyM
         kwargs = super().get_form_kwargs()
         kwargs['profile'] = self.create_for
         return kwargs
-
-place_create = PlaceCreateView.as_view()
 
 
 class PlaceUpdateView(UpdateMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.UpdateView):
@@ -217,8 +210,6 @@ class PlaceUpdateView(UpdateMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, Fo
             return HttpResponseRedirect(map_url)
         return response
 
-place_update = PlaceUpdateView.as_view()
-
 
 class PlaceLocationUpdateView(UpdateMixin, AuthMixin, PlaceMixin, generic.UpdateView):
     form_class = PlaceLocationForm
@@ -227,13 +218,9 @@ class PlaceLocationUpdateView(UpdateMixin, AuthMixin, PlaceMixin, generic.Update
     def get_success_url(self, *args, **kwargs):
         return reverse_lazy('place_detail_verbose', kwargs={'pk': self.object.pk})
 
-place_location_update = PlaceLocationUpdateView.as_view()
-
 
 class PlaceDeleteView(DeleteMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, generic.DeleteView):
     pass
-
-place_delete = PlaceDeleteView.as_view()
 
 
 class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
@@ -279,8 +266,6 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
         else:
             return super().render_to_response(context)
 
-place_detail = PlaceDetailView.as_view()
-
 
 class PlaceDetailVerboseView(PlaceDetailView):
     verbose_view = True
@@ -301,8 +286,6 @@ class PlaceDetailVerboseView(PlaceDetailView):
     def get_debug_data(self):
         return self.debug
 
-place_detail_verbose = PlaceDetailVerboseView.as_view()
-
 
 class PlaceBlockView(AuthMixin, PlaceMixin, generic.View):
     http_method_names = ['put']
@@ -321,8 +304,6 @@ class PlaceBlockView(AuthMixin, PlaceMixin, generic.View):
             viewresponse.update({'err': form.errors})
         return JsonResponse(viewresponse)
 
-place_block = PlaceBlockView.as_view()
-
 
 class PhoneCreateView(CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, generic.CreateView):
     model = Phone
@@ -333,19 +314,13 @@ class PhoneCreateView(CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyM
         kwargs['profile'] = self.create_for
         return kwargs
 
-phone_create = PhoneCreateView.as_view()
-
 
 class PhoneUpdateView(UpdateMixin, AuthMixin, PhoneMixin, ProfileModifyMixin, generic.UpdateView):
     form_class = PhoneForm
 
-phone_update = PhoneUpdateView.as_view()
-
 
 class PhoneDeleteView(DeleteMixin, AuthMixin, PhoneMixin, ProfileModifyMixin, generic.DeleteView):
     pass
-
-phone_delete = PhoneDeleteView.as_view()
 
 
 class InfoConfirmView(LoginRequiredMixin, generic.View):
@@ -369,8 +344,6 @@ class InfoConfirmView(LoginRequiredMixin, generic.View):
                 return JsonResponse({'success': 'confirmed'})
             else:
                 return TemplateResponse(request, self.template_name)
-
-hosting_info_confirm = InfoConfirmView.as_view()
 
 
 class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
@@ -413,13 +386,9 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
             # Not implemented; only AJAX requests are expected.
             return TemplateResponse(request, self.template_name)
 
-place_check = PlaceCheckView.as_view()
-
 
 class PlaceListView(generic.ListView):
     model = Place
-
-place_list = PlaceListView.as_view()
 
 
 class PlaceStaffListView(AuthMixin, PlaceListView):
@@ -467,8 +436,6 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
             owner__user__email__startswith=settings.INVALID_PREFIX).count()
         return context
 
-staff_place_list = PlaceStaffListView.as_view()
-
 
 class SearchView(PlaceListView):
     queryset = Place.objects.filter(available=True)
@@ -509,8 +476,6 @@ class SearchView(PlaceListView):
             Q(closest_city__icontains=self.query)
         )
         return self.queryset.filter(lookup).select_related('owner__user')
-
-search = SearchView.as_view()
 
 
 class UserAuthorizeView(AuthMixin, generic.FormView):
@@ -576,8 +541,6 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
             fail_silently=False,
         )
 
-authorize_user = UserAuthorizeView.as_view()
-
 
 class FamilyMemberCreateView(CreateMixin, AuthMixin, FamilyMemberMixin, generic.CreateView):
     model = Profile
@@ -605,8 +568,6 @@ class FamilyMemberCreateView(CreateMixin, AuthMixin, FamilyMemberMixin, generic.
         kwargs['place'] = self.place
         return kwargs
 
-family_member_create = FamilyMemberCreateView.as_view()
-
 
 class FamilyMemberUpdateView(UpdateMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin, generic.UpdateView):
     model = Profile
@@ -616,8 +577,6 @@ class FamilyMemberUpdateView(UpdateMixin, AuthMixin, FamilyMemberAuthMixin, Fami
         kwargs = super().get_form_kwargs()
         kwargs['place'] = self.place
         return kwargs
-
-family_member_update = FamilyMemberUpdateView.as_view()
 
 
 class FamilyMemberRemoveView(AuthMixin, FamilyMemberMixin, generic.DeleteView):
@@ -636,8 +595,6 @@ class FamilyMemberRemoveView(AuthMixin, FamilyMemberMixin, generic.DeleteView):
         context['place'] = self.place
         return context
 
-family_member_remove = FamilyMemberRemoveView.as_view()
-
 
 class FamilyMemberDeleteView(DeleteMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin, generic.DeleteView):
     """Remove the family member for the Place and delete it."""
@@ -653,5 +610,3 @@ class FamilyMemberDeleteView(DeleteMixin, AuthMixin, FamilyMemberAuthMixin, Fami
         redirect = super().delete(request, *args, **kwargs)
         self.place.family_members.remove(self.object)
         return redirect
-
-family_member_delete = FamilyMemberDeleteView.as_view()

@@ -68,7 +68,7 @@ class CustomUserAdmin(UserAdmin):
     list_display_links = ('id', 'username')
     list_select_related = ('profile',)
     list_filter = (
-        SupervisorFilter, 'is_active', 'is_staff', 'is_superuser',
+        SupervisorFilter, 'is_active', 'is_staff', 'is_superuser', EmailValidityFilter,
         ('groups', admin.RelatedOnlyFieldListFilter),
     )
     date_hierarchy = 'date_joined'
@@ -231,7 +231,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     supervisor.short_description = _("supervisor status")
 
     def get_queryset(self, request):
-        return super(ProfileAdmin, self).get_queryset(request).select_related('user', 'checked_by')
+        return super().get_queryset(request).select_related('user', 'checked_by')
 
 
 @admin.register(Place)
@@ -290,13 +290,13 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         def __str__(self):
             return "(p:%05d, u:%05d) %s" % (self.id,
                                             self.user_id if self.user else 0,
-                                            super(PlaceAdmin.FamilyMember, self).__str__())
+                                            super().__str__())
 
     def get_queryset(self, request):
         cached_qs = cache.get('PlaceQS:Req:'+request.path)
         if cached_qs:
             return cached_qs
-        qs = super(PlaceAdmin, self).get_queryset(request).select_related('owner__user', 'checked_by')
+        qs = super().get_queryset(request).select_related('owner__user', 'checked_by')
         qs = qs.defer('owner__description')
         try:
             if not self.single_object_view:
@@ -309,21 +309,21 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     def get_field_queryset(self, db, db_field, request):
         if db_field.name == 'family_members':
             return PlaceAdmin.FamilyMember.objects.defer('description').select_related('user')
-        return super(PlaceAdmin, self).get_field_queryset(db, db_field, request)
+        return super().get_field_queryset(db, db_field, request)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         self.single_object_view = True
-        return super(PlaceAdmin, self).change_view(
+        return super().change_view(
             request, object_id, form_url=form_url, extra_context=extra_context)
 
     def add_view(self, request, form_url='', extra_context=None):
         self.single_object_view = True
-        return super(PlaceAdmin, self).add_view(
+        return super().add_view(
             request, form_url=form_url, extra_context=extra_context)
 
     def changelist_view(self, request, extra_context=None):
         self.single_object_view = False
-        return super(PlaceAdmin, self).changelist_view(request, extra_context=extra_context)
+        return super().changelist_view(request, extra_context=extra_context)
 
 
 @admin.register(Phone)
@@ -372,12 +372,12 @@ class ConditionAdmin(admin.ModelAdmin):
 
     def add_view(self, request, form_url='', extra_context=None):
         self.readonly_fields = ()
-        return super(ConditionAdmin, self).add_view(
+        return super().add_view(
             request, form_url=form_url, extra_context=extra_context)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         self.readonly_fields = ('icon',)
-        return super(ConditionAdmin, self).change_view(
+        return super().change_view(
             request, object_id, form_url=form_url, extra_context=extra_context)
 
 

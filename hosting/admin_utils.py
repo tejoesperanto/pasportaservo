@@ -66,56 +66,60 @@ class CountryMentionedOnlyFilter(admin.SimpleListFilter):
         return queryset.filter(country__in=value_list) if value_list else queryset
 
 
-class SupervisorFilter(admin.SimpleListFilter):
+class SimpleBooleanListFilter(admin.SimpleListFilter):
+    def lookups(self, request, model_admin):
+        self.model = model_admin.model
+        return ((1, _('Yes')), (0, _('No')))
+
+    def is_no(self):
+        return int(self.value()) == 0
+
+    def queryset(self, request, queryset):
+        if str(self.value()).isdigit():
+            return self.perform_filter(queryset)
+
+
+class SupervisorFilter(SimpleBooleanListFilter):
     title = _("supervisor status")
     parameter_name = 'is_supervisor'
 
-    def lookups(self, request, model_admin):
-        return ((1, _('Yes')), (0, _('No')))
-
-    def queryset(self, request, queryset):
-        if str(self.value()).isdigit():
-            country_filter = r'^[A-Z]{2}$'
-            if int(self.value()) == 0:
-                return queryset.exclude(groups__name__regex=country_filter)
-            else:
-                return queryset.filter(groups__name__regex=country_filter)
+    def perform_filter(self, queryset):
+        country_filter = r'^[A-Z]{2}$'
+        if self.is_no():
+            return queryset.exclude(groups__name__regex=country_filter)
+        else:
+            return queryset.filter(groups__name__regex=country_filter).distinct()
 
 
-class EmailValidityFilter(admin.SimpleListFilter):
+class EmailValidityFilter(SimpleBooleanListFilter):
     title = _("invalid email")
     parameter_name = 'email_invalid'
 
-    def lookups(self, request, model_admin):
-        return ((1, _('Yes')), (0, _('No')))
+    def perform_filter(self, queryset):
+        from .models import Profile
+        email_filter = {
+            '{0}email__startswith'.format('user__' if self.model is Profile else ''): settings.INVALID_PREFIX,
+        }
+        if self.is_no():
+            qs = queryset.exclude(**email_filter)
+            if self.model is Profile:
+                qs = qs.exclude(user__isnull=True)
+            return qs
+        else:
+            return queryset.filter(**email_filter)
 
-    def queryset(self, request, queryset):
-        if str(self.value()).isdigit():
-            if int(self.value()) == 0:
-                return queryset.exclude(user__email__startswith=settings.INVALID_PREFIX).exclude(user__isnull=True)
-            else:
-                return queryset.filter(user__email__startswith=settings.INVALID_PREFIX)
 
-
-class ProfileHasUserFilter(admin.SimpleListFilter):
+class ProfileHasUserFilter(SimpleBooleanListFilter):
     title = _("user is defined")
     parameter_name = 'has_user'
 
-    def lookups(self, request, model_admin):
-        return ((1, _('Yes')), (0, _('No')))
-
-    def queryset(self, request, queryset):
-        if str(self.value()).isdigit():
-            return queryset.filter(user__isnull=(int(self.value()) == 0))
+    def perform_filter(self, queryset):
+        return queryset.filter(user__isnull=self.is_no())
 
 
-class PlaceHasLocationFilter(admin.SimpleListFilter):
+class PlaceHasLocationFilter(SimpleBooleanListFilter):
     title = _("location is defined")
     parameter_name = 'has_location'
 
-    def lookups(self, request, model_admin):
-        return ((1, _('Yes')), (0, _('No')))
-
-    def queryset(self, request, queryset):
-        if str(self.value()).isdigit():
-            return queryset.filter(location__isnull=(int(self.value()) == 0))
+    def perform_filter(self, queryset):
+        return queryset.filter(location__isnull=self.is_no())
