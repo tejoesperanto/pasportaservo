@@ -89,19 +89,19 @@
                             {% block pm_archive_button %}
                                 <button class="btn btn-primary" type="submit" onclick="this.form.action='{% url 'postman:archive' %}'">
                                     <span class="glyphicon glyphicon-folder-open"></span>&nbsp;
-                                    {% trans "Archive" %}
+                                    {% trans "Archive" context "postman:action" %}
                                 </button>
                             {% endblock %}
                             {% block pm_delete_button %}
                                 <button class="btn btn-danger" type="submit" onclick="this.form.action='{% url 'postman:delete' %}'">
                                     <span class="glyphicon glyphicon-trash"></span>&nbsp;
-                                    {% trans "Delete" %}
+                                    {% trans "Delete" context "postman:action" %}
                                 </button>
                             {% endblock %}
                             {% block pm_undelete_button %}
                                 <button class="btn btn-primary" type="submit" onclick="this.form.action='{% url 'postman:undelete' %}'">
                                     <span class="glyphicon glyphicon-ok"></span>&nbsp;
-                                    {% trans "Undelete" %}
+                                    {% trans "Undelete" context "postman:action" %}
                                 </button>
                             {% endblock %}
                         </div>

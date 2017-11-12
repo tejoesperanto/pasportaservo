@@ -1,9 +1,9 @@
 {% extends "postman/base_folder.html" %}
 {% load i18n %}
 
-{% block head_title %}{{ block.super }} &ndash; {% trans "Archives" %}{% endblock %}
+{% block head_title %}{{ block.super }} &ndash; {% trans "Archives" context "postman:tab title" %}{% endblock %}
 
-{% block pm_folder_title %}{% trans "Archived Messages" %}{% endblock %}
+{% block pm_folder_title %}{% trans "Archived Messages" context "postman:title" %}{% endblock %}
 {% block pm_archive_button %}{% endblock %}
 {% block pm_undelete_button %}{% endblock %}
 

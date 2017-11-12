@@ -2,7 +2,7 @@
 {% load i18n static %}
 {% load postman_tags %}
 
-{% block head_title %}{% trans "Inbox" %}{% endblock %}
+{% block head_title %}{% trans "Letterbox" context "postman:tab title" %}{% endblock %}
 {% block title %}{% trans "Messaging" %}{% endblock %}
 {% block extra_css %}
     {{ block.super }}
@@ -16,21 +16,21 @@
 
     <div class="col-xs-12 col-sm-5 col-md-4 col-lg-3">
         {% block postman_menu %}
-            <ul id="postman_menu">{% postman_unread as unread_count %}
+            <ul id="postman_menu" role="navigation">{% postman_unread as unread_count %}
                 <li>
-                    <a href="{% url 'postman:inbox' %}"><span class="glyphicon glyphicon-inbox"></span>&nbsp;&nbsp;{% trans "Inbox" %}{% if unread_count %} <strong>({{ unread_count }})</strong>{% endif %}</a>
+                    <a href="{% url 'postman:inbox' %}"><span class="glyphicon glyphicon-inbox"></span>&nbsp;&nbsp;{% trans "Inbox" context "postman:menu" %}{% if unread_count %} <strong>({{ unread_count }})</strong>{% endif %}</a>
                 </li>
                 <li>
-                    <a href="{% url 'postman:write' %}"><span class="glyphicon glyphicon-pencil"></span>&nbsp;&nbsp;{% trans "Write" %}</a>
+                    <a href="{% url 'postman:write' %}"><span class="glyphicon glyphicon-pencil"></span>&nbsp;&nbsp;{% trans "Write" context "postman:menu" %}</a>
                 </li>
                 <li>
-                    <a href="{% url 'postman:sent' %}"><span class="glyphicon glyphicon-share-alt"></span>&nbsp;&nbsp;{% trans "Sent Messages" %}</a>
+                    <a href="{% url 'postman:sent' %}"><span class="glyphicon glyphicon-share-alt"></span>&nbsp;&nbsp;{% trans "Sent Messages" context "postman:menu" %}</a>
                 </li>
                 <li>
-                    <a href="{% url 'postman:archives' %}"><span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;{% trans "Archives" %}</a>
+                    <a href="{% url 'postman:archives' %}"><span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;{% trans "Archives" context "postman:menu" %}</a>
                 </li>
                 <li>
-                    <a href="{% url 'postman:trash' %}"><span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;{% trans "Trash" %}</a>
+                    <a href="{% url 'postman:trash' %}"><span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;{% trans "Trash" context "postman:menu" %}</a>
                 </li>
             </ul>
         {% endblock %}

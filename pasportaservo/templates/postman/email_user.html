@@ -1,18 +1,18 @@
 {% extends "email/base_email.html" %}
-{% load i18n domain %}
+{% load i18n domain expression %}
 
 {% block heading %}
-  {% firstof object.sender.profile.get_absolute_url as sender_url %}
-  {% if sender_url %}
-    {% domain sender_url asvar='sender_url' %}
-    {% blocktrans with url=sender_url sender=object.obfuscated_sender trimmed %}
-      <a href="{{ url }}">{{ sender }}</a> wrote to you!
-    {% endblocktrans %}
-  {% else %}
-    {% blocktrans with sender=object.obfuscated_sender trimmed %}
-      {{ sender }} wrote to you!
-    {% endblocktrans %}
-  {% endif %}
+    {% expr object.sender.profile.get_absolute_url() as sender_url %}
+    {% if sender_url %}
+        {% domain sender_url asvar='sender_url' %}
+        {% blocktrans with url=sender_url sender=object.obfuscated_sender trimmed %}
+            <a href="{{ url }}">{{ sender }}</a> wrote to you!
+        {% endblocktrans %}
+    {% else %}
+        {% blocktrans with sender=object.obfuscated_sender trimmed %}
+            {{ sender }} wrote to you!
+        {% endblocktrans %}
+    {% endif %}
 {% endblock heading %}
 
 {% block preheader %}{{ object.body|truncatechars:97 }}{% endblock %}
@@ -23,6 +23,6 @@
 
 {% block call_to_action %}
     {% url 'postman:view' object.pk as url %}
-    {% trans 'Reply' as text %}
-    {% include "email/snippets/button.html" %}
+    {% trans "Reply" as text %}
+    {% include 'email/snippets/button.html' %}
 {% endblock %}

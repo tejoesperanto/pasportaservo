@@ -1,9 +1,9 @@
 {% extends "postman/base_folder.html" %}
 {% load i18n %}
 
-{% block head_title %}{{ block.super }} &ndash; {% trans "Trash" %}{% endblock %}
+{% block head_title %}{{ block.super }} &ndash; {% trans "Trash" context "postman:tab title" %}{% endblock %}
 
-{% block pm_folder_title %}{% trans "Deleted Messages" %}{% endblock %}
+{% block pm_folder_title %}{% trans "Deleted Messages" context "postman:title" %}{% endblock %}
 {% block pm_delete_button %}{% endblock %}
 {% block pm_archive_button %}{% endblock %}
 
