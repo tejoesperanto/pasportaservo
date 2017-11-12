@@ -15,8 +15,8 @@
             <div class="btn-toolbar pull-right" role="toolbar">
                 {% if perms.blog %}
                     <div class="btn-group" role="group">
-                        <a href="{% url 'admin:blog_post_change' post.pk %}" class="btn btn-primary" title="{% trans "Update" %}">
-                            <span class="glyphicon glyphicon-pencil"></span>
+                        <a href="{% url 'admin:blog_post_change' post.pk %}" class="btn btn-success" title="{% trans "Update" %}">
+                            <span class="fa fa-pencil" aria-hidden="true"></span>
                             {% trans "Update" %}
                         </a>
                     </div>
@@ -28,7 +28,7 @@
                 <h1 class="title"><a name="T"></a>{{ post.title }}</h1>
                 <div class="h3 published">
                     <small class="pull-right text-nowrap">
-                        <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>&nbsp;
+                        <span class="fa fa-calendar-check-o" aria-hidden="true"></span>&nbsp;
                         <span class="sr-only">{% trans "published on" %} :</span>
                         {{ post.pub_date.date }}
                     </small>
@@ -41,7 +41,7 @@
             {% if previous_post %}
                 <a id="id_prev_post" href="{{ previous_post.get_absolute_url }}" class="btn btn-default btn-vert-space pull-left">
                     <span class="nav-graphical">
-                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                        <span class="fa fa-chevron-left" aria-hidden="true"></span>&nbsp;
                     </span>
                     <span class="sr-only">{% trans "Previous news" %} :</span>
                     <span class="nav-textual">
@@ -56,7 +56,7 @@
                         {{ next_post }}
                     </span>
                     <span class="nav-graphical">
-                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                        &nbsp;<span class="fa fa-chevron-right" aria-hidden="true"></span>
                     </span>
                 </a>
             {% endif %}

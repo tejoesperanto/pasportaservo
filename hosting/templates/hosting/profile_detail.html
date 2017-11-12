@@ -37,7 +37,7 @@
                     <button class="btn btn-primary btn-sm push-right ajax" type="submit"
                             data-csrf="{{ csrf_token }}"
                             data-on-ajax-success="confirmInfoSuccess">
-                        <span class="glyphicon glyphicon-ok"></span>&nbsp;
+                        <span class="fa fa-check" aria-hidden="true"></span>&nbsp;
                         <span class="hidden-xxs">{% trans "I confirm!" %}</span>
                     </button>
                 </form>
@@ -69,7 +69,7 @@
             <div class="col-xs-12 col-md-5">
                 {% if profile.deleted %} {# VISITORs are barred from accessing deleted profiles, on View level #}
                     <div class="alert alert-small alert-danger">
-                        <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;
+                        <span class="fa fa-exclamation-circle" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
                         {% trans "Deleted profile" as delete_notice %}
                         {% if view.role == roles.OWNER %}{% trans "Your profile is deleted and does not appear in search results." as delete_notice %}{% endif %}
                         {{ delete_notice }}
@@ -87,7 +87,7 @@
                             {% else %}
                                 <a href="{% url 'postman:write' profile.user.username %}" class="btn btn-primary">
                             {% endif %}
-                                    <span class="glyphicon glyphicon-send"></span>&nbsp; 
+                                    <span class="fa fa-paper-plane" aria-hidden="true"></span>&nbsp;
                                     {% trans "Write message" %}
                                 </a>
                         {% endif %}
@@ -97,7 +97,7 @@
                             <a href="{% url 'profile_edit' profile.pk profile.user.username|slugify %}"
                                class="btn btn-success"
                                title="{{ update_title }}">
-                                <span class="glyphicon glyphicon-pencil"></span> {% trans "Modify account" %}
+                                <span class="fa fa-pencil" aria-hidden="true"></span>&nbsp; {% trans "Modify account" %}
                             </a>
                         {% endif %}
                     {% endblock %}
@@ -116,8 +116,8 @@
                     <div class="edit-buttons btn history-link"
                          title="{% trans "profile" %} {{ confirm_title }} <br /> {{ profile.confirmed_on|date:"DATE_FORMAT" }}"
                          data-toggle="tooltip" data-placement="left auto" data-html="true">
-                        <span class="glyphicon glyphicon-list {{ confirm_color }}"></span>
-                        <span class="glyphicon glyphicon-{{ profile.confirmed|yesno:"check,unchecked" }} {{ confirm_color }}"></span>
+                        <span class="fa fa-list-alt {{ confirm_color }}"></span>
+                        <span class="fa fa-{{ profile.confirmed|yesno:'check-,' }}square-o {{ confirm_color }}"></span>
                     </div>
                 {% endif %}
             </div>
@@ -125,7 +125,7 @@
 
     <div class="row owner">
         <div class="col-xs-3 col-md-2">
-            <span class="owner-avatar" data-content="&#xe003;">
+            <span class="owner-avatar" data-content-provider="fa" data-content="&#xf002;">
                 <img src="{{ profile.avatar_url }}" data-mfp-src="{{ profile.avatar_url }}" alt="{% trans "avatar" %}"/>
             </span>
         </div>
@@ -139,7 +139,7 @@
                         {% blocktrans with age=profile.age %}{{ age }} y.o.{% endblocktrans %}
                         &nbsp;
                     {% endif %}
-                    {% include 'hosting/snippets/checked.html' with object=profile %}
+                    {% include './snippets/checked.html' with object=profile %}
                 </p>
             </div>
         {% endif %}
@@ -149,7 +149,8 @@
                 <h4>
                     {{ profile.user.email|clear_invalid }}&nbsp;
                     {% if profile.user.email|is_invalid %}
-                        <small class="text-danger glyphicon glyphicon-warning-sign"
+                        <small class="text-danger fa fa-exclamation-triangle"
+                               aria-label="{% trans "Warning " context 'Title' %}: {% trans "invalid email" %}"
                                title="{% trans "invalid email" %}" data-toggle="tooltip"></small>
                     {% endif %}
                 </h4>
@@ -192,12 +193,12 @@
                 <div class="btn-group pull-right">
                     {% block place_edit_buttons %}{% endblock %}
                     <a href="{% url 'place_detail' place.pk %}" class="btn btn-primary" title="{% trans "View details of this place" %}">
-                        <span class="glyphicon glyphicon-arrow-right"></span>
+                        <span class="fa fa-arrow-right" aria-hidden="true"></span>
                         <span class="{% if view.public_view %}hidden-xxs{% else %}hidden-xs{% endif %}">{% trans "View" %}</span>
                     </a>
                 </div>
                 {% if view.public_view %}
-                    <p class="pull-right" style="margin-right: 10px">{% include 'hosting/snippets/checked.html' with object=place %}</p>
+                    <p class="pull-right" style="margin-right: 10px">{% include './snippets/checked.html' with object=place %}</p>
                     <div class="place-overview">
                         {% if place.available %}
                             <span class="label label-info status">&nbsp;{% trans "I'm hosting in:" %}&nbsp;</span>
@@ -208,7 +209,7 @@
                         {% endif %}
                         {% if place.closest_city %}
                             <h4>
-                                <span class="glyphicon glyphicon-share-alt small"></span>
+                                <span class="fa fa-hand-o-right small" aria-hidden="true"></span>
                                 {% blocktrans with closest_city=place.closest_city %}near {{ closest_city }}{% endblocktrans %}
                             </h4>
                         {% endif %}
@@ -220,22 +221,14 @@
                         <div class="anchor-group">
                             {% if place.tour_guide %}
                                 <div class="anchor-group-item anchor-vert-space-even">
-                                {% spaceless %}
-                                    <object type="image/svg+xml" data="{% static 'img/city_guide.svg' %}" class="place-anchor">
-                                        <img src="{% static 'img/city_guide.png' %}" class="place-anchor" />
-                                    </object>
-                                    <span class="label label-info status">{% trans "I can guide around the city" %}</span>
-                                {% endspaceless %}
+                                    <span class="place-anchor text-label-info" aria-hidden="true"><span class="fa ps-city-guide-fh"></span></span>
+                                    <span class="label label-info status" aria-hidden="true">{% trans "I can guide around the city" %}</span>
                                 </div>
                             {% endif %}
                             {% if place.have_a_drink %}
                                 <div class="anchor-group-item anchor-vert-space-even">
-                                {% spaceless %}
-                                    <object type="image/svg+xml" data="{% static 'img/city_drink.svg' %}" class="place-anchor">
-                                        <img src="{% static 'img/city_drink.png' %}" class="place-anchor" />
-                                    </object>
-                                    <span class="label label-info status">{% trans "I'd like to have a drink together" %}</span>
-                                {% endspaceless %}
+                                    <span class="place-anchor text-label-info" aria-hidden="true"><span class="fa ps-city-drink-fh"></span></span>
+                                    <span class="label label-info status" aria-hidden="true">{% trans "I'd like to have a drink together" %}</span>
                                 </div>
                             {% endif %}
                             {% if place.max_guest %}
@@ -246,8 +239,8 @@
                                                 I can accept {{ max_host }} persons
                                             {% endblocktrans %}"
                                      data-toggle="tooltip" data-placement="bottom">
-                                    <span class="description-prefix text-label-info"><span class="glyphicon glyphicon-user"></span></span>
-                                    <span class="label label-info status">{{ place.max_guest }}</span>
+                                    <span class="place-anchor text-label-info" aria-hidden="true"><span class="fa fa-street-view"></span></span>
+                                    <span class="label label-info status" aria-hidden="true">{{ place.max_guest }}</span>
                                 </div>
                             {% endif %}
                             {% if place.max_night %}
@@ -258,14 +251,14 @@
                                                 I can host during {{ max_night }} nights maximum
                                             {% endblocktrans %}"
                                      data-toggle="tooltip" data-placement="bottom">
-                                    <span class="description-prefix text-label-info"><span class="glyphicon glyphicon-time"></span></span>
-                                    <span class="label label-info status">{{ place.max_night }}</span>
+                                    <span class="place-anchor text-label-info" aria-hidden="true"><span class="fa fa-moon-o"></span></span>
+                                    <span class="label label-info status" aria-hidden="true">{{ place.max_night }}</span>
                                 </div>
                             {% endif %}
                             {% if place.short_description %}
                                 <div class="anchor-group-item anchor-vert-space-even">
                                     <mark class="description-short small text-muted">
-                                        <span class="glyphicon glyphicon-info-sign"></span> {{ place.short_description }}
+                                        <span aria-label="{% trans "Description" %}" class="fa fa-info-circle"></span> {{ place.short_description }}
                                     </mark>
                                 </div>
                             {% endif %}
@@ -274,10 +267,10 @@
                 {% else %}
                     <div>
                         {% if perms.hosting.can_supervise %}
-                            <p>{% include 'hosting/snippets/checked.html' with object=place %}</p>
+                            <p>{% include './snippets/checked.html' with object=place %}</p>
                         {% endif %}
                         <h3>{{ place.address.strip }}</h3>
-                        <h4>{% include 'hosting/snippets/place_city_complete.html' with city=place.city closest_city=place.closest_city %}</h4>
+                        <h4>{% include './snippets/place_city_complete.html' with city=place.city closest_city=place.closest_city %}</h4>
                         {% if place.state_province %}
                             <h4>{{ place.state_province }}</h4>
                         {% endif %}

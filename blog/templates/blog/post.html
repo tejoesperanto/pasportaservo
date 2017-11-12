@@ -13,7 +13,7 @@
 
         {% if post.has_more and more_type == "link" %}
             <a href="{{ post.get_absolute_url }}" class="text-center text-nowrap {{ more_class }}">
-                <em>{% trans "read more" %} &#x279e;</em>
+                <em>{% trans "read more" %}<span class="fa fa-long-arrow-right" style="margin-left: .6em" aria-label="&#x279e;"></span></em>
             </a>
         {% endif %}
         {% if post.has_more and more_type == "dots" %}

@@ -38,10 +38,13 @@ $(document).ready(function() {
         $('#id_blocked_from, #id_blocked_until').each(function () {
             var $input = $(this);
             var $toggler = $(document.createElement('span'));
-            $toggler.addClass('glyphicon glyphicon-calendar form-control-feedback datepicker-btn-inline')
+            $toggler.addClass('fa fa-calendar form-control-feedback datepicker-btn-inline')
                     .attr('aria-hidden', "true")
                     .click(function() { $input.datepicker("show"); });
-            $input.after($toggler)
+            var id_helper = this.id + '_descript';
+            $input.siblings('.help-block').addClass('sr-only').attr('id', id_helper).end()
+                  .attr('aria-describedby', id_helper)
+                  .after($toggler)
                   .data({dateShowOnFocus: false, dateKeyboardNavigation: false})
                   .parent().addClass('has-feedback');
         });

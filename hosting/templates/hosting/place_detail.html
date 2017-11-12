@@ -52,7 +52,7 @@
             {# ALERT ABOUT A PLACE THAT WAS DELETED #}
                 {% if place.deleted and user.is_authenticated %}
                     <div class="alert alert-small alert-danger">
-                        <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;
+                        <span class="fa fa-exclamation-circle" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
                         {% if perms.hosting.can_supervise %}{% trans "Deleted place" %} &ndash; {% endif %}{% trans "The address is obsolete" %}
                     </div>
                 {% endif %}
@@ -90,35 +90,33 @@
                     <div class="col-xs-12">
                         {% if user.is_authenticated %}
                             <p class="status anchor-notify" data-placement="left" onclick="displayAnchorsNotification()">
+                                {% spaceless %}
                                 {% if place.tour_guide %}
-                                    <img src="{% static 'img/city_guide.svg' %}"
-                                         onerror="this.onerror = null; this.src = this.src.replace(/\.svg$/, '.png');"
-                                         alt="[&nbsp;{% trans "tour guide" %}&nbsp;]"
-                                         title="{% trans "I can guide around the city" %}"
-                                         style="width: 1.5em; height: 1.5em;" />
+                                    <span class="status-guiding fa-stack"
+                                          {% trans "I can guide around the city" as availability_title %}
+                                          title="{{ availability_title }}" aria-label="{{ availability_title }}">
+                                        <span class="fa fa-stack-2x ps-city-guide" aria-hidden="true"></span>
+                                    </span>
                                 {% endif %}
                                 {% if place.have_a_drink %}
-                                    <img src="{% static 'img/city_drink.svg' %}"
-                                         onerror="this.onerror = null; this.src = this.src.replace(/\.svg$/, '.png');"
-                                         alt="[&nbsp;{% trans "have a drink" %}&nbsp;]"
-                                         title="{% trans "I'd like to have a drink together" %}"
-                                         style="width: 1.5em; height: 1.5em;" />
-                                {% endif %}
-                                    <span title="{% trans "place" %} {{ place.available|yesno:_('available,unavailable') }}"
-                                          class="glyphicon glyphicon-stack-large">
-                                        <span class="place-marker glyphicon-stackbit-2x glyphicon-home"></span>
-                                        <span class="place-availability glyphicon-stackbit-1x glyphicon-{{ place.available|yesno:'ok,remove' }}"></span>
+                                    <span class="status-drinking fa-stack"
+                                          {% trans "I'd like to have a drink together" as availability_title %}
+                                          title="{{ availability_title }}" aria-label="{{ availability_title }}">
+                                        <span class="fa fa-stack-2x ps-city-drink" aria-hidden="true"></span>
                                     </span>
+                                {% endif %}
+                                {% endspaceless %}
+                                {% include './snippets/place_availability_icon.html' with place=place only %}
                             </p>
                         {% endif %}
                         {% if view.role == roles.OWNER and not place.deleted %}
                             <div class="place-blocking text-right pull-right">
                                 <button data-target="#set-blocking" class="btn btn-default btn-sm" data-toggle="collapse" aria-haspopup="true" aria-expanded="false">
                                     <span class="sr-only">{% trans "unavailable" %} ?</span>
-                                    <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+                                    <span class="fa fa-clock-o" aria-hidden="true"></span>
                                 </button>
                                 <div id="set-blocking" class="panel panel-default place-blocking-panel collapse">
-                                {% include 'hosting/snippets/place_blocking_form.html' with place=place form=blocking.form form_class="panel-body" csrf_token=csrf_token only %}
+                                {% include './snippets/place_blocking_form.html' with place=place form=blocking.form form_class="panel-body" csrf_token=csrf_token only %}
                                 </div>
                             </div>
                         {% endif %}
@@ -140,7 +138,7 @@
                                     <br />
                                 {% endif %}
 
-                                {% include 'hosting/snippets/place_city_complete.html' with city=place.city closest_city=place.closest_city %}
+                                {% include './snippets/place_city_complete.html' with city=place.city closest_city=place.closest_city %}
                                 <br />
                                 {% if place.state_province %}
                                     {{ place.state_province }}
@@ -151,7 +149,7 @@
                                 {% endif %}
                                 {{ place.get_country_display }}
 
-                                &nbsp; {% include 'hosting/snippets/checked.html' with object=place %}
+                                &nbsp; {% include './snippets/checked.html' with object=place %}
                             </p>
                         {% endif %}
                     </div>
@@ -184,10 +182,10 @@
             <div class="col-md-12 hidden-xs hidden-sm">
                 {% if place.any_accommodation_details %}
                     <h3>{% trans "Description" %}</h3>
-                    {% include 'hosting/snippets/place_description.html' with description=place.description place_available=place.available owner_available=place.owner_available contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
+                    {% include './snippets/place_description.html' with description=place.description place_available=place.available owner_available=place.owner_available contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
                 {% endif %}
                 {% if place.conditions_cache %}
-                    {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions_cache only %}
+                    {% include './snippets/place_conditions.html' with conditions=place.conditions_cache only %}
                 {% endif %}
 
                 {% if place.family_members_cache and view.verbose_view %}
@@ -222,7 +220,7 @@
                 <p>
                     {% if place.sporadic_presence %}
                     {% if place.available or place.owner_available or view.verbose_view %}
-                        <span class="glyphicon glyphicon-asterisk text-as-ps"></span>
+                        <span class="fa fa-asterisk text-as-ps" aria-label="{% trans "Note " context 'Title' %}"></span>
                         {% trans "I'm not present at this address at all times; contact me in advance." %}
                     {% endif %}
                     {% endif %}
@@ -268,25 +266,25 @@
         <div class="col-xs-12 hidden-md hidden-lg description-small">
         {# DETAILS AND CONDITIONS OF THE PLACE ON SMALL SCREENS - ACCESSIBLE ONLY TO AUTHENTICATED USERS #}
             <a id="status-anchors_notification" class="col-xs-12 anchor-notify" data-placement="bottom"
-               data-content="{% include 'hosting/snippets/place_owner_anchors.html' %}"></a>
-            {% include 'hosting/snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
+               data-content="{% include './snippets/place_owner_anchors.html' %}"></a>
+            {% include './snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
 
             {% if place.sporadic_presence %}
             {% if place.available or place.owner_available or view.verbose_view %}
                 <p>
-                    <span class="glyphicon glyphicon-list-alt text-muted"></span>&nbsp;
+                    <span class="fa fa-calendar-times-o fa-fw text-muted" aria-label="{% trans "Note " context 'Title' %}"></span>&nbsp;
                     {% trans "I'm not present at this address at all times; contact me in advance." %}
                 </p>
             {% endif %}
             {% endif %}
             {% if place.family_members_cache %}
                 <p>
-                    <span class="glyphicon glyphicon-user text-muted"></span>&nbsp;
+                    <span class="fa fa-bed fa-fw text-muted" aria-label="{% trans "Note " context 'Title' %}"></span>&nbsp;
                     {% trans "Other dwellers at this place." %}
                 </p>
             {% endif %}
             {% if place.conditions_cache %}
-                {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions_cache only %}
+                {% include './snippets/place_conditions.html' with conditions=place.conditions_cache only %}
             {% endif %}
 
             {% if INVALID_PREFIX in place.owner.user.email %}
@@ -315,12 +313,12 @@
                 {% else %}
                     <a href="{% url 'postman:write' place.owner.user.username %}" class="btn btn-primary btn-vert-space">
                 {% endif %}
-                        <span class="glyphicon glyphicon-send"></span>&nbsp; {% trans "Write message" %}
+                        <span class="fa fa-paper-plane" aria-hidden="true"></span>&nbsp; {% trans "Write message" %}
                     </a>
             {% endif %}
             {% if place_owner_or_supervisor or user.profile in place.family_members_cache %}
-                <a href="{% url 'place_location_update' place.pk %}" class="btn btn-primary right">
-                    <span class="glyphicon glyphicon-map-marker"></span>
+                <a href="{% url 'place_location_update' place.pk %}" class="btn btn-primary">
+                    <span class="fa fa-map-marker" aria-hidden="true"></span>
                     {% trans "Edit location" %}
                 </a>
 
@@ -330,24 +328,24 @@
                     {% endif %}
                     {% if place_owner_or_supervisor %}
                         <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% blocktrans %}Update {{ kin }}place{% endblocktrans %}">
-                            <span class="glyphicon glyphicon-pencil"></span>
-                            <span class="">{% trans "Update" %}</span>
+                            <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+                            {% trans "Update" %}
                         </a>
                     {% endif %}
                     {% if view.role == roles.OWNER %}
                         <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}"
                            class="btn btn-warning"
                            title="{% trans "Authorized users" %}">
-                            <span class="glyphicon glyphicon-eye-open"></span>
+                            <span class="fa fa-eye" aria-hidden="true"></span>
                             <span class="hidden-xxs">{% trans "Authorizations" %}</span>
                         </a>
                     {% endif %}
                     {% if not view.verbose_view %}
                         <a href="{% url 'place_detail_verbose' place.pk %}" class="btn btn-primary" title="{% trans "View as an authorized user" %}">
-                            <span class="glyphicon glyphicon-stack-normal" style="font-size: .8em">
-                                <span class="glyphicon-stackbit-1x glyphicon-eye-open"    style="top: -1.1ex"></span>
-                                <span class="glyphicon-stackbit-1x glyphicon-arrow-right" style="top: +0.5ex"></span>
-                            </span>
+                            <span class="fa-stack fa-stack-sm" aria-hidden="true">
+                                <span class="fa fa-eye fa-stack-1x"              style="top: -0.8ex"></span>
+                                <span class="fa fa-long-arrow-right fa-stack-1x" style="top: +0.5ex"></span>
+                            </span>&nbsp;
                             <span class="hidden-xxs">{% trans "Full preview" %}</span>
                         </a>
                     {% endif %}
@@ -365,12 +363,12 @@
             </p>
             <p class="help-block">
                 {% trans "Available" %}:&nbsp;
-                <span class="glyphicon glyphicon-{{ place.available|yesno:'ok,remove' }}"></span>
+                <span class="fa fa-{{ place.available|yesno:'check,times' }}"></span>
                 {{ place.available|yesno }}
             </p>
             <p class="help-block">
                 {% trans "Print in book" %}:&nbsp;
-                <span class="glyphicon glyphicon-{{ place.in_book|yesno:'ok,remove' }}"></span>
+                <span class="fa fa-{{ place.in_book|yesno:'check,times' }}"></span>
                 {{ place.in_book|yesno }}
             </p>
         </div>

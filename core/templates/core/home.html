@@ -10,11 +10,11 @@
 
 {% block header %}
     <div class="row links">
-        <div class="col-xs-3 col-sm-1 enveloppe" role="navigation">
+        <div class="col-xs-3 col-sm-1" role="navigation">
             {% if user.is_authenticated %}
                 <a href="{% url 'postman:inbox' %}">
-                    <span class="glyphicon glyphicon-envelope"></span>
-                    {{ postman_unread_count|default:"" }}
+                    <span class="fa fa-envelope-o fa-lg" aria-label="{% trans "inbox" %}"></span>
+                    <span aria-hidden="true">{{ postman_unread_count|default:"" }}</span>
                 </a>
             {% endif %}
         </div>
@@ -58,7 +58,7 @@
                            placeholder="{% trans "Search for a country, a region, or a city…" %}">
                     <span class="input-group-btn">
                         <button class="btn btn-default" type="submit" id="search" style="min-width: 40px; width: 100%;">
-                            <span class="glyphicon glyphicon-search"></span>
+                            <span aria-label="{% trans "Search" %}" class="fa fa-search fa-lg"></span>
                         </button>
                     </span>
                 </div>

@@ -1,0 +1,9 @@
+{% load i18n expression %}
+<span class="status-hosting fa-stack {{ extra_class }}"
+      {% with is_available_title=place.available|yesno:_("available,unavailable") %}
+      {% expr _("place")+" "+is_available_title as availability_title %}
+      title="{{ availability_title }}" aria-label="{{ availability_title }}"
+      {% endwith %}>
+    <span class="place-marker fa fa-stack-2x ps-home" aria-hidden="true"></span>
+    <span class="place-availability fa fa-stack-1x fa-{{ place.available|yesno:'check,times' }}" aria-hidden="true"></span>
+</span>

@@ -38,13 +38,13 @@
     {% if not profile.user %}
         <a href="{% url 'family_member_delete' place.pk profile.pk %}" class="btn btn-danger btn-vert-space" title="{% trans "Delete profile" %}"
            {% if view.other_places %}disabled{% endif %}>
-            <span class="glyphicon glyphicon-trash"></span>
+            <span class="fa fa-trash-o" aria-hidden="true"></span>
             <span class="hidden-xxs">{% trans "Delete profile" %}</span>
         </a>
         {% trans "Just remove" as remove_only_text %}
     {% endif %}
     <button type="submit" class="btn btn-primary btn-vert-space" title="{% trans "Remove from list of family members" %}">
-        <span class="glyphicon glyphicon-share"></span>
+        <span class="fa fa-share-square-o" aria-hidden="true"></span>
         {% if remove_only_text %}{{ remove_only_text }}{% else %}{% trans "Delete" %}{% endif %}
     </button>
 {% endblock confirm_buttons %}

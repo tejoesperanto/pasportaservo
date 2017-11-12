@@ -21,6 +21,9 @@ body, .same-as-body {
     font-size: 16px;
 }
 
+code, kbd, pre, samp {
+    font-family: "Fira Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
+}
 .text-as-ps, a.text-as-ps:hover {
     color: $primary-color;
 }
@@ -51,8 +54,21 @@ body, .same-as-body {
     margin-top: 2px;
     margin-bottom: 2px;
 }
-ul.dropdown-menu li img:first-child {
-    margin-right: 0.5em;
+ul.dropdown-menu li {
+    img:first-child, .fa:first-child {
+        width: 16px;
+        height: 16px;
+        margin-right: 15px;
+    }
+    .fa:first-child {
+        vertical-align: middle;
+    }
+}
+ul.dropdown-menu-lg li {
+    img:first-child, .fa:first-child {
+        width: 24px;
+        height: 24px;
+    }
 }
 .datepicker-dropdown {
     font-size: 13px;
@@ -105,10 +121,6 @@ header #title a:hover {
 }
 header #subtitle {
     padding-top: 0.5em;
-}
-
-header .enveloppe span {
-    font-size: 1.3em;
 }
 
 /* Header on home page */
@@ -181,26 +193,42 @@ header.home form.search {
 .place-detail .status,
 .place-detail .place-blocking {
     float: right;
-    width: 25%;
     margin-right: -5px;
     z-index: 10;
+}
+.place-detail .place-blocking {
+    margin-left: 5px;
 }
 .place-overview .status {
     font-size: 0.6em;
 }
 .place-list .status .place-anchor {
-    width: 2.5ex;
-    height: 2.5ex;
     vertical-align: middle;
-}
-.place-list .status .place-anchor.glyphicon {
-    top: 2px;
-    font-size: 2.0ex;
+    &:not(.glyphicon) {
+        font-size: 1.4062em;
+        position: relative;
+        top: 1px;
+        margin-right: 2px;
+    }
+    &.place-anchor-drink, &.place-anchor-guide {
+        font-size: 1.5625em;
+        margin-right: 3px;
+    }
+    &.place-anchor-drink {
+        top: 2px;
+        margin-right: 4px;
+    }
+    &.glyphicon {
+        top: 2px;
+        font-size: 2.0ex;
+    }
 }
 .place-overview .place-anchor {
-    width: 2.0ex;
-    height: 2.0ex;
-    vertical-align: bottom;
+    position: relative;
+    top: 0.35ex;
+    .fa {
+        width: 0.875em;
+    }
 }
 .anchor-group {
     margin-top: 3px;
@@ -211,18 +239,31 @@ header.home form.search {
 .anchor-group-item:not(:last-child) {
     margin-right: .5ex;
 }
-.place-detail .status .place-marker {
-    color: $primary-color;
+.status-drinking, .status-guiding {
+    color: #3c763d;
 }
-.place-detail .status .place-availability {
-    color: #666;
-    top: .1em;
+.status-hosting {
+    .place-marker {
+        color: $primary-color;
+    }
+    .place-availability {
+        color: #666;
+    }
+    &.glyphicon-stack-normal > .place-availability {
+        top: .1em;
+        left: .3em;
+    }
+    &.glyphicon-stack-large > .place-availability {
+        top: .1em;
+        left: .1em;
+    }
+    &.fa-stack > .place-availability {
+        top: .2em;
+        left: .05em;
+    }
 }
-.glyphicon-stack-normal > .place-availability {
-    left: .3em;
-}
-.glyphicon-stack-large > .place-availability {
-    left: .1em;
+.place-list-compact .status-hosting {
+    top: -0.65ex;
 }
 .place-list .avatar {
     text-align: center;
@@ -246,14 +287,10 @@ header.home form.search {
     display: inline-block;
     position: relative;
     top: .2ex;
-}
-.place-overview .description-short .glyphicon {
-    position: relative;
-    top: .3ex;
-}
-.place-overview .description-prefix {
-    position: relative;
-    top: .45ex;
+    .fa {
+        position: relative;
+        top: .15ex;
+    }
 }
 
 .anchor-notify + .popover {
@@ -355,7 +392,7 @@ p.tip {
         cursor: zoom-in;
     }
     .owner-avatar:after {
-        font-family: 'Glyphicons Halflings';
+        font-family: FontAwesome;
         content: attr(data-content);
         position: absolute;
         bottom: -5px;
@@ -392,6 +429,10 @@ p.tip {
 
 
 /* Supervisors */
+.staff.label .fa.fa-lg {
+    vertical-align: -20%;
+}
+
 #tasks-header {
     cursor: pointer;
 }
@@ -417,6 +458,7 @@ p.tip {
 }
 .place-supervisor-detail .control-buttons .timestamp {
     margin-bottom: 0px;
+    margin-right: 1px;
 }
 .place-supervisor-detail .description-short.has-content {
     margin: 10px 0px;
@@ -475,9 +517,10 @@ footer {
 header:not(.home) #subtitle,
 .message,
 .help-block,
+.anchor-group-item .label,
 *[type="password"] + .progress .password-verdict,
 *[type="password"] + .popover + .progress .password-verdict {
-    font-family: $font-stack;
+    font-family: $hint-font-stack;
 }
 .help-block {
     font-size: 0.9em;
@@ -528,6 +571,9 @@ header:not(.home) #subtitle,
     }
     .list-vertical-align .details .comment {
         font-size: 14px;
+    }
+    .place-detail .status {
+        max-width: 4.25em;
     }
 
     .place-supervisor-detail .name {

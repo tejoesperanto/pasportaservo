@@ -17,7 +17,8 @@
             {% if not view.query or not view.result.point %}
                 <a class="btn btn-default pull-right" href="{% url 'world_map' %}" id="maplink"
                    title="{% trans "Map of hosts" %}" tabindex="2">
-                    <span class="glyphicon glyphicon-globe"></span>
+                    <span class="fa fa-globe fa-lg" aria-hidden="true"></span>
+                    <span class="sr-only">{% trans "Map of hosts" %}</span>
                 </a>
             {% endif %}
                 <div class="form-group">
@@ -28,7 +29,7 @@
                         <span class="input-group-btn">
                             <button class="btn btn-default" type="submit" id="search" tabindex="1"
                                     title="{% trans "Search" %} {% trans "at" %} Pasporta Servo">
-                                <span class="glyphicon glyphicon-search"></span>
+                                <span class="fa fa-search" aria-hidden="true"></span>
                                 <span class="hidden-xs">{% trans "Search" %}</span>
                             </button>
                         </span>
@@ -80,7 +81,7 @@
                 </a>
             </div>
             <div class="col-xs-9 col-sm-10 col-md-11 address">
-                <div class="pull-right">{% include 'hosting/snippets/checked.html' with object=place %}</div>
+                <div class="pull-right">{% include './snippets/checked.html' with object=place %}</div>
                 <a href="{{ place.get_absolute_url }}">
                     {% if user.is_authenticated %}
                         {% if place.city %}<strong>{{ place.city }}</strong>{% endif %}
@@ -93,20 +94,25 @@
                 </a>
                 <div class="status anchor-group">
                     {% if user.is_authenticated %}
+                        {% if place.available or place.owner_available %}
+                            <span class="sr-only">{% trans "Note " context 'Title' %}:</span>
+                        {% endif %}
                         {% if place.available %}
                             <div class="anchor-group-item anchor-vert-space-even">
                             {% spaceless %}
-                                <span class="place-anchor glyphicon glyphicon-home text-label-info"></span>
-                                <span class="label label-info">{% trans "I'm hosting"|lower %}</span>
+                                <span class="place-anchor place-anchor-host text-label-info">
+                                    <span class="fa ps-home" aria-hidden="true"></span>
+                                </span>
+                                <span class="label label-info">{% trans "I'm hosting" %}</span>
                             {% endspaceless %}
                             </div>
                         {% endif %}
                         {% if place.tour_guide %}
                             <div class="anchor-group-item anchor-vert-space-even">
                             {% spaceless %}
-                                <object type="image/svg+xml" data="{% static 'img/city_guide.svg' %}" class="place-anchor">
-                                    <img src="{% static 'img/city_guide.png' %}" class="place-anchor" />
-                                </object>
+                                <span class="place-anchor place-anchor-guide text-label-info">
+                                    <span class="fa ps-city-guide" aria-hidden="true"></span>
+                                </span>
                                 <span class="label label-info">{% trans "I can guide around the city" %}</span>
                             {% endspaceless %}
                             </div>
@@ -114,9 +120,9 @@
                         {% if place.have_a_drink %}
                             <div class="anchor-group-item anchor-vert-space-even">
                             {% spaceless %}
-                                <object type="image/svg+xml" data="{% static 'img/city_drink.svg' %}" class="place-anchor">
-                                    <img src="{% static 'img/city_drink.png' %}" class="place-anchor" />
-                                </object>
+                                <span class="place-anchor place-anchor-drink text-label-info">
+                                    <span class="fa ps-city-drink" aria-hidden="true"></span>
+                                </span>
                                 <span class="label label-info">{% trans "I'd like to have a drink together" %}</span>
                             {% endspaceless %}
                             </div>

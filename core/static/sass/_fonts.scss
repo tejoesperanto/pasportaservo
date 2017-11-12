@@ -4,11 +4,63 @@
          url('../fonts/Geotica_Three.woff')  format('woff');
 }
 
+@import url('https://fonts.googleapis.com/css?family=Fira+Sans:200,200i,400,400i,700,700i|Fira+Mono:400|PT+Sans:400,400i,700,700i&subset=latin-ext,vietnamese');
+
 @font-face {
-    font-family: Fira;
-    src: url('../fonts/firasans-regular.woff2') format('woff2'),
-         url('../fonts/firasans-regular.woff')  format('woff');
+    font-family: "PS Signaro";
+    src: url('../fonts/PS-Signaro.eot?v=1.0');
+    src: url('../fonts/PS-Signaro.eot?v=1.0#iefix') format('embedded-opentype'), url('../fonts/PS-Signaro.woff?v=1.0') format('woff'), url('../fonts/PS-Signaro.ttf?v=1.0') format('truetype'), url('../fonts/PS-Signaro.svg?v=1.0#PS-Signaro') format('svg');
+    font-weight: normal;
+    font-style: normal;
 }
 
-$font-stack: Fira, "Trebuchet MS", Helvetica, Tahoma, sans-serif;
+$font-stack: "Fira Sans", "Trebuchet MS", Helvetica, Tahoma, sans-serif;
 $title-font-stack: Geotica, Impact, serif;
+$hint-font-stack: "PT Sans", Helvetica, Arial, sans-serif;
+
+
+.fa {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: "PS Signaro", FontAwesome !important;
+}
+.ps {
+    &-home:before {
+        content: "\f600";
+    }
+    &-city-drink:before {
+        content: "\f601";
+    }
+    &-city-guide:before {
+        content: "\f602";
+    }
+    &-home-fh:before {
+        content: "\f603";
+    }
+    &-city-drink-fh:before {
+        content: "\f604";
+    }
+    &-city-guide-fh:before {
+        content: "\f605";
+    }
+    &-users:before {
+        content: "\f606";
+    }
+    &-phone:before {
+        content: "\f610";
+    }
+    &-phone-alt:before {
+        content: "\f611";
+    }
+    &-old-phone:before {
+        content: "\f612";
+    }
+    &-mobile-phone:before {
+        content: "\f613";
+    }
+    &-fax:before {
+        content: "\f614";
+    }
+    &-atom:before {
+        content: "\f615";
+    }
+}

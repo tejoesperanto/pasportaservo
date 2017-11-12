@@ -2,7 +2,8 @@
 <form class="place-blocking-form form-inline {{ form_class }}" action="{% url 'place_block' place.pk %}" method="PUT"
       data-csrf="{{ csrf_token }}">
     <div class="form-group">
-        <span class="glyphicon glyphicon-ok text-label-success blocking-success" style="visibility: hidden"></span>&nbsp;
+        <span class="fa fa-check text-label-success blocking-success" style="visibility: hidden"
+              aria-role="status" data-notification="{% trans "saved" %}"></span>&nbsp;
         {% trans "I am not available over here" %}
     </div>
     {% include 'bootstrapform/field.html' with field=form.blocked_from classes=form.render_classes.blocked_from %}
@@ -11,6 +12,6 @@
     <div class="blocking-tip help-block text-left">
         {% trans "Leave the corresponding field empty if the starting or the ending date is not known." %}
     </div>
-    <div class="blocking-errors help-block text-label-warning text-left" style="display: none">
+    <div class="blocking-errors help-block text-label-warning text-left" style="display: none" aria-role="alert">
     </div>
 </form>

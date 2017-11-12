@@ -31,7 +31,8 @@
 
     {% if profile.deleted %}
     <div class="alert alert-small alert-danger">
-        <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp; {% trans "Deleted profile" %}
+        <span class="fa fa-exclamation-circle" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
+        {% trans "Deleted profile" %}
     </div>
     {% endif %}
 
@@ -61,9 +62,10 @@
         <h4 id="{% trans "email-addr" context "URL" %}">{% trans "Email" context "Title" %}</h4>
         <samp><small>
             {% if profile.user.email|is_invalid %}
-                <span class="email text-danger" title="{% trans "invalid email" %}" data-toggle="tooltip">
+                <span class="email text-danger" data-toggle="tooltip"
+                      title="{% trans "invalid email" %}" aria-label="{% trans "Warning " context 'Title' %}: {% trans "invalid email" %}">
                     {{ profile.user.email|clear_invalid }}
-                    <span class="glyphicon glyphicon-warning-sign"></span>
+                    <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
                 </span>
             {% else %}
                 {{ profile.user.email }}
@@ -112,9 +114,10 @@
                 {% trans "[no email address]" as no_email %}
                 <samp><small>
                     {% if profile.email|is_invalid %}
-                        <span class="email text-danger" title="{% trans "invalid email" %}" data-toggle="tooltip">
+                        <span class="email text-danger" data-toggle="tooltip"
+                              title="{% trans "invalid email" %}" aria-label="{% trans "Warning " context 'Title' %}: {% trans "invalid email" %}">
                             {{ profile.email|clear_invalid }}
-                            <span class="glyphicon glyphicon-warning-sign"></span>
+                            <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
                         </span>
                     {% else %}
                         {% firstof profile.email no_email %}
@@ -142,7 +145,7 @@
         <h4>{% if view.role == roles.OWNER %}{% trans "End my membership" %}{% else %}{% trans "End membership" %}{% endif %}</h4>
         <a href="{% url 'profile_delete' profile.pk profile.user.username|slugify %}"
            class="btn btn-danger">
-            <span class="glyphicon glyphicon-trash"></span>
+            <span class="fa fa-trash fa-lg" aria-hidden="true"></span>&nbsp;
             {% trans "Delete account" %}
         </a>
     </section>
@@ -150,7 +153,7 @@
         
     <div class="pull-left">
         <a href="{% url 'profile_edit' profile.pk profile.user.username|slugify %}" class="btn btn-default" title="{% trans "Back" %}">
-            <span class="glyphicon glyphicon-arrow-left"></span>
+            <span class="fa fa-arrow-left" aria-hidden="true"></span>
             <span>{% trans "Back" %}</span>
         </a>
     </div>

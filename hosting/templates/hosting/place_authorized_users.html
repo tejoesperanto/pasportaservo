@@ -4,7 +4,7 @@
 {% block head_title %}{% trans "Authorized users" %}: {{ place }}{% endblock %}
 
 {% block form_action %}{% url 'authorize_user' pk=place.pk %}?next={{ request.GET.next }}{% endblock %}
-{% block form_submit_button %}<span class="glyphicon glyphicon-plus"></span> {% trans "Authorize" %}{% endblock %}
+{% block form_submit_button %}<span class="fa fa-plus" aria-hidden="true"></span> {% trans "Authorize" %}{% endblock %}
 
 {% block form_before %}
     <h1 class="text-center">{% trans "Authorized users" %}</h1>
@@ -18,7 +18,7 @@
 {% block form_back_link %}
     <a href="{{ request.GET.next }}" class="btn btn-default" 
        title="{% if back_to %}{% blocktrans %}Back to {{ back_to }}{% endblocktrans %}{% else %}{% trans "Back" %}{% endif %}">
-        <span class="glyphicon glyphicon-arrow-left"></span>
+        <span class="fa fa-arrow-left" aria-hidden="true"></span>
         <span class="hidden-xxs">{% trans "Back" %}</span>
     </a>
 {% endblock %}
@@ -51,7 +51,8 @@
                     {% csrf_token %}
                     {{ auth_form }}
                     <button type="submit" class="btn btn-sm btn-danger pull-right" title="{% trans "Remove user" %}">
-                        <span class="glyphicon glyphicon-trash"></span>
+                        <span class="fa fa-times fa-lg" aria-hidden="true"></span>
+                        <span class="sr-only">{% trans "Remove user" %}</span>
                     </button>
                 </p>
             </form>

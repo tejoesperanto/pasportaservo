@@ -156,9 +156,15 @@ $(document).ready(function() {
             $op_errors.text("");
             $op_errors.hide();
             var $marker = $this.closest('form').find('.blocking-success');
+            var $notify = $(document.createElement('span')).addClass('sr-only')
+                          .text($marker.data('notification'));
             $marker.css({ "visibility": "visible", "opacity": 1 })
+                   .html($notify)
                    .delay(2000)
-                   .animate({ opacity: 0 }, 400, function() { $(this).css("visibility", "hidden"); });
+                   .animate({ opacity: 0 }, 400, function() {
+                       $(this).css("visibility", "hidden");
+                       $notify.remove();
+                   });
             $this.data('value', $this.val());
         }
     };
@@ -197,11 +203,17 @@ $(document).ready(function() {
                     $this.text($this.data('success-text'));
                 }
             }
-            var $marker = $('<span class="glyphicon glyphicon-time">');
+            var $marker = $this.siblings($this.data('process-elem') || "undefined");
             var buttonWidth = $this.width();
-            $this.prop('disabled', true).html($marker).width(buttonWidth);
-            $marker.delay(1000)
-                   .animate({ opacity: 0 }, 400, function() { $marker.remove(); cleanup(); });
+            $this.prop('disabled', true);
+            if ($marker.length) {
+                $this.html($marker).width(buttonWidth);
+                $marker.show().delay(Math.random()*1500 + 1000)
+                       .animate({ opacity: 0 }, 400, function() { $marker.remove(); cleanup(); });
+            }
+            else {
+                cleanup();
+            }
         }
     };
 

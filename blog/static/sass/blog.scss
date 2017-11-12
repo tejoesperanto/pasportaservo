@@ -25,6 +25,10 @@
         text-align: center;
         margin: 1em auto;
     }
+    #subscribe li > a {
+        padding-top: 0.7em;
+        padding-bottom: 0.7em;
+    }
 }
 .blog.blog-post {
     article {
