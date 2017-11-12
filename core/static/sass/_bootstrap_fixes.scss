@@ -4,6 +4,9 @@
     font-size: 14px;
 }
 
+.glyphicon {
+    top: 2px;
+}
 .glyphicon-stack-normal,
 .glyphicon-stack-large {
     position: relative;
@@ -32,6 +35,12 @@
 }
 .glyphicon-stackbit-2x {
     font-size: 1.5em;
+}
+.fa-stack-sm {
+    width: 1em;
+    height: 1em;
+    line-height: 1em;
+    font-size: .9em;
 }
 
 /* Bootstrap hack for tooltip */

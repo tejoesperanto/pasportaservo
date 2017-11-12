@@ -1,8 +1,17 @@
 /*
-	This is a basic stylesheet for the django-postman application.
-	Called from templates/postman/base.html.
-	Make your own design in <settings.STATIC_ROOT>/postman/css/postman.css
+    This is a basic stylesheet for the django-postman application.
+    Called from templates/postman/base.html.
+    Make your own design in <settings.STATIC_ROOT>/postman/css/postman.css
 */
+@media (max-width: 479px) {
+    #postman h1 {
+        font-size: 30px;
+    }
+    #postman h2 {
+        font-size: 24px;
+    }
+}
+
 #pm_messages {
     width: 100%;
 }
@@ -58,6 +67,13 @@
 #postman_menu a:hover {
     text-decoration: none;
     background: #f82;
+}
+#postman_menu .glyphicon {
+    top: 3px;
+}
+#postman_menu .glyphicon,
+#postman_menu .fa {
+    margin-right: .5ex;
 }
 
 #postman input,

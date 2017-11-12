@@ -889,6 +889,9 @@ msgstr "telefono"
 msgid "phones"
 msgstr "telefonoj"
 
+msgid "type not indicated"
+msgstr "neindikita tipo"
+
 msgid "URL"
 msgstr "URL"
 
@@ -1017,6 +1020,10 @@ msgstr "Tio estas la detala paĝo de via loĝloko"
 msgid "Authorized users will receive access to these details."
 msgstr "Permesitaj uzantoj povos vidi ĉiujn tiujn detalojn."
 
+msgctxt "Title"
+msgid "Warning "
+msgstr "Averto "
+
 msgid "Deleted place"
 msgstr "Nuligita loĝejo"
 
@@ -1043,9 +1050,6 @@ msgstr "mi povas ĉiĉeroni"
 msgid "I'd like to have a drink together"
 msgstr "mi emas trinkejumi"
 
-msgid "available,unavailable"
-msgstr "disponebla,maldisponebla"
-
 msgid "unavailable"
 msgstr "maldisponebla"
 
@@ -1057,6 +1061,10 @@ msgstr "Kunloĝantoj"
 
 msgid "Other dwellers at this place."
 msgstr "Mi havas kunloĝantojn."
+
+msgctxt "Title"
+msgid "Note "
+msgstr "Rimarko "
 
 msgid "I'm not present at this address at all times; contact me in advance."
 msgstr "Mi ne troviĝas konstante ĉe tiu ĉi adreso; kontaktiĝu anticipe."
@@ -1109,7 +1117,7 @@ msgid "No results found for <em>%(query)s</em>. Here are some active hosts!"
 msgstr "Neniu rezulto por <em>%(query)s</em>. Jen kelkaj aktivaj gastigantoj!"
 
 msgid "I'm hosting"
-msgstr "Mi gastigas"
+msgstr "mi gastigas"
 
 msgid "Sorry, no kind hosts found…"
 msgstr "Bedaŭrinde ni ne trovis gastigemulojn…"
@@ -1157,6 +1165,9 @@ msgstr "Kontrolita"
 
 msgid "Not checked"
 msgstr "Nekontrolita"
+
+msgid "working..."
+msgstr "prilaboras..."
 
 msgid "last login"
 msgstr "lasta ensaluto"
@@ -1360,6 +1371,12 @@ msgstr "Forigi konton"
 msgid "approver unknown"
 msgstr "aprobanto nekonata"
 
+msgid "available,unavailable"
+msgstr "disponebla,maldisponebla"
+
+msgid "saved"
+msgstr "konservita"
+
 msgid "I am not available over here"
 msgstr "Mi ne disponeblas ĉi tie"
 
@@ -1393,7 +1410,7 @@ msgstr[0] ", dum %(max_night)s nokto maksimume"
 msgstr[1] ", dum %(max_night)s noktoj maksimume"
 
 msgid "I'm <b>not</b> hosting"
-msgstr "Mi <b>ne</b> gastigas"
+msgstr "mi <b>ne</b> gastigas"
 
 msgid "&nbsp; and will be glad "
 msgstr "&nbsp; kaj volonte "
@@ -2004,9 +2021,5 @@ msgstr "^rezervi/"
 msgid "^reservation/"
 msgstr "^rezervado/"
 
-
-
-
 #~ msgid "Budapest, London, Venezuela, etc."
 #~ msgstr "Budapeŝto, Londono, Venezuelo, ktp."
-

@@ -21,14 +21,14 @@
         {% csrf_token %}
         <a id="id_form_cancel" href="#" onclick="history.go(-1)" data-kbdshortcut="Z-out"
            class="btn btn-default btn-vert-space" title="{% trans "Cancel operation" %}">
-            <span class="glyphicon glyphicon-arrow-left"></span> {% trans "Cancel" %}
+            <span class="fa fa-arrow-left" aria-hidden="true"></span> {% trans "Cancel" %}
         </a>
         <span style="display: inline-block">
         {% block confirm_buttons %}
-            <button id="id_form_submit" type="submit" class="btn btn-primary btn-vert-space"
+            <button id="id_form_submit" type="submit" class="btn {% block form_confirm_button_style %}btn-primary{% endblock %} btn-vert-space"
                     title="{% block form_confirm_button_title %}{% trans "Delete" %}{% endblock %}">
                 {% block form_confirm_button %}
-                    <span class="glyphicon glyphicon-trash"></span> {% trans "Delete" %}
+                    <span class="fa fa-trash-o" aria-hidden="true"></span> {% trans "Delete" %}
                 {% endblock %}
             </button>
         {% endblock confirm_buttons %}

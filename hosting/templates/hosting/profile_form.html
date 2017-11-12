@@ -50,7 +50,7 @@
 {% block form_back_link %}
     {% if view.place %} {# back button for family member form #}
         <a href="{{ request.GET.next }}" class="btn btn-default" title="{% trans "Back" %}">
-            <span class="glyphicon glyphicon-arrow-left"></span>
+            <span class="fa fa-arrow-left" aria-hidden="true"></span>
             <span class="hidden-xxs">{% trans "Back" %}</span>
         </a>
     {% endif %}

@@ -4,16 +4,16 @@
         {% trans "Subscribe" %}
         <span class="caret"></span>
     </button>
-    <ul class="dropdown-menu dropdown-menu-right">
+    <ul id="subscribe" class="dropdown-menu dropdown-menu-right">
         <li>
             <a href="{% url 'blog:atom' %}">
-                <img src="{% static 'img/feed_atom-16px.png' %}" width="16" height="16" aria-hidden="true" />
+                <span class="fa ps-atom fa-lg" style="color: #f26522" aria-hidden="true"></span>
                 Atom
             </a>
         </li>
         <li>
             <a href="{% url 'blog:rss' %}">
-                <img src="{% static 'img/feed_rss-16px.png' %}" width="16" height="16" aria-hidden="true" />
+                <span class="fa fa-rss fa-lg" style="color: #f26522" aria-hidden="true"></span>
                 RSS
             </a>
         </li>

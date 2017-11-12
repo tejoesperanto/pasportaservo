@@ -36,24 +36,24 @@
                         {% endif %} />
 
                     <a class="btn btn-default" href="{{ next_url }}">
-                        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;
+                        <span class="fa fa-arrow-left" aria-hidden="true"></span>&nbsp;
                         {% trans "Back" %}
                     </a>
                     <span id="pm_buttons">
                         {% if not archived %}
-                            <button class="btn btn-primary" type="submit" onclick="this.form.action='{% url 'postman:archive' %}?next={{ next_url|urlencode }}'">
-                            <span class="glyphicon glyphicon-folder-open"></span>&nbsp;
+                            <button class="btn btn-info" type="submit" onclick="this.form.action='{% url 'postman:archive' %}?next={{ next_url|urlencode }}'">
+                                <span class="fa fa-folder-open-o" aria-hidden="true"></span>&nbsp;
                                 {% trans "Archive" context "postman:action" %}
                             </button>
                         {% endif %}
                         <button class="btn btn-danger" type="submit" onclick="this.form.action='{% url 'postman:delete' %}?next={{ next_url|urlencode }}'">
-                            <span class="glyphicon glyphicon-trash"></span>&nbsp;
+                            <span class="fa fa-trash-o" aria-hidden="true"></span>&nbsp;
                             {% trans "Delete" context "postman:action" %}
                         </button>
                     </span>
                     {% if reply_to_pk %}
                         <a class="btn btn-success" href="{% url 'postman:reply' reply_to_pk %}?next={{ next_url|urlencode }}">
-                            <span class="glyphicon glyphicon-share-alt"></span>&nbsp;
+                            <span class="fa fa-share-square-o" aria-hidden="true"></span>&nbsp;
                             {% trans "Reply" context "postman:action" %}
                         </a>
                     {% endif %}
@@ -70,7 +70,7 @@
                             </div>
                         </div>
                         <button class="btn btn-primary" type="submit">
-                            <span class="glyphicon glyphicon-share-alt"></span>&nbsp;
+                            <span class="fa fa-share" aria-hidden="true"></span>&nbsp;
                             {% trans "Send" context "postman:action" %}
                         </button>
                     </form>

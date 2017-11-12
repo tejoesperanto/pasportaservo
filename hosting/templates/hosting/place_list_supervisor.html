@@ -83,7 +83,7 @@
             <a href="#{% trans "not-confirmed" context "URL" %}">
                 <span class="badge">{{ not_confirmed_count }}</span>
                 {{ not_confirmed_title|capfirst }}
-                {% if not_confirmed_count %}<span class="glyphicon glyphicon-save"></span>{% endif %}
+                {% if not_confirmed_count %}<span class="fa fa-level-down" aria-hidden="true"></span>{% endif %}
             </a>
         </li>
     </ul>
@@ -112,13 +112,15 @@
             <div class="btn-group" role="group">
                 {% expr "check-place-"+str(place.pk) as id_check_status %}
                 {% if place.checked %}
-                    {% include 'hosting/snippets/checked.html' with object=place button=True button_id=id_check_status %}
+                    {% include './snippets/checked.html' with object=place button=True button_id=id_check_status %}
                 {% else %}
                     <form action="{% url 'place_check' place.pk %}" method="POST" class="unwrap-after-success">
                         {% csrf_token %}
                         <button type="button" id="{{ id_check_status }}" class="btn btn-warning ajax"
+                                aria-live="assertive" aria-atomic="true"
                                 data-csrf="{{ csrf_token }}"
                                 data-hover-text="{% trans "Check?" %}"
+                                data-process-elem=".process-icon"
                                 data-success-text="{% trans "Checked" %}"
                                 data-on-ajax-setup="checkPlaceSetup"
                                 data-on-ajax-success="checkPlaceSuccess"
@@ -126,12 +128,13 @@
                                 autocomplete="off">
                             {% trans "Not checked" %}
                         </button>
+                        <span class="fa fa-clock-o fa-spin process-icon" style="display: none" aria-label="{% trans "working..." %}">
                     </form>
                 {% endif %}
             </div>
             <div class="btn-group" role="group">
                 <a class="btn btn-success" href="{% url 'place_update' place.pk %}" target="_blank">
-                    <span class="glyphicon glyphicon-pencil"></span>
+                    <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
                     {% trans "Update" %}
                 </a>
             </div>
@@ -139,12 +142,12 @@
 
         <p class="timestamp text-right text-muted" title="{% trans "last login" %}<br />{{ place.owner.user.last_login }}"
            data-toggle="tooltip" data-html="true" data-placement="bottom">
-            <small class="glyphicon glyphicon-log-in" style="position: relative; left: -2px"></small>
+            <small class="fa fa-sign-in" aria-hidden="true" style="position: relative; left: -2px"></small>
             <small><samp>{{ place.owner.user.last_login|date:"Y-m-d H:i" }} UTC</samp></small>
         </p>
         <p class="timestamp text-right text-muted" title="{% trans "last modification" %}<br />{{ place.modified }}"
            data-toggle="tooltip" data-html="true" data-placement="bottom">
-            <small class="glyphicon glyphicon-edit"></small>
+            <small class="fa fa-pencil-square-o" aria-hidden="true"></small>
             <small><samp>{{ place.modified|date:"Y-m-d H:i" }} UTC</samp></small>
         </p>
     </div>
@@ -161,7 +164,7 @@
         </a>
         <div class="address">
             {{ place.address }}<br />
-            {{ place.postcode}} <span class="glyphicon glyphicon-record"></span> <strong>{{ place.city }}</strong><br />
+            {{ place.postcode}} <span class="fa fa-dot-circle-o" aria-hidden="true"></span> <strong>{{ place.city }}</strong><br />
             {{ place.state_province }}
         </div>
         <div class="description-short {% if place.short_description.strip %}has-content{% endif %}">
@@ -177,15 +180,17 @@
                     {{ desc }}
                     {% if description_length_warning %}
                         <span class="text-danger text-nowrap">
-                            <span class="glyphicon glyphicon-warning-sign" data-toggle="tooltip" data-html="true"
+                            <span class="fa fa-exclamation-triangle" data-toggle="tooltip" data-html="true"
                                   title="{{ description_text_warning }}
                                          {% if description_text_warning and description_length_warning %}<br />{% endif %}
-                                         {{ description_length_warning }}"></span>
+                                         {{ description_length_warning }}"
+                                  aria-label="{% trans "Warning " context 'Title' %}"></span>
                             {{ desc|length }}&#8202;/&#8202;135
                         </span>
                     {% elif description_text_warning %}
-                        <span class="glyphicon glyphicon-warning-sign" data-toggle="tooltip"
-                              title="{{ description_text_warning }}"></span>
+                        <span class="fa fa-exclamation-triangle" data-toggle="tooltip"
+                              title="{{ description_text_warning }}"
+                              aria-label="{% trans "Warning " context 'Title' %}: {{ description_text_warning }}"></span>
                     {% endif %}
                 </small>
             {% endwith %}
@@ -199,8 +204,9 @@
                     <em class="comment{% if phone.comments|is_esperanto_surrogate %} text-surrogate text-warning{% endif %}">
                         {{ phone.comments }}
                         {% if phone.comments|is_esperanto_surrogate %}
-                            <span class="glyphicon glyphicon-warning-sign text-warning" data-toggle="tooltip"
-                                  title="{% trans "Esperanto letters?" %}"></span>
+                            <span class="fa fa-exclamation-triangle text-warning" data-toggle="tooltip"
+                                  title="{% trans "Esperanto letters?" %}"
+                                  aria-label="{% trans "Warning " context 'Title' %}: {% trans "Esperanto letters?" %}"></span>
                         {% endif %}
                     </em>
                 </small>
@@ -215,7 +221,7 @@
         {% if place.profile.user.email|is_invalid %}
             <span class="email text-danger" title="{% trans "invalid email"%}" data-toggle="tooltip">
                 {{ place.profile.user.email|clear_invalid }}
-                <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
+                <span class="fa fa-exclamation-triangle" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
             </span>
         {% else %}
             <span class="email">{{ place.profile.user.email|urlize }}</span>

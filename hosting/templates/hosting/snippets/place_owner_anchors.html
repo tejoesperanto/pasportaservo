@@ -2,9 +2,9 @@
 {% load i18n %}
 
 {% if place.available %}
-    <em>{% trans "I'm hosting" %} :)</em>
+    <em>{% trans "I'm hosting"|capfirst %} :)</em>
 {% else %}
-    <em>{% trans "I'm <b>not</b> hosting" %}</em>
+    <em>{% trans "I'm <b>not</b> hosting"|capfirst %}</em>
 {% endif %}
 
 {% if place.owner_available %}

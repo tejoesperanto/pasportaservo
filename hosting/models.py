@@ -154,7 +154,7 @@ class Profile(TrackingModel, TimeStampedModel):
     @property
     def icon(self):
         title = self.get_title_display().capitalize()
-        template = '<span class="glyphicon glyphicon-user" title="{title}"></span>'
+        template = '<span class="fa fa-user" title="{title}"></span>'
         return format_html(template, title=title)
 
     def get_fullname_display(self, quote='"', non_empty=False):
@@ -338,9 +338,11 @@ class Place(TrackingModel, TimeStampedModel):
     family_members = models.ManyToManyField('hosting.Profile', verbose_name=_("family members"),
         blank=True)
     blocked_from = models.DateField(_("unavailable from"),
-        null=True, blank=True)
+        null=True, blank=True,
+        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))
     blocked_until = models.DateField(_("unavailable until"),
-        null=True, blank=True)
+        null=True, blank=True,
+        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))
     authorized_users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("authorized users"),
         blank=True,
         help_text=_("List of users authorized to view most of data of this accommodation."))
@@ -486,15 +488,15 @@ class Phone(TrackingModel, TimeStampedModel):
     @property
     def icon(self):
         if self.type == self.WORK:
-            cls = "glyphicon-earphone"
+            cls = "ps-phone"
         elif self.type == self.MOBILE:
-            cls = "glyphicon-phone"
+            cls = "ps-mobile-phone"
         elif self.type == self.FAX:
-            cls = "glyphicon-print"
+            cls = "ps-fax"
         else:  # self.HOME or ''
-            cls = "glyphicon-phone-alt"
-        title = self.get_type_display().capitalize()
-        template = '<span class="glyphicon {cls}" title="{title}" data-toggle="tooltip" data-placement="left"></span>'
+            cls = "ps-old-phone"
+        title = self.get_type_display().capitalize() or _("type not indicated")
+        template = '<span class="fa {cls}" title="{title}" data-toggle="tooltip" data-placement="left"></span>'
         return format_html(template, cls=cls, title=title)
 
     def __str__(self):
