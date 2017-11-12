@@ -1643,31 +1643,45 @@ msgstr ""
 "La administrantoj estas informitaj pri la problemo kaj ĝin korektos kieleble "
 "plej baldaŭ."
 
+msgctxt "postman:tab title"
 msgid "Archives"
-msgstr ""
+msgstr "Arkivitaj"
 
+msgctxt "postman:title"
 msgid "Archived Messages"
-msgstr ""
+msgstr "Arkivitaj mesaĝoj"
 
 msgid ""
 "Messages in this folder will never be removed. You can use this folder for "
 "long term storage."
 msgstr ""
 
-msgid "Inbox"
-msgstr ""
+msgctxt "postman:tab title"
+msgid "Letterbox"
+msgstr "Poŝtkesto"
 
 msgid "Messaging"
 msgstr ""
 
+msgctxt "postman:menu"
+msgid "Inbox"
+msgstr "Poŝtkesto"
+
+msgctxt "postman:menu"
 msgid "Write"
-msgstr ""
+msgstr "Nova mesaĝo"
 
+msgctxt "postman:menu"
 msgid "Sent Messages"
-msgstr ""
+msgstr "Senditaj mesaĝoj"
 
+msgctxt "postman:menu"
+msgid "Archives"
+msgstr "Arkivo"
+
+msgctxt "postman:menu"
 msgid "Trash"
-msgstr ""
+msgstr "Rubujo"
 
 msgid "Sorry, this page number is invalid."
 msgstr ""
@@ -1693,11 +1707,17 @@ msgstr ""
 msgid "g:i A,M j,n/j/y"
 msgstr ""
 
+msgctxt "postman:action"
 msgid "Archive"
-msgstr ""
+msgstr "Arkivi"
 
+msgctxt "postman:action"
+msgid "Delete"
+msgstr "Forviŝi"
+
+msgctxt "postman:action"
 msgid "Undelete"
-msgstr ""
+msgstr "Malforviŝi"
 
 msgid "No messages."
 msgstr ""
@@ -1710,6 +1730,10 @@ msgstr ""
 
 msgid "message"
 msgstr ""
+
+msgctxt "postman:action"
+msgid "Send"
+msgstr "Sendi"
 
 #, python-format
 msgid "<a href=\"%(url)s\">%(sender)s</a> wrote to you!"
@@ -1784,34 +1808,66 @@ msgstr "La administranto de la retejo"
 msgid "Message \"%(subject)s\" on the site %(sitename)s"
 msgstr ""
 
+msgctxt "postman:tab title"
+msgid "Inbox"
+msgstr "Poŝtkesto"
+
+msgctxt "postman:title"
 msgid "Received Messages"
-msgstr ""
+msgstr "Ricevitaj mesaĝoj"
 
 msgid "Received"
 msgstr ""
 
+msgctxt "postman:title"
+msgid "Reply"
+msgstr "Respondo"
+
+msgctxt "postman:tab title"
+msgid "Sent Messages"
+msgstr "Senditaj"
+
+msgctxt "postman:title"
+msgid "Sent Messages"
+msgstr "Senditaj mesaĝoj"
+
 msgid "Sent"
 msgstr ""
 
+msgctxt "postman:tab title"
+msgid "Trash"
+msgstr "Forviŝitaj"
+
+msgctxt "postman:title"
 msgid "Deleted Messages"
-msgstr ""
+msgstr "Forviŝitaj mesaĝoj"
 
 msgid ""
 "Messages in this folder can be removed from time to time. For long term "
 "storage, use instead the archive folder."
 msgstr ""
 
+msgctxt "postman:title"
 msgid "Conversation"
-msgstr ""
+msgstr "Konversacio"
 
+msgctxt "postman:title"
 msgid "Message"
-msgstr ""
+msgstr "Mesaĝo"
 
 msgid "Rejected"
 msgstr ""
 
 msgid ":"
 msgstr ""
+
+msgctxt "postman:action"
+msgid "Reply"
+msgstr "Respondi"
+
+msgctxt "postman:title"
+msgid "Write"
+msgstr "Verku"
 
 msgid "^management/"
 msgstr "^administrilo/"
