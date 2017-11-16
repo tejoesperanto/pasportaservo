@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n static geoformat %}
+{% load i18n static expression geoformat utils %}
 
 {% block head_title %}
     {% trans "Find accomodation" %}
@@ -64,14 +64,14 @@
                     <img src="{{ place.owner.avatar_url }}" />
                 </a>
             </div>
+            {% expr place.available or place.owner_available as offered %}
             <div class="col-xs-9 col-sm-10 col-md-11 name">
                 <div class="pull-right status">
                     {% if user.is_authenticated and place.is_blocked %}
                         <span class="label label-default">&nbsp;{% trans "unavailable" %}&nbsp;</span>
                     {% endif %}
                 </div>
-                <a href="{{ place.owner.get_absolute_url }}"
-                   class="{% if place.available or place.owner_available %}text-as-ps{% else %}{% endif %}">
+                <a href="{{ place.owner.get_absolute_url }}" class="{% if offered %}text-as-ps{% else %}{% endif %}">
                     {% if user.is_authenticated %}
                         <span class="hidden-xxs">{{ place.owner.get_fullname_display }}</span>
                         <span class="visible-xxs-inline">{{ place.owner.anonymous_name }}</span>
@@ -84,7 +84,9 @@
                 <div class="pull-right">{% include './snippets/checked.html' with object=place %}</div>
                 <a href="{{ place.get_absolute_url }}">
                     {% if user.is_authenticated %}
-                        {% if place.city %}<strong>{{ place.city }}</strong>{% endif %}
+                        {% if place.city %}
+                            {% if offered %}<strong>{% endif %}{{ place.city }}{% if offered %}</strong>{% endif %}
+                        {% endif %}
                         {% if place.distance %}<small>{{ place.distance.km|floatformat:0 }}&nbsp;km</small>{% endif %}
                         <br />
                         {% if place.state_province %}{{ place.state_province }}, {% endif %}{{ place.country.name }}
@@ -94,39 +96,29 @@
                 </a>
                 <div class="status anchor-group">
                     {% if user.is_authenticated %}
-                        {% if place.available or place.owner_available %}
+                        {% list place.available place.tour_guide place.have_a_drink as offer_details %}
+                        {% if offer_details|are_any %}
                             <span class="sr-only">{% trans "Note " context 'Title' %}:</span>
                         {% endif %}
-                        {% if place.available %}
-                            <div class="anchor-group-item anchor-vert-space-even">
-                            {% spaceless %}
-                                <span class="place-anchor place-anchor-host text-label-info">
-                                    <span class="fa ps-home" aria-hidden="true"></span>
-                                </span>
-                                <span class="label label-info">{% trans "I'm hosting" %}</span>
-                            {% endspaceless %}
-                            </div>
-                        {% endif %}
-                        {% if place.tour_guide %}
-                            <div class="anchor-group-item anchor-vert-space-even">
-                            {% spaceless %}
-                                <span class="place-anchor place-anchor-guide text-label-info">
-                                    <span class="fa ps-city-guide" aria-hidden="true"></span>
-                                </span>
-                                <span class="label label-info">{% trans "I can guide around the city" %}</span>
-                            {% endspaceless %}
-                            </div>
-                        {% endif %}
-                        {% if place.have_a_drink %}
-                            <div class="anchor-group-item anchor-vert-space-even">
-                            {% spaceless %}
-                                <span class="place-anchor place-anchor-drink text-label-info">
-                                    <span class="fa ps-city-drink" aria-hidden="true"></span>
-                                </span>
-                                <span class="label label-info">{% trans "I'd like to have a drink together" %}</span>
-                            {% endspaceless %}
-                            </div>
-                        {% endif %}
+                        {% dict icon="ps-home"       class="host"  title=_("I'm hosting")                       as style_house %}
+                        {% dict icon="ps-city-guide" class="guide" title=_("I can guide around the city")       as style_guide %}
+                        {% dict icon="ps-city-drink" class="drink" title=_("I'd like to have a drink together") as style_drink %}
+
+                        {% cycle style_house style_guide style_drink as offer_style silent %}
+                        {% for proposed_activity in offer_details %}
+                            {% if proposed_activity %}
+                                {% spaceless %}
+                                <div class="anchor-group-item anchor-vert-space-even" data-cycle="{{ forloop.counter }}">
+                                    <span class="place-anchor place-anchor-{{ offer_style.class }} text-label-info">
+                                        <span class="fa {{ offer_style.icon }}" aria-hidden="true"></span>
+                                    </span>
+                                    <span class="label label-info">{{ offer_style.title }}</span>
+                                </div>
+                                {% endspaceless %}
+                            {% endif %}
+                            {% cycle offer_style %}
+                        {% endfor %}
+                        {% resetcycle offer_style %}
                     {% endif %}
                 </div>
             </div>

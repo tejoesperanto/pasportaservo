@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n static expression profile %}
+{% load i18n static expression profile utils %}
 
 {% block head_title %}
     {% if view.role == roles.OWNER %}
@@ -219,41 +219,39 @@
                         <h4>{{ place.country.name }}</h4>
 
                         <div class="anchor-group">
-                            {% if place.tour_guide %}
-                                <div class="anchor-group-item anchor-vert-space-even">
-                                    <span class="place-anchor text-label-info" aria-hidden="true"><span class="fa ps-city-guide-fh"></span></span>
-                                    <span class="label label-info status" aria-hidden="true">{% trans "I can guide around the city" %}</span>
-                                </div>
-                            {% endif %}
-                            {% if place.have_a_drink %}
-                                <div class="anchor-group-item anchor-vert-space-even">
-                                    <span class="place-anchor text-label-info" aria-hidden="true"><span class="fa ps-city-drink-fh"></span></span>
-                                    <span class="label label-info status" aria-hidden="true">{% trans "I'd like to have a drink together" %}</span>
-                                </div>
-                            {% endif %}
-                            {% if place.max_guest %}
-                                <div class="anchor-group-item anchor-vert-space-even"
-                                     title="{% blocktrans count max_host=place.max_guest trimmed %}
-                                                I can accept {{ max_host }} person
-                                            {% plural %}
-                                                I can accept {{ max_host }} persons
-                                            {% endblocktrans %}"
-                                     data-toggle="tooltip" data-placement="bottom">
-                                    <span class="place-anchor text-label-info" aria-hidden="true"><span class="fa fa-street-view"></span></span>
-                                    <span class="label label-info status" aria-hidden="true">{{ place.max_guest }}</span>
-                                </div>
-                            {% endif %}
-                            {% if place.max_night %}
-                                <div class="anchor-group-item anchor-vert-space-even"
-                                     title="{% blocktrans count max_night=place.max_night trimmed %}
-                                                I can host during {{ max_night }} night maximum
-                                            {% plural %}
-                                                I can host during {{ max_night }} nights maximum
-                                            {% endblocktrans %}"
-                                     data-toggle="tooltip" data-placement="bottom">
-                                    <span class="place-anchor text-label-info" aria-hidden="true"><span class="fa fa-moon-o"></span></span>
-                                    <span class="label label-info status" aria-hidden="true">{{ place.max_night }}</span>
-                                </div>
+                            {% list place.tour_guide place.have_a_drink place.max_guest place.max_night as offer_details %}
+                            {% if offer_details|are_any %}
+                                <span class="sr-only">{% trans "Note " context 'Title' %}:</span>
+                                {% blocktrans count max_host=place.max_guest asvar desc_max_guest trimmed %}
+                                    I can accept {{ max_host }} person
+                                {% plural %}
+                                    I can accept {{ max_host }} persons
+                                {% endblocktrans %}
+                                {% blocktrans count max_night=place.max_night asvar desc_max_night trimmed %}
+                                    I can host during {{ max_night }} night maximum
+                                {% plural %}
+                                    I can host during {{ max_night }} nights maximum
+                                {% endblocktrans %}
+                                {% dict icon="ps-city-guide-fh" info=_("I can guide around the city")       as style_guide %}
+                                {% dict icon="ps-city-drink-fh" info=_("I'd like to have a drink together") as style_drink %}
+                                {% dict icon="fa-street-view"   info=place.max_guest  title=desc_max_guest  as style_guest %}
+                                {% dict icon="fa-moon-o"        info=place.max_night  title=desc_max_night  as style_night %}
+
+                                {% cycle style_guide style_drink style_guest style_night as offer_style silent %}
+                                {% for clause in offer_details %}
+                                    {% if clause %}
+                                        <div class="anchor-group-item anchor-vert-space-even"
+                                             {% if offer_style.title %}title="{{ offer_style.title }}" data-toggle="tooltip" data-placement="bottom"{% endif %}>
+                                            <span class="place-anchor text-label-info" aria-hidden="true"><span class="fa {{ offer_style.icon }}"></span></span>
+                                            <span class="label label-info status"{% if offer_style.title %} aria-hidden="true"{% endif %}>{{ offer_style.info }}</span>
+                                            {% if offer_style.title %}
+                                                <span class="label label-info status sr-only">{{ offer_style.title|lower }}</span>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                    {% cycle offer_style %}
+                                {% endfor %}
+                                {% resetcycle offer_style %}
                             {% endif %}
                             {% if place.short_description %}
                                 <div class="anchor-group-item anchor-vert-space-even">
