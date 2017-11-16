@@ -150,7 +150,7 @@
                     </div>
 
                     {% if view.verbose_view %}
-                        {% for phone in place.owner.phones.all %}
+                        {% for phone in owner_phones %}
                             <p class="col-xs-12 phone-number">
                                 {{ phone.icon }}
                                 {% if phone.country %}
