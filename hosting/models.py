@@ -409,10 +409,6 @@ class Place(TrackingModel, TimeStampedModel):
         return self.__dict__.setdefault('_conditions_cache', self.conditions.all())
 
     @property
-    def any_accommodation_details(self):
-        return any([self.description, self.contact_before, self.max_guest, self.max_night])
-
-    @property
     def owner_available(self):
         return self.tour_guide or self.have_a_drink
 

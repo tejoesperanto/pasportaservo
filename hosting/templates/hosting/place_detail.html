@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n l10n static profile expression %}
+{% load i18n l10n static profile expression utils %}
 
 {% block head_title %}
     {% if view.role == roles.OWNER %}
@@ -180,7 +180,8 @@
         {# DETAILS AND CONDITIONS OF THE PLACE ON LARGE SCREENS - ACCESSIBLE ONLY TO AUTHENTICATED USERS #}
         {% if user.is_authenticated %}
             <div class="col-md-12 hidden-xs hidden-sm">
-                {% if place.any_accommodation_details %}
+                {% list place.description place.contact_before place.max_guest place.max_night as accommodation_details %}
+                {% if accommodation_details|are_any %}
                     <h3>{% trans "Description" %}</h3>
                     {% include './snippets/place_description.html' with description=place.description place_available=place.available owner_available=place.owner_available contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
                 {% endif %}

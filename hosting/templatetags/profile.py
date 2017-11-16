@@ -6,6 +6,7 @@ from django.contrib import auth
 from django.contrib.auth.models import AnonymousUser
 from django_countries.fields import Country
 from django.conf import settings
+from django.template.defaultfilters import stringfilter
 
 from ..models import Profile
 from ..utils import value_without_invalid_marker
@@ -73,17 +74,20 @@ def supervisor_of(user_or_profile):
     return ("",)
 
 
-@register.filter
+@register.filter(is_safe=True)
+@stringfilter
 def is_invalid(value):
     return str(value).startswith(settings.INVALID_PREFIX)
 
 
-@register.filter
+@register.filter(is_safe=True)
+@stringfilter
 def clear_invalid(value):
     return value_without_invalid_marker(value)
 
 
-@register.filter
+@register.filter(is_safe=True)
+@stringfilter
 def is_esperanto_surrogate(value):
     return re_esperanto.search(value)
 
