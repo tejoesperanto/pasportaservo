@@ -125,12 +125,16 @@ class CustomGroupAdmin(GroupAdmin):
             for u in obj.user_set.all():
                 link = reverse('admin:auth_user_change', args=[u.id])
                 account_link = format_html('<a href="{url}">{username}</a>', url=link, username=u)
+                is_deleted = not u.is_active
                 try:
                     profile_link = format_html('<sup>(<a href="{url}">{name}</a>)</sup>',
                                                url=u.profile.get_admin_url(), name=_("profile"))
                 except Profile.DoesNotExist:
                     profile_link = ''
-                yield " ".join([account_link, profile_link])
+                else:
+                    is_deleted = is_deleted or u.profile.deleted_on
+                indicator = '<span style="color:#dd4646">&#x2718;!</span>' if is_deleted else ''
+                yield " ".join([indicator, account_link, profile_link])
         return format_html(", ".join(get_formatted_list()))
     supervisors.short_description = _("Supervisors")
 
