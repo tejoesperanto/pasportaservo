@@ -68,26 +68,24 @@
 {% endblock header %}
 
 {% block pre-page %}
-    {% with ps_news=view.news ps_notifications=view.right_block %}
-    <section id="home-explain" class="container{% if ps_news or ps_notifications %} has-content{% endif %}" role="complementary">
+    <section id="home-explain" class="container{% if view.news or view.right_block %} has-content{% endif %}" role="complementary">
         <div class="row">
             <div class="col-xs-12 col-md-6">
-                {% if ps_news %}
+                {% if view.news %}
                     <h2 class="text-center">
                         <strong><a href="{% url 'blog:posts' %}">{% trans "News" %}</a></strong>
                     </h2>
                 {% endif %}
                 {% for post in view.news %}
-                    {% include 'blog/post.html' with post=post header_level=3 quote=True more_class='pull-right' more_type=2 only %}
+                    {% include 'blog/post.html' with post=post header_level=3 quote=True more_class='pull-right' more_type="dots" only %}
                 {% endfor %}
             </div>
 
             <div class="col-xs-12 col-md-5 col-md-offset-1">
-                {{ ps_notifications }}
+                {{ view.right_block }}
             </div>
         </div>
     </section>
-    {% endwith %}
 {% endblock pre-page %}
 
 {% block page_role %}toolbar{% endblock %}

@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from markdown2 import markdown
 from simplemde.fields import SimpleMDEField
-from django.db.models import BooleanField, Case, When
+from django.db.models import BooleanField, Q, F, Case, When
 from django.utils import timezone
 
 
@@ -23,7 +23,12 @@ class PublishedManager(models.Manager):
                 When(pub_date__gt=timezone.now(), then=False),
                 default=True,
                 output_field=BooleanField()
-            )
+            ),
+            has_more=Case(
+                When(~Q(body=F('description')), then=True),
+                default=False,
+                output_field=BooleanField()
+            ),
         )
 
     def published(self, limit=50):
