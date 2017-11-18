@@ -243,6 +243,7 @@ class Profile(TrackingModel, TimeStampedModel):
             self.phones.filter(deleted=False).update(confirmed_on=now)
             self.website_set.filter(deleted=False).update(confirmed_on=now)
             self.save()
+    confirm_all_info.alters_data = True
 
     @classmethod
     def mark_invalid_emails(cls, emails=None):
@@ -256,6 +257,7 @@ class Profile(TrackingModel, TimeStampedModel):
                 email=Concat(V(settings.INVALID_PREFIX), F('email'))
             )
         return models
+    mark_invalid_emails.do_not_call_in_templates = True
 
     @classmethod
     def mark_valid_emails(cls, emails=None):
@@ -268,6 +270,7 @@ class Profile(TrackingModel, TimeStampedModel):
                 email=Substr(F('email'), len(settings.INVALID_PREFIX) + 1)
             )
         return models
+    mark_valid_emails.do_not_call_in_templates = True
 
 
 class Place(TrackingModel, TimeStampedModel):
