@@ -123,7 +123,7 @@
                         {% firstof profile.email no_email %}
                     {% endif %}
                 </small></samp> &nbsp;
-                <a href="{% url 'profile_email_update' profile.pk profile.user.username|slugify %}?next={{ request.get_full_path|urlencode }}"
+                <a href="{% url 'profile_email_update' profile.pk profile.autoslug %}?next={{ request.get_full_path|urlencode }}"
                    class="btn btn-default btn-sm btn-vert-space-even">
                     {% trans "Update public email" %}
                 </a>
@@ -143,7 +143,7 @@
     {% if not profile.deleted %}
     <section class="callout callout-danger">
         <h4>{% if view.role == roles.OWNER %}{% trans "End my membership" %}{% else %}{% trans "End membership" %}{% endif %}</h4>
-        <a href="{% url 'profile_delete' profile.pk profile.user.username|slugify %}"
+        <a href="{% url 'profile_delete' profile.pk profile.autoslug %}"
            class="btn btn-danger">
             <span class="fa fa-trash fa-lg" aria-hidden="true"></span>&nbsp;
             {% trans "Delete account" %}
@@ -152,7 +152,7 @@
     {% endif %}
         
     <div class="pull-left">
-        <a href="{% url 'profile_edit' profile.pk profile.user.username|slugify %}" class="btn btn-default" title="{% trans "Back" %}">
+        <a href="{% url 'profile_edit' profile.pk profile.autoslug %}" class="btn btn-default" title="{% trans "Back" %}">
             <span class="fa fa-arrow-left" aria-hidden="true"></span>
             <span>{% trans "Back" %}</span>
         </a>

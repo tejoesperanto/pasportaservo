@@ -19,7 +19,7 @@ from django.urls import reverse_lazy
 from django.utils.functional import cached_property
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django.utils.text import format_lazy, slugify
+from django.utils.text import format_lazy
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 from django.views import generic
 from django.views.decorators.vary import vary_on_headers
@@ -195,7 +195,7 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
             return HttpResponseRedirect(format_lazy(
                 "{settings_url}#{section_email}",
                 settings_url=reverse_lazy('profile_settings', kwargs={
-                    'pk': request.user.profile.pk, 'slug': slugify(request.user.username)}),
+                    'pk': request.user.profile.pk, 'slug': request.user.profile.autoslug}),
                 section_email=pgettext_lazy("URL", "email-addr"),
             ))
         except Profile.DoesNotExist:
@@ -226,10 +226,11 @@ class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
             if user.profile.email == old_email:  # Keep profile email in sync
                 user.profile.email = new_email
                 user.profile.save()
-            return HttpResponseRedirect(reverse_lazy('profile_settings', kwargs={
-                'pk': user.profile.pk, 'slug': slugify(user.username)}))
         except Profile.DoesNotExist:
             return HttpResponseRedirect(reverse_lazy('profile_create'))
+        else:
+            return HttpResponseRedirect(reverse_lazy('profile_settings', kwargs={
+                'pk': user.profile.pk, 'slug': user.profile.autoslug}))
 
 
 class EmailStaffUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, generic.UpdateView):

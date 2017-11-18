@@ -23,7 +23,7 @@
         <div class="row bg-info top-notice remove-after-success">
             {% if view.role != roles.OWNER %}
                 <p class="col-xs-12 text-center">
-                    {% url 'profile_edit' user.profile.pk user.profile.user.username|slugify as current_user_profile %}
+                    {% url 'profile_edit' user.profile.pk user.profile.autoslug as current_user_profile %}
                     {% blocktrans with url=current_user_profile trimmed %}
                         Are <a href="{{ url }}">your data</a> up-to-date? Please check your hosting profile.
                     {% endblocktrans %}
@@ -94,7 +94,7 @@
                         {% if view.role >= roles.OWNER %}
                             {% trans "Update user's details" as update_title %}
                             {% if view.role == roles.OWNER %}{% trans "Update my details" as update_title %}{% endif %}
-                            <a href="{% url 'profile_edit' profile.pk profile.user.username|slugify %}"
+                            <a href="{% url 'profile_edit' profile.pk profile.autoslug %}"
                                class="btn btn-success"
                                title="{{ update_title }}">
                                 <span class="fa fa-pencil" aria-hidden="true"></span>&nbsp; {% trans "Modify account" %}

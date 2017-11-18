@@ -24,7 +24,6 @@ from django.utils import timezone
 from django.utils.encoding import uri_to_iri
 from django.utils.http import urlquote_plus
 from django.utils.six.moves.urllib.parse import unquote_plus
-from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from django.views import generic
 from django.views.decorators.vary import vary_on_headers
@@ -106,7 +105,7 @@ class ProfileDeleteView(
 
     def get_failure_url(self):
         return reverse_lazy('profile_settings', kwargs={
-            'pk': self.object.pk, 'slug': slugify(self.object.user.username)})
+            'pk': self.object.pk, 'slug': self.object.autoslug})
 
     def delete(self, request, *args, **kwargs):
         """
@@ -189,7 +188,7 @@ class ProfileSettingsRedirectView(LoginRequiredMixin, generic.RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         try:
             return reverse_lazy('profile_settings', kwargs={
-                'pk': self.request.user.profile.pk, 'slug': slugify(self.request.user.username)})
+                'pk': self.request.user.profile.pk, 'slug': self.request.user.profile.autoslug})
         except Profile.DoesNotExist:
             return reverse_lazy('profile_create')
 

@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.utils.text import format_lazy, slugify
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
 from django_countries.fields import CountryField
@@ -185,7 +185,14 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @property
     def autoslug(self):
-        return slugify(self.user.username)
+        # return slugify(self.user.username)
+        n = self.user_id + 9572
+        while n > ord('z') - ord('a'):
+            r = 0
+            while n:
+                r, n = r + n % 10, n // 10
+            n = r
+        return chr(ord('a') + n - 1) + chr(ord('Z') - n + 1)
 
     @property
     def is_hosting(self):
