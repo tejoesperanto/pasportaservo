@@ -71,4 +71,5 @@ class Post(TimeStampedModel):
         self.body = markdown("".join(content))
         self.description = markdown(content[0])
         return super().save(*args, **kwargs)
+    save.alters_data = True
 
