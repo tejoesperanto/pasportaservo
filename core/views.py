@@ -37,11 +37,13 @@ from .forms import (
 from hosting.utils import value_without_invalid_marker
 from links.utils import create_unique_url
 from .models import SiteConfiguration
+from .mixins import flatpages_as_templates
 from .utils import send_mass_html_mail
 
 User = get_user_model()
 
 
+@flatpages_as_templates
 class HomeView(generic.TemplateView):
     template_name = 'core/home.html'
 
@@ -49,7 +51,8 @@ class HomeView(generic.TemplateView):
         return Post.objects.published(3).defer('content', 'body')
 
     def right_block(self):
-        return FlatPage.objects.filter(url='/home-right-block/').values('content').first()
+        block = FlatPage.objects.filter(url='/home-right-block/').values('content').first()
+        return self.render_flat_page(block)
 
 
 class RegisterView(generic.CreateView):
