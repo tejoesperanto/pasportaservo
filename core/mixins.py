@@ -52,3 +52,30 @@ class UserModifyMixin(object):
             return self.object.profile.get_edit_url()
         except Profile.DoesNotExist:
             return reverse_lazy('profile_create')
+
+
+def flatpages_as_templates(cls):
+    """
+    View decorator:
+    Facilitates rendering flat pages as Django templates, including usage of
+    tags and the view's context. Performs some magic to capture the specific
+    view's custom context and provides a helper function `render_flat_page`.
+    """
+    context_func_name = 'get_context_data'
+    context_func = getattr(cls, context_func_name, None)
+    if context_func:
+        def _get_context_data_superfunc(self, **kwargs):
+            context = context_func(self, **kwargs)
+            # Avoid polluting the namespace of the view class.
+            cls.render_flat_page._view_context = context
+            return context
+        setattr(cls, context_func_name, _get_context_data_superfunc)
+
+    def render_flat_page(self, page):
+        from django.template import engines
+        template = engines.all()[0].from_string(page['content'])
+        return template.render(render_flat_page._view_context, self.request)
+    cls.render_flat_page = render_flat_page
+    cls.render_flat_page._view_context = {}
+
+    return cls
