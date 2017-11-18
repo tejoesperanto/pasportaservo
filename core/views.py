@@ -20,6 +20,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
 from django.template.loader import get_template
+from django.utils.functional import cached_property
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy, slugify
@@ -47,9 +48,11 @@ User = get_user_model()
 class HomeView(generic.TemplateView):
     template_name = 'core/home.html'
 
+    @cached_property
     def news(self):
         return Post.objects.published(3).defer('content', 'body')
 
+    @cached_property
     def right_block(self):
         block = FlatPage.objects.filter(url='/home-right-block/').values('content').first()
         return self.render_flat_page(block)

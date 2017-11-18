@@ -11,12 +11,12 @@
     {% if quote %}<blockquote>{% endif %}
         {{ post.description|safe }}
 
-        {% if post.description != post.body and more_type == 1 %}
+        {% if post.has_more and more_type == "link" %}
             <a href="{{ post.get_absolute_url }}" class="text-center text-nowrap {{ more_class }}">
                 <em>{% trans "read more" %} &#x279e;</em>
             </a>
         {% endif %}
-        {% if post.description != post.body and more_type == 2 %}
+        {% if post.has_more and more_type == "dots" %}
             <p>
                 &nbsp;
                 <span class="help-block text-nowrap {{ more_class }}">

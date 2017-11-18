@@ -20,7 +20,7 @@
             <h1 class="title">{% trans "The last news about Pasporta Servo" %}</h1>
 
             {% for post in post_list %}
-                {% include 'blog/post.html' with post=post header_level=2 more_type=1 only %}
+                {% include 'blog/post.html' with post=post header_level=2 more_type="link" only %}
                 <hr />
             {% endfor %}
         </div>

@@ -8,7 +8,7 @@ from .models import Post
 
 
 class PostListView(generic.ListView):
-    queryset = Post.objects.published()
+    queryset = Post.objects.published().defer('content', 'body')
 
 
 class PostDetailView(generic.DetailView):
