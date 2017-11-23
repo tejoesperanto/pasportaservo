@@ -79,7 +79,7 @@
             <div class="col-xs-12 col-md-7">
                 <div class="btn-group edit-buttons">
                     {% block profile_edit_buttons %}
-                        {% if view.role != roles.OWNER and not profile.deleted %}
+                        {% if view.role != roles.OWNER and not profile.deleted_on %}
                             {% if profile.user.email|is_invalid %}
                                 <a href="#" class="btn btn-danger disabled"
                                    title="{% trans "The user's email address seems invalid" %}"
@@ -182,6 +182,11 @@
         </h2>
     {% endif %}
     {% for place in places %}
+        {% if view.role == roles.OWNER or user|is_supervisor_of:place %}
+            {% expr True as place_owner_or_supervisor %}
+        {% else %}
+            {% expr False as place_owner_or_supervisor %}
+        {% endif %}
         <ul class="list-group">
             <li class="list-group-item {% if perms.hosting.can_supervise and place.checked %}text-success{% endif %}">
                 <div class="btn-group pull-right">
@@ -197,7 +202,7 @@
                         {% if place.available %}
                             <span class="label label-info status">&nbsp;{% trans "I'm hosting in:" %}&nbsp;</span>
                         {% endif %}
-                        
+
                         {% if place.city %}
                             <h3>{{ place.city }}</h3>
                         {% endif %}
@@ -280,7 +285,7 @@
                     </div>
     
                     <ul class="list-group">
-                        {% for member in place.family_members.all %}
+                        {% for member in place.family_members_cache %}
                             <li class="list-group-item list-vertical-align">
                                 {% block family_member_edit_buttons %}{% endblock %}
     

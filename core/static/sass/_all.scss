@@ -66,6 +66,13 @@ ul.dropdown-menu li img:first-child {
     color: #737373;
 }
 
+.debug-only {
+    position: absolute;
+    left: 0px;
+    opacity: 0.5;
+    z-index: 100000000;
+}
+
 
 /* General header. */
 header {

@@ -127,7 +127,7 @@ class CustomGroupAdmin(GroupAdmin):
     def supervisors(self, obj):
         def get_formatted_list():
             for u in obj.user_set.all():
-                link = reverse('admin:auth_user_change', args=[u.id])
+                link = reverse('admin:auth_user_change', args=[u.pk])
                 account_link = format_html('<a href="{url}">{username}</a>', url=link, username=u)
                 is_deleted = not u.is_active
                 try:
@@ -223,7 +223,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
 
     def user_link(self, obj):
         try:
-            link = reverse('admin:auth_user_change', args=[obj.user.id])
+            link = reverse('admin:auth_user_change', args=[obj.user_id])
             return format_html('<a href="{url}">{username}</a>', url=link, username=obj.user)
         except AttributeError:
             return '-'
@@ -231,7 +231,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     user_link.admin_order_field = 'user'
 
     def supervisor(self, obj):
-        country_list = CustomGroupAdmin.CountryGroup.objects.filter(user__pk=obj.user.id if obj.user else -1)
+        country_list = CustomGroupAdmin.CountryGroup.objects.filter(user__pk=obj.user_id if obj.user_id else -1)
         if country_list:
             return format_html(",&nbsp; ".join(map(str, country_list)))
         else:
@@ -296,8 +296,8 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
             ordering = ['first_name', 'last_name', 'id']
             proxy = True
         def __str__(self):
-            return "(p:%05d, u:%05d) %s" % (self.id,
-                                            self.user_id if self.user else 0,
+            return "(p:%05d, u:%05d) %s" % (self.pk,
+                                            self.user_id if self.user_id else 0,
                                             super().__str__())
 
     def get_queryset(self, request):

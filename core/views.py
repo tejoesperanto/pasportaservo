@@ -130,7 +130,7 @@ class EmailUpdateView(AuthMixin, UserModifyMixin, generic.UpdateView):
     def dispatch(self, request, *args, **kwargs):
         if not hasattr(self, 'user'):
             self.user = self.request.user
-            self.kwargs[self.pk_url_kwarg] = self.user.id
+            self.kwargs[self.pk_url_kwarg] = self.user.pk
         return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
@@ -217,7 +217,7 @@ class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
         old_email, new_email = user.email, kwargs['email']
         user.email = new_email
         user.save()
-        if 'verification' in kwargs and kwargs['verification']:
+        if kwargs.get('verification'):
             messages.info(request, _("Your email address has been successfully verified!"), extra_tags='eminent')
         else:
             messages.info(request, _("Your email address has been successfully updated!"), extra_tags='eminent')

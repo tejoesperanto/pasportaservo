@@ -30,8 +30,11 @@
         {% expr True as place_owner_or_supervisor %}
     {% endif %}
 
+    {% if view.verbose_view and debug %}
+        <span class="label label-warning debug-only">{% trans "Full preview" %}</span>
+    {% endif %}
     {% if view.verbose_view %}
-    {% if view.role == roles.OWNER or user.profile in place.family_members.all %}
+    {% if view.role == roles.OWNER or user.profile in place.family_members_cache %}
     {# PAGE-TOP NOTIFICATION TO OWNER AND FAMILY MEMBERS ABOUT DETAILED (VERBOSE) PREVIEW #}
         <div class="row bg-info top-notice">
             <p class="col-xs-12 text-center">
@@ -183,11 +186,11 @@
                     <h3>{% trans "Description" %}</h3>
                     {% include 'hosting/snippets/place_description.html' with description=place.description place_available=place.available owner_available=place.owner_available contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
                 {% endif %}
-                {% if place.conditions.all %}
-                    {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all only %}
+                {% if place.conditions_cache %}
+                    {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions_cache only %}
                 {% endif %}
 
-                {% if place.family_members.all and view.verbose_view %}
+                {% if place.family_members_cache and view.verbose_view %}
                     <h3>{% trans "Family members" %}</h3>
                     <ul>
                         {% comment %}
@@ -195,9 +198,9 @@
                             TODO: order family members by date of birth
                             TODO: family members for small screens in a collapsible section, hidden by default
                         {% endcomment %}
-                        {% for member in place.family_members.all %}
+                        {% for member in place.family_members_cache %}
                             <li>
-                                {% if member.user %}
+                                {% if member.user_id %}
                                     <a href="{{ member.get_absolute_url }}" data-toggle="popover" data-trigger="hover focus" data-placement="top"
                                        data-content="<img src='{{ member.avatar_url }}' height='90'>" data-html="true">
                                 {% endif %}
@@ -209,7 +212,7 @@
                                         &lrm;({{ member.age }})
                                     {% endif %}
                                 {% endif %}
-                                {% if member.user %}
+                                {% if member.user_id %}
                                     </a>
                                 {% endif %}
                             </li>
@@ -223,7 +226,7 @@
                         {% trans "I'm not present at this address at all times; contact me in advance." %}
                     {% endif %}
                     {% endif %}
-                    {% if place.family_members.all and not view.verbose_view %}
+                    {% if place.family_members_cache and not view.verbose_view %}
                         {% trans "Other dwellers at this place." %}
                     {% endif %}
                 </p>
@@ -276,14 +279,14 @@
                 </p>
             {% endif %}
             {% endif %}
-            {% if place.family_members.all %}
+            {% if place.family_members_cache %}
                 <p>
                     <span class="glyphicon glyphicon-user text-muted"></span>&nbsp;
                     {% trans "Other dwellers at this place." %}
                 </p>
             {% endif %}
-            {% if place.conditions.all %}
-                {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions.all only %}
+            {% if place.conditions_cache %}
+                {% include 'hosting/snippets/place_conditions.html' with conditions=place.conditions_cache only %}
             {% endif %}
 
             {% if INVALID_PREFIX in place.owner.user.email %}
@@ -305,7 +308,7 @@
 
         <p class="col-xs-12">
         {# CONTACT AND CONTROL BUTTONS #}
-            {% if view.role != roles.OWNER and not place.owner.deleted %}
+            {% if view.role != roles.OWNER and not place.owner.deleted_on %}
                 {% if place.owner.user.email|is_invalid %}
                     <a href="#" class="btn btn-danger btn-vert-space disabled" data-toggle="tooltip" data-container="body"
                        title="{% trans "The user's email address seems invalid" %}">
@@ -315,7 +318,7 @@
                         <span class="glyphicon glyphicon-send"></span>&nbsp; {% trans "Write message" %}
                     </a>
             {% endif %}
-            {% if place_owner_or_supervisor or user.profile in place.family_members.all %}
+            {% if place_owner_or_supervisor or user.profile in place.family_members_cache %}
                 <a href="{% url 'place_location_update' place.pk %}" class="btn btn-primary right">
                     <span class="glyphicon glyphicon-map-marker"></span>
                     {% trans "Edit location" %}
@@ -353,7 +356,7 @@
         </p>
     {% endif %}
 
-    {% if place_owner_or_supervisor or user.profile in place.family_members.all %}
+    {% if place_owner_or_supervisor or user.profile in place.family_members_cache %}
         <div class="col-xs-12">
         {# PREVIEW OF PLACE SETTINGS. NOT FOR VISITORS. #}
             <p class="help-block">

@@ -129,7 +129,7 @@ class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         if kwargs.get('pk', None):
             profile = get_object_or_404(Profile, pk=kwargs['pk'])
-            if profile.user:
+            if profile.user_id:
                 return profile.get_absolute_url()
             else:
                 raise Http404("Detached profile (probably a family member).")
@@ -144,6 +144,9 @@ class ProfileDetailView(AuthMixin, ProfileIsUserMixin, generic.DetailView):
     public_view = True
     minimum_role = VISITOR
 
+    def get_queryset(self):
+        return super().get_queryset().select_related('user')
+
     def get_object(self, queryset=None):
         profile = super().get_object(queryset)
         if profile.deleted and self.role == VISITOR and not self.request.user.has_perm(PERM_SUPERVISOR):
@@ -152,7 +155,7 @@ class ProfileDetailView(AuthMixin, ProfileIsUserMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['places'] = self.object.owned_places.filter(deleted=False)
+        context['places'] = self.object.owned_places.filter(deleted=False).prefetch_related('family_members')
         context['phones'] = self.object.phones.filter(deleted=False)
         return context
 
@@ -236,8 +239,6 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # The foreign key does not expose the attributes added by the manager :-|
-        context['place'].owner = Profile.all_objects.get(pk=self.object.owner_id)
         context['owner_phones'] = self.object.owner.phones.filter(deleted=False)
         context['register_form'] = UserRegistrationForm
         context['blocking'] = self.calculate_blocking(self.object)
@@ -262,10 +263,14 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
 
     def render_to_response(self, context, **response_kwargs):
         # Automatically redirect the user to the verbose view if permission granted (in authorized_users list).
-        is_authorized = self.request.user in self.object.authorized_users.all()
+        is_authorized = self.request.user in self.object.authorized_users_cache(also_deleted=True, complete=False)
         is_supervisor = self.role >= SUPERVISOR
         if is_authorized and not is_supervisor and not isinstance(self, PlaceDetailVerboseView):
-            return HttpResponseRedirect(reverse_lazy('place_detail_verbose', kwargs={'pk': self.kwargs['pk']}))
+            # We switch the class to avoid fetching all data again from the database,
+            # because everything we need is already available here.
+            # TODO: Combine the two views into one class.
+            self.__class__ = PlaceDetailVerboseView
+            return self.render_to_response(context, **response_kwargs)
         else:
             return super().render_to_response(context)
 
@@ -276,8 +281,8 @@ class PlaceDetailVerboseView(PlaceDetailView):
     def render_to_response(self, context, **response_kwargs):
         # Automatically redirect the user to the scarce view if permission to details not granted.
         user = self.request.user
-        is_authorized = user in self.object.authorized_users.all()
-        is_family_member = getattr(user, 'profile', None) in self.object.family_members.all()
+        is_authorized = user in self.object.authorized_users_cache(also_deleted=True, complete=False)
+        is_family_member = getattr(user, 'profile', None) in self.object.family_members_cache()
         self.__dict__.setdefault('debug', {}).update(
             {'authorized': is_authorized, 'family member': is_family_member}
         )
@@ -508,14 +513,14 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
                 return user.username.lower()
         context['authorized_set'] = [(user, UserAuthorizedOnceForm(initial={'user': user.pk}, auto_id=False))
                                      for user
-                                     in sorted(self.place.authorized_users.all(), key=order_by_name)]
+                                     in sorted(self.place.authorized_users_cache(also_deleted=True), key=order_by_name)]
         return context
 
     def form_valid(self, form):
         if not form.cleaned_data['remove']:
             # For addition, "user" is the username.
             user = get_object_or_404(User, username=form.cleaned_data['user'])
-            if user not in self.place.authorized_users.all():
+            if user not in self.place.authorized_users_cache(also_deleted=True):
                 self.place.authorized_users.add(user)
                 if not user.email.startswith(settings.INVALID_PREFIX):
                     self.send_email(user, self.place)
@@ -554,10 +559,10 @@ class FamilyMemberCreateView(CreateMixin, AuthMixin, FamilyMemberMixin, generic.
 
     def verify_anonymous_family(self):
         # Allow creation of only one completely anonymous family member.
-        if self.place.family_members.count() == 1 and not self.place.family_members.first().full_name.strip():
+        if self.place.family_is_anonymous:
             return HttpResponseRedirect(
                 reverse_lazy('family_member_update',
-                    kwargs={'pk': self.place.family_members.first().pk, 'place_pk': self.kwargs['place_pk']}))
+                    kwargs={'pk': self.place.family_members_cache()[0].pk, 'place_pk': self.kwargs['place_pk']}))
         else:
             return None
 

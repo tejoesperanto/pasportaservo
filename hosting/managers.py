@@ -31,7 +31,7 @@ class TrackingManager(models.Manager):
             When(checked_on__lt=validity_start, then=False),
             default=True,
             output_field=BooleanField()
-        ))
+        )).select_related()
 
 
 class NotDeletedManager(TrackingManager):

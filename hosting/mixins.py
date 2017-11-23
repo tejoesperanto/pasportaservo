@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.views.decorators.cache import never_cache
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 
@@ -69,21 +70,19 @@ class FamilyMemberMixin(object):
 
     def get_object(self, queryset=None):
         profile = super().get_object(queryset)
-        if profile in self.place.family_members.all():
+        if profile in self.place.family_members_cache():
             return profile
         else:
-            raise Http404("Profile {} is not a family member at place {}.".format(profile.id, self.place.id))
+            raise Http404("Profile {} is not a family member at place {}.".format(profile.pk, self.place.pk))
 
     def get_place(self):
         if not hasattr(self, 'place'):
             self.place = getattr(self, 'create_for', None) or get_object_or_404(Place, pk=self.kwargs['place_pk'])
         return self.place
 
-    @property
+    @cached_property
     def other_places(self):
-        if not hasattr(self, '_places_cache'):
-            self._places_cache = Place.objects.filter(family_members__pk=self.object.pk).exclude(pk=self.place.pk)
-        return self._places_cache
+        return Place.objects.filter(family_members__pk=self.object.pk).exclude(pk=self.place.pk)
 
     def get_owner(self, object):
         return self.get_place().owner

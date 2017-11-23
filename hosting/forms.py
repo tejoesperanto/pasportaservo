@@ -38,6 +38,7 @@ class ProfileForm(forms.ModelForm):
                                                 attrs={'class': 'form-control-horizontal'}),
             'avatar': ClearableWithPreviewImageInput,
         }
+    class _validation_meta:
         book_required_fields = ['title', 'first_name', 'last_name']
 
     def __init__(self, *args, **kwargs):
@@ -65,7 +66,7 @@ class ProfileForm(forms.ModelForm):
 
         if hasattr(self, 'instance') and self.instance.is_in_book:
             message = _("This field is required to be printed in the book.")
-            for field in self.Meta.book_required_fields:
+            for field in self._validation_meta.book_required_fields:
                 req_field = self.fields[field]
                 req_field.required = True
                 req_field.error_messages['required'] = message
@@ -79,14 +80,14 @@ class ProfileForm(forms.ModelForm):
         if hasattr(self, 'instance'):
             profile = self.instance
             in_book = profile.is_in_book
-            all_filled = all([cleaned_data.get(field, False) for field in self.Meta.book_required_fields])
+            all_filled = all([cleaned_data.get(field, False) for field in self._validation_meta.book_required_fields])
             message = _("You want to be in the printed edition of Pasporta Servo. "
                         "In order to have a quality product, some fields are required. "
                         "If you think there is a problem, please contact us.")
 
             if in_book and not all_filled:
                 #msg = _("This field is required to be printed in the book.")
-                #for field in self.Meta.book_required_fields:
+                #for field in self._validation_meta.book_required_fields:
                 #    if not cleaned_data.get(field, False):
                 #        self.add_error(field, msg)
                 raise forms.ValidationError(message)
@@ -139,6 +140,10 @@ class PlaceForm(forms.ModelForm):
         widgets = {
             'short_description': forms.Textarea(attrs={'rows': 3}),
         }
+    class _validation_meta:
+        book_required_fields = [
+            'address', 'city', 'closest_city', 'country', 'available',
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -171,14 +176,13 @@ class PlaceForm(forms.ModelForm):
                 raise forms.ValidationError(format_lazy(message, age=allowed_age))
 
         # Sets some fields as required if user wants their data to be printed in book.
-        required_fields = ['address', 'city', 'closest_city', 'country', 'available']
-        all_filled = all([cleaned_data.get(field, False) for field in required_fields])
+        all_filled = all([cleaned_data.get(field, False) for field in self._validation_meta.book_required_fields])
         message = _("You want to be in the printed edition of Pasporta Servo. "
                     "In order to have a quality product, some fields are required. "
                     "If you think there is a problem, please contact us.")
 
         if cleaned_data['in_book'] and not all_filled:
-            for field in required_fields:
+            for field in self._validation_meta.book_required_fields:
                 if not cleaned_data.get(field, False):
                     self.add_error(field, _("This field is required to be printed in the book."))
             raise forms.ValidationError(message)
@@ -374,10 +378,7 @@ class FamilyMemberForm(forms.ModelForm):
         self.fields['birth_date'].widget.attrs['placeholder'] = 'jjjj-mm-tt'
 
     def place_has_family_members(self):
-        members = self.place.family_members
-        if members.count() != 1:
-            return members.count() > 1
-        return members.first().full_name.strip() != ""
+        return len(self.place.family_members_cache()) != 0 and not self.place.family_is_anonymous
 
     def clean(self):
         """Verifies that first name and last name convey some information together."""
