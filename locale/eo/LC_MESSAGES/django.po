@@ -1026,6 +1026,9 @@ msgstr "La adreso estas neaktuala"
 msgid "The host is not available"
 msgstr "La gastiganto ne estas disponebla"
 
+msgid "This member is not available"
+msgstr "Tiu ĉi PS-membro ne estas disponebla"
+
 #, python-format
 msgid "from %(date)s"
 msgstr "ekde %(date)s"
