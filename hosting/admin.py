@@ -110,6 +110,9 @@ class CustomUserAdmin(UserAdmin):
             return CustomGroupAdmin.CountryGroup.objects
         return super().get_field_queryset(db, db_field, request)
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 
 @admin.register(Group)
 class CustomGroupAdmin(GroupAdmin):
