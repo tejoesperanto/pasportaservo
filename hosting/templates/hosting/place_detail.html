@@ -58,7 +58,11 @@
             {# ALERT ABOUT NON-AVAILABILITY OF A PLACE #}
                 {% if blocking.enabled and not place.deleted and user.is_authenticated %}
                     <div class="alert alert-small alert-warning">
-                        {% trans "The host is not available" %}
+                        {% if place.owner.is_hosting or place.owner.is_meeting %}
+                            {% trans "The host is not available" %}
+                        {% else %}
+                            {% trans "This member is not available" %}
+                        {% endif %}
                         {% if blocking.display_from %}
                             {% blocktrans with date=place.blocked_from|date:blocking.format_from %}from {{ date }}{% endblocktrans %}
                         {% endif %}
