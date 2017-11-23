@@ -10,7 +10,7 @@
 {% endblock %}
 {% block extra_details %}
     {{ profile.get_fullname_always_display }}
-    {% if profile.birth_date %} &ensp;({{ profile.age }}) {% endif %}
+    {% if profile.birth_date %} &lrm;&ensp;({{ profile.age }}) {% endif %}
 {% endblock %}
 {% block extra_details_block %}
     {% if view.other_places %}
