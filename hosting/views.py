@@ -7,6 +7,7 @@ from django.contrib.gis.db.models.functions import Distance
 from django.views import generic
 from django.conf import settings
 from django.db import models
+from django.contrib import messages
 from django.core import serializers
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.http import (
@@ -108,16 +109,17 @@ class ProfileDeleteView(DeleteMixin, AuthMixin, ProfileIsUserMixin, generic.Dele
         now = timezone.now()
         self.object = self.get_object()
         if not self.object.deleted:
-            for place in self.object.owned_places.all():
+            for place in self.object.owned_places.filter(deleted=False):
                 place.deleted_on = now
                 place.save()
-                for member in place.family_members.all():
-                    if not member.user:
-                        member.deleted_on = now
-                        member.save()
-            self.object.phones.all().delete()
+                place.family_members.filter(
+                    deleted=False, user_id__isnull=True
+                ).update(deleted_on=now)
+            self.object.phones.filter(deleted=False).update(deleted_on=now)
             self.object.user.is_active = False
             self.object.user.save()
+        if self.role == OWNER:
+            messages.success(request, _("Farewell !"))
         return super().delete(request, *args, **kwargs)
 
 
