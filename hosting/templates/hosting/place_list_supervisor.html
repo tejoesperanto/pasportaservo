@@ -155,7 +155,7 @@
                 <small>{{ place.profile.get_title_display }}</small>
                 {{ place.profile.get_fullname_display }}
                 {% if place.profile.birth_date %}
-                    <small>{{ place.profile.birth_date|date:"Y-m-d" }} ({% blocktrans with age=place.profile.age %}{{ age }} y.o.{% endblocktrans %})</small>
+                    &lrm;<small>{{ place.profile.birth_date|date:"Y-m-d" }} ({% blocktrans with age=place.profile.age %}{{ age }} y.o.{% endblocktrans %})</small>
                 {% endif %}
             </h4>
         </a>
