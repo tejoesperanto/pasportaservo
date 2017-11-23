@@ -1519,6 +1519,9 @@ msgid "The data is not saved yet! Note the specified errors."
 msgstr ""
 "La informoj ankoraŭ ne estas konservitaj! Atentu la indikitajn erarojn."
 
+msgid "Farewell !"
+msgstr "Adiaŭ !"
+
 msgid "[Pasporta Servo] You received an Authorization"
 msgstr "[Pasporta Servo] Vi ricevis permeson"
 
