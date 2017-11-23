@@ -130,7 +130,7 @@ def client_side_validated(form_class):
 
     def _new_init(self, *args, **kwargs):
         original_init(self, *args, **kwargs)
-        for field in self._meta.model._meta.fields:
+        for field in self._meta.model._meta.get_fields():
             if field.name not in self._meta.fields:
                 continue
             for validator in field.validators:

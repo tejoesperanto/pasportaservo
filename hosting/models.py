@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 from django.utils.text import format_lazy
@@ -146,7 +147,7 @@ class Profile(TrackingModel, TimeStampedModel):
         if self.avatar and hasattr(self.avatar, 'url'):
             return self.avatar.url
         else:
-            email = self.user.email if self.user else "family.member@pasportaservo.org"
+            email = self.user.email if self.user_id else "family.member@pasportaservo.org"
             email = value_without_invalid_marker(email)
             return email_to_gravatar(email, settings.DEFAULT_AVATAR_URL)
 
@@ -232,7 +233,7 @@ class Profile(TrackingModel, TimeStampedModel):
             'slug': getattr(self, 'slug', self.autoslug) })
 
     def get_admin_url(self):
-        return reverse('admin:hosting_profile_change', args=(self.id,))
+        return reverse('admin:hosting_profile_change', args=(self.pk,))
 
     def confirm_all_info(self, confirm=True):
         """Confirm (or unconfirm) all confirmable objects for a profile."""
@@ -377,6 +378,34 @@ class Place(TrackingModel, TimeStampedModel):
         boundingbox = (self.lng - dx, self.lat - dy, self.lng + dx, self.lat + dy)
         return ",".join([str(coord) for coord in boundingbox])
 
+    def family_members_cache(self):
+        return self.__dict__.setdefault('_family_cache', self.family_members.all())
+
+    @property
+    def family_is_anonymous(self):
+        family = self.family_members_cache()
+        return len(family) == 1 and not family[0].full_name.strip()
+
+    def authorized_users_cache(self, complete=True, also_deleted=False):
+        cache_name = '_authed{}{}_cache'.format(
+            '_all' if also_deleted else '_active',
+            '_complete' if complete else '',
+        )
+        try:
+            cached_qs = self.__dict__[cache_name]
+        except KeyError:
+            cached_qs = self.authorized_users.all()
+            if not also_deleted:
+                cached_qs = cached_qs.filter(profile__deleted_on__isnull=True)
+            if complete:
+                cached_qs = cached_qs.select_related('profile').defer('profile__description')
+            self.__dict__[cache_name] = cached_qs
+        finally:
+            return cached_qs
+
+    def conditions_cache(self):
+        return self.__dict__.setdefault('_conditions_cache', self.conditions.all())
+
     @property
     def any_accommodation_details(self):
         return any([self.description, self.contact_before, self.max_guest, self.max_night])
@@ -406,7 +435,7 @@ class Place(TrackingModel, TimeStampedModel):
         return "<{} #{}: {}>".format(self.__class__.__name__, self.id, self.__str__())
 
     def rawdisplay_family_members(self):
-        family_members = self.family_members.exclude(pk=self.owner.pk).order_by('birth_date')
+        family_members = self.family_members.exclude(pk=self.owner_id).order_by('birth_date')
         return ", ".join(fm.rawdisplay() for fm in family_members)
 
     def rawdisplay_conditions(self):
@@ -477,9 +506,11 @@ class Phone(TrackingModel, TimeStampedModel):
         return self.number.as_international
 
     def __repr__(self):
-        return "<{}: {}{} |p#{}>".format(self.__class__.__name__,
-                                         "("+self.type+") " if self.type else "", self.__str__(),
-                                         self.profile.id)
+        return "<{}: {}{} |p#{}>".format(
+            self.__class__.__name__,
+            "("+self.type+") " if self.type else "", self.__str__(),
+            self.profile_id
+        )
 
     def rawdisplay(self):
         t = self.type or "(?)"
@@ -502,7 +533,11 @@ class Website(TrackingModel, TimeStampedModel):
         return self.url
 
     def __repr__(self):
-        return "<{}: {} |p#{}>".format(self.__class__.__name__, self.__str__(), self.profile.id)
+        return "<{}: {} |p#{}>".format(
+            self.__class__.__name__,
+            self.__str__(),
+            self.profile_id
+        )
 
 
 class Condition(models.Model):
