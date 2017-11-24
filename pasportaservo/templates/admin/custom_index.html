@@ -1,0 +1,48 @@
+{% extends 'admin/index.html' %}
+{% load i18n %}
+
+{% block sidebar %}
+<div id="content-related">
+    <div class="module" id="recent-actions-module">
+        <h2>{% trans "Recent actions" %}</h2>
+        {% load log %}
+        {% get_admin_log 15 as admin_log %}
+        {% if not admin_log %}
+            <p>{% trans "None available" %}</p>
+        {% else %}
+            <span class="object-tools" style="margin-right: 16px; margin-top: -56px">
+                <a href="{% url 'admin:admin_logentry_changelist' %}">{% trans "All" %}</a>
+            </span>
+            <ul class="actionlist">
+                {% for entry in admin_log %}
+                <li class="{% if entry.is_addition %}addlink{% endif %}
+                           {% if entry.is_change %}changelink{% endif %}
+                           {% if entry.is_deletion %}deletelink{% endif %}">
+                    {% if entry.is_deletion or not entry.get_admin_url %}
+                        {{ entry.object_repr }}
+                    {% else %}
+                        <a href="{% url 'admin:admin_logentry_change' entry.pk %}">{{ entry.object_repr }}</a>
+                    {% endif %}
+                    <br/>
+                    <span class="mini quiet">
+                        {% if entry.content_type %}
+                            <a href="{{ entry.get_admin_url }}" class="quiet">
+                                {% filter capfirst %}{{ entry.content_type }}{% endfilter %}
+                            </a>
+                        {% else %}
+                            <span class="mini quiet">{% trans "Unknown content" %}</span>
+                        {% endif %}
+                        &puncsp;&bull;&puncsp;
+                        <a href="{% url 'admin:auth_user_change' entry.user.pk %}" class="quiet">{{ entry.user }}</a>{% if user == entry.user %}
+                            ({% trans "<me>" %}){% endif %},&puncsp;
+                        <span class="nowrap">
+                            {{ entry.action_time|date:"Y-m-d" }}&ensp;{{ entry.action_time|date:"H:i" }}
+                        </span>
+                    </span>
+                </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -50,6 +50,7 @@ INSTALLED_APPS = (
     'django_countries',
     'djangocodemirror',
     'djgeojson',
+    'logentry_admin',
     'phonenumber_field',
     'bootstrapform',
     'postman',

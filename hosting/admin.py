@@ -23,6 +23,7 @@ from .admin_utils import (
 from .widgets import AdminImageWithPreviewWidget
 
 
+admin.site.index_template = 'admin/custom_index.html'
 admin.site.disable_action('delete_selected')
 
 admin.site.unregister(User)
