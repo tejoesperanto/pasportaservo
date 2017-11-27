@@ -16,7 +16,7 @@ urlpatterns = [
     url(r'^mapo/', include('maps.urls')),
 ]
 
-handler403 = 'pasportaservo.debug.custom_permission_denied_view'
+handler403 = 'pasportaservo.views.custom_permission_denied_view'
 
 if settings.DEBUG:
     import debug_toolbar
