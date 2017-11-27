@@ -1652,6 +1652,18 @@ msgstr ""
 "La administrantoj estas informitaj pri la problemo kaj ĝin korektos kieleble "
 "plej baldaŭ."
 
+msgid "Recent actions"
+msgstr ""
+
+msgid "None available"
+msgstr ""
+
+msgid "Unknown content"
+msgstr ""
+
+msgid "<me>"
+msgstr "mi"
+
 msgctxt "postman:tab title"
 msgid "Archives"
 msgstr "Arkivitaj"

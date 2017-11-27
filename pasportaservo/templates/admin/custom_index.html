@@ -26,9 +26,7 @@
                     <br/>
                     <span class="mini quiet">
                         {% if entry.content_type %}
-                            <a href="{{ entry.get_admin_url }}" class="quiet">
-                                {% filter capfirst %}{{ entry.content_type }}{% endfilter %}
-                            </a>
+                            <a href="{{ entry.get_admin_url }}" class="quiet">{{ entry.content_type|capfirst }}</a>
                         {% else %}
                             <span class="mini quiet">{% trans "Unknown content" %}</span>
                         {% endif %}
