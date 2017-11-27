@@ -1522,6 +1522,9 @@ msgstr ""
 msgid "Farewell !"
 msgstr "Adiaŭ !"
 
+msgid "Only the owner of the place can access this page"
+msgstr "Nur la posedanto de la loĝejo povas aliri tiun ĉi paĝon"
+
 msgid "[Pasporta Servo] You received an Authorization"
 msgstr "[Pasporta Servo] Vi ricevis permeson"
 

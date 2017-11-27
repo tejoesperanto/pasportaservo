@@ -230,7 +230,7 @@ class AuthMixin(AccessMixin):
             if not countries[0]:
                 countries = self.get_owner(object).owned_places.filter(
                     deleted=False
-                ).values_list('country', flat=True)
+                ).values_list('country', flat=True).distinct()
             elif not countries[0].name:
                 countries = []
         else:

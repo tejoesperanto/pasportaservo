@@ -1,4 +1,3 @@
-from django.views.defaults import permission_denied, ERROR_403_TEMPLATE_NAME
 from debug_toolbar.panels.request import RequestPanel
 from debug_toolbar.panels.logging import LoggingPanel
 
@@ -49,22 +48,3 @@ class CustomLoggingPanel(LoggingPanel):
                 lambda t: t.replace('\t', "<div style='margin-left:1.5em'>") + "</div>"*t.count('\t')
                 , msg))
             rec['message'] = mark_safe(msg)
-
-
-def custom_permission_denied_view(request, exception, template_name=ERROR_403_TEMPLATE_NAME):
-    """
-    The Permission Denied view normally lacks information about the view that triggered the
-    exception, unless this information was provided in the exception object manually (as the
-    second parameter).  This custom view attempts to include the relevant information if it
-    is available.
-    It is used, among others, by the Auth mixin to provide data about the offending view to
-    the Debug toolbar.
-    """
-    response = permission_denied(request, exception.args[0] if exception.args else exception, template_name)
-    try:
-        response.context_data = getattr(response, 'context_data', {})
-        response.context_data['view'] = exception.args[1]
-    except IndexError:
-        pass
-    return response
-

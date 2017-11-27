@@ -492,6 +492,9 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
         kwargs['auth_base'] = self.place
         return super().dispatch(request, *args, **kwargs)
 
+    def get_permission_denied_message(self, object, context_omitted=False):
+        return _("Only the owner of the place can access this page")
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['place'] = self.place
