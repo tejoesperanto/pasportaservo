@@ -72,6 +72,8 @@ def flatpages_as_templates(cls):
         setattr(cls, context_func_name, _get_context_data_superfunc)
 
     def render_flat_page(self, page):
+        if not page:
+            return ''
         from django.template import engines
         template = engines.all()[0].from_string(page['content'])
         return template.render(render_flat_page._view_context, self.request)
