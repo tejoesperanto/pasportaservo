@@ -57,7 +57,7 @@ class ProfileForm(forms.ModelForm):
                 allowed_age = config.meet_min_age
             message = format_lazy(message, age=allowed_age)
             field_bd.required = True
-            field_bd.validators.append(TooNearPastValidator(config.host_min_age))
+            field_bd.validators.append(TooNearPastValidator(allowed_age))
             field_bd.error_messages['max_value'] = message
         field_bd.widget.attrs['placeholder'] = 'jjjj-mm-tt'
         field_bd.widget.attrs['data-date-end-date'] = '0d'
@@ -81,7 +81,7 @@ class ProfileForm(forms.ModelForm):
             in_book = profile.is_in_book
             all_filled = all([cleaned_data.get(field, False) for field in self.Meta.book_required_fields])
             message = _("You want to be in the printed edition of Pasporta Servo. "
-                        "In order to have a quality product, some fields a required. "
+                        "In order to have a quality product, some fields are required. "
                         "If you think there is a problem, please contact us.")
 
             if in_book and not all_filled:
@@ -174,7 +174,7 @@ class PlaceForm(forms.ModelForm):
         required_fields = ['address', 'city', 'closest_city', 'country', 'available']
         all_filled = all([cleaned_data.get(field, False) for field in required_fields])
         message = _("You want to be in the printed edition of Pasporta Servo. "
-                    "In order to have a quality product, some fields a required. "
+                    "In order to have a quality product, some fields are required. "
                     "If you think there is a problem, please contact us.")
 
         if cleaned_data['in_book'] and not all_filled:
