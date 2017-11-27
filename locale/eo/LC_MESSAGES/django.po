@@ -623,7 +623,7 @@ msgstr "Tiu ĉi kampo estas deviga por esti printita en la libreto."
 
 msgid ""
 "You want to be in the printed edition of Pasporta Servo. In order to have a "
-"quality product, some fields a required. If you think there is a problem, "
+"quality product, some fields are required. If you think there is a problem, "
 "please contact us."
 msgstr ""
 "Vi volas esti en la printita eldonaĵo de Pasporta Servo. Por havi kvalitan "
