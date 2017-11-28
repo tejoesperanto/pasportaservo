@@ -11,11 +11,14 @@ from django.utils.deconstruct import deconstructible
 from pyuca import Collator
 
 
-def geocode(query):
+def geocode(query, annotations=False):
     key = settings.OPENCAGE_API_KEY
     lang = settings.LANGUAGE_CODE
     if query:
-        result = geocoder.opencage(query, key=key, params={'language': lang})
+        params = {'language': lang}
+        if not annotations:
+            params.update({'no_annotations': int(not annotations)})
+        result = geocoder.opencage(query, key=key, params=params)
         result.point = Point(result.xy, srid=4326) if result.xy else None
         return result
 
