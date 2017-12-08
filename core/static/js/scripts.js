@@ -125,6 +125,35 @@ $(document).ready(function() {
         });
     } // end magnifier setup
 
+    // Collapsing elements
+    $('#family-panel-small').each(function() {
+        var familyKey = 'place.ID.family-members.expanded';
+        familyKey = familyKey.replace('ID', $('.place-detail').data('id'));
+        var $familyPanel = $(this);
+        var $familySwitch = $('[aria-controls='+this.id+']');
+        var toggler = function(state) {
+            $familySwitch.attr('aria-expanded', state).children('.fa').each(function() {
+                var $this = $(this);
+                var label = $this.attr('aria-label');
+                $this.attr('aria-label', $this.data('aria-label-inactive'))
+                     .data('aria-label-inactive', label);
+                if (state)
+                    $this.addClass('fa-rotate-90');
+                else
+                    $this.removeClass('fa-rotate-90');
+                window.setTimeout(function() { $this.parent().removeClass('initial'); }, 100);
+            });
+            window.localStorage && localStorage.setItem(familyKey, state);
+        };
+        $familyPanel.on('hide.bs.collapse', function() { toggler(false); })
+                    .on('show.bs.collapse', function() { toggler(true); });
+        if (window.localStorage && localStorage.getItem(familyKey) == 'true') {
+            $familyPanel.addClass('in');
+            $familySwitch.addClass('initial');
+            toggler(true);
+        }
+    });
+
     // Host preferences popover setup
     if ($('#status-anchors_notification')[0]) {
         $('.anchor-notify').popover({

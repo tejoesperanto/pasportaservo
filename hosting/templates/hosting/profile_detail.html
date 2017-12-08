@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n static expression profile utils %}
+{% load i18n static expression profile privacy utils %}
 
 {% block head_title %}
     {% if view.role == roles.OWNER %}
@@ -66,7 +66,7 @@
     {% endif %}
 
         <div class="row">
-            <div class="col-xs-12 col-md-5">
+            <div id="pA" class="col-xs-12 col-md-5">
                 {% if profile.deleted %} {# VISITORs are barred from accessing deleted profiles, on View level #}
                     <div class="alert alert-small alert-danger">
                         <span class="fa fa-exclamation-circle" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
@@ -76,20 +76,22 @@
                     </div>
                 {% endif %}
             </div>
-            <div class="col-xs-12 col-md-7">
+            <div id="pR" class="col-xs-12 col-md-7">
                 <div class="btn-group edit-buttons">
                     {% block profile_edit_buttons %}
                         {% if view.role != roles.OWNER and not profile.deleted_on %}
-                            {% if profile.user.email|is_invalid %}
-                                <a href="#" class="btn btn-danger disabled"
-                                   title="{% trans "The user's email address seems invalid" %}"
-                                   data-toggle="tooltip" data-container="body" data-placement="bottom">
-                            {% else %}
-                                <a href="{% url 'postman:write' profile.user.username %}" class="btn btn-primary">
-                            {% endif %}
-                                    <span class="fa fa-paper-plane" aria-hidden="true"></span>&nbsp;
-                                    {% trans "Write message" %}
-                                </a>
+                            <a href="{% url 'postman:write' profile.user.username %}" class="btn btn-primary"
+                                {% if profile.user.email|is_invalid %}
+                                    title="{% trans "The user's email address seems invalid" %}"
+                                    data-toggle="tooltip" data-container="body" data-placement="bottom"
+                                {% endif %}
+                            >
+                                <span class="fa fa-paper-plane" aria-hidden="true"></span>&nbsp;
+                                {% trans "Write message" %}
+                                {% if profile.user.email|is_invalid %}
+                                    <sup><span class="fa fa-exclamation-triangle" aria-hidden="true"></span></sup>
+                                {% endif %}
+                            </a>
                         {% endif %}
                         {% if view.role >= roles.OWNER %}
                             {% trans "Update user's details" as update_title %}
@@ -162,6 +164,23 @@
 
     <h2 class="owner">{% trans "About me" %}</h2>
     {{ profile.description|linebreaks }}
+    <p>
+        {% if phones_public %}
+            <span class="contact-details text-nowrap">
+                <span class="text-muted">{{ phones_public.0.icon }}</span>
+                {{ phones_public.0.number.as_international }}
+                {% block public_phone_edit_buttons %}{% endblock %}
+            </span>&ensp;
+        {% endif %}
+        {% if profile.email and not profile.email|is_invalid %}
+        {% if-visible profile [email] %}
+            <span class="contact-details text-nowrap">
+                <span class="text-muted">{{ profile|icon:'email' }}</span>&emsp13;{{ profile.email|clear_invalid }}
+                {% block public_email_edit_buttons %}{% endblock %}
+            </span>
+        {% endif %}
+        {% endif %}
+    </p>
 
     <hr />
 
@@ -189,7 +208,10 @@
             {% expr False as place_owner_or_supervisor %}
         {% endif %}
         <ul class="list-group">
-            <li class="list-group-item {% if perms.hosting.can_supervise and place.checked %}text-success{% endif %}">
+            <li class="list-group-item owned-place
+                       {% if perms.hosting.can_supervise and place.checked %}text-success{% endif %}
+                       {% if not place.visibility.online_public %}concealed{% endif %}
+                      ">
                 <div class="btn-group pull-right">
                     {% block place_edit_buttons %}{% endblock %}
                     <a href="{% url 'place_detail' place.pk %}" class="btn btn-primary" title="{% trans "View details of this place" %}">
@@ -263,6 +285,12 @@
                         </div>
                     </div>
                 {% else %}
+                    {% if not place.visibility.online_public %}
+                        {% expr _("not displayed to visitors") as concealed_title %}
+                        <span class="conceal-marker fa fa-eye-slash pull-left text-muted" aria-hidden="true"
+                              title="{{ concealed_title }}" data-toggle="tooltip"></span>
+                        <span class="sr-only">{% trans "Note " context 'Title' %}: {{ concealed_title }}</span>
+                    {% endif %}
                     <div>
                         {% if perms.hosting.can_supervise %}
                             <p>{% include './snippets/checked.html' with object=place %}</p>
@@ -280,7 +308,7 @@
                             <li class="list-group-item list-vertical-align">
                                 {% block family_member_edit_buttons %}{% endblock %}
     
-                                <p class="details">
+                                <p class="family-member">
                                     {{ member.icon }}
                                     <b class="member">{{ member.get_fullname_always_display }}</b>
                                     {% if member.birth_date %}<em class="comment">&lrm;({{ member.age }})</em>{% endif %}
@@ -303,12 +331,26 @@
         <h2 class="owner">{% trans "Phones" %}</h2>
         <ul class="list-group phone-list">
             {% for phone in phones %}
-                <li class="list-group-item list-vertical-align">
+                {% expr "" as concealed_class %}{% expr "" as concealed_title %}
+                {% if not phone.visibility.online_public %}
+                    {% expr "concealed" as concealed_class %}
+                    {% expr _("not displayed to visitors") as concealed_title %}
+                {% endif %}
+                {% if not phone.visibility.online_public and phone.visibility.online_authed %}
+                    {% expr "concealed-partially" as concealed_class %}
+                    {% expr _("displayed to guests and hosts only") as concealed_title %}
+                {% endif %}
+                <li class="list-group-item list-vertical-align {{ concealed_class }}">
                     {% block phone_edit_buttons %}{% endblock %}
 
-                    <p class="details">
+                    <p class="phone-number">
                         {{ phone.icon }}
                         <b class="number">{{ phone.number.as_international }}</b>
+                        {% if concealed_title %}
+                            <span class="conceal-marker fa fa-eye-slash" aria-hidden="true"
+                                  title="{{ concealed_title }}" data-toggle="tooltip"></span>
+                            <span class="sr-only">{% trans "Note " context 'Title' %}: {{ concealed_title }}</span>
+                        {% endif %}
                         <br class="visible-xs-inline" />
                         <em class="comment">{{ phone.comments }}</em>
                     </p>

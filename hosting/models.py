@@ -23,6 +23,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 from core.utils import camel_case_split
 
+from .fields import StyledEmailField
 from .gravatar import email_to_gravatar
 from .managers import AvailableManager, NotDeletedManager, TrackingManager
 from .utils import UploadAndRenameAvatar, value_without_invalid_marker
@@ -69,13 +70,14 @@ class TrackingModel(models.Model):
     class Meta:
         abstract = True
 
-    def set_check_status(self, set_by_user, clear_only=False):
+    def set_check_status(self, set_by_user, clear_only=False, commit=True):
         if self.owner.user != set_by_user:
             if not clear_only:
                 self.checked_on, self.checked_by = timezone.now(), set_by_user
         else:
             self.checked_on, self.checked_by = None, None
-        self.save()
+        if commit:
+            self.save(update_fields=['checked_on', 'checked_by'])
         return self.checked_on, self.checked_by
 
 
@@ -275,7 +277,7 @@ class Profile(TrackingModel, TimeStampedModel):
         null=True, blank=True,
         validators=[TooFarPastValidator(200), validate_not_in_future],
         help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))
-    email = models.EmailField(
+    email = StyledEmailField(
         _("public email"),
         blank=True,
         help_text=_("This email address will be used for the book. "
@@ -613,7 +615,7 @@ class Place(TrackingModel, TimeStampedModel):
         return format_html(template, title=self._meta.verbose_name.capitalize())
 
     def family_members_cache(self):
-        return self.__dict__.setdefault('_family_cache', self.family_members.all())
+        return self.__dict__.setdefault('_family_cache', self.family_members.order_by('birth_date'))
 
     @property
     def family_is_anonymous(self):

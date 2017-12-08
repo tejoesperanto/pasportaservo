@@ -1106,6 +1106,9 @@ msgstr "Rimarko "
 msgid "I'm not present at this address at all times; contact me in advance."
 msgstr "Mi ne troviĝas konstante ĉe tiu ĉi adreso; kontaktiĝu anticipe."
 
+msgid "Show"
+msgstr "Montri"
+
 msgid "The user's email address seems invalid"
 msgstr "La retpoŝta adreso de tiu ĉi uzanto ŝajne ne funkcias"
 
@@ -1340,8 +1343,14 @@ msgid_plural "I can host during %(max_night)s nights maximum"
 msgstr[0] "Mi povas gastigi dum %(max_night)s nokto maksimume"
 msgstr[1] "Mi povas gastigi dum %(max_night)s noktoj maksimume"
 
+msgid "not displayed to visitors"
+msgstr "nevidebla al vizitantoj"
+
 msgid "Phones"
 msgstr "Telefonoj"
+
+msgid "displayed to guests and hosts only"
+msgstr "videbla nur al gastoj kaj gastigantoj"
 
 msgid "Update profile"
 msgstr "Redakti profilon"
@@ -1351,6 +1360,12 @@ msgstr "Konto"
 
 msgid "View public profile"
 msgstr "Rigardi publikan profilon"
+
+msgid "Update public email"
+msgstr "Ŝanĝi retadreson por publikigo"
+
+msgid "Update a phone number"
+msgstr "Redakti telefonan numeron"
 
 msgid "Add a place"
 msgstr "Aldoni loĝejon"
@@ -1389,9 +1404,6 @@ msgstr "Publika retadreso?"
 
 msgid "[no email address]"
 msgstr "[neniu retpoŝta adreso]"
-
-msgid "Update public email"
-msgstr "Ŝanĝi retadreson por publikigo"
 
 msgid "Privacy"
 msgstr "Privateco"

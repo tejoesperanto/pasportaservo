@@ -156,7 +156,9 @@ class ProfileDetailView(AuthMixin, ProfileIsUserMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['places'] = self.object.owned_places.filter(deleted=False).prefetch_related('family_members')
-        context['phones'] = self.object.phones.filter(deleted=False)
+        display_phones = self.object.phones.filter(deleted=False)
+        context['phones'] = display_phones
+        context['phones_public'] = display_phones.filter(visibility__visible_online_public=True)
         return context
 
 
