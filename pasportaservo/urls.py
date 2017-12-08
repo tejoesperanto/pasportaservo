@@ -21,5 +21,5 @@ handler403 = 'pasportaservo.views.custom_permission_denied_view'
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns += [
-        url(r'^__debug__/', debug_toolbar.urls),
+        url(r'^__debug__/', include(debug_toolbar.urls)),
     ]
