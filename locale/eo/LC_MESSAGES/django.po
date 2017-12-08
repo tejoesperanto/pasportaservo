@@ -6,9 +6,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-08 17:00+0000\n"
-"POT-Revision-Date: 2017-11-04 16:18+0000\n"
-"Last-Translator: Baptiste Darthenay <baptiste.darthenay@gmail.com>\n"
+"POT-Creation-Date: 2017-12-07 22:30+0000\n"
+"POT-Revision-Date: 2017-12-07 23:09+0000\n"
+"Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
 "MIME-Version: 1.0\n"
@@ -109,8 +109,18 @@ msgstr "[Pasporta Servo] Retpoŝtadreso ĉe retejo ŝanĝita"
 msgid "Heading"
 msgstr "Titolo"
 
+msgid "Announcement"
+msgstr "Anonco"
+
 msgid "Body"
 msgstr "Mesaĝo"
+
+msgid ""
+"Dear {nomo},\n"
+"\n"
+msgstr ""
+"Kara {nomo},\n"
+"\n"
 
 msgid "Subject"
 msgstr "Temo"
@@ -121,18 +131,23 @@ msgstr "Antaŭkapo"
 msgid "Categories"
 msgstr "Kategorioj"
 
+msgctxt "Mass mailing category"
 msgid "test"
 msgstr "Provo (sendas al: )"
 
+msgctxt "Mass mailing category"
 msgid "old system"
 msgstr "Gastigantoj: neniam ensalutis en la nova retejo"
 
+msgctxt "Mass mailing category"
 msgid "not in book"
 msgstr "Nova retejo: ne en la libreto"
 
+msgctxt "Mass mailing category"
 msgid "in book"
 msgstr "Nova retejo: EN la libreto"
 
+msgctxt "Mass mailing category"
 msgid "just user"
 msgstr "Ne gastigantoj (malnova aŭ nova retejo)"
 
@@ -678,6 +693,18 @@ msgstr ""
 "Nomo ne povas esti nenia, almenaŭ unu el persona aŭ familia nomoj devas esti "
 "indikita."
 
+msgid "family members"
+msgstr "kunloĝantoj"
+
+msgid "public email"
+msgstr "publika retpoŝta adreso"
+
+msgid "A place in"
+msgstr "Loĝejo en"
+
+msgid "Phone number"
+msgstr "Telefonnumero"
+
 msgid "Mrs"
 msgstr "S-ino"
 
@@ -705,6 +732,25 @@ msgstr "kontrolita je"
 msgid "approved by"
 msgstr "aprobita de"
 
+msgid "type"
+msgstr "tipo"
+
+msgid "visible online for all"
+msgstr "videbla rete al ĉiuj"
+
+msgid "visible online w/authorization"
+msgstr "videbla rete kun permeso"
+
+msgid "visible in the book"
+msgstr "videbla en la libreto"
+
+msgid "visibility settings"
+msgstr "videbligo-agordoj"
+
+#, python-brace-format
+msgid "Settings of visibility for {type}"
+msgstr "Agordoj de videbligo por {type}"
+
 msgid "first name"
 msgstr "persona nomo"
 
@@ -722,9 +768,6 @@ msgid "In the format year(4 digits)-month(2 digits)-day(2 digits)."
 msgstr ""
 "En la formato <nobr>jaro (4 ciferoj)−</nobr>​<wbr><nobr>monato (2 ciferoj)−</"
 "nobr>​<wbr><nobr>tago (2 ciferoj).</nobr>"
-
-msgid "public email"
-msgstr "publika retpoŝta adreso"
 
 msgid ""
 "This email address will be used for the book. Leave blank if you don't want "
@@ -849,9 +892,6 @@ msgstr ""
 msgid "conditions"
 msgstr "kondiĉoj"
 
-msgid "family members"
-msgstr "kunloĝantoj"
-
 msgid "unavailable from"
 msgstr "maldisponebla ekde"
 
@@ -929,9 +969,6 @@ msgstr "%(owner_name)s rajtigis vin vidi sian plenan adreson!"
 msgid "Follow this link to see this accommodation:"
 msgstr "Klaku la ligilon por vidi tiun ĉi loĝejon:"
 
-msgid "A place in"
-msgstr "Loĝejo en"
-
 msgid "Cancel operation"
 msgstr "Nuligi la agon"
 
@@ -964,9 +1001,6 @@ msgstr "Forigi telefonan numeron"
 
 msgid "Are you sure you want to delete this number?"
 msgstr "Ĉu vi certe volas forigi tiun ĉi numeron?"
-
-msgid "Phone number"
-msgstr "Telefonnumero"
 
 #, python-format
 msgid "of %(name)s"
@@ -1013,6 +1047,9 @@ msgstr "Ĉu vi certe volas forigi tiun ĉi loĝejon?"
 
 msgid "My habitat"
 msgstr "Mia loĝloko"
+
+msgid "Full preview"
+msgstr "Plena vido"
 
 msgid "This is a preview of your place"
 msgstr "Tio estas la detala paĝo de via loĝloko"
@@ -1090,9 +1127,6 @@ msgstr "Permesoj"
 
 msgid "View as an authorized user"
 msgstr "Rigardi kvazaŭ permesita uzanto"
-
-msgid "Full preview"
-msgstr "Plena vido"
 
 msgid "Short description"
 msgstr "Mallonga priskribo"
@@ -1362,6 +1396,10 @@ msgstr "Ŝanĝi retadreson por publikigo"
 msgid "Privacy"
 msgstr "Privateco"
 
+msgctxt "Title"
+msgid "Preview"
+msgstr "Antaŭrigardo"
+
 msgid "End my membership"
 msgstr "Malpasportservaniĝi"
 
@@ -1371,14 +1409,47 @@ msgstr "Malpasportservanigi"
 msgid "Delete account"
 msgstr "Forigi konton"
 
-msgid "approver unknown"
-msgstr "aprobanto nekonata"
+msgid "where the following data should be visible?"
+msgstr "kie la jenaj informoj estu videblaj?"
 
-msgid "available,unavailable"
-msgstr "disponebla,maldisponebla"
+msgid "on site"
+msgstr "en la retejo"
+
+msgid "in book"
+msgstr "en la libreto"
+
+msgid "all visitors"
+msgstr "ĉiuj pasportservanoj"
+
+msgid "guests and hosts"
+msgstr "gastoj kaj gastigantoj"
 
 msgid "saved"
 msgstr "konservita"
+
+msgid "you are not hosting, therefore this place will not be in the book"
+msgstr "vi ne gastigas, kaj tial tiu ĉi loĝejo ne aperos en la libreto"
+
+msgid "who can view ?"
+msgstr "kiu povas vidi ?"
+
+msgid "Save"
+msgstr "Konservi"
+
+msgid "approver unknown"
+msgstr "aprobanto nekonata"
+
+msgid "Full details viewable by:"
+msgstr "Plenaj detaloj videblas al:"
+
+msgid "in new window"
+msgstr "en nova fenestro"
+
+msgid "only supervisors"
+msgstr "nur la landaj organizantoj"
+
+msgid "available,unavailable"
+msgstr "disponebla,maldisponebla"
 
 msgid "I am not available over here"
 msgstr "Mi ne disponeblas ĉi tie"
@@ -1434,7 +1505,6 @@ msgstr "trinkos ion kun vi"
 msgid "to have a drink together in the city"
 msgstr "trinkos ion kun vi en la urbo"
 
-
 msgid "^profile/"
 msgstr "^profilo/"
 
@@ -1464,6 +1534,9 @@ msgstr "^funkcianta:0/$"
 
 msgid "^mark-valid/$"
 msgstr "^funkcianta:1/$"
+
+msgid "^privacy/$"
+msgstr "^privateco/$"
 
 msgid "^place/"
 msgstr "^ejo/"

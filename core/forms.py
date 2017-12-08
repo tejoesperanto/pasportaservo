@@ -8,7 +8,7 @@ from django.core.mail import send_mail
 from django.db.models import Q, Value as V
 from django.db.models.functions import Concat
 from django.template.loader import get_template
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 
 from hosting.models import Profile
 from hosting.utils import value_without_invalid_marker
@@ -173,9 +173,9 @@ class SystemPasswordResetForm(SetPasswordForm):
 
 class MassMailForm(forms.Form):
     heading = forms.CharField(
-        label=_("Heading"), initial="Anonco")
+        label=_("Heading"), initial=_("Announcement"))
     body = forms.CharField(
-        label=_("Body"), initial="Kara {nomo},\n\n",
+        label=_("Body"), initial=_("Dear {nomo},\n\n"),
         widget=forms.Textarea)
     subject = forms.CharField(
         label=_("Subject"), initial=_("Subject"))
@@ -186,11 +186,11 @@ class MassMailForm(forms.Form):
     categories = forms.ChoiceField(
         label=_("Categories"),
         choices=(
-            ('test', _("test")),
-            ('old_system', _("old system")),
-            ('not_in_book', _("not in book")),
-            ('in_book', _("in book")),
-            ('just_user', _("just user")),
+            ('test', pgettext_lazy("Mass mailing category", "test")),
+            ('old_system', pgettext_lazy("Mass mailing category", "old system")),
+            ('not_in_book', pgettext_lazy("Mass mailing category", "not in book")),
+            ('in_book', pgettext_lazy("Mass mailing category", "in book")),
+            ('just_user', pgettext_lazy("Mass mailing category", "just user")),
         )
     )
     test_email = forms.EmailField(

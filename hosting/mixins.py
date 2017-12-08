@@ -9,6 +9,11 @@ from core.auth import OWNER
 from .models import Phone, Place, Profile
 
 
+class ProfileMixin(object):
+    def get_object(self, queryset=None):
+        return get_object_or_404(Profile, pk=self.kwargs['pk'])
+
+
 class ProfileModifyMixin(object):
     def get_success_url(self, *args, **kwargs):
         if 'next' in self.request.GET:

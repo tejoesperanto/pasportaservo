@@ -1,13 +1,17 @@
 from datetime import date
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.db.models import PointField
 from django.db import models, transaction
 from django.db.models import F, Q, Value as V
 from django.db.models.functions import Concat, Substr
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
@@ -16,6 +20,8 @@ from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
 from django_extensions.db.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
+
+from core.utils import camel_case_split
 
 from .gravatar import email_to_gravatar
 from .managers import AvailableManager, NotDeletedManager, TrackingManager
@@ -73,6 +79,174 @@ class TrackingModel(models.Model):
         return self.checked_on, self.checked_by
 
 
+class VisibilitySettings(models.Model):
+    DEFAULT_TYPE = 'Unknown'
+    model_type = models.CharField(_("type"),
+        max_length=25, default=DEFAULT_TYPE)
+    model_id = models.PositiveIntegerField(null=True)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    content_object = GenericForeignKey('content_type', 'model_id', for_concrete_model=False)
+
+    visible_online_public = models.BooleanField(_("visible online for all"))
+    visible_online_authed = models.BooleanField(_("visible online w/authorization"))
+    visible_in_book = models.BooleanField(_("visible in the book"))
+
+    class Meta:
+        verbose_name = _("visibility settings")
+        verbose_name_plural = _("visibility settings")
+
+    @classmethod
+    def _prep(cls, parent=None):
+        """
+        Instantiates new specific visibility settings according to the defaults specified
+        in the proxy model. Immediately updates the database.
+        Due to this being a class method, the leading underscore in the name protects it
+        from being hazardously called in templates.
+        """
+        try:
+            container = apps.get_model(cls._CONTAINER_MODEL)
+        except AttributeError:
+            raise TypeError("Only specific visibility settings may be created") from None
+        if parent:
+            assert hasattr(parent, '_state'), (
+                "{!r} is not a Model instance!".format(parent))
+            assert isinstance(parent, container), (
+                "{!r} is not a {}.{}!".format(parent, container.__module__, container.__name__))
+        initial = {'{}{}'.format(cls._PREFIX, field): value for field, value in cls.defaults.items()}
+        return cls.objects.create(
+            model_id=getattr(parent, 'pk', None),
+            model_type=cls.type(),
+            content_type=ContentType.objects.get_for_model(container),
+            **initial
+        )
+
+    def as_specific(self):
+        """
+        Converts the base model instance into a proxy model instance, e.g. for accessing
+        the specific rules (objects returned from the database are always of the base model).
+        All proxy models are expected to follow the "<BaseName>For<Type>" naming convention.
+        """
+        if self._meta.proxy:
+            return self
+        specific_name = "{base}For{narrow_type}".format(
+            base=self.__class__.__name__, narrow_type=self.model_type)
+        try:
+            specific_class = globals()[specific_name]
+        except KeyError as e:
+            raise NameError(e)
+        self.__class__ = specific_class
+        return self
+
+    @classmethod
+    def specific_models(cls):
+        if cls._meta.proxy:
+            cls = cls.__mro__[1]
+        return {
+            n[len(cls.__name__+'For'):] : c  # noqa: E203
+            for n, c in globals().items()
+            if n.startswith(cls.__name__+'For')
+        }
+
+    @classmethod
+    def type(cls):
+        """
+        Used for initiating the model_type field according to class name suffix. Any logic
+        changes should be reflected in a data migration for existing values of the field.
+        """
+        if not cls._meta.proxy:
+            raise TypeError("Model type is only defined for specific visibility settings")
+        return cls.__name__[len(cls.__mro__[1].__name__+'For'):]
+
+    @property
+    def printable(self):
+        return True
+
+    _PREFIX = 'visible_'
+
+    @classmethod
+    def venues(cls):
+        return [
+            f.name[8:] for f in cls._meta.get_fields() if f.name.startswith(cls._PREFIX)
+        ]
+
+    def __getitem__(self, venue):
+        try:
+            return getattr(self, self._PREFIX+venue)
+        except Exception:
+            raise KeyError("Unknown venue {!r}".format(venue))
+
+    def __setitem__(self, venue, value):
+        self[venue]  # This will raise an exception if venue is invalid.
+        setattr(self, self._PREFIX+venue, value)
+
+    def __str__(self):
+        model_name = " ".join(camel_case_split(self.model_type)).lower()
+        return str(_("Settings of visibility for {type}")).format(type=_(model_name))
+
+    def __repr__(self):
+        return "<{} {}@{} ~ OP:{},OA:{},B:{}>".format(
+            self.__class__.__name__,
+            "for {}".format(self.model_type) if not self._meta.proxy else "",
+            repr(self.content_object),
+            str(self.visible_online_public)[0],
+            str(self.visible_online_authed)[0],
+            str(self.visible_in_book)[0]
+        )
+
+
+class VisibilitySettingsForPlace(VisibilitySettings):
+    class Meta:
+        proxy = True
+    _CONTAINER_MODEL = 'hosting.Place'
+    # Defaults contain the presets of visibility prior to user's customization.
+    # Changes to the defaults must be reflected in a data migration.
+    defaults = dict(online_public=True, online_authed=True, in_book=True)
+    # Rules define what can be customized by the user. Tied online means an object
+    # hidden for public will necessarily be hidden also for authorized users.
+    rules = dict(online_public=False, online_authed=False, in_book=True, tied_online=True)
+    # TODO: online_public=True
+
+    @cached_property
+    def printable(self):
+        return self.content_object.available
+
+
+class VisibilitySettingsForFamilyMembers(VisibilitySettings):
+    class Meta:
+        proxy = True
+    _CONTAINER_MODEL = 'hosting.Place'
+    defaults = dict(online_public=False, online_authed=True, in_book=True)
+    rules = dict(online_public=True, online_authed=False, in_book=False)
+
+    @cached_property
+    def printable(self):
+        return self.content_object.available
+
+
+class VisibilitySettingsForPhone(VisibilitySettings):
+    class Meta:
+        proxy = True
+    _CONTAINER_MODEL = 'hosting.Phone'
+    defaults = dict(online_public=False, online_authed=True, in_book=True)
+    rules = dict(online_public=True, online_authed=True, in_book=True)
+
+    @cached_property
+    def printable(self):
+        return self.content_object.owner.is_hosting
+
+
+class VisibilitySettingsForPublicEmail(VisibilitySettings):
+    class Meta:
+        proxy = True
+    _CONTAINER_MODEL = 'hosting.Profile'
+    defaults = dict(online_public=False, online_authed=False, in_book=True)
+    rules = dict(online_public=True, online_authed=True, in_book=False)
+
+    @cached_property
+    def printable(self):
+        return self.content_object.is_hosting
+
+
 class Profile(TrackingModel, TimeStampedModel):
     TITLE_CHOICES = TITLE_CHOICES
 
@@ -108,6 +282,9 @@ class Profile(TrackingModel, TimeStampedModel):
                     "Leave blank if you don't want this email to be public.\n"
                     "The system will never send emails to this address, "
                     "neither publish it on the site without your permission."))
+    email_visibility = models.OneToOneField(
+        'hosting.VisibilitySettingsForPublicEmail',
+        related_name='%(class)s', on_delete=models.PROTECT)
     description = models.TextField(
         _("description"),
         blank=True,
@@ -164,7 +341,7 @@ class Profile(TrackingModel, TimeStampedModel):
     @property
     def icon(self):
         title = self.get_title_display().capitalize()
-        template = '<span class="fa fa-user" title="{title}"></span>'
+        template = '<span class="fa fa-user" title="{title}" aria-label="{title}"></span>'
         return format_html(template, title=title)
 
     def get_fullname_display(self, quote='"', non_empty=False):
@@ -377,6 +554,9 @@ class Place(TrackingModel, TimeStampedModel):
     family_members = models.ManyToManyField(
         'hosting.Profile', verbose_name=_("family members"),
         blank=True)
+    family_members_visibility = models.OneToOneField(
+        'hosting.VisibilitySettingsForFamilyMembers',
+        related_name='family_members', on_delete=models.PROTECT)
     blocked_from = models.DateField(
         _("unavailable from"),
         null=True, blank=True,
@@ -389,6 +569,9 @@ class Place(TrackingModel, TimeStampedModel):
         settings.AUTH_USER_MODEL, verbose_name=_("authorized users"),
         blank=True,
         help_text=_("List of users authorized to view most of data of this accommodation."))
+    visibility = models.OneToOneField(
+        'hosting.VisibilitySettingsForPlace',
+        related_name='%(class)s', on_delete=models.PROTECT)
 
     available_objects = AvailableManager()
 
@@ -422,6 +605,12 @@ class Place(TrackingModel, TimeStampedModel):
         dx, dy = 0.007, 0.003  # Delta lng and delta lat around position
         boundingbox = (self.lng - dx, self.lat - dy, self.lng + dx, self.lat + dy)
         return ",".join([str(coord) for coord in boundingbox])
+
+    @property
+    def icon(self):
+        template = ('<span class="fa ps-home-fh" title="{title}" '
+                    '      data-toggle="tooltip" data-placement="left"></span>')
+        return format_html(template, title=self._meta.verbose_name.capitalize())
 
     def family_members_cache(self):
         return self.__dict__.setdefault('_family_cache', self.family_members.all())
@@ -520,6 +709,9 @@ class Phone(TrackingModel, TimeStampedModel):
         _("phone type"),
         max_length=3,
         choices=PHONE_TYPE_CHOICES, default=MOBILE)
+    visibility = models.OneToOneField(
+        'hosting.VisibilitySettingsForPhone',
+        related_name='%(class)s', on_delete=models.PROTECT)
 
     class Meta:
         verbose_name = _("phone")
@@ -541,7 +733,8 @@ class Phone(TrackingModel, TimeStampedModel):
         else:  # self.HOME or ''
             cls = "ps-old-phone"
         title = self.get_type_display().capitalize() or _("type not indicated")
-        template = '<span class="fa {cls}" title="{title}" data-toggle="tooltip" data-placement="left"></span>'
+        template = ('<span class="fa {cls}" title="{title}" '
+                    '      data-toggle="tooltip" data-placement="left"></span>')
         return format_html(template, cls=cls, title=title)
 
     def __str__(self):

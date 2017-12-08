@@ -91,6 +91,13 @@ ul.dropdown-menu-lg li {
     cursor: pointer;
     color: lighten($color-text, 25%);
 }
+.toggle-handle {
+    min-width: 1.8em;
+    border-radius: 45%;
+}
+.toggle-handle:focus {
+    outline: 0;
+}
 
 .debug-only {
     position: absolute;
@@ -408,9 +415,83 @@ p.tip {
     white-space: nowrap;
 }
 
+#page.settings #matrix_form {
+    th.header-in_book {
+        vertical-align: middle !important;
+        text-align: center !important;
+    }
+    .asset-icon {
+        float: left;
+        width: 13%;
+        width: 1em;
+    }
+    .asset-value {
+        float: left;
+        width: 87%;
+        width: calc(100% - 1em);
+        padding-left: 5px;
+    }
+    .asset-value.idented {
+        padding-left: 30px;
+    }
+    .asterisk {
+        position: absolute;
+        right: 0px;
+    }
+    .visibility-success {
+        position: absolute;
+        left: 0px;
+        z-index: 2;
+        text-shadow: 1px 3px 3px #eee;
+    }
+    .authorized-list.switch {
+        position: absolute;
+        top: 1px;
+        right: 0px;
+    }
+}
+
 .authorized-user {
-    position: relative;
-    top: 0.1em;
+    margin-bottom: 20px;
+    .name {
+        position: relative;
+        top: 0.1em;
+        display: inline-block;
+    }
+    .avatar {
+        display: inline-block;
+        overflow: hidden;
+        vertical-align: middle;
+    }
+    .avatar {
+        width: 30px;
+        height: 30px;
+        margin-right: 0.5ex;
+    }
+}
+.authorized-user.compact {
+    margin-bottom: 10px;
+    .col-avatar {
+    }
+    .col-name {
+        white-space: nowrap;
+        overflow: hidden;
+    }
+    .avatar {
+        width: 25px;
+        height: 25px;
+        margin-right: 0.2em;
+    }
+}
+.authorized-list.panel {
+    width: 420px;
+    position: absolute;
+    right: 0px;
+    top: calc(100% + 2px);
+    z-index: 11;
+    .panel-body {
+        overflow-y: auto;
+    }
 }
 
 
@@ -519,12 +600,12 @@ footer {
     overflow: hidden;
     position: fixed;
     top: 0;
-    opacity: 0.92;
+    opacity: 0.95;
     z-index: 1050;
     @include transition(margin-top 1s, opacity 0.8s linear);
 
     &.in {
-        margin-top: -13px;
+        margin-top: -5px;
     }
     &.out {
         opacity: 0;
@@ -572,6 +653,14 @@ footer {
     }
     h2.owner {
         font-size: 24px;
+    }
+    #page.settings #matrix_form {
+        th.header-public, th.header-authed {
+            font-size: 85%;
+        }
+        .asset-value.idented {
+            padding-left: 20px;
+        }
     }
 }
 /* SM */

@@ -9,7 +9,7 @@ from .views import (                                                            
     ProfileCreateView, ProfileRedirectView, ProfileDetailView,
     ProfileEditView, ProfileUpdateView, ProfileDeleteView,
     ProfileSettingsRedirectView, ProfileSettingsView,
-    ProfileEmailUpdateView,
+    ProfileEmailUpdateView, ProfilePrivacyUpdateView,
     PlaceCreateView, PlaceDetailView, PlaceDetailVerboseView,
     PlaceUpdateView, PlaceLocationUpdateView, PlaceDeleteView, PlaceBlockView,
     UserAuthorizeView,
@@ -40,6 +40,7 @@ urlpatterns = [
                         EmailValidityMarkView.as_view(valid=True), name='staff_email_mark_valid'),
                 ])),
             ])),
+            url(_(r'^privacy/$'), ProfilePrivacyUpdateView.as_view(), name='profile_privacy_update'),
         ])),
         url(_(r'^settings/$'), ProfileSettingsRedirectView.as_view(), name='profile_settings_shortcut'),
         url(r'(?P<profile_pk>\d+)/', include([

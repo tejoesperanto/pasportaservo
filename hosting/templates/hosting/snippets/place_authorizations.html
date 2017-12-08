@@ -1,0 +1,54 @@
+{% load i18n utils %}
+    <div id="{{ id }}" class="authorized-list panel panel-default panel-compact {% if is_collapsed %}collapse{% endif %}">
+        <div class="panel-heading">
+            <div class="panel-title">
+                <small><strong>{% trans "Full details viewable by:" %}</strong></small>
+                {% if view.role == roles.OWNER %}
+                    <a href="{% url 'authorize_user' place_pk %}" target="authorizations" class="pull-right" title="{% trans "in new window" %}">
+                        <small><span class="fa fa-external-link" aria-hidden="true"></span></small>
+                        <span class="sr-only">[{% trans "in new window" %}]</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {# each item is 4ex high. by default, space for 5 items is reserved. #}
+        <div class="panel-body panel-body-compact" style="max-height: {{ number_rows|default:5|mult:4 }}ex">
+            {% url 'authorize_user' place_pk  as auth_form_url %}
+            {% for auth_user in authorized_set %}
+                {% comment %}
+                <form method="POST" class="ajax" action="{{ auth_form_url }}?next={{ request.GET.next }}">
+                {% endcomment %}
+                    <div class="row authorized-user compact">
+                        <div class="col-xs-1">
+                            {% comment %}
+                            TODO: in-place removal of the authorized user
+                            <span class="name text-danger" title="{% trans "Remove user" %}" style="cursor: pointer">
+                                <small>
+                                    <span class="do-trash-user fa fa-times"></span>
+                                    <span class="trashed-user fa fa-barcode" style="display: none"></span>
+                                </small>
+                            </span>
+                            {% csrf_token %}
+                            {% endcomment %}
+                        </div>
+                        <div class="col-xs-1 col-avatar">
+                            <span class="avatar">
+                                <img class="center-block" src="{{ auth_user.profile.avatar_url }}" height="25" />
+                            </span>
+                        </div>
+                        <div class="col-xs-9 col-name">
+                            {# this column is intentionally shorter, to crop too-long (overflowing) #}
+                            {# names while still preserving enough of the white space on the right. #}
+                            <span class="name">
+                                {{ auth_user.profile.get_fullname_display }}
+                            </span>
+                        </div>
+                    </div>
+                {% comment %}
+                </form>
+                {% endcomment %}
+            {% empty %}
+                {% if show_empty|default_if_none:True %}{% trans "only supervisors" %}{% else %}&nbsp;{% endif %}
+            {% endfor %}
+        </div>
+    </div>

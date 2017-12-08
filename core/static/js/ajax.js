@@ -40,7 +40,13 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr) {
+                var errorCallback = window[$this.data('on-ajax-error')];
                 $this.removeClass('disabled');
+                if (typeof(errorCallback) === 'function') {
+                    errorCallback($this, xhr);
+                }
+                if ($this.is(':hidden'))
+                    return;
                 $this.popover({
                     trigger: "focus",
                     container: 'body',
