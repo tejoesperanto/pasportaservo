@@ -61,12 +61,20 @@ class UserRegistrationForm(SystemEmailFormMixin, UserCreationForm):
         if commit:
             user.save()
         return user
+    save.alters_data = True
 
 
 class UsernameUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username']
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if commit:
+            user.save(update_fields=['username'])
+        return user
+    save.alters_data = True
 
 
 class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
@@ -104,8 +112,8 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
         }
         subject = _("[Pasporta Servo] Change of email address")
         for old_new in ['old', 'new']:
-            email_template_text = get_template('email/%s_email_update.txt' % old_new)
-            email_template_html = get_template('email/%s_email_update.html' % old_new)
+            email_template_text = get_template('email/{type}_email_update.txt'.format(type=old_new))
+            email_template_html = get_template('email/{type}_email_update.html'.format(type=old_new))
             send_mail(
                 subject,
                 email_template_text.render(context),
@@ -115,6 +123,7 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
                 fail_silently=False)
 
         return self.instance
+    save.do_not_call_in_templates = True
 
 
 class EmailStaffUpdateForm(SystemEmailFormMixin, forms.ModelForm):
@@ -126,6 +135,13 @@ class EmailStaffUpdateForm(SystemEmailFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Displays the clean value of the address in the form.
         self.initial['email'] = self.previous_email
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if commit:
+            user.save(update_fields=['email'])
+        return user
+    save.alters_data = True
 
 
 class SystemPasswordResetRequestForm(PasswordResetForm):
@@ -146,6 +162,7 @@ class SystemPasswordResetForm(SetPasswordForm):
         if commit:
             Profile.mark_valid_emails([self.user.email])
         return self.user
+    save.alters_data = True
 
 
 class MassMailForm(forms.Form):

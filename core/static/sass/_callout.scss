@@ -3,7 +3,7 @@
 .callout {
     padding: 20px;
     margin: 20px 0;
-    border: 1px solid #eee;
+    border: 1px solid $color-gray-light;
     border-left-width: 5px;
     border-radius: 3px;
 
@@ -24,27 +24,27 @@
         margin-top: -5px;
     }
     &-default {
-        border-left-color: #777;
-        h4 { color: #777; }
+        border-left-color: $color-gray;
+        h4 { color: $color-gray; }
     }
     &-primary {
-        border-left-color: #428bca;
-        h4 { color: #428bca; }
+        border-left-color: $color-primary;
+        h4 { color: $color-primary; }
     }
     &-danger {
-        border-left-color: #d9534f;
-        h4 { color: #d9534f; }
+        border-left-color: $color-danger;
+        h4 { color: $color-danger; }
     }
     &-warning {
-        border-left-color: #f0ad4e;
-        h4 { color: #f0ad4e; }
+        border-left-color: $color-warning;
+        h4 { color: $color-warning; }
     }
     &-info {
-        border-left-color: #5bc0de;
-        h4 { color: #5bc0de; }
+        border-left-color: $color-info;
+        h4 { color: $color-info; }
     }
     &-success {
-        border-left-color: #5cb85c;
-        h4 { color: #5cb85c; }
+        border-left-color: $color-success;
+        h4 { color: $color-success; }
     }
 }

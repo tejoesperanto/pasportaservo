@@ -1,3 +1,87 @@
+/* Header on home page */
+header.home {
+    margin-bottom: 0;
+}
+header.home .links {
+    text-align: center;
+}
+
+header.home #title, .same-as-home-title {
+    font-size: 5em;
+    text-align: center;
+    margin-top: 1rem;
+    padding-bottom: 0.25em;
+}
+header.home #title small {
+    font-size: 0.3em;
+    opacity: 0.5;
+    &:hover {
+        cursor: help;
+    }
+}
+header.home #subtitle {
+    font-size: 1.5em;
+    text-align: center;
+    margin-bottom: 2em;
+    font-weight: bold;
+}
+
+header.home form.search {
+    margin-bottom: 2em;
+}
+
+/* Footer on home page */
+#home-explain.has-content {
+    padding-top: 4em;
+    padding-bottom: 3em;
+}
+.blog-post .post-title .post-published {
+    position: relative;
+    top: 0.7ex;
+}
+
+/* XXS */
+@media (max-width: #{$BOOTSTRAP-XS - 1}) {
+    .blog-post .post-title a:after {
+        display: table;
+        content: " ";
+        clear: right;
+    }
+    .blog-post .post-title .post-published {
+        top: 0.85ex;
+    }
+}
+/* XS */
+@media (max-width: #{$BOOTSTRAP-SM - 1}) {
+    header.home #title {
+        font-size: 4em;
+    }
+}
+/* SM */
+@media (min-width: #{$BOOTSTRAP-SM}) {
+}
+/* MD */
+@media (min-width: #{$BOOTSTRAP-MD}) {
+    header.home form.search {
+        margin-bottom: 2em;
+    }
+    header.home #title {
+        margin-top: 1em;
+        padding-bottom: 0.5em;
+    }
+}
+/* LG */
+@media (min-width: #{$BOOTSTRAP-LG - 30}) {
+    header.home form.search {
+        margin-bottom: 5em;
+    }
+    header.home #title {
+        margin-top: 1em;
+        padding-bottom: 1em;
+    }
+}
+
+
 .highlight-orange:hover img, .highlight-orange:focus img {
     background: radial-gradient(closest-side, rgba(255,119,17,1), rgba(255,119,17,0));
 }
@@ -12,11 +96,11 @@
     border-bottom: solid 2px transparent;
 }
 .highlight-custom:focus img {
-    border-bottom: solid 2px #428bca;
+    border-bottom: solid 2px $color-brand-aux;
 }
 
 /* XXS */
-@media (max-width: 479px) {
+@media (max-width: #{$BOOTSTRAP-XS - 1}) {
     .social-links {
         &:not(.social-contact) {
             &.lg-icons {
@@ -27,7 +111,6 @@
                 padding-top: 9px;
             }
         }
-
         &.social-contact {
             padding-right: 5px;
             padding-top: 9px;
@@ -50,7 +133,7 @@
         border-right: solid 2px transparent;
     }
     .social-links.social-contact .highlight-custom:focus img {
-        border-right: solid 2px #428bca;
+        border-right: solid 2px $color-brand-aux;
     }
     .social-links.social-networks.sm-icons a img {
         margin-right: 12px;
@@ -60,7 +143,7 @@
     }
 }
 /* !XXS */
-@media (min-width: 480px) {
+@media (min-width: #{$BOOTSTRAP-XS}) {
     .social-links {
         height: 80px;
         line-height: 80px;
