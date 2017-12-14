@@ -106,6 +106,7 @@ class ProfileCreateForm(ProfileForm):
         if commit:
             profile.save()
         return profile
+    save.alters_data = True
 
 
 class ProfileEmailUpdateForm(forms.ModelForm):
@@ -209,6 +210,7 @@ class PlaceForm(forms.ModelForm):
             place.save()
         self.confidence = location.confidence or 0
         return place
+    save.alters_data = True
 
 
 class PlaceCreateForm(PlaceForm):
@@ -222,6 +224,7 @@ class PlaceCreateForm(PlaceForm):
         if commit:
             place.save()
         return place
+    save.alters_data = True
 
 
 class PlaceLocationForm(forms.ModelForm):
@@ -267,18 +270,18 @@ class PlaceBlockForm(forms.ModelForm):
         """Checks if starting date is earlier then the ending date."""
         cleaned_data = super().clean()
         cleaned_data = dict((k, v) for k, v in cleaned_data.items()
-                            if k == cleaned_data.get('dirty', ""))
+                            if k == cleaned_data.get('dirty', ''))
 
         today = date.today()
-        if (cleaned_data.get('blocked_from', None) or today) < today:
+        if (cleaned_data.get('blocked_from') or today) < today:
             self.add_error('blocked_from', _("Preferably select a date in the future."))
-        if (cleaned_data.get('blocked_until', None) or today) < today:
+        if (cleaned_data.get('blocked_until') or today) < today:
             self.add_error('blocked_until', _("Preferably select a date in the future."))
 
-        if cleaned_data.get('blocked_until', None) and self.instance.blocked_from:
+        if cleaned_data.get('blocked_until') and self.instance.blocked_from:
             if cleaned_data['blocked_until'] <= self.instance.blocked_from:
                 raise forms.ValidationError(_("Unavailability should finish after it starts."))
-        if cleaned_data.get('blocked_from', None) and self.instance.blocked_until:
+        if cleaned_data.get('blocked_from') and self.instance.blocked_until:
             if cleaned_data['blocked_from'] >= self.instance.blocked_until:
                 raise forms.ValidationError(_("Unavailability should start before it finishes."))
 
@@ -322,6 +325,7 @@ class PhoneCreateForm(PhoneForm):
         if commit:
             phone.save()
         return phone
+    save.alters_data = True
 
 
 class UserAuthorizeForm(forms.Form):
@@ -398,4 +402,4 @@ class FamilyMemberCreateForm(FamilyMemberForm):
         family_member = super().save()
         self.place.family_members.add(family_member)
         return family_member
-
+    save.alters_data = True

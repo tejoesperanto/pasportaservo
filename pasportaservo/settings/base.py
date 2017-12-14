@@ -32,6 +32,9 @@ STATICFILES_DIRS = (path.join(PROJECT_DIR, 'static'), )
 LOCALE_PATHS = (path.join(BASE_DIR, 'locale'), )
 
 SASS_PRECISION = 8
+SASS_PROCESSOR_INCLUDE_DIRS = [
+    path.join(BASE_DIR, 'core/static/sass'),
+]
 
 # Application definition
 

@@ -151,7 +151,7 @@ class CustomGroupAdmin(GroupAdmin):
         def __str__(self):
             if len(self.name) != 2:
                 return self.name
-            return format_html("{country_code}&emsp;&ndash;&ensp;{country_name}",
+            return format_html('{country_code}&emsp;&ndash;&ensp;{country_name}',
                                country_code=self.name, country_name=Country(self.name).name)
 
     def get_queryset(self, request):
@@ -223,7 +223,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
 
     def user_link(self, obj):
         try:
-            link = reverse('admin:auth_user_change', args=[obj.user_id])
+            link = reverse('admin:auth_user_change', args=[obj.user.pk])
             return format_html('<a href="{url}">{username}</a>', url=link, username=obj.user)
         except AttributeError:
             return '-'
@@ -233,7 +233,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     def supervisor(self, obj):
         country_list = CustomGroupAdmin.CountryGroup.objects.filter(user__pk=obj.user_id if obj.user_id else -1)
         if country_list:
-            return format_html(",&nbsp; ".join(map(str, country_list)))
+            return format_html(',&nbsp; '.join(map(str, country_list)))
         else:
             return self.get_empty_value_display()
     supervisor.short_description = _("supervisor status")
@@ -278,7 +278,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     filter_horizontal = ('family_members',)
 
     def display_country(self, obj):
-        return "%s: %s" % (obj.country.code, obj.country.name)
+        return '{country.code}: {country.name}'.format(country=obj.country)
     display_country.short_description = _("country")
     display_country.admin_order_field = 'country'
 
@@ -361,7 +361,7 @@ class PhoneAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     country_code.short_description = _("country code")
 
     def display_country(self, obj):
-        return "%s: %s" % (obj.country.code, obj.country.name)
+        return '{country.code}: {country.name}'.format(country=obj.country)
     display_country.short_description = _("country")
     display_country.admin_order_field = 'country'
 

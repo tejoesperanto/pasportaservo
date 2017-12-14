@@ -127,7 +127,7 @@ class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
     permanent = False
 
     def get_redirect_url(self, *args, **kwargs):
-        if kwargs.get('pk', None):
+        if kwargs.get('pk'):
             profile = get_object_or_404(Profile, pk=kwargs['pk'])
             if profile.user_id:
                 return profile.get_absolute_url()

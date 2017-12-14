@@ -221,7 +221,7 @@
                 <p>
                     {% if place.sporadic_presence %}
                     {% if place.available or place.owner_available or view.verbose_view %}
-                        <span class="fa fa-asterisk text-as-ps" aria-label="{% trans "Note " context 'Title' %}"></span>
+                        <span class="fa fa-asterisk text-brand" aria-label="{% trans "Note " context 'Title' %}"></span>
                         {% trans "I'm not present at this address at all times; contact me in advance." %}
                     {% endif %}
                     {% endif %}
@@ -318,9 +318,9 @@
                     </a>
             {% endif %}
             {% if place_owner_or_supervisor or user.profile in place.family_members_cache %}
-                <a href="{% url 'place_location_update' place.pk %}" class="btn btn-primary">
+                <a href="{% url 'place_location_update' place.pk %}" class="btn btn-success btn-vert-space" title="{% trans "Update location on map" %}">
                     <span class="fa fa-map-marker" aria-hidden="true"></span>
-                    {% trans "Edit location" %}
+                    <span class="hidden-xxs">{% trans "Edit location" %}</span>
                 </a>
 
                 <span class="btn-group btn-vert-space">
@@ -330,7 +330,7 @@
                     {% if place_owner_or_supervisor %}
                         <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% blocktrans %}Update {{ kin }}place{% endblocktrans %}">
                             <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
-                            {% trans "Update" %}
+                            <span class="">{% trans "Update" %}</span>
                         </a>
                     {% endif %}
                     {% if view.role == roles.OWNER %}

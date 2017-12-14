@@ -40,7 +40,7 @@
     width: 1em;
     height: 1em;
     line-height: 1em;
-    font-size: .9em;
+    font-size: 0.9em;
 }
 
 /* Bootstrap hack for tooltip */
@@ -49,34 +49,61 @@
 .table-like-grid > .row {
     margin-left: auto;
     margin-right: auto;
-}
-.table-like-grid > .row > [class^="col-"] {
-    padding-left: 5px;
-}
-.table-like-grid > .row:nth-child(odd) {
-    background-color: #f8f8f8;
-}
-.table-like-grid > .row:nth-child(even) {
-    background-color: #fdfdfd;
-}
-.table-like-grid > .row.grid-header {
-    background-color: inherit;
-    padding-bottom: 3px;
-    border-bottom: solid 2px #ddd;
-}
-.table-like-grid > .row:not(.grid-header) {
-    border-bottom: solid 1px #eee;
-}
-.table-like-grid > .row:last-child:not(.grid-header) {
-    border-bottom: solid 2px #ddd;
+
+    & > [class^="col-"] {
+        padding-left: 5px;
+    }
+    &:nth-child(odd) {
+        background-color: lighten($color-default-bg, 1%);
+    }
+    &:nth-child(even) {
+        background-color: lighten($color-default-bg, 3%);
+    }
+    &.grid-header {
+        background-color: inherit;
+        padding-bottom: 3px;
+        border-bottom: solid 2px lighten($color-gray, 40%);
+    }
+    &:not(.grid-header) {
+        border-bottom: solid 1px lighten($color-gray, 47.5%);
+    }
+    &:last-child:not(.grid-header) {
+        border-bottom: solid 2px lighten($color-gray, 40%);
+    }
 }
 
-.panel-body-cosy {
-    padding: 10px 15px;
-}
-.panel-body-compact {
+.panel-cosy .panel-heading, .panel-heading-cosy {
     padding: 5px 15px;
 }
+.panel-cosy .panel-body, .panel-body-cosy {
+    padding: 10px 15px;
+}
+.panel-compact .panel-heading, .panel-heading-compact {
+    padding: 3px 15px;
+}
+.panel-compact .panel-body, .panel-body-compact {
+    padding: 5px 15px;
+}
+
+@mixin compact-grid-columns {
+    $container: ".row.compact";
+    $classes: xxs xs sm md lg;
+    $columns-except-first: null;
+    $columns-except-last:  null;
+    @each $class in $classes {
+        @for $i from 1 through $BOOTSTRAP-COLUMNS {
+            $columns-except-first: $columns-except-first, unquote("#{$container} .col-#{$class}-#{$i}:not(:first-child)");
+            $columns-except-last:  $columns-except-last,  unquote("#{$container} .col-#{$class}-#{$i}:not(:last-child)");
+        }
+    }
+    #{$columns-except-first} {
+        padding-left: 5px;
+    }
+    #{$columns-except-last} {
+        padding-right: 5px;
+    }
+}
+@include compact-grid-columns;
 
 .visible-xxs-block,
 .visible-xxs-inline,
@@ -84,26 +111,33 @@
     display: none !important;
 }
 
-.row.vertical-align {
+@mixin flexbox {
     display: flex; display: -webkit-box; display: -webkit-flex; display: -ms-flexbox;
+}
+@mixin flex-row {
+    @include flexbox;
     flex-direction: row; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row;
 }
-.row.vertical-align > [class^="col-"],
-.row.vertical-align > [class*=" col-"] {
-    display: flex; display: -webkit-box; display: -webkit-flex; display: -ms-flexbox;
+@mixin flex-column {
+    @include flexbox;
     align-items: center; -webkit-box-align: center; -webkit-align-items: center; -ms-flex-align: center;
+}
+.row.vertical-align {
+    @include flex-row;
+    & > [class^="col-"],
+    & > [class*=" col-"] {
+        @include flex-column;
+    }
 }
 
 /* !XXS */
-@media (min-width: 480px) {
+@media (min-width: #{$BOOTSTRAP-XS}) {
     .row.vertical-align-not-xxs {
-        display: flex; display: -webkit-box; display: -webkit-flex; display: -ms-flexbox;
-        flex-direction: row; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row;
-    }
-    .row.vertical-align-not-xxs > [class^="col-"],
-    .row.vertical-align-not-xxs > [class*=" col-"] {
-        display: flex; display: -webkit-box; display: -webkit-flex; display: -ms-flexbox;
-        align-items: center; -webkit-box-align: center; -webkit-align-items: center; -ms-flex-align: center;
+        @include flex-row;
+        & > [class^="col-"],
+        & > [class*=" col-"] {
+            @include flex-column;
+        }
     }
     .pull-xs-left {
         float: left !important;
@@ -113,7 +147,7 @@
     }
 }
 /* SM */
-@media (min-width: 768px) {
+@media (min-width: #{$BOOTSTRAP-SM}) {
     .pull-sm-left {
         float: left !important;
     }
@@ -122,13 +156,13 @@
     }
 }
 /* MD */
-@media (min-width: 992px) {
+@media (min-width: #{$BOOTSTRAP-MD}) {
     .fixed-md-6 {
         width: 470px;
     }
 }
 /* LG+ */
-@media (min-width: 1200px) {
+@media (min-width: #{$BOOTSTRAP-LG}) {
     .fixed-md-6 {
         width: 570px;
     }

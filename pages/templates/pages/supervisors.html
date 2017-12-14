@@ -26,7 +26,7 @@
     <p class="well" id="supervisors-wanted" touch-action="none">
         <button type="button" class="close" title="{% trans "Hide" %}" aria-label="{% trans "Hide" %}"><span aria-hidden="true">&times;</span></button>
         Ni serĉas Landajn Organizantojn! Se ne estas nomo apud lando, tio signifas, ke la posteno estas vaka
-        kaj ni bezonas vin. <br />
+        kaj ni bezonas vin. <br class="visible-sm-block" />
         Se vi volas iĝi LO, bonvole sendu mesaĝon al <a href="mailto:saluton [cxe] pasportaservo.org">saluton
         [cxe]  pasportaservo.org</a>. Dankon!
     </p>
@@ -41,7 +41,7 @@
                 </h4>
             </div>
             <div class="panel-collapse collapse in" id="tasks" role="tabpanel"
-                 aria-labelledby="tasks-header" aria-expanded="true">
+                 aria-labelledby="tasks-header" aria-live="off">
                 <div class="panel-body panel-body-cosy">
                     Esti la kontaktulo por homoj de la lando, kiuj volas informiĝi pri PS, precipe tiuj kiuj ne havas
                     facilan retaliron.
@@ -134,7 +134,7 @@
                     <small><strong>{{ checked_progress }}%</strong></small>
                     <div class="progress">
                         {% if perms.hosting.can_supervise and not user|is_supervisor_of:country %}
-                            {% expr "opacity: .55" as dimmed %}
+                            {% expr "opacity: 0.55" as dimmed %}
                         {% else %}
                             {% expr "" as dimmed %}
                         {% endif %}

@@ -1,0 +1,41 @@
+/* XXS */
+
+@mixin further-grid-columns($class, $sibling-class) {
+    $next-size-prefix: "col-#{$sibling-class}";
+    $columns-push: null;
+    $columns-pull: null;
+    $columns-offset: null;
+    @for $i from 1 through $BOOTSTRAP-COLUMNS {
+        .col-#{$class}-#{$i} {
+            float: left; width: $i / $BOOTSTRAP-COLUMNS * 100%;
+        }
+        $columns-push: $columns-push, unquote(".#{$next-size-prefix}-push-#{$i}");
+        $columns-pull: $columns-pull, unquote(".#{$next-size-prefix}-pull-#{$i}");
+        $columns-offset: $columns-offset, unquote(".#{$next-size-prefix}-offset-#{$i}");
+    }
+    #{$columns-push} {
+        left: auto;
+    }
+    #{$columns-pull} {
+        right: auto;
+    }
+    #{$columns-offset} {
+        margin-left: auto;
+    }
+}
+
+@media (max-width: #{$BOOTSTRAP-XS - 1}) {
+    .visible-xxs-block {
+        display: block !important;
+    }
+    .visible-xxs-inline {
+        display: inline !important;
+    }
+    .visible-xxs-inline-block {
+        display: inline-block !important;
+    }
+    .hidden-xxs {
+        display: none !important;
+    }
+    @include further-grid-columns("xxs", "xs");
+}

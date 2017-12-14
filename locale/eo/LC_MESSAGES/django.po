@@ -1075,6 +1075,9 @@ msgstr "La retpoŝta adreso de tiu ĉi uzanto ŝajne ne funkcias"
 msgid "Write message"
 msgstr "Sendi mesaĝon"
 
+msgid "Update location on map"
+msgstr "Redakti surmapan pozicion"
+
 msgid "Edit location"
 msgstr "Redakti lokigon"
 

@@ -12,9 +12,14 @@
         {{ post.description|safe }}
 
         {% if post.has_more and more_type == "link" %}
+            {% spaceless %}
             <a href="{{ post.get_absolute_url }}" class="text-center text-nowrap {{ more_class }}">
-                <em>{% trans "read more" %}<span class="fa fa-long-arrow-right" style="margin-left: .6em" aria-label="&#x279e;"></span></em>
+                <em>
+                    <span>{% trans "read more" %}</span>
+                    <span class="fa fa-long-arrow-right" style="margin-left: 0.6em" aria-label="&#x279e;"></span>
+                </em>
             </a>
+            {% endspaceless %}
         {% endif %}
         {% if post.has_more and more_type == "dots" %}
             <p>

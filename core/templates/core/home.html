@@ -1,10 +1,10 @@
 {% extends 'core/base.html' %}
-{% load i18n static %}
-{% load flatpages %}
+{% load i18n static sass_tags flatpages %}
+
 {% block header_class %} home{% endblock %}
 
 {% block extra_css %}
-        <link rel="stylesheet" href="{% static 'css/pasportaservo-home.css' %}">
+        <link rel="stylesheet" href="{% sass_src 'css/pasportaservo-home.scss' %}?v=1513087200">
 {% endblock %}
 
 
