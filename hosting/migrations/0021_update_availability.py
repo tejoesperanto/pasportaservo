@@ -15,6 +15,7 @@ def indicate_availability(app_registry, schema_editor):
             place.family_members.remove(place.owner)
         place.save()
 
+
 def revert_availability_indicator(app_registry, schema_editor):
     # retrieve the correct version of the model from the versioned app registry
     Place = app_registry.get_model('hosting', 'Place')

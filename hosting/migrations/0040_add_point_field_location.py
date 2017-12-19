@@ -4,9 +4,8 @@ from __future__ import unicode_literals
 
 import django.contrib.gis.db.models.fields
 from django.contrib.gis.geos import Point
-from django.contrib.postgres.operations import CreateExtension
+# from django.contrib.postgres.operations import CreateExtension
 from django.db import migrations
-from django.db.models import F
 
 
 def populate_location(app_registry, schema_editor):
@@ -20,7 +19,6 @@ def populate_location(app_registry, schema_editor):
         place.location = Point(place.longitude, place.latitude)
         if not place.location.empty:
             place.save()
-
 
 
 class Migration(migrations.Migration):

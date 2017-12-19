@@ -39,7 +39,7 @@ class UserRegistrationForm(SystemEmailFormMixin, UserCreationForm):
     email = forms.EmailField(label=_("Email address"), max_length=254)
     # Honeypot:
     name = forms.CharField(widget=forms.TextInput(attrs={'autocomplete': 'off'}),
-        help_text=_("Leave blank"), required=False)
+        help_text=_("Leave blank"), required=False)                             # noqa: E128
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -150,9 +150,11 @@ class SystemPasswordResetRequestForm(PasswordResetForm):
         active_users = User._default_manager.filter(is_active=True)
         invalid_email = Concat(V(settings.INVALID_PREFIX), V(email))
         lookup_users = active_users.filter(Q(email__iexact=email) | Q(email__iexact=invalid_email))
+
         def remove_invalid_prefix(user):
             user.email = value_without_invalid_marker(user.email)
             return user
+
         return map(remove_invalid_prefix, (u for u in lookup_users if u.has_usable_password()))
 
 
@@ -170,7 +172,7 @@ class MassMailForm(forms.Form):
     body = forms.CharField(label=_("Body"), widget=forms.Textarea, initial="Kara {nomo},\n\n")
     subject = forms.CharField(label=_("Subject"), initial=_("Subject"))
     preheader = forms.CharField(label=_("Preheader"), max_length=100,
-        widget=forms.Textarea(attrs={'rows': 2}))
+        widget=forms.Textarea(attrs={'rows': 2}))                               # noqa: E128
     categories = forms.ChoiceField(label=_("Categories"), choices=(
         ('test', _("test")),
         ('old_system', _("old system")),

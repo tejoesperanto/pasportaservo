@@ -8,34 +8,31 @@ from solo.models import SingletonModel
 
 class SiteConfiguration(SingletonModel):
     site_name = models.CharField(_("site name"),
-        max_length=30, default='Pasporta Servo')
+        max_length=30, default='Pasporta Servo')                                # noqa: E128
 
     google_analytics_key = models.CharField(
-        max_length=13, default='UA-99737795-1', blank=True)
+        max_length=13, default='UA-99737795-1', blank=True)                     # noqa: E128
 
     salt = models.CharField(_("encryption salt"),
-        max_length=30, default='salo',
+        max_length=30, default='salo',                                          # noqa: E128
         help_text=_("Salt used for encoded unique links. Change it to invalidate all links."))
 
     token_max_age = models.PositiveIntegerField(_("unique link lifetime"),
-        default=3600 * 24 * 2,
+        default=3600 * 24 * 2,                                                  # noqa: E128
         help_text=_("In seconds: 2 days = 3600 x 24 x 2 = 172800"))
 
     host_min_age = models.PositiveSmallIntegerField(_("minumum age for hosting"),
-        default=16)
+        default=16)                                                             # noqa: E128
 
     meet_min_age = models.PositiveSmallIntegerField(_("minumum age for meeting"),
-        default=13)
+        default=13)                                                             # noqa: E128
 
     confirmation_validity_period = models.DurationField(_("confirmation validity period"),
-        default=timedelta(weeks=42),
+        default=timedelta(weeks=42),                                            # noqa: E128
         help_text=_("Delay (in days/hours) after which an object is no longer considered as confirmed."))
-
-
 
     def __str__(self):
         return str(_("Site Configuration"))
 
     class Meta:
         verbose_name = _("Site Configuration")
-

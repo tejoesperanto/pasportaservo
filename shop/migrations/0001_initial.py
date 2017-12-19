@@ -10,9 +10,10 @@ import django_extensions.db.fields
 
 
 def create_product(apps, schema_editor):
-    product = apps.get_model('shop', 'Product')._default_manager.create(
+    apps.get_model('shop', 'Product')._default_manager.create(
         name="Pasporta Servo 2017",
-        code='PS2017')
+        code='PS2017'
+    )
 
 
 class Migration(migrations.Migration):

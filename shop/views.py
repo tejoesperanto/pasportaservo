@@ -45,4 +45,3 @@ class ReservationView(LoginRequiredMixin, generic.DetailView):
         self.product = get_object_or_404(Product, code=self.kwargs['product_code'])
         self.profile = getattr(self.request.user, 'profile', None)
         return Reservation.objects.get(product=self.product, user=self.request.user)
-

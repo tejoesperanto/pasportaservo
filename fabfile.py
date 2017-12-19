@@ -18,15 +18,18 @@ env.directory = '/srv/%s/pasportaservo'
 env.site = 'staging'   # default
 env.branch = 'master'  # default
 
+
 @task
 def prod():
     env.site = 'prod'
     env.branch = 'prod'
 
+
 @task
 def staging():
     env.site = 'staging'
     env.branch = 'master'
+
 
 @task
 def push(remote='origin', branch='master', runlocal=True):
@@ -36,6 +39,7 @@ def push(remote='origin', branch='master', runlocal=True):
     else:
         run(command)
 
+
 @task
 def pull(remote='origin', branch='master', runlocal=True):
     if runlocal:
@@ -43,6 +47,7 @@ def pull(remote='origin', branch='master', runlocal=True):
     else:
         run("git checkout -- locale/*/django.mo")
         run("git pull %s %s" % (remote, branch))
+
 
 @task
 def checkout(remote='origin', branch='master', runlocal=True):
@@ -52,9 +57,11 @@ def checkout(remote='origin', branch='master', runlocal=True):
     else:
         run(command)
 
+
 @task
 def requirements():
     run("pip install -Ur requirements.txt")
+
 
 @task
 def updatestrings(runlocal=True, _inside_env=False):
@@ -69,15 +76,18 @@ def updatestrings(runlocal=True, _inside_env=False):
     else:
         local(command)
 
+
 @task
 def collectstatic():
     run("./manage.py compilescss")
     run("./manage.py collectstatic --noinput %s" %
         ("--ignore=*.scss" if env.site == 'prod' else ""))
 
+
 @task
 def migrate():
     run("./manage.py migrate --noinput")
+
 
 @task
 def deploy(mode='full', remote='origin'):

@@ -45,6 +45,6 @@ class CustomLoggingPanel(LoggingPanel):
         for rec in records:
             msg = html.escape(rec['message']).split('\n')
             msg = "".join(map(
-                lambda t: t.replace('\t', "<div style='margin-left:1.5em'>") + "</div>"*t.count('\t')
-                , msg))
+                lambda t: t.replace('\t', "<div style='margin-left:1.5em'>") + "</div>"*t.count('\t'),
+                msg))
             rec['message'] = mark_safe(msg)

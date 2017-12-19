@@ -30,4 +30,3 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(create_country_groups, reverse_code=delete_country_groups)
     ]
-

@@ -8,16 +8,19 @@ register = template.Library()
 def random_identifier(length=None):
     try:
         length = int(length)
-    except:
+    except Exception:
         length = None
     if length is None or length <= 0:
         length = random.randint(16, 48)
-    return ''.join(random.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789_') for n in range(length))
+    return ''.join(random.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789_')
+                   for n in range(length))
 
 
 register.simple_tag(func=lambda *args: list(args), name='list')
 
+
 register.simple_tag(func=lambda **kwargs: dict(kwargs), name='dict')
+
 
 @register.filter(is_safe=True)
 def are_any(iterable):
@@ -25,6 +28,7 @@ def are_any(iterable):
         return any(iterable)
     except (ValueError, TypeError):
         return bool(iterable)
+
 
 @register.filter(is_safe=True)
 def are_all(iterable):

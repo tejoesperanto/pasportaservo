@@ -1,7 +1,7 @@
 from datetime import date
 
 from django import forms
-from django.contrib.gis.forms import OSMWidget
+# from django.contrib.gis.forms import OSMWidget
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import get_user_model
@@ -38,6 +38,7 @@ class ProfileForm(forms.ModelForm):
                                                 attrs={'class': 'form-control-horizontal'}),
             'avatar': ClearableWithPreviewImageInput,
         }
+
     class _validation_meta:
         book_required_fields = ['title', 'first_name', 'last_name']
 
@@ -86,10 +87,10 @@ class ProfileForm(forms.ModelForm):
                         "If you think there is a problem, please contact us.")
 
             if in_book and not all_filled:
-                #msg = _("This field is required to be printed in the book.")
-                #for field in self._validation_meta.book_required_fields:
-                #    if not cleaned_data.get(field, False):
-                #        self.add_error(field, msg)
+                # msg = _("This field is required to be printed in the book.")
+                # for field in self._validation_meta.book_required_fields:
+                #     if not cleaned_data.get(field, False):
+                #         self.add_error(field, msg)
                 raise forms.ValidationError(message)
         return cleaned_data
 
@@ -141,6 +142,7 @@ class PlaceForm(forms.ModelForm):
         widgets = {
             'short_description': forms.Textarea(attrs={'rows': 3}),
         }
+
     class _validation_meta:
         book_required_fields = [
             'address', 'city', 'closest_city', 'country', 'available',
@@ -233,7 +235,7 @@ class PlaceLocationForm(forms.ModelForm):
         fields = ['location']
         widgets = {
             'location': MapboxGlWidget(),
-            # 'location': OSMWidget(attrs={'template_name': "gis/openlayers-osm-custom.html", 'display_raw': True, 'map_width': "100%", 'map_height': "500px"}),
+            # 'location': OSMWidget(attrs={'template_name': "gis/openlayers-osm-custom.html", 'display_raw': True, 'map_width': "100%", 'map_height': "500px"}),  # noqa: E501
         }
 
 
@@ -241,7 +243,7 @@ class PlaceBlockForm(forms.ModelForm):
     class Meta:
         model = Place
         fields = ['blocked_from', 'blocked_until']
-    dirty = forms.ChoiceField(choices=(('blocked_from',1), ('blocked_until',2)),
+    dirty = forms.ChoiceField(choices=(('blocked_from', 1), ('blocked_until', 2)),
                               widget=forms.HiddenInput, label="")
 
     def __init__(self, *args, **kwargs):
