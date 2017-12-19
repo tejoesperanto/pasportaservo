@@ -37,18 +37,18 @@ class PublishedManager(models.Manager):
 
 class Post(TimeStampedModel):
     title = models.CharField(_("title"),
-        max_length=200)
+        max_length=200)                                                         # noqa: E128
     slug = models.SlugField(_("slug"),
-        unique=True)
+        unique=True)                                                            # noqa: E128
     content = SimpleMDEField(_("Markdown content"))
     body = models.TextField(_("HTML content"),
-        blank=True)
+        blank=True)                                                             # noqa: E128
     description = models.TextField(_("HTML description"),
-        blank=True)
+        blank=True)                                                             # noqa: E128
     author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("author"),
-        blank=True, null=True, on_delete=models.SET_NULL)
+        blank=True, null=True, on_delete=models.SET_NULL)                       # noqa: E128
     pub_date = models.DateTimeField(_("publication date"),
-        null=True, blank=True)
+        null=True, blank=True)                                                  # noqa: E128
 
     objects = PublishedManager()
 
@@ -72,4 +72,3 @@ class Post(TimeStampedModel):
         self.description = markdown(content[0])
         return super().save(*args, **kwargs)
     save.alters_data = True
-

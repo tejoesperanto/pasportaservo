@@ -33,7 +33,7 @@ class SupervisorRequiredMixin(UserPassesTestMixin):
                 available=True, deleted=False).values_list('country', flat=True))
             if not countries:
                 return _("Only administrators can access this page")
-        to_string = lambda item: str(Country(item).name)
+        to_string = lambda item: str(Country(item).name)                        # noqa: E731
         join_lazy = keep_lazy_text(lambda items: ", ".join(map(to_string, items)))
         return format_lazy(self.permission_denied_message, this_country=join_lazy(countries))
 

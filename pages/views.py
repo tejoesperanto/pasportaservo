@@ -7,7 +7,7 @@ from django.utils.text import format_lazy
 from core.auth import PERM_SUPERVISOR
 from hosting.models import Place
 from hosting.utils import sort_by_name
-from django.utils.translation import pgettext_lazy, ugettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 
 class AboutView(generic.TemplateView):
@@ -28,8 +28,8 @@ class SupervisorsView(generic.TemplateView):
         self.in_book = code_from_kwarg[kwargs['in_book']]
         if self.in_book and not request.user.has_perm(PERM_SUPERVISOR):
             return HttpResponseRedirect(format_lazy("{supervisors_url}#{section_countries}",
-                supervisors_url=reverse_lazy('supervisors'),
-                section_countries=pgettext_lazy("URL", "countries-list"))
+                supervisors_url=reverse_lazy('supervisors'),                    # noqa: E128
+                section_countries=pgettext_lazy("URL", "countries-list"))       # noqa: E128
             )
         return super().dispatch(request, *args, **kwargs)
 

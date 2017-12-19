@@ -10,16 +10,13 @@ from django.db.models.functions import Concat, Substr
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from django.core.exceptions import ImproperlyConfigured
-from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 from django.utils.text import format_lazy
 
 from django_extensions.db.models import TimeStampedModel
-from django.contrib.auth.models import Group
 from phonenumber_field.modelfields import PhoneNumberField
-from django_countries.fields import CountryField, Country
+from django_countries.fields import CountryField
 
 from .managers import (
     TrackingManager, NotDeletedManager, AvailableManager,
@@ -54,8 +51,8 @@ class TrackingModel(models.Model):
     confirmed_on = models.DateTimeField(_("confirmed on"), default=None, blank=True, null=True)
     checked_on = models.DateTimeField(_("checked on"), default=None, blank=True, null=True)
     checked_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("approved by"),
-        blank=True, null=True,
-        related_name="+", on_delete=models.SET_NULL)
+        blank=True, null=True,                                                                          # noqa: E128
+        related_name='+', on_delete=models.SET_NULL)                                                    # noqa: E128
 
     all_objects = TrackingManager()
     objects = NotDeletedManager()
@@ -77,40 +74,40 @@ class Profile(TrackingModel, TimeStampedModel):
     TITLE_CHOICES = TITLE_CHOICES
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
-        null=True, blank=True, on_delete=models.SET_NULL)
+        null=True, blank=True, on_delete=models.SET_NULL)                                               # noqa: E128
     title = models.CharField(_("title"),
-        blank=True,
-        max_length=5, choices=TITLE_CHOICES)
+        blank=True,                                                                                     # noqa: E128
+        max_length=5, choices=TITLE_CHOICES)                                                            # noqa: E128
     first_name = models.CharField(_("first name"),
-        blank=True,
-        max_length=255,
-        validators=[validate_not_too_many_caps, validate_no_digit, validate_latin])
+        blank=True,                                                                                     # noqa: E128
+        max_length=255,                                                                                 # noqa: E128
+        validators=[validate_not_too_many_caps, validate_no_digit, validate_latin])                     # noqa: E128
     last_name = models.CharField(_("last name"),
-        blank=True,
-        max_length=255,
-        validators=[validate_not_too_many_caps, validate_no_digit, validate_latin])
+        blank=True,                                                                                     # noqa: E128
+        max_length=255,                                                                                 # noqa: E128
+        validators=[validate_not_too_many_caps, validate_no_digit, validate_latin])                     # noqa: E128
     names_inversed = models.BooleanField(_("names in inverse order"),
-        default=False)
+        default=False)                                                                                  # noqa: E128
     birth_date = models.DateField(_("birth date"),
-        null=True, blank=True,
-        validators=[TooFarPastValidator(200), validate_not_in_future],
-        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))
+        null=True, blank=True,                                                                          # noqa: E128
+        validators=[TooFarPastValidator(200), validate_not_in_future],                                  # noqa: E128
+        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))                     # noqa: E128
     email = models.EmailField(_("public email"),
-        blank=True,
-        help_text=_("This email address will be used for the book. "
+        blank=True,                                                                                     # noqa: E128
+        help_text=_("This email address will be used for the book. "                                    # noqa: E128
                     "Leave blank if you don't want this email to be public.\n"
                     "The system will never send emails to this address, "
                     "neither publish it on the site without your permission."))
     description = models.TextField(_("description"),
-        blank=True,
-        help_text=_("Short biography."))
+        blank=True,                                                                                     # noqa: E128
+        help_text=_("Short biography."))                                                                # noqa: E128
     avatar = models.ImageField(_("avatar"),
-        blank=True,
-        upload_to=UploadAndRenameAvatar("avatars"),
-        validators=[validate_image, validate_size],
-        help_text=_("Small image under 100kB. Ideal size: 140x140 px."))
+        blank=True,                                                                                     # noqa: E128
+        upload_to=UploadAndRenameAvatar("avatars"),                                                     # noqa: E128
+        validators=[validate_image, validate_size],                                                     # noqa: E128
+        help_text=_("Small image under 100kB. Ideal size: 140x140 px."))                                # noqa: E128
     contact_preferences = models.ManyToManyField('hosting.ContactPreference',
-        blank=True, verbose_name=_("contact preferences"))
+        blank=True, verbose_name=_("contact preferences"))                                              # noqa: E128
 
     class Meta:
         verbose_name = _("profile")
@@ -171,7 +168,7 @@ class Profile(TrackingModel, TimeStampedModel):
             return format_html(template_username, q=mark_safe(quote),
                                uname=self.user.username.title() if self.user else ('--' if non_empty else " "))
 
-    get_fullname_always_display = lambda self: self.get_fullname_display(non_empty=True)
+    get_fullname_always_display = lambda self: self.get_fullname_display(non_empty=True)  # noqa: E731
 
     @property
     def autoslug(self):
@@ -225,12 +222,12 @@ class Profile(TrackingModel, TimeStampedModel):
     def get_absolute_url(self):
         return reverse('profile_detail', kwargs={
             'pk': self.pk,
-            'slug': getattr(self, 'slug', self.autoslug) })
+            'slug': getattr(self, 'slug', self.autoslug)})
 
     def get_edit_url(self):
         return reverse('profile_edit', kwargs={
             'pk': self.pk,
-            'slug': getattr(self, 'slug', self.autoslug) })
+            'slug': getattr(self, 'slug', self.autoslug)})
 
     def get_admin_url(self):
         return reverse('admin:hosting_profile_change', args=(self.pk,))
@@ -250,12 +247,11 @@ class Profile(TrackingModel, TimeStampedModel):
     def mark_invalid_emails(cls, emails=None):
         models = {cls: None, get_user_model(): None}
         for model in models:
-            models[model] = model.objects.filter(
-                email__in=emails
-            ).exclude(
-                email__startswith=settings.INVALID_PREFIX
-            ).update(
-                email=Concat(V(settings.INVALID_PREFIX), F('email'))
+            models[model] = (
+                model.objects
+                .filter(email__in=emails)
+                .exclude(email__startswith=settings.INVALID_PREFIX)
+                .update(email=Concat(V(settings.INVALID_PREFIX), F('email')))
             )
         return models
     mark_invalid_emails.do_not_call_in_templates = True
@@ -264,11 +260,13 @@ class Profile(TrackingModel, TimeStampedModel):
     def mark_valid_emails(cls, emails=None):
         models = {cls: None, get_user_model(): None}
         for model in models:
-            models[model] = model.objects.filter(
-                email__in=emails,
-                email__startswith=settings.INVALID_PREFIX
-            ).update(
-                email=Substr(F('email'), len(settings.INVALID_PREFIX) + 1)
+            models[model] = (
+                model.objects
+                .filter(
+                    email__in=emails,
+                    email__startswith=settings.INVALID_PREFIX
+                )
+                .update(email=Substr(F('email'), len(settings.INVALID_PREFIX) + 1))
             )
         return models
     mark_valid_emails.do_not_call_in_templates = True
@@ -276,76 +274,76 @@ class Profile(TrackingModel, TimeStampedModel):
 
 class Place(TrackingModel, TimeStampedModel):
     owner = models.ForeignKey('hosting.Profile', verbose_name=_("owner"),
-        related_name="owned_places", on_delete=models.CASCADE)
+        related_name="owned_places", on_delete=models.CASCADE)                                          # noqa: E128
     address = models.TextField(_("address"),
-        blank=True,
-        help_text=_("e.g.: Nieuwe Binnenweg 176"))
+        blank=True,                                                                                     # noqa: E128
+        help_text=_("e.g.: Nieuwe Binnenweg 176"))                                                      # noqa: E128
     city = models.CharField(_("city"),
-        blank=True,
-        max_length=255,
-        validators=[validate_not_all_caps, validate_not_too_many_caps],
-        help_text=_("Name in the official language, not in Esperanto (e.g.: Rotterdam)"))
+        blank=True,                                                                                     # noqa: E128
+        max_length=255,                                                                                 # noqa: E128
+        validators=[validate_not_all_caps, validate_not_too_many_caps],                                 # noqa: E128
+        help_text=_("Name in the official language, not in Esperanto (e.g.: Rotterdam)"))               # noqa: E128
     closest_city = models.CharField(_("closest big city"),
-        blank=True,
-        max_length=255,
-        validators=[validate_not_all_caps, validate_not_too_many_caps],
-        help_text=_("If your place is in a town near a bigger city. "
+        blank=True,                                                                                     # noqa: E128
+        max_length=255,                                                                                 # noqa: E128
+        validators=[validate_not_all_caps, validate_not_too_many_caps],                                 # noqa: E128
+        help_text=_("If your place is in a town near a bigger city. "                                   # noqa: E128
                     "Name in the official language, not in Esperanto."))
     postcode = models.CharField(_("postcode"),
-        blank=True,
-        max_length=11)
+        blank=True,                                                                                     # noqa: E128
+        max_length=11)                                                                                  # noqa: E128
     state_province = models.CharField(_("State / Province"),
-        blank=True,
-        max_length=70)
+        blank=True,                                                                                     # noqa: E128
+        max_length=70)                                                                                  # noqa: E128
     country = CountryField(_("country"))
     location = PointField(_("location"), srid=4326,
-        null=True, blank=True)
+        null=True, blank=True)                                                                          # noqa: E128
     latitude = models.FloatField(_("latitude"),
-        null=True, blank=True)
+        null=True, blank=True)                                                                          # noqa: E128
     longitude = models.FloatField(_("longitude"),
-        null=True, blank=True)
+        null=True, blank=True)                                                                          # noqa: E128
     max_guest = models.PositiveSmallIntegerField(_("maximum number of guest"),
-        null=True, blank=True)
+        null=True, blank=True)                                                                          # noqa: E128
     max_night = models.PositiveSmallIntegerField(_("maximum number of night"),
-        null=True, blank=True)
+        null=True, blank=True)                                                                          # noqa: E128
     contact_before = models.PositiveSmallIntegerField(_("contact before"),
-        null=True, blank=True,
-        help_text=_("Number of days before people should contact host."))
+        null=True, blank=True,                                                                          # noqa: E128
+        help_text=_("Number of days before people should contact host."))                               # noqa: E128
     description = models.TextField(_("description"),
-        blank=True,
-        help_text=_("Description or remarks about your place."))
+        blank=True,                                                                                     # noqa: E128
+        help_text=_("Description or remarks about your place."))                                        # noqa: E128
     short_description = models.CharField(_("short description"),
-        blank=True,
-        max_length=140,
-        help_text=_("Used in the book and on profile, 140 characters maximum."))
+        blank=True,                                                                                     # noqa: E128
+        max_length=140,                                                                                 # noqa: E128
+        help_text=_("Used in the book and on profile, 140 characters maximum."))                        # noqa: E128
     available = models.BooleanField(_("available"),
-        default=True,
-        help_text=_("If this place is searchable. If yes, you will be considered as host."))
+        default=True,                                                                                   # noqa: E128
+        help_text=_("If this place is searchable. If yes, you will be considered as host."))            # noqa: E128
     in_book = models.BooleanField(_("print in book"),
-        default=True,
-        help_text=_("If you want this place to be in the printed book. Must be available."))
+        default=True,                                                                                   # noqa: E128
+        help_text=_("If you want this place to be in the printed book. Must be available."))            # noqa: E128
     tour_guide = models.BooleanField(_("tour guide"),
-        default=False,
-        help_text=_("If you are ready to show your area to visitors."))
+        default=False,                                                                                  # noqa: E128
+        help_text=_("If you are ready to show your area to visitors."))                                 # noqa: E128
     have_a_drink = models.BooleanField(_("have a drink"),
-        default=False,
-        help_text=_("If you are ready to have a coffee or beer with visitors."))
+        default=False,                                                                                  # noqa: E128
+        help_text=_("If you are ready to have a coffee or beer with visitors."))                        # noqa: E128
     sporadic_presence = models.BooleanField(_("irregularly present"),
-        default=False,
-        help_text=_("If you are not often at this address and need an advance notification."))
+        default=False,                                                                                  # noqa: E128
+        help_text=_("If you are not often at this address and need an advance notification."))          # noqa: E128
     conditions = models.ManyToManyField('hosting.Condition', verbose_name=_("conditions"),
-        blank=True)
+        blank=True)                                                                                     # noqa: E128
     family_members = models.ManyToManyField('hosting.Profile', verbose_name=_("family members"),
-        blank=True)
+        blank=True)                                                                                     # noqa: E128
     blocked_from = models.DateField(_("unavailable from"),
-        null=True, blank=True,
-        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))
+        null=True, blank=True,                                                                          # noqa: E128
+        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))                     # noqa: E128
     blocked_until = models.DateField(_("unavailable until"),
-        null=True, blank=True,
-        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))
+        null=True, blank=True,                                                                          # noqa: E128
+        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))                     # noqa: E128
     authorized_users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("authorized users"),
         blank=True,
-        help_text=_("List of users authorized to view most of data of this accommodation."))
+        help_text=_("List of users authorized to view most of data of this accommodation."))            # noqa: E128
 
     available_objects = AvailableManager()
 
@@ -461,16 +459,17 @@ class Phone(TrackingModel, TimeStampedModel):
     PHONE_TYPE_CHOICES = PHONE_TYPE_CHOICES
     MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
     profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"),
-        related_name="phones", on_delete=models.CASCADE)
+        related_name="phones", on_delete=models.CASCADE)                                                # noqa: E128
     number = PhoneNumberField(_("number"),
-        help_text=_("International number format begining with the plus sign (e.g.: +31 10 436 1044)"))
+        help_text=_("International number format begining with the plus sign "                          # noqa: E128
+                    "(e.g.: +31 10 436 1044)"))
     country = CountryField(_("country"))
     comments = models.CharField(_("comments"),
-        blank=True,
-        max_length=255)
+        blank=True,                                                                                     # noqa: E128
+        max_length=255)                                                                                 # noqa: E128
     type = models.CharField(_("phone type"),
-        max_length=3,
-        choices=PHONE_TYPE_CHOICES, default=MOBILE)
+        max_length=3,                                                                                   # noqa: E128
+        choices=PHONE_TYPE_CHOICES, default=MOBILE)                                                     # noqa: E128
 
     class Meta:
         verbose_name = _("phone")
@@ -540,10 +539,12 @@ class Website(TrackingModel, TimeStampedModel):
 
 class Condition(models.Model):
     """Hosting condition (e.g. bringing sleeping bag, no smoking...)."""
-    name = models.CharField(_("name"), max_length=255,
-        help_text=_("E.g.: 'Ne fumu'."))
-    abbr = models.CharField(_("abbreviation"), max_length=20,
-        help_text=_("Official abbreviation as used in the book. E.g.: 'Nef.'"))
+    name = models.CharField(_("name"),
+        max_length=255,                                                                                 # noqa: E128
+        help_text=_("E.g.: 'Ne fumu'."))                                                                # noqa: E128
+    abbr = models.CharField(_("abbreviation"),
+        max_length=20,                                                                                  # noqa: E128
+        help_text=_("Official abbreviation as used in the book. E.g.: 'Nef.'"))                         # noqa: E128
     slug = models.SlugField(_("URL friendly name"))
 
     class Meta:
@@ -556,7 +557,8 @@ class Condition(models.Model):
 
 class ContactPreference(models.Model):
     """Contact preference for a profile, whether by email, telephone or snail mail."""
-    name = models.CharField(_("name"), max_length=255)
+    name = models.CharField(_("name"),
+        max_length=255)                                                                                 # noqa: E128
 
     class Meta:
         verbose_name = _("contact preference")

@@ -2,7 +2,6 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic.base import TemplateView
 
 
 urlpatterns = [

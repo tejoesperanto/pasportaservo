@@ -70,7 +70,7 @@ class SupervisorAuthBackend(ModelBackend):
                     "Supervisor check needs either a profile, a country, or a list of countries."
                 )
             auth_log.debug("\t\trequested: %s supervised: %s\n\t\tresult: %s",
-                set(countries), set(supervised), set(supervised) & set(countries))
+                set(countries), set(supervised), set(supervised) & set(countries))                      # noqa: E128
             supervised = set(supervised) & set(countries)
         return supervised if code else [c.name for c in supervised]
 
@@ -88,7 +88,7 @@ class SupervisorAuthBackend(ModelBackend):
         Short-circuits when resposibility is not satisfied.
         """
         auth_log.debug("checking permission:  %s [ %s ] for %s",
-            perm, user_obj, "%s %s" % ("object", repr(obj)) if obj else "any records")
+            perm, user_obj, "%s %s" % ("object", repr(obj)) if obj else "any records")                  # noqa: E128
         if perm == PERM_SUPERVISOR and obj is not None:
             all_perms = self.get_all_permissions(user_obj, obj)
             allowed = any(self._perm_sv_particular_re.match(p) for p in all_perms)
@@ -140,10 +140,10 @@ def get_role_in_context(request, profile=None, place=None, no_obj_context=False)
         return OWNER
     if user.is_superuser:
         return ADMIN
-    #Staff users is a dormant feature. Exact role to be decided.
-    #Once enabled, the interaction with perms.hosting.can_supervise has to be verified.
-    #if user.is_staff:
-    #    return STAFF
+    # Staff users is a dormant feature. Exact role to be decided.
+    # Once enabled, the interaction with perms.hosting.can_supervise has to be verified.
+    # if user.is_staff:
+    #     return STAFF
     if user.has_perm(PERM_SUPERVISOR, None if no_obj_context else context):
         return SUPERVISOR
     return VISITOR
@@ -176,7 +176,7 @@ class AuthMixin(AccessMixin):
         if getattr(self, 'exact_role', None) == ANONYMOUS or self.minimum_role == ANONYMOUS:
             self.allow_anonymous = True
         if not request.user.is_authenticated and not self.allow_anonymous:
-            return self.handle_no_permission() # authorization implies a logged-in user
+            return self.handle_no_permission()  # authorization implies a logged-in user
         if 'auth_base' in kwargs:
             object = kwargs['auth_base']
             self._auth_verify(object, context_omitted=object is None)
@@ -237,7 +237,7 @@ class AuthMixin(AccessMixin):
             countries = None
         if not countries:
             return _("Only administrators can access this page")
-        to_string = lambda item: str(Country(item).name)
+        to_string = lambda item: str(Country(item).name)                        # noqa: E731
         join_lazy = keep_lazy_text(lambda items: ", ".join(map(to_string, items)))
         return format_lazy(self.permission_denied_message, this_country=join_lazy(countries))
 
@@ -245,4 +245,3 @@ class AuthMixin(AccessMixin):
         context = super().get_context_data(**kwargs)
         context['roles'] = ALL_ROLES
         return context
-

@@ -193,9 +193,9 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
     def get(self, request, *args, **kwargs):
         try:
             return HttpResponseRedirect(format_lazy("{settings_url}#{section_email}",
-                settings_url=reverse_lazy('profile_settings', kwargs={
+                settings_url=reverse_lazy('profile_settings', kwargs={          # noqa: E128
                     'pk': request.user.profile.pk, 'slug': slugify(request.user.username)}),
-                section_email=pgettext_lazy("URL", "email-addr"))
+                section_email=pgettext_lazy("URL", "email-addr"))               # noqa: E128
             )
         except Profile.DoesNotExist:
             return HttpResponseRedirect(reverse_lazy('email_update'))
@@ -284,7 +284,7 @@ class MassMailView(AuthMixin, generic.FormView):
 
     def get_success_url(self):
         return format_lazy("{success_url}?nb={sent}",
-            success_url=reverse_lazy('mass_mail_sent'), sent=self.nb_sent)
+            success_url=reverse_lazy('mass_mail_sent'), sent=self.nb_sent)      # noqa: E128
 
     def form_valid(self, form):
         body = form.cleaned_data['body']
@@ -297,11 +297,9 @@ class MassMailView(AuthMixin, generic.FormView):
         template = get_template('email/mass_email.html')
 
         opening = datetime(2014, 11, 24)
-        places = Place.objects.select_related('owner__user')
         profiles = []
 
         if category in ("test", "just_user"):
-            places = []
             # only active profiles, linked to existing user accounts
             profiles = Profile.objects.filter(user__isnull=False)
             # exclude completely those who have at least one active available place

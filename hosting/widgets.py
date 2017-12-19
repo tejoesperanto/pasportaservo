@@ -1,7 +1,6 @@
 from django.template.loader import get_template
 from django.forms import widgets as form_widgets
 from django.contrib.admin import widgets as admin_widgets
-from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 
 
@@ -37,4 +36,3 @@ class AdminImageWithPreviewWidget(ClearableWithPreviewImageInput, admin_widgets.
         substitutions = {'initial_raw_value': value}
         substitutions.update(**kwargs)
         return super().format_value(value, **substitutions)
-

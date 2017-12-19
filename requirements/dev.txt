@@ -6,3 +6,6 @@ sqlparse>=2.4
 fabric3<2
 pytest-django==3.1.2
 coverage==4.4.1
+
+flake8==3.5.0
+flake8-per-file-ignores==0.4

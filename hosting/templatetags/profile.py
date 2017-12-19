@@ -4,7 +4,6 @@ import re
 from django import template
 from django.contrib import auth
 from django.contrib.auth.models import AnonymousUser
-from django_countries.fields import Country
 from django.conf import settings
 from django.template.defaultfilters import stringfilter
 
@@ -29,7 +28,7 @@ def _convert_profile_to_user(profile_obj):
 def is_supervisor(user_or_profile):
     user = _convert_profile_to_user(user_or_profile)
     auth_log.debug("* checking if supervising... [ %s %s]",
-        user, "<~ '%s' " % user_or_profile if user != user_or_profile else "")
+        user, "<~ '%s' " % user_or_profile if user != user_or_profile else "")                          # noqa: E128
     return user.has_perm(PERM_SUPERVISOR)
 
 
@@ -37,8 +36,8 @@ def is_supervisor(user_or_profile):
 def is_supervisor_of(user_or_profile, profile_or_countries):
     user = _convert_profile_to_user(user_or_profile)
     auth_log.debug("* checking if object is supervised... [ %s %s] [ %s ]",
-        user, "<~ '%s' " % user_or_profile if user != user_or_profile else "",
-        repr(profile_or_countries))
+        user, "<~ '%s' " % user_or_profile if user != user_or_profile else "",                          # noqa: E128
+        repr(profile_or_countries))                                                                     # noqa: E128
     if isinstance(profile_or_countries, int):
         try:
             profile_or_countries = Profile.objects.get(pk=profile_or_countries)
@@ -47,17 +46,17 @@ def is_supervisor_of(user_or_profile, profile_or_countries):
     elif isinstance(profile_or_countries, str):
         profile_or_countries = profile_or_countries.split(" ")
 
-    #supervisor = False
-    #for backend in auth.get_backends():
-    #    try:
-    #        supervisor = backend.is_user_supervisor_of(user, profile_or_countries)
-    #    except AttributeError as e:
-    #        pass
-    #    except:
-    #        supervisor = False
-    #    else:
-    #        break
-    #return supervisor
+    # supervisor = False
+    # for backend in auth.get_backends():
+    #     try:
+    #         supervisor = backend.is_user_supervisor_of(user, profile_or_countries)
+    #     except AttributeError as e:
+    #         pass
+    #     except:
+    #         supervisor = False
+    #     else:
+    #         break
+    # return supervisor
     return user.has_perm(PERM_SUPERVISOR, profile_or_countries)
 
 
@@ -65,11 +64,11 @@ def is_supervisor_of(user_or_profile, profile_or_countries):
 def supervisor_of(user_or_profile):
     user = _convert_profile_to_user(user_or_profile)
     auth_log.debug("* searching supervised objects... [ %s %s]",
-        user, "<~ '%s' " % user_or_profile if user != user_or_profile else "")
+        user, "<~ '%s' " % user_or_profile if user != user_or_profile else "")                          # noqa: E128
     for backend in auth.get_backends():
         try:
             return sorted(backend.get_user_supervisor_of(user))
-        except:
+        except Exception:
             pass
     return ("",)
 
@@ -91,4 +90,5 @@ def clear_invalid(value):
 def is_esperanto_surrogate(value):
     return re_esperanto.search(value)
 
-re_esperanto = re.compile(r'cx|gx|hx|jx|sx|ux|ch|gh|hh|jh|sh|c\^|g\^|h\^|j\^|s\^|u\^|u~|\^c|\^g|\^h|\^j|\^s|\^u|~u')
+re_esperanto = re.compile(r'cx|gx|hx|jx|sx|ux|ch|gh|hh|jh|sh|'                  # noqa: E305
+                          r'c\^|g\^|h\^|j\^|s\^|u\^|u~|\^c|\^g|\^h|\^j|\^s|\^u|~u')

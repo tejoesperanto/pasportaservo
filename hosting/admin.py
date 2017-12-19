@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.contrib.gis import admin as gis_admin
+# from django.contrib.gis import admin as gis_admin
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.utils import display_for_value
 from django.utils.html import format_html
@@ -43,7 +43,7 @@ class PlaceInLine(ShowConfirmedMixin, ShowDeletedMixin, admin.StackedInline):
         'available', 'in_book', ('tour_guide', 'have_a_drink'), 'sporadic_presence',
         'display_confirmed', 'is_deleted',
     )
-    raw_id_fields = ('owner', 'family_members', 'authorized_users',) #'checked_by')
+    raw_id_fields = ('owner', 'family_members', 'authorized_users',)  # 'checked_by')
     readonly_fields = ('display_confirmed', 'is_deleted',)
     fk_name = 'owner'
     classes = ('collapse',)
@@ -148,6 +148,7 @@ class CustomGroupAdmin(GroupAdmin):
             permissions = (
                 ("can_supervise", "Can modify users from specific country"),
             )
+
         def __str__(self):
             if len(self.name) != 2:
                 return self.name
@@ -167,9 +168,10 @@ class TrackingModelAdmin(ShowConfirmedMixin):
     class InstanceApprover(User):
         class Meta:
             proxy = True
+
         def __str__(self):
             try:
-                fullname =  " : ".join([self.username, str(self.profile)])
+                fullname = " : ".join([self.username, str(self.profile)])
             except Profile.DoesNotExist:
                 fullname = self.username
             return " ".join([fullname, "[N/A]" if not self.is_active else ""])
@@ -177,11 +179,11 @@ class TrackingModelAdmin(ShowConfirmedMixin):
     def get_field_queryset(self, db, db_field, request):
         if db_field.name == 'checked_by':
             from django.db.models import Q
-            return self.InstanceApprover.objects.filter(
-                    Q(is_superuser=True) | Q(groups__name__regex=r'[A-Z]{2}')
-                ).distinct(
-                ).select_related('profile').defer('profile__description'
-                ).order_by('username')
+            return (self.InstanceApprover.objects
+                    .filter(Q(is_superuser=True) | Q(groups__name__regex=r'[A-Z]{2}'))
+                    .distinct()
+                    .select_related('profile').defer('profile__description')
+                    .order_by('username'))
         return super().get_field_queryset(db, db_field, request)
 
 
@@ -189,7 +191,7 @@ class TrackingModelAdmin(ShowConfirmedMixin):
 class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     list_display = (
         'id', '__str__', 'title', 'first_name', 'last_name',
-        'birth_date', #'avatar', 'description',
+        'birth_date',  # 'avatar', 'description',
         'user__email', 'user_link',
         'confirmed_on', 'checked_by', 'is_deleted', 'modified',
     )
@@ -205,13 +207,13 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         'user', 'title', 'first_name', 'last_name', 'names_inversed', 'birth_date',
         'description', 'avatar', 'contact_preferences', 'email', 'supervisor',
     ) + TrackingModelAdmin.fields
-    raw_id_fields = ('user',) #'checked_by')
+    raw_id_fields = ('user',)  # 'checked_by')
     radio_fields = {'title': admin.HORIZONTAL}
     readonly_fields = ('supervisor',) + TrackingModelAdmin.readonly_fields
     formfield_overrides = {
         models.ImageField: {'widget': AdminImageWithPreviewWidget},
     }
-    inlines = [PlaceInLine,] #PhoneInLine] # https://code.djangoproject.com/ticket/26819
+    inlines = [PlaceInLine, ]  # PhoneInLine]  # https://code.djangoproject.com/ticket/26819
 
     def user__email(self, obj):
         try:
@@ -274,7 +276,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     formfield_overrides = {
         PointField: {'widget': MapboxGlWidget},
     }
-    raw_id_fields = ('owner', 'authorized_users',) #'checked_by',)
+    raw_id_fields = ('owner', 'authorized_users',)  # 'checked_by',)
     filter_horizontal = ('family_members',)
 
     def display_country(self, obj):
@@ -295,6 +297,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         class Meta:
             ordering = ['first_name', 'last_name', 'id']
             proxy = True
+
         def __str__(self):
             return "(p:%05d, u:%05d) %s" % (self.pk,
                                             self.user_id if self.user_id else 0,
@@ -309,7 +312,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         try:
             if not self.single_object_view:
                 qs = qs.defer('description', 'short_description')
-        except:
+        except Exception:
             pass
         cache.set('PlaceQS:Req:'+request.path, qs, 5)
         return qs

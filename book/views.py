@@ -23,9 +23,11 @@ class ContactExportView(AuthMixin, generic.ListView):
     display_permission_denied = False
     exact_role = ADMIN
 
-    place_fields = ['in_book', 'checked', 'city', 'closest_city', 'address',
+    place_fields = [
+        'in_book', 'checked', 'city', 'closest_city', 'address',
         'postcode', 'state_province', 'country', 'short_description',
-        'tour_guide', 'have_a_drink', 'max_guest', 'max_night', 'contact_before', 'confirmed_on']
+        'tour_guide', 'have_a_drink', 'max_guest', 'max_night', 'contact_before', 'confirmed_on',
+    ]
     owner_fields = ['title', 'first_name', 'last_name', 'birth_date']
     user_fields = ['email', 'username', 'last_login', 'date_joined']
     other_fields = ['phones', 'family_members', 'conditions', 'update_url', 'confirm_url']

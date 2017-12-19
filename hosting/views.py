@@ -1,4 +1,5 @@
-import re, json
+import re
+import json
 from datetime import date
 from collections import OrderedDict
 
@@ -54,8 +55,9 @@ User = get_user_model()
 lang = settings.LANGUAGE_CODE
 
 
-
-class ProfileCreateView(LoginRequiredMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.CreateView):
+class ProfileCreateView(
+        LoginRequiredMixin, ProfileModifyMixin, FormInvalidMessageMixin,
+        generic.CreateView):
     model = Profile
     form_class = ProfileCreateForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
@@ -74,13 +76,17 @@ class ProfileCreateView(LoginRequiredMixin, ProfileModifyMixin, FormInvalidMessa
         return form_class(user=self.request.user, **self.get_form_kwargs())
 
 
-class ProfileUpdateView(UpdateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.UpdateView):
+class ProfileUpdateView(
+        UpdateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, FormInvalidMessageMixin,
+        generic.UpdateView):
     model = Profile
     form_class = ProfileForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
 
-class ProfileDeleteView(DeleteMixin, AuthMixin, ProfileIsUserMixin, generic.DeleteView):
+class ProfileDeleteView(
+        DeleteMixin, AuthMixin, ProfileIsUserMixin,
+        generic.DeleteView):
     model = Profile
     form_class = ProfileForm
     success_url = reverse_lazy('logout')
@@ -193,7 +199,9 @@ class ProfileEmailUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, 
     minimum_role = OWNER
 
 
-class PlaceCreateView(CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.CreateView):
+class PlaceCreateView(
+        CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, FormInvalidMessageMixin,
+        generic.CreateView):
     model = Place
     form_class = PlaceCreateForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
@@ -204,7 +212,9 @@ class PlaceCreateView(CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyM
         return kwargs
 
 
-class PlaceUpdateView(UpdateMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.UpdateView):
+class PlaceUpdateView(
+        UpdateMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, FormInvalidMessageMixin,
+        generic.UpdateView):
     form_class = PlaceForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
@@ -224,7 +234,9 @@ class PlaceLocationUpdateView(UpdateMixin, AuthMixin, PlaceMixin, generic.Update
         return reverse_lazy('place_detail_verbose', kwargs={'pk': self.object.pk})
 
 
-class PlaceDeleteView(DeleteMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, generic.DeleteView):
+class PlaceDeleteView(
+        DeleteMixin, AuthMixin, PlaceMixin, ProfileModifyMixin,
+        generic.DeleteView):
     pass
 
 
@@ -302,7 +314,7 @@ class PlaceBlockView(AuthMixin, PlaceMixin, generic.View):
     def put(self, request, *args, **kwargs):
         place = self.get_object()
         if place.deleted:
-            return JsonResponse({'result': False, 'err': {'__all__': [_("Deleted place"),]}})
+            return JsonResponse({'result': False, 'err': {'__all__': [_("Deleted place"), ]}})
         form = PlaceBlockForm(data=QueryDict(request.body), instance=place)
         data_correct = form.is_valid()
         viewresponse = {'result': data_correct}
@@ -313,7 +325,9 @@ class PlaceBlockView(AuthMixin, PlaceMixin, generic.View):
         return JsonResponse(viewresponse)
 
 
-class PhoneCreateView(CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, generic.CreateView):
+class PhoneCreateView(
+        CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin,
+        generic.CreateView):
     model = Phone
     form_class = PhoneCreateForm
 
@@ -323,11 +337,15 @@ class PhoneCreateView(CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyM
         return kwargs
 
 
-class PhoneUpdateView(UpdateMixin, AuthMixin, PhoneMixin, ProfileModifyMixin, generic.UpdateView):
+class PhoneUpdateView(
+        UpdateMixin, AuthMixin, PhoneMixin, ProfileModifyMixin,
+        generic.UpdateView):
     form_class = PhoneForm
 
 
-class PhoneDeleteView(DeleteMixin, AuthMixin, PhoneMixin, ProfileModifyMixin, generic.DeleteView):
+class PhoneDeleteView(
+        DeleteMixin, AuthMixin, PhoneMixin, ProfileModifyMixin,
+        generic.DeleteView):
     pass
 
 
@@ -371,13 +389,14 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
         owner_form = ProfileForm(data=owner_data, instance=place.owner)
         place_form = PlaceForm(data=place_data, instance=place)
 
-        data_correct = all([owner_form.is_valid(), place_form.is_valid()])  # We want both validations
+        data_correct = all([owner_form.is_valid(), place_form.is_valid()])  # We want both validations.
         viewresponse = {'result': data_correct}
         if not data_correct:
             viewresponse['err'] = OrderedDict()
             data_problems = set()
             for form in [owner_form, place_form]:
-                viewresponse['err'].update({str(form.fields[field_name].label) : list(field_errs)
+                viewresponse['err'].update({
+                    str(form.fields[field_name].label) : list(field_errs)       # noqa: E203
                     for field_name, field_errs
                     in [(k, set(err for err in v if err)) for k, v in form.errors.items()]
                     if field_name != NON_FIELD_ERRORS and len(field_errs)
@@ -425,7 +444,8 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
             qs = self.base_qs
         if self.invalid_emails:
             qs = qs.filter(owner__user__email__startswith=settings.INVALID_PREFIX)
-        return qs.prefetch_related('owner__user', 'owner__phones').order_by('-confirmed', 'checked', 'owner__last_name')
+        return (qs.prefetch_related('owner__user', 'owner__phones')
+                  .order_by('-confirmed', 'checked', 'owner__last_name'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -506,14 +526,19 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
         m = re.match(r'^/([a-zA-Z]+)/', self.request.GET.get('next', default=''))
         if m:
             context['back_to'] = m.group(1).lower()
+
         def order_by_name(user):
             try:
-                return (" ".join((user.profile.first_name, user.profile.last_name)).strip() or user.username).lower()
+                return (" ".join((user.profile.first_name, user.profile.last_name)).strip()
+                        or user.username).lower()
             except Profile.DoesNotExist:
                 return user.username.lower()
-        context['authorized_set'] = [(user, UserAuthorizedOnceForm(initial={'user': user.pk}, auto_id=False))
-                                     for user
-                                     in sorted(self.place.authorized_users_cache(also_deleted=True), key=order_by_name)]
+
+        context['authorized_set'] = [
+            (user, UserAuthorizedOnceForm(initial={'user': user.pk}, auto_id=False))
+            for user
+            in sorted(self.place.authorized_users_cache(also_deleted=True), key=order_by_name)
+        ]
         return context
 
     def form_valid(self, form):
@@ -553,7 +578,9 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
         )
 
 
-class FamilyMemberCreateView(CreateMixin, AuthMixin, FamilyMemberMixin, generic.CreateView):
+class FamilyMemberCreateView(
+        CreateMixin, AuthMixin, FamilyMemberMixin,
+        generic.CreateView):
     model = Profile
     form_class = FamilyMemberCreateForm
 
@@ -562,7 +589,10 @@ class FamilyMemberCreateView(CreateMixin, AuthMixin, FamilyMemberMixin, generic.
         if self.place.family_is_anonymous:
             return HttpResponseRedirect(
                 reverse_lazy('family_member_update',
-                    kwargs={'pk': self.place.family_members_cache()[0].pk, 'place_pk': self.kwargs['place_pk']}))
+                             kwargs={'pk': self.place.family_members_cache()[0].pk,
+                                     'place_pk': self.kwargs['place_pk']}
+                )                                                               # noqa: E124
+            )
         else:
             return None
 
@@ -580,7 +610,9 @@ class FamilyMemberCreateView(CreateMixin, AuthMixin, FamilyMemberMixin, generic.
         return kwargs
 
 
-class FamilyMemberUpdateView(UpdateMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin, generic.UpdateView):
+class FamilyMemberUpdateView(
+        UpdateMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin,
+        generic.UpdateView):
     model = Profile
     form_class = FamilyMemberForm
 
@@ -607,7 +639,9 @@ class FamilyMemberRemoveView(AuthMixin, FamilyMemberMixin, generic.DeleteView):
         return context
 
 
-class FamilyMemberDeleteView(DeleteMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin, generic.DeleteView):
+class FamilyMemberDeleteView(
+        DeleteMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin,
+        generic.DeleteView):
     """Remove the family member for the Place and delete it."""
     model = Profile
 

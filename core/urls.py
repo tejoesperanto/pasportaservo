@@ -4,7 +4,7 @@ from django.views.generic import RedirectView
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.views import (
     LoginView, LogoutView,
-    #PasswordChangeView, PasswordChangeDoneView,
+    # PasswordChangeView, PasswordChangeDoneView,
     PasswordResetView, PasswordResetDoneView,
     PasswordResetConfirmView, PasswordResetCompleteView,
 )

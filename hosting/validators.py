@@ -13,7 +13,8 @@ from .utils import split, title_with_particule
 
 
 def validate_not_all_caps(value):
-    """Tries to figure out whether the value is all caps while it shouldn't be.
+    """
+    Tries to figure out whether the value is all caps while it shouldn't be.
     Validates until 3 characters and non latin strings.
     """
     if len(value) > 3 and value[-1:].isupper() and value == value.upper():
@@ -22,7 +23,8 @@ def validate_not_all_caps(value):
 
 
 def validate_not_too_many_caps(value):
-    """Tries to figure out whether the value has too many capitals.
+    """
+    Tries to figure out whether the value has too many capitals.
     Maximum two capitals per word.
     """
     authorized_begining = ("a", "de", "la", "mac", "mc")
@@ -30,7 +32,6 @@ def validate_not_too_many_caps(value):
     message = format_lazy(message, correct_value=title_with_particule(value))
 
     words = split(value)
-    nb_word = len(words)
     if not any(words):
         pass  # For non latin letters
     elif value == value.upper():
@@ -52,8 +53,8 @@ def validate_no_digit(value):
     if any([char in digits for char in value]):
         raise ValidationError(validate_no_digit.message, code='digits')
 
-validate_no_digit.constraint = ('pattern', '[^0-9]*')
-validate_no_digit.message = _("Digits are not allowed.")
+validate_no_digit.constraint = ('pattern', '[^0-9]*')                                                   # noqa: E305
+validate_no_digit.message = _("Digits are not allowed.")                                                # noqa: E305
 
 
 def validate_latin(value):
@@ -62,8 +63,9 @@ def validate_latin(value):
         # http://kourge.net/projects/regexp-unicode-block
         raise ValidationError(validate_latin.message, code='non-latin')
 
-validate_latin.constraint = {'pattern': r'[\u0041-\u005A\u0061-\u007A\u00C0-\u02AF\u0300-\u036F\u1E00-\u1EFF].*'}
-validate_latin.message = _("Please provide this data in Latin characters, preferably in Esperanto. "
+validate_latin.constraint = {                                                                           # noqa: E305
+    'pattern': r'[\u0041-\u005A\u0061-\u007A\u00C0-\u02AF\u0300-\u036F\u1E00-\u1EFF].*'}
+validate_latin.message = _("Please provide this data in Latin characters, preferably in Esperanto. "    # noqa: E305
                            "The source language can be possibly stated in parentheses.")
 
 
@@ -106,7 +108,7 @@ class TooNearPastValidator(TooFarPastValidator):
 
 
 def validate_image(content):
-    """Validate if Content Type is an image."""
+    """Validates if Content Type is an image."""
     if getattr(content.file, 'content_type', None):
         content_type = content.file.content_type.split('/')[0]
         if content_type != 'image':
@@ -114,15 +116,15 @@ def validate_image(content):
 
 
 def validate_size(content):
-    """Validate if the size of the content in not too big."""
+    """Validates if the size of the content in not too big."""
     if content.file.size > validate_size.MAX_UPLOAD_SIZE:
-        message = format_lazy(_("Please keep filesize under {limit}. Current filesize {current}"),
+        message = format_lazy(_("Please keep filesize under {limit}. Current filesize {current}"),  # noqa: E128
             limit=filesizeformat(validate_size.MAX_UPLOAD_SIZE),
             current=filesizeformat(content.file.size))
         raise ValidationError(message, code='file-size')
 
-validate_size.MAX_UPLOAD_SIZE = 102400  # 100kB
-validate_size.constraint = ('maxlength', validate_size.MAX_UPLOAD_SIZE)
+validate_size.MAX_UPLOAD_SIZE = 102400  # 100kB                                                         # noqa: E305
+validate_size.constraint = ('maxlength', validate_size.MAX_UPLOAD_SIZE)                                 # noqa: E305
 
 
 def client_side_validated(form_class):
@@ -147,9 +149,10 @@ def client_side_validated(form_class):
                         raise ImproperlyConfigured(
                             "Client-side constraint for '%s' validator on %s field "
                             "must consist of name and value only." % (
-                            getattr(validator, '__name__', None) or getattr(type(validator), '__name__', None),
-                            field
-                        ))
+                                getattr(validator, '__name__', None) or getattr(type(validator), '__name__', None),
+                                field
+                            )
+                        )
                     self.fields[field.name].widget.attrs[constraint[0]] = constraint[1]
                     if hasattr(validator, 'message'):
                         msg_attr = 'data-error-{0}'.format(constraint[0])
@@ -157,4 +160,3 @@ def client_side_validated(form_class):
 
     form_class.__init__ = _new_init
     return form_class
-

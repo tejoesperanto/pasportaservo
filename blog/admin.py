@@ -18,7 +18,8 @@ class PostAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title',)}
     date_hierarchy = 'created'
 
-    published = lambda self, obj: obj.published
+    def published(self, obj):
+        return obj.published
     published.short_description = _("Published")
     published.admin_order_field = 'pub_date'
     published.boolean = True
@@ -38,4 +39,3 @@ class PostAdmin(admin.ModelAdmin):
         data['author'] = request.user
         request.GET = data
         return super().add_view(request, form_url="", extra_context=extra_context)
-

@@ -11,10 +11,12 @@ SYMBOLS = (
     ('sleeping-bag', {'latex': r'\faBed'}),
 )
 
+
 def populate_latex_field(apps, schema_editor):
     Condition = apps.get_model('hosting', 'Condition')
     for slug, symbol in SYMBOLS:
         Condition.objects.update_or_create(slug=slug, defaults=symbol)
+
 
 def reverse_nothing(apps, schema_editor):
     pass

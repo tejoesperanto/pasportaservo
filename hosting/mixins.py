@@ -2,7 +2,6 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.views.decorators.cache import never_cache
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 
 from .models import Profile, Place, Phone

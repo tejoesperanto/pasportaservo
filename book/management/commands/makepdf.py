@@ -9,4 +9,3 @@ class Command(LatexCommand, BaseCommand):
     def handle(self, *args, **options):
         self.activate_translation()
         self.make()
-
