@@ -1,12 +1,11 @@
 # https://gist.github.com/aliang/773650
 
-import re
 import logging
+import re
 from collections import namedtuple
 
 from django import template
 from django.utils.translation import gettext_lazy as _
-
 
 register = template.Library()
 

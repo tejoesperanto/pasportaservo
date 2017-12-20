@@ -1,44 +1,44 @@
-from datetime import datetime
 from copy import copy
+from datetime import datetime
 
-from markdown2 import markdown
-
-from django.views import generic
-from django.contrib.auth.views import (
-    PasswordChangeView as PasswordChangeBuiltinView,
-    PasswordChangeDoneView as PasswordChangeDoneBuiltinView,
-)
-from django.http import HttpResponseRedirect, JsonResponse, Http404
-from django.template.response import TemplateResponse
-from django.views.decorators.vary import vary_on_headers
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import authenticate, get_user_model, login
+from django.contrib.auth.views import (
+    PasswordChangeDoneView as PasswordChangeDoneBuiltinView,
+    PasswordChangeView as PasswordChangeBuiltinView,
+)
 from django.contrib.flatpages.models import FlatPage
-from django.contrib.auth import get_user_model, authenticate, login
-from django.urls import reverse_lazy
-from django.db.models import Q
-from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
+from django.db.models import Q
+from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
+from django.template.response import TemplateResponse
+from django.urls import reverse_lazy
 from django.utils.functional import cached_property
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy, slugify
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
+from django.views import generic
+from django.views.decorators.vary import vary_on_headers
+
+from markdown2 import markdown
 
 from blog.models import Post
-from hosting.models import Place, Profile
-from .auth import AuthMixin, ADMIN, SUPERVISOR, OWNER
 from hosting.mixins import ProfileIsUserMixin, ProfileModifyMixin
-from .mixins import LoginRequiredMixin, UserModifyMixin
-from .forms import (
-    UsernameUpdateForm, EmailUpdateForm, EmailStaffUpdateForm,
-    MassMailForm, UserRegistrationForm
-)
+from hosting.models import Place, Profile
 from hosting.utils import value_without_invalid_marker
 from links.utils import create_unique_url
+
+from .auth import ADMIN, OWNER, SUPERVISOR, AuthMixin
+from .forms import (
+    EmailStaffUpdateForm, EmailUpdateForm, MassMailForm,
+    UsernameUpdateForm, UserRegistrationForm,
+)
+from .mixins import LoginRequiredMixin, UserModifyMixin, flatpages_as_templates
 from .models import SiteConfiguration
-from .mixins import flatpages_as_templates
 from .utils import send_mass_html_mail
 
 User = get_user_model()

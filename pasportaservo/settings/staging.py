@@ -1,4 +1,4 @@
-from .base import *
+from .base import *  # isort:skip
 from django.contrib.messages import constants as message_level
 
 SECRET_KEY = get_env_setting('SECRET_KEY')

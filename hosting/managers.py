@@ -1,4 +1,4 @@
-from django.db import models, ProgrammingError
+from django.db import ProgrammingError, models
 from django.db.models import BooleanField, Case, When
 from django.utils import timezone
 

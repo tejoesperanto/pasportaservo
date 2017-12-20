@@ -1,25 +1,19 @@
-from django.conf.urls import include, url
 from django.conf import settings
-from django.views.generic import RedirectView
-from django.utils.translation import ugettext_lazy as _
+from django.conf.urls import include, url
 from django.contrib.auth.views import (
-    LoginView, LogoutView,
-    # PasswordChangeView, PasswordChangeDoneView,
-    PasswordResetView, PasswordResetDoneView,
-    PasswordResetConfirmView, PasswordResetCompleteView,
+    LoginView, LogoutView, PasswordResetCompleteView,
+    PasswordResetConfirmView, PasswordResetDoneView, PasswordResetView,
 )
+# from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
+from django.utils.translation import ugettext_lazy as _
+from django.views.generic import RedirectView
 
+from .forms import SystemPasswordResetForm, SystemPasswordResetRequestForm
 from .views import (
-    HomeView,
-    RegisterView,
-    PasswordChangeView, PasswordChangeDoneView, UsernameChangeView,
-    EmailUpdateView, EmailVerifyView,
-    MassMailView, MassMailSentView,
+    EmailUpdateView, EmailVerifyView, HomeView,
+    MassMailSentView, MassMailView, PasswordChangeDoneView,
+    PasswordChangeView, RegisterView, UsernameChangeView,
 )
-from .forms import (
-    SystemPasswordResetRequestForm, SystemPasswordResetForm
-)
-
 
 urlpatterns = [
     url(r'^$', HomeView.as_view(), name='home'),

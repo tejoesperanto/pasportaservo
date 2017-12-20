@@ -1,13 +1,12 @@
 from django.conf import settings
+from django.utils.decorators import method_decorator
 from django.views import generic
 from django.views.decorators.cache import cache_page
-from django.utils.decorators import method_decorator
 
 from accept_language import parse_accept_language
 from djgeojson.views import GeoJSONLayerView
 
 from hosting.models import Place
-
 
 HOURS = 3600
 

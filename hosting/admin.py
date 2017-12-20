@@ -1,27 +1,29 @@
-from django.contrib import admin
-# from django.contrib.gis import admin as gis_admin
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.admin.utils import display_for_value
-from django.utils.html import format_html
-from django.urls import reverse
 from django.conf import settings
+from django.contrib import admin
+from django.contrib.admin.utils import display_for_value
+from django.contrib.auth.admin import GroupAdmin, UserAdmin
+from django.contrib.auth.models import Group, User
+# from django.contrib.gis import admin as gis_admin
+from django.contrib.gis.db.models import PointField
 from django.core.cache import cache
 from django.db import models
-from django.contrib.auth.models import User, Group
-from django.contrib.auth.admin import UserAdmin, GroupAdmin
+from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.translation import ugettext_lazy as _
+
 from django_countries.fields import Country
 
-from django.contrib.gis.db.models import PointField
 from maps.widgets import MapboxGlWidget
 
-from .models import Profile, Place, Phone, Website, Condition, ContactPreference
 from .admin_utils import (
-    ShowConfirmedMixin, ShowDeletedMixin,
-    CountryMentionedOnlyFilter, SupervisorFilter, EmailValidityFilter,
-    ProfileHasUserFilter, PlaceHasLocationFilter,
+    CountryMentionedOnlyFilter, EmailValidityFilter,
+    PlaceHasLocationFilter, ProfileHasUserFilter,
+    ShowConfirmedMixin, ShowDeletedMixin, SupervisorFilter,
+)
+from .models import (
+    Condition, ContactPreference, Phone, Place, Profile, Website,
 )
 from .widgets import AdminImageWithPreviewWidget
-
 
 admin.site.index_template = 'admin/custom_index.html'
 admin.site.disable_action('delete_selected')

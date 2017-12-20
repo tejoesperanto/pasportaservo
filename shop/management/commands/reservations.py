@@ -1,8 +1,8 @@
 import csv
 from tempfile import NamedTemporaryFile
 
-from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, User
+from django.core.management.base import BaseCommand
 from django.utils import translation
 
 

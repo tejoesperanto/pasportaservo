@@ -2,7 +2,6 @@ from django import template
 
 from django_countries.data import COUNTRIES
 
-
 register = template.Library()
 
 

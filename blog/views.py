@@ -1,7 +1,7 @@
 from django.contrib.syndication.views import Feed
 from django.urls import reverse_lazy
-from django.utils.translation import ugettext_lazy as _
 from django.utils.feedgenerator import Atom1Feed
+from django.utils.translation import ugettext_lazy as _
 from django.views import generic
 
 from .models import Post

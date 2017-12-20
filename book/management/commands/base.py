@@ -1,17 +1,16 @@
 import csv
 from distutils.dir_util import copy_tree
-from os.path import join, isfile
-from tempfile import mkdtemp
+from os.path import isfile, join
 from subprocess import call
+from tempfile import mkdtemp
 
-from pyuca import Collator
-
-from django.core.management.base import CommandError
 from django.conf import settings
-from django.utils import translation
+from django.core.management.base import CommandError
 from django.template import Template
+from django.utils import translation
 
 from django_countries import countries
+from pyuca import Collator
 
 from hosting.models import Place
 

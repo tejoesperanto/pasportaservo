@@ -1,8 +1,10 @@
 from decimal import Decimal
-from django.db import models
+
 from django.conf import settings
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+
 from django_extensions.db.models import TimeStampedModel
 
 

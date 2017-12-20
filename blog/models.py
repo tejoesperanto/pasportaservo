@@ -1,13 +1,13 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import BooleanField, Case, F, Q, When
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from django_extensions.db.models import TimeStampedModel
 from markdown2 import markdown
 from simplemde.fields import SimpleMDEField
-from django.db.models import BooleanField, Q, F, Case, When
-from django.utils import timezone
 
 
 class PublishedQueryset(models.QuerySet):

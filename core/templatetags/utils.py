@@ -1,5 +1,6 @@
-from django import template
 import random
+
+from django import template
 
 register = template.Library()
 

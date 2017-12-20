@@ -1,19 +1,19 @@
-from os.path import join
 import csv
 import tempfile
+from os.path import join
 
-from django.http.response import HttpResponse
-from django.views import generic
-from django.template.defaultfilters import yesno
 from django.conf import settings
+from django.http.response import HttpResponse
+from django.template.defaultfilters import yesno
 from django.utils.translation import ugettext_lazy as _
+from django.views import generic
 
-from core.auth import AuthMixin, ADMIN
+from pyuca import Collator
 
+from core.auth import ADMIN, AuthMixin
 from hosting.models import Place
 from links.utils import create_unique_url
 
-from pyuca import Collator
 c = Collator()
 
 

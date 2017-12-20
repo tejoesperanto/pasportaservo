@@ -1,4 +1,4 @@
-from django.views.defaults import permission_denied, ERROR_403_TEMPLATE_NAME
+from django.views.defaults import ERROR_403_TEMPLATE_NAME, permission_denied
 
 
 def custom_permission_denied_view(request, exception, template_name=ERROR_403_TEMPLATE_NAME):

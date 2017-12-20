@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from django.test import TestCase
 from django.core.exceptions import ValidationError
+from django.test import TestCase
 
 from .validators import validate_not_all_caps, validate_not_too_many_caps
 

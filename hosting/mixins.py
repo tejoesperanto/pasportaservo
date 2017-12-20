@@ -1,11 +1,12 @@
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect, Http404
-from django.views.decorators.cache import never_cache
-from django.utils.functional import cached_property
 from django.utils import timezone
+from django.utils.functional import cached_property
+from django.views.decorators.cache import never_cache
 
-from .models import Profile, Place, Phone
 from core.auth import OWNER
+
+from .models import Phone, Place, Profile
 
 
 class ProfileModifyMixin(object):

@@ -2,15 +2,15 @@ import logging
 import re
 
 from django import template
+from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import AnonymousUser
-from django.conf import settings
 from django.template.defaultfilters import stringfilter
+
+from core.auth import PERM_SUPERVISOR
 
 from ..models import Profile
 from ..utils import value_without_invalid_marker
-from core.auth import PERM_SUPERVISOR
-
 
 register = template.Library()
 

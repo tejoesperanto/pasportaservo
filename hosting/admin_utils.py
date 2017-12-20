@@ -1,10 +1,10 @@
-from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
-from django.utils.html import format_html
-from django.utils.formats import date_format
-from django.utils.safestring import mark_safe
-from django.contrib.admin.utils import display_for_value
 from django.conf import settings
+from django.contrib import admin
+from django.contrib.admin.utils import display_for_value
+from django.utils.formats import date_format
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
 
 class ShowConfirmedMixin(object):
