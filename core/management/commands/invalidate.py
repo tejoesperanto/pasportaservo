@@ -1,5 +1,7 @@
 import csv
-from django.core.management.base import LabelCommand, CommandError
+
+from django.core.management.base import CommandError, LabelCommand
+
 from hosting.models import Profile
 
 

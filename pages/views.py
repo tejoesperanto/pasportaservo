@@ -1,13 +1,13 @@
-from django.views import generic
 from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils.text import format_lazy
+from django.utils.translation import pgettext_lazy
+from django.views import generic
 
 from core.auth import PERM_SUPERVISOR
 from hosting.models import Place
 from hosting.utils import sort_by_name
-from django.utils.translation import pgettext_lazy
 
 
 class AboutView(generic.TemplateView):

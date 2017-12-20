@@ -1,6 +1,8 @@
-from .base import *
+from .base import *  # isort:skip
 import logging
+
 from django.contrib.messages import constants as message_level
+
 from debug_toolbar.settings import PANELS_DEFAULTS as DEBUG_PANEL_DEFAULTS
 
 SECRET_KEY = 'N0_s3kre7~k3Y'

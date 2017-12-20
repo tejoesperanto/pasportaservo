@@ -1,5 +1,5 @@
-from debug_toolbar.panels.request import RequestPanel
 from debug_toolbar.panels.logging import LoggingPanel
+from debug_toolbar.panels.request import RequestPanel
 
 
 class CustomRequestPanel(RequestPanel):

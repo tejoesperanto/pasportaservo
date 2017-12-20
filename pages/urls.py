@@ -1,9 +1,9 @@
 from django.conf.urls import include, url
-from django.views.generic import RedirectView
-from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 from django.utils.text import format_lazy
+from django.utils.translation import pgettext_lazy, ugettext_lazy as _
+from django.views.generic import RedirectView
 
-from .views import AboutView, TermsAndConditionsView, SupervisorsView, FaqView
+from .views import AboutView, FaqView, SupervisorsView, TermsAndConditionsView
 
 urlpatterns = [
     url(_(r'^about/$'), AboutView.as_view(), name='about'),

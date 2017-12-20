@@ -1,18 +1,20 @@
-from itsdangerous import URLSafeTimedSerializer, BadTimeSignature, SignatureExpired
-
-from django.views import generic
 from django.conf import settings
-from django.urls import reverse
-from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth import login
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
+from django.views import generic
 
-from hosting.models import Place
+from itsdangerous import (
+    BadTimeSignature, SignatureExpired, URLSafeTimedSerializer,
+)
+
 from core.models import SiteConfiguration
 from core.views import EmailUpdateConfirmView
+from hosting.models import Place
 
 
 class UniqueLinkView(generic.TemplateView):

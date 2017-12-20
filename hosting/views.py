@@ -1,55 +1,57 @@
-import re
 import json
-from datetime import date
+import re
 from collections import OrderedDict
+from datetime import date
 
-from django.db.models import Q
-from django.contrib.gis.db.models.functions import Distance
-from django.views import generic
 from django.conf import settings
-from django.db import models
 from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.contrib.gis.db.models.functions import Distance
 from django.core import serializers
 from django.core.exceptions import NON_FIELD_ERRORS
-from django.http import (
-    QueryDict, Http404,
-    HttpResponseRedirect, HttpResponseBadRequest, JsonResponse
-)
-from django.template.response import TemplateResponse
-from django.views.decorators.vary import vary_on_headers
-from django.urls import reverse_lazy
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
+from django.db import models
+from django.db.models import Q
+from django.http import (
+    Http404, HttpResponseBadRequest,
+    HttpResponseRedirect, JsonResponse, QueryDict,
+)
+from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
+from django.template.response import TemplateResponse
+from django.urls import reverse_lazy
+from django.utils import timezone
+from django.utils.encoding import uri_to_iri
+from django.utils.http import urlquote_plus
+from django.utils.six.moves.urllib.parse import unquote_plus
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
-from django.utils.six.moves.urllib.parse import unquote_plus
-from django.utils.http import urlquote_plus
-from django.utils.encoding import uri_to_iri
-from django.utils import timezone
-
-from django_countries.fields import Country
-from .models import Profile, Place, Phone
+from django.views import generic
+from django.views.decorators.vary import vary_on_headers
 
 from braces.views import FormInvalidMessageMixin
-from core.auth import AuthMixin, PERM_SUPERVISOR, SUPERVISOR, OWNER, VISITOR, ANONYMOUS
-from core.mixins import LoginRequiredMixin
-from .utils import geocode
-from .mixins import (
-    ProfileModifyMixin, ProfileIsUserMixin,
-    PhoneMixin, PlaceMixin, FamilyMemberMixin, FamilyMemberAuthMixin,
-    CreateMixin, UpdateMixin, DeleteMixin,
+from django_countries.fields import Country
+
+from core.auth import (
+    ANONYMOUS, OWNER, PERM_SUPERVISOR, SUPERVISOR, VISITOR, AuthMixin,
 )
 from core.forms import UserRegistrationForm
+from core.mixins import LoginRequiredMixin
 from core.models import SiteConfiguration
+
 from .forms import (
-    ProfileForm, ProfileCreateForm, ProfileEmailUpdateForm,
-    PhoneForm, PhoneCreateForm,
-    PlaceForm, PlaceCreateForm, PlaceBlockForm, PlaceLocationForm,
-    FamilyMemberForm, FamilyMemberCreateForm,
-    UserAuthorizeForm, UserAuthorizedOnceForm,
+    FamilyMemberCreateForm, FamilyMemberForm, PhoneCreateForm,
+    PhoneForm, PlaceBlockForm, PlaceCreateForm, PlaceForm,
+    PlaceLocationForm, ProfileCreateForm, ProfileEmailUpdateForm,
+    ProfileForm, UserAuthorizedOnceForm, UserAuthorizeForm,
 )
+from .mixins import (
+    CreateMixin, DeleteMixin, FamilyMemberAuthMixin,
+    FamilyMemberMixin, PhoneMixin, PlaceMixin,
+    ProfileIsUserMixin, ProfileModifyMixin, UpdateMixin,
+)
+from .models import Phone, Place, Profile
+from .utils import geocode
 
 User = get_user_model()
 lang = settings.LANGUAGE_CODE

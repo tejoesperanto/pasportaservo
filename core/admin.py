@@ -8,7 +8,6 @@ from solo.admin import SingletonModelAdmin
 
 from .models import SiteConfiguration
 
-
 admin.site.register(SiteConfiguration, SingletonModelAdmin)
 admin.site.unregister(FlatPage)
 

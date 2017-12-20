@@ -8,8 +8,7 @@
 #     Host ps
 #     HostName 188.166.58.162
 
-from fabric.api import task, local, run, sudo, env, prefix, require
-
+from fabric.api import env, local, prefix, require, run, sudo, task
 
 env.hosts = ['ps']
 env.user = 'ps'

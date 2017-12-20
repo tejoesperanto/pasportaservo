@@ -1,6 +1,6 @@
-from django.template.loader import get_template
-from django.forms import widgets as form_widgets
 from django.contrib.admin import widgets as admin_widgets
+from django.forms import widgets as form_widgets
+from django.template.loader import get_template
 from django.utils.safestring import mark_safe
 
 

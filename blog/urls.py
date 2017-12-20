@@ -1,7 +1,6 @@
 from django.conf.urls import url
 
-from .views import PostsAtomFeed, PostsFeed, PostListView, PostDetailView
-
+from .views import PostDetailView, PostListView, PostsAtomFeed, PostsFeed
 
 app_name = 'blog'
 urlpatterns = [

@@ -1,11 +1,11 @@
-from string import digits
-from datetime import date
 import re
+from datetime import date
+from string import digits
 
-from django.core.validators import MinValueValidator, MaxValueValidator
-from django.core.exceptions import ValidationError, ImproperlyConfigured
-from django.utils.deconstruct import deconstructible
+from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.template.defaultfilters import filesizeformat
+from django.utils.deconstruct import deconstructible
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 

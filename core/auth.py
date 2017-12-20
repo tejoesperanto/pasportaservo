@@ -1,23 +1,22 @@
-import re
 import logging
+import re
 
-from django.contrib.auth.backends import ModelBackend
-from django.contrib.auth.models import Group
-from django.contrib.auth.mixins import AccessMixin
-from django.core.exceptions import PermissionDenied, ImproperlyConfigured
-from django.http import Http404
 from django.conf import settings
-from django.views import generic
+from django.contrib.auth.backends import ModelBackend
+from django.contrib.auth.mixins import AccessMixin
+from django.contrib.auth.models import Group
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.http import Http404
 from django.utils.functional import keep_lazy_text
-from django.utils.translation import ugettext_lazy as _
 from django.utils.text import format_lazy
+from django.utils.translation import ugettext_lazy as _
+from django.views import generic
 
 from django_countries.fields import Country
 
-from hosting.models import Profile, Place
+from hosting.models import Place, Profile
 
 from .utils import camel_case_split
-
 
 PERM_SUPERVISOR = 'hosting.can_supervise'
 ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR, ANONYMOUS = 50, 40, 30, 20, 10, 0

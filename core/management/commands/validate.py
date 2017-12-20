@@ -1,5 +1,6 @@
-from .invalidate import Command as InvalidateCommand
 from hosting.models import Profile
+
+from .invalidate import Command as InvalidateCommand
 
 
 class Command(InvalidateCommand):

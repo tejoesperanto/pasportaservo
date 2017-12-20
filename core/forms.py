@@ -1,19 +1,20 @@
 from django import forms
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import (
-    UserCreationForm, PasswordResetForm, SetPasswordForm
+    PasswordResetForm, SetPasswordForm, UserCreationForm,
 )
+from django.core.mail import send_mail
 from django.db.models import Q, Value as V
 from django.db.models.functions import Concat
-from django.core.mail import send_mail
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
-from django.conf import settings
 
 from hosting.models import Profile
-from links.utils import create_unique_url
-from .models import SiteConfiguration
 from hosting.utils import value_without_invalid_marker
+from links.utils import create_unique_url
+
+from .models import SiteConfiguration
 
 User = get_user_model()
 

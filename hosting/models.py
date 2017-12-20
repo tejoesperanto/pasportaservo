@@ -1,34 +1,30 @@
 from datetime import date
 
-from django.utils.safestring import mark_safe
-from django.utils.html import format_html
-from django.utils.text import slugify
-from django.db import models, transaction
-from django.contrib.gis.db.models import PointField
-from django.db.models import Q, F, Value as V
-from django.db.models.functions import Concat, Substr
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.gis.db.models import PointField
+from django.db import models, transaction
+from django.db.models import F, Q, Value as V
+from django.db.models.functions import Concat, Substr
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
-from django.utils.text import format_lazy
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+from django.utils.text import format_lazy, slugify
+from django.utils.translation import ugettext_lazy as _
 
+from django_countries.fields import CountryField
 from django_extensions.db.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
-from django_countries.fields import CountryField
 
-from .managers import (
-    TrackingManager, NotDeletedManager, AvailableManager,
-)
-from .validators import (
-    validate_not_all_caps, validate_not_too_many_caps, validate_no_digit, validate_latin,
-    validate_not_in_future, TooFarPastValidator,
-    validate_image, validate_size,
-)
-from .utils import UploadAndRenameAvatar, value_without_invalid_marker
 from .gravatar import email_to_gravatar
-
+from .managers import AvailableManager, NotDeletedManager, TrackingManager
+from .utils import UploadAndRenameAvatar, value_without_invalid_marker
+from .validators import (
+    TooFarPastValidator, validate_image, validate_latin,
+    validate_no_digit, validate_not_all_caps, validate_not_in_future,
+    validate_not_too_many_caps, validate_size,
+)
 
 MRS, MR = 'Mrs', 'Mr'
 TITLE_CHOICES = (

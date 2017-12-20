@@ -1,11 +1,11 @@
-from django.views import generic
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
+from django.views import generic
 
 from core.mixins import LoginRequiredMixin
 
-from .models import Product, Reservation
 from .forms import ReservationForm
+from .models import Product, Reservation
 
 
 class ReserveRedirectView(LoginRequiredMixin, generic.RedirectView):

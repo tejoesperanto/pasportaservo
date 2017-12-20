@@ -1,9 +1,11 @@
-from django.conf.urls import include, url
 from django.conf import settings
-from django.utils.translation import pgettext_lazy, ugettext_lazy as _
+from django.conf.urls import include, url
 from django.utils.text import format_lazy
+from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 
-from .views import (
+from core.views import EmailStaffUpdateView, EmailValidityMarkView
+
+from .views import (                                                            # isort:skip
     ProfileCreateView, ProfileRedirectView, ProfileDetailView,
     ProfileEditView, ProfileUpdateView, ProfileDeleteView,
     ProfileSettingsRedirectView, ProfileSettingsView,
@@ -16,9 +18,6 @@ from .views import (
     PhoneCreateView, PhoneUpdateView, PhoneDeleteView,
     PlaceStaffListView, InfoConfirmView, PlaceCheckView,
     SearchView,
-)
-from core.views import (
-    EmailStaffUpdateView, EmailValidityMarkView,
 )
 
 urlpatterns = [

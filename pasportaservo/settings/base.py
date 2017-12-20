@@ -1,6 +1,7 @@
 from os import environ, path
-from django.core.exceptions import ObjectDoesNotExist
+
 from django.conf import global_settings
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def get_env_setting(setting):
@@ -166,7 +167,7 @@ COUNTRIES_WITH_REGIONS = ('US', 'GB', 'FR', 'DE', 'BR', 'BE')
 INVALID_PREFIX = 'INVALID_'
 
 
-from djangocodemirror.settings import *  # noqa
+from djangocodemirror.settings import *                                         # noqa  isort:skip
 
 # Helps entering phone numbers with "00" instead of "+"
 # This means: Interpret phone number as dialed in Poland
