@@ -2,7 +2,6 @@ from datetime import date
 
 from django import forms
 from django.contrib.auth import get_user_model
-# from django.contrib.gis.forms import OSMWidget
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
@@ -235,7 +234,6 @@ class PlaceLocationForm(forms.ModelForm):
         fields = ['location']
         widgets = {
             'location': MapboxGlWidget(),
-            # 'location': OSMWidget(attrs={'template_name': "gis/openlayers-osm-custom.html", 'display_raw': True, 'map_width': "100%", 'map_height': "500px"}),  # noqa: E501
         }
 
 
@@ -243,8 +241,9 @@ class PlaceBlockForm(forms.ModelForm):
     class Meta:
         model = Place
         fields = ['blocked_from', 'blocked_until']
-    dirty = forms.ChoiceField(choices=(('blocked_from', 1), ('blocked_until', 2)),
-                              widget=forms.HiddenInput, label="")
+    dirty = forms.ChoiceField(
+        choices=(('blocked_from', 1), ('blocked_until', 2)),
+        widget=forms.HiddenInput, label="")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -331,8 +330,12 @@ class PhoneCreateForm(PhoneForm):
 
 
 class UserAuthorizeForm(forms.Form):
-    user = forms.CharField(label=_("Authorize user"), max_length=254)
-    remove = forms.BooleanField(required=False, initial=False, widget=forms.widgets.HiddenInput)
+    user = forms.CharField(
+        label=_("Authorize user"),
+        max_length=254)
+    remove = forms.BooleanField(
+        required=False, initial=False,
+        widget=forms.widgets.HiddenInput)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -67,5 +67,5 @@ class UploadAndRenameAvatar(object):
 def sort_by_name(iterable):
     """Sort by a translatable name, using pyuca for a better result."""
     c = Collator()
-    key = lambda obj: c.sort_key(str(obj.name))                                 # noqa: E731
+    key = lambda obj: c.sort_key(str(obj.name))
     return sorted(iterable, key=key)

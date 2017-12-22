@@ -589,12 +589,11 @@ class FamilyMemberCreateView(
     def verify_anonymous_family(self):
         # Allow creation of only one completely anonymous family member.
         if self.place.family_is_anonymous:
-            return HttpResponseRedirect(
-                reverse_lazy('family_member_update',
-                             kwargs={'pk': self.place.family_members_cache()[0].pk,
-                                     'place_pk': self.kwargs['place_pk']}
-                )                                                               # noqa: E124
-            )
+            return HttpResponseRedirect(reverse_lazy(
+                'family_member_update',
+                kwargs={'pk': self.place.family_members_cache()[0].pk,
+                        'place_pk': self.kwargs['place_pk']}
+            ))
         else:
             return None
 

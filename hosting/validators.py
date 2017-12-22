@@ -53,8 +53,8 @@ def validate_no_digit(value):
     if any([char in digits for char in value]):
         raise ValidationError(validate_no_digit.message, code='digits')
 
-validate_no_digit.constraint = ('pattern', '[^0-9]*')                                                   # noqa: E305
-validate_no_digit.message = _("Digits are not allowed.")                                                # noqa: E305
+validate_no_digit.constraint = ('pattern', '[^0-9]*')
+validate_no_digit.message = _("Digits are not allowed.")
 
 
 def validate_latin(value):
@@ -63,9 +63,9 @@ def validate_latin(value):
         # http://kourge.net/projects/regexp-unicode-block
         raise ValidationError(validate_latin.message, code='non-latin')
 
-validate_latin.constraint = {                                                                           # noqa: E305
+validate_latin.constraint = {
     'pattern': r'[\u0041-\u005A\u0061-\u007A\u00C0-\u02AF\u0300-\u036F\u1E00-\u1EFF].*'}
-validate_latin.message = _("Please provide this data in Latin characters, preferably in Esperanto. "    # noqa: E305
+validate_latin.message = _("Please provide this data in Latin characters, preferably in Esperanto. "
                            "The source language can be possibly stated in parentheses.")
 
 
@@ -118,13 +118,14 @@ def validate_image(content):
 def validate_size(content):
     """Validates if the size of the content in not too big."""
     if content.file.size > validate_size.MAX_UPLOAD_SIZE:
-        message = format_lazy(_("Please keep filesize under {limit}. Current filesize {current}"),  # noqa: E128
+        message = format_lazy(
+            _("Please keep filesize under {limit}. Current filesize {current}"),
             limit=filesizeformat(validate_size.MAX_UPLOAD_SIZE),
             current=filesizeformat(content.file.size))
         raise ValidationError(message, code='file-size')
 
-validate_size.MAX_UPLOAD_SIZE = 102400  # 100kB                                                         # noqa: E305
-validate_size.constraint = ('maxlength', validate_size.MAX_UPLOAD_SIZE)                                 # noqa: E305
+validate_size.MAX_UPLOAD_SIZE = 102400  # 100kB
+validate_size.constraint = ('maxlength', validate_size.MAX_UPLOAD_SIZE)
 
 
 def client_side_validated(form_class):

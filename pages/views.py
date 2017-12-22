@@ -27,10 +27,11 @@ class SupervisorsView(generic.TemplateView):
         code_from_kwarg.update({None: False})
         self.in_book = code_from_kwarg[kwargs['in_book']]
         if self.in_book and not request.user.has_perm(PERM_SUPERVISOR):
-            return HttpResponseRedirect(format_lazy("{supervisors_url}#{section_countries}",
-                supervisors_url=reverse_lazy('supervisors'),                    # noqa: E128
-                section_countries=pgettext_lazy("URL", "countries-list"))       # noqa: E128
-            )
+            return HttpResponseRedirect(format_lazy(
+                "{supervisors_url}#{section_countries}",
+                supervisors_url=reverse_lazy('supervisors'),
+                section_countries=pgettext_lazy("URL", "countries-list"),
+            ))
         return super().dispatch(request, *args, **kwargs)
 
     def get_countries(self, filter_for_book=False):
