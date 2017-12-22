@@ -61,14 +61,16 @@ class ExprNode(template.Node):
                 return ""
             else:
                 return result
-        except:                                                                 # noqa: E722
+        except Exception:
             expr_log.warning("Expression invalid: [ %s ]", self.expr_string)
             return ""
 
 
 re_expr = re.compile(r'(.*?)\s+as\s+(?:(global)\s+)?(\w+)', re.DOTALL)
 
-def do_expr(parser, token):                                                     # noqa: E302
+
+@register.tag(name='expr')
+def do_expr(parser, token):
     try:
         tag_name, arg = token.contents.split(maxsplit=1)
     except ValueError:
@@ -80,5 +82,3 @@ def do_expr(parser, token):                                                     
     else:
         expr_string, var = arg, None
     return ExprNode(expr_string, var)
-
-do_expr = register.tag('expr', do_expr)                                         # noqa: E305

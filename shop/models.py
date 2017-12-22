@@ -9,12 +9,18 @@ from django_extensions.db.models import TimeStampedModel
 
 
 class Product(TimeStampedModel):
-    name = models.CharField(_("name"), max_length=50)
-    code = models.CharField(_("code"), max_length=20, unique=True)
-    price = models.DecimalField(_("price"), default=Decimal('8.99'),
-        max_digits=4, decimal_places=2)                                         # noqa: E128
-    low_price = models.DecimalField(_("low price"), default=Decimal('2.99'),
-        max_digits=4, decimal_places=2)                                         # noqa: E128
+    name = models.CharField(
+        _("name"), max_length=50)
+    code = models.CharField(
+        _("code"), max_length=20, unique=True)
+    price = models.DecimalField(
+        _("price"),
+        default=Decimal('8.99'),
+        max_digits=4, decimal_places=2)
+    low_price = models.DecimalField(
+        _("low price"),
+        default=Decimal('2.99'),
+        max_digits=4, decimal_places=2)
 
     class Meta:
         verbose_name = _("product")
@@ -28,20 +34,25 @@ class Product(TimeStampedModel):
 
 
 class Reservation(TimeStampedModel):
-    product = models.ForeignKey('shop.Product', verbose_name=_("product"),
-        on_delete=models.CASCADE)                                               # noqa: E128
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"),
-        on_delete=models.CASCADE)                                               # noqa: E128
-    amount = models.PositiveSmallIntegerField(_("amount"),
-        default=1)                                                              # noqa: E128
-    discount = models.BooleanField(_("TEJO discount"),
-        default=False,                                                          # noqa: E128
-        # Translator: xgettext:no-python-format                                 # noqa: E128
-        help_text=_("If you are member of TEJO or UEA "                         # noqa: E128
-                    "and the 10% discount applies (twice a year)."))            # noqa: E128
-    support = models.DecimalField(_("support"),
-        default=Decimal('0.00'),                                                # noqa: E128
-        max_digits=6, decimal_places=2)                                         # noqa: E128
+    product = models.ForeignKey(
+        'shop.Product', verbose_name=_("product"),
+        on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, verbose_name=_("user"),
+        on_delete=models.CASCADE)
+    amount = models.PositiveSmallIntegerField(
+        _("amount"),
+        default=1)
+    discount = models.BooleanField(
+        _("TEJO discount"),
+        default=False,
+        # Translator: xgettext:no-python-format
+        help_text=_("If you are member of TEJO or UEA "
+                    "and the 10% discount applies (twice a year)."))
+    support = models.DecimalField(
+        _("support"),
+        default=Decimal('0.00'),
+        max_digits=6, decimal_places=2)
 
     class Meta:
         verbose_name = _("reservation")

@@ -178,13 +178,13 @@ SOLO_CACHE = 'default'
 
 DEFAULT_AVATAR_URL = "mm"
 
-def user_first_name(user):                                                      # noqa: E302
+def user_first_name(user):
     try:
         return user.profile.name
     except ObjectDoesNotExist:
         return user.username
 
-POSTMAN_I18N_URLS = True                                                        # noqa: E305
+POSTMAN_I18N_URLS = True
 POSTMAN_AUTO_MODERATE_AS = True
 POSTMAN_MAILER_APP = None
 POSTMAN_SHOW_USER_AS = user_first_name

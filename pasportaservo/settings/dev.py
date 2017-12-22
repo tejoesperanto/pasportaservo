@@ -28,9 +28,7 @@ MIDDLEWARE += [
 ]
 
 DEBUG_TOOLBAR_CONFIG = {
-    # 'JQUERY_URL': '',
     'JQUERY_URL': '/static/js/jquery.min.js',
-    # Disable the Templates panel that freaks out in Django 1.11
     'DISABLE_PANELS': {
         'debug_toolbar.panels.redirects.RedirectsPanel',
         'debug_toolbar.panels.templates.TemplatesPanel',
@@ -44,7 +42,7 @@ DEBUG_TOOLBAR_PANELS[
 DEBUG_TOOLBAR_PANELS.remove(
     'debug_toolbar.panels.logging.LoggingPanel')
 DEBUG_TOOLBAR_PANELS.insert(
-    DEBUG_TOOLBAR_PANELS.index('debug_toolbar.panels.sql.SQLPanel')+1,
+    DEBUG_TOOLBAR_PANELS.index('debug_toolbar.panels.sql.SQLPanel') + 1,
     'pasportaservo.debug.CustomLoggingPanel')
 
 

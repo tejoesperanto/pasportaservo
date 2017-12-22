@@ -21,9 +21,10 @@ class ShowConfirmedMixin(object):
 
 class ShowDeletedMixin(object):
     def is_deleted(self, obj):
-        return format_html('<span style="color:{color}">{content}</span>',
-            color=mark_safe("#666" if not obj.deleted else "#dd4646"),          # noqa: E128
-            content=mark_safe("&#x2718;" if not obj.deleted else "&#x2714;!"),  # noqa: E128
+        return format_html(
+            '<span style="color:{color}">{content}</span>',
+            color=mark_safe("#666" if not obj.deleted else "#dd4646"),
+            content=mark_safe("&#x2718;" if not obj.deleted else "&#x2714;!"),
         )
 
     is_deleted.short_description = _("deleted")
@@ -61,7 +62,7 @@ class CountryMentionedOnlyFilter(admin.SimpleListFilter):
             query_string = changelist.get_query_string(
                 new_params={self.parameter_name: ",".join(current_lookups)} if current_lookups else {},
                 remove=[self.parameter_name] if not current_lookups else [])
-            yield {'selected': item_selected, 'query_string': query_string, 'display': title, }
+            yield {'selected': item_selected, 'query_string': query_string, 'display': title}
 
     def queryset(self, request, queryset):
         value_list = set([v.strip() for v in self.values() if len(v.strip()) == 2])

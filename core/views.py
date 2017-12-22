@@ -192,11 +192,12 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
 
     def get(self, request, *args, **kwargs):
         try:
-            return HttpResponseRedirect(format_lazy("{settings_url}#{section_email}",
-                settings_url=reverse_lazy('profile_settings', kwargs={          # noqa: E128
+            return HttpResponseRedirect(format_lazy(
+                "{settings_url}#{section_email}",
+                settings_url=reverse_lazy('profile_settings', kwargs={
                     'pk': request.user.profile.pk, 'slug': slugify(request.user.username)}),
-                section_email=pgettext_lazy("URL", "email-addr"))               # noqa: E128
-            )
+                section_email=pgettext_lazy("URL", "email-addr"),
+            ))
         except Profile.DoesNotExist:
             return HttpResponseRedirect(reverse_lazy('email_update'))
 
@@ -283,8 +284,11 @@ class MassMailView(AuthMixin, generic.FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
-        return format_lazy("{success_url}?nb={sent}",
-            success_url=reverse_lazy('mass_mail_sent'), sent=self.nb_sent)      # noqa: E128
+        return format_lazy(
+            "{success_url}?nb={sent}",
+            success_url=reverse_lazy('mass_mail_sent'),
+            sent=self.nb_sent,
+        )
 
     def form_valid(self, form):
         body = form.cleaned_data['body']

@@ -68,8 +68,9 @@ class SupervisorAuthBackend(ModelBackend):
                 raise ImproperlyConfigured(
                     "Supervisor check needs either a profile, a country, or a list of countries."
                 )
-            auth_log.debug("\t\trequested: %s supervised: %s\n\t\tresult: %s",
-                set(countries), set(supervised), set(supervised) & set(countries))                      # noqa: E128
+            auth_log.debug(
+                "\t\trequested: %s supervised: %s\n\t\tresult: %s",
+                set(countries), set(supervised), set(supervised) & set(countries))
             supervised = set(supervised) & set(countries)
         return supervised if code else [c.name for c in supervised]
 
@@ -86,8 +87,9 @@ class SupervisorAuthBackend(ModelBackend):
         Verify if this user has permission (to an optional object).
         Short-circuits when resposibility is not satisfied.
         """
-        auth_log.debug("checking permission:  %s [ %s ] for %s",
-            perm, user_obj, "%s %s" % ("object", repr(obj)) if obj else "any records")                  # noqa: E128
+        auth_log.debug(
+            "checking permission:  %s [ %s ] for %s",
+            perm, user_obj, "%s %s" % ("object", repr(obj)) if obj else "any records")
         if perm == PERM_SUPERVISOR and obj is not None:
             all_perms = self.get_all_permissions(user_obj, obj)
             allowed = any(self._perm_sv_particular_re.match(p) for p in all_perms)
@@ -236,7 +238,7 @@ class AuthMixin(AccessMixin):
             countries = None
         if not countries:
             return _("Only administrators can access this page")
-        to_string = lambda item: str(Country(item).name)                        # noqa: E731
+        to_string = lambda item: str(Country(item).name)
         join_lazy = keep_lazy_text(lambda items: ", ".join(map(to_string, items)))
         return format_lazy(self.permission_denied_message, this_country=join_lazy(countries))
 

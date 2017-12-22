@@ -83,9 +83,9 @@ class LatexCommand(object):
         if self.address_only:
             print('  for', self.country)
             places = places.filter(country=self.country)
-        city_key = lambda place: c.sort_key(str(place.closest_city))            # noqa: E731
-        region_key = lambda place: c.sort_key(str(place.state_province))        # noqa: E731
-        country_key = lambda place: c.sort_key(str(place.country.name))         # noqa: E731
+        city_key = lambda place: c.sort_key(str(place.closest_city))
+        region_key = lambda place: c.sort_key(str(place.state_province))
+        country_key = lambda place: c.sort_key(str(place.country.name))
         return sorted(sorted(sorted(places, key=city_key), key=region_key), key=country_key)
 
     def get_context_data(self):
