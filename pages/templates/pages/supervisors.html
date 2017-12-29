@@ -9,6 +9,8 @@
         <script src="{% static 'js/pep.min.js' %}"></script>
         <script src="{% static 'js/gestures.js' %}"></script>
         <script src="{% static 'js/supervisors.js' %}"></script>
+{% endblock %}
+{% block extra_head %}
         <script>
             {% if perms.hosting.can_supervise %}
                 $(document).ready(function() {

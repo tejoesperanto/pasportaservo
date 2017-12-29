@@ -4,7 +4,7 @@
 {% block body %}
     <section class="messages" role="complementary">
         {% block messages %}
-            {% for message in messages %}{% include "core/message.html" %}{% endfor %}
+            {% for message in messages %}{% include 'core/message.html' %}{% endfor %}
         {% endblock %}
     </section>
     <header class="container-fluid{% block header_class %}{% endblock %}" role="banner">
