@@ -77,10 +77,11 @@ def updatestrings(runlocal=True, _inside_env=False):
 
 
 @task
-def collectstatic():
+def updatestatic():
     run("./manage.py compilescss")
     run("./manage.py collectstatic --noinput %s" %
         ("--ignore=*.scss" if env.site == 'prod' else ""))
+    run("./manage.py compress --force")
 
 
 @task
@@ -99,7 +100,7 @@ def deploy(mode='full', remote='origin'):
         if mode == 'full':
             requirements()
             updatestrings(False, _inside_env=True)
-            collectstatic()
+            updatestatic()
             migrate()
     if mode != 'html':
         sudo("supervisorctl restart %s" % env.site)

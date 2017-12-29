@@ -37,6 +37,14 @@ SASS_PROCESSOR_INCLUDE_DIRS = [
     path.join(BASE_DIR, 'core/static/sass'),
 ]
 
+COMPRESS_OUTPUT_DIR = ''
+COMPRESS_REBUILD_TIMEOUT = 31536000
+COMPRESS_CSS_FILTERS = [
+    'compressor.filters.cssmin.CSSCompressorFilter',
+]
+COMPRESS_OFFLINE = True
+COMPRESS_OFFLINE_MANIFEST = 'static_cache.json'
+
 # Application definition
 
 INSTALLED_APPS = (
@@ -50,6 +58,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.gis',
 
+    'compressor',
     'django_extensions',
     'django_countries',
     'djangocodemirror',
@@ -117,6 +126,7 @@ WSGI_APPLICATION = 'pasportaservo.wsgi.application'
 
 STATICFILES_FINDERS = global_settings.STATICFILES_FINDERS + [
     'sass_processor.finders.CssFinder',
+    'compressor.finders.CompressorFinder',
 ]
 
 # Database

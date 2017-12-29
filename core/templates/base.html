@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load i18n static sass_tags %}
+{% load i18n static compress sass_tags %}
 
 <html lang="eo">
     <head>
@@ -29,13 +29,17 @@
 
         <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
         <link rel="stylesheet" href="{% static 'bootstrap/css/font-awesome.min.css' %}">
-        <link rel="stylesheet" href="{% sass_src 'css/pasportaservo.scss' %}?v=1513087200">
-        {% block extra_css %}{% endblock %}
+        {% compress css %}
+            <link rel="stylesheet" href="{% sass_src 'css/pasportaservo.scss' %}">
+            {% block extra_css %}{% endblock %}
+        {% endcompress %}
         <script src="{% static 'js/jquery.min.js' %}"></script>
         <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
-        <script src="{% static 'js/scripts.js' %}?v=1513087200"></script>
-        <script src="{% static 'js/messages.js' %}?v=1513087200"></script>
-        {% block extra_js %}{% endblock %}
+        {% compress js %}
+            <script src="{% static 'js/scripts.js' %}"></script>
+            <script src="{% static 'js/messages.js' %}"></script>
+            {% block extra_js %}{% endblock %}
+        {% endcompress %}
         {% block extra_head %}{% endblock %}
     </head>
     <body>{% block body %}{% endblock %}</body>
