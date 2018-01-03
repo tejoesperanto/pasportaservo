@@ -83,11 +83,17 @@ class TrackingModel(models.Model):
 
 class VisibilitySettings(models.Model):
     DEFAULT_TYPE = 'Unknown'
-    model_type = models.CharField(_("type"),
+    model_type = models.CharField(
+        _("type"),
         max_length=25, default=DEFAULT_TYPE)
-    model_id = models.PositiveIntegerField(null=True)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    content_object = GenericForeignKey('content_type', 'model_id', for_concrete_model=False)
+    model_id = models.PositiveIntegerField(
+        _("content id"),
+        null=True)
+    content_type = models.ForeignKey(
+        ContentType, verbose_name=_("content type"),
+        on_delete=models.CASCADE)
+    content_object = GenericForeignKey(
+        'content_type', 'model_id', for_concrete_model=False)
 
     visible_online_public = models.BooleanField(_("visible online for all"))
     visible_online_authed = models.BooleanField(_("visible online w/authorization"))
@@ -168,7 +174,7 @@ class VisibilitySettings(models.Model):
     @classmethod
     def venues(cls):
         return [
-            f.name[8:] for f in cls._meta.get_fields() if f.name.startswith(cls._PREFIX)
+            f.name[len(cls._PREFIX):] for f in cls._meta.get_fields() if f.name.startswith(cls._PREFIX)
         ]
 
     def __getitem__(self, venue):

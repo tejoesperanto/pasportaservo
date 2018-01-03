@@ -566,6 +566,9 @@ msgstr "LO statuso"
 msgid "country"
 msgstr "lando"
 
+msgid "object"
+msgstr "objekto"
+
 msgid "email address"
 msgstr "retpoŝta adreso"
 
@@ -595,6 +598,9 @@ msgstr "forigita"
 
 msgid "All"
 msgstr "Ĉio"
+
+msgid "type"
+msgstr "tipo"
 
 msgid "Yes"
 msgstr "Jes"
@@ -732,8 +738,11 @@ msgstr "kontrolita je"
 msgid "approved by"
 msgstr "aprobita de"
 
-msgid "type"
-msgstr "tipo"
+msgid "content id"
+msgstr "enhava identigilo"
+
+msgid "content type"
+msgstr "enhava tipo"
 
 msgid "visible online for all"
 msgstr "videbla rete al ĉiuj"

@@ -40,7 +40,7 @@ from core.forms import UserRegistrationForm
 from core.mixins import LoginRequiredMixin
 from core.models import SiteConfiguration
 
-from .forms import *   # noqa: F403
+from .forms import *  # noqa: F403
 from .mixins import *  # noqa: F403
 from .models import Phone, Place, Profile, VisibilitySettings
 from .utils import geocode

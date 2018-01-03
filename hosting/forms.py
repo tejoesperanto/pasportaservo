@@ -476,7 +476,7 @@ class VisibilityForm(forms.ModelForm):
         for f in self.fields:
             if f.startswith(self._meta.model._PREFIX+restrict_to):
                 bound_field = self[f]
-                bound_field.field_name, bound_field.venue_name = f, f[8:]
+                bound_field.field_name, bound_field.venue_name = f, f[len(self._meta.model._PREFIX):]
                 yield bound_field
 
     @cached_property

@@ -6,6 +6,10 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
+from core.utils import camel_case_split
+
+from .models import VisibilitySettings
+
 
 class ShowConfirmedMixin(object):
     def display_confirmed(self, obj):
@@ -67,6 +71,25 @@ class CountryMentionedOnlyFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         value_list = set([v.strip() for v in self.values() if len(v.strip()) == 2])
         return queryset.filter(country__in=value_list) if value_list else queryset
+
+
+class VisibilityTargetFilter(admin.SimpleListFilter):
+    title = _("type")
+    parameter_name = 'model_type'
+
+    def lookups(self, request, model_admin):
+        targets = [
+            (model, _(user_friendly_model.lower()))
+            for model, user_friendly_model in [
+                (model_type, " ".join(camel_case_split(model_type)))
+                for model_type in VisibilitySettings.specific_models().keys()
+            ]
+        ]
+        targets.sort(key=lambda target: target[1])
+        return targets
+
+    def queryset(self, request, queryset):
+        return queryset.filter(model_type=self.value()) if self.value() else queryset
 
 
 class SimpleBooleanListFilter(admin.SimpleListFilter):
