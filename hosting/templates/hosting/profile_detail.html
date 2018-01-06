@@ -222,12 +222,12 @@
                             {% list place.tour_guide place.have_a_drink place.max_guest place.max_night as offer_details %}
                             {% if offer_details|are_any %}
                                 <span class="sr-only">{% trans "Note " context 'Title' %}:</span>
-                                {% blocktrans count max_host=place.max_guest asvar desc_max_guest trimmed %}
+                                {% blocktrans count max_host=place.max_guest|default:0 asvar desc_max_guest trimmed %}
                                     I can accept {{ max_host }} person
                                 {% plural %}
                                     I can accept {{ max_host }} persons
                                 {% endblocktrans %}
-                                {% blocktrans count max_night=place.max_night asvar desc_max_night trimmed %}
+                                {% blocktrans count max_night=place.max_night|default:0 asvar desc_max_night trimmed %}
                                     I can host during {{ max_night }} night maximum
                                 {% plural %}
                                     I can host during {{ max_night }} nights maximum
