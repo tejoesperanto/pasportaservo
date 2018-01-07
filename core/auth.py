@@ -170,8 +170,8 @@ class AuthMixin(AccessMixin):
             result = dispatch_func(wrapped_request, *wrapped_args, **wrapped_kwargs)
             if not hasattr(wrapped_self, 'role'):
                 warnings.warn(
-                    "AuthMixin is present on the view {View} but no authorization check was performed. "
-                    "Check super() calls and order of inheritance.".format(View=self.__class__.__name__),
+                    "AuthMixin is present on the view {} but no authorization check was performed. "
+                    "Check super() calls and order of inheritance.".format(self.__class__.__name__),
                     AuthMixin.MisconfigurationWarning, stacklevel=2)
             return result
 
@@ -203,8 +203,8 @@ class AuthMixin(AccessMixin):
             self._auth_verify(object, context_omitted=object is None)
         elif isinstance(self, generic.CreateView):
             raise ImproperlyConfigured(
-                "Creation base not found. Make sure {View}'s auth_base is accessible by "
-                "AuthMixin as a dispatch kwarg.".format(View=self.__class__.__name__)
+                "Creation base not found. Make sure {}'s auth_base is accessible by "
+                "AuthMixin as a dispatch kwarg.".format(self.__class__.__name__)
             )
         return super().dispatch(request, *args, **kwargs)
 

@@ -437,6 +437,8 @@ class VisibilityForm(forms.ModelForm):
     indent = forms.BooleanField(required=False, disabled=True)
 
     def __init__(self, *args, **kwargs):
+        self.requested_pk = kwargs.pop('request_pk', None)
+        self.profile = kwargs.pop('request_profile', None)
         read_only = kwargs.pop('read_only', False)
         super().__init__(*args, **kwargs)
         if read_only:
@@ -481,6 +483,10 @@ class VisibilityForm(forms.ModelForm):
 
     @cached_property
     def obj(self):
+        if self.is_bound and self.instance.model_type == self.instance.DEFAULT_TYPE:
+            raise ValueError("Form is bound but no visibility settings object was provided, "
+                             "for key {pk} and {profile!r}. This most likely indicates tampering."
+                             .format(pk=self.requested_pk, profile=self.profile))
         wrappers = {
             VisibilitySettingsForFamilyMembers.type(): self.FamilyMemberAsset,
             VisibilitySettingsForPublicEmail.type(): self.EmailAsset,
@@ -514,6 +520,11 @@ class VisibilityForm(forms.ModelForm):
 
         def __str__(self):
             return value_without_invalid_marker(self.data)
+
+    def clean_visible_in_book(self):
+        venue = next(self.venues('in_book'))
+        if venue.field.disabled:
+            return self.obj.visibility[venue.venue_name]
 
     def save(self, commit=True):
         visibility = super().save(commit=False).as_specific()
@@ -591,8 +602,17 @@ class VisibilityFormSetBase(forms.BaseModelFormSet):
         self.queryset = qs.order_by('level_primary', 'model_id', 'level_secondary')
 
     def get_form_kwargs(self, index):
+        if index >= len(self.queryset):
+            raise IndexError("Form #{id} does not exist in the queryset, for {profile!r}. "
+                             "This most likely indicates tampering."
+                             .format(id=index, profile=self.profile))
         kwargs = super().get_form_kwargs(index)
         kwargs['initial'] = {
             field: getattr(self.queryset[index], field) for field in ['hint', 'indent']
         }
+        if self.is_bound:
+            pk_key = "{form_prefix}-{pk_field}".format(
+                form_prefix=self.add_prefix(index), pk_field=self.model._meta.pk.name)
+            kwargs['request_pk'] = self.data.get(pk_key)
+            kwargs['request_profile'] = self.profile
         return kwargs

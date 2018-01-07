@@ -62,11 +62,13 @@
         {% endfor %}
     </tbody>
     </table>
-    <input type="hidden" id="id_dirty" name="dirty" value="" autocomplete="off">
-    {% csrf_token %}
-    <p class="--pull-right">
-        <button type="submit" class="btn btn-default" id="id_vis_form_submit">
-            {% trans "Save" %}
-        </button>
-    </p>
+    {% if view.role == roles.OWNER %}
+        <input type="hidden" id="id_dirty" name="dirty" value="" autocomplete="off">
+        {% csrf_token %}
+        <p class="--pull-right">
+            <button type="submit" class="btn btn-default" id="id_vis_form_submit">
+                {% trans "Save" %}
+            </button>
+        </p>
+    {% endif %}
 </form>

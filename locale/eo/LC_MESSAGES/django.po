@@ -1636,6 +1636,9 @@ msgstr ""
 msgid "Farewell !"
 msgstr "Adiaŭ !"
 
+msgid "Only the user themselves can access this page"
+msgstr "Nur la uzanto mem povas aliri tiun ĉi paĝon"
+
 msgid "Only the owner of the place can access this page"
 msgstr "Nur la posedanto de la loĝejo povas aliri tiun ĉi paĝon"
 

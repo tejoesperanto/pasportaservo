@@ -148,8 +148,8 @@ def client_side_validated(form_class):
                             pass
                     if len(constraint) != 2:
                         raise ImproperlyConfigured(
-                            "Client-side constraint for '%s' validator on %s field "
-                            "must consist of name and value only." % (
+                            "Client-side constraint for '{}' validator on {} field "
+                            "must consist of name and value only.".format(
                                 getattr(validator, '__name__', None) or getattr(type(validator), '__name__', None),
                                 field
                             )

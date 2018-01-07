@@ -209,6 +209,9 @@ class ProfilePrivacyUpdateView(AuthMixin, ProfileMixin, generic.View):
         VisibilitySettings,
         form=VisibilityForm, formset=VisibilityFormSetBase, extra=0)
 
+    def get_permission_denied_message(self, object, context_omitted=False):
+        return _("Only the user themselves can access this page")
+
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
         profile = self.get_object()
