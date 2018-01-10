@@ -8,6 +8,18 @@
     {% endif %}
 {% endblock %}
 
+{% block ga_page_title %}
+            var anonymizedUri = document.location.origin
+                + document.location.pathname.replace(/^(\/[^\/]+\/).+/, '$1QQQQQQQQ/')
+                + document.location.search.replace(/([?&]ps_q=).+?(&|$)/g, '$1QQQQQQQQ$2');
+            if (typeof ga !== "undefined") {
+                ga('set', 'location', anonymizedUri);
+            }
+    {% if view.query and not view.result.latlng %}
+            return document.title.replace('{{ view.query.strip|escapejs }}', 'XXXXXXXXXX');
+    {% endif %}
+{% endblock %}
+
 {% block page_class %} search{% endblock %}
 
 {% block page %}

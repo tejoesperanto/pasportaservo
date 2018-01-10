@@ -95,6 +95,11 @@
         {% endblock footer %}
     </footer>
 
+    <script>
+        function anonymizeTitle() {
+            {% block ga_page_title %}{% endblock %}
+        }
+    </script>
     {% include './snippets/google_analytics.html' with user=user ENV=ENVIRONMENT DEBUG=debug DNT=request.DNT only %}
 
     {% if user.is_authenticated %}

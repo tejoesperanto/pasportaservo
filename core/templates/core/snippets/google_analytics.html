@@ -51,7 +51,14 @@
         })();
 
         ga('create', '{{ config.google_analytics_key }}', 'auto');
+        ga('set', 'anonymizeIp', true);
         {% if user.is_authenticated %}ga('set', 'userId', '{{ user|public_id }}');{% endif %}
+        if (typeof anonymizeTitle !== "undefined") {
+            var pagetitle = anonymizeTitle();
+            if (pagetitle) {
+                ga('set', 'title', pagetitle);
+            }
+        }
         ga('send', 'pageview');
     </script>
 {% endif %}
