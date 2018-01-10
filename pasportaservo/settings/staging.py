@@ -1,6 +1,8 @@
 from .base import *  # isort:skip
 from django.contrib.messages import constants as message_level
 
+ENVIRONMENT = 'UAT'
+
 SECRET_KEY = get_env_setting('SECRET_KEY')
 MESSAGE_LEVEL = message_level.DEBUG
 

@@ -3,6 +3,7 @@ from django.conf import settings
 
 def expose_selected_settings(request):
     SETTINGS = [
+        'ENVIRONMENT',
         'REDIRECT_FIELD_NAME',
         'INVALID_PREFIX',
         'MAPBOX_GL_CSS',
