@@ -12,6 +12,9 @@ $(document).ready(function() {
     // Lazy load images
     $('.lazy').addClass('loaded');
 
+    // Checkboxes with undefined value
+    $('input[type="checkbox"][data-initial="None"]').prop('indeterminate', true);
+
     // Button hover
     $('.btn').hover(function() {
         var $this = $(this);

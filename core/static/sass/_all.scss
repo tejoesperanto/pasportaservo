@@ -474,7 +474,10 @@ a.contact-details:not(:hover) {
             background-size: 40px 40px;
 }
 
-#page.settings #matrix_form {
+#page.settings #privacy_form {
+    table {
+        margin-bottom: 30px;
+    }
     th.header-in_book {
         vertical-align: middle !important;
         text-align: center !important;
@@ -507,6 +510,14 @@ a.contact-details:not(:hover) {
         position: absolute;
         top: 1px;
         right: 0px;
+    }
+    .privacy-checkbox {
+        padding-left: 8px;
+        padding-right: 8px;
+        #analytics_more .help-block {
+            margin: 0;
+            text-align: justify;
+        }
     }
 }
 
@@ -734,7 +745,7 @@ footer {
     h2.owner {
         font-size: 24px;
     }
-    #page.settings #matrix_form {
+    #page.settings #privacy_form {
         th.header-public, th.header-authed {
             font-size: 85%;
         }
