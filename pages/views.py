@@ -18,6 +18,10 @@ class TermsAndConditionsView(generic.TemplateView):
     template_name = 'pages/terms_conditions.html'
 
 
+class PrivacyPolicyView(generic.TemplateView):
+    template_name = 'pages/privacy.html'
+
+
 class SupervisorsView(generic.TemplateView):
     template_name = 'pages/supervisors.html'
     book_codes = {False: '0', True: '1', None: None}

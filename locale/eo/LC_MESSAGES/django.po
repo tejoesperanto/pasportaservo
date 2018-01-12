@@ -230,6 +230,9 @@ msgstr "Oftaj demandoj"
 msgid "Terms"
 msgstr "Kondiĉoj"
 
+msgid "Privacy"
+msgstr "Privateco"
+
 msgid "Supervisors"
 msgstr "Landaj organizantoj"
 
@@ -1434,9 +1437,6 @@ msgstr "Publika retadreso?"
 msgid "[no email address]"
 msgstr "[neniu retpoŝta adreso]"
 
-msgid "Privacy"
-msgstr "Privateco"
-
 msgctxt "URL"
 msgid "privacy"
 msgstr "privateco"
@@ -1462,6 +1462,13 @@ msgstr ""
 "privataj informoj. Por funkciigi la ilon, Google metas observo-kuketojn ĉe "
 "via retumilo, kun hazardaj numeroj ene; per malmarko de la skatolo supre, la "
 "ilo Google Analytics estos malŝaltita por via konto kie ajn vi ne ensalutus."
+
+msgctxt "URL"
+msgid "measurement"
+msgstr "mezurado"
+
+msgid "See our privacy policy."
+msgstr "Vidu nian politikon pri privateco."
 
 msgid "Save"
 msgstr "Konservi"
@@ -1738,6 +1745,14 @@ msgstr ""
 
 msgid "You've been automatically logged in. Happy editing!"
 msgstr "Vi estas aŭtomate ensalutita. Bonan redaktadon!"
+
+msgctxt "URL"
+msgid "collected-information"
+msgstr "kolektataj-informoj"
+
+msgctxt "URL"
+msgid "cookies"
+msgstr "kuketoj"
 
 msgctxt "URL"
 msgid "countries-list"
