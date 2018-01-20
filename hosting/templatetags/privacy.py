@@ -50,6 +50,9 @@ class DisplayGovernorNode(template.Node):
         self.as_var = as_var
 
     def render(self, context):
+        if 'user' not in context or not context['user'].is_authenticated:
+            return ''
+
         var = self.object.resolve(context)
         subvar = self.attribute.resolve(context) if self.attribute else None
         if self.attribute and not subvar:
