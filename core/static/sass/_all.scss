@@ -4,6 +4,10 @@ body, .same-as-body {
     font-size: 16px;
 }
 
+.full-name {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
 .last-name {
     font-variant: small-caps;
     font-variant-caps: small-caps;
@@ -174,9 +178,14 @@ header:not(.home) #subtitle,
     margin-bottom: 0.5em;
     border-bottom: 1px solid darken($color-gray-light, 6%);
 }
-.place-detail .name,
+.place-detail .owner .name,
 .place-list .name {
     font-weight: bold;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
+.place-list .name {
+    white-space: nowrap;
 }
 .place-detail .status,
 .place-list .status:not(.anchor-group) {
@@ -347,7 +356,7 @@ header:not(.home) #subtitle,
     .form-group > div > input {
         display: inherit;
     }
-    .form-group > div > input[type=text] {
+    .form-group > div > input[type="text"] {
         width: 9em;
     }
     .blocking-tip,
@@ -387,27 +396,24 @@ p.tip {
 
 
 /* Profile */
-.profile-avatar img {
-    width: 100%;
-    max-width: 140px;
-}
-.profile-avatar {
-    margin-right: 2em;
+.profile-detail .owner .name {
+    @extend .full-name;
 }
 @media (max-width: 540px) {
-    .owner-avatar {
+    .profile-detail .owner .avatar {
         display: inline-block;
         position: relative;
         cursor: zoom-in;
-    }
-    .owner-avatar:after {
-        font-family: FontAwesome;
-        content: attr(data-content);
-        position: absolute;
-        bottom: -5px;
-        right: -1px;
-        color: $color-gray-light;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+
+        &:after {
+            font-family: FontAwesome;
+            content: attr(data-content);
+            position: absolute;
+            bottom: -5px;
+            right: -1px;
+            color: $color-gray-light;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+        }
     }
     .mfp-wrap {
         position: fixed !important;
@@ -507,6 +513,8 @@ a.contact-details:not(:hover) {
         position: relative;
         top: 0.1em;
         display: inline-block;
+        max-width: 100%;
+        @extend .full-name;
     }
     .avatar {
         display: inline-block;
@@ -571,12 +579,18 @@ a.contact-details:not(:hover) {
     width: 40px;
 }
 .place-supervisor-detail {
+    .control-buttons {
+        margin-left: 20px;
+    }
     .control-buttons .timestamp {
         margin-bottom: 0px;
         margin-right: 1px;
         &:first-of-type {
             margin-top: 1em;
         }
+    }
+    .name {
+        @extend .full-name;
     }
     .description-short.has-content {
         margin: 10px 0px;

@@ -6,7 +6,7 @@
     {% if view.role == roles.OWNER %}
         {% trans "Settings" %}
     {% else %}
-        {% trans "Account" %} {% blocktrans with name=profile.anonymous_name %}of {{ name }}{% endblocktrans %}
+        {% trans "Account" %} {% blocktrans with name=profile.name|default:profile.INCOGNITO %}of {{ name }}{% endblocktrans %}
     {% endif %}
 {% endblock %}
 
@@ -31,8 +31,18 @@
 {% block page_class %} settings{% endblock %}
 
 {% block page %}
-    <h2>{% if view.role >= roles.SUPERVISOR %}{{ profile.get_fullname_display }}: {% endif %}
-        {% trans "Settings" %}</h2>
+    <h2>
+        {% if view.role >= roles.SUPERVISOR %}
+            <span class="full-name">
+                {% if profile.first_name or profile.last_name %}
+                    {{ profile.get_fullname_display }}:
+                {% else %}
+                    {{ profile.INCOGNITO }} ({{ profile.user.username }}):
+                {% endif %}
+            </span>
+        {% endif %}
+        {% trans "Settings" %}
+    </h2>
 
     {% if profile.deleted %}
     <div class="alert alert-small alert-danger">

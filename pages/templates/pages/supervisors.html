@@ -160,14 +160,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xxs-12 col-xs-8 col-sm-3 col-lg-3">
+                <div class="col-xxs-12 col-xs-8 col-sm-3 col-lg-3 full-name">
                     {% for supervisor in country.supervisors %}
-                        {% if user.is_authenticated %}
-                            {% expr supervisor.get_fullname_display() as supervisor_name %}
-                        {% else %}
-                            {% expr supervisor.name as supervisor_name %}
-                        {% endif %}
-                        <a href="{{ supervisor.get_absolute_url }}">{{ supervisor_name }}</a>&nbsp;{% if not forloop.last %},{% endif %}
+                        {% spaceless %}
+                        <a href="{{ supervisor.get_absolute_url }}">
+                            {% if user.is_authenticated %}
+                                {{ supervisor.get_fullname_always_display }}
+                            {% else %}
+                                <span>{{ supervisor.name|default:supervisor.INCOGNITO }}</span>
+                            {% endif %}
+                        </a>&nbsp;{% if not forloop.last %},{% endif %}
+                        {% endspaceless %}
                     {% endfor %}
                 </div>
             </div>

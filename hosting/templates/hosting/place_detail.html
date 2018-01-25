@@ -8,7 +8,7 @@
         {% if place.available %}
             {% trans "A place in" %}
         {% else %}
-            {{ place.owner.anonymous_name }},
+            {{ place.owner.name|default:place.owner.INCOGNITO }},
         {% endif %}
         {{ place }}
     {% endif %}
@@ -82,7 +82,7 @@
         {# OWNER'S DETAILS: NAME, ADDRESS, PHONE NUMBERS (IN VERBOSE VIEW) #}
             <div class="col-xs-3 avatar">
                 <a href="{{ place.owner.get_absolute_url }}">
-                    <img src="{{ place.owner.avatar_url }}" />
+                    <img src="{{ place.owner.avatar_url }}" alt="[{% trans "avatar" %}{% if place.owner.name %}: {{ place.owner.name }}{% endif %}]" />
                 </a>
             </div>
             <div class="col-xs-9">
@@ -124,10 +124,9 @@
                         <p class="name">
                             <a href="{{ place.owner.get_absolute_url }}">
                                 {% if user.is_authenticated %}
-                                    <span class="hidden-xxs">{{ place.owner.get_fullname_display }}</span>
-                                    <span class="visible-xxs-inline">{{ place.owner.anonymous_name }}</span>
+                                    {{ place.owner.get_fullname_display }}
                                 {% else %}
-                                    {{ place.owner.anonymous_name }}
+                                    {{ place.owner.name|default:place.owner.INCOGNITO }}
                                 {% endif %}
                             </a>
                         </p>
@@ -215,7 +214,7 @@
                                     <a href="{{ member.get_absolute_url }}" data-toggle="popover" data-trigger="hover focus" data-placement="top"
                                        data-content="<img src='{{ member.avatar_url }}' height='90'>" data-html="true">
                                 {% endif %}
-                                {% if forloop.first and forloop.last and not member.full_name.strip %}
+                                {% if place.family_is_anonymous %}
                                     <em>{% trans "Other dwellers at this place." %}</em>
                                 {% else %}
                                     {{ member.get_fullname_always_display }}

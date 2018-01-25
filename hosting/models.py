@@ -15,11 +15,12 @@ from django.utils.functional import cached_property
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 
 from django_countries.fields import CountryField
 from django_extensions.db.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
+from slugify import Slugify
 
 from core.utils import camel_case_split
 
@@ -257,6 +258,7 @@ class VisibilitySettingsForPublicEmail(VisibilitySettings):
 
 class Profile(TrackingModel, TimeStampedModel):
     TITLE_CHOICES = TITLE_CHOICES
+    INCOGNITO = pgettext_lazy("Name", "Anonymous")
 
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -322,16 +324,11 @@ class Profile(TrackingModel, TimeStampedModel):
         else:
             combined_name = (self.last_name, self.first_name)
         real_name = " ".join(combined_name).strip()
-        return real_name or (self.user.username.title() if self.user else " ")
+        return real_name
 
     @property
     def name(self):
-        return self.first_name or self.user.username.title()
-
-    @property
-    def anonymous_name(self):
-        real_name = " ".join((self.first_name, self.last_name[:1] + "." if self.last_name else "")).strip()
-        return real_name or (self.user.username.title() if self.user else " ")
+        return self.first_name.strip()
 
     @property
     def age(self):
@@ -358,10 +355,10 @@ class Profile(TrackingModel, TimeStampedModel):
         template_username = '<span class={q}profile-noname{q}>{uname}</span>'
         if " ".join((self.first_name, self.last_name)).strip():
             if not self.names_inversed:
-                template = (template_first_name, template_last_name)
+                template = (template_first_name, '&ensp;', template_last_name)
             else:
-                template = (template_last_name, template_first_name)
-            return format_html(" ".join(template), q=mark_safe(quote), first=self.first_name, last=self.last_name)
+                template = (template_last_name, '&ensp;', template_first_name)
+            return format_html("".join(template), q=mark_safe(quote), first=self.first_name, last=self.last_name)
         else:
             return format_html(template_username, q=mark_safe(quote),
                                uname=self.user.username.title() if self.user else ('--' if non_empty else " "))
@@ -370,14 +367,8 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @property
     def autoslug(self):
-        # return slugify(self.user.username)
-        n = self.user_id + 9572
-        while n > ord('z') - ord('a'):
-            r = 0
-            while n:
-                r, n = r + n % 10, n // 10
-            n = r
-        return chr(ord('a') + n - 1) + chr(ord('Z') - n + 1)
+        slugify = Slugify(to_lower=True, pretranslate={'ĉ': 'ch', 'ĝ': 'gh', 'ĥ': 'hh', 'ĵ': 'jh', 'ŝ': 'sh'})
+        return slugify(self.name) or '--'
 
     @property
     def is_hosting(self):
@@ -405,10 +396,10 @@ class Profile(TrackingModel, TimeStampedModel):
         return all(p.confirmed for p in self.owned_places.filter(deleted=False, in_book=True))
 
     def __str__(self):
-        if self.full_name.strip():
+        if self.full_name:
             return self.full_name
         elif self.user:
-            return self.user.username
+            return '{} ({})'.format(str(self.INCOGNITO), self.user.username)
         return '--'
 
     def __lt__(self, other):
@@ -626,7 +617,7 @@ class Place(TrackingModel, TimeStampedModel):
     @property
     def family_is_anonymous(self):
         family = self.family_members_cache()
-        return len(family) == 1 and not family[0].full_name.strip()
+        return len(family) == 1 and not family[0].user_id and not family[0].full_name
 
     def authorized_users_cache(self, complete=True, also_deleted=False):
         cache_name = '_authed{}{}_cache'.format(
@@ -690,7 +681,7 @@ class Place(TrackingModel, TimeStampedModel):
 
     @property
     def owner_name(self):
-        return self.owner.name
+        return self.owner.name or self.owner.INCOGNITO
 
     @property
     def owner_url(self):

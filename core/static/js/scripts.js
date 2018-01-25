@@ -81,7 +81,7 @@ $(document).ready(function() {
 
     // Profile picture magnifier
     if (typeof $().magnificPopup !== "undefined") {
-        $('.owner-avatar img, a:has(#avatar-preview_id)').each(function() {
+        $('.profile-detail .owner .avatar img, a:has(#avatar-preview_id)').each(function() {
             var $magnifiedElem = $(this);
             $magnifiedElem.magnificPopup({
                 type: "image",

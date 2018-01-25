@@ -7,6 +7,7 @@
         +{{ phone.number.country_code }}&thinsp;&hellip;{{ phone.number.as_e164|slice:"-3:" }}
     {% endif %}
     {% if view.role >= roles.SUPERVISOR %}
-        {% blocktrans with name=form.profile.name %}of {{ name }}{% endblocktrans %}
+        {% blocktrans with name=form.profile.name|default:_("user") %}of {{ name }}{% endblocktrans %}
+        {% if not form.profile.name %}#{{ form.profile.id }}{% endif %}
     {% endif %}
 {% endblock %}

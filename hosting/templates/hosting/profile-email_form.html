@@ -14,3 +14,5 @@
         {{ profile.get_fullname_display }} <hr />
     {% endif %}
 {% endblock %}
+
+{% block form_title_class %}{% if view.role >= roles.SUPERVISOR %}full-name{% endif %}{% endblock %}

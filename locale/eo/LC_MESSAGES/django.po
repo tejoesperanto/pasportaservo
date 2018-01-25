@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2017-12-07 23:09+0000\n"
+"POT-Revision-Date: 2018-01-25 16:09+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -542,6 +542,9 @@ msgstr "Vi sukcese konfirmis vian retpoŝtan adreson!"
 msgid "Your email address has been successfully updated!"
 msgstr "Vi sukcese ŝanĝis vian retpoŝtan adreson!"
 
+msgid "user"
+msgstr "uzanto"
+
 msgid "Personal info"
 msgstr "Personaj informoj"
 
@@ -571,9 +574,6 @@ msgstr "objekto"
 
 msgid "email address"
 msgstr "retpoŝta adreso"
-
-msgid "user"
-msgstr "uzanto"
 
 msgid "location"
 msgstr "lokigo"
@@ -759,6 +759,10 @@ msgstr "videbligo-agordoj"
 #, python-brace-format
 msgid "Settings of visibility for {type}"
 msgstr "Agordoj de videbligo por {type}"
+
+msgctxt "Name"
+msgid "Anonymous"
+msgstr "Anonimo"
 
 msgid "first name"
 msgstr "persona nomo"

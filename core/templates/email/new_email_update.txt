@@ -1,5 +1,5 @@
 {% load i18n domain %}{% autoescape off %}
-{% if user.profile %}{% blocktrans with user_first_name=user.profile.name trimmed %}
+{% if user.profile %}{% blocktrans with user_first_name=user.profile.name|default:user.username trimmed %}
     Dear {{ user_first_name }},
 {% endblocktrans %}{% else %}{% trans "Dear user," %}{% endif %}
 {% blocktrans trimmed %}
@@ -9,7 +9,7 @@
 {% trans "Please go to the following page to confirm your new email address:" %}
 {% domain url %}
 
-{% trans "Your username, in case you've forgotten:" %} {{ user.get_username }}
+{% trans "Your username, in case you've forgotten:" %} {{ user.username }}
 
 {% trans "Thanks for using our site!" %}
 {% blocktrans %}The {{ site_name }} team.{% endblocktrans %}

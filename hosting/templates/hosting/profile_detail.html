@@ -5,7 +5,7 @@
     {% if view.role == roles.OWNER %}
         {% trans "My profile" %}
     {% else %}
-        {{ profile.anonymous_name }}
+        {{ profile.name|default:profile.INCOGNITO }}
     {% endif %}
 {% endblock %}
 
@@ -16,6 +16,8 @@
         <script src="{% static 'popup/magnific-popup.min.js' %}"></script>
         <script src="{% static 'js/ajax.js' %}"></script>
 {% endblock %}
+
+{% block page_class %} profile-detail{% endblock %}
 
 {% block page %}
     {% if user.profile and user.profile.is_in_book and not user.profile.places_confirmed %}
@@ -127,12 +129,18 @@
 
     <div class="row owner">
         <div class="col-xs-3 col-md-2">
-            <span class="owner-avatar" data-content-provider="fa" data-content="&#xf002;">
-                <img src="{{ profile.avatar_url }}" data-mfp-src="{{ profile.avatar_url }}" alt="{% trans "avatar" %}"/>
+            <span class="avatar" data-content-provider="fa" data-content="&#xf002;">
+                <img src="{{ profile.avatar_url }}" data-mfp-src="{{ profile.avatar_url }}" alt="[{% trans "avatar" %}]"/>
             </span>
         </div>
         <div class="col-xs-9 col-md-10">
-            <h1><small>{{ profile.get_title_display }}</small> {{ profile.get_fullname_display }}</h1>
+            <h1 class="name">
+                <small>{{ profile.get_title_display }}</small>
+                {% if view.role >= roles.SUPERVISOR and not profile.first_name and not profile.last_name %}
+                    {{ profile.INCOGNITO }}
+                {% endif %}
+                {{ profile.get_fullname_display }}
+            </h1>
         </div>
         {% if profile.birth_date or perms.hosting.can_supervise %}
             <div class="col-xs-8 col-sm-9">

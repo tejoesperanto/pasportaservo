@@ -190,8 +190,11 @@ DEFAULT_AVATAR_URL = "mm"
 
 def user_first_name(user):
     try:
-        return user.profile.name
-    except ObjectDoesNotExist:
+        name = user.profile.name
+        if not name:
+            raise ValueError
+        return name
+    except (ObjectDoesNotExist, ValueError):
         return user.username
 
 POSTMAN_I18N_URLS = True

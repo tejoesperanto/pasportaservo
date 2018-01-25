@@ -308,7 +308,7 @@ class MassMailView(AuthMixin, generic.FormView):
             # only active profiles, linked to existing user accounts
             profiles = Profile.objects.filter(user__isnull=False)
             # exclude completely those who have at least one active available place
-            profiles = profiles.exclude(owned_places=Place.objects.filter(available=True))
+            profiles = profiles.exclude(owned_places__in=Place.objects.filter(available=True))
             # remove profiles with places available in the past, that is deleted
             profiles = profiles.filter(Q(owned_places__available=False) | Q(owned_places__isnull=True))
             # finally remove duplicates
@@ -330,7 +330,7 @@ class MassMailView(AuthMixin, generic.FormView):
         if category == 'test':
             test_email = form.cleaned_data['test_email']
             context = {
-                'preheader': preheader,
+                'preheader': mark_safe(preheader.format(nomo=test_email)),
                 'heading': heading,
                 'body': mark_safe(md_body.format(nomo=test_email)),
             }
@@ -343,16 +343,15 @@ class MassMailView(AuthMixin, generic.FormView):
             )]
 
         else:
-            context = {
-                'preheader': preheader,
-                'heading': heading,
-            }
+            name_placeholder = _("user")
             messages = [(
                 subject,
-                body.format(nomo=profile.name),
-                template.render(copy(context).update(
-                    {'body': mark_safe(md_body.format(nomo=escape(profile.name)))}
-                )),
+                body.format(nomo=profile.name or name_placeholder),
+                template.render({
+                    'preheader': mark_safe(preheader.format(nomo=escape(profile.name or name_placeholder))),
+                    'heading': heading,
+                    'body': mark_safe(md_body.format(nomo=escape(profile.name or name_placeholder))),
+                }),
                 default_from,
                 [value_without_invalid_marker(profile.user.email)]
             ) for profile in profiles] if profiles else []
