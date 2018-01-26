@@ -12,7 +12,9 @@ privacy_log = logging.getLogger('PasportaServo.privacy')
 def if_visible(parser, token):
     """
     A template tag with the semantics of 'if', for verifying if an object should be displayed according to its
-    visibility settings.
+    visibility settings. The tag should be used for confidential information with selective display-ability,
+    according to the context defined by the user accessing the object. Since the context of unauthenticated
+    users is "the whole of internet", the default visibility is "none".
     Syntax:
         {% if-visible object [attribute] {privileged=(True|False)} {store} %}...{% endif %}
     The result can optionally be saved into a context variable, by using the `store` parameter. In this case,

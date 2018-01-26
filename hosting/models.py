@@ -83,6 +83,10 @@ class TrackingModel(models.Model):
 
 
 class VisibilitySettings(models.Model):
+    """
+    Contains flags for visibility of objects in various venues: online or in
+    the book. Can be linked via a generic foreign key to multiple model types.
+    """
     DEFAULT_TYPE = 'Unknown'
     model_type = models.CharField(
         _("type"),
@@ -96,8 +100,12 @@ class VisibilitySettings(models.Model):
     content_object = GenericForeignKey(
         'content_type', 'model_id', for_concrete_model=False)
 
+    # The object should be viewable by any authenticated user.
     visible_online_public = models.BooleanField(_("visible online for all"))
+    # The object should be viewable only by users who were explicitly granted
+    # permission (authorized_users in the Place model).
     visible_online_authed = models.BooleanField(_("visible online w/authorization"))
+    # The object should be printed in the paper edition.
     visible_in_book = models.BooleanField(_("visible in the book"))
 
     class Meta:
@@ -107,10 +115,10 @@ class VisibilitySettings(models.Model):
     @classmethod
     def _prep(cls, parent=None):
         """
-        Instantiates new specific visibility settings according to the defaults specified
-        in the proxy model. Immediately updates the database.
-        Due to this being a class method, the leading underscore in the name protects it
-        from being hazardously called in templates.
+        Instantiates new specific visibility settings according to the defaults
+        specified in the proxy model. Immediately updates the database.
+        Due to this being a class method, the leading underscore in the method
+        name protects it from being hazardously called in templates.
         """
         try:
             container = apps.get_model(cls._CONTAINER_MODEL)
@@ -131,9 +139,10 @@ class VisibilitySettings(models.Model):
 
     def as_specific(self):
         """
-        Converts the base model instance into a proxy model instance, e.g. for accessing
-        the specific rules (objects returned from the database are always of the base model).
-        All proxy models are expected to follow the "<BaseName>For<Type>" naming convention.
+        Converts the base model instance into a proxy model instance, e.g. for
+        accessing the specific rules (objects returned from the database are
+        always of the base model). All proxy models are expected to follow the
+        "<BaseName>For<Type>" naming convention.
         """
         if self._meta.proxy:
             return self
@@ -148,6 +157,9 @@ class VisibilitySettings(models.Model):
 
     @classmethod
     def specific_models(cls):
+        """
+        Returns a dictionary {name:class} of the available proxy models.
+        """
         if cls._meta.proxy:
             cls = cls.__mro__[1]
         return {
@@ -159,8 +171,9 @@ class VisibilitySettings(models.Model):
     @classmethod
     def type(cls):
         """
-        Used for initiating the model_type field according to class name suffix. Any logic
-        changes should be reflected in a data migration for existing values of the field.
+        Used for initiating the `model_type` field according to class name
+        suffix.  Any logic changes should be reflected in a data migration
+        for existing values of the field.
         """
         if not cls._meta.proxy:
             raise TypeError("Model type is only defined for specific visibility settings")
@@ -168,12 +181,19 @@ class VisibilitySettings(models.Model):
 
     @property
     def printable(self):
+        """Can this data appear in the printed edition?"""
         return True
 
     _PREFIX = 'visible_'
 
     @classmethod
     def venues(cls):
+        """
+        Returns the list of available venues as strings:
+          - online_public (authenticated users)
+          - online_authed (authenticated and authorized users)
+          - in_book       (printed edition users)
+        """
         return [
             f.name[len(cls._PREFIX):] for f in cls._meta.get_fields() if f.name.startswith(cls._PREFIX)
         ]
@@ -319,6 +339,9 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @property
     def full_name(self):
+        """
+        The combination of person's names, in the correct order.
+        """
         if not self.names_inversed:
             combined_name = (self.first_name, self.last_name)
         else:
@@ -350,6 +373,11 @@ class Profile(TrackingModel, TimeStampedModel):
         return format_html(template, title=title)
 
     def get_fullname_display(self, quote='"', non_empty=False):
+        """
+        The combination of person's names, in the correct order, for use in
+        HTML pages. The `non_empty` flag ensures that something is output also
+        for profiles without a user account (i.e., family members).
+        """
         template_first_name = '<span class={q}first-name{q}>{first}</span>'
         template_last_name = '<span class={q}last-name{q}>{last}</span>'
         template_username = '<span class={q}profile-noname{q}>{uname}</span>'
@@ -612,14 +640,28 @@ class Place(TrackingModel, TimeStampedModel):
         return format_html(template, title=self._meta.verbose_name.capitalize())
 
     def family_members_cache(self):
+        """
+        Cached QuerySet of family members.
+        (Direct access to the field in templates re-queries the database.)
+        """
         return self.__dict__.setdefault('_family_cache', self.family_members.order_by('birth_date'))
 
     @property
     def family_is_anonymous(self):
+        """
+        Returns True when there is only one family member, which does not have
+        a name and is not a user of the website (profile without user account).
+        """
         family = self.family_members_cache()
         return len(family) == 1 and not family[0].user_id and not family[0].full_name
 
     def authorized_users_cache(self, complete=True, also_deleted=False):
+        """
+        Cached QuerySet of authorized users.
+        (Direct access to the field in templates re-queries the database.)
+        - Flag `complete` fetches also profile data for each user record.
+        - Flag `also_deleted` fetches records with deleted_on != NULL.
+        """
         cache_name = '_authed{}{}_cache'.format(
             '_all' if also_deleted else '_active',
             '_complete' if complete else '',
@@ -637,6 +679,10 @@ class Place(TrackingModel, TimeStampedModel):
             return cached_qs
 
     def conditions_cache(self):
+        """
+        Cached QuerySet of place conditions.
+        (Direct access to the field in templates re-queries the database.)
+        """
         return self.__dict__.setdefault('_conditions_cache', self.conditions.all())
 
     @property
@@ -652,6 +698,9 @@ class Place(TrackingModel, TimeStampedModel):
         return reverse('place_detail', kwargs={'pk': self.pk})
 
     def get_locality_display(self):
+        """
+        Returns "city (country)" or just "country" when no city is given.
+        """
         if self.city:
             return format_lazy("{city} ({state})", city=self.city, state=self.country.name)
         else:

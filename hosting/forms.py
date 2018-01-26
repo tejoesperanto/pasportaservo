@@ -433,7 +433,9 @@ class VisibilityForm(forms.ModelForm):
             'visible_online_authed',
             'visible_in_book',
         ]
+    # The textual note (for assistive technologies), placed before the data.
     hint = forms.CharField(required=False, disabled=True)
+    # Whether to nudge the data to the right, creating a second level.
     indent = forms.BooleanField(required=False, disabled=True)
 
     def __init__(self, *args, **kwargs):
@@ -475,6 +477,11 @@ class VisibilityForm(forms.ModelForm):
                 attrs.update({'data-tied': str(self.obj.visibility.rules.get('tied_online', False))})
 
     def venues(self, restrict_to=''):
+        """
+        Generator of bound fields corresponding to the visibility venues:
+        online_public, online_authed, and in_book. Each bound field is updated
+        to include the name of the venue.
+        """
         for f in self.fields:
             if f.startswith(self._meta.model._PREFIX+restrict_to):
                 bound_field = self[f]
@@ -483,6 +490,10 @@ class VisibilityForm(forms.ModelForm):
 
     @cached_property
     def obj(self):
+        """
+        Returns the object itself or a wrapper (in the case of a field), for
+        simplified and unified access to the visibility object in templates.
+        """
         if self.is_bound and self.instance.model_type == self.instance.DEFAULT_TYPE:
             raise ValueError("Form is bound but no visibility settings object was provided, "
                              "for key {pk} and {profile!r}. This most likely indicates tampering."
@@ -494,6 +505,9 @@ class VisibilityForm(forms.ModelForm):
         return wrappers.get(self.instance.model_type, lambda c: c)(self.instance.content_object)
 
     class FamilyMemberAsset:
+        """
+        Wrapper for the `family_members` field of a Place.
+        """
         def __init__(self, for_place):
             self.title = for_place._meta.get_field('family_members').verbose_name
             self.visibility = for_place.family_members_visibility
@@ -508,6 +522,9 @@ class VisibilityForm(forms.ModelForm):
             return str(self.title)
 
     class EmailAsset:
+        """
+        Wrapper for the `email` field of a Profile.
+        """
         def __init__(self, for_profile):
             self.data = for_profile.email
             self.visibility = for_profile.email_visibility
@@ -522,11 +539,24 @@ class VisibilityForm(forms.ModelForm):
             return value_without_invalid_marker(self.data)
 
     def clean_visible_in_book(self):
+        """
+        The in_book venue is manipulated manually in form init, so that the
+        checkbox appears as "off" when place is not offered for accommodation,
+        independently of its actual value.
+        The clean method ensures that the value is restored to the actual one;
+        otherwise the database will be updated with the "off" value.
+        """
         venue = next(self.venues('in_book'))
         if venue.field.disabled:
             return self.obj.visibility[venue.venue_name]
 
     def save(self, commit=True):
+        """
+        Adds a bit of magic to the saving of the visibility object.
+        When data is made visible in public, it will automatically become
+        visible also to the authorized users. And when it is made hidden for
+        authorized users, it will automatically become hidden for public.
+        """
         visibility = super().save(commit=False).as_specific()
         venue, field_name = None, ''
         for field in self.venues('online'):
@@ -549,6 +579,11 @@ class VisibilityForm(forms.ModelForm):
 
 
 class VisibilityFormSetBase(forms.BaseModelFormSet):
+    """
+    Provides a unified basis for a FormSet of the visibility models, linked to
+    a specific profile. The linkage is to all relevant objects, such as places
+    and phones, and to fields with selective display-ability.
+    """
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
         self.modified_venue = kwargs.pop('dirty', None)
@@ -602,6 +637,10 @@ class VisibilityFormSetBase(forms.BaseModelFormSet):
         self.queryset = qs.order_by('level_primary', 'model_id', 'level_secondary')
 
     def get_form_kwargs(self, index):
+        """
+        Forwards to the individual forms certain request parameters, which are
+        available here but normally not for the forms themselves.
+        """
         if index >= len(self.queryset):
             raise IndexError("Form #{id} does not exist in the queryset, for {profile!r}. "
                              "This most likely indicates tampering."
