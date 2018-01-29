@@ -155,6 +155,15 @@ header:not(.home) #subtitle,
     font-family: $font-stack-hint;
 }
 
+#technologies-banner {
+    position: fixed;
+    bottom: -500px;
+    margin-bottom: -4px;
+    z-index: 1070;
+    background-color: rgba(10, 5, 0, 0.95);
+    display: none;
+}
+
 
 /* Search & Accommodation details */
 #page.search form.search {

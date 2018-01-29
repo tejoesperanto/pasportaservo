@@ -42,7 +42,7 @@
                     shouldDisableGA = localStorage.getItem(optoutKey) == 'true';
                 }
                 else {
-                    shouldDisableGA = doNotTrack;
+                    shouldDisableGA = !Cookies.get('_consent') || doNotTrack;
                 }
             {% endif %}
             if (shouldDisableGA) {
