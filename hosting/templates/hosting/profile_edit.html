@@ -2,24 +2,44 @@
 {% load i18n static profile expression %}
 
 {% block profile_edit_buttons %}
-                <a href="{% url 'profile_update' profile.pk profile.user.username|slugify %}"
+                <a href="{% url 'profile_update' profile.pk profile.autoslug %}"
                    class="btn btn-success"
                    title="{% trans "Update profile" %}">
                     <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
                     <span class="hidden-xxs">{% trans "Update" %}</span>
                 </a>
-                <a href="{% url 'profile_settings' profile.pk profile.user.username|slugify %}"
+                <a href="{% url 'profile_settings' profile.pk profile.autoslug %}"
                    class="btn btn-info"
                    title="{% trans "Settings" %}">
                     <span class="fa fa-cogs" aria-hidden="true"></span>
                     <span class="hidden-xxs">{% trans "Settings" %}{% if view.role >= roles.SUPERVISOR %}: {% trans "Account" %}{% endif %}</span>
                 </a>
-                <a href="{% url 'profile_detail' profile.pk profile.user.username|slugify %}" 
+                <a href="{% url 'profile_detail' profile.pk profile.autoslug %}"
                    class="btn btn-primary"
                    title="{% trans "View public profile" %}">
                     <span class="fa fa-arrow-right" aria-hidden="true"></span>
                     <span class="hidden-xs">{% trans "View" %}</span>
                 </a>
+{% endblock %}
+
+{% block public_email_edit_buttons %}
+    {% spaceless %}
+    <a href="{% url 'profile_email_update' profile.pk profile.autoslug %}"
+       class="action-edit-inline text-label-success" title="{% trans "Update public email" %}">
+        <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+        <span class="sr-only">{% trans "Update public email" %}</span>
+    </a>
+    {% endspaceless %}
+{% endblock %}
+
+{% block public_phone_edit_buttons %}
+    {% spaceless %}
+    <a href="{% url 'phone_update' profile.pk phones_public.0.pk %}"
+       class="action-edit-inline text-label-success" title="{% trans "Update a phone number" %}">
+        <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+        <span class="sr-only">{% trans "Update a phone number" %}</span>
+    </a>
+    {% endspaceless %}
 {% endblock %}
 
 {% block place_edit_buttons %}
@@ -52,14 +72,14 @@
         <div class="btn-group pull-right">
             {% if not member.user_id %}
                 <a href="{% url 'family_member_update' place.pk member.pk %}?next={{ request.get_full_path|urlencode }}"
-                   class="btn btn-success"
+                   class="btn btn-smaller-xxs btn-success"
                    title="{% trans "Update a family member" %}">
                     <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
                     <span class="hidden-xs">{% trans "Update" %}</span>
                 </a>
             {% elif user|is_supervisor_of:member %}
-                <a href="{% url 'profile_update' member.pk member.user.username|slugify %}"
-                   class="btn btn-success"
+                <a href="{% url 'profile_update' member.pk member.autoslug %}"
+                   class="btn btn-smaller-xxs btn-success"
                    title="{% trans "Update profile" %}">
                     <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
                     <span class="hidden-xs">{% trans "Update" %}</span>
@@ -67,7 +87,7 @@
             {% endif %}
             {% if place_owner_or_supervisor %}
                 <a href="{% url 'family_member_remove' place.pk member.pk %}"
-                   class="btn btn-danger"
+                   class="btn btn-smaller-xxs btn-danger"
                    title="{% trans "Remove a family member" %}">
                     <span class="fa fa-user-times" aria-hidden="true"></span>
                 </a>
@@ -92,13 +112,13 @@
 {% block phone_edit_buttons %}
     <div class="btn-group pull-right">
         <a href="{% url 'phone_update' profile.pk phone.pk %}"
-           class="btn btn-success"
-           title="{% trans "Update" %}">
+           class="btn btn-smaller-xxs btn-success"
+           title="{% trans "Update a phone number" %}">
             <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
             <span class="hidden-xs">{% trans "Update" %}</span>
         </a>
         <a href="{% url 'phone_delete' profile.pk phone.pk %}"
-           class="btn btn-danger"
+           class="btn btn-smaller-xxs btn-danger"
            title="{% trans "Remove a phone number" %}">
             <span class="fa fa-trash-o" aria-hidden="true"></span>
         </a>

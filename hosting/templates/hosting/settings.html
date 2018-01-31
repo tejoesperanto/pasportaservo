@@ -6,11 +6,12 @@
     {% if view.role == roles.OWNER %}
         {% trans "Settings" %}
     {% else %}
-        {% trans "Account" %} {% blocktrans with name=profile.anonymous_name %}of {{ name }}{% endblocktrans %}
+        {% trans "Account" %} {% blocktrans with name=profile.name|default:profile.INCOGNITO %}of {{ name }}{% endblocktrans %}
     {% endif %}
 {% endblock %}
 
 {% block extra_css %}
+        <link rel="stylesheet" href="{% static 'toggle/bootstrap-toggle.min.css' %}">
         <style type="text/css">
             .row + .callout, [class|="col"] > .callout {
                 margin-top: -5px;
@@ -22,12 +23,26 @@
 {% endblock %}
 
 {% block extra_js %}
+        <script src="{% static 'toggle/bootstrap-toggle.min.js' %}"></script>
+        <script src="{% static 'js/settings.js' %}"></script>
         <script src="{% static 'js/ajax.js' %}"></script>
 {% endblock %}
 
+{% block page_class %} settings{% endblock %}
+
 {% block page %}
-    <h2>{% if view.role >= roles.SUPERVISOR %}{{ profile.get_fullname_display }}: {% endif %}
-        {% trans "Settings" %}</h2>
+    <h2>
+        {% if view.role >= roles.SUPERVISOR %}
+            <span class="full-name">
+                {% if profile.first_name or profile.last_name %}
+                    {{ profile.get_fullname_display }}:
+                {% else %}
+                    {{ profile.INCOGNITO }} ({{ profile.user.username }}):
+                {% endif %}
+            </span>
+        {% endif %}
+        {% trans "Settings" %}
+    </h2>
 
     {% if profile.deleted %}
     <div class="alert alert-small alert-danger">
@@ -123,7 +138,7 @@
                         {% firstof profile.email no_email %}
                     {% endif %}
                 </small></samp> &nbsp;
-                <a href="{% url 'profile_email_update' profile.pk profile.user.username|slugify %}?next={{ request.get_full_path|urlencode }}"
+                <a href="{% url 'profile_email_update' profile.pk profile.autoslug %}?next={{ request.get_full_path|urlencode }}"
                    class="btn btn-default btn-sm btn-vert-space-even">
                     {% trans "Update public email" %}
                 </a>
@@ -132,27 +147,33 @@
         </section>
     </section>
 
-    {% if view.role == roles.OWNER %}
-    <!--
+    {% if view.role == roles.OWNER or view.role == roles.ADMIN %}
     <section class="callout callout-warning">
-        <h4>{% trans "Privacy" %}</h4>
+        <h4 >
+            {% trans "Privacy" %}
+            {% if view.role > roles.OWNER %}
+                &nbsp;<small><span class="label label-info" style="vertical-align: text-top">{% trans "Preview" context 'Title' %}</span></small>
+            {% endif %}
+        </h4>
+        <div class="">
+            {% include './settings_privacy_matrix.html' %}
+        </div>
     </section>
-    -->
     {% endif %}
 
     {% if not profile.deleted %}
     <section class="callout callout-danger">
         <h4>{% if view.role == roles.OWNER %}{% trans "End my membership" %}{% else %}{% trans "End membership" %}{% endif %}</h4>
-        <a href="{% url 'profile_delete' profile.pk profile.user.username|slugify %}"
+        <a href="{% url 'profile_delete' profile.pk profile.autoslug %}"
            class="btn btn-danger">
             <span class="fa fa-trash fa-lg" aria-hidden="true"></span>&nbsp;
             {% trans "Delete account" %}
         </a>
     </section>
     {% endif %}
-        
+
     <div class="pull-left">
-        <a href="{% url 'profile_edit' profile.pk profile.user.username|slugify %}" class="btn btn-default" title="{% trans "Back" %}">
+        <a href="{% url 'profile_edit' profile.pk profile.autoslug %}" class="btn btn-default" title="{% trans "Back" %}">
             <span class="fa fa-arrow-left" aria-hidden="true"></span>
             <span>{% trans "Back" %}</span>
         </a>

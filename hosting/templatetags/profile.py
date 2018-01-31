@@ -76,6 +76,12 @@ def supervisor_of(user_or_profile):
     return ("",)
 
 
+@register.filter
+def icon(model, field=''):
+    obj = model if not field else model._meta.get_field(field)
+    return getattr(obj, 'icon', '')
+
+
 @register.filter(is_safe=True)
 @stringfilter
 def is_invalid(value):

@@ -4,6 +4,10 @@ body, .same-as-body {
     font-size: 16px;
 }
 
+.full-name {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
 .last-name {
     font-variant: small-caps;
     font-variant-caps: small-caps;
@@ -19,6 +23,13 @@ body, .same-as-body {
     margin-left: 12px;
     padding-left: 3px;
     font-size: 16px;
+}
+.action-edit-inline {
+    margin-left: 0.3ex;
+    .fa {
+        position: relative;
+        top: 1px;
+    }
 }
 
 code, kbd, pre, samp {
@@ -91,6 +102,13 @@ ul.dropdown-menu-lg li {
     cursor: pointer;
     color: lighten($color-text, 25%);
 }
+.toggle-handle {
+    min-width: 1.8em;
+    border-radius: 45%;
+}
+.toggle-handle:focus {
+    outline: 0;
+}
 
 .debug-only {
     position: absolute;
@@ -160,9 +178,14 @@ header:not(.home) #subtitle,
     margin-bottom: 0.5em;
     border-bottom: 1px solid darken($color-gray-light, 6%);
 }
-.place-detail .name,
+.place-detail .owner .name,
 .place-list .name {
     font-weight: bold;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
+.place-list .name {
+    white-space: nowrap;
 }
 .place-detail .status,
 .place-list .status:not(.anchor-group) {
@@ -276,6 +299,15 @@ header:not(.home) #subtitle,
         top: 0.15ex;
     }
 }
+.switch[data-target="#family-panel-small"],
+.switch[href="#family-panel-small"] {
+    position: relative;
+    top: -0.15ex;
+    margin-left: 1em;
+    &:not(.initial) .fa {
+        transition: all 0.3s ease-in;
+    }
+}
 
 .anchor-notify + .popover {
     color: $color-state-info-text;
@@ -324,7 +356,7 @@ header:not(.home) #subtitle,
     .form-group > div > input {
         display: inherit;
     }
-    .form-group > div > input[type=text] {
+    .form-group > div > input[type="text"] {
         width: 9em;
     }
     .blocking-tip,
@@ -364,38 +396,47 @@ p.tip {
 
 
 /* Profile */
-.profile-avatar img {
-    width: 100%;
-    max-width: 140px;
-}
-.profile-avatar {
-    margin-right: 2em;
+.profile-detail .owner .name {
+    @extend .full-name;
 }
 @media (max-width: 540px) {
-    .owner-avatar {
+    .profile-detail .owner .avatar {
         display: inline-block;
         position: relative;
         cursor: zoom-in;
-    }
-    .owner-avatar:after {
-        font-family: FontAwesome;
-        content: attr(data-content);
-        position: absolute;
-        bottom: -5px;
-        right: -1px;
-        color: $color-gray-light;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+
+        &:after {
+            font-family: FontAwesome;
+            content: attr(data-content);
+            position: absolute;
+            bottom: -5px;
+            right: -1px;
+            color: $color-gray-light;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+        }
     }
     .mfp-wrap {
         position: fixed !important;
         top: 0px !important;
     }
 }
+.contact-details:not(a) {
+    font-style: italic;
+}
+a.contact-details:not(:hover) {
+    color: darken($color-primary, 17.5%);
+}
 
+.owned-place {
+    .conceal-marker {
+        margin-right: 0.6em;
+    }
+}
 .list-vertical-align {
     min-height: 3.5em;
 }
-.list-vertical-align .details {
+.list-vertical-align .family-member,
+.list-vertical-align .phone-number {
     margin-top: 0.5em;
     margin-bottom: 0em;
 }
@@ -403,14 +444,112 @@ p.tip {
 .list-vertical-align .number {
     font-weight: bold;
     margin: 0 1em 0 0.5em;
+    & + .conceal-marker {
+        margin-right: 0.6em;
+    }
 }
-.list-vertical-align .number {
+.phone-number .number {
     white-space: nowrap;
+}
+.list-group-item.concealed {
+    background-color: $color-default-bg;
+    &:not(.text-primary):not(.text-success):not(.text-info):not(.text-warning):not(.text-danger) {
+        color: $color-gray;
+    }
+}
+.list-group-item.concealed-partially {
+    @mixin striped($color, $angle: 45deg) {
+        @mixin gradient($config...) {
+            background-image: -webkit-linear-gradient($config);
+            background-image:      -o-linear-gradient($config);
+            background-image:         linear-gradient($config);
+        }
+        @include gradient($angle, $color 25%, transparent 25%, transparent 50%, $color 50%, $color 75%, transparent 75%, transparent);
+    }
+    @include striped($color-default-bg);
+    -webkit-background-size: 40px 40px;
+            background-size: 40px 40px;
+}
+
+#page.settings #matrix_form {
+    th.header-in_book {
+        vertical-align: middle !important;
+        text-align: center !important;
+    }
+    .asset-icon {
+        float: left;
+        width: 13%;
+        width: 1em;
+    }
+    .asset-value {
+        float: left;
+        width: 87%;
+        width: calc(100% - 1em);
+        padding-left: 5px;
+    }
+    .asset-value.idented {
+        padding-left: 30px;
+    }
+    .asterisk {
+        position: absolute;
+        right: 0px;
+    }
+    .visibility-success {
+        position: absolute;
+        left: 0px;
+        z-index: 2;
+        text-shadow: 1px 3px 3px #eee;
+    }
+    .authorized-list.switch {
+        position: absolute;
+        top: 1px;
+        right: 0px;
+    }
 }
 
 .authorized-user {
-    position: relative;
-    top: 0.1em;
+    margin-bottom: 20px;
+    .name {
+        position: relative;
+        top: 0.1em;
+        display: inline-block;
+        max-width: 100%;
+        @extend .full-name;
+    }
+    .avatar {
+        display: inline-block;
+        overflow: hidden;
+        vertical-align: middle;
+    }
+    .avatar {
+        width: 30px;
+        height: 30px;
+        margin-right: 0.5ex;
+    }
+}
+.authorized-user.compact {
+    margin-bottom: 10px;
+    .col-avatar {
+    }
+    .col-name {
+        white-space: nowrap;
+        overflow: hidden;
+    }
+    .avatar {
+        width: 25px;
+        height: 25px;
+        margin-right: 0.2em;
+    }
+}
+.authorized-list.panel {
+    width: 420px;
+    position: absolute;
+    right: 0px;
+    top: calc(100% + 2px);
+    z-index: 11;
+    .panel-body {
+        overflow-y: auto;
+    }
 }
 
 
@@ -440,12 +579,18 @@ p.tip {
     width: 40px;
 }
 .place-supervisor-detail {
+    .control-buttons {
+        margin-left: 20px;
+    }
     .control-buttons .timestamp {
         margin-bottom: 0px;
         margin-right: 1px;
         &:first-of-type {
             margin-top: 1em;
         }
+    }
+    .name {
+        @extend .full-name;
     }
     .description-short.has-content {
         margin: 10px 0px;
@@ -519,12 +664,12 @@ footer {
     overflow: hidden;
     position: fixed;
     top: 0;
-    opacity: 0.92;
+    opacity: 0.95;
     z-index: 1050;
     @include transition(margin-top 1s, opacity 0.8s linear);
 
     &.in {
-        margin-top: -13px;
+        margin-top: -5px;
     }
     &.out {
         opacity: 0;
@@ -534,11 +679,17 @@ footer {
 
 /* XXS */
 @media (max-width: #{$BOOTSTRAP-XS - 1}) {
-    .list-vertical-align .member {
+    .list-vertical-align .family-member .member {
         margin-right: 0.5em;
     }
-    .list-vertical-align .details .comment {
+    .list-vertical-align .phone-number .comment {
         font-size: 14px;
+    }
+    .list-vertical-align .member,
+    .list-vertical-align .number {
+        & + .conceal-marker {
+            margin-left: -0.4em;
+        }
     }
     .place-detail .status {
         max-width: 4.25em;
@@ -572,6 +723,14 @@ footer {
     }
     h2.owner {
         font-size: 24px;
+    }
+    #page.settings #matrix_form {
+        th.header-public, th.header-authed {
+            font-size: 85%;
+        }
+        .asset-value.idented {
+            padding-left: 20px;
+        }
     }
 }
 /* SM */

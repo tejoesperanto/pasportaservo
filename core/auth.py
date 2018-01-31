@@ -1,5 +1,7 @@
 import logging
 import re
+import types
+import warnings
 
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend
@@ -157,6 +159,24 @@ class AuthMixin(AccessMixin):
     display_permission_denied = True
     permission_denied_message = _("Only the supervisors of {this_country} can access this page")
 
+    class MisconfigurationWarning(UserWarning):
+        pass
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        dispatch_func = self.dispatch
+
+        def _dispatch_wrapper(wrapped_self, wrapped_request, *wrapped_args, **wrapped_kwargs):
+            result = dispatch_func(wrapped_request, *wrapped_args, **wrapped_kwargs)
+            if not hasattr(wrapped_self, 'role'):
+                warnings.warn(
+                    "AuthMixin is present on the view {} but no authorization check was performed. "
+                    "Check super() calls and order of inheritance.".format(self.__class__.__name__),
+                    AuthMixin.MisconfigurationWarning, stacklevel=2)
+            return result
+
+        self.dispatch = types.MethodType(_dispatch_wrapper, self)
+
     def get_object(self, queryset=None):
         """
         Permission check for detail, update, and delete views.
@@ -183,8 +203,8 @@ class AuthMixin(AccessMixin):
             self._auth_verify(object, context_omitted=object is None)
         elif isinstance(self, generic.CreateView):
             raise ImproperlyConfigured(
-                "Creation base not found. Make sure {View}'s auth_base is accessible by "
-                "AuthMixin as a dispatch kwarg.".format(View=self.__class__.__name__)
+                "Creation base not found. Make sure {}'s auth_base is accessible by "
+                "AuthMixin as a dispatch kwarg.".format(self.__class__.__name__)
             )
         return super().dispatch(request, *args, **kwargs)
 

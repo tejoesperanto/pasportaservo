@@ -38,4 +38,9 @@
         display: none !important;
     }
     @include further-grid-columns("xxs", "xs");
+
+    .btn-smaller-xxs {
+        padding: 4px 8px;
+        line-height: 1.5;
+    }
 }

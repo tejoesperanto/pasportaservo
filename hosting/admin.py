@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib.admin.utils import display_for_value
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
 from django.contrib.auth.models import Group, User
+from django.contrib.contenttypes.admin import GenericTabularInline
 # from django.contrib.gis import admin as gis_admin
 from django.contrib.gis.db.models import PointField
 from django.core.cache import cache
@@ -17,11 +18,12 @@ from maps.widgets import MapboxGlWidget
 
 from .admin_utils import (
     CountryMentionedOnlyFilter, EmailValidityFilter,
-    PlaceHasLocationFilter, ProfileHasUserFilter,
-    ShowConfirmedMixin, ShowDeletedMixin, SupervisorFilter,
+    PlaceHasLocationFilter, ProfileHasUserFilter, ShowConfirmedMixin,
+    ShowDeletedMixin, SupervisorFilter, VisibilityTargetFilter,
 )
 from .models import (
-    Condition, ContactPreference, Phone, Place, Profile, Website,
+    Condition, ContactPreference, Phone, Place,
+    Profile, VisibilitySettings, Website,
 )
 from .widgets import AdminImageWithPreviewWidget
 
@@ -59,6 +61,23 @@ class PhoneInLine(ShowDeletedMixin, admin.TabularInline):
     fields = ('number', 'country', 'type', 'comments', 'confirmed_on', 'is_deleted')
     readonly_fields = ('confirmed_on', 'is_deleted',)
     fk_name = 'profile'
+
+
+class VisibilityInLine(GenericTabularInline):
+    model = VisibilitySettings
+    extra = 0
+    can_delete = False
+    fields = ('visible_online_public', 'visible_online_authed', 'visible_in_book', 'id')
+    ct_fk_field = 'model_id'
+
+    def get_readonly_fields(self, request, obj=None):
+        return self.fields
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(User)
@@ -189,6 +208,49 @@ class TrackingModelAdmin(ShowConfirmedMixin):
         return super().get_field_queryset(db, db_field, request)
 
 
+@admin.register(VisibilitySettings)
+class VisibilityAdmin(admin.ModelAdmin):
+    visibility_fields = tuple(
+        f.name for f in VisibilitySettings._meta.get_fields()
+        if f.name.startswith(VisibilitySettings._PREFIX)
+    )
+    list_display = (
+        'id', '__str__', 'content_object_link',
+    ) + visibility_fields
+    list_display_links = ('id', '__str__')
+    search_fields = [
+        'id', 'model_id',
+    ]
+    list_filter = (
+        VisibilityTargetFilter,
+        'visible_in_book', 'visible_online_authed', 'visible_online_public',
+    )
+    fields = (
+        'model_type', 'content_object_link', 'content_type',
+    ) + visibility_fields
+    readonly_fields = fields
+
+    def content_object_link(self, obj):
+        try:
+            link = reverse('admin:{content.app_label}_{content.model}_change'.format(content=obj.content_type),
+                           args=[obj.model_id])
+            return format_html(
+                '{pk}: <a href="{url}">{content}</a>',
+                url=link,
+                pk=obj.content_object.pk, content=obj.content_object
+            )
+        except AttributeError:
+            return '-'
+    content_object_link.short_description = _("object")
+    content_object_link.admin_order_field = 'model_id'
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 @admin.register(Profile)
 class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     list_display = (
@@ -215,7 +277,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     formfield_overrides = {
         models.ImageField: {'widget': AdminImageWithPreviewWidget},
     }
-    inlines = [PlaceInLine, ]  # PhoneInLine]  # https://code.djangoproject.com/ticket/26819
+    inlines = [VisibilityInLine, PlaceInLine, ]  # PhoneInLine]  # https://code.djangoproject.com/ticket/26819
 
     def user__email(self, obj):
         try:
@@ -280,6 +342,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     }
     raw_id_fields = ('owner', 'authorized_users',)  # 'checked_by',)
     filter_horizontal = ('family_members',)
+    inlines = [VisibilityInLine, ]
 
     def display_country(self, obj):
         return '{country.code}: {country.name}'.format(country=obj.country)
@@ -350,6 +413,7 @@ class PhoneAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     ) + TrackingModelAdmin.fields
     raw_id_fields = ('profile',)
     radio_fields = {'type': admin.VERTICAL}
+    inlines = [VisibilityInLine, ]
 
     def number_intl(self, obj):
         return obj.number.as_international

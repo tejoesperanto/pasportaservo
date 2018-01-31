@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 from collections import OrderedDict
 from datetime import date
@@ -12,6 +13,7 @@ from django.core.exceptions import NON_FIELD_ERRORS
 from django.core.mail import send_mail
 from django.db import models
 from django.db.models import Q
+from django.forms import modelformset_factory
 from django.http import (
     Http404, HttpResponseBadRequest,
     HttpResponseRedirect, JsonResponse, QueryDict,
@@ -24,7 +26,6 @@ from django.utils import timezone
 from django.utils.encoding import uri_to_iri
 from django.utils.http import urlquote_plus
 from django.utils.six.moves.urllib.parse import unquote_plus
-from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from django.views import generic
 from django.views.decorators.vary import vary_on_headers
@@ -39,18 +40,9 @@ from core.forms import UserRegistrationForm
 from core.mixins import LoginRequiredMixin
 from core.models import SiteConfiguration
 
-from .forms import (
-    FamilyMemberCreateForm, FamilyMemberForm, PhoneCreateForm,
-    PhoneForm, PlaceBlockForm, PlaceCreateForm, PlaceForm,
-    PlaceLocationForm, ProfileCreateForm, ProfileEmailUpdateForm,
-    ProfileForm, UserAuthorizedOnceForm, UserAuthorizeForm,
-)
-from .mixins import (
-    CreateMixin, DeleteMixin, FamilyMemberAuthMixin,
-    FamilyMemberMixin, PhoneMixin, PlaceMixin,
-    ProfileIsUserMixin, ProfileModifyMixin, UpdateMixin,
-)
-from .models import Phone, Place, Profile
+from .forms import *  # noqa: F403
+from .mixins import *  # noqa: F403
+from .models import Phone, Place, Profile, VisibilitySettings
 from .utils import geocode
 
 User = get_user_model()
@@ -106,7 +98,7 @@ class ProfileDeleteView(
 
     def get_failure_url(self):
         return reverse_lazy('profile_settings', kwargs={
-            'pk': self.object.pk, 'slug': slugify(self.object.user.username)})
+            'pk': self.object.pk, 'slug': self.object.autoslug})
 
     def delete(self, request, *args, **kwargs):
         """
@@ -164,7 +156,9 @@ class ProfileDetailView(AuthMixin, ProfileIsUserMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['places'] = self.object.owned_places.filter(deleted=False).prefetch_related('family_members')
-        context['phones'] = self.object.phones.filter(deleted=False)
+        display_phones = self.object.phones.filter(deleted=False)
+        context['phones'] = display_phones
+        context['phones_public'] = display_phones.filter(visibility__visible_online_public=True)
         return context
 
 
@@ -182,6 +176,12 @@ class ProfileSettingsView(ProfileDetailView):
     def profile_email_help_text(self):
         return Profile._meta.get_field('email').help_text
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['privacy_matrix'] = ProfilePrivacyUpdateView.VisibilityFormSet(
+            profile=self.object, form_kwargs={'read_only': self.role > OWNER})
+        return context
+
 
 class ProfileSettingsRedirectView(LoginRequiredMixin, generic.RedirectView):
     permanent = False
@@ -189,7 +189,7 @@ class ProfileSettingsRedirectView(LoginRequiredMixin, generic.RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         try:
             return reverse_lazy('profile_settings', kwargs={
-                'pk': self.request.user.profile.pk, 'slug': slugify(self.request.user.username)})
+                'pk': self.request.user.profile.pk, 'slug': self.request.user.profile.autoslug})
         except Profile.DoesNotExist:
             return reverse_lazy('profile_create')
 
@@ -199,6 +199,42 @@ class ProfileEmailUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, 
     template_name = 'hosting/profile-email_form.html'
     form_class = ProfileEmailUpdateForm
     minimum_role = OWNER
+
+
+class ProfilePrivacyUpdateView(AuthMixin, ProfileMixin, generic.View):
+    http_method_names = ['post']
+    exact_role = OWNER
+
+    VisibilityFormSet = modelformset_factory(
+        VisibilitySettings,
+        form=VisibilityForm, formset=VisibilityFormSetBase, extra=0)
+
+    def get_permission_denied_message(self, object, context_omitted=False):
+        return _("Only the user themselves can access this page")
+
+    @vary_on_headers('HTTP_X_REQUESTED_WITH')
+    def post(self, request, *args, **kwargs):
+        profile = self.get_object()
+        data = QueryDict(request.body)
+        formset = self.VisibilityFormSet(profile=profile, data=data)
+        data_correct = formset.is_valid()
+        if data_correct:
+            formset.save()
+        else:
+            for index, err in enumerate(formset.errors):
+                err['_pk'] = formset[index].instance.pk
+                if err:
+                    err['_obj'] = repr(formset[index].instance)
+            logging.getLogger('PasportaServo.{module_}.{class_}'.format(
+                module_=__name__, class_=self.__class__.__name__
+            )).error(formset.errors)
+
+        if request.is_ajax():
+            return JsonResponse({'result': data_correct})
+        else:
+            if not data_correct:
+                raise ValueError("Unexpected visibility cofiguration. Ref {}".format(formset.errors))
+            return HttpResponseRedirect('{}#pR'.format(profile.get_edit_url()))
 
 
 class PlaceCreateView(
@@ -316,7 +352,7 @@ class PlaceBlockView(AuthMixin, PlaceMixin, generic.View):
     def put(self, request, *args, **kwargs):
         place = self.get_object()
         if place.deleted:
-            return JsonResponse({'result': False, 'err': {'__all__': [_("Deleted place"), ]}})
+            return JsonResponse({'result': False, 'err': {NON_FIELD_ERRORS: [_("Deleted place"), ]}})
         form = PlaceBlockForm(data=QueryDict(request.body), instance=place)
         data_correct = form.is_valid()
         viewresponse = {'result': data_correct}
@@ -407,7 +443,7 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
             if len(data_problems):
                 viewresponse['err'+NON_FIELD_ERRORS] = list(data_problems)
         else:
-            self.get_object().set_check_status(self.request.user)
+            place.set_check_status(self.request.user)
 
         if request.is_ajax():
             return JsonResponse(viewresponse)

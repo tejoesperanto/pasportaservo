@@ -4,14 +4,15 @@
 {% block head_title %}
     {% if view.role >= roles.SUPERVISOR and place %}
         {% blocktrans %}Update {{ kin }}place{% endblocktrans %}:
-        {{ place.owner.name }}, {{ place.get_locality_display }}
+        {{ place.owner.name|default:place.owner.INCOGNITO }}, {{ place.get_locality_display }}
     {% elif place %}
         {% blocktrans with kin=_("my ") %}Update {{ kin }}place{% endblocktrans %}
         ({{ place }})
     {% else %}
         {% trans "place"|title %}
         {% if view.role >= roles.SUPERVISOR %}
-            {% blocktrans with name=view.create_for.name %}of {{ name }}{% endblocktrans %}
+            {% blocktrans with name=view.create_for.name|default:_("user") %}of {{ name }}{% endblocktrans %}
+            {% if not view.create_for.name %}#{{ view.create_for.id }}{% endif %}
         {% endif %}
     {% endif %}
 {% endblock %}

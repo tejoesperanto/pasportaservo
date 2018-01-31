@@ -1,0 +1,74 @@
+{% load i18n expression %}
+
+<form id="matrix_form" action="{% url 'profile_privacy_update' profile.pk profile.autoslug %}" method="POST" data-csrf="{{ csrf_token }}">
+    {{ privacy_matrix.management_form }}
+    <table class="table table-hover">
+    <thead>
+        {# TODO: cutoff at 600px. at smaller screens the table becomes unusable. #}
+        <tr>
+            <th rowspan="2"><small>{% trans "where the following data should be visible?" %}</small></th>
+            <th colspan="2" class="header-online">{% trans "on site" %}</th>
+            <th rowspan="2" class="header-in_book">{% trans "in book" %}</th>
+        </tr>
+        <tr>
+            <th width="1%" class="header-public text-nowrap">{% trans "all visitors" %}</th>
+            <th width="1%" class="header-authed text-nowrap">{% trans "guests and hosts" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for asset in privacy_matrix %}
+        <tr>
+            <td>
+                <div class="asset-icon text-warning" aria-hidden="true">{{ asset.obj.icon }}</div>
+                <span class="sr-only">{{ asset.hint.value }}</span>
+                <div class="asset-value {% if asset.indent.value %}idented{% endif %}">
+                    {% if asset.indent.value %}
+                        <span class="fa fa-reply fa-rotate-180 text-muted" aria-hidden="true"></span>&nbsp;
+                    {% endif %}
+                    {{ asset.id }}
+                    {{ asset.obj }}
+                </div>
+            </td>
+            {% for venue in asset.venues %}
+            <td>
+                <div style="position: relative"> {# required for correct positioning of floating elements #}
+                    <div class="text-center">
+                        <span class="fa fa-check text-label-success visibility-success" style="visibility: hidden"
+                              aria-role="status" data-notification="{% trans "saved" %}"></span>
+                        {{ venue }}
+                        {% if venue.hosting_notification %}
+                            <span class="fa fa-asterisk text-muted asterisk"
+                                  title="{% trans "you are not hosting, therefore this place will not be in the book" %}"
+                                  data-toggle="tooltip" data-placement="left" data-container="body"></span>
+                        {% endif %}
+                    </div>
+                    {% if 'auth' in venue.name and asset.obj.authorized_users_cache.query %}
+                        {% with vis_pk=asset.obj.visibility.pk %}
+                            {% expr "authlist-"+str(vis_pk) as global id_auth_panel %}
+                        {% endwith %}
+                        <button class="authorized-list switch btn btn-default btn-xs"
+                                data-target="#{{ id_auth_panel }}"
+                                aria-controls="{{ id_auth_panel }}" aria-expanded="false" aria-haspopup="true">
+                            <span class="fa fa-eye" aria-hidden="true"></span>
+                            <span class="fa fa-question" aria-hidden="true"></span>
+                            <span class="sr-only">{% trans "who can view ?" %}</span>
+                        </button>
+                        {% include './snippets/place_authorizations.html' with id=id_auth_panel place_pk=asset.obj.pk authorized_set=asset.obj.authorized_users_cache is_collapsed=True %}
+                    {% endif %}
+                </div>
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+    {% if view.role == roles.OWNER %}
+        <input type="hidden" id="id_dirty" name="dirty" value="" autocomplete="off">
+        {% csrf_token %}
+        <p class="--pull-right">
+            <button type="submit" class="btn btn-default" id="id_vis_form_submit">
+                {% trans "Save" %}
+            </button>
+        </p>
+    {% endif %}
+</form>

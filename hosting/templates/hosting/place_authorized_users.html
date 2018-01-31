@@ -30,9 +30,11 @@
     {% for auth_user, auth_form in authorized_set %}
         <div class="col-xs-12 col-md-6 col-md-offset-3">
             <form method="POST" action="{{ auth_form_url }}?next={{ request.GET.next }}">
-                <p class="col-xs-12 well">
-                    <img src="{{ auth_user.profile.avatar_url }}" height="30" />&nbsp;
-                    <span class="authorized-user">
+                <p class="col-xs-12 well authorized-user">
+                    <span class="avatar">
+                        <img class="center-block" src="{{ auth_user.profile.avatar_url }}" height="30" alt="[{% trans "avatar" %}]" />
+                    </span>
+                    <span class="name">
                         <a href="{{ auth_user.profile.get_absolute_url }}">
                             {% comment %}
                                 TODO: don't allow to add deleted users

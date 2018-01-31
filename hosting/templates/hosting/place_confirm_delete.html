@@ -2,15 +2,15 @@
 {% load i18n %}
 
 {% block head_title %}
-    {% if place.owner.user == user %}
+    {% if place.owner.user_id == user.pk %}
         {% blocktrans with kin=_("my ") %}Remove {{ kin }}place{% endblocktrans %}
         ({{ place }})
     {% else %}
         {% blocktrans %}Remove {{ kin }}place{% endblocktrans %}:
-        {{ place.owner.name }}, {{ place.get_locality_display }}
+        {{ place.owner.name|default:place.owner.INCOGNITO }}, {{ place.get_locality_display }}
     {% endif %}
 {% endblock %}
 
 {% block confirmation %}
-            {% trans "Are you sure you want to delete this place?" %}
+    {% trans "Are you sure you want to delete this place?" %}
 {% endblock %}

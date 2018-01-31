@@ -9,6 +9,11 @@ from core.auth import OWNER
 from .models import Phone, Place, Profile
 
 
+class ProfileMixin(object):
+    def get_object(self, queryset=None):
+        return get_object_or_404(Profile, pk=self.kwargs['pk'])
+
+
 class ProfileModifyMixin(object):
     def get_success_url(self, *args, **kwargs):
         if 'next' in self.request.GET:
@@ -113,7 +118,8 @@ class UpdateMixin(object):
     def form_valid(self, form):
         self.object.set_check_status(
             self.request.user,
-            clear_only=getattr(self, 'update_partial', False))
+            clear_only=getattr(self, 'update_partial', False),
+            commit=False)
         return super().form_valid(form)
 
 

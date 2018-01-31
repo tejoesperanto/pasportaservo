@@ -1,5 +1,5 @@
 {% load i18n domain %}{% autoescape off %}
-{% if user.profile %}{% blocktrans with user_first_name=user.profile.name trimmed %}
+{% if user.profile %}{% blocktrans with user_first_name=user.profile.name|default:user.username trimmed %}
     Dear {{ user_first_name }},
 {% endblocktrans %}{% else %}{% trans "Dear user," %}{% endif %}
 {% blocktrans trimmed %}
@@ -8,7 +8,7 @@
 {% endblocktrans %}.
 
 {% trans "The new address is:" %} {{ email }}
-{% trans "Your username, in case you've forgotten:" %} {{ user.get_username }}
+{% trans "Your username, in case you've forgotten:" %} {{ user.username }}
 
 {% trans "In case you did not request this change and you suspect it is a fraud, please contact us urgently!" %}
 

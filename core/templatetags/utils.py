@@ -37,3 +37,11 @@ def are_all(iterable):
         return all(iterable)
     except (ValueError, TypeError):
         return bool(iterable)
+
+
+@register.filter(is_safe=False)
+def mult(value, by):
+    try:
+        return value * int(by)
+    except (ValueError, TypeError):
+        return ''

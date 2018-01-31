@@ -61,25 +61,25 @@
         <div class="row place-list">
             <div class="col-xs-3 col-sm-2 col-md-1 avatar">
                 <a href="{{ place.owner.get_absolute_url }}">
-                    <img src="{{ place.owner.avatar_url }}" />
+                    <img src="{{ place.owner.avatar_url }}" alt="[{% trans "avatar" %}{% if place.owner.name %}: {{ place.owner.name }}{% endif %}]" />
                 </a>
             </div>
             {% expr place.available or place.owner_available as offered %}
-            <div class="col-xs-9 col-sm-10 col-md-11 name">
-                <div class="pull-right status">
-                    {% if user.is_authenticated and place.is_blocked %}
-                        <span class="label label-default">&nbsp;{% trans "unavailable" %}&nbsp;</span>
-                    {% endif %}
-                </div>
+            {% expr user.is_authenticated and place.is_blocked as unavailable %}
+            <div class="{% if unavailable %}col-xxs-9 col-xs-6 col-sm-8 col-md-9{% else %}col-xs-9 col-sm-10 col-md-11{% endif %} name">
                 <a href="{{ place.owner.get_absolute_url }}" class="{% if offered %}text-brand{% else %}{% endif %}">
                     {% if user.is_authenticated %}
-                        <span class="hidden-xxs">{{ place.owner.get_fullname_display }}</span>
-                        <span class="visible-xxs-inline">{{ place.owner.anonymous_name }}</span>
+                        {{ place.owner.get_fullname_display }}
                     {% else %}
-                        {{ place.owner.anonymous_name }}
+                        {{ place.owner.name|default:place.owner.INCOGNITO }}
                     {% endif %}
                 </a>
             </div>
+            {% if unavailable %}
+            <div class="col-xxs-9 col-xs-3 col-sm-2 col-md-2 status">
+                <span class="label label-default">&nbsp;{% trans "unavailable" %}&nbsp;</span>
+            </div>
+            {% endif %}
             <div class="col-xs-9 col-sm-10 col-md-11 address">
                 <div class="pull-right">{% include './snippets/checked.html' with object=place %}</div>
                 <a href="{{ place.get_absolute_url }}">
