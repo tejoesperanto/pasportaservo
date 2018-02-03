@@ -2,6 +2,11 @@ __pycache__/
 pasportaservo/settings/__init__.py
 pasportaservo/settings/local_settings.py
 htmlcov
+.coverage
+coverage.xml
+venv
+env
+.env
 *.aux
 *.log
 *.pyc

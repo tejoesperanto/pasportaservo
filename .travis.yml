@@ -1,0 +1,35 @@
+dist: trusty
+sudo: false
+language: python
+cache: pip
+services:
+  - postgresql
+addons:
+  postgresql: 9.6
+  apt:
+    packages:
+    - postgresql-9.6-postgis-2.3
+    - libgdal-dev
+
+python:
+  - 3.5
+  - 3.6
+env:
+  - DJANGO=1.11
+  - DJANGO=2.0
+
+matrix:
+  allow_failures:
+    - env: DJANGO=2.0
+  fast_finish: true
+
+install:
+  - pip install -r requirements/dev.txt
+
+before_script:
+  - isort
+  - flake8
+script:
+  - coverage run ./manage.py test
+after_success:
+  - codecov

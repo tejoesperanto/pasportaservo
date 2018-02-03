@@ -2,10 +2,11 @@
 
 bpython==0.16
 django-debug-toolbar==1.9.1
-sqlparse>=2.4
+sqlparse>=0.2.4
 fabric3<2
 pytest-django==3.1.2
-coverage==4.4.1
-
+codecov==2.0.15
+coverage==4.5
 flake8==3.5.0
 flake8-per-file-ignores==0.4
+isort==4.3.2
