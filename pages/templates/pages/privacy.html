@@ -1,6 +1,18 @@
 {% extends 'core/base.html' %}
 {% load i18n static %}
 
+{% block extra_css %}
+        {{ block.super }}
+        <style type="text/css">
+            [role="heading"][aria-level="4"] {
+                margin-bottom: 20px;
+            }
+            [role="heading"][aria-level="4"]:not(:first-child) {
+                margin-top: 20px;
+            }
+        </style>
+{% endblock %}
+
 {% block head_title %}Politiko pri privateco{% endblock %}
 
 {% block page_class %} page{% endblock %}
@@ -13,39 +25,311 @@
     </h2>
     <p class="clearfix"></p>
 
+    <br />
+    <p>
+    Tiu ĉi dokumento celas priskribi la tipojn de viaj informoj kaj datenoj kiujn ni
+    kolektas, la manierojn en kiuj tiuj datenoj estas uzataj (krom la evidenta celo
+    provizi al vi “Pasportan Servon”), kun kiu ili estas kundividitaj, kaj kiajn
+    opciojn vi havas rilate la privatecon de viaj datenoj.
+    La diversaj partoj de la dokumento klarigas kiamaniere ni kolektas la informojn
+    kaj kiamaniere ni pritraktas ilin.
+    </p>
+    <p>
+    De tempo al tempo ni povas ĝustigi aŭ modifi la kondiĉojn kaj la tekston de tiu
+    ĉi privateca politiko; en tiuj okazoj ni aktualigos la daton ekde kiu la teksto
+    efikas kaj sciigos vin pri la ŝanĝoj.
+    Via daŭra uzado de Pasporta Servo indikas konsenton je la kolektado kaj uzado de
+    la datenoj rilataj al vi, kiel priskribite en tiu ĉi dokumento.
+    </p>
+    <br />
+
     <section>
         <div class="list-group" id="{% trans "collected-information" context "URL" %}">
             <div class="list-group-item list-group-item-info">
+                <a href="#{% trans "collected-information" context "URL" %}" class="linking-grip" aria-hidden="true">
+                    <span class="fa fa-link"></span>
+                </a>
                 <strong role="heading" aria-level="3" id="title_collected_information">
                     Informoj kiujn ni kolektas dum via uzado de la retejo
                 </strong>
-                <a href="#{% trans "cookies" context "URL" %}">
+                <a href="#{% trans "shared-information" context "URL" %}">
                     <span class="fa fa-chevron-down pull-right" aria-hidden="true"></span>
                     <span class="sr-only">Salti al sekva sekcio</span>
                 </a>
             </div>
         </div>
         <blockquote aria-labelledby="#title_collected_information">
-            {% comment %}
+            <div role="heading" aria-level="4">
+                <strong><em>Informoj kiujn vi propravole kundividas kun ni:</em></strong>
+            </div>
+            <ul>
+                <li>
+                <strong>Datenoj por konto.</strong>
+                Kiam vi registriĝas ĉe Pasporta Servo, ni bezonas scii viajn uzanto-nomon
+                kaj retpoŝtan adreson.
+                Notu ke ekzistas aĝlimo por ekuzi Pasportan Servon kaj vi devas esti almenaŭ
+                16-jaraĝa en la momento de registriĝo.
+                </li>
+                <li>
+                <strong>Datenoj por profilo.</strong>
+                Vi povas aldoni informojn pri vi mem; tiuj informoj inkluzivas nomo(j)n,
+                genron, naskiĝdaton, sin-priskribon, kaj profilbildojn.  Provizo de tiuj ĉi
+                datenoj estas nedeviga, krom esceptoj detaligitaj sube. Ili konsistigos
+                parton de via profilo kaj estos videblaj al ĉiuj aliaj uzantoj de la retejo
+                (kun la escepto de naskiĝdato: ni montras vian aĝon sed ne la ekzaktan
+                daton [*]); kelkaj datumeroj, nome la profilbildo kaj la persona(j) nomo(j),
+                estas publike videblaj ankaŭ al vizitantoj de la retejo kiuj ne estas
+                registriĝintaj. Vi havas la eblecon mal-publikigi tiujn ĉi informojn.
+                <em>Esceptoj:</em>
+                </li>
+                <ul>
+                    <li>
+                    Se vi emas ĉiĉeroni aŭ trinkejumi kun gastoj, vi devos provizi vian
+                    nomon kaj naskiĝdaton. Aldone, vi devas havi almenaŭ 16 jarojn.
+                    </li>
+                    <li>
+                    Se vi emas gastigi, vi devos provizi vian nomon kaj
+                    naskiĝdaton. Aldone, vi devas havi almenaŭ 17 jarojn.
+                    </li>
+                    <li>
+                    Se vi emas gastigi kaj esti aperigita en la presita libreto, vi
+                    devos krom la supraj informoj provizi ankaŭ vian genron.
+                    </li>
+                </ul>
+                <li>
+                <strong>Kontakto-informoj.</strong>
+                Vi povas aldoni al via profilo por-publikan retpoŝtan adreson kaj
+                telefonnumerojn. Vi havas la kontrolon pri kie ĉiu el tiuj ĉi datumeroj
+                aperu kaj kiu vidu ilin [*].
+                </li>
+                <li>
+                <strong>Datenoj de loĝejo(j).</strong>
+                Aldonante loĝejon, vi povas indiki la adreson, la kondiĉojn en via loĝejo,
+                kaj liberformatan priskribon.  Provizo de tiuj ĉi datenoj estas nedeviga,
+                krom esceptoj detaligitaj sube.  Nur uzantoj eksplicite menciitaj fare de
+                vi povos vidi vian plenan adreson [*]. Via loĝlando estas publike videbla
+                ankaŭ al vizitantoj de la retejo kiuj ne estas registriĝintaj; vi havas la
+                eblecon mal-publikigi tiun ĉi informon. La informojn pri viaj kunloĝantoj,
+                kiujn vi mem provizas (nomo(j)n, genron, naskiĝdaton, kaj tiel plu), vidos
+                la eksplicite menciitaj uzantoj kaj, se vi ebligos tion en la agordoj,
+                ankaŭ aliaj registriĝintaj uzantoj. Se la kunloĝanto mem estas uzanto de
+                la retejo, la reguloj rilate datenojn de profilo aplikiĝas.
+                <em>Esceptoj:</em>
+                </li>
+                <ul>
+                    <li>
+                    Vi devas indiki la landon en kiu la loĝejo troviĝas kaj la geografian
+                    pozicion de la loĝejo sur la mapo.
+                    </li>
+                    <li>
+                    Se vi emas ĉiĉeroni aŭ trinkejumi kun gastoj, vi devos provizi la
+                    nomon de la urbo.
+                    </li>
+                    <li>
+                    Se vi emas gastigi, vi devos provizi la nomon de la urbo, la nomon
+                    de la proksima granda urbo se via loĝejo fakte troviĝas en urbeto
+                    aŭ vilaĝo, kaj la adreson de la loĝejo.
+                    </li>
+                    <li>
+                    En iuj landoj la provinco aŭ subŝtato estas nepra parto de adreso;
+                    se via loĝejo troviĝas en tia lando, vi devos provizi ankaŭ tiun
+                    ĉi informon kune kun la nomo de la urbo.
+                    </li>
+                </ul>
+                <li>
+                <strong>Korespondaĵoj kun aliaj uzantoj.</strong>
+                Kontaktado de uzantoj de la retejo estas efektivigata pere de interna
+                komuniko-sistemo. Por ebligi tion, ni kolektas kaj konservas la enhavon
+                de la mesaĝoj en nia sistemo.
+                </li>
+                <li>
+                <strong>Aliaj informoj.</strong>
+                Uzante la serĉo-mekanismojn de la retejo, vi sciigas al ni ŝlosilvortojn
+                laŭ kiuj trovi profilojn de aliaj uzantoj.
+                </li>
+                <li>
+                <strong>[*]</strong>
+                Datumerojn markitajn per steleto povas ĉiam vidi la landaj organizantoj
+                de via lando, indikita per la lokiĝo de via loĝejo. Pli detale en la sekcio
+                <a href="#{% trans "shared-information" context "URL" %}">Kundivido de Informoj</a>
+                sube.
+                </li>
+            </ul>
+
+            <div role="heading" aria-level="4">
+                <strong><em>Informoj kiuj estas kolektataj aŭtomate:</em></strong>
+            </div>
+            <ul>
+                <li>
+                <strong>Protokolaj datenoj pri uzado.</strong>
+                Interagoj kun la retejo estas registritaj en protokolo fare de la
+                retservilo, eĉ kiam vi ne estas ensalutinta aŭ ne kreis konton ĉe
+                Pasporta Servo. La registritaj informoj inkluzivas
+                <abbr title="Unuforma Rimeda Lokindiko: adreso de reta risurco, retadreso">URL</abbr>-ojn
+                kiujn vi aliris, la URL-on de la paĝo plusendinta vin al PS, tempon
+                de aliro, tipon de retumilo kaj en ĝi agordita(j)n lingvo(j)n,
+                operaciumon, kaj
+                <a href="http://www.ais-sanmarino.org/kursoj/s1/interr1/l02.htm" rel="external noreferrer">IP-adreso</a>n.
+                </li>
+                <li>
+                <strong>Lokigo.</strong>
+                Iuj funkcioj de la retejo povas provi diveni vian geografian lokigon; tiu
+                ĉi informo estas uzata nur momente kaj ne estas registrita aŭ en ajna alia
+                maniero konservita en la datumbazo.
+                </li>
+                <li>
+                <strong>Datenoj sekve de mezurado.</strong>
+                Diversaj teĥnologioj, kiel kuketoj, gvato-rastrumeroj (angle: <i lang="en">web beacons</i>),
+                kaj spuro-ligiloj (angle: <i lang="en">tracking links</i>), ebligas al ni
+                kolekti specifajn statistikajn datenojn kaj sekve komprenon de uzado de la
+                retejo, monitoradon de agado, mezuradon de vizitoj, kaj rekonon ĉu retpoŝta
+                mesaĝo atingis adresaton kaj estis legita. Por pliaj informoj bonvole vidu
+                la sekciojn <a href="#{% trans "cookies" context "URL" %}">Kuketoj</a> kaj
+                <a href="#{% trans "measurement" context "URL" %}">Mezurado</a> sube.
+                </li>
+            </ul>
+
+            <div role="heading" aria-level="4">
+                <strong><em>Informoj kiuj originas de eksteraj provizantoj:</em></strong>
+            </div>
+            <ul>
+                <li>
+                En la okazo kiam vi alvenas al la retejo de Pasporta Servo pere de
+                plusendilo sur alia retpaĝo, la
+                <abbr title="Unuforma Rimeda Lokindiko: adreso de reta risurco, retadreso">URL</abbr>
+                de tiu paĝo estas registrita en la retservila protokolo.
+                </li>
+            </ul>
+        </blockquote>
+    </section>
+
+    <section>
+        <div class="list-group" id="{% trans "shared-information" context "URL" %}">
+            <div class="list-group-item list-group-item-info">
+                <a href="#{% trans "shared-information" context "URL" %}" class="linking-grip" aria-hidden="true">
+                    <span class="fa fa-link"></span>
+                </a>
+                <strong role="heading" aria-level="3" id="title_shared_information">
+                    Kundivido de la informoj
+                </strong>
+                <a href="#{% trans "cookies" context "URL" %}">
+                    <span class="fa fa-chevron-down pull-right" aria-hidden="true"></span>
+                    <span class="sr-only">Salti al sekva sekcio</span>
+                </a>
+                <a href="#{% trans "collected-information" context "URL" %}">
+                    <span class="fa fa-chevron-up pull-right" aria-hidden="true"></span>
+                    <span class="sr-only">Salti al antaŭa sekcio</span>
+                </a>
+            </div>
+        </div>
+        <blockquote aria-labelledby="#title_shared_information">
+            <div role="heading" aria-level="4">
+                <strong><em>Inter gastigantoj kaj gastoj</em></strong>
+            </div>
             <p>
-            Cele al faciligi la kompleksan taskon de transportado kaj administrado
-            de retpoŝtaj mesaĝoj, ni utiligas la servon de la firmao SendGrid.
-            La datenoj estas konservitaj sur serviloj en Usono; SendGrid, Inc
-            <a href="https://www.privacyshield.gov/participant?id=a2zt0000000TRktAAG"
-               rel="external noreferrer">estas atestita</a>
-            kadre de la Privatecaj Ŝirmoj Usono–EU kaj Usono–Svislando.
-            SendGrid utiligas kromajn eksterajn prilaborantojn por provizi la
-            retpoŝto-pritraktajn servojn. En la kazo kiam SendGrid transdonas la
-            datenojn al kroma prilaboranto, kaj pritraktado de la datenoj ne laŭas
-            la principojn de la Privateca Ŝirmo, la respondeco kuŝos ĉe SendGrid.
+            Dum certaj datumeroj, ekzemple via plena adreso aŭ la telefonnumeroj, estas
+            kutime kaŝitaj de la aliaj uzantoj de la retejo (krom la landaj organizantoj
+            de via lando), vi povas elekti malkaŝi ilin por specifa uzanto pere de la
+            paĝo ‘Permesitaj Uzantoj’ de via loĝejo. Ili restos videblaj al tiu uzanto
+            dum kiam ties nomo daŭre estas en la listo.
             </p>
-            {% endcomment %}
+
+            <div role="heading" aria-level="4">
+                <strong><em>Kun landaj organizantoj</em></strong>
+            </div>
+            <p>
+            La plenajn informojn en via profilo, inkluzive de naskiĝdato, la
+            kontakto-informojn (kiel telefonnumeroj aŭ por-publika retpoŝta adreso), la
+            plenan adreson de via loĝejo kaj la detalojn de la kunloĝantoj, povas ĉiam
+            vidi landaj organizantoj (LO-j) de la lando en kiu la loĝejo situas.
+            </p>
+            <p>
+            Se vi havas kelkajn loĝejojn, ni diru en lando Ώξ kaj en lando Έφ, tiam LO-j
+            de Ώξ vidos la datenojn de via profilo kaj de via loĝejo en Ώξ sed ne povos
+            vidi la ne-publikajn informojn pri loĝejo en Έφ; same, sed inverse, por LO-j
+            de Έφ.
+            </p>
+            <p>
+            La nomoj de la landaj organizantoj por ĉiu lando kaj ligiloj al iliaj profiloj
+            aperas en la <a href="{% url 'supervisors' %}">paĝo LO-j</a>.
+            </p>
+
+            <div role="heading" aria-level="4">
+                <strong><em>Kun ĝenerala publiko</em></strong>
+            </div>
+            <p>
+            Kelkaj partoj de via profilo, nome via(j) persona(j) nomo(j), via profilbildo,
+            kaj via lando estas konsiderataj kiel via publika imago kiu estas alirebla fare
+            de ajna vizitanto de la retejo eĉ se tiu ne estas registriĝinta kaj pere de
+            interretaj iloj (ekzemple, ret-serĉiloj). En la agordoj de via profilo vi povas
+            elekti mal-publikigi tiujn ĉi informojn; tiuokaze via nomo ligita al Pasporta
+            Servo ne aperos en serĉiloj kaj aliro al la datenoj postulos registriĝon en la
+            retejo.
+            </p>
+
+            <div role="heading" aria-level="4">
+                <strong><em>Kun eksteraj organizoj</em></strong>
+            </div>
+            <p>
+            Krom la sube detaligitaj okazoj, ni ne kundividos viajn informojn kun eksteraj
+            provizantoj de servoj aŭ aŭtoritatoj.
+            </p>
+            <ul>
+                <li>
+                Cele al faciligi la kompleksan taskon de transportado kaj administrado
+                de retpoŝtaj mesaĝoj, ni utiligas la servon de la firmao SendGrid.
+                La datenoj estas konservitaj sur serviloj en Usono; SendGrid, Inc
+                <a href="https://www.privacyshield.gov/participant?id=a2zt0000000TRktAAG"
+                   rel="external noreferrer">estas atestita</a>
+                kadre de la Privatecaj Ŝirmoj Usono–EU kaj Usono–Svislando.
+                SendGrid utiligas kromajn eksterajn prilaborantojn por provizi la
+                retpoŝto-pritraktajn servojn. En la okazo kiam SendGrid transdonas la
+                datenojn al kroma prilaboranto, kaj pritraktado de la datenoj ne laŭas
+                la principojn de la Privateca Ŝirmo, la respondeco kuŝos ĉe SendGrid.
+                </li>
+                <li>
+                La ret-serĉiloj utiligas indeksrobotojn por krei indekson de interreto,
+                kaj tiuj iloj rajtas trarigardi la publikajn paĝojn de ajna retejo,
+                inkluzive de Pasporta Servo. Inter tiuj paĝoj estas inkluzivita via
+                por-publika profilo, kiel detaligite supre ĉe “Kundivido de informoj kun
+                ĝenerala publiko”. Vi rajtas elekti mal-publikigi tiujn ĉi datenojn.
+                Kaze kiam vi ŝanĝas la agordon, iom da tempo povas pasi ĝis kiam la
+                indekso de serĉilo estos ĝisdatigita. Dume la informoj daŭre restos
+                troveblaj. La serĉilo povas ankaŭ reteni paĝojn en kaŝmemoro, eĉ se tiuj
+                ne plu estas alireblaj; ni ne povas influi tion nek ŝanĝi la metodojn de
+                indeksado. En iuj kazoj vi rajtus peti forigon de la ne-publikaj informoj
+                el la indekso &mdash; por tio sinturnu vin rekte al la firmao funkciiganta
+                la serĉilon.
+                </li>
+                <li>
+                Kun la intenco subteni sekurecon kaj laŭleĝan agadon, ni povas pludoni
+                privatajn informojn al juraj instancoj aŭ aŭtoritatoj se ni opinias ke tio
+                estas pravigeble necesa por konformi al la aplikeblaj leĝoj, regularoj,
+                juraj procesoj aŭ registaraj postuloj, inkluzive de postuloj pri nacia
+                sekureco. Ni rezervas la rajton tion fari ankaŭ por gardi la observon de
+                niaj politikoj kaj kondiĉoj de uzo fare de uzantoj, por protekti la
+                sekurecon kaj integrecon de niaj servoj, kaj por ŝirmi Pasportan Servon,
+                niajn uzantojn, kaj la ĝeneralan publikon forde damaĝa aŭ kontraŭleĝa agado.
+                </li>
+            </ul>
+
+            <div role="heading" aria-level="4">
+                <strong><em>Jura respondeco</em></strong>
+            </div>
+            <p>
+            Pri la sekureco de viaj datenoj kaj ilia laŭa traktado laŭleĝe respondecas la
+            Tutmonda Esperantista Junulara Organizo (TEJO): Nieuwe Binnenweg 176,
+            <span style="white-space: nowrap">3015 BJ</span> Rotterdam, Nederlando.
+            </p>
         </blockquote>
     </section>
 
     <section>
         <div class="list-group" id="{% trans "cookies" context "URL" %}">
             <div class="list-group-item list-group-item-info">
+                <a href="#{% trans "cookies" context "URL" %}" class="linking-grip" aria-hidden="true">
+                    <span class="fa fa-link"></span>
+                </a>
                 <strong role="heading" aria-level="3" id="title_cookies">
                     Kuketoj kaj retumila stokejo
                 </strong>
@@ -53,7 +337,7 @@
                     <span class="fa fa-chevron-down pull-right" aria-hidden="true"></span>
                     <span class="sr-only">Salti al sekva sekcio</span>
                 </a>
-                <a href="#{% trans "collected-information" context "URL" %}">
+                <a href="#{% trans "shared-information" context "URL" %}">
                     <span class="fa fa-chevron-up pull-right" aria-hidden="true"></span>
                     <span class="sr-only">Salti al antaŭa sekcio</span>
                 </a>
@@ -96,6 +380,9 @@
     <section>
         <div class="list-group" id="{% trans "measurement" context "URL" %}">
             <div class="list-group-item list-group-item-info">
+                <a href="#{% trans "measurement" context "URL" %}" class="linking-grip" aria-hidden="true">
+                    <span class="fa fa-link"></span>
+                </a>
                 <strong role="heading" aria-level="3" id="title_measurement">
                     Teĥnologioj de mezurado
                 </strong>
@@ -181,7 +468,7 @@
             ĉe Pasporta Servo, vi povas instali la
             <a href="http://tools.google.com/dlpage/gaoptout"
                rel="external noreferrer">ellasan retumilan aldonaĵon</a>
-            provizitan far Google aŭ ŝalti la agordon “Ne Spuru Min” (<em>“Do Not Track”</em>,
+            provizitan far Google aŭ ŝalti la agordon “Ne Spuru Min” (<i lang="en">“Do Not Track”</i>,
             DNT, angle) ene de via retumilo se ĝi subtenas tion. Kutime tiu ĉi opcio
             troviĝas en la sekcio ‘Privateco’ de la retumilaj agordoj. Ambaŭ paŝoj
             efikos nur por la retumilo ene de kiu vi instalis la aldonaĵon aŭ kies
@@ -195,7 +482,7 @@
             Servo, kaj kompilas statistikojn pri uzitaj poŝtprogramoj kaj manieroj
             legi la mesaĝojn. Tio helpas al ni adapti la formaton de la mesaĝoj tiel
             ke ili pli taŭgus al la poŝtprogramo kiun vi uzas. Krome la registrado
-            de la ŝtupoj permesas al ni spuri la kialojn en la kazo kiam mesaĝo ne
+            de la ŝtupoj permesas al ni spuri la kialojn en la okazo kiam mesaĝo ne
             atingas adresaton.
             </p>
             <p>
@@ -222,8 +509,8 @@
 
             <p>
             Aparte de spuro-ligiloj, SendGrid utiligas gvato-rastrumerojn (angle:
-            <em>web beacons</em>) por scii ĉu la retmesaĝo atingis la adresaton kaj
-            ĉu ĝi estis malfermita. Gvato-rastrumeroj estas travideblaj bilderoj
+            <i lang="en">web beacons</i>) por scii ĉu la retmesaĝo atingis la adresaton
+            kaj ĉu ĝi estis malfermita. Gvato-rastrumeroj estas travideblaj bilderoj
             aldonitaj al la enhavo de la mesaĝo kaj funkcias en la sama maniero kiel
             la spuro-ligiloj; ili estas distribuataj per la sama retadreso kiel la
             menciita ĉi-supre.
@@ -233,7 +520,7 @@
 
     <blockquote>
         <p class="clearfix"></p>
-        <small class="pull-right">Tiu ĉi politiko estas en efiko ekde 28-a de februaro 2018.</small>
+        <small class="pull-right" role="note">Tiu ĉi politiko estas en efiko ekde 28-a de februaro 2018.</small>
         <p class="clearfix"></p>
     </blockquote>
 {% endblock page %}

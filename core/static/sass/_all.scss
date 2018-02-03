@@ -109,6 +109,14 @@ ul.dropdown-menu-lg li {
 .toggle-handle:focus {
     outline: 0;
 }
+.linking-grip {
+    display: none;
+    float: left;
+    margin-left: -23px;
+}
+.list-group:hover .linking-grip {
+    display: inline-block;
+}
 
 .debug-only {
     position: absolute;
