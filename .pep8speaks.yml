@@ -1,8 +1,0 @@
-scanner:
-    diff_only: true  # only errors caused by the patch should be shown
-
-pycodestyle:
-    max-line-length: 119
-    exclude: */migrations/*
-    ignore: E731, E302, E305, E20
-    statistics: true
