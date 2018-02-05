@@ -11,8 +11,8 @@
                 {% endif %}
             </div>
         </div>
-        {# each item is 4ex high. by default, space for 5 items is reserved. #}
-        <div class="panel-body panel-body-compact" style="max-height: {{ number_rows|default:5|mult:4 }}ex">
+        {# each item is (25px + 10px margin) high. by default, space for 5 items is reserved. #}
+        <div class="panel-body panel-body-compact" style="max-height: {{ number_rows|default:5|mult:35|add:10 }}px">
             {% url 'authorize_user' place_pk  as auth_form_url %}
             {% for auth_user in authorized_set %}
                 {% comment %}

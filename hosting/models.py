@@ -378,18 +378,23 @@ class Profile(TrackingModel, TimeStampedModel):
         HTML pages. The `non_empty` flag ensures that something is output also
         for profiles without a user account (i.e., family members).
         """
-        template_first_name = '<span class={q}first-name{q}>{first}</span>'
-        template_last_name = '<span class={q}last-name{q}>{last}</span>'
-        template_username = '<span class={q}profile-noname{q}>{uname}</span>'
-        if " ".join((self.first_name, self.last_name)).strip():
-            if not self.names_inversed:
-                template = (template_first_name, '&ensp;', template_last_name)
-            else:
-                template = (template_last_name, '&ensp;', template_first_name)
-            return format_html("".join(template), q=mark_safe(quote), first=self.first_name, last=self.last_name)
-        else:
-            return format_html(template_username, q=mark_safe(quote),
-                               uname=self.user.username.title() if self.user else ('--' if non_empty else " "))
+        template_first_name = '<span class={q}first-name{q}>{name}</span>'
+        template_last_name = '<span class={q}last-name{q}>{name}</span>'
+        template_username = '<span class={q}profile-noname{q}>{name}</span>'
+        template = []
+        if self.first_name.strip():
+            template.append((template_first_name, self.first_name))
+        if self.last_name.strip():
+            template.append((template_last_name, self.last_name))
+        if not template:
+            template.append((
+                template_username,
+                self.user.username.title() if self.user else ('--' if non_empty else " ")
+            ))
+        output = [format_html(t, q=mark_safe(quote), name=n) for (t, n) in template]
+        if self.names_inversed:
+            output.reverse()
+        return mark_safe('&ensp;'.join(output))
 
     get_fullname_always_display = lambda self: self.get_fullname_display(non_empty=True)
 

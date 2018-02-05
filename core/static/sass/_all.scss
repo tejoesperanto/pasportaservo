@@ -206,6 +206,9 @@ header:not(.home) #subtitle,
 .place-overview .status {
     font-size: 0.6em;
 }
+.place-overview > .status {
+    font-weight: 500;
+}
 .place-list .status .place-anchor {
     vertical-align: middle;
     &:not(.glyphicon) {
@@ -466,7 +469,7 @@ a.contact-details:not(:hover) {
         }
         @include gradient($angle, $color 25%, transparent 25%, transparent 50%, $color 50%, $color 75%, transparent 75%, transparent);
     }
-    @include striped($color-default-bg);
+    @include striped(rgba(0, 0, 0, 0.03));
     -webkit-background-size: 40px 40px;
             background-size: 40px 40px;
 }
@@ -509,6 +512,13 @@ a.contact-details:not(:hover) {
 
 .authorized-user {
     margin-bottom: 20px;
+    &:last-child {
+        margin-bottom: 5px !important;
+    }
+    &:last-child:nth-child(-n+5) {
+        /* When in position 1..5 */
+        margin-bottom: 0px !important;
+    }
     .name {
         position: relative;
         top: 0.1em;
@@ -656,7 +666,7 @@ footer {
 }
 .form-touched:invalid {
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #f77;
-    outline: 0; /* IE 10 */
+    outline: 0;  /* IE 10 */
 }
 
 .alert.flyover {
