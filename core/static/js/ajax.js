@@ -68,7 +68,7 @@ $(document).ready(function() {
     $('[class*=ajax]').each(function() {
         var $this = $(this);
         var re = /\bajax-on-([a-z]+)\b/gi;
-        var has_events = false;
+        var event, has_events = false;
         while ((event = re.exec(this.className)) !== null) {
             $this.on(event[1].toLowerCase(), function(e) {
                 if (ajaxSetup($this) === false)
