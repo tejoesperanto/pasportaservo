@@ -549,6 +549,8 @@ class VisibilityForm(forms.ModelForm):
         venue = next(self.venues('in_book'))
         if venue.field.disabled:
             return self.obj.visibility[venue.venue_name]
+        else:
+            return self.cleaned_data['visible_in_book']
 
     def save(self, commit=True):
         """
