@@ -1,0 +1,48 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+Django = ">=1.11,<2"
+psycopg2 = ">=2.7.3"
+Pillow = ">=4.2"
+awesome-slugify = "*"
+csscompressor = "==0.9.5"
+django-braces = ">=1.11"
+django-bootstrap-form = "==3.3"
+djangocodemirror = { git = 'https://github.com/sveetch/djangocodemirror.git', ref = 'a2e4920f7483cbd6fb090652ef18d5d3200a6e5d' }
+django_compressor = "==2.2"
+django-countries = "==4.6.2"
+django-dnt = "*"
+django-extensions = "==1.9.1"
+django-logentry-admin = "*"
+django-phonenumber-field = "*"
+django-postman = "==3.5.1"
+django-sass-processor = "==0.5.5"
+django-simplemde = "==0.1.0"
+django-solo = "==1.1.2"
+django-geojson = "==2.10.0"
+geocoder = "*"
+geojson = "==2.3.0"
+itsdangerous = "*"
+markdown2 = "==2.3.4"
+sendgrid-django = ">=2"
+pyuca = "*"
+parse-accept-language = "*"
+
+
+[dev-packages]
+
+bpython = "*"
+django-debug-toolbar = ">=1.9.1"
+sqlparse = ">=0.2.4"
+Fabric3 = "<2"
+codecov = "*"
+coverage = "*"
+"flake8" = "*"
+"flake8-per-file-ignores" = "*"
+isort = "*"

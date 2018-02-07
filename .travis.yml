@@ -24,7 +24,8 @@ matrix:
   fast_finish: true
 
 install:
-  - pip install -r requirements/dev.txt
+  - pip install pipenv
+  - pipenv install --dev
 
 before_script:
   - isort
