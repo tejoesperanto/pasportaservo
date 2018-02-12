@@ -45,6 +45,10 @@ $(document).ready(function() {
             continuationHandler();
     });
 
+    // Places the 'setting saved' indicator near the checkbox.
+    $('.optinout-success').first().appendTo(
+        $('#id_public_listing, #id_site_analytics_consent').parent()
+    ).css({ "visibility": "hidden", "display": "" });
     // Places the 'more info' link into the checkbox' help block.
     $('#analytics_more_link').each(function() {
         $(this).closest('form')
@@ -63,15 +67,7 @@ $(document).ready(function() {
             var $marker = $this.closest('td').find('.visibility-success');
             var $notify = $(document.createElement('span')).addClass('sr-only')
                           .text($marker.data('notification'));
-            $marker.delay(500)
-                   .css({ "visibility": "visible", "opacity": 0 })
-                   .html($notify)
-                   .animate({ opacity: 1 }, 400)
-                   .delay(2000)
-                   .animate({ opacity: 0 }, 400, function() {
-                       $(this).css("visibility", "hidden");
-                       $notify.remove();
-                   });
+            flashSuccessIndicator($marker, $notify);
         }
         else {
             updatePrivacyFailure($this);
@@ -79,9 +75,29 @@ $(document).ready(function() {
     };
 
     window.updatePrivacyResult = function($this, response) {
-        if (response.result !== true) {
+        if (response.result === true) {
+            flashSuccessIndicator($this.parent().find('.optinout-success'));
+        }
+        else {
             updatePrivacyFailure($this);
         }
+    }
+
+    function flashSuccessIndicator($marker, $notify) {
+        $marker.delay(250)
+               .css({ "visibility": "visible", "opacity": 0 });
+        if ($notify) {
+            $marker.html($notify);
+        }
+        $marker.animate({ opacity: 1 }, 400)
+               .delay(2000)
+               .animate({ opacity: 0 }, 400, function() {
+                   $(this).css("visibility", "hidden");
+                   if ($notify) {
+                       $notify.remove();
+                   }
+               });
+        return $marker;
     }
 
     window.updatePrivacyFailure = function($this) {

@@ -1,6 +1,6 @@
 {% load i18n expression %}
     {{ privacy_matrix.management_form }}
-    <table class="table table-hover">
+    <table class="table table-hover{% if privacy_matrix.read_only %} preview{% endif %}">
     <thead>
         {# TODO: cutoff at 600px. at smaller screens the table becomes unusable. #}
         <tr>

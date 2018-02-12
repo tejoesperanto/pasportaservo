@@ -179,9 +179,9 @@ class ProfileSettingsView(ProfileDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['privacy_matrix'] = ProfilePrivacyUpdateView.VisibilityFormSet(
-            profile=self.object, form_kwargs={'read_only': self.role > OWNER},
+            profile=self.object, read_only=(self.role > OWNER),
             prefix=ProfilePrivacyUpdateView.VISIBILITY_FORMSET_PREFIX)
-        context['analytics_form'] = PreferenceAnalyticsForm(instance=self.object.pref)
+        context['optinouts_form'] = PreferenceOptinsForm(instance=self.object.pref)
         return context
 
 
@@ -234,18 +234,18 @@ class ProfilePrivacyUpdateView(AuthMixin, ProfileMixin, generic.View):
                 module_=__name__, class_=self.__class__.__name__
             )).error(publish_formset.errors)
 
-        cookie_form = PreferenceAnalyticsForm(data=data, instance=profile.pref)
-        cookie_data_correct = cookie_form.is_valid()
-        if cookie_data_correct:
-            cookie_form.save()
+        optins_form = PreferenceOptinsForm(data=data, instance=profile.pref)
+        optins_data_correct = optins_form.is_valid()
+        if optins_data_correct:
+            optins_form.save()
 
         if request.is_ajax():
-            return JsonResponse({'result': matrix_data_correct and cookie_data_correct})
+            return JsonResponse({'result': matrix_data_correct and optins_data_correct})
         else:
             if not matrix_data_correct:
                 raise ValueError("Unexpected visibility cofiguration. Ref {}".format(publish_formset.errors))
-            if not cookie_data_correct:
-                raise ValueError("Cookie preference could not be set. Ref {}".format(cookie_form.errors))
+            if not optins_data_correct:
+                raise ValueError("Opt-in/out preference could not be set. Ref {}".format(optins_form.errors))
             return HttpResponseRedirect('{}#pR'.format(profile.get_edit_url()))
 
 
@@ -324,6 +324,9 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
         return block
 
     def render_to_response(self, context, **response_kwargs):
+        # Require the user to login when place owner blocked unauth'd viewing.
+        if not self.request.user.is_authenticated and not self.object.owner.pref.public_listing:
+            return self.handle_no_permission()
         # Automatically redirect the user to the verbose view if permission granted (in authorized_users list).
         is_authorized = self.request.user in self.object.authorized_users_cache(also_deleted=True, complete=False)
         is_supervisor = self.role >= SUPERVISOR
@@ -341,8 +344,11 @@ class PlaceDetailVerboseView(PlaceDetailView):
     verbose_view = True
 
     def render_to_response(self, context, **response_kwargs):
-        # Automatically redirect the user to the scarce view if permission to details not granted.
         user = self.request.user
+        # Require the user to login when place owner blocked unauth'd viewing.
+        if not user.is_authenticated and not self.object.owner.pref.public_listing:
+            return self.handle_no_permission()
+        # Automatically redirect the user to the scarce view if permission to details not granted.
         is_authorized = user in self.object.authorized_users_cache(also_deleted=True, complete=False)
         is_family_member = getattr(user, 'profile', None) in self.object.family_members_cache()
         self.__dict__.setdefault('debug', {}).update(
@@ -529,6 +535,8 @@ class SearchView(PlaceListView):
             return HttpResponseRedirect(reverse_lazy('search', kwargs=params))
         query = kwargs['query'] or ''  # Avoiding query=None
         self.query = unwhitespace(unquote_plus(query))
+        if not request.user.is_authenticated:
+            self.queryset = self.queryset.exclude(owner__pref__public_listing=False)
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):

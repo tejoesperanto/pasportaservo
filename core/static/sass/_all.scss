@@ -484,8 +484,11 @@ a.contact-details:not(:hover) {
 }
 
 #page.settings #privacy_form {
-    table {
+    table:not(.preview) {
         margin-bottom: 30px;
+    }
+    table.preview {
+        margin-bottom: 0px;
     }
     th.header-in_book {
         vertical-align: middle !important;
@@ -523,6 +526,10 @@ a.contact-details:not(:hover) {
     .privacy-checkbox {
         padding-left: 8px;
         padding-right: 8px;
+        input[type="checkbox"] ~ .optinout-success {
+            display: inline-block;
+            margin-left: 1em;
+        }
         #analytics_more .help-block {
             margin: 0;
             text-align: justify;
@@ -737,6 +744,18 @@ footer {
     .place-supervisor-detail .phone-number:not(:last-child):after {
         content: "\a";
         white-space: pre;
+    }
+
+    #page.settings #privacy_form {
+        .privacy-checkbox input[type="checkbox"] ~ .optinout-success {
+            display: block;
+            position: absolute;
+            margin-top: -20px;
+            margin-left: -20px;
+            & .notification {
+                visibility: hidden;
+            }
+        }
     }
 }
 /* !XXS */

@@ -878,6 +878,9 @@ class Preferences(models.Model):
         help_text=_("These technologies help us to improve Pasporta Servo. Through them "
                     "we collect information about how visitors interact with the "
                     "web site and which changes will make the interaction better."))
+    public_listing = models.BooleanField(
+        _("List my profile in search results open to the internet."),
+        default=True)
 
     class Meta:
         verbose_name = _("preferences for profile")

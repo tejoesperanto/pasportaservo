@@ -588,6 +588,7 @@ class VisibilityFormSetBase(forms.BaseModelFormSet):
     """
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
+        self.read_only = kwargs.pop('read_only', False)
         self.modified_venue = kwargs.pop('dirty', None)
         super().__init__(*args, **kwargs)
 
@@ -651,6 +652,7 @@ class VisibilityFormSetBase(forms.BaseModelFormSet):
         kwargs['initial'] = {
             field: getattr(self.queryset[index], field) for field in ['hint', 'indent']
         }
+        kwargs['read_only'] = self.read_only
         if self.is_bound:
             pk_key = "{form_prefix}-{pk_field}".format(
                 form_prefix=self.add_prefix(index), pk_field=self.model._meta.pk.name)
@@ -659,10 +661,13 @@ class VisibilityFormSetBase(forms.BaseModelFormSet):
         return kwargs
 
 
-class PreferenceAnalyticsForm(forms.ModelForm):
+class PreferenceOptinsForm(forms.ModelForm):
     class Meta:
         model = Preferences
-        fields = ['site_analytics_consent']
+        fields = [
+            'public_listing',
+            'site_analytics_consent',
+        ]
         widgets = {
             'site_analytics_consent': forms.CheckboxInput
         }
@@ -677,7 +682,8 @@ class PreferenceAnalyticsForm(forms.ModelForm):
             'autocomplete': 'off',
         }
         widget_classes = ' ajax-on-change'
-        attrs = self.fields['site_analytics_consent'].widget.attrs
-        attrs.update(widget_settings)
-        attrs['class'] = attrs.get('class', '') + widget_classes
-        attrs['data-initial'] = self['site_analytics_consent'].value()
+        for field in self._meta.fields:
+            attrs = self.fields[field].widget.attrs
+            attrs.update(widget_settings)
+            attrs['class'] = attrs.get('class', '') + widget_classes
+            attrs['data-initial'] = self[field].value()

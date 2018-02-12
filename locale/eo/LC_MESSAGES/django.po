@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2018-01-31 10:30+0000\n"
+"POT-Revision-Date: 2018-02-12 15:18+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -308,8 +308,13 @@ msgctxt "Title"
 msgid "Registration"
 msgstr "Registrado"
 
-msgid "You must register to see this accomodation."
-msgstr "Vi devas registriĝi por vidi tiun ĉi loĝejon."
+#, python-format
+msgid ""
+"You must <a href=\"%(link)s\">log in</a> or register to see this "
+"accomodation."
+msgstr ""
+"Vi devas <a href=\"%(link)s\">ensaluti</a> aŭ registriĝi por vidi tiun ĉi "
+"loĝejon."
 
 msgid "Register"
 msgstr "Registriĝi"
@@ -1022,6 +1027,9 @@ msgstr ""
 "kolektas informojn pri kiamaniere vizitantoj interagas kun la retejo kaj "
 "kiaj ŝanĝoj igus tiun interagon pli plaĉa."
 
+msgid "List my profile in search results open to the internet."
+msgstr "Listigu mian profilon en serĉrezultoj videblaj al ne-pasportserv-anoj."
+
 msgid "preferences for profile"
 msgstr "profilaj preferoj"
 
@@ -1476,6 +1484,9 @@ msgctxt "Title"
 msgid "Preview"
 msgstr "Antaŭrigardo"
 
+msgid "saved"
+msgstr "konservita"
+
 msgid "More&nbsp;information about the measurement technologies."
 msgstr "Pli&nbsp;da&nbsp;informoj pri la mezuraj teĥnologioj."
 
@@ -1524,9 +1535,6 @@ msgstr "ĉiuj pasportservanoj"
 
 msgid "guests and hosts"
 msgstr "gastoj kaj gastigantoj"
-
-msgid "saved"
-msgstr "konservita"
 
 msgid "you are not hosting, therefore this place will not be in the book"
 msgstr "vi ne gastigas, kaj tial tiu ĉi loĝejo ne aperos en la libreto"
