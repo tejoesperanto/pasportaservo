@@ -8,7 +8,7 @@
             {% url 'login' as login_link %}
             {% list login_link '?' REDIRECT_FIELD_NAME '=' request.get_full_path|urlencode as login_redirect_link %}
             {% blocktrans with link=login_redirect_link|join:"" trimmed %}
-                You must <a href="{{ link }}">log in</a> or register to see this accomodation.
+                You must <a href="{{ link }}">log in</a> or register to see this accommodation.
             {% endblocktrans %}
         </p>
         <form class="form row" method="POST" action="{% url 'register' %}?{{ REDIRECT_FIELD_NAME }}={{ request.get_full_path|urlencode }}">

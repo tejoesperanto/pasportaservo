@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2018-02-12 15:18+0000\n"
+"POT-Creation-Date: 2018-03-12 00:11+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -191,7 +191,7 @@ msgstr ""
 msgid "Site Configuration"
 msgstr "Retejaj agordoj"
 
-msgid "Find accomodation"
+msgid "Find accommodation"
 msgstr "Trovu loĝejon"
 
 msgid "Esperanto-hosts around the world"
@@ -311,7 +311,7 @@ msgstr "Registrado"
 #, python-format
 msgid ""
 "You must <a href=\"%(link)s\">log in</a> or register to see this "
-"accomodation."
+"accommodation."
 msgstr ""
 "Vi devas <a href=\"%(link)s\">ensaluti</a> aŭ registriĝi por vidi tiun ĉi "
 "loĝejon."
@@ -1049,6 +1049,14 @@ msgstr "Ne, nuligu"
 msgid "Delete"
 msgstr "Forigi"
 
+#, python-format
+msgid ""
+"Unfortunately, information about this %(object)s is not available anymore."
+msgstr "Bedaŭrinde la informoj pri tiu ĉi %(object)s ne plu estas disponeblaj."
+
+msgid "Unfortunately, this information is not available anymore."
+msgstr "Bedaŭrinde tiuj ĉi informoj ne plu estas disponeblaj."
+
 msgid "Remove a family member"
 msgstr "Forigi kunloĝanton"
 
@@ -1137,6 +1145,15 @@ msgstr "Nuligita loĝejo"
 
 msgid "The address is obsolete"
 msgstr "La adreso estas neaktuala"
+
+msgid "Inactive (hidden) place"
+msgstr "Malvidebligita (ne aktiva) loĝejo"
+
+msgid "Other users will not have access to these details"
+msgstr "Aliaj uzantoj ne povos vidi ĉi tiujn detalojn"
+
+msgid "The owner set it as not visible to other users"
+msgstr "La posedanto kaŝis ĝin de aliaj uzantoj"
 
 msgid "The host is not available"
 msgstr "La gastiganto ne estas disponebla"
@@ -1539,6 +1556,9 @@ msgstr "gastoj kaj gastigantoj"
 msgid "you are not hosting, therefore this place will not be in the book"
 msgstr "vi ne gastigas, kaj tial tiu ĉi loĝejo ne aperos en la libreto"
 
+msgid "in place details, you have not marked it to be printed in the book"
+msgstr "en informoj pri la loĝejo, vi ne elektis aperigi ĝin en la libreto"
+
 msgid "who can view ?"
 msgstr "kiu povas vidi ?"
 
@@ -1571,7 +1591,7 @@ msgstr ""
 msgid "%(city)s, near %(closest_city)s"
 msgstr "%(city)s, proksime al %(closest_city)s"
 
-msgid "if you want to book this accomodation"
+msgid "if you want to book this accommodation"
 msgstr "por tranokti en tiu ĉi loĝejo"
 
 msgid "if you want to meet with me"
@@ -1582,6 +1602,9 @@ msgid "please contact me at least %(nb_days)s day in advance"
 msgid_plural "please contact me at least %(nb_days)s days in advance"
 msgstr[0] "bonvolu kontakti min almenaŭ %(nb_days)s tagon antaŭe"
 msgstr[1] "bonvolu kontakti min almenaŭ %(nb_days)s tagojn antaŭe"
+
+msgid "However, at this moment I do not accept guests."
+msgstr "Tamen, nuntempe ne akceptas mi gastojn."
 
 #, python-format
 msgid ", during %(max_night)s night maximum"

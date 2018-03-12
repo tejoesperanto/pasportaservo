@@ -1,7 +1,7 @@
 import json
 import logging
 import re
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from datetime import date
 
 from django.conf import settings
@@ -11,11 +11,10 @@ from django.contrib.gis.db.models.functions import Distance
 from django.core import serializers
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.core.mail import send_mail
-from django.db import models
 from django.db.models import Q
 from django.forms import modelformset_factory
 from django.http import (
-    Http404, HttpResponseBadRequest,
+    Http404, HttpResponse, HttpResponseBadRequest,
     HttpResponseRedirect, JsonResponse, QueryDict,
 )
 from django.shortcuts import get_object_or_404
@@ -156,6 +155,8 @@ class ProfileDetailView(AuthMixin, ProfileIsUserMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['places'] = self.object.owned_places.filter(deleted=False).prefetch_related('family_members')
+        if self.public_view:
+            context['places'] = context['places'].filter(visibility__visible_online_public=True)
         display_phones = self.object.phones.filter(deleted=False)
         context['phones'] = display_phones
         context['phones_public'] = display_phones.filter(visibility__visible_online_public=True)
@@ -323,44 +324,101 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
         block['form'] = PlaceBlockForm(instance=place)
         return block
 
-    def render_to_response(self, context, **response_kwargs):
-        # Require the user to login when place owner blocked unauth'd viewing.
-        if not self.request.user.is_authenticated and not self.object.owner.pref.public_listing:
-            return self.handle_no_permission()
-        # Automatically redirect the user to the verbose view if permission granted (in authorized_users list).
-        is_authorized = self.request.user in self.object.authorized_users_cache(also_deleted=True, complete=False)
+    def validate_access(self):
+        if getattr(self, '_access_validated', None):
+            return self._access_validated
+        user = self.request.user
+        place = self.object
+        result = namedtuple('AccessConstraint', 'redirect, is_authorized, is_supervisor, is_family_member')
+        auth_log = logging.getLogger('PasportaServo.auth')
+
+        # Require the unauthenticated user to login in the following cases:
+        #   - the place was deleted
+        #   - place owner blocked unauth'd viewing
+        #   - place is not visible to the public.
+        if not user.is_authenticated:
+            cases = [place.deleted, not place.owner.pref.public_listing, not place.visibility.visible_online_public]
+            if any(cases):
+                auth_log.debug("One of the conditions satisfied: "
+                               "[deleted = %s, not accessible by visitors = %s, not accessible by users = %s]",
+                               *cases)
+                self._access_validated = result(self.handle_no_permission(), None, None, None)
+                return self._access_validated
+
+        is_authorized = user in place.authorized_users_cache(also_deleted=True, complete=False)
         is_supervisor = self.role >= SUPERVISOR
-        if is_authorized and not is_supervisor and not isinstance(self, PlaceDetailVerboseView):
+        is_family_member = getattr(user, 'profile', None) in place.family_members_cache()
+        self.__dict__.setdefault('debug', {}).update(
+            {'authorized': is_authorized, 'family member': is_family_member}
+        )
+        content_unavailable = False
+
+        # Block access for regular authenticated users in the following cases:
+        #   - the place was deleted
+        #   - place is not visible to the public.
+        if not is_supervisor and not self.role == OWNER:
+            cases = [place.deleted, not place.visibility.visible_online_public]
+            if any(cases):
+                auth_log.debug("One of the conditions satisfied: "
+                               "[deleted = %s, not accessible by users = %s]",
+                               *cases)
+                content_unavailable = True
+
+        self._access_validated = result(content_unavailable, is_authorized, is_supervisor, is_family_member)
+        return self._access_validated
+
+    def get_template_names(self):
+        if getattr(self, '_access_validated', None) and self._access_validated.redirect:
+            return ['hosting/content_unavailable.html']
+        else:
+            return super().get_template_names()
+
+    def render_to_response(self, context, **response_kwargs):
+        barrier = self.validate_access()
+        if barrier.redirect:
+            if isinstance(barrier.redirect, HttpResponse):
+                return barrier.redirect
+            else:
+                return super().render_to_response(
+                    dict(context, object_name=self.object._meta.verbose_name), **response_kwargs
+                )
+        # Automatically redirect the user to the verbose view if permission granted (in authorized_users list).
+        if barrier.is_authorized and not barrier.is_supervisor and not isinstance(self, PlaceDetailVerboseView):
             # We switch the class to avoid fetching all data again from the database,
             # because everything we need is already available here.
             # TODO: Combine the two views into one class.
             self.__class__ = PlaceDetailVerboseView
             return self.render_to_response(context, **response_kwargs)
         else:
-            return super().render_to_response(context)
+            return super().render_to_response(context, **response_kwargs)
+
+    def get_debug_data(self):
+        return self.debug
 
 
 class PlaceDetailVerboseView(PlaceDetailView):
     verbose_view = True
 
     def render_to_response(self, context, **response_kwargs):
-        user = self.request.user
-        # Require the user to login when place owner blocked unauth'd viewing.
-        if not user.is_authenticated and not self.object.owner.pref.public_listing:
-            return self.handle_no_permission()
+        barrier = self.validate_access()
+        if barrier.redirect:
+            if isinstance(barrier.redirect, HttpResponse):
+                return barrier.redirect
+            else:
+                return super().render_to_response(
+                    dict(context, object_name=self.object._meta.verbose_name), **response_kwargs
+                )
         # Automatically redirect the user to the scarce view if permission to details not granted.
-        is_authorized = user in self.object.authorized_users_cache(also_deleted=True, complete=False)
-        is_family_member = getattr(user, 'profile', None) in self.object.family_members_cache()
-        self.__dict__.setdefault('debug', {}).update(
-            {'authorized': is_authorized, 'family member': is_family_member}
-        )
-        if self.role >= OWNER or is_authorized or is_family_member:
-            return super().render_to_response(context)
+        cases = [
+            self.role >= OWNER,
+            not self.request.user.is_authenticated,
+            barrier.is_authorized,
+            barrier.is_family_member,
+        ]
+        if any(cases):
+            return super().render_to_response(context, **response_kwargs)
         else:
             return HttpResponseRedirect(reverse_lazy('place_detail', kwargs={'pk': self.kwargs['pk']}))
-
-    def get_debug_data(self):
-        return self.debug
 
 
 class PlaceBlockView(AuthMixin, PlaceMixin, generic.View):
@@ -482,7 +540,7 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
     def dispatch(self, request, *args, **kwargs):
         self.country = Country(kwargs['country_code'])
         kwargs['auth_base'] = self.country
-        self.in_book = {'0': False, '1': True, None: None}[kwargs['in_book']]
+        self.in_book_status = {'0': False, '1': True, None: None}[kwargs['in_book']]
         self.invalid_emails = kwargs['email']
         return super().dispatch(request, *args, **kwargs)
 
@@ -493,9 +551,12 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
         return object
 
     def get_queryset(self):
-        self.base_qs = self.model.available_objects.filter(country=self.country.code)
-        if self.in_book is not None:
-            qs = self.base_qs.filter(in_book=self.in_book)
+        self.base_qs = self.model.available_objects.filter(country=self.country.code).filter(
+            Q(visibility__visible_online_public=True) | Q(in_book=True, visibility__visible_in_book=True)
+        )
+        if self.in_book_status is not None:
+            narrowing_func = getattr(self.base_qs, 'filter' if self.in_book_status else 'exclude')
+            qs = narrowing_func(in_book=True, visibility__visible_in_book=True)
         else:
             qs = self.base_qs
         if self.invalid_emails:
@@ -505,13 +566,17 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['in_book_count'] = self.base_qs.filter(in_book=True).count()
-        context['not_in_book_count'] = self.base_qs.filter(in_book=False).count()
-        if self.in_book is not None:
-            book_filter = models.Q(in_book=self.in_book)
-            context['place_count'] = context['in_book_count'] if self.in_book else context['not_in_book_count']
+        in_book_status_filter = Q(in_book=True) & Q(visibility__visible_in_book=True)
+        context['in_book_count'] = self.base_qs.filter(in_book_status_filter).count()
+        context['not_in_book_count'] = self.base_qs.filter(~in_book_status_filter).count()
+        if self.in_book_status is True:
+            book_filter = in_book_status_filter
+            context['place_count'] = context['in_book_count']
+        elif self.in_book_status is False:
+            book_filter = ~in_book_status_filter
+            context['place_count'] = context['not_in_book_count']
         else:
-            book_filter = models.Q()
+            book_filter = Q()
             context['place_count'] = context['in_book_count'] + context['not_in_book_count']
         context['checked_count'] = self.base_qs.filter(book_filter, checked=True).count()
         context['confirmed_count'] = self.base_qs.filter(book_filter, confirmed=True).count()
@@ -522,7 +587,7 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
 
 
 class SearchView(PlaceListView):
-    queryset = Place.objects.filter(available=True)
+    queryset = Place.available_objects.filter(visibility__visible_online_public=True)
     paginate_by = 20
 
     def get(self, request, *args, **kwargs):
@@ -535,6 +600,7 @@ class SearchView(PlaceListView):
             return HttpResponseRedirect(reverse_lazy('search', kwargs=params))
         query = kwargs['query'] or ''  # Avoiding query=None
         self.query = unwhitespace(unquote_plus(query))
+        # Exclude places whose owner blocked unauthenticated viewing.
         if not request.user.is_authenticated:
             self.queryset = self.queryset.exclude(owner__pref__public_listing=False)
         return super().get(request, *args, **kwargs)

@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Group
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils.text import format_lazy
@@ -29,8 +30,8 @@ class SupervisorsView(generic.TemplateView):
     def dispatch(self, request, *args, **kwargs):
         code_from_kwarg = {v: k for k, v in self.book_codes.items()}
         code_from_kwarg.update({None: False})
-        self.in_book = code_from_kwarg[kwargs['in_book']]
-        if self.in_book and not request.user.has_perm(PERM_SUPERVISOR):
+        self.in_book_status = code_from_kwarg[kwargs['in_book']]
+        if self.in_book_status and not request.user.has_perm(PERM_SUPERVISOR):
             return HttpResponseRedirect(format_lazy(
                 "{supervisors_url}#{section_countries}",
                 supervisors_url=reverse_lazy('supervisors'),
@@ -38,10 +39,13 @@ class SupervisorsView(generic.TemplateView):
             ))
         return super().dispatch(request, *args, **kwargs)
 
-    def get_countries(self, filter_for_book=False):
-        places = Place.available_objects.all()
-        if filter_for_book:
-            places = places.filter(in_book=True)
+    def get_countries(self, filter_for_book=False, filter_for_supervisor=False):
+        book_filter = Q(in_book=True, visibility__visible_in_book=True)
+        online_filter = Q(visibility__visible_online_public=True)
+        places = Place.available_objects.filter(
+            book_filter if filter_for_book else
+            ((book_filter | online_filter) if filter_for_supervisor else online_filter)
+        )
         groups = Group.objects.exclude(user=None)
         countries = sort_by_name({p.country for p in places})
         for country in countries:
@@ -62,12 +66,17 @@ class SupervisorsView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        is_supervisor = self.request.user.has_perm(PERM_SUPERVISOR)
         context['countries'] = {'available': {
-            'active': not self.in_book, 'in_book': self.book_codes[None], 'data': self.get_countries()
+            'active': not self.in_book_status,
+            'in_book': self.book_codes[None],
+            'data': self.get_countries(filter_for_supervisor=is_supervisor)
         }}
-        if self.request.user.has_perm(PERM_SUPERVISOR):
+        if is_supervisor:
             context['countries'].update({'in_book': {
-                'active': self.in_book, 'in_book': self.book_codes[True], 'data': self.get_countries(True)
+                'active': self.in_book_status,
+                'in_book': self.book_codes[True],
+                'data': self.get_countries(filter_for_book=True, filter_for_supervisor=True)
             }})
         return context
 

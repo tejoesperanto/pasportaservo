@@ -45,7 +45,9 @@
         <div class="row bg-info top-notice">
             <p class="col-xs-12 text-center">
                 {% trans "This is a preview of your place" %}.
-                {% trans "Authorized users will receive access to these details." %}
+                {% if place.visibility.visible_online_public %}
+                    {% trans "Authorized users will receive access to these details." %}
+                {% endif %}
             </p>
         </div>
     {% endif %}
@@ -55,12 +57,25 @@
     <div class="col-xs-12 col-md-6 owner">
         <div class="row">
             <div class="col-xs-12 warning">
-            {# ALERT ABOUT A PLACE THAT WAS DELETED #}
+            {# ALERT ABOUT A PLACE THAT WAS DELETED OR UNPUBLISHED #}
                 {% if place.deleted and user.is_authenticated %}
                     <div class="alert alert-small alert-danger">
                         <span class="fa fa-exclamation-circle" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
-                        {% if perms.hosting.can_supervise %}{% trans "Deleted place" %} &ndash; {% endif %}{% trans "The address is obsolete" %}
+                        {% if perms.hosting.can_supervise or view.role == roles.OWNER %}{% trans "Deleted place" %} &ndash; {% endif %}
+                        {% trans "The address is obsolete" %}
                     </div>
+                {% elif not place.visibility.visible_online_public %}
+                {% if perms.hosting.can_supervise or view.role == roles.OWNER %}
+                    <div class="alert alert-small alert-danger">
+                        <span class="fa fa-exclamation-circle" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
+                        {% trans "Inactive (hidden) place" %}
+                        {% if view.role == roles.OWNER %}
+                            &ndash; {% trans "Other users will not have access to these details" %}
+                        {% else %}
+                            &ndash; {% trans "The owner set it as not visible to other users" %}
+                        {% endif %}
+                    </div>
+                {% endif %}
                 {% endif %}
             </div>
             <div class="col-xs-12 warning">
@@ -385,8 +400,9 @@
             </p>
             <p class="help-block">
                 {% trans "Print in book" %}:&nbsp;
-                <span class="fa fa-{{ place.in_book|yesno:'check,times' }}"></span>
-                {{ place.in_book|yesno }}
+                {% expr (place.in_book and place.visibility.visible_in_book) as place_printable %}
+                <span class="fa fa-{{ place_printable|yesno:'check,times' }}"></span>
+                {{ place_printable|yesno }}
             </p>
         </div>
     {% endif %}

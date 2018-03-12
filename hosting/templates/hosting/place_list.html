@@ -2,7 +2,7 @@
 {% load i18n static expression geoformat utils %}
 
 {% block head_title %}
-    {% trans "Find accomodation" %}
+    {% trans "Find accommodation" %}
     {% if view.query %}
         {% trans "at" %} {{ view.result|format_geo_result|default:view.query.strip }}
     {% endif %}

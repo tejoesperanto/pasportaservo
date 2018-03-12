@@ -1,4 +1,5 @@
 from datetime import date
+from functools import partialmethod
 
 from django.apps import apps
 from django.conf import settings
@@ -232,12 +233,11 @@ class VisibilitySettingsForPlace(VisibilitySettings):
     defaults = dict(online_public=True, online_authed=True, in_book=True)
     # Rules define what can be customized by the user. Tied online means an object
     # hidden for public will necessarily be hidden also for authorized users.
-    rules = dict(online_public=False, online_authed=False, in_book=True, tied_online=True)
-    # TODO: online_public=True
+    rules = dict(online_public=True, online_authed=False, in_book=True, tied_online=True)
 
     @cached_property
     def printable(self):
-        return self.content_object.available
+        return self.content_object.available and self.content_object.in_book
 
 
 class VisibilitySettingsForFamilyMembers(VisibilitySettings):
@@ -249,7 +249,7 @@ class VisibilitySettingsForFamilyMembers(VisibilitySettings):
 
     @cached_property
     def printable(self):
-        return self.content_object.available
+        return self.content_object.available and self.content_object.in_book
 
 
 class VisibilitySettingsForPhone(VisibilitySettings):
@@ -261,7 +261,7 @@ class VisibilitySettingsForPhone(VisibilitySettings):
 
     @cached_property
     def printable(self):
-        return self.content_object.owner.is_hosting
+        return self.content_object.owner.has_places_for_hosting
 
 
 class VisibilitySettingsForPublicEmail(VisibilitySettings):
@@ -273,7 +273,7 @@ class VisibilitySettingsForPublicEmail(VisibilitySettings):
 
     @cached_property
     def printable(self):
-        return self.content_object.is_hosting
+        return self.content_object.has_places_for_hosting
 
 
 class Profile(TrackingModel, TimeStampedModel):
@@ -393,7 +393,7 @@ class Profile(TrackingModel, TimeStampedModel):
             output.reverse()
         return mark_safe('&ensp;'.join(output))
 
-    get_fullname_always_display = lambda self: self.get_fullname_display(non_empty=True)
+    get_fullname_always_display = partialmethod(get_fullname_display, non_empty=True)
 
     @property
     def autoslug(self):
@@ -402,23 +402,58 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @property
     def is_hosting(self):
-        return self.owned_places.filter(available=True, deleted=False).count()
+        """
+        Return number of owned places where the user hosts and are visible to the public.
+        """
+        return self.owned_places.filter(
+            available=True, deleted=False, visibility__visible_online_public=True,
+        ).count()
+
+    @property
+    def has_places_for_hosting(self):
+        return self.owned_places.filter(
+            available=True, deleted=False,
+        ).count()
 
     @property
     def is_meeting(self):
-        return sum((p.owner_available for p in self.owned_places.filter(deleted=False)), 0)
+        """
+        Return number of owned places where the user is ready to meet up with guests
+        and are visible to the public.
+        """
+        owner_available = Q(tour_guide=True) | Q(have_a_drink=True)
+        return self.owned_places.filter(
+            owner_available, deleted=False, visibility__visible_online_public=True,
+        ).count()
+
+    @property
+    def has_places_for_meeting(self):
+        return self.owned_places.filter(
+            Q(tour_guide=True) | Q(have_a_drink=True), deleted=False,
+        ).count()
 
     @property
     def is_in_book(self):
+        """
+        Return number of owned places selected to appear in the printed edition and
+        not (temporarily) hidden for publication.
+        """
         return self.owned_places.filter(
-            available=True, deleted=False, in_book=True,
+            available=True, in_book=True, deleted=False, visibility__visible_in_book=True,
+        ).count()
+
+    @property
+    def has_places_for_book(self):
+        return self.owned_places.filter(
+            available=True, in_book=True, deleted=False,
         ).count()
 
     def is_ok_for_book(self, accept_confirmed=False, accept_approved=True):
         book_filter = Q(confirmed=True) if accept_confirmed else Q()
         book_filter |= Q(checked=True) if accept_approved else Q()
         return self.owned_places.filter(
-            book_filter, available=True, in_book=True, deleted=False
+            book_filter, available=True, in_book=True,
+            deleted=False, visibility__visible_in_book=True,
         ).exists()
 
     @property
