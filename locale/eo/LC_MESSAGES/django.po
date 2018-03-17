@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2018-01-25 16:09+0000\n"
+"POT-Revision-Date: 2018-01-31 10:30+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -115,6 +115,7 @@ msgstr "Anonco"
 msgid "Body"
 msgstr "Mesaĝo"
 
+#, python-brace-format
 msgid ""
 "Dear {nomo},\n"
 "\n"
@@ -220,6 +221,40 @@ msgstr "ensaluti"
 msgid "register"
 msgstr "registriĝi"
 
+msgid "About Privacy: "
+msgstr "Pri privateco: "
+
+msgctxt "URL"
+msgid "cookies"
+msgstr "kuketoj"
+
+#, python-format
+msgid ""
+"We use technologies such as cookies and browser storage to power the "
+"website. We also use cookies to gather anonymised statistics. <a href="
+"\"%(link)s\">Read more</a> about the technologies we use and how to change "
+"your settings; by continuing to use the site without changing settings, you "
+"are agreeing to such usage."
+msgstr ""
+"Ni uzas teĥnologiojn kiel kuketoj kaj en-retumila stokado por funkciigi la "
+"retejon. Kuketoj estas uzataj ankaŭ por kolekti anonimigitajn statistikojn. "
+"<a href=\"%(link)s\">Legu pli pri</a> la iloj utiligataj kaj kiamaniere "
+"ŝanĝi viajn agordojn; daŭre restante sur la retejo sen ŝanĝo de agordoj vi "
+"indikas vian akcepton de tia uzo."
+
+msgid ""
+"(BTW, we noticed that this browser is set with “Do Not Track” and we are "
+"honouring this setting.)"
+msgstr ""
+"(Cetere, ni rimarkis ke tiu ĉi retumilo estas agordita kun “Ne Spuru Min” "
+"kaj honoras tiun ĉi agordon.)"
+
+msgid "See our privacy policy."
+msgstr "Vidu nian politikon pri privateco."
+
+msgid "Hide"
+msgstr "Kaŝi"
+
 msgid "About us"
 msgstr "Pri ni"
 
@@ -228,6 +263,9 @@ msgstr "Oftaj demandoj"
 
 msgid "Terms"
 msgstr "Kondiĉoj"
+
+msgid "Privacy"
+msgstr "Privateco"
 
 msgid "Supervisors"
 msgstr "Landaj organizantoj"
@@ -265,9 +303,6 @@ msgstr "Retmesaĝoj senditaj"
 #, python-format
 msgid "You sent %(nb)s emails. Well done!"
 msgstr "Vi sendis %(nb)s mesaĝojn. Bonege!"
-
-msgid "Hide"
-msgstr "Kaŝi"
 
 msgctxt "Title"
 msgid "Registration"
@@ -805,9 +840,6 @@ msgstr "profilbildo"
 msgid "Small image under 100kB. Ideal size: 140x140 px."
 msgstr "Malgranda bildo, < 100 kB. Idealaj mezuroj: 140×140 punktoj."
 
-msgid "contact preferences"
-msgstr "preferataj kontaktmanieroj"
-
 msgid "profiles"
 msgstr "profiloj"
 
@@ -974,6 +1006,24 @@ msgstr "kondiĉo"
 
 msgid "contact preference"
 msgstr "preferata kontaktmaniero"
+
+msgid "contact preferences"
+msgstr "preferataj kontaktmanieroj"
+
+msgid "I agree to be included by usage measurement tools."
+msgstr "Mi konsentas esti enkalkulata fare de interago-mezuraj iloj."
+
+msgid ""
+"These technologies help us to improve Pasporta Servo. Through them we "
+"collect information about how visitors interact with the web site and which "
+"changes will make the interaction better."
+msgstr ""
+"Tiuj ĉi teĥnologioj helpas al ni plibonigi Pasportan Servon. Pere de ili ni "
+"kolektas informojn pri kiamaniere vizitantoj interagas kun la retejo kaj "
+"kiaj ŝanĝoj igus tiun interagon pli plaĉa."
+
+msgid "preferences for profile"
+msgstr "profilaj preferoj"
 
 #, python-format
 msgid "You've been authorized to see the complete address of %(owner_name)s!"
@@ -1418,12 +1468,38 @@ msgstr "Publika retadreso?"
 msgid "[no email address]"
 msgstr "[neniu retpoŝta adreso]"
 
-msgid "Privacy"
-msgstr "Privateco"
+msgctxt "URL"
+msgid "privacy"
+msgstr "privateco"
 
 msgctxt "Title"
 msgid "Preview"
 msgstr "Antaŭrigardo"
+
+msgid "More&nbsp;information about the measurement technologies."
+msgstr "Pli&nbsp;da&nbsp;informoj pri la mezuraj teĥnologioj."
+
+msgid ""
+"Currently we utilize the service of Google Analytics to collect anonymised "
+"information, aggregating which helps us understand usage patterns and learn "
+"how to adjust the web site. This information does not include any of your "
+"personal data. To enable the tool, Google places monitoring cookies on your "
+"browser, containing a random number; by clearing the checkbox above, the "
+"Google Analytics tool will be disabled for your account anywhere you login."
+msgstr ""
+"Nuntempe ni utiligas la servon Google Analytics por kolekti anonimigitajn "
+"informojn; kunmetado de tiaj datenoj helpas nin kompreni skemojn de uzado "
+"kaj scipovi konvenigi la retejon laŭ ili. La datenoj enhavas neniom de viaj "
+"privataj informoj. Por funkciigi la ilon, Google metas observo-kuketojn ĉe "
+"via retumilo, kun hazardaj numeroj ene; per malmarko de la skatolo supre, la "
+"ilo Google Analytics estos malŝaltita por via konto kie ajn vi ne ensalutus."
+
+msgctxt "URL"
+msgid "measurement"
+msgstr "mezurado"
+
+msgid "Save"
+msgstr "Konservi"
 
 msgid "End my membership"
 msgstr "Malpasportservaniĝi"
@@ -1457,9 +1533,6 @@ msgstr "vi ne gastigas, kaj tial tiu ĉi loĝejo ne aperos en la libreto"
 
 msgid "who can view ?"
 msgstr "kiu povas vidi ?"
-
-msgid "Save"
-msgstr "Konservi"
 
 msgid "approver unknown"
 msgstr "aprobanto nekonata"
@@ -1702,6 +1775,10 @@ msgid "You've been automatically logged in. Happy editing!"
 msgstr "Vi estas aŭtomate ensalutita. Bonan redaktadon!"
 
 msgctxt "URL"
+msgid "collected-information"
+msgstr "kolektataj-informoj"
+
+msgctxt "URL"
 msgid "countries-list"
 msgstr "landolisto"
 
@@ -1745,6 +1822,15 @@ msgid ""
 msgstr ""
 "Se vi vidas tiun ĉi paĝon elektinte PS el favoratoj, <a href=\"\">ŝargu "
 "denove</a> la paĝon."
+
+msgid ""
+"If cookies are disabled in your browser, it is not possible to use most of "
+"the functions of the web site. Instead, this page will be shown if the "
+"function requires you to login."
+msgstr ""
+"Se kuketoj estas malebligitaj en via retumilo, plejparto de la funkcioj de "
+"la retejo ne povas esti uzataj, pro teĥnikaj limigoj. Anstataŭe, tiu ĉi paĝo "
+"estas montrita se la funkcio necesigas ke vi estu ensalutita."
 
 msgid ""
 "If this page appears each time you're trying to edit something, you are "

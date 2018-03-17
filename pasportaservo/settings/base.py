@@ -91,6 +91,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'dnt.middleware.DoNotTrackMiddleware',
+    'core.middleware.AccountFlagsMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = ['core.auth.SupervisorAuthBackend']

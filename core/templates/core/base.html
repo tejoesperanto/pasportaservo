@@ -65,6 +65,35 @@
         {% endblock header %}
     </header>
 
+    <section id="technologies-banner" class="alert alert-warning" role="alertdialog" aria-label="{% trans "About Privacy: " %}">
+        <img src="{% static 'img/cookie.png' %}" alt="" data-attribution="CC0 Steven Giacomelli"
+             style="float: left; position: relative; left: -7px;" />
+        {% url 'privacy_policy' as privacy_policy_link %}
+        {% trans "cookies" context "URL" as policy_cookies_section %}
+        {% blocktrans with link=privacy_policy_link|add:"#"|add:policy_cookies_section trimmed %}
+            We use technologies such as cookies and browser storage to power the website. We also use cookies
+            to gather anonymised statistics. <a href="{{ link }}">Read more</a> about the technologies we use
+            and how to change your settings; by continuing to use the site without changing settings, you are
+            agreeing to such usage.
+        {% endblocktrans %}
+        {% if request.DNT %}
+            {% blocktrans trimmed %}
+                (BTW, we noticed that this browser is set with “Do Not Track”
+                and we are honouring this setting.)
+            {% endblocktrans %}
+        {% endif %}
+        <div class="btn-group pull-right">
+            <a type="button" id="banner-view-policy" class="btn btn-default btn-xs"
+               href="{{ privacy_policy_link }}#{{ policy_cookies_section }}">
+                {% trans "See our privacy policy." %}
+            </a>
+            <button type="button" class="btn btn-default btn-xs banner-close" autocomplete="off"
+                    title="{% trans "Hide" %}" aria-label="{% trans "Hide" %}">
+                <span class="fa fa-times fa-lg" aria-hidden="true"></span>
+            </button>
+        </div>
+    </section>
+
     {% block pre-page %}{% endblock %}
 
     <div id="page" role="{% block page_role %}main{% endblock %}" class="container{% block page_class %}{% endblock %}">
@@ -81,10 +110,12 @@
                     |
                     <span class="text-nowrap"><a href="{% url 'terms_conditions' %}">{% trans "Terms" %}</a></span>
                     |
+                    <span class="text-nowrap"><a href="{% url 'privacy_policy' %}">{% trans "Privacy" %}</a></span>
+                    |
                     <span class="text-nowrap"><a href="{% url 'supervisors' %}">{% trans "Supervisors" %}</a></span>
                     <span class="hidden-xs">|</span><br class="visible-xs-inline" style="margin-bottom: 10px" />
                     <span class="text-nowrap">
-                        <a href="http://tejo.org" title="Tutmonda Esperantista Junulara Organizo">
+                        <a href="http://tejo.org" title="Tutmonda Esperantista Junulara Organizo" rel="external">
                             <img src="{% static 'img/home/tejo.svg' %}"
                                  onerror="this.onerror = null; this.src = this.src.replace(/tejo\.svg$/, 'tejo-sm.png');"
                                  width="39" height="18" style="vertical-align:-15%" alt="TEJO" />
@@ -95,7 +126,12 @@
         {% endblock footer %}
     </footer>
 
-    {% include 'core/snippets/google_analytics.html' with DNT=request.DNT DEBUG=debug only %}
+    <script>
+        function anonymizeTitle() {
+            {% block ga_page_title %}{% endblock %}
+        }
+    </script>
+    {% include './snippets/google_analytics.html' with user=user ENV=ENVIRONMENT DEBUG=debug DNT=request.DNT only %}
 
     {% if user.is_authenticated %}
     <!-- PageId:{% random_identifier %} -->

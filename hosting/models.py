@@ -325,9 +325,6 @@ class Profile(TrackingModel, TimeStampedModel):
         upload_to=UploadAndRenameAvatar("avatars"),
         validators=[validate_image, validate_size],
         help_text=_("Small image under 100kB. Ideal size: 140x140 px."))
-    contact_preferences = models.ManyToManyField(
-        'hosting.ContactPreference', verbose_name=_("contact preferences"),
-        blank=True)
 
     class Meta:
         verbose_name = _("profile")
@@ -866,3 +863,31 @@ class ContactPreference(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Preferences(models.Model):
+    """Profile's various general preferences, that relate to the account as a whole."""
+    profile = models.OneToOneField(
+        'hosting.Profile', verbose_name=_("profile"),
+        related_name="pref", on_delete=models.CASCADE)
+    contact_preferences = models.ManyToManyField(
+        'hosting.ContactPreference', verbose_name=_("contact preferences"),
+        blank=True)
+    site_analytics_consent = models.NullBooleanField(
+        _("I agree to be included by usage measurement tools."),
+        help_text=_("These technologies help us to improve Pasporta Servo. Through them "
+                    "we collect information about how visitors interact with the "
+                    "web site and which changes will make the interaction better."))
+
+    class Meta:
+        verbose_name = _("preferences for profile")
+        verbose_name_plural = _("preferences for profile")
+
+    def __str__(self):
+        return ''
+
+    def __repr__(self):
+        return "<{}|p#{}>".format(
+            self.__class__.__name__,
+            self.profile_id
+        )

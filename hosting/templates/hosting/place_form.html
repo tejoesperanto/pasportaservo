@@ -17,6 +17,11 @@
     {% endif %}
 {% endblock %}
 
+{% block ga_page_title %}
+            return document.title.replace('{{ place|stringformat:"s"|escapejs }}', 'XXXXXXXX')
+                                 .replace('{{ place.get_locality_display|escapejs }}', 'XXXXXX (XXXXXX)');
+{% endblock %}
+
 {% block extra_css %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'chosen/chosen.min.css' %}">

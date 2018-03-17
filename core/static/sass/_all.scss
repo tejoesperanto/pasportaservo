@@ -155,6 +155,15 @@ header:not(.home) #subtitle,
     font-family: $font-stack-hint;
 }
 
+#technologies-banner {
+    position: fixed;
+    bottom: -500px;
+    margin-bottom: -4px;
+    z-index: 1070;
+    background-color: rgba(10, 5, 0, 0.95);
+    display: none;
+}
+
 
 /* Search & Accommodation details */
 #page.search form.search {
@@ -474,7 +483,10 @@ a.contact-details:not(:hover) {
             background-size: 40px 40px;
 }
 
-#page.settings #matrix_form {
+#page.settings #privacy_form {
+    table {
+        margin-bottom: 30px;
+    }
     th.header-in_book {
         vertical-align: middle !important;
         text-align: center !important;
@@ -507,6 +519,14 @@ a.contact-details:not(:hover) {
         position: absolute;
         top: 1px;
         right: 0px;
+    }
+    .privacy-checkbox {
+        padding-left: 8px;
+        padding-right: 8px;
+        #analytics_more .help-block {
+            margin: 0;
+            text-align: justify;
+        }
     }
 }
 
@@ -734,7 +754,7 @@ footer {
     h2.owner {
         font-size: 24px;
     }
-    #page.settings #matrix_form {
+    #page.settings #privacy_form {
         th.header-public, th.header-authed {
             font-size: 85%;
         }

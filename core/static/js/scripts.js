@@ -12,6 +12,9 @@ $(document).ready(function() {
     // Lazy load images
     $('.lazy').addClass('loaded');
 
+    // Checkboxes with undefined value
+    $('input[type="checkbox"][data-initial="None"]').prop('indeterminate', true);
+
     // Button hover
     $('.btn').hover(function() {
         var $this = $(this);
@@ -61,6 +64,28 @@ $(document).ready(function() {
             });
         }) });
     }
+
+    // Technologies usage banner
+    +function() {
+        var bots = /bot|crawl|spider|slurp|bingpreview|pinterest|mail\.ru|facebookexternalhit|feedfetcher|feedburner/i;
+        // see also https://ahrefs.com/images/robot/good-bots.jpg
+        if (bots.test(navigator.userAgent)
+                || Cookies.get('_consent')
+                || /^\/(privacy|privateco)\//.test(document.location.pathname))
+            return;
+        var $banner = $('#technologies-banner');
+        $banner.show().delay(500).animate({ bottom: 0 }, 1500, 'linear')
+               .find('.banner-close').click(function(event) {
+                   event.preventDefault();
+                   $(this).prop('disabled', true);
+                   $banner.fadeOut();
+                   Cookies.set(
+                       '_consent',
+                       typeof Date.prototype.toISOString !== "undefined" ? new Date().toISOString() : Date.now(),
+                       { expires: 550 }
+                   );
+               });
+    }();
 
     // Image links with custom highlighting
     +function() {

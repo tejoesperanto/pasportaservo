@@ -14,6 +14,12 @@
     {% endif %}
 {% endblock %}
 
+{% block ga_page_title %}
+    {% if view.role != roles.OWNER %}
+            return document.title.replace('{{ place|stringformat:"s"|escapejs }}', 'XXXXXXXX');
+    {% endif %}
+{% endblock %}
+
 {% block extra_css %}
         {{ block.super }}
         <link rel="stylesheet" href="{% static 'datepicker/css/datepicker3.min.css' %}">

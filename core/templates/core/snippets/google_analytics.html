@@ -1,14 +1,64 @@
-{% load solo_tags %}
+{% load solo_tags utils %}
 {% get_solo 'core.SiteConfiguration' as config %}
 
-{% if not DEBUG and not DNT %}
+{% if user.is_authenticated and user.profile %}
+    {% comment %}
+    We want to save the opt-out status for later, in case the user logs out of their
+    account. The browser then shall still honour the preference of the user.
+    Should another user log in using the same browser, the status will be updated.
+    {% endcomment %}
+    <script>
+        if (window.localStorage) {
+            var optoutKey = 'analytics.opt-out';
+            {% if user.profile.pref.site_analytics_consent %}
+                localStorage.setItem(optoutKey, false);
+            {% else %}
+                localStorage.setItem(optoutKey, true);
+            {% endif %}
+        }
+    </script>
+{% endif %}
+{% if ENV != 'PROD' or user.is_authenticated and user.profile and not user.profile.pref.site_analytics_consent %}
+    {% comment %}
+    Google Analytics is disabled when the logged in user explicitely opted out of measurement
+    activities or when the site accessed is not the production one. For users who are not
+    authenticated (visitors), the GA is included and can be disactivated by installing an
+    opt-out browser addon provided by Google or by turning on DNT. For users who were (in
+    the same browser) previously authenticated, we will honour their preference stored in
+    local storage for that purpose.
+    {% endcomment %}
+{% else %}
     <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
         })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
+        (function(shouldDisableGA) {
+            {% if not user.is_authenticated or not user.profile %}
+                var optoutKey = 'analytics.opt-out';
+                var doNotTrack = {{ DNT|lower }};
+                if (window.localStorage && localStorage.getItem(optoutKey)) {
+                    shouldDisableGA = localStorage.getItem(optoutKey) == 'true';
+                }
+                else {
+                    shouldDisableGA = !Cookies.get('_consent') || doNotTrack;
+                }
+            {% endif %}
+            if (shouldDisableGA) {
+                window['ga-disable-{{ config.google_analytics_key }}'] = true;
+            }
+        })();
+
         ga('create', '{{ config.google_analytics_key }}', 'auto');
+        ga('set', 'anonymizeIp', true);
+        {% if user.is_authenticated %}ga('set', 'userId', '{{ user|public_id }}');{% endif %}
+        if (typeof anonymizeTitle !== "undefined") {
+            var pagetitle = anonymizeTitle();
+            if (pagetitle) {
+                ga('set', 'title', pagetitle);
+            }
+        }
         ga('send', 'pageview');
     </script>
 {% endif %}

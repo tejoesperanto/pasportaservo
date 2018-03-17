@@ -19,14 +19,15 @@ class HostingConfig(AppConfig):
             ('Place', 'family_members', 'FamilyMembers'),
         ]
         for model, field, asset_type in assets:
-            make_receivers(
+            make_visibility_receivers(
                 'hosting.' + model,
                 field + ('_' if field else '') + 'visibility',
                 self.get_model('VisibilitySettingsFor' + asset_type)
             )
+        signals.post_save.connect(profile_post_save, sender='hosting.Profile')
 
 
-def make_receivers(for_sender, field_name, visibility_model):
+def make_visibility_receivers(for_sender, field_name, visibility_model):
     """
     Creates signal receivers for watched models. Must be defered because models
     do not become available until after the app is readied.
@@ -68,3 +69,15 @@ def make_receivers(for_sender, field_name, visibility_model):
         visibility_model.objects.filter(
             id=getattr(kwargs['instance'], foreign_key),
         ).delete()
+
+
+def profile_post_save(sender, **kwargs):
+    """
+    Creates a new preferences object for the newly created profile, in database.
+    """
+    from .models import Preferences
+    instance = kwargs['instance']
+    if kwargs['raw']:
+        return
+    if instance.user_id and not Preferences.objects.filter(profile_id=instance.pk).exists():
+        Preferences.objects.create(profile=instance)

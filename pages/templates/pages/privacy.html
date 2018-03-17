@@ -1,0 +1,239 @@
+{% extends 'core/base.html' %}
+{% load i18n static %}
+
+{% block head_title %}Politiko pri privateco{% endblock %}
+
+{% block page_class %} page{% endblock %}
+
+{% block page %}
+    <h1>Politiko pri privateco ĉe Pasporta Servo</h1>
+    {# TODO: This should be a flat page, with previous versions stored separately and accessible. #}
+    <h2>
+        <small class="pull-right">En efiko ekde 28-a de februaro 2018</small>
+    </h2>
+    <p class="clearfix"></p>
+
+    <section>
+        <div class="list-group" id="{% trans "collected-information" context "URL" %}">
+            <div class="list-group-item list-group-item-info">
+                <strong role="heading" aria-level="3" id="title_collected_information">
+                    Informoj kiujn ni kolektas dum via uzado de la retejo
+                </strong>
+                <a href="#{% trans "cookies" context "URL" %}">
+                    <span class="fa fa-chevron-down pull-right" aria-hidden="true"></span>
+                    <span class="sr-only">Salti al sekva sekcio</span>
+                </a>
+            </div>
+        </div>
+        <blockquote aria-labelledby="#title_collected_information">
+            {% comment %}
+            <p>
+            Cele al faciligi la kompleksan taskon de transportado kaj administrado
+            de retpoŝtaj mesaĝoj, ni utiligas la servon de la firmao SendGrid.
+            La datenoj estas konservitaj sur serviloj en Usono; SendGrid, Inc
+            <a href="https://www.privacyshield.gov/participant?id=a2zt0000000TRktAAG"
+               rel="external noreferrer">estas atestita</a>
+            kadre de la Privatecaj Ŝirmoj Usono–EU kaj Usono–Svislando.
+            SendGrid utiligas kromajn eksterajn prilaborantojn por provizi la
+            retpoŝto-pritraktajn servojn. En la kazo kiam SendGrid transdonas la
+            datenojn al kroma prilaboranto, kaj pritraktado de la datenoj ne laŭas
+            la principojn de la Privateca Ŝirmo, la respondeco kuŝos ĉe SendGrid.
+            </p>
+            {% endcomment %}
+        </blockquote>
+    </section>
+
+    <section>
+        <div class="list-group" id="{% trans "cookies" context "URL" %}">
+            <div class="list-group-item list-group-item-info">
+                <strong role="heading" aria-level="3" id="title_cookies">
+                    Kuketoj kaj retumila stokejo
+                </strong>
+                <a href="#{% trans "measurement" context "URL" %}">
+                    <span class="fa fa-chevron-down pull-right" aria-hidden="true"></span>
+                    <span class="sr-only">Salti al sekva sekcio</span>
+                </a>
+                <a href="#{% trans "collected-information" context "URL" %}">
+                    <span class="fa fa-chevron-up pull-right" aria-hidden="true"></span>
+                    <span class="sr-only">Salti al antaŭa sekcio</span>
+                </a>
+            </div>
+        </div>
+        <blockquote aria-labelledby="#title_cookies">
+            <p>
+            Ni uzas teĥnologiojn nomatajn kuketoj kaj en-retumila stokado. Kuketoj estas
+            etaj dosieroj konservitaj helpe de la retumilo sur la aparato, kiun vi uzas
+            por aliri Pasportan Servon (ekz., via komputilo aŭ via poŝtelefono), kaj
+            estas transsenditaj reen al la servilo de PS dum vi uzas la servon.
+            La stokejo provizas similan funkcion, sed permesas konservi pli da informoj
+            kiuj aldone ĉiam restas loke ene de via retumilo.
+            </p>
+
+            La kuketoj permesas al ni:
+            <ul>
+                <li>Daŭre identigi vin dum vi estas konektita al la retejo kaj ankoraŭ
+                    ne elsalutis (<em>esenca rolo</em>);
+                <li>Konservi viajn preferojn (<em>esenca rolo</em>);
+                <li>Kompili statistikojn pri uzmanieroj de la retejo (vidu la sekcion
+                    <a href="#{% trans "measurement" context "URL" %}">Mezurado</a> sube).
+            </ul>
+            La retumila stokejo permesas al ni:
+            <ul>
+                <li>Konservi viajn preferojn (<em>esenca rolo</em>).
+            </ul>
+
+            <p>
+            Kuketoj kaj stokejo rilataj al Pasporta Servo povas esti forviŝitaj pere de
+            via retumilo; kutime tio fareblas en la sekcio ‘Privateco’ de la retumilaj
+            agordoj. Aldone, kuketoj povas esti tute malebligitaj (por ajnaj kuketoj aŭ
+            nur tiuj de PS). Tamen, tia agordo malebligos uzi plejparton de la funkcioj
+            de la retejo, ĉar ili estas dependaj de la ebleco identigi la ensalutitan
+            personon, kio siavice estas dependa de speciala “sesio-kuketo”.
+            </p>
+        </blockquote>
+    </section>
+
+    <section>
+        <div class="list-group" id="{% trans "measurement" context "URL" %}">
+            <div class="list-group-item list-group-item-info">
+                <strong role="heading" aria-level="3" id="title_measurement">
+                    Teĥnologioj de mezurado
+                </strong>
+                <a href="#{% trans "cookies" context "URL" %}">
+                    <span class="fa fa-chevron-up pull-right" aria-hidden="true"></span>
+                    <span class="sr-only">Salti al antaŭa sekcio</span>
+                </a>
+            </div>
+        </div>
+        <blockquote aria-labelledby="#title_measurement">
+            <p>
+            Sur la retejo de Pasporta Servo estas kompilataj statistikoj pri la uzmanieroj.
+            Tiaj statistikoj helpas al ni kompreni kiel vizitantoj interagas kun la retejo
+            kaj kiuj ŝanĝoj plibonigus la uzon.
+            Tion ni faras helpe de la servo Google Analytics; por funkciigi ĝin, la firmao
+            Google &ndash; helpe de via retumilo &ndash; konservas kuketojn kun hazardaj
+            numeroj sur la aparato, kiun vi uzas por aliri PS-n.
+            Tiuj kuketoj estas ĉiam validaj nur por la retejo de PS kaj influas neniujn
+            aliajn retejojn nek programojn sur via aparato.
+            </p>
+            <p>
+            La kolektitaj datenoj estas anonimaj: viaj personaj detaloj ne estas
+            inkluzivitaj kaj via IP-adreso estas tranĉita (nur parto de ĝi estas uzata
+            por la statistikoj). La datenoj estas konservitaj sur la serviloj de Google
+            en Usono; se postulitaj fare de juraj instancoj, Google povas transdoni ilin.
+            Ni ne povas influi tion. Google, LLC
+            <a href="https://www.privacyshield.gov/participant?id=a2zt000000001L5AAI"
+               rel="external noreferrer">estas atestita</a>
+            kadre de la Privatecaj Ŝirmoj Usono–EU kaj Usono–Svislando.
+            </p>
+
+            <p>
+            La jenaj kuketoj estas konservitaj:
+            </p>
+            <table class="table small">
+            <thead>
+                <tr>
+                    <th class="text-nowrap">Nomo de kuketo</th>
+                    <th class="text-nowrap">Celo de kuketo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>_ga, _gid</td>
+                    <td>
+                        Ebligas distingi vin dis de aliaj vizitantoj, noti ĉu estas via unua
+                        vizito al la retejo, kaj registri la manieron en kiu vi uzas la retejon,
+                        per anonimigita metodo.
+                    </td>
+                </tr>
+                <tr>
+                    <td>_gat</td>
+                    <td>
+                        Ebligas kalkuladon de suma nombro de vizitantoj kaj limigon de trafiko
+                        rilata al la statistika mezurado.
+                    </td>
+                </tr>
+            </tbody>
+            </table>
+
+            <p>
+            Ni ne uzas la reklamajn servojn de Google, nek kombinas aliajn ĝiajn servojn kun
+            la datenoj el Google Analytics. Sekve tiuj ĉi informoj ne povas esti uzitaj fare
+            de Google por identigi vin tra ĝiaj reklamaj retoj (ekzemple, por personigitaj
+            reklamoj). Ni ankaŭ ne kundividas la datenojn derivitajn el la menciitaj kuketoj
+            kun kromaj eksteraj liverantoj.
+            </p>
+            <p>
+            Por malebligi la uzon de Google Analytics sur via konto ĉe Pasporta Servo,
+            <span class="fa fa-sign-in text-primary" aria-hidden="true"></span>
+            <a href="{% url 'login' %}" target="privacy_actions">ensalutu</a>
+            kaj ĉe la
+            <span class="fa fa-cogs text-primary" aria-hidden="true"></span>
+            <a href="{% url 'profile_settings_shortcut' %}#{% trans "privacy" context "URL" %}"
+               target="privacy_actions">agordoj de via profilo</a>,
+            malelektu “{% trans "I agree to be included by usage measurement tools." %}”.
+            Tiamaniere, neniuj statistikoj pri via uzado de la retejo estos kolektataj,
+            kie ajn vi ne ensalutus.
+            Se vi ne jam havas konton,
+            <a href="{% url 'register' %}" target="privacy_actions">registriĝu</a>, kaj
+            sekve <a href="{% url 'profile_create' %}" target="privacy_actions">kreu profilon</a>.
+            Se vi deziras ke la ilo ne uzu viajn informojn, sen krei konton kaj profilon
+            ĉe Pasporta Servo, vi povas instali la
+            <a href="http://tools.google.com/dlpage/gaoptout"
+               rel="external noreferrer">ellasan retumilan aldonaĵon</a>
+            provizitan far Google aŭ ŝalti la agordon “Ne Spuru Min” (<em>“Do Not Track”</em>,
+            DNT, angle) ene de via retumilo se ĝi subtenas tion. Kutime tiu ĉi opcio
+            troviĝas en la sekcio ‘Privateco’ de la retumilaj agordoj. Ambaŭ paŝoj
+            efikos nur por la retumilo ene de kiu vi instalis la aldonaĵon aŭ kies
+            agordojn vi modifis.
+            </p>
+        </blockquote>
+        <blockquote>
+            <p>
+            Nia provizanto de retpoŝtaj servoj SendGrid aparte registras la
+            pritrakto-ŝtupojn de ĉiu retpoŝta mesaĝo sendita fare de aŭ per Pasporta
+            Servo, kaj kompilas statistikojn pri uzitaj poŝtprogramoj kaj manieroj
+            legi la mesaĝojn. Tio helpas al ni adapti la formaton de la mesaĝoj tiel
+            ke ili pli taŭgus al la poŝtprogramo kiun vi uzas. Krome la registrado
+            de la ŝtupoj permesas al ni spuri la kialojn en la kazo kiam mesaĝo ne
+            atingas adresaton.
+            </p>
+            <p>
+            Ambaŭ tiuj taskoj estas efektivigataj per spuro-ligiloj, kiuj enhavas
+            unikan identigilon por ĉiu retpoŝta mesaĝo sendita fare de aŭ per PS.
+            Tia identigilo konsistas el kombino de literoj kaj ciferoj, kaj estas
+            atribuita al la mesaĝo far SendGrid en momento de ĝia sendo. La identigilo
+            ne enhavas viajn personajn detalojn nek ajnan parton el la enhavo de la
+            mesaĝo.
+            </p>
+
+            <p>
+            La menciitaj ligiloj ĉiam komenciĝas per:
+            </p>
+            <table class="table small">
+            <tbody>
+                <tr>
+                    <td>
+                        http://ligilo.pasportaservo.org/wf/
+                    </td>
+                </tr>
+            </tbody>
+            </table>
+
+            <p>
+            Aparte de spuro-ligiloj, SendGrid utiligas gvato-rastrumerojn (angle:
+            <em>web beacons</em>) por scii ĉu la retmesaĝo atingis la adresaton kaj
+            ĉu ĝi estis malfermita. Gvato-rastrumeroj estas travideblaj bilderoj
+            aldonitaj al la enhavo de la mesaĝo kaj funkcias en la sama maniero kiel
+            la spuro-ligiloj; ili estas distribuataj per la sama retadreso kiel la
+            menciita ĉi-supre.
+            </p>
+        </blockquote>
+    </section>
+
+    <blockquote>
+        <p class="clearfix"></p>
+        <small class="pull-right">Tiu ĉi politiko estas en efiko ekde 28-a de februaro 2018.</small>
+        <p class="clearfix"></p>
+    </blockquote>
+{% endblock page %}

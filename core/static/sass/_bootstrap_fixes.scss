@@ -72,6 +72,10 @@
     }
 }
 
+blockquote .table.small:before {
+    content: "";
+}
+
 .panel-cosy .panel-heading, .panel-heading-cosy {
     padding: 5px 15px;
 }

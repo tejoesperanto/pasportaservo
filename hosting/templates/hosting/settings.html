@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n static %}
+{% load i18n static bootstrap %}
 {% load is_invalid clear_invalid from profile %}
 
 {% block head_title %}
@@ -149,15 +149,47 @@
 
     {% if view.role == roles.OWNER or view.role == roles.ADMIN %}
     <section class="callout callout-warning">
-        <h4 >
+        <h4 id="{% trans "privacy" context "URL" %}">
             {% trans "Privacy" %}
             {% if view.role > roles.OWNER %}
                 &nbsp;<small><span class="label label-info" style="vertical-align: text-top">{% trans "Preview" context 'Title' %}</span></small>
             {% endif %}
         </h4>
-        <div class="">
+        <form id="privacy_form" action="{% url 'profile_privacy_update' profile.pk profile.autoslug %}" method="POST" data-csrf="{{ csrf_token }}">
             {% include './settings_privacy_matrix.html' %}
-        </div>
+            {% if view.role == roles.OWNER %}
+                <div class="privacy-checkbox">
+                    {{ analytics_form|bootstrap }}
+                    <a id="analytics_more_link" data-target="#analytics_more" data-toggle="collapse" style="cursor: help">
+                        {% trans "More&nbsp;information about the measurement technologies." %}
+                    </a>
+                    <div class="collapse" id="analytics_more">
+                        <div class="well well-sm">
+                            <div class="help-block">
+                                {% blocktrans trimmed %}
+                                Currently we utilize the service of Google Analytics to collect anonymised information,
+                                aggregating which helps us understand usage patterns and learn how to adjust the web
+                                site. This information does not include any of your personal data. To enable the tool,
+                                Google places monitoring cookies on your browser, containing a random number; by clearing
+                                the checkbox above, the Google Analytics tool will be disabled for your account anywhere
+                                you login.
+                                {% endblocktrans %}
+                                <a href="{% url 'privacy_policy' %}#{% trans "measurement" context "URL" %}"
+                                   role="button" class="btn btn-xs btn-warning">
+                                    {% trans "See our privacy policy." %}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% csrf_token %}
+                <div class="pull-right">
+                    <button type="submit" class="btn btn-default" id="id_privacy_form_submit">
+                        {% trans "Save" %}
+                    </button>
+                </div><p class="clearfix"></p>
+            {% endif %}
+        </form>
     </section>
     {% endif %}
 

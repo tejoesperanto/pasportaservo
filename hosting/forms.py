@@ -16,7 +16,7 @@ from core.models import SiteConfiguration
 from maps.widgets import MapboxGlWidget
 
 from .models import (
-    Phone, Place, Profile, VisibilitySettings,
+    Phone, Place, Preferences, Profile, VisibilitySettings,
     VisibilitySettingsForFamilyMembers, VisibilitySettingsForPhone,
     VisibilitySettingsForPlace, VisibilitySettingsForPublicEmail,
 )
@@ -454,7 +454,7 @@ class VisibilityForm(forms.ModelForm):
             'data-size': 'mini',
             'data-on-ajax-setup': 'updateVisibilitySetup',
             'data-on-ajax-success': 'updateVisibilityResult',
-            'data-on-ajax-error': 'updateVisibilityFailure',
+            'data-on-ajax-error': 'updatePrivacyFailure',
             # autocomplete attribute is required for Firefox to drop
             # caching and refresh the checkbox on each page reload.
             'autocomplete': 'off',
@@ -657,3 +657,27 @@ class VisibilityFormSetBase(forms.BaseModelFormSet):
             kwargs['request_pk'] = self.data.get(pk_key)
             kwargs['request_profile'] = self.profile
         return kwargs
+
+
+class PreferenceAnalyticsForm(forms.ModelForm):
+    class Meta:
+        model = Preferences
+        fields = ['site_analytics_consent']
+        widgets = {
+            'site_analytics_consent': forms.CheckboxInput
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        widget_settings = {
+            'data-on-ajax-success': 'updatePrivacyResult',
+            'data-on-ajax-error': 'updatePrivacyFailure',
+            # autocomplete attribute is required for Firefox to drop
+            # caching and refresh the checkbox on each page reload.
+            'autocomplete': 'off',
+        }
+        widget_classes = ' ajax-on-change'
+        attrs = self.fields['site_analytics_consent'].widget.attrs
+        attrs.update(widget_settings)
+        attrs['class'] = attrs.get('class', '') + widget_classes
+        attrs['data-initial'] = self['site_analytics_consent'].value()

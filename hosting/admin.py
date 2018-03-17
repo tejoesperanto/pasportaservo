@@ -23,7 +23,7 @@ from .admin_utils import (
 )
 from .models import (
     Condition, ContactPreference, Phone, Place,
-    Profile, VisibilitySettings, Website,
+    Preferences, Profile, VisibilitySettings, Website,
 )
 from .widgets import AdminImageWithPreviewWidget
 
@@ -72,6 +72,18 @@ class VisibilityInLine(GenericTabularInline):
 
     def get_readonly_fields(self, request, obj=None):
         return self.fields
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+class PreferencesInLine(admin.StackedInline):
+    model = Preferences
+    extra = 0
+    can_delete = False
 
     def has_add_permission(self, request):
         return False
@@ -269,7 +281,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     date_hierarchy = 'birth_date'
     fields = (
         'user', 'title', 'first_name', 'last_name', 'names_inversed', 'birth_date',
-        'description', 'avatar', 'contact_preferences', 'email', 'supervisor',
+        'description', 'avatar', 'email', 'supervisor',
     ) + TrackingModelAdmin.fields
     raw_id_fields = ('user',)  # 'checked_by')
     radio_fields = {'title': admin.HORIZONTAL}
@@ -277,7 +289,8 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     formfield_overrides = {
         models.ImageField: {'widget': AdminImageWithPreviewWidget},
     }
-    inlines = [VisibilityInLine, PlaceInLine, ]  # PhoneInLine]  # https://code.djangoproject.com/ticket/26819
+    inlines = [VisibilityInLine, PreferencesInLine, PlaceInLine, ]
+    # PhoneInLine]  # https://code.djangoproject.com/ticket/26819
 
     def user__email(self, obj):
         try:

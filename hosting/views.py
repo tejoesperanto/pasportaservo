@@ -179,7 +179,9 @@ class ProfileSettingsView(ProfileDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['privacy_matrix'] = ProfilePrivacyUpdateView.VisibilityFormSet(
-            profile=self.object, form_kwargs={'read_only': self.role > OWNER})
+            profile=self.object, form_kwargs={'read_only': self.role > OWNER},
+            prefix=ProfilePrivacyUpdateView.VISIBILITY_FORMSET_PREFIX)
+        context['analytics_form'] = PreferenceAnalyticsForm(instance=self.object.pref)
         return context
 
 
@@ -208,6 +210,7 @@ class ProfilePrivacyUpdateView(AuthMixin, ProfileMixin, generic.View):
     VisibilityFormSet = modelformset_factory(
         VisibilitySettings,
         form=VisibilityForm, formset=VisibilityFormSetBase, extra=0)
+    VISIBILITY_FORMSET_PREFIX = 'publish'
 
     def get_permission_denied_message(self, object, context_omitted=False):
         return _("Only the user themselves can access this page")
@@ -216,24 +219,33 @@ class ProfilePrivacyUpdateView(AuthMixin, ProfileMixin, generic.View):
     def post(self, request, *args, **kwargs):
         profile = self.get_object()
         data = QueryDict(request.body)
-        formset = self.VisibilityFormSet(profile=profile, data=data)
-        data_correct = formset.is_valid()
-        if data_correct:
-            formset.save()
+
+        publish_formset = self.VisibilityFormSet(
+            profile=profile, data=data, prefix=self.VISIBILITY_FORMSET_PREFIX)
+        matrix_data_correct = publish_formset.is_valid()
+        if matrix_data_correct:
+            publish_formset.save()
         else:
-            for index, err in enumerate(formset.errors):
-                err['_pk'] = formset[index].instance.pk
+            for index, err in enumerate(publish_formset.errors):
+                err['_pk'] = publish_formset[index].instance.pk
                 if err:
-                    err['_obj'] = repr(formset[index].instance)
+                    err['_obj'] = repr(publish_formset[index].instance)
             logging.getLogger('PasportaServo.{module_}.{class_}'.format(
                 module_=__name__, class_=self.__class__.__name__
-            )).error(formset.errors)
+            )).error(publish_formset.errors)
+
+        cookie_form = PreferenceAnalyticsForm(data=data, instance=profile.pref)
+        cookie_data_correct = cookie_form.is_valid()
+        if cookie_data_correct:
+            cookie_form.save()
 
         if request.is_ajax():
-            return JsonResponse({'result': data_correct})
+            return JsonResponse({'result': matrix_data_correct and cookie_data_correct})
         else:
-            if not data_correct:
-                raise ValueError("Unexpected visibility cofiguration. Ref {}".format(formset.errors))
+            if not matrix_data_correct:
+                raise ValueError("Unexpected visibility cofiguration. Ref {}".format(publish_formset.errors))
+            if not cookie_data_correct:
+                raise ValueError("Cookie preference could not be set. Ref {}".format(cookie_form.errors))
             return HttpResponseRedirect('{}#pR'.format(profile.get_edit_url()))
 
 

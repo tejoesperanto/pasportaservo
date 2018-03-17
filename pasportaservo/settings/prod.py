@@ -1,6 +1,8 @@
 from .base import *  # isort:skip
 
 
+ENVIRONMENT = 'PROD'
+
 SECRET_KEY = get_env_setting('SECRET_KEY')
 
 DATABASES = {

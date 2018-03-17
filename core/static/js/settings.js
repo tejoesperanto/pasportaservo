@@ -10,7 +10,7 @@ $(document).ready(function() {
         if (onlyForCondition === true || onlyForCondition === false)
             if (onlyForCondition !== $(this).prop('checked'))
                 return;
-        var other_id = this.id.match(/(id_form-\d+-visible_online_)[a-z_-]+/);
+        var other_id = this.id.match(/(id_publish-\d+-visible_online_)[a-z_-]+/);
         var query = '[id^=' + other_id[1] + ']';
         $(query).not(this)
             .prop('checked', $(this).prop('checked'))
@@ -45,6 +45,15 @@ $(document).ready(function() {
             continuationHandler();
     });
 
+    // Places the 'more info' link into the checkbox' help block.
+    $('#analytics_more_link').each(function() {
+        $(this).closest('form')
+               .find('#id_site_analytics_consent')
+               .closest('.form-group')
+               .find('.help-block')
+               .append(this);
+    });
+
     window.updateVisibilitySetup = function($this) {
         $this.closest('form').find('#id_dirty').val($this.get(0).name);
     };
@@ -65,11 +74,17 @@ $(document).ready(function() {
                    });
         }
         else {
-            updateVisibilityFailure($this);
+            updatePrivacyFailure($this);
         }
     };
 
-    window.updateVisibilityFailure = function($this) {
+    window.updatePrivacyResult = function($this, response) {
+        if (response.result !== true) {
+            updatePrivacyFailure($this);
+        }
+    }
+
+    window.updatePrivacyFailure = function($this) {
         $this.closest('form').data('unsaved', true);
         var unsavedNotifier = function(event) {
             var notification = (document.documentElement.lang == "eo")
@@ -88,7 +103,7 @@ $(document).ready(function() {
             event.originalEvent.returnValue = notification;
             return notification;
         };
-        var submitButton = $this.closest('form').find('#id_vis_form_submit');
+        var submitButton = $this.closest('form').find('#id_privacy_form_submit');
         if (!arguments.callee.willAlert) {
             $(window).on('beforeunload', unsavedNotifier);
             submitButton.one('click', function() {

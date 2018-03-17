@@ -1,4 +1,5 @@
 import random
+from hashlib import sha256
 
 from django import template
 
@@ -15,6 +16,14 @@ def random_identifier(length=None):
         length = random.randint(16, 48)
     return ''.join(random.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789_')
                    for n in range(length))
+
+
+@register.filter(is_safe=True)
+def public_id(account):
+    try:
+        return sha256(str(account.pk).encode() + str(account.date_joined).encode()).hexdigest()
+    except Exception:
+        return ''
 
 
 register.simple_tag(func=lambda *args: list(args), name='list')
