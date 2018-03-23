@@ -151,7 +151,7 @@
     <section class="callout callout-warning">
         <h4 id="{% trans "privacy" context "URL" %}">
             {% trans "Privacy" %}
-            {% if view.role > roles.OWNER %}
+            {% if privacy_matrix.read_only %}
                 &nbsp;<small><span class="label label-info" style="vertical-align: text-top">{% trans "Preview" context 'Title' %}</span></small>
             {% endif %}
         </h4>
@@ -159,7 +159,11 @@
             {% include './settings_privacy_matrix.html' %}
             {% if view.role == roles.OWNER %}
                 <div class="privacy-checkbox">
-                    {{ analytics_form|bootstrap }}
+                    <span class="text-label-success small text-nowrap optinout-success" style="display: none" aria-role="status">
+                        <span class="fa fa-check" aria-hidden="true"></span>
+                        <span class="notification">{% trans "saved" %}</span>
+                    </span>
+                    {{ optinouts_form|bootstrap }}
                     <a id="analytics_more_link" data-target="#analytics_more" data-toggle="collapse" style="cursor: help">
                         {% trans "More&nbsp;information about the measurement technologies." %}
                     </a>

@@ -41,19 +41,19 @@
     <h1 class="text-center" style="padding: 10px;">{{ view.country.name }}</h1>
 
     <ul class="col nav nav-pills" role="tablist">
-        <li role="presentation" {% if view.in_book == True %}aria-pressed="true" class="active {% else %}class="{% endif %}navbar-right btn-vert-space">
+        <li role="presentation" {% if view.in_book_status is True %}aria-pressed="true" class="active {% else %}class="{% endif %}navbar-right btn-vert-space">
             <a href="{% url 'staff_place_list' country_code=view.country in_book=1 %}">
                 <span class="badge">{{ in_book_count }}</span>
                 {% trans "In the book" %}
             </a>
         </li>
-        <li role="presentation" {% if view.in_book == False %}aria-pressed="true" class="active {% else %}class="{% endif %}navbar-right btn-vert-space">
+        <li role="presentation" {% if view.in_book_status is False %}aria-pressed="true" class="active {% else %}class="{% endif %}navbar-right btn-vert-space">
             <a href="{% url 'staff_place_list' country_code=view.country in_book=0 %}">
                 <span class="badge">{{ not_in_book_count }}</span>
                 {% trans "Not in the book" %}
             </a>
         </li>
-        <li role="presentation" {% if view.in_book is None %}aria-pressed="true" class="active {% else %}class="{% endif %}navbar-right btn-vert-space">
+        <li role="presentation" {% if view.in_book_status is None %}aria-pressed="true" class="active {% else %}class="{% endif %}navbar-right btn-vert-space">
             <a href="{% url 'staff_place_list' country_code=view.country %}">
                 {% trans "All hosts" %}
             </a>
@@ -61,11 +61,11 @@
         <li role="presentation" {% if view.kwargs.email %}aria-pressed="true" class="active {% else %}class="{% endif %}btn-vert-space">
             {# Translators: must be identical to the <email> parameter value in staff_place_list url. #}
             {% trans "email-addr" context "URL" as email_url_part %}
-            {% if view.in_book is not None %}
+            {% if view.in_book_status is not None %}
                 {% if view.kwargs.email %}
-                    {% url 'staff_place_list' country_code=view.country in_book=view.in_book|yesno:"1,0" as invalid_emails_list_url %}
+                    {% url 'staff_place_list' country_code=view.country in_book=view.in_book_status|yesno:"1,0" as invalid_emails_list_url %}
                 {% else %}
-                    {% url 'staff_place_list' country_code=view.country in_book=view.in_book|yesno:"1,0" email=email_url_part as invalid_emails_list_url %}
+                    {% url 'staff_place_list' country_code=view.country in_book=view.in_book_status|yesno:"1,0" email=email_url_part as invalid_emails_list_url %}
                 {% endif %}
             {% else %}
                 {% if view.kwargs.email %}

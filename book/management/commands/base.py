@@ -37,8 +37,11 @@ class LatexCommand(object):
     def handle_label(self, country, **options):
         self.country = country.upper()
         if self.country == 'ALL':
-            self.countries = sorted(set(Place.objects.filter(
-                in_book=True, checked=True).values_list('country', flat=True)))
+            self.countries = sorted(set(
+                Place.objects
+                .filter(in_book=True, visibility__visible_in_book=True, checked=True)
+                .values_list('country', flat=True)
+            ))
             for country in self.countries[:8]:
                 print(country)
                 self.country = country
@@ -79,7 +82,7 @@ class LatexCommand(object):
 
     def get_objects(self):
         print('Grabbing data...')
-        places = Place.objects.filter(in_book=True, checked=True).order_by('city')
+        places = Place.objects.filter(in_book=True, visibility__visible_in_book=True, checked=True).order_by('city')
         if self.address_only:
             print('  for', self.country)
             places = places.filter(country=self.country)

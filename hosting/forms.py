@@ -58,8 +58,9 @@ class ProfileForm(forms.ModelForm):
         self.fields['names_inversed'].label = _("Names ordering")
 
         field_bd = self.fields['birth_date']
-        if hasattr(self, 'instance') and (self.instance.is_hosting or self.instance.is_meeting):
-            if self.instance.is_hosting:
+        if (hasattr(self, 'instance') and
+                (self.instance.has_places_for_hosting or self.instance.has_places_for_meeting)):
+            if self.instance.has_places_for_hosting:
                 message = _("The minimum age to be allowed hosting is {age:d}.")
                 allowed_age = config.host_min_age
             else:
@@ -73,7 +74,7 @@ class ProfileForm(forms.ModelForm):
         field_bd.widget.attrs['data-date-end-date'] = '0d'
         field_bd.widget.attrs['pattern'] = '[1-2][0-9]{3}-((0[1-9])|(1[0-2]))-((0[1-9])|([12][0-9])|(3[0-1]))'
 
-        if hasattr(self, 'instance') and self.instance.is_in_book:
+        if hasattr(self, 'instance') and self.instance.has_places_for_book:
             message = _("This field is required to be printed in the book.")
             for field in self._validation_meta.book_required_fields:
                 req_field = self.fields[field]
@@ -88,13 +89,13 @@ class ProfileForm(forms.ModelForm):
         cleaned_data = super().clean()
         if hasattr(self, 'instance'):
             profile = self.instance
-            in_book = profile.is_in_book
+            for_book = profile.has_places_for_book
             all_filled = all([cleaned_data.get(field, False) for field in self._validation_meta.book_required_fields])
             message = _("You want to be in the printed edition of Pasporta Servo. "
                         "In order to have a quality product, some fields are required. "
                         "If you think there is a problem, please contact us.")
 
-            if in_book and not all_filled:
+            if for_book and not all_filled:
                 # msg = _("This field is required to be printed in the book.")
                 # for field in self._validation_meta.book_required_fields:
                 #     if not cleaned_data.get(field, False):
@@ -173,15 +174,15 @@ class PlaceForm(forms.ModelForm):
         config = SiteConfiguration.get_solo()
 
         # Verifies that user is of correct age if they want to host or meet guests.
-        is_hosting = cleaned_data['available']
-        is_meeting = cleaned_data['tour_guide'] or cleaned_data['have_a_drink']
-        if any([is_hosting, is_meeting]):
+        for_hosting = cleaned_data['available']
+        for_meeting = cleaned_data['tour_guide'] or cleaned_data['have_a_drink']
+        if any([for_hosting, for_meeting]):
             profile = self.profile if hasattr(self, 'profile') else self.instance.owner
             try:
-                allowed_age = config.host_min_age if is_hosting else config.meet_min_age
+                allowed_age = config.host_min_age if for_hosting else config.meet_min_age
                 TooNearPastValidator(allowed_age)(profile.birth_date or date.today())
             except forms.ValidationError:
-                if is_hosting:
+                if for_hosting:
                     self.add_error('available', "")
                     message = _("The minimum age to be allowed hosting is {age:d}.")
                 else:
@@ -588,6 +589,7 @@ class VisibilityFormSetBase(forms.BaseModelFormSet):
     """
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
+        self.read_only = kwargs.pop('read_only', False)
         self.modified_venue = kwargs.pop('dirty', None)
         super().__init__(*args, **kwargs)
 
@@ -651,6 +653,7 @@ class VisibilityFormSetBase(forms.BaseModelFormSet):
         kwargs['initial'] = {
             field: getattr(self.queryset[index], field) for field in ['hint', 'indent']
         }
+        kwargs['read_only'] = self.read_only
         if self.is_bound:
             pk_key = "{form_prefix}-{pk_field}".format(
                 form_prefix=self.add_prefix(index), pk_field=self.model._meta.pk.name)
@@ -659,10 +662,13 @@ class VisibilityFormSetBase(forms.BaseModelFormSet):
         return kwargs
 
 
-class PreferenceAnalyticsForm(forms.ModelForm):
+class PreferenceOptinsForm(forms.ModelForm):
     class Meta:
         model = Preferences
-        fields = ['site_analytics_consent']
+        fields = [
+            'public_listing',
+            'site_analytics_consent',
+        ]
         widgets = {
             'site_analytics_consent': forms.CheckboxInput
         }
@@ -677,7 +683,8 @@ class PreferenceAnalyticsForm(forms.ModelForm):
             'autocomplete': 'off',
         }
         widget_classes = ' ajax-on-change'
-        attrs = self.fields['site_analytics_consent'].widget.attrs
-        attrs.update(widget_settings)
-        attrs['class'] = attrs.get('class', '') + widget_classes
-        attrs['data-initial'] = self['site_analytics_consent'].value()
+        for field in self._meta.fields:
+            attrs = self.fields[field].widget.attrs
+            attrs.update(widget_settings)
+            attrs['class'] = attrs.get('class', '') + widget_classes
+            attrs['data-initial'] = self[field].value()

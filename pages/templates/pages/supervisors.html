@@ -69,12 +69,12 @@
         <hr />
         <div role="navigation">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" {% if not view.in_book %}class="active"{% endif %}>
+                <li role="presentation" {% if not view.in_book_status %}class="active"{% endif %}>
                     <a href="#countries-available" aria-controls="countries-available" role="tab" data-toggle="tab">
                         {% trans "All hosts" %}
                     </a>
                 </li>
-                <li role="presentation" {% if view.in_book %}class="active"{% endif %}>
+                <li role="presentation" {% if view.in_book_status %}class="active"{% endif %}>
                     <a href="#countries-in_book" aria-controls="countries-in_book" role="tab" data-toggle="tab">
                         {% trans "In the book" %}
                     </a>

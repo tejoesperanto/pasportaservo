@@ -6,7 +6,7 @@
     <p>
     {% filter cut:"<span>"|cut:"</span>"|capfirst %}{% spaceless %}
         {% if place_available %}
-            <span>{% trans "if you want to book this accomodation" %}, </span>
+            <span>{% trans "if you want to book this accommodation" %}, </span>
         {% elif owner_available %}
             <span>{% trans "if you want to meet with me" %}, </span>
         {% endif %}
@@ -26,10 +26,13 @@
         {% plural %}
             I can host during {{ max_night }} nights maximum
         {% endblocktrans %}.
+        {% if not place_available %}
+            {% trans "However, at this moment I do not accept guests." %}
+        {% endif %}
     </p>
 {% elif max_host or max_night %}
     <p>
-    {% spaceless %}
+    {% filter cut:"<span>"|cut:"</span>" %}{% spaceless %}
         <span>{% blocktrans count max_host=max_host trimmed %}
                   I can accept {{ max_host }} person
               {% plural %}
@@ -43,6 +46,9 @@
                   {% endblocktrans %}</span>
         {% endif %}
         <span>.</span>
-    {% endspaceless %}
+    {% endspaceless %}{% endfilter %}
+    {% if not place_available %}
+        {% trans "However, at this moment I do not accept guests." %}
+    {% endif %}
     </p>
 {% endif %}
