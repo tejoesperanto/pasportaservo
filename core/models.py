@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -7,6 +8,12 @@ from solo.models import SingletonModel
 
 
 class SiteConfiguration(SingletonModel):
+    # Legal requirement of GDPR Article 8(1): [...] in relation to the offer
+    # of information society services directly to a child, the processing of
+    # the personal data of a child shall be lawful where the child is at least
+    # 16 years old.
+    USER_MIN_AGE = 16
+
     site_name = models.CharField(
         _("site name"),
         max_length=30, default='Pasporta Servo')
@@ -26,11 +33,13 @@ class SiteConfiguration(SingletonModel):
 
     host_min_age = models.PositiveSmallIntegerField(
         _("minumum age for hosting"),
-        default=16)
+        default=17,
+        validators=[MinValueValidator(USER_MIN_AGE)])
 
     meet_min_age = models.PositiveSmallIntegerField(
         _("minumum age for meeting"),
-        default=13)
+        default=16,
+        validators=[MinValueValidator(USER_MIN_AGE)])
 
     confirmation_validity_period = models.DurationField(
         _("confirmation validity period"),

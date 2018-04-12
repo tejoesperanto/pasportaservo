@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Creation-Date: 2018-03-12 00:11+0000\n"
+"POT-Revision-Date: 2018-04-12 09:25+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -154,6 +154,14 @@ msgstr "Ne gastigantoj (malnova aŭ nova retejo)"
 
 msgid "Your email for test"
 msgstr "Via retpoŝtadreso por testi"
+
+#, python-brace-format
+msgid ""
+"Unfortunately, you are still too young to use Pasporta Servo. Wait until you "
+"are {min_age} years of age!"
+msgstr ""
+"Bedaŭrinde vi ankoraŭ estas tro juna por uzi Pasportan Servon. Atendu ĝis "
+"kiam vi {min_age}-jariĝos!"
 
 msgid "site name"
 msgstr "reteja nomo"
@@ -694,6 +702,12 @@ msgstr ""
 msgid "Choose your conditions..."
 msgstr "Elektu viajn kondiĉojn…"
 
+msgid "This field is required if you accept guests."
+msgstr "Tiu ĉi kampo estas deviga kiam vi akceptas gastojn."
+
+msgid "This field is required if you meet visitors."
+msgstr "Tiu ĉi kampo estas deviga kiam vi renkontas vizitantojn."
+
 msgid "commencing on"
 msgstr "ekde"
 
@@ -757,6 +771,18 @@ msgstr "S-ino"
 msgid "Mr"
 msgstr "S-ro"
 
+msgctxt "Personal Pronoun"
+msgid "she"
+msgstr "ŝi"
+
+msgctxt "Personal Pronoun"
+msgid "he"
+msgstr "li"
+
+msgctxt "Personal Pronoun"
+msgid "they"
+msgstr "ri"
+
 msgid "mobile"
 msgstr "poŝtelefono"
 
@@ -813,6 +839,12 @@ msgstr "familia nomo"
 msgid "names in inverse order"
 msgstr "nomoj en renversa ordo (familia unue)"
 
+msgid "gender"
+msgstr "genro"
+
+msgid "personal pronoun"
+msgstr "persona pronomo"
+
 msgid "birth date"
 msgstr "naskiĝtago"
 
@@ -836,8 +868,14 @@ msgstr ""
 msgid "description"
 msgstr "priskribo"
 
-msgid "Short biography."
-msgstr "Mallonga sinprezento."
+msgid ""
+"Short biography. \n"
+"Provide here further details about yourself. If you indicated that your "
+"gender is non-binary, it will be helpful if you explain more."
+msgstr ""
+"Mallonga sinprezento. \n"
+"Plidetaligu ĉi tie pri vi mem. Se vi indikis ke via genro estas ne-duuma, "
+"tio helpos la eventualajn gastojn se vi klarigos pli."
 
 msgid "avatar"
 msgstr "profilbildo"
@@ -991,8 +1029,14 @@ msgstr "retejo"
 msgid "websites"
 msgstr "retejoj"
 
+msgid "name (in English)"
+msgstr "nomo (anglalingve)"
+
 msgid "name"
 msgstr "nomo"
+
+msgid "genders"
+msgstr "genroj"
 
 msgid "E.g.: 'Ne fumu'."
 msgstr "Ekz.: 'Ne fumu'."
@@ -1395,6 +1439,14 @@ msgstr "Ne konfirmita"
 
 msgid "About me"
 msgstr "Pri mi"
+
+#, python-format
+msgid "I am %(of_gender)s"
+msgstr "Mi estas %(of_gender)s"
+
+#, python-format
+msgid "Talking about me, please use the pronoun <em>%(pronoun)s</em>."
+msgstr "Parolante pri mi, bonvole uzu la pronomon <em>%(pronoun)s</em>."
 
 msgid "Place"
 msgid_plural "Places"

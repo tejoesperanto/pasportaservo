@@ -36,3 +36,13 @@ class AdminImageWithPreviewWidget(ClearableWithPreviewImageInput, admin_widgets.
         substitutions = {'initial_raw_value': value}
         substitutions.update(**kwargs)
         return super().format_value(value, **substitutions)
+
+
+class TextWithDatalistInput(form_widgets.TextInput):
+    template_name = 'hosting/snippets/widget-text+datalist.html'
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['widget']['choices'] = self.choices
+        context['widget']['attrs']['list'] = context['widget']['attrs']['id'] + '_options'
+        return context

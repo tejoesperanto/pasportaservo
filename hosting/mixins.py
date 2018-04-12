@@ -35,7 +35,7 @@ class ProfileIsUserMixin(object):
 
     def get_object(self, queryset=None):
         profile = super().get_object(queryset)
-        if not profile.user:
+        if not profile.user_id:
             raise Http404("Detached profile (probably a family member).")
         return profile
 
@@ -102,7 +102,7 @@ class FamilyMemberMixin(object):
 class FamilyMemberAuthMixin(object):
     def get_object(self, queryset=None):
         profile = super().get_object(queryset)
-        if profile.user:
+        if profile.user_id:
             raise Http404("Only the user can modify their profile.")
         return profile
 

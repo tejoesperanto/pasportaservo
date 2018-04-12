@@ -1,3 +1,4 @@
+from collections import namedtuple
 from datetime import date
 
 from django import forms
@@ -36,6 +37,7 @@ class ProfileForm(forms.ModelForm):
             'first_name',
             'last_name',
             'names_inversed',
+            'gender', 'pronoun',
             'birth_date',
             'description',
             'avatar',
@@ -48,7 +50,8 @@ class ProfileForm(forms.ModelForm):
         }
 
     class _validation_meta:
-        book_required_fields = ['title', 'first_name', 'last_name']
+        offer_required_fields = ['birth_date']
+        book_required_fields = ['first_name', 'last_name', 'gender', 'birth_date']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -94,12 +97,7 @@ class ProfileForm(forms.ModelForm):
             message = _("You want to be in the printed edition of Pasporta Servo. "
                         "In order to have a quality product, some fields are required. "
                         "If you think there is a problem, please contact us.")
-
             if for_book and not all_filled:
-                # msg = _("This field is required to be printed in the book.")
-                # for field in self._validation_meta.book_required_fields:
-                #     if not cleaned_data.get(field, False):
-                #         self.add_error(field, msg)
                 raise forms.ValidationError(message)
         return cleaned_data
 
@@ -159,8 +157,10 @@ class PlaceForm(forms.ModelForm):
         }
 
     class _validation_meta:
+        meeting_required_fields = ['city', ]
+        hosting_required_fields = ['address', 'city', 'closest_city', ]
         book_required_fields = [
-            'address', 'city', 'closest_city', 'country', 'available',
+            'address', 'city', 'closest_city', 'available',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -173,10 +173,10 @@ class PlaceForm(forms.ModelForm):
         cleaned_data = super().clean()
         config = SiteConfiguration.get_solo()
 
-        # Verifies that user is of correct age if they want to host or meet guests.
         for_hosting = cleaned_data['available']
         for_meeting = cleaned_data['tour_guide'] or cleaned_data['have_a_drink']
         if any([for_hosting, for_meeting]):
+            # Verifies that user is of correct age if they want to host or meet visitors.
             profile = self.profile if hasattr(self, 'profile') else self.instance.owner
             try:
                 allowed_age = config.host_min_age if for_hosting else config.meet_min_age
@@ -193,16 +193,36 @@ class PlaceForm(forms.ModelForm):
                     message = _("The minimum age to be allowed meeting with visitors is {age:d}.")
                 raise forms.ValidationError(format_lazy(message, age=allowed_age))
 
-        # Sets some fields as required if user wants their data to be printed in book.
-        all_filled = all([cleaned_data.get(field, False) for field in self._validation_meta.book_required_fields])
-        message = _("You want to be in the printed edition of Pasporta Servo. "
-                    "In order to have a quality product, some fields are required. "
-                    "If you think there is a problem, please contact us.")
+        # Some fields are required if user wants to host or to meet visitors,
+        # or wants their data to be printed in the book.
+        Req = namedtuple('Requirements', 'on, required_fields, form_error, field_error')
+        requirements = [
+            Req(for_hosting, self._validation_meta.hosting_required_fields,
+                None,
+                forms.ValidationError(_("This field is required if you accept guests."),
+                                      code='host_condition')),
+            Req(for_meeting, self._validation_meta.meeting_required_fields,
+                None,
+                forms.ValidationError(_("This field is required if you meet visitors."),
+                                      code='host_condition')),
+            Req(cleaned_data['in_book'], self._validation_meta.book_required_fields,
+                _("You want to be in the printed edition of Pasporta Servo. "
+                  "In order to have a quality product, some fields are required. "
+                  "If you think there is a problem, please contact us."),
+                forms.ValidationError(_("This field is required to be printed in the book."),
+                                      code='book_condition')),
+        ]
+        message = []
 
-        if cleaned_data['in_book'] and not all_filled:
-            for field in self._validation_meta.book_required_fields:
-                if not cleaned_data.get(field, False):
-                    self.add_error(field, _("This field is required to be printed in the book."))
+        for cond in requirements:
+            all_filled = all([cleaned_data.get(field, False) for field in cond.required_fields])
+            if cond.on and not all_filled:
+                for field in cond.required_fields:
+                    if not cleaned_data.get(field, False) and not self.has_error(field, cond.field_error.code):
+                        self.add_error(field, cond.field_error)
+                if cond.form_error:
+                    message += forms.ValidationError(cond.form_error)
+        if message:
             raise forms.ValidationError(message)
 
         return cleaned_data
