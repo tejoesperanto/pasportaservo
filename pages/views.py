@@ -7,6 +7,7 @@ from django.utils.translation import pgettext_lazy
 from django.views import generic
 
 from core.auth import PERM_SUPERVISOR
+from core.models import Policy
 from hosting.models import Place
 from hosting.utils import sort_by_name
 
@@ -21,6 +22,17 @@ class TermsAndConditionsView(generic.TemplateView):
 
 class PrivacyPolicyView(generic.TemplateView):
     template_name = 'pages/privacy.html'
+    standalone_policy_view = True
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # TODO: remove this ugly hack which is needed only because DjangoCodeMirror's
+        #       incompatibility with Django 1.11 prevents using the flat pages.
+        from django.template.loader import get_template
+        policy = get_template('pages/snippets/privacy_policy_initial.html').template.source
+        # ENDTODO
+        context['effective_date'] = Policy.get_effective_date_for_policy(policy)
+        return context
 
 
 class SupervisorsView(generic.TemplateView):

@@ -71,7 +71,8 @@ $(document).ready(function() {
         // see also https://ahrefs.com/images/robot/good-bots.jpg
         if (bots.test(navigator.userAgent)
                 || Cookies.get('_consent')
-                || /^\/(privacy|privateco)\//.test(document.location.pathname))
+                || /^\/(privacy|privateco)\//.test(document.location.pathname)
+                || /^\/(agreement|kontrakto)\//.test(document.location.pathname))
             return;
         var $banner = $('#technologies-banner');
         $banner.show().delay(500).animate({ bottom: 0 }, 1500, 'linear')

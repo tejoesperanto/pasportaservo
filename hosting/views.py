@@ -369,7 +369,7 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
 
     def get_template_names(self):
         if getattr(self, '_access_validated', None) and self._access_validated.redirect:
-            return ['hosting/content_unavailable.html']
+            return ['core/content_unavailable.html']
         else:
             return super().get_template_names()
 

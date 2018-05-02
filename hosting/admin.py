@@ -4,6 +4,7 @@ from django.contrib.admin.utils import display_for_value
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.admin import GenericTabularInline
+from django.contrib.flatpages.models import FlatPage
 # from django.contrib.gis import admin as gis_admin
 from django.contrib.gis.db.models import PointField
 from django.core.cache import cache
@@ -14,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from django_countries.fields import Country
 
+from core.models import Agreement
 from maps.widgets import MapboxGlWidget
 
 from .admin_utils import (
@@ -161,11 +163,11 @@ class CustomGroupAdmin(GroupAdmin):
         def get_formatted_list():
             for u in obj.user_set.all():
                 link = reverse('admin:auth_user_change', args=[u.pk])
-                account_link = format_html('<a href="{url}">{username}</a>', url=link, username=u)
+                account_link = '<a href="{url}">{username}</a>'.format(url=link, username=u)
                 is_deleted = not u.is_active
                 try:
-                    profile_link = format_html('<sup>(<a href="{url}">{name}</a>)</sup>',
-                                               url=u.profile.get_admin_url(), name=_("profile"))
+                    profile_link = '<sup>(<a href="{url}">{name}</a>)</sup>'.format(
+                        url=u.profile.get_admin_url(), name=_("profile"))
                 except Profile.DoesNotExist:
                     profile_link = ''
                 else:
@@ -190,6 +192,65 @@ class CustomGroupAdmin(GroupAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('user_set__profile')
+
+
+@admin.register(Agreement)
+class AgreementAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'policy_link', 'user_link', 'created', 'modified',
+    )
+    ordering = ['-policy_version', 'user']
+    search_fields = ['user__username']
+    list_filter = ('policy_version',)
+    date_hierarchy = 'created'
+    fields = (
+        'user_link', 'policy_link',
+        'created', 'modified',
+    )
+    readonly_fields = [f.name for f in Agreement._meta.fields] + ['user_link', 'policy_link']
+
+    def user_link(self, obj):
+        try:
+            link = reverse('admin:auth_user_change', args=[obj.user.pk])
+            account_link = '<a href="{url}">{username}</a>'.format(url=link, username=obj.user)
+            try:
+                profile_link = '&nbsp;(<a href="{url}">{name}</a>)</sup>'.format(
+                    url=obj.user.profile.get_admin_url(), name=_("profile"))
+            except Profile.DoesNotExist:
+                profile_link = ''
+            return format_html(" ".join([account_link, profile_link]))
+        except AttributeError:
+            return format_html('{userid} <sup>?</sup>', userid=obj.user_id)
+    user_link.short_description = _("user")
+    user_link.admin_order_field = 'user'
+
+    def policy_link(self, obj):
+        try:
+            cache = self._policies_cache
+        except AttributeError:
+            cache = self._policies_cache = {}
+        if obj.policy_version in cache:
+            return cache[obj.policy_version]
+        try:
+            policy = (
+                FlatPage.objects
+                .values_list('id', flat=True)
+                .get(url='/privacy-policy-{}/'.format(obj.policy_version)))
+            link = reverse('admin:flatpages_flatpage_change', args=[policy])
+            value = format_html('<a href="{url}">{policy}</a>', url=link, policy=obj.policy_version)
+        except FlatPage.DoesNotExist:
+            value = obj.policy_version
+        finally:
+            cache[obj.policy_version] = value
+            return value
+    policy_link.short_description = _("version of policy")
+    policy_link.admin_order_field = 'policy_version'
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return request.method != 'POST'
 
 
 class TrackingModelAdmin(ShowConfirmedMixin):

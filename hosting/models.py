@@ -481,7 +481,7 @@ class Profile(TrackingModel, TimeStampedModel):
     def __str__(self):
         if self.full_name:
             return self.full_name
-        elif self.user:
+        elif self.user_id:
             return '{} ({})'.format(str(self.INCOGNITO), self.user.username)
         return '--'
 

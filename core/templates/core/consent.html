@@ -1,0 +1,60 @@
+{% extends 'core/base.html' %}
+{% load i18n %}
+
+{% block head_title %}{% trans "Agreement between You and" %}{% endblock %}
+{% block head_title_separator %}{% endblock %}
+
+{% block page %}
+    <div class="row">
+        <div class="alert {% if consent_required %}alert-warning{% else %}alert-success{% endif %}">
+            {% if consent_required %}
+                <p>
+                    <strong>
+                    {% blocktrans trimmed %}
+                        Dear member of the PS-community, your attention is required.
+                        Since {{ effective_date }} a new policy and conditions of use are in effect.
+                    {% endblocktrans %}
+                    </strong>
+                </p>
+                <br />
+                <p>
+                    {% blocktrans trimmed %}
+                        This policy details the ways in which your information is being collected and
+                        treated, and <em>what</em> information you are required to provide to be part
+                        of the community.
+                        This document acts as a contract between Pasporta Servo and you, the user.
+                        Your continuous use of Pasporta Servo indicates your confirmation that you
+                        read the document, understand it, and agree to the conditions herein.
+                    {% endblocktrans %}
+                </p>
+            {% else %}
+                <p>
+                    {% blocktrans trimmed %}
+                        You have already indicated your consent to be bound by the most up-to-date
+                        policy, which is in effect starting on {{ effective_date }}.
+                    {% endblocktrans %}
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div id="user-agreement-panel" class="panel {% if consent_required %}panel-warning{% else %}panel-default{% endif %}">
+        <div class="panel-body">
+            <h1>{% trans "Policy of Privacy within Pasporta Servo" %}</h1><br />
+            {{ view.agreement }}
+        </div>
+        <div class="panel-footer text-center clearfix">
+            <form action="" method="POST" class="pull-right">
+                {% csrf_token %}
+                <button type="submit" id="id_approve" name="action" value="approve" class="btn btn-primary btn-vert-space">
+                    <span class="fa fa-thumbs-up fa-lg" aria-hidden="true"></span>&nbsp;
+                    {% if consent_required %}{% trans "I agree" %}{% else %}{% trans "I still agree" %}{% endif %}
+                </button>
+                <button type="submit" id="id_reject" name="action" value="reject" class="btn btn-danger btn-vert-space">
+                    <span class="fa fa-thumbs-down fa-lg" aria-hidden="true"></span>&nbsp;
+                    {% trans "I DO NOT agree" %}
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock page %}
