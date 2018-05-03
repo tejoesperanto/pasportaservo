@@ -197,6 +197,7 @@ class AuthMixin(AccessMixin):
         if getattr(self, 'exact_role', None) == ANONYMOUS or self.minimum_role == ANONYMOUS:
             self.allow_anonymous = True
         if not request.user.is_authenticated and not self.allow_anonymous:
+            self.role = VISITOR
             return self.handle_no_permission()  # authorization implies a logged-in user
         if 'auth_base' in kwargs:
             object = kwargs['auth_base']
