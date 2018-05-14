@@ -10,8 +10,8 @@ from django.views.generic import RedirectView
 
 from .forms import SystemPasswordResetForm, SystemPasswordResetRequestForm
 from .views import (
-    EmailUpdateView, EmailVerifyView, HomeView,
-    MassMailSentView, MassMailView, PasswordChangeDoneView,
+    AgreementRejectView, AgreementView, EmailUpdateView, EmailVerifyView,
+    HomeView, MassMailSentView, MassMailView, PasswordChangeDoneView,
     PasswordChangeView, RegisterView, UsernameChangeView,
 )
 
@@ -26,6 +26,11 @@ urlpatterns = [
         ),
         name='login'),
     url(_(r'^logout/$'), view=LogoutView.as_view(next_page='/'), name='logout'),
+
+    url(_(r'^agreement/'), include([
+        url(r'^$', view=AgreementView.as_view(), name='agreement'),
+        url(_(r'^reject/$'), view=AgreementRejectView.as_view(), name='agreement_reject'),
+    ])),
 
     url(_(r'^password/'), include([
         url(r'^$', view=PasswordChangeView.as_view(), name='password_change'),

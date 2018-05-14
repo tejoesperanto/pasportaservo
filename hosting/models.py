@@ -12,6 +12,7 @@ from django.db.models import F, Q, Value as V
 from django.db.models.functions import Concat, Substr
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.decorators import classonlymethod
 from django.utils.functional import cached_property
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -25,7 +26,7 @@ from slugify import Slugify
 
 from core.utils import camel_case_split
 
-from .fields import StyledEmailField
+from .fields import StyledEmailField, SuggestiveField
 from .gravatar import email_to_gravatar
 from .managers import AvailableManager, NotDeletedManager, TrackingManager
 from .utils import UploadAndRenameAvatar, value_without_invalid_marker
@@ -40,6 +41,13 @@ TITLE_CHOICES = (
     (None, ""),
     (MRS, _("Mrs")),
     (MR, _("Mr")),
+)
+
+PRONOUN_CHOICES = (
+    (None, ""),
+    ('She', pgettext_lazy("Personal Pronoun", "she")),
+    ('He', pgettext_lazy("Personal Pronoun", "he")),
+    ('They', pgettext_lazy("Personal Pronoun", "they")),
 )
 
 MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
@@ -113,13 +121,13 @@ class VisibilitySettings(models.Model):
         verbose_name = _("visibility settings")
         verbose_name_plural = _("visibility settings")
 
-    @classmethod
-    def _prep(cls, parent=None):
+    @classonlymethod
+    def prep(cls, parent=None):
         """
         Instantiates new specific visibility settings according to the defaults
         specified in the proxy model. Immediately updates the database.
-        Due to this being a class method, the leading underscore in the method
-        name protects it from being hazardously called in templates.
+        The 'class-only method' decorator protects this from being hazardously
+        called in templates, with unpleasant consequences.
         """
         try:
             container = apps.get_model(cls._CONTAINER_MODEL)
@@ -277,7 +285,6 @@ class VisibilitySettingsForPublicEmail(VisibilitySettings):
 
 
 class Profile(TrackingModel, TimeStampedModel):
-    TITLE_CHOICES = TITLE_CHOICES
     INCOGNITO = pgettext_lazy("Name", "Anonymous")
 
     user = models.OneToOneField(
@@ -300,6 +307,14 @@ class Profile(TrackingModel, TimeStampedModel):
     names_inversed = models.BooleanField(
         _("names in inverse order"),
         default=False)
+    gender = SuggestiveField(
+        _("gender"),
+        blank=True,
+        choices='hosting.Gender', to_field='name')
+    pronoun = models.CharField(
+        _("personal pronoun"),
+        blank=True,
+        max_length=5, choices=PRONOUN_CHOICES)
     birth_date = models.DateField(
         _("birth date"),
         null=True, blank=True,
@@ -318,7 +333,10 @@ class Profile(TrackingModel, TimeStampedModel):
     description = models.TextField(
         _("description"),
         blank=True,
-        help_text=_("Short biography."))
+        help_text=_("Short biography. \n"
+                    "Provide here further details about yourself. "
+                    "If you indicated that your gender is non-binary, "
+                    "it will be helpful if you explain more."))
     avatar = models.ImageField(
         _("avatar"),
         blank=True,
@@ -400,7 +418,7 @@ class Profile(TrackingModel, TimeStampedModel):
         slugify = Slugify(to_lower=True, pretranslate={'ĉ': 'ch', 'ĝ': 'gh', 'ĥ': 'hh', 'ĵ': 'jh', 'ŝ': 'sh'})
         return slugify(self.name) or '--'
 
-    @property
+    @cached_property
     def is_hosting(self):
         """
         Return number of owned places where the user hosts and are visible to the public.
@@ -409,13 +427,13 @@ class Profile(TrackingModel, TimeStampedModel):
             available=True, deleted=False, visibility__visible_online_public=True,
         ).count()
 
-    @property
+    @cached_property
     def has_places_for_hosting(self):
         return self.owned_places.filter(
             available=True, deleted=False,
         ).count()
 
-    @property
+    @cached_property
     def is_meeting(self):
         """
         Return number of owned places where the user is ready to meet up with guests
@@ -426,13 +444,13 @@ class Profile(TrackingModel, TimeStampedModel):
             owner_available, deleted=False, visibility__visible_online_public=True,
         ).count()
 
-    @property
+    @cached_property
     def has_places_for_meeting(self):
         return self.owned_places.filter(
             Q(tour_guide=True) | Q(have_a_drink=True), deleted=False,
         ).count()
 
-    @property
+    @cached_property
     def is_in_book(self):
         """
         Return number of owned places selected to appear in the printed edition and
@@ -442,7 +460,7 @@ class Profile(TrackingModel, TimeStampedModel):
             available=True, in_book=True, deleted=False, visibility__visible_in_book=True,
         ).count()
 
-    @property
+    @cached_property
     def has_places_for_book(self):
         return self.owned_places.filter(
             available=True, in_book=True, deleted=False,
@@ -463,7 +481,7 @@ class Profile(TrackingModel, TimeStampedModel):
     def __str__(self):
         if self.full_name:
             return self.full_name
-        elif self.user:
+        elif self.user_id:
             return '{} ({})'.format(str(self.INCOGNITO), self.user.username)
         return '--'
 
@@ -863,6 +881,23 @@ class Website(TrackingModel, TimeStampedModel):
             self.__str__(),
             self.profile_id
         )
+
+
+class Gender(models.Model):
+    """Profile's possible gender."""
+    name_en = models.CharField(
+        _("name (in English)"),
+        max_length=255, unique=True)
+    name = models.CharField(
+        _("name"),
+        max_length=255, unique=True)
+
+    class Meta:
+        verbose_name = _("gender")
+        verbose_name_plural = _("genders")
+
+    def __str__(self):
+        return self.name
 
 
 class Condition(models.Model):

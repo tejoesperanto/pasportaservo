@@ -1,5 +1,9 @@
 {% extends 'core/base.html' %}
-{% load i18n %}
+{% load i18n sass_tags %}
+
+{% block extra_css %}
+        <link rel="stylesheet" href="{% sass_src 'css/pasportaservo-home.scss' %}">
+{% endblock %}
 
 {% block head_title %}{% trans "Server error" %} &bull; {{ block.super }}{% endblock %}
 

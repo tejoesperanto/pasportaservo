@@ -1,0 +1,53 @@
+{% extends 'core/base.html' %}
+{% load i18n %}
+
+{% block head_title %}{% trans "Agreement between You and" %}{% endblock %}
+{% block head_title_separator %}{% endblock %}
+
+{% block page %}
+    <div class="row">
+        <div class="col-xs-12 col-sm-8 col-sm-push-2">
+            <div class="well clearfix">
+                <h1 class="text-center text-label-warning" aria-hidden="true" style="margin-top: 0">
+                    <span class="fa-stack">
+                        <span class="fa fa-circle fa-stack-2x"></span>
+                        <span class="fa fa-hand-stop-o fa-stack-1x fa-inverse"></span>
+                    </span>
+                </h1>
+                <p>
+                    {% blocktrans trimmed %}
+                        If you don't agree to our terms and conditions and to the usage policies,
+                        you cannot continue to use Pasporta Servo.
+                        In this case,  your account will be disabled and your information will not
+                        be accessible to other users of Pasporta Servo anymore. If you change your
+                        mind afterwise, you will need to contact us manually to restore the access
+                        to your account.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        Note that some things that you do on PS website are not stored in your
+                        account. For example, messages that you exchanged with other users of the
+                        website (via the internal communication system); this information will
+                        still be visible to others after your account is disabled.
+                    {% endblocktrans %}
+                </p>
+                <br />
+                <div class="text-center">
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" id="id_proceed" class="btn btn-danger btn-vert-space-even pull-xs-right">
+                            {% trans "Proceed and disable account" %}
+                        </button>
+                        <a href="{% url 'agreement' %}" class="btn btn-default btn-vert-space-even pull-xs-left" title="{% trans "Back" %}">
+                            <span class="fa fa-arrow-left" aria-hidden="true"></span>
+                            <span>
+                                {% blocktrans with back_to=_("agreement") %}Back to {{ back_to }}{% endblocktrans %}
+                            </span>
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

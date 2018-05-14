@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import Q
 from django.utils.decorators import method_decorator
 from django.views import generic
 from django.views.decorators.cache import cache_page
@@ -56,8 +57,12 @@ class PublicDataView(GeoJSONLayerView):
     ]
 
     def get_queryset(self):
+        by_visibility = Q(visibility__visible_online_public=True)
+        if not self.request.user.is_authenticated:
+            by_visibility &= Q(owner__pref__public_listing=True)
         return (
             Place.available_objects
                  .exclude(location__isnull=True)
+                 .filter(by_visibility)
                  .prefetch_related('owner')
         )

@@ -4,7 +4,7 @@
     {% if object.checked %}
         <{% if button %}button type="button" {% if button_id %}id="{{ button_id }}"{% endif %}{% else %}span{% endif %}
               class="staff {% if button %}btn btn-success disabled{% else %}label label-success{% endif %}"
-              title="{% if object.checked_by %}
+              title="{% if object.checked_by_id %}
                         {% trans "approved by"|capfirst %}
                         {% if object.checked_by.profile %}
                             <a href='{{ object.checked_by.profile.get_absolute_url }}'>

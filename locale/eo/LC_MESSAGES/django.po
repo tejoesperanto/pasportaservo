@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Creation-Date: 2018-03-12 00:11+0000\n"
+"POT-Revision-Date: 2018-05-02 10:35+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -155,6 +155,14 @@ msgstr "Ne gastigantoj (malnova aŭ nova retejo)"
 msgid "Your email for test"
 msgstr "Via retpoŝtadreso por testi"
 
+#, python-brace-format
+msgid ""
+"Unfortunately, you are still too young to use Pasporta Servo. Wait until you "
+"are {min_age} years of age!"
+msgstr ""
+"Bedaŭrinde vi ankoraŭ estas tro juna por uzi Pasportan Servon. Atendu ĝis "
+"kiam vi {min_age}-jariĝos!"
+
 msgid "site name"
 msgstr "reteja nomo"
 
@@ -190,6 +198,22 @@ msgstr ""
 
 msgid "Site Configuration"
 msgstr "Retejaj agordoj"
+
+msgid "user"
+msgstr "uzanto"
+
+msgid "version of policy"
+msgstr "versio de regularo"
+
+msgid "agreement"
+msgstr "interkonsento"
+
+msgid "agreements"
+msgstr "interkonsentoj"
+
+#, python-brace-format
+msgid "User {user} agreed to '{policy}' on {date:%Y-%m-%d}"
+msgstr "Uzanto {user} akceptis '{policy}' je {date:%Y-%m-%d}"
 
 msgid "Find accommodation"
 msgstr "Trovu loĝejon"
@@ -272,6 +296,93 @@ msgstr "Landaj organizantoj"
 
 msgid "Confirm"
 msgstr "Konfirmi"
+
+msgid "Agreement between You and"
+msgstr "Kontrakto inter Vi kaj"
+
+#, python-format
+msgid ""
+"Dear member of the PS-community, your attention is required. Since "
+"%(effective_date)s a new policy and conditions of use are in effect."
+msgstr ""
+"Kara pasportservano, via atento estas bezonata. Ekde %(effective_date)s "
+"estas en efiko nova politiko kaj kondiĉoj de uzo."
+
+msgid ""
+"This policy details the ways in which your information is being collected "
+"and treated, and <em>what</em> information you are required to provide to be "
+"part of the community. This document acts as a contract between Pasporta "
+"Servo and you, the user. Your continuous use of Pasporta Servo indicates "
+"your confirmation that you read the document, understand it, and agree to "
+"the conditions herein."
+msgstr ""
+"Tiu ĉi politiko detaligas la manierojn en kiuj viaj informoj estas "
+"kolektataj kaj traktataj, kaj <em>kiuj</em> informoj estas bezonataj de vi "
+"por esti parto de la komunumo. La dokumento rolas kiel kontrakto inter "
+"Pasporta Servo kaj vi, la uzanto. Daŭre uzante Pasportan Servon vi konfirmas "
+"ke vi legis la dokumenton, komprenas ĝin, kaj konsentas je tiuj kondiĉoj."
+
+#, python-format
+msgid ""
+"You have already indicated your consent to be bound by the most up-to-date "
+"policy, which is in effect starting on %(effective_date)s."
+msgstr ""
+"Vi jam indikis vian konsenton pri la rajtoj kaj la obligacioj detaligitaj en "
+"la plej ĝisdata regularo, kiu efikas ekde %(effective_date)s."
+
+msgid "Policy of Privacy within Pasporta Servo"
+msgstr "Politiko pri privateco ĉe Pasporta Servo"
+
+msgid "I agree"
+msgstr "Mi akceptas"
+
+msgid "I still agree"
+msgstr "Mi daŭre akceptas"
+
+msgid "I DO NOT agree"
+msgstr "Mi NE akceptas"
+
+msgid ""
+"If you don't agree to our terms and conditions and to the usage policies, "
+"you cannot continue to use Pasporta Servo. In this case,  your account will "
+"be disabled and your information will not be accessible to other users of "
+"Pasporta Servo anymore. If you change your mind afterwise, you will need to "
+"contact us manually to restore the access to your account."
+msgstr ""
+"Se vi ne konsentas je la kondiĉoj kaj je la regularo por la uzado, vi ne "
+"povas pluuzi Pasportan Servon. Tiuokaze, via konto estos malfunkciigita kaj "
+"viaj informoj ne plu estos alireblaj por la aliaj uzantoj de Pasporta Servo. "
+"Se vi poste ŝanĝos vian opinion, vi devos kontakti nin persone por rehavigi "
+"al vi la aliron al via konto."
+
+msgid ""
+"Note that some things that you do on PS website are not stored in your "
+"account. For example, messages that you exchanged with other users of the "
+"website (via the internal communication system); this information will still "
+"be visible to others after your account is disabled."
+msgstr ""
+"Notu ke iuj viaj interagoj sur la retejo ne estas registritaj ĉe via konto, "
+"sed aparte. Ekzemple, mesaĝoj kiujn vi interŝanĝas kun la aliaj uzantoj "
+"(pere de la interna komuniko-sistemo); tiuj ĉi informeroj daŭre estos "
+"videblaj al aliuloj post kiam via konto estos malfunkciigita."
+
+msgid "Proceed and disable account"
+msgstr "Akcepti kaj malfunkciigi konton"
+
+msgid "Back"
+msgstr "Reen"
+
+#, python-format
+msgid "Back to %(back_to)s"
+msgstr "Reen al %(back_to)s"
+
+#, python-format
+msgid ""
+"Unfortunately, information about this %(object)s is not available anymore."
+msgstr "Bedaŭrinde la informoj pri tiu ĉi %(object)s ne plu estas disponeblaj."
+
+msgid "Unfortunately, this information is not available anymore."
+msgstr "Bedaŭrinde tiuj ĉi informoj ne plu estas disponeblaj."
 
 msgid "admin site"
 msgstr "administrilo"
@@ -528,6 +639,12 @@ msgstr "^ensaluti/$"
 msgid "^logout/$"
 msgstr "^elsaluti/$"
 
+msgid "^agreement/"
+msgstr "^kontrakto/"
+
+msgid "^reject/$"
+msgstr "^rifuzi/$"
+
 msgid "^password/"
 msgstr "^pasvorto/"
 
@@ -561,6 +678,9 @@ msgstr "^amassendado/"
 msgid "You are logged in."
 msgstr "Vi nun estas ensalutinta."
 
+msgid "Farewell !"
+msgstr "Adiaŭ !"
+
 msgid ""
 "A confirmation email has been sent. Please check your mailbox to complete "
 "the process."
@@ -581,9 +701,6 @@ msgstr "Vi sukcese konfirmis vian retpoŝtan adreson!"
 
 msgid "Your email address has been successfully updated!"
 msgstr "Vi sukcese ŝanĝis vian retpoŝtan adreson!"
-
-msgid "user"
-msgstr "uzanto"
 
 msgid "Personal info"
 msgstr "Personaj informoj"
@@ -694,6 +811,12 @@ msgstr ""
 msgid "Choose your conditions..."
 msgstr "Elektu viajn kondiĉojn…"
 
+msgid "This field is required if you accept guests."
+msgstr "Tiu ĉi kampo estas deviga kiam vi akceptas gastojn."
+
+msgid "This field is required if you meet visitors."
+msgstr "Tiu ĉi kampo estas deviga kiam vi renkontas vizitantojn."
+
 msgid "commencing on"
 msgstr "ekde"
 
@@ -757,6 +880,18 @@ msgstr "S-ino"
 msgid "Mr"
 msgstr "S-ro"
 
+msgctxt "Personal Pronoun"
+msgid "she"
+msgstr "ŝi"
+
+msgctxt "Personal Pronoun"
+msgid "he"
+msgstr "li"
+
+msgctxt "Personal Pronoun"
+msgid "they"
+msgstr "ri"
+
 msgid "mobile"
 msgstr "poŝtelefono"
 
@@ -813,6 +948,12 @@ msgstr "familia nomo"
 msgid "names in inverse order"
 msgstr "nomoj en renversa ordo (familia unue)"
 
+msgid "gender"
+msgstr "genro"
+
+msgid "personal pronoun"
+msgstr "persona pronomo"
+
 msgid "birth date"
 msgstr "naskiĝtago"
 
@@ -836,8 +977,14 @@ msgstr ""
 msgid "description"
 msgstr "priskribo"
 
-msgid "Short biography."
-msgstr "Mallonga sinprezento."
+msgid ""
+"Short biography. \n"
+"Provide here further details about yourself. If you indicated that your "
+"gender is non-binary, it will be helpful if you explain more."
+msgstr ""
+"Mallonga sinprezento. \n"
+"Plidetaligu ĉi tie pri vi mem. Se vi indikis ke via genro estas ne-duuma, "
+"tio helpos la eventualajn gastojn se vi klarigos pli."
 
 msgid "avatar"
 msgstr "profilbildo"
@@ -991,8 +1138,14 @@ msgstr "retejo"
 msgid "websites"
 msgstr "retejoj"
 
+msgid "name (in English)"
+msgstr "nomo (anglalingve)"
+
 msgid "name"
 msgstr "nomo"
+
+msgid "genders"
+msgstr "genroj"
 
 msgid "E.g.: 'Ne fumu'."
 msgstr "Ekz.: 'Ne fumu'."
@@ -1049,14 +1202,6 @@ msgstr "Ne, nuligu"
 msgid "Delete"
 msgstr "Forigi"
 
-#, python-format
-msgid ""
-"Unfortunately, information about this %(object)s is not available anymore."
-msgstr "Bedaŭrinde la informoj pri tiu ĉi %(object)s ne plu estas disponeblaj."
-
-msgid "Unfortunately, this information is not available anymore."
-msgstr "Bedaŭrinde tiuj ĉi informoj ne plu estas disponeblaj."
-
 msgid "Remove a family member"
 msgstr "Forigi kunloĝanton"
 
@@ -1100,13 +1245,6 @@ msgstr ""
 
 msgid "Your email still remains private."
 msgstr "Via retpoŝtadreso ĉiukaze restas privata."
-
-#, python-format
-msgid "Back to %(back_to)s"
-msgstr "Reen al %(back_to)s"
-
-msgid "Back"
-msgstr "Reen"
 
 msgid "Deleted profile"
 msgstr "Nuligita profilo"
@@ -1395,6 +1533,14 @@ msgstr "Ne konfirmita"
 
 msgid "About me"
 msgstr "Pri mi"
+
+#, python-format
+msgid "I am %(of_gender)s"
+msgstr "Mi estas %(of_gender)s"
+
+#, python-format
+msgid "Talking about me, please use the pronoun <em>%(pronoun)s</em>."
+msgstr "Parolante pri mi, bonvole uzu la pronomon <em>%(pronoun)s</em>."
 
 msgid "Place"
 msgid_plural "Places"
@@ -1741,9 +1887,6 @@ msgid "The data is not saved yet! Note the specified errors."
 msgstr ""
 "La informoj ankoraŭ ne estas konservitaj! Atentu la indikitajn erarojn."
 
-msgid "Farewell !"
-msgstr "Adiaŭ !"
-
 msgid "Only the user themselves can access this page"
 msgstr "Nur la uzanto mem povas aliri tiun ĉi paĝon"
 
@@ -1808,6 +1951,10 @@ msgstr "Vi estas aŭtomate ensalutita. Bonan redaktadon!"
 msgctxt "URL"
 msgid "collected-information"
 msgstr "kolektataj-informoj"
+
+msgctxt "URL"
+msgid "shared-information"
+msgstr "kundividataj-informoj"
 
 msgctxt "URL"
 msgid "countries-list"

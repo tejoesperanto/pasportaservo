@@ -68,8 +68,7 @@ def flatpages_as_templates(cls):
     if context_func:
         def _get_context_data_superfunc(self, **kwargs):
             context = context_func(self, **kwargs)
-            # Avoid polluting the namespace of the view class.
-            cls.render_flat_page._view_context = context
+            self._flat_page_context = context
             return context
         setattr(cls, context_func_name, _get_context_data_superfunc)
 
@@ -78,7 +77,9 @@ def flatpages_as_templates(cls):
             return ''
         from django.template import engines
         template = engines.all()[0].from_string(page['content'])
-        return template.render(render_flat_page._view_context, self.request)
+        return template.render(
+            getattr(self, '_flat_page_context', render_flat_page._view_context),
+            self.request)
     cls.render_flat_page = render_flat_page
     cls.render_flat_page._view_context = {}
 

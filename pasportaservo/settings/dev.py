@@ -25,8 +25,12 @@ INSTALLED_APPS += (
     'debug_toolbar',
 )
 
+MIDDLEWARE.insert(
+    [i for i, mw in enumerate(MIDDLEWARE) if mw.startswith('django')][-1] + 1,
+    'debug_toolbar.middleware.DebugToolbarMiddleware'
+)
 MIDDLEWARE += [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 DEBUG_TOOLBAR_CONFIG = {

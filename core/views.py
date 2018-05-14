@@ -10,14 +10,19 @@ from django.contrib.auth.views import (
 )
 from django.contrib.flatpages.models import FlatPage
 from django.core.mail import send_mail
+from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.http import (
+    Http404, HttpResponse, HttpResponseRedirect, JsonResponse,
+)
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.html import escape
+from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
@@ -27,8 +32,9 @@ from django.views.decorators.vary import vary_on_headers
 from markdown2 import markdown
 
 from blog.models import Post
+from core.models import Policy
 from hosting.mixins import ProfileIsUserMixin, ProfileModifyMixin
-from hosting.models import Place, Profile
+from hosting.models import Phone, Place, Profile
 from hosting.utils import value_without_invalid_marker
 from links.utils import create_unique_url
 
@@ -38,7 +44,7 @@ from .forms import (
     UsernameUpdateForm, UserRegistrationForm,
 )
 from .mixins import LoginRequiredMixin, UserModifyMixin, flatpages_as_templates
-from .models import SiteConfiguration
+from .models import Agreement, SiteConfiguration
 from .utils import send_mass_html_mail
 
 User = get_user_model()
@@ -91,6 +97,93 @@ class RegisterView(generic.CreateView):
         login(self.request, user)
         messages.success(self.request, _("You are logged in."))
         return result
+
+
+@flatpages_as_templates
+class AgreementView(LoginRequiredMixin, generic.TemplateView):
+    http_method_names = ['get', 'post']
+    template_name = 'core/consent.html'
+    standalone_policy_view = False
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['consent_required'] = getattr(self.request.user, 'consent_required', [None])[0]
+        context['effective_date'], __ = self._agreement
+        return context
+
+    @cached_property
+    def _agreement(self):
+        policy = (
+            getattr(self.request.user, 'consent_required', None)
+            or getattr(self.request.user, 'consent_obtained', None)
+        )[0]  # Fetch the policy from the lazy collection.
+        effective_date = Policy.get_effective_date_for_policy(policy['content'])
+        return (effective_date, policy)
+
+    @cached_property
+    def agreement(self):
+        __, policy = self._agreement
+        return self.render_flat_page(policy)
+
+    def post(self, request, *args, **kwargs):
+        action = request.POST.get('action', 'unknown')
+        if action == 'approve':
+            if getattr(request.user, 'consent_required', False):
+                Agreement.objects.create(
+                    user=request.user,
+                    policy_version=request.user.consent_required[0]['version'])
+            target_page = request.GET.get(settings.REDIRECT_FIELD_NAME, '')
+            return HttpResponseRedirect(target_page if target_page and is_safe_url(target_page)
+                                        else reverse_lazy('home'))
+        elif action == 'reject':
+            request.session['agreement_rejected'] = True
+            return HttpResponseRedirect(reverse_lazy('agreement_reject'))
+        else:
+            return HttpResponseRedirect(reverse_lazy('agreement'))
+
+
+class AgreementRejectView(LoginRequiredMixin, generic.TemplateView):
+    http_method_names = ['get', 'post']
+    template_name = 'core/consent_rejected.html'
+
+    def get(self, request, *args, **kwargs):
+        """
+        Show the warning about consequences of not accepting the agreement.
+        """
+        if not request.session.pop('agreement_rejected', None):
+            return HttpResponse()
+        request.session['agreement_rejected_final'] = True
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Set the flag 'deleted' to True on the user's profile,
+        set the flag 'deleted' to True on all associated objects,
+        deactivate the user account,
+        and then redirect to home URL.
+        """
+        if not request.session.pop('agreement_rejected_final', None):
+            return HttpResponse()
+        now = timezone.now()
+        owned_places = Place.all_objects.filter(owner__user=request.user)
+        owned_phones = Phone.all_objects.filter(profile__user=request.user)
+        with transaction.atomic():
+            [qs.update(deleted_on=now) for qs in [
+                # Family members who are not users by themselves.
+                Profile.objects.filter(
+                    pk__in=owned_places.values_list('family_members', flat=True),
+                    deleted=False, user_id__isnull=True),
+                # Places which were not previously deleted.
+                owned_places.filter(deleted=False),
+                # Phones which were not previously deleted.
+                owned_phones.filter(deleted=False),
+                # The profile itself.
+                Profile.objects.filter(user=request.user),
+            ]]
+            request.user.is_active = False
+            request.user.save(update_fields=['is_active'])
+        messages.info(request, _("Farewell !"))
+        return HttpResponseRedirect(reverse_lazy('home'))
 
 
 class PasswordChangeView(LoginRequiredMixin, PasswordChangeBuiltinView):

@@ -172,6 +172,22 @@
 
     <h2 class="owner">{% trans "About me" %}</h2>
     {{ profile.description|linebreaks }}
+    {% if profile.gender or profile.pronoun %}
+        <p>
+            <span class="fa fa-transgender-alt text-muted"></span>
+            {% filter cut:"<span>"|cut:"</span>" %}{% spaceless %}
+                {% if profile.gender %}
+                    <span>{% blocktrans with of_gender=profile.gender %}I am {{ of_gender }}{% endblocktrans %}</span>
+                    <span>{% if profile.pronoun %}; {% else %}. {% endif %}</span>
+                {% endif %}
+                {% if profile.pronoun %}
+                    <span>{% blocktrans with pronoun=profile.get_pronoun_display|capfirst trimmed %}
+                                Talking about me, please use the pronoun <em>{{ pronoun }}</em>.
+                          {% endblocktrans %}</span>
+                {% endif %}
+            {% endspaceless %}{% endfilter %}
+        </p>
+    {% endif %}
     <p>
         {% if phones_public %}
             <span class="contact-details text-nowrap">
