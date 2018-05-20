@@ -478,12 +478,12 @@ a.contact-details:not(:hover) {
     }
 }
 .list-group-item.concealed-partially {
+    @mixin gradient($config...) {
+        background-image: -webkit-linear-gradient($config);
+        background-image:      -o-linear-gradient($config);
+        background-image:         linear-gradient($config);
+    }
     @mixin striped($color, $angle: 45deg) {
-        @mixin gradient($config...) {
-            background-image: -webkit-linear-gradient($config);
-            background-image:      -o-linear-gradient($config);
-            background-image:         linear-gradient($config);
-        }
         @include gradient($angle, $color 25%, transparent 25%, transparent 50%, $color 50%, $color 75%, transparent 75%, transparent);
     }
     @include striped(rgba(0, 0, 0, 0.03));
