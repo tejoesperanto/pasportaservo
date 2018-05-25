@@ -399,11 +399,31 @@
                 {{ place.available|yesno }}
             </p>
             <p class="help-block">
+                {% trans "Can be printed in book" %}:&nbsp;
+                <span class="fa fa-{{ place.in_book|yesno:'check,times' }}"></span>
+                {{ place.in_book|yesno }}
+            </p>
+            {% if place.in_book %}
+            <p class="help-block">
                 {% trans "Print in book" %}:&nbsp;
                 {% expr (place.in_book and place.visibility.visible_in_book) as place_printable %}
                 <span class="fa fa-{{ place_printable|yesno:'check,times' }}"></span>
                 {{ place_printable|yesno }}
+                {% url 'profile_settings_shortcut' as settings_link %}{% trans "privacy" context "URL" as privacy_shortcut %}
+                {% list settings_link '#' privacy_shortcut as privacy_settings_link %}
+                &nbsp;
+                <span class="text-nowrap">({% spaceless %}
+                    {{ place_printable|yesno:_("enabled,disabled") }}
+                    {% if view.role == roles.OWNER %}
+                        {% blocktrans with url=privacy_settings_link|join:"" trimmed %}
+                            via <a href="{{ url }}">privacy settings</a>
+                        {% endblocktrans %}
+                    {% else %}
+                        {% trans "via privacy settings" %}
+                    {% endif %}
+                {% endspaceless %})</span>
             </p>
+            {% endif %}
         </div>
     {% endif %}
 </div>

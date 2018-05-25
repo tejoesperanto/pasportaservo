@@ -197,6 +197,14 @@
     </section>
     {% endif %}
 
+    {% if view.role == roles.OWNER %}
+    <section class="callout callout-warning">
+        <h4>{% trans "Agreement" %}</h4>
+        <span class="fa fa-arrow-circle-right text-muted" aria-hidden="true"></span>&nbsp;
+        <a href="{% url 'agreement' %}">{% trans "Agreement between You and"|lower %} Pasporta Servo.</a>
+    </section>
+    {% endif %}
+
     {% if not profile.deleted %}
     <section class="callout callout-danger">
         <h4>{% if view.role == roles.OWNER %}{% trans "End my membership" %}{% else %}{% trans "End membership" %}{% endif %}</h4>

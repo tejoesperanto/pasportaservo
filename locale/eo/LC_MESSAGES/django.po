@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2018-05-02 10:35+0000\n"
+"POT-Revision-Date: 2018-05-25 11:49+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1363,8 +1363,25 @@ msgstr "Mallonga priskribo"
 msgid "Available"
 msgstr "Disponebla"
 
+msgid "Can be printed in book"
+msgstr "Povas aperi en la PS-libreto"
+
 msgid "Print in book"
 msgstr "Printi en la PS-libreto"
+
+msgctxt "URL"
+msgid "privacy"
+msgstr "privateco"
+
+msgid "enabled,disabled"
+msgstr "ebligita,malebligita"
+
+#, python-format
+msgid "via <a href=\"%(url)s\">privacy settings</a>"
+msgstr "per <a href=\"%(url)s\">privateco-agordoj</a>"
+
+msgid "via privacy settings"
+msgstr "per privateco-agordoj"
 
 msgid "Confirm and edit location"
 msgstr "Konfirmi kaj redakti lokigon"
@@ -1639,10 +1656,6 @@ msgstr "Publika retadreso?"
 msgid "[no email address]"
 msgstr "[neniu retpoŝta adreso]"
 
-msgctxt "URL"
-msgid "privacy"
-msgstr "privateco"
-
 msgctxt "Title"
 msgid "Preview"
 msgstr "Antaŭrigardo"
@@ -1674,6 +1687,9 @@ msgstr "mezurado"
 
 msgid "Save"
 msgstr "Konservi"
+
+msgid "Agreement"
+msgstr "Interkonsento"
 
 msgid "End my membership"
 msgstr "Malpasportservaniĝi"
