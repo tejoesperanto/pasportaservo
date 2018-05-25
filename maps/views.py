@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.utils.decorators import method_decorator
 from django.views import generic
 from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_headers
 
 from accept_language import parse_accept_language
 from djgeojson.views import GeoJSONLayerView
@@ -46,7 +47,7 @@ class MapStyleView(generic.TemplateView):
         }
 
 
-@method_decorator(cache_page(12 * HOURS), name='dispatch')
+@method_decorator(cache_page(12 * HOURS), name='genuine_dispatch')
 class PublicDataView(GeoJSONLayerView):
     geometry_field = 'location'
     precision = 2  # 0.01
@@ -55,6 +56,16 @@ class PublicDataView(GeoJSONLayerView):
         'url',
         'owner_name',
     ]
+
+    def dispatch(self, request, *args, **kwargs):
+        request.META['HTTP_X_USER_STATUS'] = 'Authenticated' if request.user.is_authenticated else 'Anonymous'
+        return self.genuine_dispatch(request, *args, **kwargs)
+
+    @vary_on_headers('X-User-Status')
+    def genuine_dispatch(self, request, *args, **kwargs):
+        # Caching will take into account the header (via the Vary instruction), but
+        # it must be added before the cache framework calculates the hashmap key.
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         by_visibility = Q(visibility__visible_online_public=True)
