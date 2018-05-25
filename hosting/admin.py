@@ -342,6 +342,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     date_hierarchy = 'birth_date'
     fields = (
         'user', 'title', 'first_name', 'last_name', 'names_inversed', 'birth_date',
+        ('gender', 'pronoun'),
         'description', 'avatar', 'email', 'supervisor',
     ) + TrackingModelAdmin.fields
     raw_id_fields = ('user',)  # 'checked_by')

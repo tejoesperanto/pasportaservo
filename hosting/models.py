@@ -310,7 +310,8 @@ class Profile(TrackingModel, TimeStampedModel):
     gender = SuggestiveField(
         _("gender"),
         blank=True,
-        choices='hosting.Gender', to_field='name')
+        choices='hosting.Gender', to_field='name',
+        help_text=_("Type your preference or select one from the suggestions."))
     pronoun = models.CharField(
         _("personal pronoun"),
         blank=True,

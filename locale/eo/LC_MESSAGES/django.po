@@ -951,6 +951,9 @@ msgstr "nomoj en renversa ordo (familia unue)"
 msgid "gender"
 msgstr "genro"
 
+msgid "Type your preference or select one from the suggestions."
+msgstr "Tajpu vian preferon aŭ elektu el inter la proponoj."
+
 msgid "personal pronoun"
 msgstr "persona pronomo"
 
