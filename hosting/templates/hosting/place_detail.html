@@ -286,7 +286,7 @@
         {# DETAILS AND CONDITIONS OF THE PLACE ON SMALL SCREENS - ACCESSIBLE ONLY TO AUTHENTICATED USERS #}
             <a id="status-anchors_notification" class="col-xs-12 anchor-notify" data-placement="bottom"
                data-content="{% include './snippets/place_owner_anchors.html' %}"></a>
-            {% include './snippets/place_description.html' with description=place.description contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
+            {% include './snippets/place_description.html' with description=place.description place_available=place.available owner_available=place.owner_available contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
 
             {% if place.sporadic_presence %}
             {% if place.available or place.owner_available or view.verbose_view %}
