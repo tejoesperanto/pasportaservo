@@ -94,12 +94,15 @@ class Agreement(TimeStampedModel):
     policy_version = models.CharField(
         _("version of policy"),
         max_length=50)
+    withdrawn = models.DateTimeField(
+        _("withdrawn on"),
+        default=None, blank=True, null=True)
 
     class Meta:
         verbose_name = _("agreement")
         verbose_name_plural = _("agreements")
         default_permissions = ('delete', )
-        unique_together = ('user', 'policy_version')
+        unique_together = ('user', 'policy_version', 'withdrawn')
 
     def __str__(self):
         return str(_("User {user} agreed to '{policy}' on {date:%Y-%m-%d}")).format(

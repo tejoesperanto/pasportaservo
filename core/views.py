@@ -136,7 +136,7 @@ class AgreementView(LoginRequiredMixin, generic.TemplateView):
             return HttpResponseRedirect(target_page if target_page and is_safe_url(target_page)
                                         else reverse_lazy('home'))
         elif action == 'reject':
-            request.session['agreement_rejected'] = True
+            request.session['agreement_rejected'] = self._agreement[1]['version']
             return HttpResponseRedirect(reverse_lazy('agreement_reject'))
         else:
             return HttpResponseRedirect(reverse_lazy('agreement'))
@@ -150,9 +150,10 @@ class AgreementRejectView(LoginRequiredMixin, generic.TemplateView):
         """
         Show the warning about consequences of not accepting the agreement.
         """
-        if not request.session.pop('agreement_rejected', None):
+        agreement = request.session.pop('agreement_rejected', None)
+        if not agreement:
             return HttpResponse()
-        request.session['agreement_rejected_final'] = True
+        request.session['agreement_rejected_final'] = agreement
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -162,7 +163,8 @@ class AgreementRejectView(LoginRequiredMixin, generic.TemplateView):
         deactivate the user account,
         and then redirect to home URL.
         """
-        if not request.session.pop('agreement_rejected_final', None):
+        agreement = request.session.pop('agreement_rejected_final', None)
+        if not agreement:
             return HttpResponse()
         now = timezone.now()
         owned_places = Place.all_objects.filter(owner__user=request.user)
@@ -182,6 +184,9 @@ class AgreementRejectView(LoginRequiredMixin, generic.TemplateView):
             ]]
             request.user.is_active = False
             request.user.save(update_fields=['is_active'])
+            agreement = Agreement.objects.filter(
+                user=request.user, policy_version=agreement, withdrawn__isnull=True)
+            agreement.update(withdrawn=now)
         messages.info(request, _("Farewell !"))
         return HttpResponseRedirect(reverse_lazy('home'))
 

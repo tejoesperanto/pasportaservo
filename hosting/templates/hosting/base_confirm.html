@@ -20,8 +20,11 @@
     <form action="" method="POST" class="pull-right">
         {% csrf_token %}
         <a id="id_form_cancel" href="#" onclick="history.go(-1)" data-kbdshortcut="Z-out"
-           class="btn btn-default btn-vert-space" title="{% trans "Cancel operation" %}">
-            <span class="fa fa-arrow-left" aria-hidden="true"></span> {% trans "Cancel" %}
+           class="btn btn-default btn-vert-space"
+           title="{% block form_cancel_button_title %}{% trans "Cancel operation" %}{% endblock %}">
+            {% block form_cancel_button %}
+                <span class="fa fa-arrow-left" aria-hidden="true"></span> {% trans "Cancel" %}
+            {% endblock %}
         </a>
         <span style="display: inline-block">
         {% block confirm_buttons %}
