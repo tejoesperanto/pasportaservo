@@ -26,4 +26,3 @@ sendgrid-django==2.0.0
 pyuca==1.2
 
 wheel
-parse-accept-language==0.1.2
