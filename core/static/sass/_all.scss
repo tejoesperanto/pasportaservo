@@ -100,6 +100,7 @@ ul.dropdown-menu-lg li {
 .datepicker-btn-inline {
     top: 0px;
     cursor: pointer;
+    pointer-events: auto;
     color: lighten($color-text, 25%);
 }
 .toggle-handle {
@@ -185,9 +186,13 @@ header:not(.home) #subtitle,
 }
 #page.search #georesult {
     margin-bottom: 1em;
+    .lead {
+        margin-bottom: 0px;
+    }
     .maplink {
         margin-top: 5px;
         margin-bottom: 10px;
+        font-size: 0.9em;
     }
 }
 .place-list {
@@ -673,6 +678,10 @@ footer {
 #id_conditions_chosen .chosen-choices input[type="text"] {
     height: 26px;
 }
+#id_avatar {
+    width: 100%;
+    background-color: $color-gray-light;
+}
 
 *[type="password"] + .progress,
 *[type="password"] + .popover + .progress {
@@ -780,6 +789,11 @@ footer {
     }
     h2.owner {
         font-size: 24px;
+    }
+    #page.search #georesult {
+        .maplink {
+            font-size: 14px;
+        }
     }
     #page.settings #privacy_form {
         th.header-public, th.header-authed {
