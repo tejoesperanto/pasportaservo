@@ -60,6 +60,10 @@ PHONE_TYPE_CHOICES = (
 
 
 class TrackingModel(models.Model):
+    """
+    An abstract model that adds fields allowing tracking of activity related to
+    the child model's instances, such as deletion or confirmation of the data.
+    """
     deleted_on = models.DateTimeField(
         _("deleted on"),
         default=None, blank=True, null=True)
@@ -81,6 +85,13 @@ class TrackingModel(models.Model):
         abstract = True
 
     def set_check_status(self, set_by_user, clear_only=False, commit=True):
+        """
+        Updates the confirmation status. When set by the owner, clears the
+        confirmation since this indicates update of data. Otherwise, sets
+        the confirmation to now.
+        The `clear_only` flag can be used for partial updates of the model by
+        a supervisor, that should not indicate the whole model as confirmed.
+        """
         if self.owner.user != set_by_user:
             if not clear_only:
                 self.checked_on, self.checked_by = timezone.now(), set_by_user
@@ -513,7 +524,9 @@ class Profile(TrackingModel, TimeStampedModel):
         return reverse('admin:hosting_profile_change', args=(self.pk,))
 
     def confirm_all_info(self, confirm=True):
-        """Confirm (or unconfirm) all confirmable objects for a profile."""
+        """
+        Confirms (or unconfirms) all confirmable objects for a profile.
+        """
         now = timezone.now() if confirm else None
         self.confirmed_on = now
         with transaction.atomic():
@@ -525,6 +538,9 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @classmethod
     def mark_invalid_emails(cls, emails=None):
+        """
+        Adds the 'invalid' marker to all email addresses in the given list.
+        """
         models = {cls: None, get_user_model(): None}
         for model in models:
             models[model] = (
@@ -538,6 +554,9 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @classmethod
     def mark_valid_emails(cls, emails=None):
+        """
+        Removes the 'invalid' marker from all email addresses in the given list.
+        """
         models = {cls: None, get_user_model(): None}
         for model in models:
             models[model] = (
@@ -682,7 +701,8 @@ class Place(TrackingModel, TimeStampedModel):
 
     @property
     def bbox(self):
-        """Return an OpenStreetMap formated bounding box.
+        """
+        Returns an OpenStreetMap-formatted bounding box.
         See http://wiki.osm.org/wiki/Bounding_Box
         """
         dx, dy = 0.007, 0.003  # Delta lng and delta lat around position
@@ -902,7 +922,9 @@ class Gender(models.Model):
 
 
 class Condition(models.Model):
-    """Hosting condition (e.g. bringing sleeping bag, no smoking...)."""
+    """
+    Hosting condition in a place (e.g. bringing sleeping bag, no smoking...).
+    """
     name = models.CharField(
         _("name"),
         max_length=255,
@@ -923,7 +945,9 @@ class Condition(models.Model):
 
 
 class ContactPreference(models.Model):
-    """Contact preference for a profile, whether by email, telephone or snail mail."""
+    """
+    Contact preference for a profile: whether by email, telephone or snail mail.
+    """
     name = models.CharField(
         _("name"),
         max_length=255)

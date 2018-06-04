@@ -150,7 +150,10 @@ class EmailStaffUpdateForm(SystemEmailFormMixin, forms.ModelForm):
 
 class SystemPasswordResetRequestForm(PasswordResetForm):
     def get_users(self, email):
-        """Given an email, return a matching user who should receive a reset message."""
+        """
+        Given an email address, returns a matching user who should receive
+        a reset message.
+        """
         active_users = User._default_manager.filter(is_active=True)
         invalid_email = Concat(V(settings.INVALID_PREFIX), V(email))
         lookup_users = active_users.filter(Q(email__iexact=email) | Q(email__iexact=invalid_email))

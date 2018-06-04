@@ -253,7 +253,10 @@ class EmailUpdateView(AuthMixin, UserModifyMixin, generic.UpdateView):
 
 
 class EmailVerifyView(LoginRequiredMixin, generic.View):
-    """Allows the current user (only) to request a re-verification of their email address."""
+    """
+    Allows the current user (only) to request a re-verification of their email
+    address.
+    """
     http_method_names = ['post', 'get']
     template_name = 'core/system-email_verify_done.html'
 
@@ -302,11 +305,11 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
 
 class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
     """
-    Confirms for the current user (only) the email address in the request as valid
-    and updates it in the database.
+    Confirms for the current user (only) the email address in the request as
+    valid and updates it in the database.
     This is an internal view not accessible via a URL.
-    The check that the user is authenticated is performed in the dispatch() method
-    of the mixin.
+    The check that the user is authenticated is performed in the dispatch()
+    method of the mixin.
     """
 
     def get(self, request, *args, **kwargs):
@@ -332,6 +335,9 @@ class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
 
 
 class EmailStaffUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, generic.UpdateView):
+    """
+    Allows supervisors to modify the email address for a user account.
+    """
     model = Profile
     template_name = 'core/system-email_form.html'
     form_class = EmailStaffUpdateForm
