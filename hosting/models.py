@@ -48,6 +48,12 @@ PRONOUN_CHOICES = (
     ('She', pgettext_lazy("Personal Pronoun", "she")),
     ('He', pgettext_lazy("Personal Pronoun", "he")),
     ('They', pgettext_lazy("Personal Pronoun", "they")),
+    ('Ze', pgettext_lazy("Personal Pronoun", "ze")),
+    ('They/She', pgettext_lazy("Personal Pronoun", "they or she")),
+    ('They/He', pgettext_lazy("Personal Pronoun", "they or he")),
+    ('Ze/She', pgettext_lazy("Personal Pronoun", "ze or she")),
+    ('Ze/He', pgettext_lazy("Personal Pronoun", "ze or he")),
+    ('Any', pgettext_lazy("Personal Pronoun", "any")),
 )
 
 MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
@@ -297,6 +303,7 @@ class VisibilitySettingsForPublicEmail(VisibilitySettings):
 
 class Profile(TrackingModel, TimeStampedModel):
     INCOGNITO = pgettext_lazy("Name", "Anonymous")
+    PRONOUN_ANY = PRONOUN_CHOICES[-1][0]
 
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -326,7 +333,7 @@ class Profile(TrackingModel, TimeStampedModel):
     pronoun = models.CharField(
         _("personal pronoun"),
         blank=True,
-        max_length=5, choices=PRONOUN_CHOICES)
+        max_length=10, choices=PRONOUN_CHOICES)
     birth_date = models.DateField(
         _("birth date"),
         null=True, blank=True,
@@ -424,6 +431,9 @@ class Profile(TrackingModel, TimeStampedModel):
         return mark_safe('&ensp;'.join(output))
 
     get_fullname_always_display = partialmethod(get_fullname_display, non_empty=True)
+
+    def get_pronoun_parts(self):
+        return self.get_pronoun_display().split(maxsplit=3)
 
     @property
     def autoslug(self):
@@ -816,6 +826,7 @@ class Place(TrackingModel, TimeStampedModel):
 class Phone(TrackingModel, TimeStampedModel):
     PHONE_TYPE_CHOICES = PHONE_TYPE_CHOICES
     MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
+
     profile = models.ForeignKey(
         'hosting.Profile', verbose_name=_("profile"),
         related_name="phones", on_delete=models.CASCADE)

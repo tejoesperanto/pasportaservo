@@ -6,6 +6,8 @@ from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import AnonymousUser
 from django.template.defaultfilters import stringfilter
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 from core.auth import PERM_SUPERVISOR
 
@@ -74,6 +76,15 @@ def supervisor_of(user_or_profile):
         except Exception:
             pass
     return ("",)
+
+
+@register.filter
+def format_pronoun(profile, tag=''):
+    tag = tag.lstrip('<').rstrip('>')
+    return mark_safe(" ".join(
+        format_html("<{tag}>{part}</{tag}>", tag=tag, part=part.capitalize()) if index % 2 else part
+        for index, part in enumerate(profile.get_pronoun_parts(), start=1)
+    ))
 
 
 @register.filter

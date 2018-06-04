@@ -181,9 +181,13 @@
                     <span>{% if profile.pronoun %}; {% else %}. {% endif %}</span>
                 {% endif %}
                 {% if profile.pronoun %}
-                    <span>{% blocktrans with pronoun=profile.get_pronoun_display|capfirst trimmed %}
-                                Talking about me, please use the pronoun <em>{{ pronoun }}</em>.
-                          {% endblocktrans %}</span>
+                    {% if profile.pronoun == profile.PRONOUN_ANY %}
+                        <span>{% trans "Talking about me, you may use any pronoun." %}</span>
+                    {% else %}
+                        <span>{% blocktrans with pronoun=profile|format_pronoun:"<em>" trimmed %}
+                                    Talking about me, please use the pronoun {{ pronoun }}.
+                              {% endblocktrans %}</span>
+                    {% endif %}
                 {% endif %}
             {% endspaceless %}{% endfilter %}
         </p>

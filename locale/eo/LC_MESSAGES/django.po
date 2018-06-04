@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2018-05-30 14:15+0000\n"
+"POT-Revision-Date: 2018-06-04 05:09+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -895,6 +895,30 @@ msgctxt "Personal Pronoun"
 msgid "they"
 msgstr "ri"
 
+msgctxt "Personal Pronoun"
+msgid "ze"
+msgstr "ĝi"
+
+msgctxt "Personal Pronoun"
+msgid "they or she"
+msgstr "ri aŭ ŝi"
+
+msgctxt "Personal Pronoun"
+msgid "they or he"
+msgstr "ri aŭ li"
+
+msgctxt "Personal Pronoun"
+msgid "ze or she"
+msgstr "ĝi aŭ ŝi"
+
+msgctxt "Personal Pronoun"
+msgid "ze or he"
+msgstr "ĝi aŭ li"
+
+msgctxt "Personal Pronoun"
+msgid "any"
+msgstr "ajna"
+
 msgid "mobile"
 msgstr "poŝtelefono"
 
@@ -1588,9 +1612,12 @@ msgstr "Pri mi"
 msgid "I am %(of_gender)s"
 msgstr "Mi estas %(of_gender)s"
 
+msgid "Talking about me, you may use any pronoun."
+msgstr "Parolante pri mi, vi rajtas uzi ajnan pronomon."
+
 #, python-format
-msgid "Talking about me, please use the pronoun <em>%(pronoun)s</em>."
-msgstr "Parolante pri mi, bonvole uzu la pronomon <em>%(pronoun)s</em>."
+msgid "Talking about me, please use the pronoun %(pronoun)s."
+msgstr "Parolante pri mi, bonvole uzu la pronomon %(pronoun)s."
 
 msgid "Place"
 msgid_plural "Places"
