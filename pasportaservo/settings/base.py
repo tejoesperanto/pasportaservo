@@ -154,6 +154,17 @@ SITE_ID = 1
 ADMINS = (
     ('Pasporta Servo', 'saluton@pasportaservo.org'),
 )
+def _site_admins():
+    try:
+        admins = environ['PS_ADMINS']
+    except KeyError:
+        return
+    else:
+        global ADMINS
+        cleanup = lambda name, address: (name.lstrip('§').strip(), address)
+        ADMINS += tuple(cleanup(*('§ ' + admin).rsplit(maxsplit=1))
+                        for admin in admins.strip().split(';') if admin)
+_site_admins()
 
 AUTH_PROFILE_MODULE = 'hosting.Profile'
 
