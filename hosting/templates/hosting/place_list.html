@@ -63,6 +63,20 @@
                 <a href="{% url 'world_map' %}{{ result|geo_url_hash }}">{% trans "Open map of the region" %}</a>
             </p>
         {% elif view.query %}
+            {% if result.error %}
+                <span class="text-warning">
+                    <span class="fa fa-chain-broken" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
+                    {% trans "&lt;Geosearch service is unreachable&gt;" %}
+                </span>
+                {% if debug %}
+                    <button type="button" class="btn btn-xs btn-default" id="geoerror"
+                            data-toggle="popover" data-placement="auto" data-content="{{ result.error }}">
+                        <span class="fa fa-eye fa-lg" aria-hidden="true"></span>
+                        <span class="sr-only">{% trans "Details..." %}</span>
+                    </button>
+                {% endif %}
+                <br />
+            {% endif %}
             {% blocktrans with query=view.query trimmed %}
                 No results found for <em>{{ query }}</em>. Here are some active hosts!
             {% endblocktrans %}

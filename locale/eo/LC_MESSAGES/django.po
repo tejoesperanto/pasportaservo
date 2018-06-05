@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2018-06-04 05:09+0000\n"
+"POT-Revision-Date: 2018-06-05 16:58+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1424,6 +1424,12 @@ msgstr "Mapo de gastigantoj"
 
 msgid "Open map of the region"
 msgstr "Vidi regionan mapon"
+
+msgid "&lt;Geosearch service is unreachable&gt;"
+msgstr "&lt;La geografia serĉo-servo estas momente nekontaktebla&gt;"
+
+msgid "Details..."
+msgstr "Detale…"
 
 #, python-format
 msgid "No results found for <em>%(query)s</em>. Here are some active hosts!"

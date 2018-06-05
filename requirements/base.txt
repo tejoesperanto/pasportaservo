@@ -17,9 +17,9 @@ django-postman==3.5.1
 django-sass-processor==0.5.5
 django-simplemde==0.1.0
 django-solo==1.1.2
-django-geojson==2.10.0
-geocoder==1.23.1
-geojson==2.3.0
+django-geojson==2.11.0
+geocoder==1.38.1
+geojson==2.4.0
 itsdangerous==0.24
 markdown2==2.3.4
 sendgrid-django==2.0.0
