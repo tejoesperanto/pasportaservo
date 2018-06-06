@@ -23,9 +23,10 @@ def geocode(query, annotations=False):
 
 
 def title_with_particule(value, particules=None):
-    """Like string.title(), but do not capitalize surname particules.
-    Regex maches case insensitive (?i) particule
-    at begining of string or with space before (^|\W)
+    """
+    Like string.title(), but do not capitalize surname particules.
+    Regex matches a case insensitive (?i) particule
+    at beginning of string or with space before (^|\W)
     and finishes by a space \W.
     """
     particule_list = ['van', 'de', 'des', 'del', 'von', 'av', 'af']

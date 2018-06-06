@@ -21,11 +21,9 @@
 {% endblock %}
 
 {% block extra_css %}
-        {{ block.super }}
         <link rel="stylesheet" href="{% static 'datepicker/css/datepicker3.min.css' %}">
 {% endblock extra_css %}
 {% block extra_js %}
-        {{ block.super }}
         <script src="{% static 'datepicker/js/bootstrap-datepicker.min.js' %}"></script>
         <script src="{% static 'datepicker/js/locales/bootstrap-datepicker.eo.js' %}"></script>
         <script src="{% static 'js/ajax.js' %}"></script>

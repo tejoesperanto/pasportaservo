@@ -325,6 +325,28 @@
       }
     },
     {
+      "id": "housenumber",
+      "type": "symbol",
+      "source": "openmaptiles",
+      "source-layer": "housenumber",
+      "minzoom": 16,
+      "filter": [
+        "==",
+        "$type",
+        "Point"
+      ],
+      "layout": {
+        "text-field": "{housenumber}",
+        "text-size": 8.5,
+        "text-font": [
+          "Metropolis Light"
+        ]
+      },
+      "paint": {
+        "text-color": "#b0b0b0"
+      }
+    },
+    {
       "id": "tunnel_motorway_casing",
       "type": "line",
       "metadata": {

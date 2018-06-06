@@ -17,15 +17,16 @@ window.addEventListener("load", function() {
         style: '/mapo/positron-gl-style.json',
         minZoom: 1,
         maxZoom: 17,
-        zoom: 1.5,
+        zoom: initial ? 14 : 1.5,
         center: initial || [10, 20]
     });
 
     map.on('load', function() {
+        var marker = undefined;
+
         if (initial) {
             map.setCenter(initial);
-
-            var marker = new mapboxgl.Marker()
+            marker = new mapboxgl.Marker()
                 .setLngLat(initial)
                 .addTo(map);
         }
@@ -37,7 +38,7 @@ window.addEventListener("load", function() {
                 marker.setLngLat(e.lngLat);
             }
             else {
-                var marker = new mapboxgl.Marker()
+                marker = new mapboxgl.Marker()
                     .setLngLat(e.lngLat)
                     .addTo(map);
             }
@@ -50,8 +51,7 @@ window.addEventListener("load", function() {
             field.value = JSON.stringify({
                 type: "Point",
                 coordinates: [e.lngLat.lng, e.lngLat.lat]
-            })
-
+            });
         });
 
         var nav = new mapboxgl.NavigationControl();

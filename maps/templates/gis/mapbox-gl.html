@@ -3,11 +3,16 @@
         text-align: initial;
         height: 400px;
     }
+    @media (max-width: 479px) {
+        #map { height: 250px };
+    }
     .mapboxgl-marker {
+        /*
         width: 1rem;
         height: 1rem;
         border-radius: 1rem;
         background: #f71;
+        */
     }
     {% if not debug %}#{{ id }} { display: none; } {% endif %}
 </style>
