@@ -214,6 +214,15 @@
             {% trans "Delete account" %}
         </a>
     </section>
+    {% elif view.role >= roles.SUPERVISOR %}
+    <section class="callout callout-success">
+        <h4>{% trans "Restore membership" %}</h4>
+        <a href="{% url 'profile_restore' profile.pk profile.autoslug %}"
+           class="btn btn-default">
+            <span class="fa fa-repeat" aria-hidden="true"></span>&nbsp;
+            {% trans "Restore account" %}
+        </a>
+    </section>
     {% endif %}
 
     <div class="pull-left">

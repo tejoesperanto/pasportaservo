@@ -97,7 +97,9 @@ class AccountFlagsMiddleware(MiddlewareMixin):
         )
         # ENDTODO
         if trouble_view is not None:
-            if not Agreement.objects.filter(user=request.user, policy_version=policy.values_list('version')).exists():
+            agreement = Agreement.objects.filter(
+                user=request.user, policy_version=policy.values_list('version'), withdrawn__isnull=True)
+            if not agreement.exists():
                 # Policy will be needed to display the following page anyway,
                 # so it is immediately fetched from the database.
                 request.user.consent_required = [policy.first()]

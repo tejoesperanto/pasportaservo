@@ -3,6 +3,7 @@ import logging
 import re
 from collections import OrderedDict, namedtuple
 from datetime import date
+from itertools import chain
 
 from django.conf import settings
 from django.contrib import messages
@@ -11,7 +12,9 @@ from django.contrib.gis.db.models.functions import Distance
 from django.core import serializers
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.core.mail import send_mail
+from django.db import transaction
 from django.db.models import Q
+from django.db.models.functions import Trunc
 from django.forms import modelformset_factory
 from django.http import (
     Http404, HttpResponse, HttpResponseBadRequest,
@@ -33,7 +36,7 @@ from braces.views import FormInvalidMessageMixin
 from django_countries.fields import Country
 
 from core.auth import (
-    ANONYMOUS, OWNER, PERM_SUPERVISOR, SUPERVISOR, VISITOR, AuthMixin,
+    ADMIN, ANONYMOUS, OWNER, PERM_SUPERVISOR, SUPERVISOR, VISITOR, AuthMixin,
 )
 from core.forms import UserRegistrationForm
 from core.mixins import LoginRequiredMixin
@@ -120,6 +123,62 @@ class ProfileDeleteView(
         if self.role == OWNER:
             messages.success(request, _("Farewell !"))
         return super().delete(request, *args, **kwargs)
+
+
+class ProfileRestoreView(
+        AuthMixin, ProfileIsUserMixin, ProfileModifyMixin,
+        generic.DetailView):
+    model = Profile
+    template_name = 'hosting/profile_confirm_restore.html'
+    exact_role = ADMIN
+
+    def get_permission_denied_message(self, object, context_omitted=False):
+        return _("Only administrators can access this page")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.object.deleted:
+            context['linked_objects'] = (p for p in chain(self.linked_places, self.linked_phones))
+        return context
+
+    @property
+    def deletion_timestamp(self):
+        return self.object.deleted_on.replace(second=0, microsecond=0)
+
+    def _truncate_delete_field(self):
+        return Trunc('deleted_on', kind='minute')
+
+    def _annotated_objects(self, qs):
+        return qs.annotate(
+            deleted_when=self._truncate_delete_field()
+        ).filter(
+            deleted_when=self.deletion_timestamp
+        )
+
+    @cached_property
+    def linked_places(self):
+        return self._annotated_objects(self.object.owned_places)
+
+    @cached_property
+    def linked_phones(self):
+        return self._annotated_objects(self.object.phones)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.deleted:
+            return self.get(request, *args, **kwargs)
+        with transaction.atomic():
+            [qs.update(deleted_on=None) for qs in [
+                self._annotated_objects(Profile.all_objects)
+                    .filter(
+                        pk__in=self.linked_places.values_list('family_members', flat=True),
+                        user_id__isnull=True),
+                self.linked_places,
+                self.linked_phones,
+                Profile.all_objects.filter(pk=self.object.pk),
+            ]]
+            User.objects.filter(pk=self.object.user_id).update(is_active=True)
+        return HttpResponseRedirect(self.object.get_edit_url())
 
 
 class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):

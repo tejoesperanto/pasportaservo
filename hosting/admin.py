@@ -197,7 +197,7 @@ class CustomGroupAdmin(GroupAdmin):
 @admin.register(Agreement)
 class AgreementAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'policy_link', 'user_link', 'created', 'modified',
+        'id', 'policy_link', 'user_link', 'created', 'modified', 'withdrawn',
     )
     ordering = ['-policy_version', 'user']
     search_fields = ['user__username']
@@ -205,7 +205,7 @@ class AgreementAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
     fields = (
         'user_link', 'policy_link',
-        'created', 'modified',
+        'created', 'modified', 'withdrawn',
     )
     readonly_fields = [f.name for f in Agreement._meta.fields] + ['user_link', 'policy_link']
 
@@ -245,6 +245,13 @@ class AgreementAdmin(admin.ModelAdmin):
             return value
     policy_link.short_description = _("version of policy")
     policy_link.admin_order_field = 'policy_version'
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request).select_related('user', 'user__profile')
+        qs = qs.only(
+                *[f.name for f in Agreement._meta.fields],
+                'user__id', 'user__username', 'user__profile__id')
+        return qs
 
     def has_add_permission(self, request):
         return False

@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2018-05-25 11:49+0000\n"
+"POT-Revision-Date: 2018-05-30 14:15+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -204,6 +204,9 @@ msgstr "uzanto"
 
 msgid "version of policy"
 msgstr "versio de regularo"
+
+msgid "withdrawn on"
+msgstr "retirita je"
 
 msgid "agreement"
 msgstr "interkonsento"
@@ -1510,6 +1513,33 @@ msgstr ""
 msgid "Are you sure you want to delete the profile of this family member?"
 msgstr "Ĉu vi certe volas forigi la profilon de tiu ĉi kunloĝanto?"
 
+msgid "Restore profile"
+msgstr "Restarigi profilon"
+
+msgid "This profile is active and does not require restoration."
+msgstr "Tiu ĉi profilo estas aktiva kaj ne bezonas re-funkciigon."
+
+msgid ""
+"Are you sure you want to re-enable this profile and the data that was linked "
+"to it?"
+msgstr ""
+"Ĉu vi certe volas re-funkciigi tiun ĉi profilon kaj restarigi la datumojn "
+"kiuj estis ligitaj al ĝi?"
+
+msgid ""
+"Note that only objects deleted at the same time as the profile will be re-"
+"enabled:"
+msgstr ""
+"Atentu ke nur datumeroj forigitaj je la sama momento kiel la profilo estos "
+"restarigitaj:"
+
+#, python-format
+msgid "No additional objects deleted on %(deleted_date)s were found."
+msgstr "Neniuj kromaj datumeroj forigitaj je %(deleted_date)s troveblas."
+
+msgid "Restore"
+msgstr "Restarigi"
+
 #, python-format
 msgid ""
 "Are <a href=\"%(url)s\">your data</a> up-to-date? Please check your hosting "
@@ -1703,6 +1733,12 @@ msgstr "Malpasportservanigi"
 msgid "Delete account"
 msgstr "Forigi konton"
 
+msgid "Restore membership"
+msgstr "Repasportservanigi"
+
+msgid "Restore account"
+msgstr "Restarigi konton"
+
 msgid "where the following data should be visible?"
 msgstr "kie la jenaj informoj estu videblaj?"
 
@@ -1816,6 +1852,9 @@ msgstr "^retadreso/$"
 
 msgid "^delete/$"
 msgstr "^forigi/$"
+
+msgid "^restore/$"
+msgstr "^restarigi/$"
 
 msgid "^settings/$"
 msgstr "^agordoj/$"

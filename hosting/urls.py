@@ -7,7 +7,7 @@ from core.views import EmailStaffUpdateView, EmailValidityMarkView
 
 from .views import (                                                            # isort:skip
     ProfileCreateView, ProfileRedirectView, ProfileDetailView,
-    ProfileEditView, ProfileUpdateView, ProfileDeleteView,
+    ProfileEditView, ProfileUpdateView, ProfileDeleteView, ProfileRestoreView,
     ProfileSettingsRedirectView, ProfileSettingsView,
     ProfileEmailUpdateView, ProfilePrivacyUpdateView,
     PlaceCreateView, PlaceDetailView, PlaceDetailVerboseView,
@@ -30,6 +30,7 @@ urlpatterns = [
             url(_(r'^update/$'), ProfileUpdateView.as_view(), name='profile_update'),
             url(_(r'^email/$'), ProfileEmailUpdateView.as_view(), name='profile_email_update'),
             url(_(r'^delete/$'), ProfileDeleteView.as_view(), name='profile_delete'),
+            url(_(r'^restore/$'), ProfileRestoreView.as_view(), name='profile_restore'),
             url(_(r'^settings/$'), ProfileSettingsView.as_view(), name='profile_settings'),
             url(_(r'^staff/'), include([
                 url(_(r'^email/'), include([

@@ -1,0 +1,73 @@
+{% extends 'hosting/base_confirm.html' %}
+{% load i18n %}
+
+{% block head_title %}
+    {% trans "Restore profile" %}
+    {% if view.role >= roles.SUPERVISOR and profile.user %} ({{ profile.name|default:profile.INCOGNITO }}) {% endif %}
+{% endblock %}
+
+{% block confirmation %}
+    {% if not profile.deleted %}
+        <span class="fa fa-exclamation-circle" aria-label="{% trans "Note " context 'Title' %}" style="transform: rotate(-10deg)"></span>&nbsp;
+        {% trans "This profile is active and does not require restoration." %}
+    {% else %}
+        {% blocktrans trimmed %}
+            Are you sure you want to re-enable this profile and the data that was linked to it?
+        {% endblocktrans %}
+    {% endif %}
+{% endblock %}
+
+{% block extra_details %}
+    {% if profile.deleted %}
+            {{ profile.get_fullname_always_display }}
+    {% endif %}
+{% endblock %}
+
+{% block extra_details_block %}
+    {% if profile.deleted %}
+        <br />
+        <div class="row">
+            <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+                <p class="text-justify">
+                    {% blocktrans trimmed %}
+                        Note that only objects deleted at the same time as the profile will be re-enabled:
+                    {% endblocktrans %}
+                </p>
+                <ul class="list-group small">
+                    {% for obj in linked_objects %}
+                        <li class="list-group-item place-list-compact">
+                            {{ obj.icon }} &nbsp; {{ obj }}
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item place-list-compact">
+                            <em>
+                            {% blocktrans with deleted_date=profile.deleted_on|date:"DATE_FORMAT" trimmed %}
+                                No additional objects deleted on {{ deleted_date }} were found.
+                            {% endblocktrans %}
+                            </em>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+
+{% block confirm_buttons %}
+    {% if not profile.deleted %}{# No restoration is possible. #}{% else %}{{ block.super }}{% endif %}
+{% endblock %}
+
+{% block form_confirm_button_title %}{% trans "Restore profile" %}{% endblock %}
+{% block form_confirm_button %}
+    <span class="fa fa-repeat" aria-hidden="true"></span> {% trans "Restore" %}
+{% endblock %}
+
+{% block form_cancel_button_title %}{% if not profile.deleted %}{% trans "Back" %}{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block form_cancel_button %}
+    {% if not profile.deleted %}
+        <span class="fa fa-arrow-left" aria-hidden="true"></span> {% trans "Back" %}
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}
