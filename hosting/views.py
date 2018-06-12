@@ -310,7 +310,7 @@ class ProfilePrivacyUpdateView(AuthMixin, ProfileMixin, generic.View):
 
 
 class PlaceCreateView(
-        CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, FormInvalidMessageMixin,
+        CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, PlaceModifyMixin, FormInvalidMessageMixin,
         generic.CreateView):
     model = Place
     form_class = PlaceCreateForm
@@ -323,20 +323,15 @@ class PlaceCreateView(
 
 
 class PlaceUpdateView(
-        UpdateMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, FormInvalidMessageMixin,
+        UpdateMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, PlaceModifyMixin, FormInvalidMessageMixin,
         generic.UpdateView):
     form_class = PlaceForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        if '_gotomap' in self.request.POST or form.confidence < 8:
-            map_url = reverse_lazy('place_location_update', kwargs={'pk': self.object.pk})
-            return HttpResponseRedirect(map_url)
-        return response
 
-
-class PlaceLocationUpdateView(UpdateMixin, AuthMixin, PlaceMixin, generic.UpdateView):
+class PlaceLocationUpdateView(
+        UpdateMixin, AuthMixin, PlaceMixin,
+        generic.UpdateView):
     form_class = PlaceLocationForm
     update_partial = True
 
@@ -817,7 +812,9 @@ class FamilyMemberUpdateView(
         return kwargs
 
 
-class FamilyMemberRemoveView(AuthMixin, FamilyMemberMixin, generic.DeleteView):
+class FamilyMemberRemoveView(
+        AuthMixin, FamilyMemberMixin,
+        generic.DeleteView):
     """
     Removes the family member for the Place.
     """

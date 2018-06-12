@@ -10,13 +10,17 @@ import geocoder
 from pyuca import Collator
 
 
-def geocode(query, annotations=False):
+def geocode(query, country='', private=False, annotations=False):
     key = settings.OPENCAGE_API_KEY
     lang = settings.LANGUAGE_CODE
     if query:
         params = {'language': lang}
         if not annotations:
             params.update({'no_annotations': int(not annotations)})
+        if private:
+            params.update({'no_record': int(private)})
+        if country:
+            params.update({'countrycode': country})
         result = geocoder.opencage(query, key=key, params=params)
         result.point = Point(result.xy, srid=4326) if result.xy else None
         return result

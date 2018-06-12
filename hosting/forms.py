@@ -11,8 +11,6 @@ from django.utils.html import format_html
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
-from django_countries.data import COUNTRIES
-
 from core.models import SiteConfiguration
 from maps.widgets import MapboxGlWidget
 
@@ -230,25 +228,43 @@ class PlaceForm(forms.ModelForm):
 
         return cleaned_data
 
-    def format_address(self):
+    def format_address(self, with_street=True):
         address = {
-            'street': self.cleaned_data.get('address'),
+            'street': self.cleaned_data.get('address').replace('\r\n', ',') if with_street else '',
             'zip': self.cleaned_data.get('postcode').replace(' ', ''),
             'city': self.cleaned_data.get('city'),
             'state': self.cleaned_data.get('state_province'),
-            'country': COUNTRIES[self.cleaned_data.get('country')],
         }
-        return '{street}, {zip} {city}, {state}, {country}'.format(**address)
+        return '{street}, {zip} {city}, {state}'.format(**address).lstrip(', ')
 
     def save(self, commit=True):
         place = super().save(commit=False)
-        location = geocode(self.format_address())
-        if location.point and location.confidence > 1:
-            # https://geocoder.opencagedata.com/api#confidence
-            place.location = location.point
+
+        residence_change = ['country', 'state_province', 'city', 'postcode']
+        if (hasattr(self, 'instance') and
+                any(field in self.changed_data and field in self.cleaned_data for field in residence_change)):
+            # When the user moves to a different country, state, or city their
+            # previously saved location (geopoint) is not up-to-date anymore.
+            place.location = None
+
+        if place.location is None or place.location.empty:
+            # Do not recalculate the location if it was already geocoded before.
+            location = geocode(self.format_address(), country=self.cleaned_data['country'], private=True)
+            if not location.point and 'address' in self.changed_data:
+                # Try again without the address block when location cannot be determined.
+                # This is because users often put stuff into the address block, which the
+                # poor geocoder has trouble deciphering.
+                location = geocode(
+                    self.format_address(with_street=False),
+                    country=self.cleaned_data['country'], private=True)
+            if location.point and location.confidence > 1:
+                # https://geocoder.opencagedata.com/api#confidence
+                place.location = location.point
+            place.location_confidence = location.confidence or 0
+
         if commit:
             place.save()
-        self.confidence = location.confidence or 0
+        self.confidence = place.location_confidence
         return place
     save.alters_data = True
 
@@ -274,6 +290,20 @@ class PlaceLocationForm(forms.ModelForm):
         widgets = {
             'location': MapboxGlWidget(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['location'].widget.attrs['data-selectable-zoom'] = 11.5
+
+    def save(self, commit=True):
+        place = super().save(commit=False)
+        if self.cleaned_data.get('location'):
+            place.location_confidence = 100
+        else:
+            place.location_confidence = 0
+        if commit:
+            place.save(update_fields=['location', 'location_confidence'])
+        return place
 
 
 class PlaceBlockForm(forms.ModelForm):

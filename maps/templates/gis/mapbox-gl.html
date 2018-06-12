@@ -18,4 +18,7 @@
 </style>
 
 <div id="map"></div>
-<textarea id="{{ id }}" class="required" cols="54" rows="2" name="{{ name }}">{{ serialized }}</textarea>
+<textarea id="{{ id }}" class="required {{ widget.attrs.class }}" cols="54" rows="2" name="{{ name }}"
+          {% for name, value in widget.attrs.items %}{% if name|slice:":5" == "data-" %}{{ name }}="{{ value|stringformat:'s' }}" {% endif %}{% endfor %}>{% spaceless %}
+    {{ serialized }}
+{% endspaceless %}</textarea>

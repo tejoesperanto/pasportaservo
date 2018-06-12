@@ -1,5 +1,6 @@
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.views.decorators.cache import never_cache
@@ -61,6 +62,15 @@ class PlaceMixin(object):
 
     def get_location(self, object):
         return object.country
+
+
+class PlaceModifyMixin(object):
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if '_gotomap' in self.request.POST or form.confidence < 8:
+            map_url = reverse_lazy('place_location_update', kwargs={'pk': self.object.pk})
+            return HttpResponseRedirect(map_url)
+        return response
 
 
 class PhoneMixin(object):

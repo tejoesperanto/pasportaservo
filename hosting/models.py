@@ -615,6 +615,9 @@ class Place(TrackingModel, TimeStampedModel):
     location = PointField(
         _("location"), srid=4326,
         null=True, blank=True)
+    location_confidence = models.PositiveSmallIntegerField(
+        _("confidence"),
+        default=0)
     latitude = models.FloatField(
         _("latitude"),
         null=True, blank=True)
@@ -716,8 +719,11 @@ class Place(TrackingModel, TimeStampedModel):
         See http://wiki.osm.org/wiki/Bounding_Box
         """
         dx, dy = 0.007, 0.003  # Delta lng and delta lat around position
-        boundingbox = (self.lng - dx, self.lat - dy, self.lng + dx, self.lat + dy)
-        return ",".join([str(coord) for coord in boundingbox])
+        if self.location and not self.location.empty:
+            boundingbox = (self.lng - dx, self.lat - dy, self.lng + dx, self.lat + dy)
+            return ",".join([str(coord) for coord in boundingbox])
+        else:
+            return ""
 
     @property
     def icon(self):

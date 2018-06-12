@@ -1053,6 +1053,9 @@ msgstr "poŝtkodo"
 msgid "State / Province"
 msgstr "Ŝtato / Provinco"
 
+msgid "confidence"
+msgstr "certeco"
+
 msgid "latitude"
 msgstr "latitudo"
 

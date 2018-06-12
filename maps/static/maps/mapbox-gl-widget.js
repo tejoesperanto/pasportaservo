@@ -5,11 +5,17 @@
 window.addEventListener("load", function() {
 
     var field = document.getElementById('id_location');
+    var submit = document.getElementById('id_form_submit');
+    var selectOnlyOnZoom = undefined;
 
     try {
         var initial = JSON.parse(field.value).coordinates;
     } catch (error) {
         var initial = undefined;
+    }
+    if (field.hasAttribute('data-selectable-zoom') && submit != undefined) {
+        selectOnlyOnZoom = Number(field.getAttribute('data-selectable-zoom'));
+        submit.setAttribute('data-initial-title', submit.title);
     }
 
     var map = new mapboxgl.Map({
@@ -30,6 +36,9 @@ window.addEventListener("load", function() {
                 .setLngLat(initial)
                 .addTo(map);
         }
+        else if (selectOnlyOnZoom) {
+            submit.disabled = true;
+        }
 
         map.getCanvas().style.cursor = 'pointer';
 
@@ -43,15 +52,24 @@ window.addEventListener("load", function() {
                     .addTo(map);
             }
 
+            var zoomLevel = map.getZoom();
             map.flyTo({
                 center: e.lngLat,
-                zoom: map.getZoom() + 2,
+                zoom: zoomLevel + 2,
             });
 
             field.value = JSON.stringify({
                 type: "Point",
                 coordinates: [e.lngLat.lng, e.lngLat.lat]
             });
+            if (selectOnlyOnZoom) {
+                submit.disabled = (zoomLevel < selectOnlyOnZoom);
+                submit.title = (!submit.disabled) ?
+                    submit.getAttribute('data-initial-title') :
+                    (document.documentElement.lang == "eo") ?
+                        "Bonvole pliproksimigu la mapon por elekti punkton." :
+                        "Please zoom in the map to select a point.";
+            }
         });
 
         var nav = new mapboxgl.NavigationControl();
