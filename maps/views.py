@@ -7,6 +7,7 @@ from django.views.decorators.vary import vary_on_headers
 
 from djgeojson.views import GeoJSONLayerView
 
+from core.models import SiteConfiguration
 from hosting.models import Place
 
 HOURS = 3600
@@ -28,7 +29,7 @@ class MapStyleView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         return {
-            'key': settings.OPENMAPTILES_API_KEY,
+            'key': SiteConfiguration.get_solo().openmaptiles_api_key,
             'lang': settings.LANGUAGE_CODE,
         }
 
