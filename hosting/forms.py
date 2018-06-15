@@ -88,7 +88,10 @@ class ProfileForm(forms.ModelForm):
         self.fields['avatar'].widget.attrs['accept'] = 'image/*'
 
     def clean(self):
-        """Sets some fields as required if user wants their data to be printed in book."""
+        """
+        Sets specific fields as required when user wants their data to be
+        printed in the paper edition.
+        """
         cleaned_data = super().clean()
         if hasattr(self, 'instance'):
             profile = self.instance
@@ -304,7 +307,9 @@ class PlaceBlockForm(forms.ModelForm):
             attrs['data-value'] = field.widget.format_value(value) if value is not None else ''
 
     def clean(self):
-        """Checks if starting date is earlier then the ending date."""
+        """
+        Checks if starting date is earlier than the ending date.
+        """
         cleaned_data = super().clean()
         cleaned_data = dict((k, v) for k, v in cleaned_data.items()
                             if k == cleaned_data.get('dirty', ''))
@@ -338,7 +343,9 @@ class PhoneForm(forms.ModelForm):
         self.fields['number'].widget.input_type = 'tel'
 
     def clean(self):
-        """Checks if the number and the profile are unique together."""
+        """
+        Checks if the number and the profile are unique together.
+        """
         cleaned_data = super().clean()
         if 'number' in cleaned_data:
             data = cleaned_data['number'].as_e164
@@ -426,7 +433,9 @@ class FamilyMemberForm(forms.ModelForm):
         return len(self.place.family_members_cache()) != 0 and not self.place.family_is_anonymous
 
     def clean(self):
-        """Verifies that first name and last name convey some information together."""
+        """
+        Verifies that first name and last name convey some information together.
+        """
         cleaned_data = super().clean()
         if 'first_name' in cleaned_data and 'last_name' in cleaned_data and self.place_has_family_members():
             if not "".join([cleaned_data['first_name'], cleaned_data['last_name']]):

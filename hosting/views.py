@@ -352,7 +352,7 @@ class PlaceDeleteView(
 
 class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
     """
-    View with details about a place; allows also anonymous (unauthenticated) user access.
+    Details about a place; allows also anonymous (unauthenticated) user access.
     For such users, the registration form will be displayed.
     """
     model = Place
@@ -523,7 +523,10 @@ class PhoneDeleteView(
 
 
 class InfoConfirmView(LoginRequiredMixin, generic.View):
-    """Allows the current user (only) to confirm their profile and accommodation details as up-to-date."""
+    """
+    Allows the current user (only) to confirm their profile and accommodation
+    details as up-to-date.
+    """
     http_method_names = ['post']
     template_name = 'links/confirmed.html'
 
@@ -546,7 +549,11 @@ class InfoConfirmView(LoginRequiredMixin, generic.View):
 
 
 class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
-    """Allows a supervisor to confirm accommodation details of a user as up-to-date."""
+    """
+    Allows a supervisor to confirm accommodation details of a user as up-to-date.
+    The profile and place data are both validated to make sure they conform to
+    the requirements from hosts and guests.
+    """
     http_method_names = ['post']
     template_name = '404.html'
     minimum_role = SUPERVISOR
@@ -592,7 +599,10 @@ class PlaceListView(generic.ListView):
 
 
 class PlaceStaffListView(AuthMixin, PlaceListView):
-    """A place for supervisors to see an overview of and manage hosts in their area of responsibility."""
+    """
+    A place for supervisors to see an overview of and manage hosts in their
+    area of responsibility.
+    """
     template_name = "hosting/place_list_supervisor.html"
     minimum_role = SUPERVISOR
 
@@ -690,7 +700,10 @@ class SearchView(PlaceListView):
 
 
 class UserAuthorizeView(AuthMixin, generic.FormView):
-    """Form view to add a user to the list of authorized users for a place to be able to see more details."""
+    """
+    Form view to add a user to the list of authorized users for a place,
+    to be able to see the complete details.
+    """
     template_name = 'hosting/place_authorized_users.html'
     form_class = UserAuthorizeForm
     exact_role = OWNER
@@ -805,7 +818,9 @@ class FamilyMemberUpdateView(
 
 
 class FamilyMemberRemoveView(AuthMixin, FamilyMemberMixin, generic.DeleteView):
-    """Remove the family member for the Place."""
+    """
+    Removes the family member for the Place.
+    """
     model = Profile
     template_name = 'hosting/family_member_confirm_delete.html'
     minimum_role = OWNER
@@ -824,7 +839,9 @@ class FamilyMemberRemoveView(AuthMixin, FamilyMemberMixin, generic.DeleteView):
 class FamilyMemberDeleteView(
         DeleteMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin,
         generic.DeleteView):
-    """Remove the family member for the Place and delete it."""
+    """
+    Removes the family member for the Place and deletes the profile.
+    """
     model = Profile
 
     def get_object(self, queryset=None):

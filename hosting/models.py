@@ -48,6 +48,12 @@ PRONOUN_CHOICES = (
     ('She', pgettext_lazy("Personal Pronoun", "she")),
     ('He', pgettext_lazy("Personal Pronoun", "he")),
     ('They', pgettext_lazy("Personal Pronoun", "they")),
+    ('Ze', pgettext_lazy("Personal Pronoun", "ze")),
+    ('They/She', pgettext_lazy("Personal Pronoun", "they or she")),
+    ('They/He', pgettext_lazy("Personal Pronoun", "they or he")),
+    ('Ze/She', pgettext_lazy("Personal Pronoun", "ze or she")),
+    ('Ze/He', pgettext_lazy("Personal Pronoun", "ze or he")),
+    ('Any', pgettext_lazy("Personal Pronoun", "any")),
 )
 
 MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
@@ -60,6 +66,10 @@ PHONE_TYPE_CHOICES = (
 
 
 class TrackingModel(models.Model):
+    """
+    An abstract model that adds fields allowing tracking of activity related to
+    the child model's instances, such as deletion or confirmation of the data.
+    """
     deleted_on = models.DateTimeField(
         _("deleted on"),
         default=None, blank=True, null=True)
@@ -81,6 +91,13 @@ class TrackingModel(models.Model):
         abstract = True
 
     def set_check_status(self, set_by_user, clear_only=False, commit=True):
+        """
+        Updates the confirmation status. When set by the owner, clears the
+        confirmation since this indicates update of data. Otherwise, sets
+        the confirmation to now.
+        The `clear_only` flag can be used for partial updates of the model by
+        a supervisor, that should not indicate the whole model as confirmed.
+        """
         if self.owner.user != set_by_user:
             if not clear_only:
                 self.checked_on, self.checked_by = timezone.now(), set_by_user
@@ -286,6 +303,7 @@ class VisibilitySettingsForPublicEmail(VisibilitySettings):
 
 class Profile(TrackingModel, TimeStampedModel):
     INCOGNITO = pgettext_lazy("Name", "Anonymous")
+    PRONOUN_ANY = PRONOUN_CHOICES[-1][0]
 
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -315,7 +333,7 @@ class Profile(TrackingModel, TimeStampedModel):
     pronoun = models.CharField(
         _("personal pronoun"),
         blank=True,
-        max_length=5, choices=PRONOUN_CHOICES)
+        max_length=10, choices=PRONOUN_CHOICES)
     birth_date = models.DateField(
         _("birth date"),
         null=True, blank=True,
@@ -413,6 +431,9 @@ class Profile(TrackingModel, TimeStampedModel):
         return mark_safe('&ensp;'.join(output))
 
     get_fullname_always_display = partialmethod(get_fullname_display, non_empty=True)
+
+    def get_pronoun_parts(self):
+        return self.get_pronoun_display().split(maxsplit=3)
 
     @property
     def autoslug(self):
@@ -513,7 +534,9 @@ class Profile(TrackingModel, TimeStampedModel):
         return reverse('admin:hosting_profile_change', args=(self.pk,))
 
     def confirm_all_info(self, confirm=True):
-        """Confirm (or unconfirm) all confirmable objects for a profile."""
+        """
+        Confirms (or unconfirms) all confirmable objects for a profile.
+        """
         now = timezone.now() if confirm else None
         self.confirmed_on = now
         with transaction.atomic():
@@ -525,6 +548,9 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @classmethod
     def mark_invalid_emails(cls, emails=None):
+        """
+        Adds the 'invalid' marker to all email addresses in the given list.
+        """
         models = {cls: None, get_user_model(): None}
         for model in models:
             models[model] = (
@@ -538,6 +564,9 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @classmethod
     def mark_valid_emails(cls, emails=None):
+        """
+        Removes the 'invalid' marker from all email addresses in the given list.
+        """
         models = {cls: None, get_user_model(): None}
         for model in models:
             models[model] = (
@@ -682,7 +711,8 @@ class Place(TrackingModel, TimeStampedModel):
 
     @property
     def bbox(self):
-        """Return an OpenStreetMap formated bounding box.
+        """
+        Returns an OpenStreetMap-formatted bounding box.
         See http://wiki.osm.org/wiki/Bounding_Box
         """
         dx, dy = 0.007, 0.003  # Delta lng and delta lat around position
@@ -796,6 +826,7 @@ class Place(TrackingModel, TimeStampedModel):
 class Phone(TrackingModel, TimeStampedModel):
     PHONE_TYPE_CHOICES = PHONE_TYPE_CHOICES
     MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
+
     profile = models.ForeignKey(
         'hosting.Profile', verbose_name=_("profile"),
         related_name="phones", on_delete=models.CASCADE)
@@ -902,7 +933,9 @@ class Gender(models.Model):
 
 
 class Condition(models.Model):
-    """Hosting condition (e.g. bringing sleeping bag, no smoking...)."""
+    """
+    Hosting condition in a place (e.g. bringing sleeping bag, no smoking...).
+    """
     name = models.CharField(
         _("name"),
         max_length=255,
@@ -923,7 +956,9 @@ class Condition(models.Model):
 
 
 class ContactPreference(models.Model):
-    """Contact preference for a profile, whether by email, telephone or snail mail."""
+    """
+    Contact preference for a profile: whether by email, telephone or snail mail.
+    """
     name = models.CharField(
         _("name"),
         max_length=255)

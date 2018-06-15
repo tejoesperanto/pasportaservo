@@ -13,7 +13,6 @@ def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None
     If auth_user and auth_password are set, they're used to log in.
     If auth_user is None, the EMAIL_HOST_USER setting is used.
     If auth_password is None, the EMAIL_HOST_PASSWORD setting is used.
-
     """
     connection = connection or get_connection(
         username=user, password=password, fail_silently=fail_silently)
@@ -29,6 +28,9 @@ def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None
 
 
 def camel_case_split(identifier):
+    """
+    Converts AStringInCamelCase to a list of separate words.
+    """
     # stackoverflow.com/a/29920015/1019109 -by- stackoverflow.com/u/1157100/200-success
     from re import finditer
     matches = finditer('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', identifier)

@@ -4,6 +4,8 @@
 
 window.addEventListener("load", function() {
 
+    mapboxgl.setRTLTextPlugin('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.1.2/mapbox-gl-rtl-text.js');
+
     var map = new mapboxgl.Map({
         container: 'map',
         style: '/mapo/positron-gl-style.json',

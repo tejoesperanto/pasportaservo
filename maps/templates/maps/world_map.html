@@ -12,7 +12,9 @@
 {% endblock %}
 
 {% block pre-page %}
-    <div id="map" style="position: absolute; top: 52px; bottom: 0; width: 100%;"></div>
+    <div id="map" role="main" style="position: absolute; top: 52px; bottom: 0; width: 100%;"></div>
 {% endblock %}
+{% block page_role %}{# NONE: content is in pre-page. #}{% endblock %}
 
 {% block footer %}{% endblock %}
+{% block footer_role %}{# NONE: footer is empty here. #}{% endblock %}

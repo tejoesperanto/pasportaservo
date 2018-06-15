@@ -28,7 +28,7 @@ class TrackingManager(models.Manager):
             output_field=BooleanField()
         )).annotate(checked=Case(
             When(checked_on__isnull=True, then=False),
-            When(checked_on__lt=validity_start, then=False),
+            # When(checked_on__lt=validity_start, then=False),  # Temporarily disabled.
             default=True,
             output_field=BooleanField()
         )).select_related()

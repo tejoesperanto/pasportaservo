@@ -5,7 +5,6 @@ from django.views import generic
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers
 
-from accept_language import parse_accept_language
 from djgeojson.views import GeoJSONLayerView
 
 from hosting.models import Place
@@ -21,29 +20,16 @@ class MapStyleView(generic.TemplateView):
     content_type = 'application/json'
 
     def get(self, request, *args, **kwargs):
-        self.style = kwargs['style']
-        self.lang = self.get_language()
+        self.style = kwargs.pop('style')
         return super().get(request, *args, **kwargs)
 
     def get_template_names(self):
         return ['maps/styles/{}-gl-style.json'.format(self.style)]
 
-    def get_language(self):
-        try:
-            language_string = self.request.META['HTTP_ACCEPT_LANGUAGE']
-        except KeyError:
-            return 'en'
-
-        languages = parse_accept_language(language_string)
-        for lang in languages:
-            if lang.language in settings.OPENMAPTILES_LANGUAGES:
-                return lang.language
-        return 'en'
-
     def get_context_data(self, **kwargs):
         return {
             'key': settings.OPENMAPTILES_API_KEY,
-            'lang': self.lang
+            'lang': settings.LANGUAGE_CODE,
         }
 
 

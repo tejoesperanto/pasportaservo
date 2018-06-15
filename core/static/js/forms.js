@@ -36,6 +36,8 @@ $(function() {
         var errors = [];
         var localui = $().localConstraint[document.documentElement.lang];
 
+        if (typeof this.setCustomValidity !== 'function')
+            return;
         this.setCustomValidity("");
 
         if (this.validity.valueMissing) {
@@ -172,7 +174,8 @@ $(function() {
     }).each(function() {
         var $this = $(this);
         // initialize localized error messages for this field
-        this.checkValidity();
+        if (typeof this.checkValidity === 'function')
+            this.checkValidity();
         $('#id_form_submit, #id_form_submit_alt').click(function() {
             // mark the field as visited on form submit
             $this.triggerHandler('blur', true);
@@ -188,7 +191,7 @@ $(function() {
         $.fn.pwstrength.localui = $.fn.pwstrength.localui || {};
         if (! $.fn.pwstrength.localui.hasOwnProperty(document.documentElement.lang))
             $.fn.pwstrength.localui[document.documentElement.lang] = [];
-        
+
         var pwd_elements = $('#id_password1, #id_new_password1');
         pwd_elements.pwstrength({
             common: {
@@ -290,7 +293,7 @@ $(function() {
             };
         });
     }
-    
+
 });
 
 

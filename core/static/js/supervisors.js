@@ -28,19 +28,19 @@ $(document).ready(function() {
         var $tasksSwitch = $('#tasks-header .switch');
         $('#tasks').on('hide.bs.collapse', function() {
             localStorage.setItem(tasksKey, true);
-            $tasksSwitch.html("[&plus;]");
+            $tasksSwitch.html("[&#43;]");
         }).on('hidden.bs.collapse', function() {
             $(this).removeClass('initial');
         }).on('show.bs.collapse', function() {
             localStorage.setItem(tasksKey, false);
-            $tasksSwitch.html("[&minus;]");
+            $tasksSwitch.html("[&#8722;]");
         });
         if (localStorage.getItem(tasksKey) == 'true') {
             $('#tasks').addClass('initial').collapse("hide");
-            $tasksSwitch.html("[&plus;]");
+            $tasksSwitch.html("[&#43;]");
         }
         else {
-            $tasksSwitch.html("[&minus;]");
+            $tasksSwitch.html("[&#8722;]");
         }
     }
     else {

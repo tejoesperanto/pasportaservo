@@ -50,7 +50,7 @@
     {% if profile|is_supervisor and not profile.user.is_superuser %}
     {# PAGE-TOP INFORMATION ABOUT COUNTRIES SUPERVISED BY THIS USER #}
         <div class="row bg-warning top-notice">
-            <p class="col-xs-12 text-center">
+            <p class="col-xs-12 text-center" style="font-weight: 300">
                 {% blocktrans with countries=profile|supervisor_of|join:", " trimmed %}
                     Supervisor of {{ countries }}
                 {% endblocktrans %}
@@ -181,9 +181,13 @@
                     <span>{% if profile.pronoun %}; {% else %}. {% endif %}</span>
                 {% endif %}
                 {% if profile.pronoun %}
-                    <span>{% blocktrans with pronoun=profile.get_pronoun_display|capfirst trimmed %}
-                                Talking about me, please use the pronoun <em>{{ pronoun }}</em>.
-                          {% endblocktrans %}</span>
+                    {% if profile.pronoun == profile.PRONOUN_ANY %}
+                        <span>{% trans "Talking about me, you may use any pronoun." %}</span>
+                    {% else %}
+                        <span>{% blocktrans with pronoun=profile|format_pronoun:"<em>" trimmed %}
+                                    Talking about me, please use the pronoun {{ pronoun }}.
+                              {% endblocktrans %}</span>
+                    {% endif %}
                 {% endif %}
             {% endspaceless %}{% endfilter %}
         </p>
@@ -331,12 +335,12 @@
                         {% endif %}
                         <h4>{{ place.postcode }} {{ place.country.name }}</h4>
                     </div>
-    
+
                     <ul class="list-group">
                         {% for member in place.family_members_cache %}
                             <li class="list-group-item list-vertical-align">
                                 {% block family_member_edit_buttons %}{% endblock %}
-    
+
                                 <p class="family-member">
                                     {{ member.icon }}
                                     <b class="member">{{ member.get_fullname_always_display }}</b>

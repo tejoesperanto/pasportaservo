@@ -154,6 +154,17 @@ SITE_ID = 1
 ADMINS = (
     ('Pasporta Servo', 'saluton@pasportaservo.org'),
 )
+def _site_admins():
+    try:
+        admins = environ['PS_ADMINS']
+    except KeyError:
+        return
+    else:
+        global ADMINS
+        cleanup = lambda name, address: (name.lstrip('§').strip(), address)
+        ADMINS += tuple(cleanup(*('§ ' + admin).rsplit(maxsplit=1))
+                        for admin in admins.strip().split(';') if admin)
+_site_admins()
 
 AUTH_PROFILE_MODULE = 'hosting.Profile'
 
@@ -209,20 +220,9 @@ POSTMAN_NOTIFIER_APP = None
 
 OPENCAGE_API_KEY = 'a27f7e361bdfe11881a987a6e86fb5fd'
 
-MAPBOX_GL_BASE_STATIC = 'https://api.tiles.mapbox.com/mapbox-gl-js/v0.40.1/mapbox-gl.{ext}'
+MAPBOX_GL_BASE_STATIC = 'https://api.tiles.mapbox.com/mapbox-gl-js/v0.45.0/mapbox-gl.{ext}'
 MAPBOX_GL_CSS = MAPBOX_GL_BASE_STATIC.format(ext='css')
 MAPBOX_GL_JS = MAPBOX_GL_BASE_STATIC.format(ext='js')
 
 # https://openmaptiles.com/hosting/
 OPENMAPTILES_API_KEY = 'iQbjILhp2gs0dgNfTlIV'
-
-# https://github.com/openmaptiles/openmaptiles/openmaptiles.yaml
-OPENMAPTILES_LANGUAGES = (
-    # 'eo',
-    'ar', 'az', 'be', 'bg', 'br', 'bs', 'ca', 'cs', 'cy', 'da', 'de', 'el',
-    'en', 'es', 'et', 'fi', 'fr', 'fy', 'ga', 'gd', 'he', 'hr', 'hu',
-    'hy', 'is', 'it', 'ja', 'ja_kana', 'ja_rm', 'ka', 'kk', 'kn', 'ko',
-    'ko_rm', 'la', 'lb', 'lt', 'lv', 'mk', 'mt', 'nl', 'no', 'pl', 'pt',
-    'rm', 'ro', 'ru', 'sk', 'sl', 'sq', 'sr', 'sr-Latn', 'sv', 'th', 'tr',
-    'uk', 'zh',
-)
