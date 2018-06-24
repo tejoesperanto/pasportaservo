@@ -31,3 +31,12 @@ class MapboxGlWidget(BaseGeometryWidget):
 
     def serialize(self, value):
         return value.json if value else ''
+
+
+class AdminMapboxGlWidget(MapboxGlWidget):
+    admin_site = True
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['admin_site'] = self.admin_site
+        return context

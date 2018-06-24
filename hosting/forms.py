@@ -248,7 +248,7 @@ class PlaceForm(forms.ModelForm):
             place.location = None
 
         if place.location is None or place.location.empty:
-            # Do not recalculate the location if it was already geocoded before.
+            # Only recalculate the location if it was not already geocoded before.
             location = geocode(self.format_address(), country=self.cleaned_data['country'], private=True)
             if not location.point and 'address' in self.changed_data:
                 # Try again without the address block when location cannot be determined.

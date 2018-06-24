@@ -2045,6 +2045,16 @@ msgstr ""
 msgid "You've been automatically logged in. Happy editing!"
 msgstr "Vi estas aŭtomate ensalutita. Bonan redaktadon!"
 
+msgid "Select manually the most suitable point on the map."
+msgstr "Elektu permane la plej taŭgan punkton sur la mapo."
+
+msgid ""
+"It will be possible to register the point when the resolution of the map is "
+"1:190,000 or higher, meaning visible distances of about 7km or less."
+msgstr ""
+"Eblus registri la punkton kiam la distingivo de la mapo estus 1:190,000 aŭ "
+"pli alta, kio signifas distingeblajn distancojn de ĉirkaŭ 7km aŭ malpli."
+
 msgctxt "URL"
 msgid "collected-information"
 msgstr "kolektataj-informoj"

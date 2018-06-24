@@ -1,3 +1,6 @@
+{% load i18n %}
+
+<!-- Inline styling for the map container. Note that only 1 map per page is possible. -->
 <style>
     #map {
         text-align: initial;
@@ -18,7 +21,20 @@
 </style>
 
 <div id="map"></div>
-<textarea id="{{ id }}" class="required {{ widget.attrs.class }}" cols="54" rows="2" name="{{ name }}"
+<p class="{% if admin_site %}help{% else %}help-block{% endif %}">
+    {% trans "Select manually the most suitable point on the map." %}
+</p>
+{% if 'data-selectable-zoom' in widget.attrs %}
+    <p class="{% if admin_site %}help{% else %}help-block{% endif %}">
+        <span style="font-size: 90%; font-style: italic;">
+        {% blocktrans trimmed %}
+            It will be possible to register the point when the resolution of the map
+            is 1:190,000 or higher, meaning visible distances of about 7km or less.
+        {% endblocktrans %}
+        </span>
+    </p>
+{% endif %}
+<textarea id="{{ id }}" class="required {{ widget.attrs.class }} {% if admin_site %}vTextField{% endif %}" cols="54" rows="2" name="{{ name }}"
           {% for name, value in widget.attrs.items %}{% if name|slice:":5" == "data-" %}{{ name }}="{{ value|stringformat:'s' }}" {% endif %}{% endfor %}>{% spaceless %}
     {{ serialized }}
 {% endspaceless %}</textarea>

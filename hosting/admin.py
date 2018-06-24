@@ -16,7 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import Country
 
 from core.models import Agreement
-from maps.widgets import MapboxGlWidget
+from maps.widgets import AdminMapboxGlWidget
 
 from .admin_utils import (
     CountryMentionedOnlyFilter, EmailValidityFilter,
@@ -420,7 +420,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         'family_members', 'authorized_users',
     ) + TrackingModelAdmin.fields
     formfield_overrides = {
-        PointField: {'widget': MapboxGlWidget},
+        PointField: {'widget': AdminMapboxGlWidget},
     }
     raw_id_fields = ('owner', 'authorized_users',)  # 'checked_by',)
     filter_horizontal = ('family_members',)
