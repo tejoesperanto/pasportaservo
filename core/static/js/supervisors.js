@@ -29,14 +29,12 @@ $(document).ready(function() {
         $('#tasks').on('hide.bs.collapse', function() {
             localStorage.setItem(tasksKey, true);
             $tasksSwitch.html("[&#43;]");
-        }).on('hidden.bs.collapse', function() {
-            $(this).removeClass('initial');
         }).on('show.bs.collapse', function() {
             localStorage.setItem(tasksKey, false);
             $tasksSwitch.html("[&#8722;]");
         });
         if (localStorage.getItem(tasksKey) == 'true') {
-            $('#tasks').addClass('initial').collapse("hide");
+            $('#tasks').removeClass('in');
             $tasksSwitch.html("[&#43;]");
         }
         else {
@@ -44,8 +42,10 @@ $(document).ready(function() {
         }
     }
     else {
-        var tasksSwitch = $('#tasks-header .switch')[0];
-        tasksSwitch.parentElement.removeChild(tasksSwitch);
+        var $tasksSwitch = $('#tasks-header .switch');
+        $tasksSwitch.parents('[data-toggle="collapse"]')
+            .removeAttr('data-toggle data-target aria-controls');
+        $tasksSwitch.remove();
     }
 
     // Load and store the hide status for "supervisors wanted" box
