@@ -44,7 +44,8 @@ class AccountFlagsMiddleware(MiddlewareMixin):
         trouble_view = None
         try:
             trouble_view = resolve(request.path)
-            if trouble_view.func.view_class not in [LoginView, LogoutView, HomeView, AgreementRejectView]:
+            if (hasattr(trouble_view.func, 'view_class') and trouble_view.func.view_class not in
+                    [LoginView, LogoutView, HomeView, AgreementRejectView]):
                 try:
                     resolve(request.path, 'pages.urls')
                 except Resolver404:
