@@ -341,9 +341,19 @@
                             <li class="list-group-item list-vertical-align">
                                 {% block family_member_edit_buttons %}{% endblock %}
 
-                                <p class="family-member">
+                                <p class="family-member {% if member.deleted %}text-muted{% endif %}">
                                     {{ member.icon }}
-                                    <b class="member">{{ member.get_fullname_always_display }}</b>
+                                    {% spaceless %}
+                                    <b class="member">
+                                        {% if member.deleted %}
+                                            <del datetime="{{ member.modified|date:"Y-m-d" }}" title="{% trans "Deleted profile" %}">
+                                        {% endif %}
+                                        {{ member.get_fullname_always_display }}
+                                        {% if member.deleted %}
+                                            </del>
+                                        {% endif %}
+                                    </b>
+                                    {% endspaceless %}
                                     {% if member.birth_date %}<em class="comment">&lrm;({{ member.age }})</em>{% endif %}
                                 </p>
                             </li>

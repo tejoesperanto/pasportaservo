@@ -2,24 +2,24 @@
 {% load i18n static profile expression %}
 
 {% block profile_edit_buttons %}
-                <a href="{% url 'profile_update' profile.pk profile.autoslug %}"
-                   class="btn btn-success"
-                   title="{% trans "Update profile" %}">
-                    <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
-                    <span class="hidden-xxs">{% trans "Update" %}</span>
-                </a>
-                <a href="{% url 'profile_settings' profile.pk profile.autoslug %}"
-                   class="btn btn-info"
-                   title="{% trans "Settings" %}">
-                    <span class="fa fa-cogs" aria-hidden="true"></span>
-                    <span class="hidden-xxs">{% trans "Settings" %}{% if view.role >= roles.SUPERVISOR %}: {% trans "Account" %}{% endif %}</span>
-                </a>
-                <a href="{% url 'profile_detail' profile.pk profile.autoslug %}"
-                   class="btn btn-primary"
-                   title="{% trans "View public profile" %}">
-                    <span class="fa fa-arrow-right" aria-hidden="true"></span>
-                    <span class="hidden-xs">{% trans "View" %}</span>
-                </a>
+    <a href="{% url 'profile_update' profile.pk profile.autoslug %}"
+       class="btn btn-success"
+       title="{% trans "Update profile" %}">
+        <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+        <span class="hidden-xxs">{% trans "Update" %}</span>
+    </a>
+    <a href="{% url 'profile_settings' profile.pk profile.autoslug %}"
+       class="btn btn-info"
+       title="{% trans "Settings" %}">
+        <span class="fa fa-cogs" aria-hidden="true"></span>
+        <span class="hidden-xxs">{% trans "Settings" %}{% if view.role >= roles.SUPERVISOR %}: {% trans "Account" %}{% endif %}</span>
+    </a>
+    <a href="{% url 'profile_detail' profile.pk profile.autoslug %}"
+       class="btn btn-primary"
+       title="{% trans "View public profile" %}">
+        <span class="fa fa-arrow-right" aria-hidden="true"></span>
+        <span class="hidden-xs">{% trans "View" %}</span>
+    </a>
 {% endblock %}
 
 {% block public_email_edit_buttons %}

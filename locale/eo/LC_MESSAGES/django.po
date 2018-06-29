@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2018-06-05 16:58+0000\n"
+"POT-Revision-Date: 2018-06-29 21:30+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1355,15 +1355,15 @@ msgstr "Priskribo"
 msgid "Family members"
 msgstr "Kunloĝantoj"
 
-msgid "Other dwellers at this place."
-msgstr "Mi havas kunloĝantojn."
-
 msgctxt "Title"
 msgid "Note "
 msgstr "Rimarko "
 
 msgid "I'm not present at this address at all times; contact me in advance."
 msgstr "Mi ne troviĝas konstante ĉe tiu ĉi adreso; kontaktiĝu anticipe."
+
+msgid "Other dwellers at this place."
+msgstr "Mi havas kunloĝantojn."
 
 msgid "Show"
 msgstr "Montri"
@@ -1848,6 +1848,9 @@ msgid ", during %(max_night)s night maximum"
 msgid_plural ", during %(max_night)s nights maximum"
 msgstr[0] ", dum %(max_night)s nokto maksimume"
 msgstr[1] ", dum %(max_night)s noktoj maksimume"
+
+msgid "Please ask me privately."
+msgstr "Bonvole demandu min private."
 
 msgid "I'm <b>not</b> hosting"
 msgstr "mi <b>ne</b> gastigas"

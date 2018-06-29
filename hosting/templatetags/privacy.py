@@ -3,6 +3,8 @@ import re
 
 from django import template
 
+from core.auth import SUPERVISOR
+
 register = template.Library()
 
 privacy_log = logging.getLogger('PasportaServo.privacy')
@@ -77,3 +79,21 @@ class DisplayGovernorNode(template.Node):
             output_var = 'shall_display_{}'.format((subvar if subvar else var._meta.model.__name__).lower())
             context[output_var] = result
         return self.nodelist.render(context) if result else ''
+
+
+@register.filter
+def show_as_family_member(profile, for_role=None):
+    return (
+        (not profile.deleted)
+        or
+        (profile.deleted and for_role is not None and for_role >= SUPERVISOR)
+    )
+
+
+@register.filter
+def show_family_member_link(profile, for_role=None):
+    return (
+        profile.user_id
+        and
+        ((not profile.deleted) or (profile.deleted and for_role is not None and for_role >= SUPERVISOR))
+    )

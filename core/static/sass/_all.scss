@@ -124,6 +124,9 @@ ul.dropdown-menu-lg li {
     left: 0px;
     opacity: 0.5;
     z-index: 100000000;
+    &:hover {
+        opacity: 0.95;
+    }
 }
 
 
