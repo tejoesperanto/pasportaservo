@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0004_agreement_model'),
+        ('core', '0005_agreement_withdrawal'),
     ]
 
     operations = [
