@@ -4,11 +4,11 @@
 
 window.addEventListener("load", function() {
 
-    mapboxgl.setRTLTextPlugin('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.1.2/mapbox-gl-rtl-text.js');
+    mapboxgl.setRTLTextPlugin(GIS_ENDPOINTS['rtl_plugin']);
 
     var map = new mapboxgl.Map({
         container: 'map',
-        style: '/mapo/positron-gl-style.json',
+        style: GIS_ENDPOINTS['world_map_style'],
         hash: true,
         minZoom: 1.5,
         maxZoom: 15,
@@ -18,11 +18,11 @@ window.addEventListener("load", function() {
 
     map.on('load', function() {
         var nav = new mapboxgl.NavigationControl();
-        map.addControl(nav, 'top-left'),
+        map.addControl(nav, 'top-left');
 
         map.addSource("lokoj", {
             type: "geojson",
-            data: '/mapo/lokoj.geojson',
+            data: GIS_ENDPOINTS['world_map_data'],
             cluster: true,
             clusterMaxZoom: 14, // Max zoom to cluster points on
             clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)

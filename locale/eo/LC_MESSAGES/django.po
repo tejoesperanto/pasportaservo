@@ -2056,6 +2056,10 @@ msgstr ""
 "pli alta, kio signifas distingeblajn distancojn de ĉirkaŭ 7km aŭ malpli."
 
 msgctxt "URL"
+msgid "locations"
+msgstr "lokoj"
+
+msgctxt "URL"
 msgid "collected-information"
 msgstr "kolektataj-informoj"
 

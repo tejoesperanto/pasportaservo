@@ -18,11 +18,11 @@ window.addEventListener("load", function() {
         submit.setAttribute('data-initial-title', submit.title);
     }
 
-    mapboxgl.setRTLTextPlugin('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.1.2/mapbox-gl-rtl-text.js');
+    mapboxgl.setRTLTextPlugin(GIS_ENDPOINTS['rtl_plugin']);
 
     var map = new mapboxgl.Map({
         container: 'map',
-        style: '/mapo/positron-gl-style.json',
+        style: GIS_ENDPOINTS['widget_style'],
         minZoom: 1,
         maxZoom: 17,
         zoom: initial ? 14 : 1.5,
@@ -42,7 +42,7 @@ window.addEventListener("load", function() {
             submit.disabled = true;
         }
 
-        map.getCanvas().style.cursor = 'pointer';
+        map.getCanvas().style.cursor = "pointer";
 
         map.on('click', function(e) {
             if (marker) {

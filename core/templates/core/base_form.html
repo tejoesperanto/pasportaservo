@@ -17,10 +17,10 @@
 
 {% block extra_head %}
         {% compress css %}
-            {{ form.media.render_css|join:" "|safe }}
+            {{ form.media.css }}
         {% endcompress %}
         {% compress js %}
-            {{ form.media.render_js|join:" "|safe }}
+            {{ form.media.js }}
         {% endcompress %}
 {% endblock extra_head %}
 
