@@ -432,7 +432,14 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     display_country.admin_order_field = 'country'
 
     def display_location(self, obj):
-        return '{point.y:.4f} {point.x:.4f}'.format(point=obj.location) if obj.location else None
+        return (
+            ' '.join([
+                '{point.y:.4f} {point.x:.4f}'.format(point=obj.location),
+                '{symbol}{precision}'.format(
+                    symbol=chr(8982), precision=obj.location_confidence if obj.location_confidence else 0)
+            ]) if obj.location
+            else None
+        )
     display_location.short_description = _("location")
 
     def owner_link(self, obj):

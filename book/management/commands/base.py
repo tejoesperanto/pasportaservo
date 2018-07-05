@@ -77,7 +77,7 @@ class LatexCommand(object):
             writer = csv.DictWriter(f, ['lat', 'lng'])
             writer.writeheader()
             for place in self.context['places']:
-                if all(place.location.coords):
+                if place.location and all(place.location.coords):
                     writer.writerow({'lat': place.location.y, 'lng': place.location.x})
 
     def get_objects(self):

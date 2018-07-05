@@ -7,6 +7,7 @@ from django.views.decorators.vary import vary_on_headers
 
 from djgeojson.views import GeoJSONLayerView
 
+from core.models import SiteConfiguration
 from hosting.models import Place
 
 HOURS = 3600
@@ -28,7 +29,7 @@ class MapStyleView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         return {
-            'key': settings.OPENMAPTILES_API_KEY,
+            'key': SiteConfiguration.get_solo().openmaptiles_api_key,
             'lang': settings.LANGUAGE_CODE,
         }
 
@@ -42,6 +43,26 @@ class PublicDataView(GeoJSONLayerView):
         'url',
         'owner_name',
     ]
+
+    class GeoPlace(Place):
+        class Meta:
+            proxy = True
+
+        @property
+        def url(self):
+            return self.get_absolute_url()
+
+        @property
+        def owner_name(self):
+            return self.owner.name or self.owner.INCOGNITO
+
+        @property
+        def owner_url(self):
+            return self.owner.get_absolute_url()
+
+        @property
+        def owner_avatar(self):
+            return self.owner.avatar_url
 
     def dispatch(self, request, *args, **kwargs):
         request.META['HTTP_X_USER_STATUS'] = 'Authenticated' if request.user.is_authenticated else 'Anonymous'
@@ -58,8 +79,9 @@ class PublicDataView(GeoJSONLayerView):
         if not self.request.user.is_authenticated:
             by_visibility &= Q(owner__pref__public_listing=True)
         return (
-            Place.available_objects
-                 .exclude(location__isnull=True)
-                 .filter(by_visibility)
-                 .prefetch_related('owner')
+            self.GeoPlace
+                .available_objects
+                .exclude(location__isnull=True)
+                .filter(by_visibility)
+                .prefetch_related('owner')
         )

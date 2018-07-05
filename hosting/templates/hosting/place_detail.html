@@ -21,11 +21,9 @@
 {% endblock %}
 
 {% block extra_css %}
-        {{ block.super }}
         <link rel="stylesheet" href="{% static 'datepicker/css/datepicker3.min.css' %}">
 {% endblock extra_css %}
 {% block extra_js %}
-        {{ block.super }}
         <script src="{% static 'datepicker/js/bootstrap-datepicker.min.js' %}"></script>
         <script src="{% static 'datepicker/js/locales/bootstrap-datepicker.eo.js' %}"></script>
         <script src="{% static 'js/ajax.js' %}"></script>
@@ -276,7 +274,11 @@
             <div class="embed-responsive embed-responsive-16by9"> {% comment %} responsive map height with constant ratio to map width {% endcomment %}
                 <iframe width="100%"
                     frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
-                    src="https://www.openstreetmap.org/export/embed.html?bbox={{ place.bbox }}{% if user.is_authenticated %}&amp;marker={{ place.location.y|unlocalize }},{{ place.location.x|unlocalize }}{% endif %}">
+                    src="https://www.openstreetmap.org/export/embed.html?bbox={{ place.bbox }}{% spaceless %}
+                            {% if user.is_authenticated and place.location and place.location_confidence > 1 %}
+                                &amp;marker={{ place.location.y|unlocalize }},{{ place.location.x|unlocalize }}
+                            {% endif %}
+                        {% endspaceless %}">
                 </iframe>
             </div>
         </div>

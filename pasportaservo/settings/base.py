@@ -186,7 +186,7 @@ COUNTRIES_WITH_REGIONS = ('US', 'GB', 'FR', 'DE', 'BR', 'BE')
 
 # Prefix for marking values (such as email addresses) as no longer valid
 # Do not change the value without a data migration!
-INVALID_PREFIX = 'INVALID_'
+INVALID_PREFIX = "INVALID_"
 
 
 from djangocodemirror.settings import *                                         # noqa  isort:skip
@@ -218,11 +218,6 @@ POSTMAN_DISALLOW_MULTIRECIPIENTS = True
 POSTMAN_DISALLOW_COPIES_ON_REPLY = True
 POSTMAN_NOTIFIER_APP = None
 
-OPENCAGE_API_KEY = 'a27f7e361bdfe11881a987a6e86fb5fd'
-
 MAPBOX_GL_BASE_STATIC = 'https://api.tiles.mapbox.com/mapbox-gl-js/v0.45.0/mapbox-gl.{ext}'
 MAPBOX_GL_CSS = MAPBOX_GL_BASE_STATIC.format(ext='css')
 MAPBOX_GL_JS = MAPBOX_GL_BASE_STATIC.format(ext='js')
-
-# https://openmaptiles.com/hosting/
-OPENMAPTILES_API_KEY = 'iQbjILhp2gs0dgNfTlIV'

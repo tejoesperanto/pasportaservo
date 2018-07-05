@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 from uuid import uuid4
@@ -9,23 +10,33 @@ from django.utils.deconstruct import deconstructible
 import geocoder
 from pyuca import Collator
 
+from core.models import SiteConfiguration
 
-def geocode(query, annotations=False):
-    key = settings.OPENCAGE_API_KEY
+
+def geocode(query, country='', private=False, annotations=False):
+    key = SiteConfiguration.get_solo().opencage_api_key
     lang = settings.LANGUAGE_CODE
-    if query:
-        params = {'language': lang}
-        if not annotations:
-            params.update({'no_annotations': int(not annotations)})
-        result = geocoder.opencage(query, key=key, params=params)
-        result.point = Point(result.xy, srid=4326) if result.xy else None
-        return result
+    if not query:
+        return
+    params = {'language': lang}
+    if not annotations:
+        params.update({'no_annotations': int(not annotations)})
+    if private:
+        params.update({'no_record': int(private)})
+    if country:
+        params.update({'countrycode': country})
+    result = geocoder.opencage(query, key=key, params=params)
+    logging.getLogger('PasportaServo.geo').debug(
+        "Query: %s\n\tResult: %s\n\tConfidence: %d", query, result, result.confidence)
+    result.point = Point(result.xy, srid=4326) if result.xy else None
+    return result
 
 
 def title_with_particule(value, particules=None):
-    """Like string.title(), but do not capitalize surname particules.
-    Regex maches case insensitive (?i) particule
-    at begining of string or with space before (^|\W)
+    """
+    Like string.title(), but do not capitalize surname particules.
+    Regex matches a case insensitive (?i) particule
+    at beginning of string or with space before (^|\W)
     and finishes by a space \W.
     """
     particule_list = ['van', 'de', 'des', 'del', 'von', 'av', 'af']

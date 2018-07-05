@@ -26,9 +26,6 @@ class SiteConfiguration(SingletonModel):
         _("site name"),
         max_length=30, default='Pasporta Servo')
 
-    google_analytics_key = models.CharField(
-        max_length=13, default='UA-99737795-1', blank=True)
-
     salt = models.CharField(
         _("encryption salt"),
         max_length=30, default='salo',
@@ -53,6 +50,16 @@ class SiteConfiguration(SingletonModel):
         _("confirmation validity period"),
         default=timedelta(weeks=42),
         help_text=_("Delay (in days/hours) after which an object is no longer considered as confirmed."))
+
+    google_analytics_key = models.CharField(
+        max_length=13, default='UA-99737795-1', blank=True)
+
+    opencage_api_key = models.CharField(
+        max_length=32, default='a27f7e361bdfe11881a987a6e86fb5fd', blank=True)
+
+    # https://openmaptiles.com/hosting/
+    openmaptiles_api_key = models.CharField(
+        max_length=32, default='iQbjILhp2gs0dgNfTlIV', blank=True)
 
     def __str__(self):
         return str(_("Site Configuration"))

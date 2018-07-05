@@ -1,21 +1,28 @@
 {% extends 'core/base.html' %}
-{% load i18n static %}
+{% load i18n static compress %}
 {% load bootstrap %}
 
 {% block extra_css %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static 'datepicker/css/datepicker3.min.css' %}">
+        <link rel="stylesheet" href="{% static 'datepicker/css/datepicker3.min.css' %}">
 {% endblock extra_css %}
 
 {% block extra_js %}
-    {{ block.super }}
-    <script src="{% static 'datepicker/js/bootstrap-datepicker.min.js' %}"></script>
-    <script src="{% static 'datepicker/js/locales/bootstrap-datepicker.eo.js' %}"></script>
-    <script src="{% static 'pwstrength/js/pwstrength-bootstrap.min.js' %}"></script>
-    <script src="{% static 'pwstrength/js/locales/pwstrength-bootstrap.eo.js' %}"></script>
-    <script src="{% static 'js/forms.js' %}"></script>
-    <script src="{% static 'js/forms-validation.eo.js' %}"></script>
+        <script src="{% static 'datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+        <script src="{% static 'datepicker/js/locales/bootstrap-datepicker.eo.js' %}"></script>
+        <script src="{% static 'pwstrength/js/pwstrength-bootstrap.min.js' %}"></script>
+        <script src="{% static 'pwstrength/js/locales/pwstrength-bootstrap.eo.js' %}"></script>
+        <script src="{% static 'js/forms.js' %}"></script>
+        <script src="{% static 'js/forms-validation.eo.js' %}"></script>
 {% endblock extra_js %}
+
+{% block extra_head %}
+        {% compress css %}
+            {{ form.media.render_css|join:" "|safe }}
+        {% endcompress %}
+        {% compress js %}
+            {{ form.media.render_js|join:" "|safe }}
+        {% endcompress %}
+{% endblock extra_head %}
 
 {% block page %}
     {% block form_before %}{% endblock %}
@@ -26,8 +33,6 @@
             <form class="form" method="POST" action="{% block form_action %}{% endblock %}" {% block enctype %}{% endblock %}>
                 <div class="{% block form_contents_class %}col-md-10 col-md-offset-1{% endblock %}">
                     {% csrf_token %}
-                    {{ form.media }}
-
                     {% block fields_before %}{% endblock %}
                     {% block fields %}
                         {{ form|bootstrap }}

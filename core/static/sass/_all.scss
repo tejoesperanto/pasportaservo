@@ -194,6 +194,9 @@ header:not(.home) #subtitle,
         margin-bottom: 10px;
         font-size: 0.9em;
     }
+    #geoerror + .popover {
+        max-width: 100%;
+    }
 }
 .place-list {
     padding-bottom: 0.5em;
@@ -813,6 +816,11 @@ footer {
     .map iframe {
         border-radius: 4px;
         /*height: 300px;*/
+    }
+    #page.search #georesult {
+        #geoerror + .popover {
+            max-width: 60%;
+        }
     }
 }
 /* MD */
