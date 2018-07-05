@@ -6,7 +6,12 @@ def reservation_check(request):
         return {}  # Exclude django-admin pages.
     # Slicing the queryset does not execute it and keeps it lazy.
     latest_offer = Product.objects.order_by('-pk')[0:1]
+    flag = 'flag_book_reservation'
     if request.user.is_anonymous:
         return {'BOOK_RESERVED': False}
+    elif flag in request.session:
+        return {'BOOK_RESERVED': request.session[flag]}
     else:
-        return {'BOOK_RESERVED': Reservation.objects.filter(user=request.user, product=latest_offer).exists()}
+        reserved = Reservation.objects.filter(user=request.user, product=latest_offer).exists()
+        request.session[flag] = reserved
+        return {'BOOK_RESERVED': reserved}
