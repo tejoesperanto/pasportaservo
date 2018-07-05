@@ -1,0 +1,147 @@
+from django import forms
+from django.utils.text import format_lazy
+from django.utils.translation import ugettext_lazy as _
+
+from core.models import SiteConfiguration
+
+from ..models import Preferences, Profile
+from ..utils import value_without_invalid_marker
+from ..validators import TooNearPastValidator, client_side_validated
+from ..widgets import ClearableWithPreviewImageInput
+
+
+@client_side_validated
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = [
+            'title',
+            'first_name',
+            'last_name',
+            'names_inversed',
+            'gender', 'pronoun',
+            'birth_date',
+            'description',
+            'avatar',
+        ]
+        widgets = {
+            'names_inversed': forms.RadioSelect(choices=((False, _("First, then Last")),
+                                                         (True, _("Last, then First"))),
+                                                attrs={'class': 'form-control-horizontal'}),
+            'avatar': ClearableWithPreviewImageInput,
+        }
+
+    class _validation_meta:
+        offer_required_fields = ['birth_date']
+        book_required_fields = ['first_name', 'last_name', 'gender', 'birth_date']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        config = SiteConfiguration.get_solo()
+        self.fields['first_name'].widget.attrs['inputmode'] = 'latin-name'
+        self.fields['last_name'].widget.attrs['inputmode'] = 'latin-name'
+        self.fields['names_inversed'].label = _("Names ordering")
+
+        field_bd = self.fields['birth_date']
+        if (hasattr(self, 'instance') and
+                (self.instance.has_places_for_hosting or self.instance.has_places_for_meeting)):
+            if self.instance.has_places_for_hosting:
+                message = _("The minimum age to be allowed hosting is {age:d}.")
+                allowed_age = config.host_min_age
+            else:
+                message = _("The minimum age to be allowed meeting with visitors is {age:d}.")
+                allowed_age = config.meet_min_age
+            message = format_lazy(message, age=allowed_age)
+            field_bd.required = True
+            field_bd.validators.append(TooNearPastValidator(allowed_age))
+            field_bd.error_messages['max_value'] = message
+        field_bd.widget.attrs['placeholder'] = 'jjjj-mm-tt'
+        field_bd.widget.attrs['data-date-end-date'] = '0d'
+        field_bd.widget.attrs['pattern'] = '[1-2][0-9]{3}-((0[1-9])|(1[0-2]))-((0[1-9])|([12][0-9])|(3[0-1]))'
+
+        if hasattr(self, 'instance') and self.instance.has_places_for_book:
+            message = _("This field is required to be printed in the book.")
+            for field in self._validation_meta.book_required_fields:
+                req_field = self.fields[field]
+                req_field.required = True
+                req_field.error_messages['required'] = message
+                req_field.widget.attrs['data-error-required'] = message
+
+        self.fields['avatar'].widget.attrs['accept'] = 'image/*'
+
+    def clean(self):
+        """
+        Sets specific fields as required when user wants their data to be
+        printed in the paper edition.
+        """
+        cleaned_data = super().clean()
+        if hasattr(self, 'instance'):
+            profile = self.instance
+            for_book = profile.has_places_for_book
+            all_filled = all([cleaned_data.get(field, False) for field in self._validation_meta.book_required_fields])
+            message = _("You want to be in the printed edition of Pasporta Servo. "
+                        "In order to have a quality product, some fields are required. "
+                        "If you think there is a problem, please contact us.")
+            if for_book and not all_filled:
+                raise forms.ValidationError(message)
+        return cleaned_data
+
+
+class ProfileCreateForm(ProfileForm):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        profile.user = self.user
+        profile.email = self.user.email
+        if commit:
+            profile.save()
+        return profile
+    save.alters_data = True
+
+
+class ProfileEmailUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['email']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Displays a clean value of the address in the form.
+        self.initial['email'] = value_without_invalid_marker(self.instance.email)
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        if commit:
+            profile.save(update_fields=['email', 'modified'])
+        return profile
+
+
+class PreferenceOptinsForm(forms.ModelForm):
+    class Meta:
+        model = Preferences
+        fields = [
+            'public_listing',
+            'site_analytics_consent',
+        ]
+        widgets = {
+            'site_analytics_consent': forms.CheckboxInput
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        widget_settings = {
+            'data-on-ajax-success': 'updatePrivacyResult',
+            'data-on-ajax-error': 'updatePrivacyFailure',
+            # autocomplete attribute is required for Firefox to drop
+            # caching and refresh the checkbox on each page reload.
+            'autocomplete': 'off',
+        }
+        widget_classes = ' ajax-on-change'
+        for field in self._meta.fields:
+            attrs = self.fields[field].widget.attrs
+            attrs.update(widget_settings)
+            attrs['class'] = attrs.get('class', '') + widget_classes
+            attrs['data-initial'] = self[field].value()
