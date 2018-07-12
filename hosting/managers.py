@@ -1,4 +1,4 @@
-from django.db import ProgrammingError, models
+from django.db import DatabaseError, models
 from django.db.models import BooleanField, Case, When
 from django.utils import timezone
 
@@ -13,7 +13,7 @@ class TrackingManager(models.Manager):
     def get_queryset(self):
         try:
             validity_period = SiteConfiguration.get_solo().confirmation_validity_period
-        except ProgrammingError:
+        except DatabaseError:
             from datetime import timedelta
             validity_period = timedelta(weeks=42)
         validity_start = timezone.now() - validity_period
