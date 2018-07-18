@@ -1,5 +1,7 @@
+from django import forms
 from django.conf import settings
 from django.contrib.gis.forms.widgets import BaseGeometryWidget
+from django.urls import reverse_lazy
 
 
 class MapboxGlWidget(BaseGeometryWidget):
@@ -19,7 +21,6 @@ class MapboxGlWidget(BaseGeometryWidget):
         }
         js = (
             settings.MAPBOX_GL_JS,
-            'maps/mapbox-gl-widget.js'
         )
 
     def __init__(self, attrs=None):
@@ -29,5 +30,24 @@ class MapboxGlWidget(BaseGeometryWidget):
         if attrs:
             self.attrs.update(attrs)
 
+    @property
+    def media(self):
+        return (
+            forms.Media(css=self.Media.css, js=self.Media.js)
+            +
+            forms.Media(js=(
+                '{}?format=js'.format(reverse_lazy('gis_endpoints')),
+                'maps/mapbox-gl-widget.js'))
+        )
+
     def serialize(self, value):
         return value.json if value else ''
+
+
+class AdminMapboxGlWidget(MapboxGlWidget):
+    admin_site = True
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['admin_site'] = self.admin_site
+        return context

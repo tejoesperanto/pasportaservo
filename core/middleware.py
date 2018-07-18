@@ -4,6 +4,7 @@ from django.contrib.auth.views import (
 )
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.urls import Resolver404, resolve, reverse
+from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
@@ -34,17 +35,20 @@ class AccountFlagsMiddleware(MiddlewareMixin):
             request.skip_hosting_checks = True
             return
         profile = Profile.all_objects.filter(user=request.user)[0:1]
-        # Update user's analytics consent according to the DNT setting in the browser, first time
-        # when the user logs in (DNT==True => opt out). Prior to that the consent is undefined.
-        pref = Preferences.objects.filter(profile=profile, site_analytics_consent__isnull=True)
-        pref.update(site_analytics_consent=not request.DNT)
+        if 'flag_analytics_setup' not in request.session:
+            # Update user's analytics consent according to the DNT setting in the browser, first time
+            # when the user logs in (DNT==True => opt out). Prior to that the consent is undefined.
+            pref = Preferences.objects.filter(profile=profile, site_analytics_consent__isnull=True)
+            pref.update(site_analytics_consent=not request.DNT)
+            request.session['flag_analytics_setup'] = str(timezone.now())
 
         # Is user's age above the legally required minimum?
         birth_date = profile.values_list('birth_date', flat=True)
         trouble_view = None
         try:
             trouble_view = resolve(request.path)
-            if trouble_view.func.view_class not in [LoginView, LogoutView, HomeView, AgreementRejectView]:
+            if (hasattr(trouble_view.func, 'view_class') and trouble_view.func.view_class not in
+                    [LoginView, LogoutView, HomeView, AgreementRejectView]):
                 try:
                     resolve(request.path, 'pages.urls')
                 except Resolver404:

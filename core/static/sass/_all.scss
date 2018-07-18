@@ -124,6 +124,9 @@ ul.dropdown-menu-lg li {
     left: 0px;
     opacity: 0.5;
     z-index: 100000000;
+    &:hover {
+        opacity: 0.95;
+    }
 }
 
 
@@ -611,14 +614,11 @@ a.contact-details:not(:hover) {
     vertical-align: -20%;
 }
 
-#tasks-header {
+#tasks-header[data-toggle="collapse"] {
     cursor: pointer;
 }
 #tasks-header .switch {
     padding: 0px 2px 2px 2px;
-}
-#tasks .collapsing.initial {
-    @include transition(height 0.1s);
 }
 #supervisors-wanted button.close {
     margin-left: 10px;

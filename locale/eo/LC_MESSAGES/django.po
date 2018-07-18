@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2018-06-05 16:58+0000\n"
+"POT-Revision-Date: 2018-06-29 21:30+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -780,14 +780,26 @@ msgstr "lokigo havebla"
 msgid "Hosting Service"
 msgstr "Gastiga Servo"
 
-msgid "First, then Last"
-msgstr "Persona · Familia"
+msgid "A family member cannot be future-born (even if planned)."
+msgstr "Kunloĝanto ne povas naskiĝi estontece, eĉ se planita."
 
-msgid "Last, then First"
-msgstr "Familia · Persona"
+msgid ""
+"Leave empty if you only want to indicate that other people are present in "
+"the house."
+msgstr ""
+"Lasu malplena se vi nure volas indiki ke kromaj homoj ĉeestas en la loĝejo."
 
-msgid "Names ordering"
-msgstr "Ordigo de la nomoj"
+msgid ""
+"The name cannot be empty, at least first name or last name are required."
+msgstr ""
+"Nomo ne povas esti nenia, almenaŭ unu el persona aŭ familia nomoj devas esti "
+"indikita."
+
+msgid "You already have this telephone number."
+msgstr "Vi jam indikis tian telefonnumeron."
+
+msgid "Choose your conditions..."
+msgstr "Elektu viajn kondiĉojn…"
 
 # TODO: update for supervisors (you -> the user)
 #, python-brace-format
@@ -799,8 +811,11 @@ msgstr "Vi ekpovos gastigi kiam estos {age:d}-jaraĝa."
 msgid "The minimum age to be allowed meeting with visitors is {age:d}."
 msgstr "Vi ekpovos renkonti vizitantojn kiam estos {age:d}-jaraĝa."
 
-msgid "This field is required to be printed in the book."
-msgstr "Tiu ĉi kampo estas deviga por esti printita en la libreto."
+msgid "This field is required if you accept guests."
+msgstr "Tiu ĉi kampo estas deviga kiam vi akceptas gastojn."
+
+msgid "This field is required if you meet visitors."
+msgstr "Tiu ĉi kampo estas deviga kiam vi renkontas vizitantojn."
 
 msgid ""
 "You want to be in the printed edition of Pasporta Servo. In order to have a "
@@ -811,14 +826,8 @@ msgstr ""
 "produkton, kelkaj kampoj estas devigaj. Se vi pensas ke estas problemo, bv. "
 "kontaktu nin."
 
-msgid "Choose your conditions..."
-msgstr "Elektu viajn kondiĉojn…"
-
-msgid "This field is required if you accept guests."
-msgstr "Tiu ĉi kampo estas deviga kiam vi akceptas gastojn."
-
-msgid "This field is required if you meet visitors."
-msgstr "Tiu ĉi kampo estas deviga kiam vi renkontas vizitantojn."
+msgid "This field is required to be printed in the book."
+msgstr "Tiu ĉi kampo estas deviga por esti printita en la libreto."
 
 msgid "commencing on"
 msgstr "ekde"
@@ -835,9 +844,6 @@ msgstr "Maldisponebleco finiĝu post sia komenco."
 msgid "Unavailability should start before it finishes."
 msgstr "Maldisponebleco komenciĝu antaŭ sia fino."
 
-msgid "You already have this telephone number."
-msgstr "Vi jam indikis tian telefonnumeron."
-
 msgid "Authorize user"
 msgstr "Permesi uzanton"
 
@@ -850,20 +856,14 @@ msgstr "Tiu ĉi uzanto ne ekzistas"
 msgid "User has not set up a profile"
 msgstr "Uzanto ne agordis profilon"
 
-msgid "A family member cannot be future-born (even if planned)."
-msgstr "Kunloĝanto ne povas naskiĝi estontece, eĉ se planita."
+msgid "First, then Last"
+msgstr "Persona · Familia"
 
-msgid ""
-"Leave empty if you only want to indicate that other people are present in "
-"the house."
-msgstr ""
-"Lasu malplena se vi nure volas indiki ke kromaj homoj ĉeestas en la loĝejo."
+msgid "Last, then First"
+msgstr "Familia · Persona"
 
-msgid ""
-"The name cannot be empty, at least first name or last name are required."
-msgstr ""
-"Nomo ne povas esti nenia, almenaŭ unu el persona aŭ familia nomoj devas esti "
-"indikita."
+msgid "Names ordering"
+msgstr "Ordigo de la nomoj"
 
 msgid "family members"
 msgstr "kunloĝantoj"
@@ -1355,15 +1355,15 @@ msgstr "Priskribo"
 msgid "Family members"
 msgstr "Kunloĝantoj"
 
-msgid "Other dwellers at this place."
-msgstr "Mi havas kunloĝantojn."
-
 msgctxt "Title"
 msgid "Note "
 msgstr "Rimarko "
 
 msgid "I'm not present at this address at all times; contact me in advance."
 msgstr "Mi ne troviĝas konstante ĉe tiu ĉi adreso; kontaktiĝu anticipe."
+
+msgid "Other dwellers at this place."
+msgstr "Mi havas kunloĝantojn."
 
 msgid "Show"
 msgstr "Montri"
@@ -1849,6 +1849,9 @@ msgid_plural ", during %(max_night)s nights maximum"
 msgstr[0] ", dum %(max_night)s nokto maksimume"
 msgstr[1] ", dum %(max_night)s noktoj maksimume"
 
+msgid "Please ask me privately."
+msgstr "Bonvole demandu min private."
+
 msgid "I'm <b>not</b> hosting"
 msgstr "mi <b>ne</b> gastigas"
 
@@ -1981,14 +1984,14 @@ msgid "The data is not saved yet! Note the specified errors."
 msgstr ""
 "La informoj ankoraŭ ne estas konservitaj! Atentu la indikitajn erarojn."
 
-msgid "Only the user themselves can access this page"
-msgstr "Nur la uzanto mem povas aliri tiun ĉi paĝon"
-
 msgid "Only the owner of the place can access this page"
 msgstr "Nur la posedanto de la loĝejo povas aliri tiun ĉi paĝon"
 
 msgid "[Pasporta Servo] You received an Authorization"
 msgstr "[Pasporta Servo] Vi ricevis permeson"
+
+msgid "Only the user themselves can access this page"
+msgstr "Nur la uzanto mem povas aliri tiun ĉi paĝon"
 
 msgid "Data confirmed"
 msgstr "Informoj konfirmitaj"
@@ -2041,6 +2044,20 @@ msgstr ""
 
 msgid "You've been automatically logged in. Happy editing!"
 msgstr "Vi estas aŭtomate ensalutita. Bonan redaktadon!"
+
+msgid "Select manually the most suitable point on the map."
+msgstr "Elektu permane la plej taŭgan punkton sur la mapo."
+
+msgid ""
+"It will be possible to register the point when the resolution of the map is "
+"1:190,000 or higher, meaning visible distances of about 7km or less."
+msgstr ""
+"Eblus registri la punkton kiam la distingivo de la mapo estus 1:190,000 aŭ "
+"pli alta, kio signifas distingeblajn distancojn de ĉirkaŭ 7km aŭ malpli."
+
+msgctxt "URL"
+msgid "locations"
+msgstr "lokoj"
 
 msgctxt "URL"
 msgid "collected-information"

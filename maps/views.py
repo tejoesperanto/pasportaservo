@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.db.models import Q
+from django.http import HttpResponse, JsonResponse
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views import generic
 from django.views.decorators.cache import cache_page
@@ -15,6 +17,24 @@ HOURS = 3600
 
 class WorldMapView(generic.TemplateView):
     template_name = 'maps/world_map.html'
+
+
+class EndpointsView(generic.View):
+    def get(self, request, *args, **kwargs):
+        format = request.GET.get('format', None)
+        endpoints = {
+            'rtl_plugin': settings.MAPBOX_GL_RTL_PLUGIN,
+            'world_map_style': reverse_lazy('map_style', kwargs={'style': 'positron'}),
+            'place_map_style': reverse_lazy('map_style', kwargs={'style': 'klokantech'}),
+            'widget_style': reverse_lazy('map_style', kwargs={'style': 'positron'}),
+            'world_map_data': reverse_lazy('world_map_public_data'),
+        }
+        if format == 'js':
+            return HttpResponse(
+                'var GIS_ENDPOINTS = {!s};'.format(endpoints),
+                content_type='application/javascript')
+        else:
+            return JsonResponse(endpoints)
 
 
 class MapStyleView(generic.TemplateView):

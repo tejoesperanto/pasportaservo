@@ -224,28 +224,7 @@
                     {% if-visible place [family_members] privileged=view.verbose_view store %}
                         <h3>{% trans "Family members" %}</h3>
                         <ul>
-                            {% comment %}
-                                TODO: display deleted profiles only to owners (grey text) and supervisors (grey link)
-                            {% endcomment %}
-                            {% for member in place.family_members_cache %}
-                                <li>
-                                    {% if member.user_id %}
-                                        <a href="{{ member.get_absolute_url }}" data-toggle="popover" data-trigger="hover focus" data-placement="top"
-                                           data-content="<img src='{{ member.avatar_url }}' height='90'>" data-html="true">
-                                    {% endif %}
-                                    {% if place.family_is_anonymous %}
-                                        <em>{% trans "Other dwellers at this place." %}</em>
-                                    {% else %}
-                                        {{ member.get_fullname_always_display }}
-                                        {% if member.birth_date %}
-                                            &lrm;({{ member.age }})
-                                        {% endif %}
-                                    {% endif %}
-                                    {% if member.user_id %}
-                                        </a>
-                                    {% endif %}
-                                </li>
-                            {% endfor %}
+                            {% include './snippets/place_family_members.html' with place=place user_role=view.role show_anonymously=True only %}
                         </ul>
                     {% endif %}
                     {% endif %}
@@ -310,21 +289,7 @@
                     </p>
                     {% if shall_display_family_members and not place.family_is_anonymous %}
                         <ul id="family-panel-small" class="collapse">
-                            {% for member in place.family_members_cache %}
-                            <li>
-                                {% if member.user_id %}
-                                    <a href="{{ member.get_absolute_url }}" data-toggle="popover" data-trigger="hover focus" data-placement="top"
-                                       data-content="<img src='{{ member.avatar_url }}' height='90'>" data-html="true">
-                                {% endif %}
-                                {{ member.get_fullname_always_display }}
-                                {% if member.birth_date %}
-                                    ({{ member.age }})
-                                {% endif %}
-                                {% if member.user_id %}
-                                    </a>
-                                {% endif %}
-                            </li>
-                            {% endfor %}
+                            {% include './snippets/place_family_members.html' with place=place user_role=view.role show_anonymously=False only %}
                         </ul>
                     {% endif %}
                 {% endif %}
