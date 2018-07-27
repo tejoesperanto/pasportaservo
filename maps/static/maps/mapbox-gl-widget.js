@@ -23,6 +23,7 @@ window.addEventListener("load", function() {
     var map = new mapboxgl.Map({
         container: 'map',
         style: GIS_ENDPOINTS['widget_style'],
+        attributionControl: false,
         minZoom: 1,
         maxZoom: 17,
         zoom: initial ? 14 : 1.5,
@@ -30,11 +31,11 @@ window.addEventListener("load", function() {
     });
 
     map.on('load', function() {
-        var marker = undefined;
+        var marker = undefined, markerBase = new mapboxgl.Marker({color: '#428bca'});
 
         if (initial) {
             map.setCenter(initial);
-            marker = new mapboxgl.Marker()
+            marker = markerBase
                 .setLngLat(initial)
                 .addTo(map);
         }
@@ -49,7 +50,7 @@ window.addEventListener("load", function() {
                 marker.setLngLat(e.lngLat);
             }
             else {
-                marker = new mapboxgl.Marker()
+                marker = markerBase
                     .setLngLat(e.lngLat)
                     .addTo(map);
             }
@@ -76,6 +77,17 @@ window.addEventListener("load", function() {
 
         var nav = new mapboxgl.NavigationControl();
         map.addControl(nav, 'top-left');
+        var loc = new mapboxgl.GeolocateControl({
+            positionOptions: {
+                enableHighAccuracy: true
+            },
+            fitBoundsOptions: {
+                maxZoom: 17
+            }
+        });
+        map.addControl(loc, 'top-right');
+        var scale = new mapboxgl.ScaleControl();
+        map.addControl(scale, 'bottom-right');
     });
 
 });
