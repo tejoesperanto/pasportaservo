@@ -21,6 +21,10 @@
     "openmaptiles:mapbox:owner": "openmaptiles",
     "openmaptiles:mapbox:source:url": "mapbox://openmaptiles.4qljc88t"
   },
+  "__comment": [
+    "Style modified for Pasporta Servo to add house numbers at high zoom levels ",
+    "and to correct misaligned letters with diacritics (by using the Noto Sans font only)."
+  ],
   "center": [
     10.184401828277089,
     -1.1368683772161603e-13
@@ -1450,7 +1454,6 @@
         "text-transform": "uppercase",
         "symbol-spacing": 350,
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -1502,7 +1505,6 @@
         "text-transform": "uppercase",
         "symbol-spacing": 350,
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -1691,7 +1693,6 @@
         "text-size": 10,
         "text-transform": "uppercase",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -1744,7 +1745,6 @@
         "text-size": 10,
         "text-transform": "uppercase",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -1794,7 +1794,6 @@
         "text-size": 10,
         "text-transform": "uppercase",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -1844,7 +1843,6 @@
         "text-size": 10,
         "text-transform": "uppercase",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -1894,7 +1892,6 @@
         "text-size": 10,
         "text-transform": "uppercase",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -1946,7 +1943,6 @@
         "text-size": 10,
         "text-transform": "uppercase",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -2011,7 +2007,6 @@
         },
         "text-transform": "uppercase",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -2088,7 +2083,6 @@
         },
         "text-transform": "uppercase",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -2178,7 +2172,6 @@
         },
         "text-transform": "uppercase",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -2268,7 +2261,6 @@
         },
         "text-transform": "uppercase",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -2353,7 +2345,6 @@
         },
         "text-transform": "uppercase",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -2438,7 +2429,6 @@
         },
         "text-transform": "uppercase",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -2528,7 +2518,6 @@
         },
         "text-transform": "uppercase",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -2618,7 +2607,6 @@
         },
         "text-transform": "uppercase",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -2682,7 +2670,6 @@
         "visibility": "visible",
         "text-field": "{name:latin}\n{name:nonlatin}",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -2726,7 +2713,6 @@
         "visibility": "visible",
         "text-field": "{name:{{ lang }}}\n{name:nonlatin}",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -2778,7 +2764,6 @@
         "visibility": "visible",
         "text-field": "{name:latin}\n{name:nonlatin}",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -2853,7 +2838,6 @@
         "visibility": "visible",
         "text-field": "{name:{{ lang }}}\n{name:nonlatin}",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -2928,7 +2912,6 @@
         "visibility": "visible",
         "text-field": "{name:latin}\n{name:nonlatin}",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
@@ -3008,7 +2991,6 @@
         "visibility": "visible",
         "text-field": "{name:{{ lang }}}\n{name:nonlatin}",
         "text-font": [
-          "Metropolis Regular",
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
