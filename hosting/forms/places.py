@@ -145,6 +145,7 @@ class PlaceForm(forms.ModelForm):
 
         if commit:
             place.save()
+            self.save_m2m()
         self.confidence = place.location_confidence
         return place
     save.alters_data = True
@@ -160,6 +161,7 @@ class PlaceCreateForm(PlaceForm):
         place.owner = self.profile
         if commit:
             place.save()
+            self.save_m2m()
         return place
     save.alters_data = True
 
