@@ -11,7 +11,7 @@
     {% endif %}
 {% endblock %}
 
-{% block ga_page_title %}
+{% block safe_page_title %}
             return document.title.replace('{{ place|stringformat:"s"|escapejs }}', 'XXXXXXXX')
                                  .replace('{{ place.get_locality_display|escapejs }}', 'XXXXXX (XXXXXX)');
 {% endblock %}
