@@ -13,7 +13,7 @@ from pyuca import Collator
 from core.models import SiteConfiguration
 
 
-def geocode(query, country='', private=False, annotations=False):
+def geocode(query, country='', private=False, annotations=False, multiple=False):
     key = SiteConfiguration.get_solo().opencage_api_key
     lang = settings.LANGUAGE_CODE
     if not query:
@@ -25,7 +25,7 @@ def geocode(query, country='', private=False, annotations=False):
         params.update({'no_record': int(private)})
     if country:
         params.update({'countrycode': country})
-    result = geocoder.opencage(query, key=key, params=params)
+    result = geocoder.opencage(query, key=key, params=params, maxRows=15 if multiple else 1)
     logging.getLogger('PasportaServo.geo').debug(
         "Query: %s\n\tResult: %s\n\tConfidence: %d", query, result, result.confidence)
     result.point = Point(result.xy, srid=4326) if result.xy else None
