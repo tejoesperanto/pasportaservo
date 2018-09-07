@@ -14,7 +14,7 @@
     {% endif %}
 {% endblock %}
 
-{% block ga_page_title %}
+{% block safe_page_title %}
     {% if view.role != roles.OWNER %}
             return document.title.replace('{{ place|stringformat:"s"|escapejs }}', 'XXXXXXXX');
     {% endif %}

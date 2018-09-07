@@ -65,6 +65,8 @@
         {% endblock header %}
     </header>
 
+    {% comment %}
+    {# no use of cookies currently requires us to ask for consent, since analytics / statistics are turned off. #}
     <section id="technologies-banner" class="alert alert-warning" role="alertdialog" aria-label="{% trans "About Privacy: " %}">
         <img src="{% static 'img/cookie.png' %}" alt="" data-attribution="CC0 Steven Giacomelli"
              style="float: left; position: relative; left: -7px;" />
@@ -93,6 +95,7 @@
             </button>
         </div>
     </section>
+    {% endcomment %}
 
     {% block pre-page %}{% endblock %}
 
@@ -128,10 +131,9 @@
 
     <script>
         function anonymizeTitle() {
-            {% block ga_page_title %}{% endblock %}
+            {% block safe_page_title %}{% endblock %}
         }
     </script>
-    {% include './snippets/google_analytics.html' with user=user ENV=ENVIRONMENT DEBUG=debug DNT=request.DNT only %}
 
     {% if user.is_authenticated %}
     <!-- PageId:{% random_identifier %} -->

@@ -171,13 +171,20 @@
                         <div class="well well-sm">
                             <div class="help-block">
                                 {% blocktrans trimmed %}
-                                Currently we utilize the service of Google Analytics to collect anonymised information,
-                                aggregating which helps us understand usage patterns and learn how to adjust the web
-                                site. This information does not include any of your personal data. To enable the tool,
-                                Google places monitoring cookies on your browser, containing a random number; by clearing
-                                the checkbox above, the Google Analytics tool will be disabled for your account anywhere
-                                you login.
+                                    During some time we utilized the service of Google Analytics to collect and analyze
+                                    the data. Presently we do not measure interactions and so do not use any such service.
                                 {% endblocktrans %}
+                                {% comment %}
+                                    {% blocktrans trimmed %}
+                                    Currently we utilize the service of Google Analytics to collect anonymised information,
+                                    aggregating which helps us understand usage patterns and learn how to adjust the web
+                                    site. This information does not include any of your personal data. To enable the tool,
+                                    Google places monitoring cookies on your browser, containing a random number; by clearing
+                                    the checkbox above, the Google Analytics tool will be disabled for your account anywhere
+                                    you login.
+                                    {% endblocktrans %}
+                                {% endcomment %}
+                                &nbsp;
                                 <a href="{% url 'privacy_policy' %}#{% trans "measurement" context "URL" %}"
                                    role="button" class="btn btn-xs btn-warning">
                                     {% trans "See our privacy policy." %}
