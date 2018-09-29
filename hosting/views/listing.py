@@ -105,7 +105,7 @@ class SearchView(PlaceListView):
                             .order_by('distance'))
             elif self.result.country:  # We assume it's a country
                 return (self.queryset
-                            .filter(country=self.result.country.upper())
+                            .filter(country=self.result.country_code.upper())
                             .order_by('owner__user__last_login'))
         return self.queryset.order_by('owner__user__last_login')
 
