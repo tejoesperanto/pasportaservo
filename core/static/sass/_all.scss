@@ -632,6 +632,10 @@ a.contact-details:not(:hover) {
     width: 40px;
 }
 .place-supervisor-detail {
+    @include transition(background-color 0.5s);
+    &.highlight {
+        background-color: #fff8f2;
+    }
     .control-buttons {
         margin-left: 20px;
     }
@@ -654,6 +658,12 @@ a.contact-details:not(:hover) {
     .modal-body {
         max-height: 77vh;
         overflow-y: auto;
+    }
+}
+.mapboxgl-popup.supervisor-view {
+    opacity: 0.8;
+    .mapboxgl-popup-content {
+        padding: 5px 6px 3px 6px;
     }
 }
 

@@ -179,6 +179,11 @@ $(document).ready(function() {
             toggler(true);
         }
     });
+    $('#map-container').on('shown.bs.collapse hidden.bs.collapse', function() {
+        window.mapObject && window.mapObject.resize();
+        $('#map').css('visibility', $('#map').css('visibility') == 'hidden' ? 'visible' : 'hidden');
+        $('[data-target="#map-container"]').toggleClass('active');
+    });
 
     // Host preferences popover setup
     if ($('#status-anchors_notification')[0]) {

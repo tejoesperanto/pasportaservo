@@ -7,8 +7,10 @@ from django.views import generic
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers
 
+from django_countries.fields import Country
 from djgeojson.views import GeoJSONLayerView
 
+from core.auth import SUPERVISOR, AuthMixin
 from core.models import SiteConfiguration
 from hosting.models import Place
 
@@ -22,13 +24,31 @@ class WorldMapView(generic.TemplateView):
 class EndpointsView(generic.View):
     def get(self, request, *args, **kwargs):
         format = request.GET.get('format', None)
+        type = request.GET.get('type', '')
         endpoints = {
             'rtl_plugin': settings.MAPBOX_GL_RTL_PLUGIN,
-            'world_map_style': reverse_lazy('map_style', kwargs={'style': 'positron'}),
-            'place_map_style': reverse_lazy('map_style', kwargs={'style': 'klokantech'}),
-            'widget_style': reverse_lazy('map_style', kwargs={'style': 'positron'}),
-            'world_map_data': reverse_lazy('world_map_public_data'),
         }
+        if type == 'world':
+            endpoints.update({
+                'world_map_style': reverse_lazy('map_style', kwargs={'style': 'positron'}),
+                'world_map_data': reverse_lazy('world_map_public_data'),
+            })
+        if type == 'region':
+            region_kwargs = {'country_code': request.GET['country']}
+            if 'in_book' in request.GET:
+                region_kwargs.update({'in_book': request.GET['in_book']})
+            endpoints.update({
+                'region_map_style': reverse_lazy('map_style', kwargs={'style': 'klokantech'}),
+                'region_map_data': reverse_lazy('country_map_data', kwargs=region_kwargs),
+            })
+        if type == 'place':
+            endpoints.update({
+                'place_map_style': reverse_lazy('map_style', kwargs={'style': 'klokantech'}),
+            })
+        if type == 'widget':
+            endpoints.update({
+                'widget_style': reverse_lazy('map_style', kwargs={'style': 'positron'}),
+            })
         if format == 'js':
             return HttpResponse(
                 'var GIS_ENDPOINTS = {!s};'.format(endpoints),
@@ -54,6 +74,31 @@ class MapStyleView(generic.TemplateView):
         }
 
 
+class PlottablePlace(Place):
+    class Meta:
+        proxy = True
+
+    @property
+    def url(self):
+        return self.get_absolute_url()
+
+    @property
+    def owner_name(self):
+        return self.owner.name or self.owner.INCOGNITO
+
+    @property
+    def owner_full_name(self):
+        return self.owner.get_fullname_display(non_empty=True)
+
+    @property
+    def owner_url(self):
+        return self.owner.get_absolute_url()
+
+    @property
+    def owner_avatar(self):
+        return self.owner.avatar_url
+
+
 @method_decorator(cache_page(12 * HOURS), name='genuine_dispatch')
 class PublicDataView(GeoJSONLayerView):
     geometry_field = 'location'
@@ -63,26 +108,6 @@ class PublicDataView(GeoJSONLayerView):
         'url',
         'owner_name',
     ]
-
-    class GeoPlace(Place):
-        class Meta:
-            proxy = True
-
-        @property
-        def url(self):
-            return self.get_absolute_url()
-
-        @property
-        def owner_name(self):
-            return self.owner.name or self.owner.INCOGNITO
-
-        @property
-        def owner_url(self):
-            return self.owner.get_absolute_url()
-
-        @property
-        def owner_avatar(self):
-            return self.owner.avatar_url
 
     def dispatch(self, request, *args, **kwargs):
         request.META['HTTP_X_USER_STATUS'] = 'Authenticated' if request.user.is_authenticated else 'Anonymous'
@@ -99,9 +124,47 @@ class PublicDataView(GeoJSONLayerView):
         if not self.request.user.is_authenticated:
             by_visibility &= Q(owner__pref__public_listing=True)
         return (
-            self.GeoPlace
-                .available_objects
-                .exclude(location__isnull=True)
-                .filter(by_visibility)
-                .prefetch_related('owner')
+            PlottablePlace.available_objects
+            .exclude(location__isnull=True)
+            .filter(by_visibility)
+            .prefetch_related('owner')
+        )
+
+
+class CountryDataView(AuthMixin, GeoJSONLayerView):
+    geometry_field = 'location'
+    properties = [
+        'owner_full_name',
+        'checked', 'confirmed',
+        'in_book',
+    ]
+    minimum_role = SUPERVISOR
+
+    def dispatch(self, request, *args, **kwargs):
+        self.country = Country(kwargs['country_code'])
+        self.in_book_status = {'0': False, '1': True, None: None}[kwargs['in_book']]
+        kwargs['auth_base'] = self.country
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_owner(self, object):
+        return None
+
+    def get_location(self, object):
+        return object
+
+    def get_queryset(self):
+        queryset = (
+            PlottablePlace.available_objects
+            .filter(country=self.country.code)
+            .filter(
+                Q(visibility__visible_online_public=True) | Q(in_book=True, visibility__visible_in_book=True)
+            )
+        )
+        if self.in_book_status is not None:
+            narrowing_func = getattr(queryset, 'filter' if self.in_book_status else 'exclude')
+            queryset = narrowing_func(in_book=True, visibility__visible_in_book=True)
+        return (
+            queryset
+            .exclude(location__isnull=True)
+            .prefetch_related('owner')
         )

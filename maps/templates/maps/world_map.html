@@ -9,7 +9,7 @@
 {% block extra_head %}
         <link rel="stylesheet" href="{{ MAPBOX_GL_CSS }}">
         <script src="{{ MAPBOX_GL_JS }}"></script>
-        <script src="{% url 'gis_endpoints' %}?format=js"></script>
+        <script src="{% url 'gis_endpoints' %}?format=js&type=world"></script>
 {% endblock %}
 
 {% block pre-page %}

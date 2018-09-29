@@ -5,7 +5,13 @@
 {% block head_title %}{{ view.country.name }}{% endblock %}
 
 {% block extra_js %}
-    <script src="{% static 'js/ajax.js' %}"></script>
+        <script src="{% static 'js/ajax.js' %}"></script>
+        <script src="{% static 'maps/region-map.js' %}"></script>
+{% endblock %}
+{% block extra_head %}
+        <link rel="stylesheet" href="{{ MAPBOX_GL_CSS }}">
+        <script src="{{ MAPBOX_GL_JS }}"></script>
+        <script src="{% url 'gis_endpoints' %}?format=js&type=region&country={{ view.country.code }}{% if view.in_book_status is not None %}&in_book={{ view.in_book_status|yesno:"1,0" }}{% endif %}"></script>
 {% endblock %}
 
 {% block page %}
@@ -38,22 +44,39 @@
         </div>
     {% endif %}
 
-    <h1 class="text-center" style="padding: 10px;">{{ view.country.name }}</h1>
+    <h1 class="text-center" style="padding: 10px;">
+        {{ view.country.name }}
+        {% if country_coordinates %}
+            &nbsp;
+            <button class="btn btn-default collapsed" data-target="#map-container" data-toggle="collapse" aria-controls="map-container" aria-expanded="false" title="{% trans "Map of the country" %}">
+                <span class="fa fa-lg fa-globe" aria-hidden="true"></span>
+                <span class="sr-only">{% trans "Map of the country" %}</span>
+            </button>
+        {% endif %}
+    </h1>
 
-    <ul class="col nav nav-pills" role="tablist">
-        <li role="presentation" {% if view.in_book_status is True %}aria-pressed="true" class="active {% else %}class="{% endif %}navbar-right btn-vert-space">
+    <div class="row collapse" id="map-container">
+        <div class="col-xs-12 col-md-6 col-md-offset-3">
+            <div class="embed-responsive embed-responsive-16by9" id="map" data-coordinates="{{ country_coordinates }}" style="visibility: hidden">
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <ul class="nav nav-pills" role="tablist">
+        <li role="presentation" {% if view.in_book_status is True %}aria-pressed="true" class="active {% else %}class="{% endif %}pull-sm-right btn-vert-space">
             <a href="{% url 'staff_place_list' country_code=view.country in_book=1 %}">
                 <span class="badge">{{ in_book_count }}</span>
                 {% trans "In the book" %}
             </a>
         </li>
-        <li role="presentation" {% if view.in_book_status is False %}aria-pressed="true" class="active {% else %}class="{% endif %}navbar-right btn-vert-space">
+        <li role="presentation" {% if view.in_book_status is False %}aria-pressed="true" class="active {% else %}class="{% endif %}pull-sm-right btn-vert-space">
             <a href="{% url 'staff_place_list' country_code=view.country in_book=0 %}">
                 <span class="badge">{{ not_in_book_count }}</span>
                 {% trans "Not in the book" %}
             </a>
         </li>
-        <li role="presentation" {% if view.in_book_status is None %}aria-pressed="true" class="active {% else %}class="{% endif %}navbar-right btn-vert-space">
+        <li role="presentation" {% if view.in_book_status is None %}aria-pressed="true" class="active {% else %}class="{% endif %}pull-sm-right btn-vert-space">
             <a href="{% url 'staff_place_list' country_code=view.country %}">
                 {% trans "All hosts" %}
             </a>
