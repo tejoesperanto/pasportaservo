@@ -556,6 +556,7 @@ class Profile(TrackingModel, TimeStampedModel):
             models[model] = (
                 model.objects
                 .filter(email__in=emails)
+                .exclude(email='')
                 .exclude(email__startswith=settings.INVALID_PREFIX)
                 .update(email=Concat(V(settings.INVALID_PREFIX), F('email')))
             )
