@@ -4,13 +4,15 @@ from django.contrib.gis.forms.widgets import BaseGeometryWidget
 from django.urls import reverse_lazy
 from django.utils.text import format_lazy
 
+from . import SRID
+
 
 class MapboxGlWidget(BaseGeometryWidget):
     """
     An OpenLayers/OpenStreetMap-based widget.
     """
     template_name = 'gis/mapbox-gl.html'
-    map_srid = 4326
+    map_srid = SRID
     default_lon = 5
     default_lat = 47
 

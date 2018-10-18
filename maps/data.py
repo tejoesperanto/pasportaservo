@@ -3994,3 +3994,9 @@ COUNTRIES_GEO = {
 COUNTRIES_TINIEST = ('GI', 'MC', 'NR', 'SM', 'UM', 'VA')
 
 COUNTRIES_WITH_NO_BUFFER = ('VA',)
+
+
+# TODO: Temporary solution, should be extracted from database (alongside biggest cities, etc.)
+COUNTRIES_WITH_MANDATORY_REGION = ('BR', 'CA', 'RU', 'US')
+
+COUNTRIES_WITH_REGIONS = ('BE', 'BR', 'CA', 'DE', 'FR', 'GB', 'US')

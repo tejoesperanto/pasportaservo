@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2018-09-29 14:17+0000\n"
+"POT-Revision-Date: 2018-10-19 04:42+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -746,6 +746,13 @@ msgstr "uzanto havebla"
 msgid "location is defined"
 msgstr "lokigo havebla"
 
+#, python-brace-format
+msgid ""
+"For an address in {country}, the name of the state or province must be "
+"indicated."
+msgstr ""
+"Adreso en {country} devas inkluzivi la nomon de la ŝtato aŭ de la provinco."
+
 msgid "Hosting Service"
 msgstr "Gastiga Servo"
 
@@ -900,6 +907,12 @@ msgstr "laboreja"
 msgid "fax"
 msgstr "fakso"
 
+msgid "City"
+msgstr "Urbo"
+
+msgid "State / Province"
+msgstr "Ŝtato / Provinco"
+
 msgid "deleted on"
 msgstr "forigita je"
 
@@ -1018,9 +1031,6 @@ msgstr ""
 
 msgid "postcode"
 msgstr "poŝtkodo"
-
-msgid "State / Province"
-msgstr "Ŝtato / Provinco"
 
 msgid "confidence"
 msgstr "certeco"
@@ -1148,6 +1158,33 @@ msgstr "nomo"
 
 msgid "genders"
 msgstr "genroj"
+
+msgid "location type"
+msgstr "tipo de lokigo"
+
+msgid "bounding box"
+msgstr "limkesto"
+
+msgid "Expected diagonal: south-west lon/lat, north-east lon/lat."
+msgstr "Supoze diagonalo: sudokcidenta lon/lat, nordorienta lon/lat."
+
+msgid "geographical center"
+msgstr "geografia centro"
+
+msgid "Expected: longitude/latitude position."
+msgstr "Supoze: pozicio laŭ longitudo/latitudo."
+
+msgctxt "name::singular"
+msgid "whereabouts"
+msgstr "poziciigo"
+
+msgctxt "name::plural"
+msgid "whereabouts"
+msgstr "poziciigoj"
+
+#, python-brace-format
+msgid "Location of {landmark} ({state})"
+msgstr "Lokigo de {landmark} ({state})"
 
 msgid "E.g.: 'Ne fumu'."
 msgstr "Ekz.: 'Ne fumu'."

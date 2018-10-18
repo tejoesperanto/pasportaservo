@@ -5,6 +5,7 @@ from datetime import date
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.gis.geos import LineString, Point
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.core.mail import send_mail
 from django.http import (
@@ -21,6 +22,8 @@ from braces.views import FormInvalidMessageMixin
 from core.auth import ANONYMOUS, OWNER, SUPERVISOR, AuthMixin
 from core.forms import UserRegistrationForm
 from core.models import SiteConfiguration
+from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
+from maps.utils import bufferize_country_boundaries
 
 from ..forms import (
     PlaceBlockForm, PlaceCreateForm, PlaceForm,
@@ -30,7 +33,7 @@ from ..mixins import (
     CreateMixin, DeleteMixin, PlaceMixin, PlaceModifyMixin,
     ProfileIsUserMixin, ProfileModifyMixin, UpdateMixin,
 )
-from ..models import Place, Profile
+from ..models import LOCATION_CITY, Place, Profile, Whereabouts
 
 User = get_user_model()
 
@@ -84,8 +87,60 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
         context = super().get_context_data(**kwargs)
         context['owner_phones'] = self.object.owner.phones.filter(deleted=False)
         context['register_form'] = UserRegistrationForm
+        context['place_location'] = self.calculate_position()
         context['blocking'] = self.calculate_blocking(self.object)
         return context
+
+    def calculate_position(self):
+        place = self.object
+        is_authenticated = self.request.user.is_authenticated
+
+        location = None
+        bounds = None
+        location_truncate = lambda loc: (
+            Point(round(loc.x, 2), round(loc.y, 3), srid=SRID) if loc and not loc.empty else None
+        )
+
+        if place.available:
+            if self.verbose_view:
+                location = place.location
+                location_type = 'P'  # = Point.
+            elif is_authenticated:
+                location = location_truncate(place.location)
+                location_type = 'C'  # = Circle.
+        elif place.owner_available:
+            if self.verbose_view and place.location and place.location_confidence >= 8:
+                location = location_truncate(place.location)
+                location_type = 'C'  # = Circle.
+
+        if (location is None or location.empty) and is_authenticated:
+            location_type = 'R'  # = Region.
+            geocities = Whereabouts.objects.filter(
+                type=LOCATION_CITY, name=place.city.upper(), country=place.country)
+            if place.country in COUNTRIES_WITH_MANDATORY_REGION:
+                geocities = geocities.filter(state=place.state_province.upper())
+            try:
+                city_location = geocities.get()
+            except Whereabouts.DoesNotExist:
+                pass
+            else:
+                bounds = [{'geom': city_location.center}, {'geom': city_location.bbox}]
+
+        if location is None and bounds is None:
+            location_type = 'R'  # = Region.
+            if place.location and not place.location.empty and is_authenticated:
+                bounds = [
+                    {'geom': location_truncate(place.location)},
+                ]
+            else:
+                coords = bufferize_country_boundaries(place.country)
+                # Mapbox prefers the boundaries to be speficied in the southwest, northeast order.
+                bounds = [
+                    {'geom': Point(coords['center'], srid=SRID)},
+                    {'geom': LineString(coords['bbox']['southwest'], coords['bbox']['northeast'], srid=SRID)},
+                ]
+
+        return {'coords': location, 'type': location_type, 'bounds': bounds}
 
     @staticmethod
     def calculate_blocking(place):

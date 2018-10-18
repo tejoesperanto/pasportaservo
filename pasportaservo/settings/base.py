@@ -179,7 +179,6 @@ CSRF_COOKIE_HTTPONLY = True
 
 # Non-Django settings:
 
-COUNTRIES_WITH_REGIONS = ('US', 'GB', 'FR', 'DE', 'BR', 'BE')
 
 # Prefix for marking values (such as email addresses) as no longer valid
 # Do not change the value without a data migration!

@@ -5,9 +5,10 @@
 window.addEventListener("load", function() {
 
     var container = document.getElementById('map');
-    var location = container.hasAttribute('data-marker') ? container.getAttribute('data-marker').trim() : '';
+    var location = container.hasAttribute('data-marker') ? container.getAttribute('data-marker') : '';
+    var locationType = container.getAttribute('data-marker-type') || 'R';
     try {
-        location = location != '' ? JSON.parse(location): undefined;
+        location = location.trim() ? JSON.parse(location) : undefined;
     }
     catch (e) {
         location = undefined;
@@ -18,11 +19,25 @@ window.addEventListener("load", function() {
     var map = new mapboxgl.Map({
         container: 'map',
         style: GIS_ENDPOINTS['place_map_style'],
+        pitchWithRotate: false,
         minZoom: 0.5,
         maxZoom: 15,
         zoom: location ? 14 : 0.5,
-        center: location || [-175, 75]
+        center: location && location.geometry.coordinates || [-175, 75]
     });
+    if (locationType == 'R') {
+        try {
+            var bbox = container.hasAttribute('data-bounds') ? container.getAttribute('data-bounds') : '';
+            bbox = bbox.trim() ? JSON.parse(bbox) : undefined;
+            map.setZoom(12);  // We have to set the zoom before setting the point to center on.
+            map.jumpTo({center: bbox.features[0].geometry.coordinates});
+            if (bbox.features.length > 1) {
+                map.fitBounds(bbox.features[1].geometry.coordinates);
+            }
+        }
+        catch (e) {
+        }
+    }
 
     map.on('load', function() {
         var nav = new mapboxgl.NavigationControl();
@@ -31,21 +46,46 @@ window.addEventListener("load", function() {
         if (location) {
             map.addSource("thisplace", {
                 type: "geojson",
-                data: {"type": "Feature", "geometry": {"type": "Point", "coordinates": [location.lng, location.lat]}}
+                data: location
             });
-
-            map.addLayer({
-                id: "host-marker",
-                type: "circle",
-                source: "thisplace",
-                paint: {
-                    "circle-color": "#ff7711",
-                    "circle-opacity": 1.0,
-                    "circle-radius": 6,
-                    "circle-stroke-width": 1,
-                    "circle-stroke-color": "#fff"
-                }
-            });
+            if (locationType == 'C') {
+                map.addLayer({
+                    id: "host-marker",
+                    type: "circle",
+                    source: "thisplace",
+                    paint: {
+                        "circle-color": "#1bf",
+                        "circle-opacity": 0.7,
+                        "circle-radius": [
+                            "interpolate", ["linear"], ["zoom"],
+                            1, 3,
+                            9, 3,
+                            10, 6,
+                            11, 13,
+                            12, 27,
+                            13, 55,
+                            14, 110,
+                            15, 220,
+                        ],
+                        "circle-stroke-width": 1,
+                        "circle-stroke-color": "#eee"
+                    }
+                });
+            }
+            if (locationType == 'P') {
+                map.addLayer({
+                    id: "host-marker",
+                    type: "circle",
+                    source: "thisplace",
+                    paint: {
+                        "circle-color": "#f71",
+                        "circle-opacity": 1.0,
+                        "circle-radius": 6,
+                        "circle-stroke-width": 1,
+                        "circle-stroke-color": "#fff"
+                    }
+                });
+            }
         }
     });
 
