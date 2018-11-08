@@ -35,7 +35,7 @@
   "sources": {
     "openmaptiles": {
       "type": "vector",
-      "url": "https://free.tilehosting.com/data/v3.json?key={{ key }}"
+      "url": "https://tiles.stadiamaps.com/data/openmaptiles.json"
     }
   },
   "sprite": "https://openmaptiles.github.io/positron-gl-style/sprite",
