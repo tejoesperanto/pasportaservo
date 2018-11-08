@@ -131,17 +131,17 @@ class PlaceForm(forms.ModelForm):
         if place.location is None or place.location.empty:
             # Only recalculate the location if it was not already geocoded before.
             location = geocode(self.format_address(), country=self.cleaned_data['country'], private=True)
-            if not location.point and 'address' in self.changed_data:
+            if location and not location.point and 'address' in self.changed_data:
                 # Try again without the address block when location cannot be determined.
                 # This is because users often put stuff into the address block, which the
                 # poor geocoder has trouble deciphering.
                 location = geocode(
                     self.format_address(with_street=False),
                     country=self.cleaned_data['country'], private=True)
-            if location.point and location.confidence > 1:
+            if location and location.point and location.confidence > 1:
                 # https://geocoder.opencagedata.com/api#confidence
                 place.location = location.point
-            place.location_confidence = location.confidence or 0
+            place.location_confidence = getattr(location, 'confidence', None) or 0
 
         if commit:
             place.save()
