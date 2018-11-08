@@ -13,10 +13,13 @@ def format_geo_result(result):
     if not result.country:
         return result.address or ''
     try:
-        country = str(COUNTRIES[result.country.upper()])
+        country = str(COUNTRIES[result.country_code.upper()])
     except KeyError:
         return result.address
-    components = result.address.split(", ")[:-1]
+    # The name of the country is not necessarily the last-most component of
+    # the address.  For example, in some countries the postal code would be
+    # located at the very end of the address string.
+    components = [part for part in result.address.split(", ") if part != result.country]
     return ", ".join(components + [country])
 
 
