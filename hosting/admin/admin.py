@@ -19,15 +19,16 @@ from django_countries.fields import Country
 from core.models import Agreement
 from maps.widgets import AdminMapboxGlWidget
 
-from .admin_utils import (
-    CountryMentionedOnlyFilter, EmailValidityFilter, PlaceHasLocationFilter,
-    ProfileHasUserFilter, ShowConfirmedMixin, ShowDeletedMixin,
-    SupervisorFilter, VisibilityTargetFilter, WhereaboutsAdminForm,
-)
-from .models import (
+from ..models import (
     Condition, ContactPreference, Phone, Place, Preferences,
     Profile, VisibilitySettings, Website, Whereabouts,
 )
+from .filters import (
+    CountryMentionedOnlyFilter, EmailValidityFilter, PlaceHasLocationFilter,
+    ProfileHasUserFilter, SupervisorFilter, VisibilityTargetFilter,
+)
+from .forms import WhereaboutsAdminForm
+from .mixins import ShowConfirmedMixin, ShowDeletedMixin
 from .widgets import AdminImageWithPreviewWidget
 
 admin.site.index_template = 'admin/custom_index.html'
@@ -44,7 +45,6 @@ class PlaceInLine(ShowConfirmedMixin, ShowDeletedMixin, admin.StackedInline):
     show_change_link = True
     fields = (
         'country', 'state_province', ('city', 'closest_city'), 'postcode', 'address',
-        'location',
         'description', 'short_description',
         ('max_guest', 'max_night', 'contact_before'), 'conditions',
         'available', 'in_book', ('tour_guide', 'have_a_drink'), 'sporadic_presence',
@@ -349,11 +349,16 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     )
     date_hierarchy = 'birth_date'
 
-    fields = (
-        'user', 'title', 'first_name', 'last_name', 'names_inversed', 'birth_date',
-        ('gender', 'pronoun'),
-        'description', 'avatar', 'email', 'supervisor',
-    ) + TrackingModelAdmin.fields
+    fieldsets = (
+        (None, {'fields': (
+            'user', 'title', 'first_name', 'last_name', 'names_inversed', 'birth_date',
+            ('gender', 'pronoun'),
+            'description', 'avatar', 'email',
+        )}),
+        (_('Supervisors'), {'fields': ('supervisor',)}),
+        (_('Important dates'), {'fields': TrackingModelAdmin.fields}),
+    )
+    fields = None
     raw_id_fields = ('user',)  # 'checked_by')
     radio_fields = {'title': admin.HORIZONTAL}
     readonly_fields = ('supervisor',) + TrackingModelAdmin.readonly_fields
@@ -415,14 +420,22 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         CountryMentionedOnlyFilter,
     )
 
-    fields = (
-        'owner', 'country', 'state_province', ('city', 'closest_city'), 'postcode', 'address',
-        'location',
-        'description', 'short_description',
-        ('max_guest', 'max_night', 'contact_before'), 'conditions',
-        'available', 'in_book', ('tour_guide', 'have_a_drink'), 'sporadic_presence',
-        'family_members', 'authorized_users',
-    ) + TrackingModelAdmin.fields
+    fieldsets = (
+        (None, {'fields': (
+            'owner',
+            'country', 'state_province', ('city', 'closest_city'), 'postcode', 'address',
+            'location',
+        )}),
+        (_('Conditions'), {'fields': (
+            'description', 'short_description',
+            ('max_guest', 'max_night', 'contact_before'), 'conditions',
+            'available', 'in_book', ('tour_guide', 'have_a_drink'), 'sporadic_presence',
+            'family_members',
+        )}),
+        (_('Permissions'), {'fields': ('authorized_users',)}),
+        (_('Important dates'), {'fields': TrackingModelAdmin.fields}),
+    )
+    fields = None
     formfield_overrides = {
         PointField: {'widget': AdminMapboxGlWidget},
     }
@@ -502,9 +515,12 @@ class PhoneAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     list_select_related = ('profile__user',)
     search_fields = ['number', 'country']
     list_filter = ('type', 'deleted_on', CountryMentionedOnlyFilter)
-    fields = (
-        'profile', 'number', 'country', 'type', 'comments',
-    ) + TrackingModelAdmin.fields
+
+    fieldsets = (
+        (None, {'fields': ('profile', 'number', 'country', 'type', 'comments',)}),
+        (_('Important dates'), {'fields': TrackingModelAdmin.fields}),
+    )
+    fields = None
     raw_id_fields = ('profile',)
     radio_fields = {'type': admin.VERTICAL}
     inlines = [VisibilityInLine, ]
@@ -548,7 +564,7 @@ class ConditionAdmin(admin.ModelAdmin):
     list_display = ('name', 'abbr')
     prepopulated_fields = {'slug': ("name",)}
 
-    fields = ('name', 'abbr', 'slug', 'latex', 'icon')
+    fields = ('name', 'abbr', 'slug', 'icon')
 
     def icon(self, obj):
         return format_html('<img src="{static}img/cond_{slug}.svg" style="width:4ex; height:4ex;"/>',

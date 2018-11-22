@@ -1,44 +1,10 @@
 from django.conf import settings
 from django.contrib import admin
-from django.contrib.admin.utils import display_for_value
-from django.contrib.gis.geos import LineString
-from django.forms import ModelForm
-from django.utils.formats import date_format
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
-from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
-from django_countries.fields import Country
-
 from core.utils import camel_case_split
-from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
 
-from .models import VisibilitySettings
-
-
-class ShowConfirmedMixin(object):
-    def display_confirmed(self, obj):
-        return format_html(
-            display_for_value(obj.confirmed_on is not None, None, boolean=True) +
-            ('&nbsp; ' + date_format(obj.confirmed_on, 'DATETIME_FORMAT', use_l10n=True)
-             if obj.confirmed_on else "")
-        )
-
-    display_confirmed.short_description = _("confirmed on")
-    display_confirmed.admin_order_field = 'confirmed_on'
-
-
-class ShowDeletedMixin(object):
-    def is_deleted(self, obj):
-        return format_html(
-            '<span style="color:{color}">{content}</span>',
-            color=mark_safe("#666" if not obj.deleted else "#dd4646"),
-            content=mark_safe("&#x2718;" if not obj.deleted else "&#x2714;!"),
-        )
-
-    is_deleted.short_description = _("deleted")
-    is_deleted.admin_order_field = 'deleted'
+from ..models import Profile, VisibilitySettings
 
 
 class CountryMentionedOnlyFilter(admin.SimpleListFilter):
@@ -128,7 +94,6 @@ class EmailValidityFilter(SimpleBooleanListFilter):
     parameter_name = 'email_invalid'
 
     def perform_filter(self, queryset):
-        from .models import Profile
         email_filter = {
             '{0}email__startswith'.format('user__' if self.model is Profile else ''): settings.INVALID_PREFIX,
         }
@@ -155,31 +120,3 @@ class PlaceHasLocationFilter(SimpleBooleanListFilter):
 
     def perform_filter(self, queryset):
         return queryset.filter(location__isnull=self.is_no())
-
-
-class WhereaboutsAdminForm(ModelForm):
-    def clean_name(self):
-        return self.cleaned_data['name'].upper()
-
-    def clean_state(self):
-        return self.cleaned_data['state'].upper()
-
-    def clean_bbox(self):
-        minx, miny, maxx, maxy = self.cleaned_data['bbox'].extent
-        return LineString((minx, miny), (maxx, maxy), srid=SRID)
-
-    def clean(self):
-        cleaned_data = super().clean()
-        if cleaned_data.get('country') in COUNTRIES_WITH_MANDATORY_REGION and not cleaned_data.get('state'):
-            # Verifies that the region is indeed indicated when it is mandatory.
-            message = _("For an address in {country}, the name of the state or province must be indicated.")
-            self.add_error('state', format_lazy(message, country=Country(cleaned_data['country']).name))
-        return cleaned_data
-
-    def save(self, commit=True):
-        location = super().save(commit=False)
-        if 'bbox' in self.changed_data:
-            location.center = location.bbox.centroid
-        if commit:
-            location.save()
-        return location
