@@ -2,7 +2,7 @@
 
 {% get_static_prefix as STATIC %}
 <p>
-    <strong>{% trans "conditions"|capfirst %}: </strong>
+    <strong>{% trans "Conditions" %}: </strong>
     {% for cond in conditions %}
         <span class="text-nowrap">
             <img src="{{ STATIC }}img/cond_{{ cond.slug }}.svg"

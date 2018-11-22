@@ -704,6 +704,9 @@ msgstr "objekto"
 msgid "email address"
 msgstr "retpoŝta adreso"
 
+msgid "Conditions"
+msgstr "Kondiĉoj"
+
 msgid "location"
 msgstr "lokigo"
 
@@ -718,12 +721,6 @@ msgstr "landa kodo"
 
 msgid "image"
 msgstr "bildo"
-
-msgid "confirmed on"
-msgstr "konfirmita je"
-
-msgid "deleted"
-msgstr "forigita"
 
 msgid "All"
 msgstr "Ĉio"
@@ -752,6 +749,12 @@ msgid ""
 "indicated."
 msgstr ""
 "Adreso en {country} devas inkluzivi la nomon de la ŝtato aŭ de la provinco."
+
+msgid "confirmed on"
+msgstr "konfirmita je"
+
+msgid "deleted"
+msgstr "forigita"
 
 msgid "Hosting Service"
 msgstr "Gastiga Servo"
