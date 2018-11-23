@@ -24,7 +24,7 @@
     {% endif %}
 {% endblock %}
 
-{% block form_confirm_button_style %}{% if profile.user %}btn-danger{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block form_confirm_button_class %}{% if profile.user %}btn-danger{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block extra_details %}
     {% if places %}<br />{% endif %}
@@ -32,6 +32,11 @@
             {{ profile.get_fullname_always_display }}
     {% endif %}
 {% endblock %}
+{% block extra_details_class %}{% spaceless %}
+    {% if view.role >= roles.SUPERVISOR or not profile.user %}
+            person-full-name
+    {% endif %}
+{% endspaceless %}{% endblock %}
 
 {% block extra_details_block %}
     {% if places %}

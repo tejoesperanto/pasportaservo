@@ -12,6 +12,8 @@
     {{ profile.get_fullname_always_display }}
     {% if profile.birth_date %} &lrm;&ensp;({{ profile.age }}) {% endif %}
 {% endblock %}
+{% block extra_details_class %}person-full-name{% endblock %}
+
 {% block extra_details_block %}
     {% if view.other_places %}
         <hr />

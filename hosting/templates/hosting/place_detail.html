@@ -198,12 +198,11 @@
                         {% endfor %}
                         {% if place.owner.email and not place.owner.email|is_invalid %}
                         {% if-visible place.owner [email] privileged=view.verbose_view %}
-                            <p class="col-xs-12 public-email">
+                            <p class="col-xs-12 public-email text-nowrap">
                             {% spaceless %}
                                 {{ place.owner|icon:'email' }}
-                                <span>&emsp13;</span>
                                 <a href="mailto:{{ place.owner.email|clear_invalid }}" class="contact-details">
-                                    <span class="email">{{ place.owner.email|clear_invalid }}</span>
+                                    <span class="person-email-address adjusted">{{ place.owner.email|clear_invalid }}</span>
                                 </a>
                             {% endspaceless %}
                             </p>

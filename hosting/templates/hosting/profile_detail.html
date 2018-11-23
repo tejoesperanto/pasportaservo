@@ -154,9 +154,13 @@
             </div>
         {% endif %}
         {% if view.role >= roles.SUPERVISOR %}
-            <div class="col-xs-8 col-sm-9">
-                <h4><small>{% trans "username"|capfirst %}</small> {{ profile.user.username }}</h4>
+            <div class="col-xxs-12 col-xs-8 col-sm-9">
                 <h4>
+                    <small>{% trans "username"|capfirst %}</small>
+                    <br class="visible-xxs-inline" />
+                    <span class="person-username">{{ profile.user.username }}</span>
+                </h4>
+                <h4 class="person-email-address">
                     {{ profile.user.email|clear_invalid }}&nbsp;
                     {% if profile.user.email|is_invalid %}
                         <small class="text-danger fa fa-exclamation-triangle"
@@ -203,7 +207,10 @@
         {% if profile.email and not profile.email|is_invalid %}
         {% if-visible profile [email] %}
             <span class="contact-details text-nowrap">
-                <span class="text-muted">{{ profile|icon:'email' }}</span>&emsp13;{{ profile.email|clear_invalid }}
+                {% spaceless %}
+                    <span class="text-muted">{{ profile|icon:'email' }}</span>
+                    <span class="person-email-address adjusted">{{ profile.email|clear_invalid }}</span>
+                {% endspaceless %}
                 {% block public_email_edit_buttons %}{% endblock %}
             </span>
         {% endif %}

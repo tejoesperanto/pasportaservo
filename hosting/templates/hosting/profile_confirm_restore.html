@@ -22,6 +22,7 @@
             {{ profile.get_fullname_always_display }}
     {% endif %}
 {% endblock %}
+{% block extra_details_class %}person-full-name{% endblock %}
 
 {% block extra_details_block %}
     {% if profile.deleted %}

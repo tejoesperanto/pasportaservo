@@ -239,15 +239,16 @@
                     </address>
                     <div class="host">
                         <h5>
-                            <small>{% trans "username"|capfirst %}</small> {{ place.profile.user.username }}
+                            <small>{% trans "username"|capfirst %}</small>
+                            <span class="person-username">{{ place.profile.user.username }}</span>
                         </h5>
                         {% if place.profile.user.email|is_invalid %}
-                            <span class="email text-danger" title="{% trans "invalid email"%}" data-toggle="tooltip">
+                            <span class="person-email-address text-danger" title="{% trans "invalid email" %}" data-toggle="tooltip">
                                 {{ place.profile.user.email|clear_invalid }}
                                 <span class="fa fa-exclamation-triangle" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
                             </span>
                         {% else %}
-                            <span class="email">{{ place.profile.user.email|urlize }}</span>
+                            <span class="person-email-address">{{ place.profile.user.email|urlize }}</span>
                             <form action="{% url 'staff_email_mark_invalid' place.profile.pk place.profile.autoslug %}" method="POST"
                                   class="unwrap-after-success" style="display: inline">
                                 {% csrf_token %}
