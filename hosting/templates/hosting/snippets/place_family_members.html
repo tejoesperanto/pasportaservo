@@ -12,7 +12,7 @@
     {% for member in place.family_members_cache %}
         {% if member|show_as_family_member:user_role %}
             {% expr True as global any_family_members_displayed %}
-            <li>
+            <li class="family-member">
                 {% if member|show_family_member_link:user_role %}
                     <a href="{{ member.get_absolute_url }}" data-toggle="popover" data-trigger="hover focus" data-placement="top"
                        data-content="<img src='{{ member.avatar_url }}' height='90'>" data-html="true">
@@ -21,9 +21,9 @@
                     {% if not member.user_id and member.deleted %}
                         <del datetime="{{ member.modified|date:"Y-m-d" }}">
                     {% endif %}
-                        {{ member.get_fullname_always_display }}
+                        <span class="member">{{ member.get_fullname_always_display }}</span>
                         {% if member.birth_date %}
-                            &lrm;({{ member.age }})
+                            <span class="comment">&lrm;({{ member.age }})</span>
                         {% endif %}
                     {% if not member.user_id and member.deleted %}
                         </del>

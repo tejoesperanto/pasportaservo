@@ -4,13 +4,27 @@ body, .same-as-body {
     font-size: 16px;
 }
 
-.full-name {
+%long-identifier {
+    white-space: normal;
     overflow-wrap: break-word;
     word-wrap: break-word;
+}
+.person-full-name {
+    @extend %long-identifier;
 }
 .last-name {
     font-variant: small-caps;
     font-variant-caps: small-caps;
+}
+.person-email-address {
+    @extend %long-identifier;
+    text-align: justify;
+    text-justify: inter-character;
+}
+.person-username {
+    @extend %long-identifier;
+    text-align: justify;
+    text-justify: inter-character;
 }
 
 .requires-scripting {
@@ -434,7 +448,7 @@ p.tip {
 
 /* Profile */
 .profile-detail .owner .name {
-    @extend .full-name;
+    @extend .person-full-name;
 }
 @media (max-width: 540px) {
     .profile-detail .owner .avatar {
@@ -463,6 +477,9 @@ p.tip {
 a.contact-details:not(:hover) {
     color: darken($color-primary, 17.5%);
 }
+.person-email-address.adjusted {
+    margin-left: 5px;
+}
 
 .owned-place {
     .conceal-marker {
@@ -484,6 +501,9 @@ a.contact-details:not(:hover) {
     & + .conceal-marker {
         margin-right: 0.6em;
     }
+}
+.family-member .member {
+    @extend .person-full-name;
 }
 .phone-number .number {
     white-space: nowrap;
@@ -576,7 +596,7 @@ a.contact-details:not(:hover) {
         top: 0.1em;
         display: inline-block;
         max-width: 100%;
-        @extend .full-name;
+        @extend .person-full-name;
     }
     .avatar {
         display: inline-block;
@@ -653,7 +673,7 @@ a.contact-details:not(:hover) {
         }
     }
     .name {
-        @extend .full-name;
+        @extend .person-full-name;
     }
     .description-short.has-content {
         margin: 10px 0px;

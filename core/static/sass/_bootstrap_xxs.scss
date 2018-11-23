@@ -9,17 +9,26 @@
         .col-#{$class}-#{$i} {
             float: left; width: $i / $BOOTSTRAP-COLUMNS * 100%;
         }
+        .col-#{$class}-push-#{$i} {
+            left: percentage(($i / $BOOTSTRAP-COLUMNS));
+        }
+        .col-#{$class}-pull-#{$i} {
+            right: percentage(($i / $BOOTSTRAP-COLUMNS));
+        }
+        .col-#{$class}-offset-#{$i} {
+            margin-left: percentage(($i / $BOOTSTRAP-COLUMNS));
+        }
         $columns-push: $columns-push, unquote(".#{$next-size-prefix}-push-#{$i}");
         $columns-pull: $columns-pull, unquote(".#{$next-size-prefix}-pull-#{$i}");
         $columns-offset: $columns-offset, unquote(".#{$next-size-prefix}-offset-#{$i}");
     }
-    #{$columns-push} {
+    .col-#{$class}-push-0 {
         left: auto;
     }
-    #{$columns-pull} {
+    .col-#{$class}-pull-0 {
         right: auto;
     }
-    #{$columns-offset} {
+    .col-#{$class}-offset-0 {
         margin-left: auto;
     }
 }
