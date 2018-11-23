@@ -11,7 +11,7 @@
         <p class="text-center text-danger">
             {% block confirmation %}{% endblock %}
         </p>
-        <p class="text-center">
+        <p class="text-center {% block extra_details_class %}{% endblock %}">
             <strong>{% block extra_details %}{% endblock %}</strong>
         </p>
         {% block extra_details_block %}{% endblock %}
@@ -28,7 +28,7 @@
         </a>
         <span style="display: inline-block">
         {% block confirm_buttons %}
-            <button id="id_form_submit" type="submit" class="btn {% block form_confirm_button_style %}btn-primary{% endblock %} btn-vert-space"
+            <button id="id_form_submit" type="submit" class="btn {% block form_confirm_button_class %}btn-primary{% endblock %} btn-vert-space"
                     title="{% block form_confirm_button_title %}{% trans "Delete" %}{% endblock %}">
                 {% block form_confirm_button %}
                     <span class="fa fa-trash-o" aria-hidden="true"></span> {% trans "Delete" %}
