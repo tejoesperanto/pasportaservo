@@ -81,6 +81,12 @@ INSTALLED_APPS = (
     'shop',
 )
 
+SHELL_PLUS_DONT_LOAD = [
+    'hosting.CountryGroup',
+    'hosting.InstanceApprover',
+    'hosting.FamilyMember',
+]
+
 MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
