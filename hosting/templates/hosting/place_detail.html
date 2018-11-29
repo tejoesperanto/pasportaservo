@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
-{% load i18n l10n static profile privacy expression utils %}
+{% load i18n l10n static geojson_tags %}
+{% load profile privacy expression utils %}
 
 {% block head_title %}
     {% if view.role == roles.OWNER %}
@@ -27,7 +28,13 @@
         <script src="{% static 'datepicker/js/bootstrap-datepicker.min.js' %}"></script>
         <script src="{% static 'datepicker/js/locales/bootstrap-datepicker.eo.js' %}"></script>
         <script src="{% static 'js/ajax.js' %}"></script>
+        <script src="{% static 'maps/place-map.js' %}"></script>
 {% endblock extra_js %}
+{% block extra_head %}
+        <link rel="stylesheet" href="{{ MAPBOX_GL_CSS }}">
+        <script src="{{ MAPBOX_GL_JS }}"></script>
+        <script src="{% url 'gis_endpoints' %}?format=js&type=place"></script>
+{% endblock %}
 
 {% block page %}
     {% if view.role == roles.OWNER or user|is_supervisor_of:place %}
@@ -250,15 +257,15 @@
 
         <div class="col-xs-12 col-md-6 map">
         {# LOCATION ON WORLD MAP #}
-            <div class="embed-responsive embed-responsive-16by9"> {% comment %} responsive map height with constant ratio to map width {% endcomment %}
-                <iframe width="100%"
-                    frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
-                    src="https://www.openstreetmap.org/export/embed.html?bbox={{ place.bbox }}{% spaceless %}
-                            {% if user.is_authenticated and place.location and place.location_confidence > 1 %}
-                                &amp;marker={{ place.location.y|unlocalize }},{{ place.location.x|unlocalize }}
-                            {% endif %}
-                        {% endspaceless %}">
-                </iframe>
+            <div class="embed-responsive embed-responsive-16by9" id="map"
+                 {% if place_location.coords %}
+                    data-marker="{{ place_location.coords|geojsonfeature }}"
+                 {% endif %}
+                 {% if place_location.bounds %}
+                    data-bounds="{{ place_location.bounds|geojsonfeature }}"
+                 {% endif %}
+                 data-marker-type="{{ place_location.type }}">
+            {% comment %} responsive map height with constant ratio to map width {% endcomment %}
             </div>
         </div>
 

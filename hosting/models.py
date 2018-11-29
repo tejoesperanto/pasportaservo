@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.gis.db.models import PointField
+from django.contrib.gis.db.models import LineStringField, PointField
 from django.db import models, transaction
 from django.db.models import F, Q, Value as V
 from django.db.models.functions import Concat, Substr
@@ -25,6 +25,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from slugify import Slugify
 
 from core.utils import camel_case_split
+from maps import SRID
 
 from .fields import StyledEmailField, SuggestiveField
 from .gravatar import email_to_gravatar
@@ -62,6 +63,12 @@ PHONE_TYPE_CHOICES = (
     (HOME, _("home")),
     (WORK, _("work")),
     (FAX, _("fax")),
+)
+
+LOCATION_CITY, LOCATION_PROVINCE = 'C', 'P'
+WHEREABOUTS_TYPE_CHOICES = (
+    (LOCATION_CITY, _("City")),
+    (LOCATION_PROVINCE, _("State / Province")),
 )
 
 
@@ -614,7 +621,7 @@ class Place(TrackingModel, TimeStampedModel):
     country = CountryField(
         _("country"))
     location = PointField(
-        _("location"), srid=4326,
+        _("location"), srid=SRID,
         null=True, blank=True)
     location_confidence = models.PositiveSmallIntegerField(
         _("confidence"),
@@ -923,6 +930,47 @@ class Gender(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Whereabouts(models.Model):
+    type = models.CharField(
+        _("location type"),
+        max_length=1,
+        choices=WHEREABOUTS_TYPE_CHOICES)
+    name = models.CharField(
+        _("name"),
+        blank=False,
+        max_length=255,
+        help_text=_("Name in the official language, not in Esperanto (e.g.: Rotterdam)"))
+    state = models.CharField(
+        _("State / Province"),
+        blank=True,
+        max_length=70)
+    country = CountryField(
+        _("country"))
+    bbox = LineStringField(
+        _("bounding box"), srid=SRID,
+        help_text=_("Expected diagonal: south-west lon/lat, north-east lon/lat."))
+    center = PointField(
+        _("geographical center"), srid=SRID,
+        help_text=_("Expected: longitude/latitude position."))
+
+    class Meta:
+        verbose_name = pgettext_lazy("name::singular", "whereabouts")
+        verbose_name_plural = pgettext_lazy("name::plural", "whereabouts")
+
+    def __str__(self):
+        return str(_("Location of {landmark} ({state})")).format(
+            landmark=self.name,
+            state=", ".join(filter(None, [self.state, str(self.country.name)]))
+        )
+
+    def __repr__(self):
+        return "<{}: {} ~ SW{} NE{}>".format(
+            self.__class__.__name__,
+            ", ".join(filter(None, [self.name, self.state, self.country.name])),
+            self.bbox.coords[0], self.bbox.coords[1]
+        )
 
 
 class Condition(models.Model):

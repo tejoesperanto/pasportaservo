@@ -6,7 +6,8 @@ from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django.contrib.flatpages.models import FlatPage
 # from django.contrib.gis import admin as gis_admin
-from django.contrib.gis.db.models import PointField
+from django.contrib.gis.db.models import LineStringField, PointField
+from django.contrib.gis.forms import OSMWidget
 from django.core.cache import cache
 from django.db import models
 from django.urls import reverse
@@ -19,13 +20,13 @@ from core.models import Agreement
 from maps.widgets import AdminMapboxGlWidget
 
 from .admin_utils import (
-    CountryMentionedOnlyFilter, EmailValidityFilter,
-    PlaceHasLocationFilter, ProfileHasUserFilter, ShowConfirmedMixin,
-    ShowDeletedMixin, SupervisorFilter, VisibilityTargetFilter,
+    CountryMentionedOnlyFilter, EmailValidityFilter, PlaceHasLocationFilter,
+    ProfileHasUserFilter, ShowConfirmedMixin, ShowDeletedMixin,
+    SupervisorFilter, VisibilityTargetFilter, WhereaboutsAdminForm,
 )
 from .models import (
-    Condition, ContactPreference, Phone, Place,
-    Preferences, Profile, VisibilitySettings, Website,
+    Condition, ContactPreference, Phone, Place, Preferences,
+    Profile, VisibilitySettings, Website, Whereabouts,
 )
 from .widgets import AdminImageWithPreviewWidget
 
@@ -347,6 +348,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         'confirmed_on', 'checked_on', 'deleted_on', EmailValidityFilter, ProfileHasUserFilter,
     )
     date_hierarchy = 'birth_date'
+
     fields = (
         'user', 'title', 'first_name', 'last_name', 'names_inversed', 'birth_date',
         ('gender', 'pronoun'),
@@ -358,6 +360,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     formfield_overrides = {
         models.ImageField: {'widget': AdminImageWithPreviewWidget},
     }
+
     inlines = [VisibilityInLine, PreferencesInLine, PlaceInLine, ]
     # PhoneInLine]  # https://code.djangoproject.com/ticket/26819
 
@@ -411,6 +414,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         'confirmed_on', 'checked_on', 'in_book', 'available', PlaceHasLocationFilter, 'deleted_on',
         CountryMentionedOnlyFilter,
     )
+
     fields = (
         'owner', 'country', 'state_province', ('city', 'closest_city'), 'postcode', 'address',
         'location',
@@ -424,6 +428,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     }
     raw_id_fields = ('owner', 'authorized_users',)  # 'checked_by',)
     filter_horizontal = ('family_members',)
+
     inlines = [VisibilityInLine, ]
 
     def display_country(self, obj):
@@ -522,6 +527,20 @@ class PhoneAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         return '{country.code}: {country.name}'.format(country=obj.country)
     display_country.short_description = _("country")
     display_country.admin_order_field = 'country'
+
+
+@admin.register(Whereabouts)
+class WhereaboutsAdmin(admin.ModelAdmin):
+    list_display = ('name', 'state', 'country', 'type')
+    search_fields = ['name', 'state']
+    list_filter = (
+        'type', CountryMentionedOnlyFilter,
+    )
+    form = WhereaboutsAdminForm
+    fields = ('type', 'name', 'state', 'country', 'bbox')
+    formfield_overrides = {
+        LineStringField: {'widget': OSMWidget},
+    }
 
 
 @admin.register(Condition)

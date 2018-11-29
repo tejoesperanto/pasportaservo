@@ -2,6 +2,9 @@ from django import forms
 from django.conf import settings
 from django.contrib.gis.forms.widgets import BaseGeometryWidget
 from django.urls import reverse_lazy
+from django.utils.text import format_lazy
+
+from . import SRID
 
 
 class MapboxGlWidget(BaseGeometryWidget):
@@ -9,7 +12,7 @@ class MapboxGlWidget(BaseGeometryWidget):
     An OpenLayers/OpenStreetMap-based widget.
     """
     template_name = 'gis/mapbox-gl.html'
-    map_srid = 4326
+    map_srid = SRID
     default_lon = 5
     default_lat = 47
 
@@ -36,7 +39,7 @@ class MapboxGlWidget(BaseGeometryWidget):
             forms.Media(css=self.Media.css, js=self.Media.js)
             +
             forms.Media(js=(
-                '{}?format=js'.format(reverse_lazy('gis_endpoints')),
+                format_lazy('{}?format=js&type=widget', reverse_lazy('gis_endpoints')),
                 'maps/mapbox-gl-widget.js'))
         )
 

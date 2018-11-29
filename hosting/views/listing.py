@@ -1,3 +1,5 @@
+import json
+
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
 from django.db.models import Q
@@ -11,6 +13,7 @@ from django.views import generic
 from django_countries.fields import Country
 
 from core.auth import SUPERVISOR, AuthMixin
+from maps.utils import bufferize_country_boundaries
 
 from ..models import Place
 from ..utils import geocode
@@ -57,6 +60,7 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         in_book_status_filter = Q(in_book=True) & Q(visibility__visible_in_book=True)
         context['in_book_count'] = self.base_qs.filter(in_book_status_filter).count()
         context['not_in_book_count'] = self.base_qs.filter(~in_book_status_filter).count()
@@ -74,6 +78,11 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
         context['not_confirmed_count'] = context['place_count'] - context['confirmed_count']
         context['invalid_emails_count'] = self.base_qs.filter(
             owner__user__email__startswith=settings.INVALID_PREFIX).count()
+
+        coords = bufferize_country_boundaries(self.country.code)
+        if coords:
+            context['country_coordinates'] = json.dumps(coords)
+
         return context
 
 

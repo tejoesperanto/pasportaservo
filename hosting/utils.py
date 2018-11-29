@@ -11,9 +11,10 @@ import geocoder
 from pyuca import Collator
 
 from core.models import SiteConfiguration
+from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
 
 
-def geocode(query, country='', private=False, annotations=False):
+def geocode(query, country='', private=False, annotations=False, multiple=False):
     key = SiteConfiguration.get_solo().opencage_api_key
     lang = settings.LANGUAGE_CODE
     if not query:
@@ -25,10 +26,30 @@ def geocode(query, country='', private=False, annotations=False):
         params.update({'no_record': int(private)})
     if country:
         params.update({'countrycode': country})
-    result = geocoder.opencage(query, key=key, params=params)
+    result = geocoder.opencage(query, key=key, params=params, maxRows=15 if multiple else 1)
     logging.getLogger('PasportaServo.geo').debug(
         "Query: %s\n\tResult: %s\n\tConfidence: %d", query, result, result.confidence)
-    result.point = Point(result.xy, srid=4326) if result.xy else None
+    result.point = Point(result.xy, srid=SRID) if result.xy else None
+    return result
+
+
+def geocode_city(cityname, country, state_province=None):
+    if state_province:
+        attempts = (', '.join([cityname, state_province]), )
+        if country not in COUNTRIES_WITH_MANDATORY_REGION:
+            attempts += (cityname, )
+    else:
+        attempts = (cityname, )
+    for query in attempts:
+        result_set = geocode(query, country, multiple=True)
+        for result in result_set:
+            if result._components['_type'] in ('city', 'village') and result.bbox:
+                result.remaining_api_calls = result_set.remaining_api_calls
+                break
+        else:
+            result = None
+        if result:
+            break
     return result
 
 

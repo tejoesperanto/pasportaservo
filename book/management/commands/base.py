@@ -13,6 +13,7 @@ from django_countries import countries
 from pyuca import Collator
 
 from hosting.models import Place
+from maps import COUNTRIES_WITH_REGIONS
 
 c = Collator()
 
@@ -97,7 +98,7 @@ class LatexCommand(object):
             'places': self.get_objects(),
             'INVALID_PREFIX': settings.INVALID_PREFIX,
             'ADDRESS_ONLY': self.address_only,
-            'COUNTRIES_WITH_REGIONS': settings.COUNTRIES_WITH_REGIONS,
+            'COUNTRIES_WITH_REGIONS': COUNTRIES_WITH_REGIONS,
         }
 
     def render_tex(self, tmp, template_name):

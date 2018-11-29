@@ -3,14 +3,18 @@ from datetime import date
 
 from django import forms
 from django.contrib.auth import get_user_model
+from django.contrib.gis.geos import LineString, Point
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
+from django_countries.fields import Country
+
 from core.models import SiteConfiguration
+from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
 from maps.widgets import MapboxGlWidget
 
-from ..models import Place, Profile
-from ..utils import geocode
+from ..models import LOCATION_CITY, Place, Profile, Whereabouts
+from ..utils import geocode, geocode_city
 from ..validators import TooNearPastValidator
 
 User = get_user_model()
@@ -54,6 +58,11 @@ class PlaceForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         config = SiteConfiguration.get_solo()
+
+        if cleaned_data.get('country') in COUNTRIES_WITH_MANDATORY_REGION and not cleaned_data.get('state_province'):
+            # Verifies that the region is indeed indicated when it is mandatory.
+            message = _("For an address in {country}, the name of the state or province must be indicated.")
+            self.add_error('state_province', format_lazy(message, country=Country(cleaned_data['country']).name))
 
         for_hosting = cleaned_data['available']
         for_meeting = cleaned_data['tour_guide'] or cleaned_data['have_a_drink']
@@ -142,6 +151,29 @@ class PlaceForm(forms.ModelForm):
                 # https://geocoder.opencagedata.com/api#confidence
                 place.location = location.point
             place.location_confidence = getattr(location, 'confidence', None) or 0
+
+            # Create a new geocoding of the user's city if we don't have it in the database yet.
+            geocities = Whereabouts.objects.filter(
+                type=LOCATION_CITY, name=self.cleaned_data['city'].upper(), country=self.cleaned_data['country'])
+            if self.cleaned_data['country'] in COUNTRIES_WITH_MANDATORY_REGION:
+                region = self.cleaned_data['state_province'].upper()
+                geocities = geocities.filter(state=region)
+            else:
+                region = ''
+            if not geocities.exists():
+                city_location = geocode_city(
+                    self.cleaned_data['city'],
+                    state_province=self.cleaned_data['state_province'],
+                    country=self.cleaned_data['country'])
+                if city_location:
+                    Whereabouts.objects.create(
+                        type=LOCATION_CITY,
+                        name=self.cleaned_data['city'].upper(),
+                        state=region,
+                        country=self.cleaned_data['country'],
+                        bbox=LineString(city_location.bbox['southwest'], city_location.bbox['northeast'], srid=SRID),
+                        center=Point(city_location.xy, srid=SRID),
+                    )
 
         if commit:
             place.save()

@@ -24,6 +24,7 @@ window.addEventListener("load", function() {
         container: 'map',
         style: GIS_ENDPOINTS['widget_style'],
         attributionControl: false,
+        pitchWithRotate: false,
         minZoom: 1,
         maxZoom: 17,
         zoom: initial ? 14 : 1.5,
