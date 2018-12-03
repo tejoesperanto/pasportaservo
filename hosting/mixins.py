@@ -28,14 +28,24 @@ class ProfileModifyMixin(object):
 class ProfileIsUserMixin(object):
     def dispatch(self, request, *args, **kwargs):
         try:
-            if not kwargs.get('auth_base').owner.user:
+            if not kwargs.get('auth_base').owner.user_id:
                 raise Http404("Detached profile (probably a family member).")
         except AttributeError:
             pass
         return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
-        profile = super().get_object(queryset)
+        try:
+            current_user_profile_pk = self.request.user.profile.pk
+        except Profile.DoesNotExist:
+            current_user_profile_pk = None
+        finally:
+            # When the profile-related View needs to show data of the current user, we already have
+            # the Profile object in `request.user.profile` and don't need to re-query the database.
+            if str(current_user_profile_pk) == str(self.kwargs['pk']):
+                profile = self.request.user.profile
+            else:
+                profile = super().get_object(queryset)
         if not profile.user_id:
             raise Http404("Detached profile (probably a family member).")
         return profile

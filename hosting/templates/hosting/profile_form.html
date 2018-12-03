@@ -3,7 +3,7 @@
 
 {% block head_title %}
     {% if view.role >= roles.SUPERVISOR and profile %}
-        {% if profile.user %}
+        {% if profile.user_id %}
             {% trans "Update user's details" %}{% if profile.name %}: {{ profile.name }} {% else %} #{{ profile.id }} {% endif %}
         {% else %}
             {% trans "Update a family member" %}

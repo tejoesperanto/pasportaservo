@@ -37,7 +37,7 @@
 {% endblock %}
 
 {% block confirm_buttons %}
-    {% if not profile.user %}
+    {% if not profile.user_id %}
         <a href="{% url 'family_member_delete' place.pk profile.pk %}" class="btn btn-danger btn-vert-space" title="{% trans "Delete profile" %}"
            {% if view.other_places %}disabled{% endif %}>
             <span class="fa fa-trash-o" aria-hidden="true"></span>
