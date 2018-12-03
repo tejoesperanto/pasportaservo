@@ -3,7 +3,7 @@
 
 {% block head_title %}
     {% trans "Restore profile" %}
-    {% if view.role >= roles.SUPERVISOR and profile.user %} ({{ profile.name|default:profile.INCOGNITO }}) {% endif %}
+    {% if view.role >= roles.SUPERVISOR and profile.user_id %} ({{ profile.name|default:profile.INCOGNITO }}) {% endif %}
 {% endblock %}
 
 {% block confirmation %}

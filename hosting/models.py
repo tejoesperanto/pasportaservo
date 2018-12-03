@@ -430,7 +430,7 @@ class Profile(TrackingModel, TimeStampedModel):
         if not template:
             template.append((
                 template_username,
-                self.user.username.title() if self.user else ('--' if non_empty else " ")
+                self.user.username.title() if self.user_id else ('--' if non_empty else " ")
             ))
         output = [format_html(t, q=mark_safe(quote), name=n) for (t, n) in template]
         if self.names_inversed:
