@@ -5,7 +5,7 @@
     {# Confirmation is displayed both for deletion of regular profiles and of family member profiles. #}
     {% if view.role == roles.OWNER and profile == user.profile %}&#9872;{% endif %}
     {% trans "Delete profile" %}
-    {% if view.role >= roles.SUPERVISOR and profile.user %} ({{ profile.name|default:profile.INCOGNITO }}) {% endif %}
+    {% if view.role >= roles.SUPERVISOR and profile.user_id %} ({{ profile.name|default:profile.INCOGNITO }}) {% endif %}
 {% endblock %}
 
 {% block confirmation %}
@@ -14,7 +14,7 @@
     {% else %}
         {% trans "this " as kin %}
     {% endif %}
-    {% if profile.user %}
+    {% if profile.user_id %}
         <span class="fa fa-exclamation-circle" aria-label="{% trans "Warning " context 'Title' %}" style="transform: rotate(-10deg)"></span>&nbsp;
         {% blocktrans trimmed %}
             Are you sure you want to delete {{ kin }}profile and all linked data (place, phone…)?
@@ -24,16 +24,16 @@
     {% endif %}
 {% endblock %}
 
-{% block form_confirm_button_class %}{% if profile.user %}btn-danger{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block form_confirm_button_class %}{% if profile.user_id %}btn-danger{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block extra_details %}
     {% if places %}<br />{% endif %}
-    {% if view.role >= roles.SUPERVISOR or not profile.user %}
+    {% if view.role >= roles.SUPERVISOR or not profile.user_id %}
             {{ profile.get_fullname_always_display }}
     {% endif %}
 {% endblock %}
 {% block extra_details_class %}{% spaceless %}
-    {% if view.role >= roles.SUPERVISOR or not profile.user %}
+    {% if view.role >= roles.SUPERVISOR or not profile.user_id %}
             person-full-name
     {% endif %}
 {% endspaceless %}{% endblock %}

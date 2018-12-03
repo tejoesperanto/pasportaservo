@@ -367,10 +367,13 @@ class EmailValidityMarkView(AuthMixin, ProfileIsUserMixin, generic.View):
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
+        # Spare the extra trip to the database to fetch the User object associated
+        # with the profile, just to retrieve the email address in that record.
+        email = User.objects.filter(pk=self.profile.user_id).values_list('email')
         if self.valid:
-            Profile.mark_valid_emails([self.profile.user.email])
+            Profile.mark_valid_emails(email)
         else:
-            Profile.mark_invalid_emails([self.profile.user.email])
+            Profile.mark_invalid_emails(email)
         if request.is_ajax():
             success_value = 'valid' if self.valid else 'invalid'
             return JsonResponse({'success': success_value})
