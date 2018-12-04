@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import (
     PasswordResetForm, SetPasswordForm, UserCreationForm,
 )
+from django.contrib.auth.hashers import UNUSABLE_PASSWORD_PREFIX
 from django.core.mail import send_mail
 from django.db.models import Q, Value as V
 from django.db.models.functions import Concat
@@ -162,7 +163,12 @@ class SystemPasswordResetRequestForm(PasswordResetForm):
             user.email = value_without_invalid_marker(user.email)
             return user
 
-        return map(remove_invalid_prefix, (u for u in lookup_users if u.has_usable_password()))
+        # All users should be able to reset their passwords regardless of the hashing (even when obsoleted),
+        # unless the password was forcefully set by an administrator as unusable to prevent logging in.
+        return map(remove_invalid_prefix, (
+            u for u in lookup_users
+            if u.password is not None and not u.password.startswith(UNUSABLE_PASSWORD_PREFIX)
+        ))
 
 
 class SystemPasswordResetForm(SetPasswordForm):
