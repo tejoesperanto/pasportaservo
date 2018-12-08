@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2018-10-19 04:42+0000\n"
+"POT-Revision-Date: 2018-12-08 14:04+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1449,6 +1449,9 @@ msgstr "mi gastigas"
 
 msgid "Sorry, no kind hosts found…"
 msgstr "Bedaŭrinde ni ne trovis gastigemulojn…"
+
+msgid "inactive hosts temporarily not shown"
+msgstr "neaktivaj gastigantoj momente ne estas montritaj"
 
 msgid "checked"
 msgid_plural "checked"

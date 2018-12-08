@@ -88,7 +88,7 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
 
 class SearchView(PlaceListView):
     queryset = Place.available_objects.filter(visibility__visible_online_public=True)
-    paginate_by = 20
+    paginate_by = 25
 
     def get(self, request, *args, **kwargs):
         def unwhitespace(val):
@@ -113,10 +113,13 @@ class SearchView(PlaceListView):
                             .annotate(distance=Distance('location', self.result.point))
                             .order_by('distance'))
             elif self.result.country:  # We assume it's a country
+                self.paginate_by = 50
+                self.paginate_orphans = 5
+                self.country_search = True
                 return (self.queryset
                             .filter(country=self.result.country_code.upper())
-                            .order_by('owner__user__last_login'))
-        return self.queryset.order_by('owner__user__last_login')
+                            .order_by('-owner__user__last_login'))
+        return self.queryset.order_by('-owner__user__last_login')
 
     def get_detail_queryset(self):
         if len(self.query) <= 3:

@@ -164,4 +164,9 @@
             </div>
         </div>
     {% endfor %}
+    {% if view.country_search and is_paginated %}
+        <small class="text-muted pull-right">
+            ({% trans "inactive hosts temporarily not shown" %})
+        </small>
+    {% endif %}
 {% endblock page %}
