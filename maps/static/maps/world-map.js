@@ -4,6 +4,38 @@
 
 window.addEventListener("load", function() {
 
+    // Test for WebGL availability first. Logic based on WebGLReport,
+    // https://github.com/AnalyticalGraphicsInc/webglreport/blob/master/webglreport.js
+    // (Copyright 2011-2017 Analytical Graphics, Inc. and Contributors)
+    function unhideElement(el) {
+        el.className = el.className.replace(/\bhidden\b/, '');
+    }
+    if (!window.WebGLRenderingContext && !window.WebGL2RenderingContext) {
+        unhideElement(document.getElementById('webgl-warning'));
+        unhideElement(document.getElementById('webgl-unavailable'));
+        return;
+    }
+    else {
+        var canvas = document.createElement('canvas');
+        canvas.style.width = 1;
+        canvas.style.height = 1;
+        document.body.appendChild(canvas);
+        var gl;
+        var possibleNames = ['webgl2', 'experimental-webgl2', 'webgl', 'experimental-webgl'];
+        for (var n = 0; n < possibleNames.length; n++) {
+            gl = canvas.getContext(possibleNames[n], { stencil: true });
+            if (!!gl)
+                break;
+        }
+        document.body.removeChild(canvas);
+        if (!gl) {
+            unhideElement(document.getElementById('webgl-warning'));
+            unhideElement(document.getElementById('webgl-disabled'));
+            return;
+        }
+    }
+    document.getElementById('webgl-warning').parentNode.removeChild(document.getElementById('webgl-warning'));
+
     mapboxgl.setRTLTextPlugin(GIS_ENDPOINTS['rtl_plugin']);
 
     var map = new mapboxgl.Map({

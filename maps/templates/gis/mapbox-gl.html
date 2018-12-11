@@ -21,6 +21,15 @@
 </style>
 
 <div id="map"></div>
+<noscript>
+    <style>#map { display: none; }</style>
+    <br />
+    <div class="alert alert-small alert-danger text-center">
+        {% trans "The map requires JavaScript and the WebGL technology." %}
+    </div>
+    <br />
+</noscript>
+
 <p class="{% if admin_site %}help{% else %}help-block{% endif %}">
     {% trans "Select manually the most suitable point on the map." %}
 </p>
