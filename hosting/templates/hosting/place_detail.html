@@ -257,16 +257,56 @@
 
         <div class="col-xs-12 col-md-6 map">
         {# LOCATION ON WORLD MAP #}
-            <div class="embed-responsive embed-responsive-16by9" id="map"
-                 {% if place_location.coords %}
-                    data-marker="{{ place_location.coords|geojsonfeature }}"
-                 {% endif %}
-                 {% if place_location.bounds %}
-                    data-bounds="{{ place_location.bounds|geojsonfeature }}"
-                 {% endif %}
-                 data-marker-type="{{ place_location.type }}">
-            {% comment %} responsive map height with constant ratio to map width {% endcomment %}
-            </div>
+            {% if not simple_map %}
+                <div class="embed-responsive embed-responsive-16by9" id="map"
+                     {% if place_location.coords %}
+                        data-marker="{{ place_location.coords|geojsonfeature }}"
+                     {% endif %}
+                     {% if place_location.bounds %}
+                        data-bounds="{{ place_location.bounds|geojsonfeature }}"
+                     {% endif %}
+                     data-marker-type="{{ place_location.type }}">
+                {% comment %} responsive map height with constant ratio to map width {% endcomment %}
+                </div>
+                <noscript>
+                    <style>#map { display: none; }</style>
+                    {% comment %} the static map will be displayed when scripting is not possible {% endcomment %}
+            {% endif %}
+                <img style="width: 100%" src="{% filter cut:'<>' %}{% spaceless %}{% localize off %}
+                        <>https://stadiamaps.com/static/osm_bright?<>
+                        {% if place_location.coords %}
+                            <>center={{ place_location.coords.y }},{{ place_location.coords.x }}<>
+                            <>&zoom=14<>
+                        {% elif place_location.bounds %}
+                            <>center={{ place_location.bounds.0.geom.y }},{{ place_location.bounds.0.geom.x }}<>
+                            <>&zoom=8<>
+                        {% else %}
+                            <>center=20,10<>
+                            <>&zoom=1<>
+                        {% endif %}
+                        <>&markers=<>
+                            {% if place_location.type == 'P' %}
+                                <>{{ place_location.coords.y }},{{ place_location.coords.x }},alidade_smooth<>
+                            {% endif %}
+                            {% if place_location.type == 'C' %}
+                                {% for y, x in place_location.box %}
+                                    <>{{ y }},{{ x }},osm_bright_sm,7f3a08|<>
+                                {% endfor %}
+                            {% endif %}
+                        <>&size=720x400@2x&manual_attribution=true<>
+                        {% endlocalize %}{% endspaceless %}{% endfilter %}" />
+            {% if not simple_map %}
+                </noscript>
+            {% endif %}
+            <form action="{% url 'map_type_setup' simple_map|yesno:'3,0' %}" method="POST" class="requires-scripting">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                <button type="submit" class="btn btn-default btn-xs btn-vert-space-even pull-right ajax"
+                        data-csrf="{{ csrf_token }}"
+                        data-on-ajax-success="setupMapStyleSuccess">
+                    {% if not simple_map %}{% trans "Use a simple map" %}{% else %}{% trans "Use a fully-capable map" %}{% endif %}
+                </button>
+            </form>
         </div>
 
         {% if user.is_authenticated %}

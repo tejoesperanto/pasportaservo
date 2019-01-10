@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2018-12-11 10:58+0000\n"
+"POT-Revision-Date: 2019-01-09 16:32+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1371,6 +1371,12 @@ msgstr "Mi ne troviĝas konstante ĉe tiu ĉi adreso; kontaktiĝu anticipe."
 msgid "Other dwellers at this place."
 msgstr "Mi havas kunloĝantojn."
 
+msgid "Use a simple map"
+msgstr "Uzi simplan mapon"
+
+msgid "Use a fully-capable map"
+msgstr "Uzi plene kapablan mapon"
+
 msgid "Show"
 msgstr "Montri"
 
@@ -2093,6 +2099,10 @@ msgstr ""
 msgctxt "URL"
 msgid "locations"
 msgstr "lokoj"
+
+msgctxt "URL"
+msgid "type"
+msgstr "speco"
 
 msgctxt "URL"
 msgid "collected-information"

@@ -5,6 +5,9 @@
 window.addEventListener("load", function() {
 
     var container = document.getElementById('map');
+    if (!container) {
+        return;
+    }
     var location = container.hasAttribute('data-marker') ? container.getAttribute('data-marker') : '';
     var locationType = container.getAttribute('data-marker-type') || 'R';
     try {

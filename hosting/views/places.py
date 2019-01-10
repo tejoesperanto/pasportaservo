@@ -1,3 +1,4 @@
+import decimal
 import logging
 import re
 from collections import namedtuple
@@ -89,17 +90,35 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
         context['register_form'] = UserRegistrationForm
         context['place_location'] = self.calculate_position()
         context['blocking'] = self.calculate_blocking(self.object)
+        context['simple_map'] = self.request.COOKIES.get('maptype') == '0'
         return context
 
     def calculate_position(self):
         place = self.object
         is_authenticated = self.request.user.is_authenticated
 
-        location = None
+        location, location_box = None, None
         bounds = None
-        location_truncate = lambda loc: (
-            Point(round(loc.x, 2), round(loc.y, 3), srid=SRID) if loc and not loc.empty else None
-        )
+
+        def location_enclose(loc):
+            if not loc or loc.empty:
+                return None
+            lat_buffer = 0.002 if -70 <= loc.y <= 70 else 0.001
+            precision = decimal.Decimal('0.001')  # Three decimal places.
+            return list(
+                (
+                    decimal.Decimal(loc.y + dy).quantize(precision),
+                    decimal.Decimal(loc.x + dx).quantize(precision)
+                )
+                for (dy, dx) in [
+                    [+lat_buffer, +0.005], [+lat_buffer, +0.002], [+lat_buffer, -0.002], [+lat_buffer, -0.005],
+                    [+0.000, +0.005], [+0.000, -0.005],
+                    [-lat_buffer, -0.005], [-lat_buffer, -0.002], [-lat_buffer, +0.002], [-lat_buffer, +0.005],
+                ]
+            )
+
+        def location_truncate(loc):
+            return Point(round(loc.x, 2), round(loc.y, 3), srid=SRID) if loc and not loc.empty else None
 
         if place.available:
             if self.verbose_view:
@@ -107,10 +126,12 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
                 location_type = 'P'  # = Point.
             elif is_authenticated:
                 location = location_truncate(place.location)
+                location_box = location_enclose(location)
                 location_type = 'C'  # = Circle.
         elif place.owner_available:
             if self.verbose_view and place.location and place.location_confidence >= 8:
                 location = location_truncate(place.location)
+                location_box = location_enclose(location)
                 location_type = 'C'  # = Circle.
 
         if (location is None or location.empty) and is_authenticated:
@@ -140,7 +161,7 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
                     {'geom': LineString(coords['bbox']['southwest'], coords['bbox']['northeast'], srid=SRID)},
                 ]
 
-        return {'coords': location, 'type': location_type, 'bounds': bounds}
+        return {'coords': location, 'box': location_box, 'type': location_type, 'bounds': bounds}
 
     @staticmethod
     def calculate_blocking(place):

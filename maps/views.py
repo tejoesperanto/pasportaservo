@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views import generic
@@ -19,6 +19,24 @@ HOURS = 3600
 
 class WorldMapView(generic.TemplateView):
     template_name = 'maps/world_map.html'
+
+
+class MapTypeConfigureView(generic.View):
+    """
+    Allows the current user to configure the type of the maps displayed on the website for the
+    current session, i.e. not persisted for the account and not shared between the sessions.
+    Currently two types are supported: fully-functional (requires WebGL) and basic (static image).
+    """
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        map_type = kwargs.pop('map_type')
+        if request.is_ajax():
+            response = JsonResponse({'success': 'map-type-configured'})
+        else:
+            response = HttpResponseRedirect(request.POST.get('next') or reverse_lazy('home'))
+        response.set_cookie('maptype', map_type, max_age=31557600)
+        return response
 
 
 class EndpointsView(generic.View):
@@ -75,6 +93,9 @@ class MapStyleView(generic.TemplateView):
 
 
 class PlottablePlace(Place):
+    """
+    Wrapper around the Place to provide additional properties we want to show on map.
+    """
     class Meta:
         proxy = True
 
