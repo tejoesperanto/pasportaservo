@@ -44,23 +44,33 @@ class Command(BaseCommand):
         )
 
         success_counter = 0
+        mapped_set = set()
         for place in city_list:
-            city_location = geocode_city(place.city, state_province=place.state_province, country=place.country.code)
-            if city_location:
-                whereabouts = Whereabouts.objects.create(
-                    type=LOCATION_CITY,
-                    name=place.city.upper(),
-                    state=place.state_province.upper() if place.country in COUNTRIES_WITH_MANDATORY_REGION else '',
-                    country=place.country,
-                    bbox=LineString(city_location.bbox['southwest'], city_location.bbox['northeast'], srid=SRID),
-                    center=Point(city_location.xy, srid=SRID),
-                )
-                if self.verbosity >= 2:
-                    self.stdout.write("+ Mapped {!r}".format(whereabouts))
-                success_counter += 1
+            if place.city_lookup not in mapped_set:
+                city_location = geocode_city(
+                    place.city, state_province=place.state_province, country=place.country.code)
+                if city_location:
+                    whereabouts = Whereabouts.objects.create(
+                        type=LOCATION_CITY,
+                        name=place.city.upper(),
+                        state=place.state_province.upper() if place.country in COUNTRIES_WITH_MANDATORY_REGION else '',
+                        country=place.country,
+                        bbox=LineString(city_location.bbox['southwest'], city_location.bbox['northeast'], srid=SRID),
+                        center=Point(city_location.xy, srid=SRID),
+                    )
+                    if self.verbosity >= 2:
+                        self.stdout.write("+ Mapped {!r}".format(whereabouts))
+                    success_counter += 1
+                else:
+                    if self.verbosity >= 2:
+                        self.stdout.write("- {city} ({country}) could not be mapped".format(
+                            city=place.city, country=place.country
+                        ))
+                mapped_set.add(place.city_lookup)
             else:
-                if self.verbosity >= 2:
-                    self.stdout.write("- {city} ({country}) could not be mapped".format(
+                city_location = None
+                if self.verbosity >= 3:
+                    self.stdout.write("* {city} ({country}) skipped (already processed in this session)".format(
                         city=place.city, country=place.country
                     ))
 
