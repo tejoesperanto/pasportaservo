@@ -120,15 +120,15 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
         def location_truncate(loc):
             return Point(round(loc.x, 2), round(loc.y, 3), srid=SRID) if loc and not loc.empty else None
 
-        if place.available:
+        if place.available and is_authenticated:
             if self.verbose_view:
                 location = place.location
                 location_type = 'P'  # = Point.
-            elif is_authenticated:
+            else:
                 location = location_truncate(place.location)
                 location_box = location_enclose(location)
                 location_type = 'C'  # = Circle.
-        elif place.owner_available:
+        elif place.owner_available and is_authenticated:
             if self.verbose_view and place.location and place.location_confidence >= 8:
                 location = location_truncate(place.location)
                 location_box = location_enclose(location)
@@ -265,6 +265,8 @@ class PlaceDetailVerboseView(PlaceDetailView):
                     dict(context, object_name=self.object._meta.verbose_name), **response_kwargs
                 )
         # Automatically redirect the user to the scarce view if permission to details not granted.
+        # Non-authenticated user is a special case: we will just show the login/registration snippet,
+        # becase we don't want to disclose too much information about the viewing settings.
         cases = [
             self.role >= OWNER,
             not self.request.user.is_authenticated,
