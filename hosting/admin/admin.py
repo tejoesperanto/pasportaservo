@@ -28,7 +28,7 @@ from .filters import (
     ProfileHasUserFilter, SupervisorFilter, VisibilityTargetFilter,
 )
 from .forms import WhereaboutsAdminForm
-from .mixins import ShowConfirmedMixin, ShowDeletedMixin
+from .mixins import ShowConfirmedMixin, ShowCountryMixin, ShowDeletedMixin
 from .widgets import AdminImageWithPreviewWidget
 
 admin.site.index_template = 'admin/custom_index.html'
@@ -223,7 +223,7 @@ class AgreementAdmin(admin.ModelAdmin):
         except AttributeError:
             return format_html('{userid} <sup>?</sup>', userid=obj.user_id)
     user_link.short_description = _("user")
-    user_link.admin_order_field = 'user'
+    user_link.admin_order_field = 'user__username'
 
     def policy_link(self, obj):
         try:
@@ -338,7 +338,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         'id', '__str__', 'title', 'first_name', 'last_name',
         'birth_date',  # 'avatar', 'description',
         'user__email', 'user_link',
-        'confirmed_on', 'checked_by', 'is_deleted', 'modified',
+        'confirmed_on', 'checked_by__name', 'is_deleted', 'modified',
     )
     list_display_links = ('id', '__str__')
     search_fields = [
@@ -384,7 +384,15 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         except AttributeError:
             return '-'
     user_link.short_description = _("user")
-    user_link.admin_order_field = 'user'
+    user_link.admin_order_field = 'user__username'
+
+    def checked_by__name(self, obj):
+        try:
+            return obj.checked_by.username
+        except AttributeError:
+            return '-'
+    checked_by__name.short_description = _("approved by")
+    checked_by__name.admin_order_field = 'checked_by__username'
 
     def supervisor(self, obj):
         country_list = CustomGroupAdmin.CountryGroup.objects.filter(user__pk=obj.user_id if obj.user_id else -1)
@@ -399,17 +407,17 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
 
 
 @admin.register(Place)
-class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
+class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.ModelAdmin):
     list_display = (
-        'city', 'postcode', 'state_province', 'display_country',
+        'id', 'city', 'postcode', 'state_province', 'display_country',
         'display_location',
         # 'max_host', 'max_night', 'contact_before',
         'available', 'in_book',
         'owner_link',
-        'confirmed_on', 'checked_by', 'is_deleted', 'modified',
+        'confirmed_on', 'checked_by__name', 'is_deleted', 'modified',
     )
     list_display_links = (
-        'city', 'state_province', 'display_country',
+        'id', 'city', 'state_province', 'display_country',
     )
     search_fields = [
         'address', 'city', 'postcode', 'country', 'state_province',
@@ -444,11 +452,6 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
 
     inlines = [VisibilityInLine, ]
 
-    def display_country(self, obj):
-        return '{country.code}: {country.name}'.format(country=obj.country)
-    display_country.short_description = _("country")
-    display_country.admin_order_field = 'country'
-
     def display_location(self, obj):
         return (
             ' '.join([
@@ -463,7 +466,15 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     def owner_link(self, obj):
         return format_html('<a href="{url}">{name}</a>', url=obj.owner.get_admin_url(), name=obj.owner)
     owner_link.short_description = _("owner")
-    owner_link.admin_order_field = 'owner'
+    owner_link.admin_order_field = 'owner__first_name'  # Expressions are available only in Django>=2.1
+
+    def checked_by__name(self, obj):
+        try:
+            return obj.checked_by.username
+        except AttributeError:
+            return '-'
+    checked_by__name.short_description = _("approved by")
+    checked_by__name.admin_order_field = 'checked_by__username'
 
     class FamilyMember(Profile):
         class Meta:
@@ -510,10 +521,10 @@ class PlaceAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
 
 
 @admin.register(Phone)
-class PhoneAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
+class PhoneAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.ModelAdmin):
     list_display = ('number_intl', 'profile_link', 'country_code', 'display_country', 'type', 'is_deleted')
     list_select_related = ('profile__user',)
-    search_fields = ['number', 'country']
+    search_fields = ['number', 'country', 'profile__first_name', 'profile__last_name']
     list_filter = ('type', 'deleted_on', CountryMentionedOnlyFilter)
 
     fieldsets = (
@@ -533,21 +544,16 @@ class PhoneAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     def profile_link(self, obj):
         return format_html('<a href="{url}">{name}</a>', url=obj.profile.get_admin_url(), name=obj.profile)
     profile_link.short_description = _("profile")
-    profile_link.admin_order_field = 'profile'
+    profile_link.admin_order_field = 'profile__first_name'  # Expressions are available only in Django>=2.1
 
     def country_code(self, obj):
         return obj.number.country_code
     country_code.short_description = _("country code")
 
-    def display_country(self, obj):
-        return '{country.code}: {country.name}'.format(country=obj.country)
-    display_country.short_description = _("country")
-    display_country.admin_order_field = 'country'
-
 
 @admin.register(Whereabouts)
-class WhereaboutsAdmin(admin.ModelAdmin):
-    list_display = ('name', 'state', 'country', 'type')
+class WhereaboutsAdmin(ShowCountryMixin, admin.ModelAdmin):
+    list_display = ('name', 'state', 'display_country', 'type')
     search_fields = ['name', 'state']
     list_filter = (
         'type', CountryMentionedOnlyFilter,

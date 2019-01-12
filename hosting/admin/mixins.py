@@ -5,6 +5,14 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 
+class ShowCountryMixin(object):
+    def display_country(self, obj):
+        return '{country.code}: {country.name}'.format(country=obj.country)
+
+    display_country.short_description = _("country")
+    display_country.admin_order_field = 'country'
+
+
 class ShowConfirmedMixin(object):
     def display_confirmed(self, obj):
         return format_html(
