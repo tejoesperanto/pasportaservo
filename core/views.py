@@ -29,7 +29,7 @@ from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 from django.views import generic
 from django.views.decorators.vary import vary_on_headers
 
-from markdown2 import markdown
+from commonmark import commonmark
 
 from blog.models import Post
 from core.models import Policy
@@ -397,7 +397,7 @@ class MassMailView(AuthMixin, generic.FormView):
 
     def form_valid(self, form):
         body = form.cleaned_data['body']
-        md_body = markdown(body)
+        md_body = commonmark(body)
         subject = form.cleaned_data['subject']
         preheader = form.cleaned_data['preheader']
         heading = form.cleaned_data['heading']
