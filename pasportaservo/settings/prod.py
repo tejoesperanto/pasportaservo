@@ -18,6 +18,7 @@ EMAIL_SUBJECT_PREFIX = '[PS] '
 
 ALLOWED_HOSTS = [
     'pasportaservo.org',
+    'www.pasportaservo.org',
 ]
 
 SECURE_SSL_REDIRECT = True
