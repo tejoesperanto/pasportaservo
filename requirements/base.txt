@@ -1,12 +1,13 @@
-Django==1.11.10
+Django==1.11.18
 psycopg2==2.7.3.1
 Pillow==4.2.1
 
 awesome-slugify==1.6.5
+commonmark==0.8.1
 csscompressor==0.9.5
 django-braces==1.11.0
 django-bootstrap-form==3.3
-djangocodemirror==1.1.0
+djangocodemirror==2.0.0
 django-compressor==2.2
 django-countries==4.6.2
 django-dnt==0.2.0
@@ -21,7 +22,6 @@ django-geojson==2.11.0
 geocoder==1.38.1
 geojson==2.4.0
 itsdangerous==0.24
-markdown2==2.3.4
 sendgrid-django==2.0.0
 pyuca==1.2
 

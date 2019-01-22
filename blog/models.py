@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from django_extensions.db.models import TimeStampedModel
-from markdown2 import markdown
+from commonmark import commonmark
 from simplemde.fields import SimpleMDEField
 
 
@@ -75,7 +75,7 @@ class Post(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         content = self.content.split("----", 1)
-        self.body = markdown("".join(content))
-        self.description = markdown(content[0])
+        self.body = commonmark("".join(content))
+        self.description = commonmark(content[0])
         return super().save(*args, **kwargs)
     save.alters_data = True
