@@ -3,7 +3,8 @@ from django.utils.text import format_lazy
 from django.utils.translation import pgettext_lazy
 
 from .views import (
-    CountryDataView, EndpointsView, MapStyleView, PublicDataView, WorldMapView,
+    CountryDataView, EndpointsView, MapStyleView,
+    MapTypeConfigureView, PublicDataView, WorldMapView,
 )
 
 urlpatterns = [
@@ -15,5 +16,10 @@ urlpatterns = [
             book=pgettext_lazy("URL", 'book'), places=pgettext_lazy("URL", 'locations')),
         CountryDataView.as_view(), name='country_map_data'),
     url(r'^(?P<style>\w+)-gl-style\.json$', MapStyleView.as_view(), name='map_style'),
+
     url(r'^$', WorldMapView.as_view(), name='world_map'),
+
+    url(format_lazy(r'^{type}\:(?P<map_type>(0|3))/$', type=pgettext_lazy("URL", 'type')),
+        MapTypeConfigureView.as_view(),
+        name='map_type_setup'),
 ]

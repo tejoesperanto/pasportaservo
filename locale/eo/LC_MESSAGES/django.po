@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2018-12-08 14:04+0000\n"
+"POT-Revision-Date: 2019-01-09 16:32+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1371,6 +1371,12 @@ msgstr "Mi ne troviĝas konstante ĉe tiu ĉi adreso; kontaktiĝu anticipe."
 msgid "Other dwellers at this place."
 msgstr "Mi havas kunloĝantojn."
 
+msgid "Use a simple map"
+msgstr "Uzi simplan mapon"
+
+msgid "Use a fully-capable map"
+msgstr "Uzi plene kapablan mapon"
+
 msgid "Show"
 msgstr "Montri"
 
@@ -2054,6 +2060,9 @@ msgstr ""
 msgid "You've been automatically logged in. Happy editing!"
 msgstr "Vi estas aŭtomate ensalutita. Bonan redaktadon!"
 
+msgid "The map requires JavaScript and the WebGL technology."
+msgstr "La mapo necesigas JavaSkripton kaj la teĥnologion WebGL."
+
 msgid "Select manually the most suitable point on the map."
 msgstr "Elektu permane la plej taŭgan punkton sur la mapo."
 
@@ -2064,9 +2073,36 @@ msgstr ""
 "Eblus registri la punkton kiam la distingivo de la mapo permesus "
 "distingeblajn distancojn de ĉirkaŭ 1km aŭ malpli."
 
+msgid "Map unfortunately cannot be displayed"
+msgstr "Mapo bedaŭrinde ne povas esti vidigita"
+
+msgid "Your browser does not support the WebGL technology."
+msgstr "Via retumilo ne subtenas la teĥnologion WebGL."
+
+msgid ""
+"Your browser supports the WebGL technology, but it is disabled or cannot be "
+"used on this system. Please check the configuration of your browser. This "
+"could also be caused by incompatible or old video drivers."
+msgstr ""
+"Via retumilo subtenas la teĥnologion WebGL, sed ĝi estas malŝaltita aŭ ne "
+"povas esti bonorde uzita sur tiu ĉi sistemo. Bonvole kontrolu la agordojn de "
+"via retumilo. Tion povas kaŭzi ankaŭ malkongruaj aŭ eksdataj video-peliloj."
+
+#, python-format
+msgid ""
+"Visit <a href=\"%(url)s\">Get WebGL</a> to look for a solution, or try "
+"installing the latest version of the browser."
+msgstr ""
+"Vizitu <a href=\"%(url)s\">“Havigi WebGL”</a> por kontroli eblajn solvojn "
+"(en la angla lingvo), aŭ provu instali la plej lastan version de la retumilo."
+
 msgctxt "URL"
 msgid "locations"
 msgstr "lokoj"
+
+msgctxt "URL"
+msgid "type"
+msgstr "speco"
 
 msgctxt "URL"
 msgid "collected-information"

@@ -229,6 +229,10 @@ $(document).ready(function() {
         $this.remove();
     };
 
+    window.setupMapStyleSuccess = function($this) {
+        window.location.reload();
+    };
+
 });
 
 

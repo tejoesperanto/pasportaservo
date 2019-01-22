@@ -47,8 +47,7 @@
     <h1 class="text-center" style="padding: 10px;">
         {{ view.country.name }}
         {% if country_coordinates %}
-            &nbsp;
-            <button class="btn btn-default collapsed" data-target="#map-container" data-toggle="collapse" aria-controls="map-container" aria-expanded="false" title="{% trans "Map of the country" %}">
+            <button class="btn btn-default collapsed requires-scripting" style="margin-left: 1em" data-target="#map-container" data-toggle="collapse" aria-controls="map-container" aria-expanded="false" title="{% trans "Map of the country" %}">
                 <span class="fa fa-lg fa-globe" aria-hidden="true"></span>
                 <span class="sr-only">{% trans "Map of the country" %}</span>
             </button>

@@ -13,6 +13,9 @@ body, .same-as-body {
     font-variant-caps: small-caps;
 }
 
+.requires-scripting {
+    display: none;
+}
 .edit-buttons {
     float: right;
     margin-bottom: 1em;
@@ -420,6 +423,9 @@ header:not(.home) #subtitle,
 }
 p.tip {
     font-size: 0.8em;
+}
+#map:not([role="main"]) {
+    background: url('/static/img/maps/map_loading_250.gif') no-repeat center/50% black;
 }
 .map .leaflet-container {
     min-height: 300px;

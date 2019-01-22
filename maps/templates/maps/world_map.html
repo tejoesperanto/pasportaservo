@@ -13,7 +13,48 @@
 {% endblock %}
 
 {% block pre-page %}
-    <div id="map" role="main" style="position: absolute; top: 52px; bottom: 0; width: 100%;"></div>
+    <div id="map" role="main" style="position: absolute; top: 52px; bottom: 0; width: 100%;">
+        <div class="container hidden" id="webgl-warning">
+            <div class="row" style="margin-top: 52px;">
+                <div class="col-xs-12 col-sm-8 col-sm-push-2 text-center">
+                    <div class="alert alert-small alert-danger">
+                        {% trans "Map unfortunately cannot be displayed" %}
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-8 col-sm-push-2 text-center hidden" id="webgl-unavailable">
+                    <p class="help-block">
+                        {% blocktrans trimmed %}
+                            Your browser does not support the WebGL technology.
+                        {% endblocktrans %}
+                    </p>
+                </div>
+                <div class="col-xs-12 col-sm-8 col-sm-push-2 text-center hidden" id="webgl-disabled">
+                    <p class="help-block">
+                        {% blocktrans trimmed %}
+                            Your browser supports the WebGL technology, but it is disabled or cannot be used on this system.
+                            Please check the configuration of your browser.
+                            This could also be caused by incompatible or old video drivers.
+                        {% endblocktrans %}
+                    </p>
+                </div>
+                <div class="col-xs-12 col-sm-8 col-sm-push-2 text-center" id="webgl-solution">
+                    <p class="help-block">
+                        {% blocktrans with url="https://get.webgl.org/" trimmed %}
+                            Visit <a href="{{ url }}">Get WebGL</a> to look for a solution,
+                            or try installing the latest version of the browser.
+                        {% endblocktrans %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <noscript>
+            <br />
+            <div class="alert alert-small alert-danger text-center">
+                {% trans "The map requires JavaScript and the WebGL technology." %}
+            </div>
+            <br />
+        </noscript>
+    </div>
 {% endblock %}
 {% block page_role %}{# NONE: content is in pre-page. #}{% endblock %}
 

@@ -9,6 +9,9 @@ $(document).ready(function() {
         $(this).html($(this).html().replace(" [cxe] ", "@"));
     });
 
+    // Unhide elements that require JavaScript
+    $('.requires-scripting').show();
+
     // Lazy load images
     $('.lazy').addClass('loaded');
 
