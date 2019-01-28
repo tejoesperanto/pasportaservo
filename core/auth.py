@@ -8,7 +8,7 @@ from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.mixins import AccessMixin
 from django.contrib.auth.models import Group
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django.http import Http404
+from django.http import Http404, HttpResponseNotAllowed
 from django.utils.functional import keep_lazy_text
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
@@ -172,7 +172,7 @@ class AuthMixin(AccessMixin):
 
         def _dispatch_wrapper(wrapped_self, wrapped_request, *wrapped_args, **wrapped_kwargs):
             result = dispatch_func(wrapped_request, *wrapped_args, **wrapped_kwargs)
-            if not hasattr(wrapped_self, 'role'):
+            if not hasattr(wrapped_self, 'role') and not isinstance(result, HttpResponseNotAllowed):
                 warnings.warn(
                     "AuthMixin is present on the view {} but no authorization check was performed. "
                     "Check super() calls and order of inheritance.".format(self.__class__.__name__),
