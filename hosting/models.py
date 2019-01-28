@@ -96,6 +96,7 @@ class TrackingModel(models.Model):
 
     class Meta:
         abstract = True
+        base_manager_name = 'all_objects'
 
     def set_check_status(self, set_by_user, clear_only=False, commit=True):
         """
@@ -744,7 +745,17 @@ class Place(TrackingModel, TimeStampedModel):
         Cached QuerySet of family members.
         (Direct access to the field in templates re-queries the database.)
         """
-        return self.__dict__.setdefault('_family_cache', self.family_members.order_by('birth_date'))
+        cache_name = '_family_cache'
+        try:
+            cached_qs = self.__dict__[cache_name]
+        except KeyError:
+            try:
+                cached_qs = self._prefetched_objects_cache[self.family_members.prefetch_cache_name]
+            except (AttributeError, KeyError):
+                cached_qs = self.family_members.order_by('birth_date').select_related('user')
+            self.__dict__[cache_name] = cached_qs
+        finally:
+            return cached_qs
 
     @property
     def family_is_anonymous(self):

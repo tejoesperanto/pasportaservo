@@ -704,6 +704,9 @@ msgstr "objekto"
 msgid "email address"
 msgstr "retpoŝta adreso"
 
+msgid "approved by"
+msgstr "aprobita de"
+
 msgid "Conditions"
 msgstr "Kondiĉoj"
 
@@ -921,9 +924,6 @@ msgstr "forigita je"
 
 msgid "checked on"
 msgstr "kontrolita je"
-
-msgid "approved by"
-msgstr "aprobita de"
 
 msgid "content id"
 msgstr "enhava identigilo"
@@ -2150,6 +2150,9 @@ msgstr "^oftaj-demandoj/$"
 
 msgid "^supervisors/$"
 msgstr "^landaj-organizantoj/$"
+
+msgid "OK"
+msgstr "Enordas"
 
 msgid "Server error"
 msgstr "Servila eraro"

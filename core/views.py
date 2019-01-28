@@ -33,7 +33,7 @@ from commonmark import commonmark
 
 from blog.models import Post
 from core.models import Policy
-from hosting.mixins import ProfileIsUserMixin, ProfileModifyMixin
+from hosting.mixins import ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin
 from hosting.models import Phone, Place, Profile
 from hosting.utils import value_without_invalid_marker
 from links.utils import create_unique_url
@@ -334,14 +334,16 @@ class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
                 'pk': user.profile.pk, 'slug': user.profile.autoslug}))
 
 
-class EmailStaffUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, generic.UpdateView):
+class EmailStaffUpdateView(AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin, generic.UpdateView):
     """
     Allows supervisors to modify the email address for a user account.
     """
-    model = Profile
     template_name = 'core/system-email_form.html'
     form_class = EmailStaffUpdateForm
     minimum_role = SUPERVISOR
+
+    def get_queryset(self):
+        return super().get_queryset().select_related('user')
 
     def get_object(self, queryset=None):
         self.user = super().get_object(queryset).user
@@ -354,16 +356,19 @@ class EmailStaffUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, ge
         return context
 
 
-class EmailValidityMarkView(AuthMixin, ProfileIsUserMixin, generic.View):
+class EmailValidityMarkView(AuthMixin, ProfileIsUserMixin, ProfileMixin, generic.View):
     http_method_names = ['post']
-    template_name = '404.html'
+    template_name = '200.html'
     minimum_role = SUPERVISOR
     valid = False
 
     def dispatch(self, request, *args, **kwargs):
-        self.profile = get_object_or_404(Profile, pk=kwargs['pk'])
+        self.profile = self.get_object()
         kwargs['auth_base'] = self.profile
         return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return super().get_queryset().select_related(None)
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):

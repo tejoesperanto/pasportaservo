@@ -52,7 +52,7 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
     the requirements from hosts and guests.
     """
     http_method_names = ['post']
-    template_name = '404.html'
+    template_name = '200.html'
     minimum_role = SUPERVISOR
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')

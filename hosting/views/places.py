@@ -20,7 +20,7 @@ from django.views import generic
 
 from braces.views import FormInvalidMessageMixin
 
-from core.auth import ANONYMOUS, OWNER, SUPERVISOR, AuthMixin
+from core.auth import ANONYMOUS, OWNER, PERM_SUPERVISOR, SUPERVISOR, AuthMixin
 from core.forms import UserRegistrationForm
 from core.models import SiteConfiguration
 from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
@@ -80,13 +80,19 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
     Details about a place; allows also anonymous (unauthenticated) user access.
     For such users, the registration form will be displayed.
     """
-    model = Place
     minimum_role = ANONYMOUS
     verbose_view = False
 
+    def get_queryset(self):
+        related = ['owner', 'owner__user', 'visibility', 'family_members_visibility', 'owner__email_visibility']
+        qs = super().get_queryset().select_related(*related)
+        if self.request.user.has_perm(PERM_SUPERVISOR):
+            qs = qs.select_related('checked_by', 'checked_by__profile')
+        return qs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['owner_phones'] = self.object.owner.phones.filter(deleted=False)
+        context['owner_phones'] = self.object.owner.phones.filter(deleted=False).select_related('visibility')
         context['register_form'] = UserRegistrationForm
         context['place_location'] = self.calculate_position()
         context['blocking'] = self.calculate_blocking(self.object)

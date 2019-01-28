@@ -11,8 +11,28 @@ from .models import Phone, Place, Profile
 
 
 class ProfileMixin(object):
+    model = Profile
+
     def get_object(self, queryset=None):
-        return get_object_or_404(Profile, pk=self.kwargs['pk'])
+        try:
+            current_user_profile_pk = self.request.user.profile.pk
+        except Profile.DoesNotExist:
+            current_user_profile_pk = None
+        finally:
+            # When the profile-related View needs to show data of the current user, we already have
+            # the Profile object in `request.user.profile` and do not need to re-query the database.
+            if str(current_user_profile_pk) == str(self.kwargs['pk']):
+                profile = self.request.user.profile
+            else:
+                where_from = queryset if queryset is not None else self.get_queryset()
+                profile = get_object_or_404(where_from, pk=self.kwargs['pk'])
+        return profile
+
+    def get_queryset(self):
+        try:
+            return super().get_queryset()
+        except AttributeError:
+            return self.model._default_manager.all()
 
 
 class ProfileModifyMixin(object):
@@ -35,17 +55,7 @@ class ProfileIsUserMixin(object):
         return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
-        try:
-            current_user_profile_pk = self.request.user.profile.pk
-        except Profile.DoesNotExist:
-            current_user_profile_pk = None
-        finally:
-            # When the profile-related View needs to show data of the current user, we already have
-            # the Profile object in `request.user.profile` and don't need to re-query the database.
-            if str(current_user_profile_pk) == str(self.kwargs['pk']):
-                profile = self.request.user.profile
-            else:
-                profile = super().get_object(queryset)
+        profile = super().get_object(queryset)
         if not profile.user_id:
             raise Http404("Detached profile (probably a family member).")
         return profile
@@ -67,11 +77,20 @@ class CreateMixin(object):
 
 
 class PlaceMixin(object):
+    model = Place
+
     def get_object(self, queryset=None):
-        return get_object_or_404(Place, pk=self.kwargs['pk'])
+        where_from = queryset if queryset is not None else self.get_queryset()
+        return get_object_or_404(where_from, pk=self.kwargs['pk'])
 
     def get_location(self, object):
         return object.country
+
+    def get_queryset(self):
+        try:
+            return super().get_queryset()
+        except AttributeError:
+            return self.model._default_manager.all()
 
 
 class PlaceModifyMixin(object):
@@ -89,6 +108,8 @@ class PhoneMixin(object):
 
 
 class FamilyMemberMixin(object):
+    model = Profile
+
     def dispatch(self, request, *args, **kwargs):
         self.get_place()
         return super().dispatch(request, *args, **kwargs)
