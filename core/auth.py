@@ -52,7 +52,8 @@ class SupervisorAuthBackend(ModelBackend):
             user_countries = frozenset(Country(g.name) for g in user_groups if len(g.name) == 2)
             setattr(user_obj, cache_name, user_countries)
         supervised = getattr(user_obj, cache_name)
-        auth_log.debug("\tobject is %s", repr(obj))
+        if auth_log.getEffectiveLevel() == logging.DEBUG:
+            auth_log.debug("\tobject is %s", repr(obj))
         if obj is not None:
             if isinstance(obj, Country):
                 countries = [obj]
@@ -70,9 +71,10 @@ class SupervisorAuthBackend(ModelBackend):
                 raise ImproperlyConfigured(
                     "Supervisor check needs either a profile, a country, or a list of countries."
                 )
-            auth_log.debug(
-                "\t\trequested: %s supervised: %s\n\t\tresult: %s",
-                set(countries), set(supervised), set(supervised) & set(countries))
+            if auth_log.getEffectiveLevel() == logging.DEBUG:
+                auth_log.debug(
+                    "\t\trequested: %s supervised: %s\n\t\tresult: %s",
+                    set(countries), set(supervised), set(supervised) & set(countries))
             supervised = set(supervised) & set(countries)
         return supervised if code else [c.name for c in supervised]
 
@@ -89,9 +91,10 @@ class SupervisorAuthBackend(ModelBackend):
         Verify if this user has permission (to an optional object).
         Short-circuits when resposibility is not satisfied.
         """
-        auth_log.debug(
-            "checking permission:  %s [ %s ] for %s",
-            perm, user_obj, "%s %s" % ("object", repr(obj)) if obj else "any records")
+        if auth_log.getEffectiveLevel() == logging.DEBUG:
+            auth_log.debug(
+                "checking permission:  %s [ %s ] for %s",
+                perm, user_obj, "%s %s" % ("object", repr(obj)) if obj else "any records")
         if perm == PERM_SUPERVISOR and obj is not None:
             all_perms = self.get_all_permissions(user_obj, obj)
             allowed = any(self._perm_sv_particular_re.match(p) for p in all_perms)
@@ -124,7 +127,8 @@ class SupervisorAuthBackend(ModelBackend):
             if not hasattr(user_obj, cache_name):
                 auth_log.debug("\t\t ... storing in cache %s ... ", cache_name)
                 setattr(user_obj, cache_name, frozenset("%s.%s" % (PERM_SUPERVISOR, g) for g in groups))
-            auth_log.debug("\tUser's group perms:  %s", set(getattr(user_obj, cache_name)))
+            if auth_log.getEffectiveLevel() == logging.DEBUG:
+                auth_log.debug("\tUser's group perms:  %s", set(getattr(user_obj, cache_name)))
             if obj is None:
                 perms.update(getattr(user_obj, cache_name))
             else:

@@ -9,13 +9,11 @@ from ..mixins import (
     CreateMixin, DeleteMixin, FamilyMemberAuthMixin,
     FamilyMemberMixin, UpdateMixin,
 )
-from ..models import Profile
 
 
 class FamilyMemberCreateView(
         CreateMixin, AuthMixin, FamilyMemberMixin,
         generic.CreateView):
-    model = Profile
     form_class = FamilyMemberCreateForm
 
     def verify_anonymous_family(self):
@@ -46,7 +44,6 @@ class FamilyMemberCreateView(
 class FamilyMemberUpdateView(
         UpdateMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin,
         generic.UpdateView):
-    model = Profile
     form_class = FamilyMemberForm
 
     def get_form_kwargs(self):
@@ -61,7 +58,6 @@ class FamilyMemberRemoveView(
     """
     Removes the family member for the Place.
     """
-    model = Profile
     template_name = 'hosting/family_member_confirm_delete.html'
     minimum_role = OWNER
 
@@ -82,7 +78,6 @@ class FamilyMemberDeleteView(
     """
     Removes the family member for the Place and deletes the profile.
     """
-    model = Profile
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)

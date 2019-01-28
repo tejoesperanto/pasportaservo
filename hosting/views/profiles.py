@@ -4,6 +4,7 @@ from itertools import chain
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.db.models import Prefetch
 from django.db.models.functions import Trunc
 from django.forms import modelformset_factory
 from django.http import Http404, HttpResponseRedirect, JsonResponse, QueryDict
@@ -57,17 +58,15 @@ class ProfileCreateView(
 
 
 class ProfileUpdateView(
-        UpdateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, FormInvalidMessageMixin,
+        UpdateMixin, AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin, FormInvalidMessageMixin,
         generic.UpdateView):
-    model = Profile
     form_class = ProfileForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
 
 class ProfileDeleteView(
-        DeleteMixin, AuthMixin, ProfileIsUserMixin,
+        DeleteMixin, AuthMixin, ProfileIsUserMixin, ProfileMixin,
         generic.DeleteView):
-    model = Profile
     form_class = ProfileForm
     success_url = reverse_lazy('logout')
 
@@ -110,9 +109,8 @@ class ProfileDeleteView(
 
 
 class ProfileRestoreView(
-        AuthMixin, ProfileIsUserMixin, ProfileModifyMixin,
+        AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin,
         generic.DetailView):
-    model = Profile
     template_name = 'hosting/profile_confirm_restore.html'
     exact_role = ADMIN
 
@@ -181,13 +179,17 @@ class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
             return reverse_lazy('profile_create')
 
 
-class ProfileDetailView(AuthMixin, ProfileIsUserMixin, generic.DetailView):
-    model = Profile
+class ProfileDetailView(
+        AuthMixin, ProfileIsUserMixin, ProfileMixin,
+        generic.DetailView):
     public_view = True
     minimum_role = VISITOR
 
     def get_queryset(self):
-        return super().get_queryset().select_related('user')
+        qs = super().get_queryset().select_related('user', 'email_visibility')
+        if self.request.user.has_perm(PERM_SUPERVISOR):
+            qs = qs.select_related('checked_by', 'checked_by__profile')
+        return qs
 
     def get_object(self, queryset=None):
         profile = super().get_object(queryset)
@@ -197,12 +199,25 @@ class ProfileDetailView(AuthMixin, ProfileIsUserMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['places'] = self.object.owned_places.filter(deleted=False).prefetch_related('family_members')
+
+        display_places = self.object.owned_places.filter(deleted=False)
         if self.public_view:
-            context['places'] = context['places'].filter(visibility__visible_online_public=True)
+            display_places = display_places.filter(visibility__visible_online_public=True)
+        else:
+            family_members = Prefetch(
+                'family_members',
+                Profile.all_objects.order_by('birth_date').select_related('user'))
+            display_places = display_places.prefetch_related(family_members)
+        if self.request.user.has_perm(PERM_SUPERVISOR):
+            display_places = (display_places
+                              .select_related('checked_by', 'checked_by__profile')
+                              .defer('checked_by__profile__description'))
+        context['places'] = display_places.select_related('visibility')
+
         display_phones = self.object.phones.filter(deleted=False)
         context['phones'] = display_phones
-        context['phones_public'] = display_phones.filter(visibility__visible_online_public=True)
+        context['phones_public'] = display_phones.filter(visibility__visible_online_public=True).select_related(None)
+
         return context
 
 
@@ -240,8 +255,9 @@ class ProfileSettingsRedirectView(LoginRequiredMixin, generic.RedirectView):
             return reverse_lazy('profile_create')
 
 
-class ProfileEmailUpdateView(AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, generic.UpdateView):
-    model = Profile
+class ProfileEmailUpdateView(
+        AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin,
+        generic.UpdateView):
     template_name = 'hosting/profile-email_form.html'
     form_class = ProfileEmailUpdateForm
     minimum_role = OWNER

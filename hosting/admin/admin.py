@@ -325,6 +325,9 @@ class VisibilityAdmin(admin.ModelAdmin):
     content_object_link.short_description = _("object")
     content_object_link.admin_order_field = 'model_id'
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('content_object')
+
     def has_add_permission(self, request):
         return False
 
