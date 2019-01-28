@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-{% load i18n static compress sass_tags %}
+{% load i18n static compress sass_tags utils %}
 
 <html lang="eo">
     <head>
         <meta charset="utf-8">
-        <title>{% block head_title %}{% trans "Find accommodation" %}{% endblock %} {% block head_title_separator %}|{% endblock %} Pasporta Servo</title>
+        <title>{% filter compact %}
+            {% block head_title %}{% trans "Find accommodation" %}{% endblock %}
+            {% block head_title_separator %}|{% endblock %} Pasporta Servo
+        {% endfilter %}</title>
         <meta name="description" content="{% block head_description %}{% trans "Esperanto-hosts around the world" %}{% endblock %}">
 
         <link rel="shortcut icon"                           href="{% static 'img/marker/PS_favicon.ico' %}?v=1">
