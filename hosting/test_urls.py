@@ -1,14 +1,13 @@
-import pytest
-
-pytestmark = pytest.mark.django_db
+from django_webtest import WebTest
 
 
-def test_root(client):
-    response = client.get('/')
-    assert response.status_code == 200
+class UrlTests(WebTest):
 
+    def test_home(self):
+        response = self.app.get('/')
+        self.assertEqual(response.status_code, 200)
 
-def test_profile(client):
-    response = client.get('/profilo/', follow=True)
-    assert response.redirect_chain[0] == ('/ensaluti/?next=/profilo/', 302)
-    assert response.status_code == 200
+    def test_profile(self):
+        response = self.app.get('/profilo/')
+        self.assertEqual(response.location, '/ensaluti/?ps_m=/profilo/')
+        self.assertEqual(response.status_code, 302)

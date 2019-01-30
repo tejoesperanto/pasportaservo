@@ -7,26 +7,26 @@ from django.db.models import F, Case, When, DateTimeField
 
 
 def populate_tracking_fields(apps, schema_editor):
-    models = {}
-    models['Phones'] = apps.get_model('hosting', 'Phone')._default_manager.all()
-    models['Places'] = apps.get_model('hosting', 'Place')._default_manager.all()
-    models['Profiles'] = apps.get_model('hosting', 'Profile')._default_manager.all()
-    models['Websites'] = apps.get_model('hosting', 'Website')._default_manager.all()
+    managers = [
+        apps.get_model('hosting', 'Phone')._default_manager.all(),
+        apps.get_model('hosting', 'Place')._default_manager.all(),
+        apps.get_model('hosting', 'Profile')._default_manager.all(),
+        apps.get_model('hosting', 'Website')._default_manager.all(),
+    ]
 
-    for name, objects in models.items():
-        print(name)
-        print('  deleted: ', objects.update(
+    for objects in managers:
+        objects.update(
             deleted_on=Case(
                 When(deleted=False, then=None),
                 default=F('modified'),
                 output_field=DateTimeField())
-        ))
-        print('  checked: ', objects.update(
+        )
+        objects.update(
             checked_on=Case(
                 When(checked=False, then=None),
                 default=F('modified'),
                 output_field=DateTimeField())
-        ))
+        )
 
 
 def unpopulate_tracking_fields(apps, schema_editor):
