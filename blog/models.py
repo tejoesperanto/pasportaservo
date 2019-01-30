@@ -5,8 +5,8 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from django_extensions.db.models import TimeStampedModel
 from commonmark import commonmark
+from django_extensions.db.models import TimeStampedModel
 from simplemde.fields import SimpleMDEField
 
 
