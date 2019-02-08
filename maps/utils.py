@@ -7,9 +7,9 @@ def bufferize_country_boundaries(country_code):
     if country_code not in COUNTRIES_GEO:
         return None
     buffer = (
-        0.1 if country_code not in COUNTRIES_TINIEST
+        0 if country_code in COUNTRIES_WITH_NO_BUFFER
         else
-        (0.01 if country_code not in COUNTRIES_WITH_NO_BUFFER else 0)
+        (0.01 if country_code in COUNTRIES_TINIEST else 0.1)
     )
     precision = decimal.Decimal('0.001')  # Three decimal places.
     bbox = {

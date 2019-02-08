@@ -85,8 +85,7 @@ class DisplayGovernorNode(template.Node):
 def show_as_family_member(profile, for_role=None):
     return (
         (not profile.deleted)
-        or
-        (profile.deleted and for_role is not None and for_role >= SUPERVISOR)
+        or (profile.deleted and for_role is not None and for_role >= SUPERVISOR)
     )
 
 
@@ -94,6 +93,7 @@ def show_as_family_member(profile, for_role=None):
 def show_family_member_link(profile, for_role=None):
     return (
         profile.user_id
-        and
-        ((not profile.deleted) or (profile.deleted and for_role is not None and for_role >= SUPERVISOR))
+        and (
+            (not profile.deleted) or (profile.deleted and for_role is not None and for_role >= SUPERVISOR)
+        )
     )

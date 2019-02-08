@@ -37,8 +37,7 @@ class MapboxGlWidget(BaseGeometryWidget):
     def media(self):
         return (
             forms.Media(css=self.Media.css, js=self.Media.js)
-            +
-            forms.Media(js=(
+            + forms.Media(js=(
                 format_lazy('{}?format=js&type=widget', reverse_lazy('gis_endpoints')),
                 'maps/mapbox-gl-widget.js'))
         )

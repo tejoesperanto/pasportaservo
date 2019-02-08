@@ -86,6 +86,7 @@ class Command(BaseCommand):
             'BQ': 'NL',
             'CX': 'AU',
             'YT': 'FR',
+            'VI': 'VI',
         }
         # SPECIAL CASES:
         # k in ('AQ', 'AW', 'CC', 'CX', 'DJ', 'DM', 'GI', 'GP', 'HM', 'JE', 'MF', 'MO', 'PR', 'SX', 'TF', 'US', 'ZA')
@@ -104,22 +105,23 @@ class Command(BaseCommand):
                     multiple=True)
             pointed_result_index = None
             for j, res in enumerate(georesult):
-                if obj_type(res) == 'country' or country_code in autonomous_state_codes and obj_type(res) == 'state':
+                if (country_code not in autonomous_state_codes and obj_type(res) == 'country') \
+                        or (country_code in autonomous_state_codes and obj_type(res) == 'state'):
                     georesult.set_default_result(j)
                     pointed_result_index = j
                     break
             # When not found, search the world for the name of the country.
+            general_result_index = None
             if len(georesult) == 0 or pointed_result_index is None or not georesult.bbox:
                 georesult = geocode(str(COUNTRIES[country_code]), multiple=True)
-            general_result_index = None
-            if len(georesult) and obj_type(georesult) != 'country' and country_code != 'AQ':
-                for j, res in enumerate(georesult):
-                    if (obj_type(res) in ('country', 'state', 'county', 'island')
-                            and res._components.get('ISO_3166-1_alpha-2') == political_country_code):
-                        georesult.set_default_result(j)
-                        general_result_index = j
-                        if obj_type(res) == 'country':
-                            break
+                if len(georesult) and obj_type(georesult) != 'country' and country_code != 'AQ':
+                    for j, res in enumerate(georesult):
+                        if obj_type(res) in ('country', 'state', 'county', 'island') \
+                                and res._components.get('ISO_3166-1_alpha-2') == political_country_code:
+                            georesult.set_default_result(j)
+                            general_result_index = j
+                            if obj_type(res) == 'country':
+                                break
 
             # Output the query and search results on screen.
             if self.verbosity >= 2:
@@ -130,8 +132,8 @@ class Command(BaseCommand):
                     self.stdout.write("\t{code} ({name})".format(
                         code=political_country_code,
                         name=name_replacements.get(country_code, COUNTRIES[country_code])))
-                if (obj_type(georesult) == 'country' or
-                        obj_type(georesult) == 'state' and country_code in autonomous_state_codes):
+                if obj_type(georesult) == 'country' or \
+                        obj_type(georesult) == 'state' and country_code in autonomous_state_codes:
                     style = self.style.HTTP_INFO
                 elif obj_type(georesult) in ('state', 'county', 'island'):
                     style = self.style.NOTICE
@@ -394,13 +396,19 @@ def custom_calculation(country_code):
         set_coord(result, geocode('Duyên Hải Nam Trung Bộ', country='VN'), 'ne', 0)
         result.xy = [107.579167, 16.466667]
 
-    if country_code in ('CY', 'MY', 'PG', 'SY'):
+    if country_code in ('CY', 'JE', 'MY', 'PG', 'SY'):
         # For some countries, OpenCage for an unknown reason returns two results with
         # different bounding boxes (and one of them is usually incorrect or overly large).
         # In the case of Malaysia, we want both Peninsular and Malaysian Borneo regions.
         result = GeoResultStub(country_code)
         find_country(result, geocode(
-            {'CY': 'Cyprus', 'MY': 'Malaysia', 'PG': 'Papua New Guinea', 'SY': 'Syria'}[country_code],
+            {
+                'CY': 'Cyprus',
+                'JE': 'Jersey',
+                'MY': 'Malaysia',
+                'PG': 'Papua New Guinea',
+                'SY': 'Syria',
+            }[country_code],
             multiple=True))
 
     if result and not result.error and any(

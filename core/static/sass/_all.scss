@@ -725,6 +725,10 @@ footer {
 *[type="password"] + .progress,
 *[type="password"] + .popover + .progress {
     margin-top: 2px;
+    .progress-bar {
+        min-width: 0;
+        transition: min-width 0.6s ease, width 0.6s ease;
+    }
 }
 *[type="password"] + .progress .password-verdict,
 *[type="password"] + .popover + .progress .password-verdict {
