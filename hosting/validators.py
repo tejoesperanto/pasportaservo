@@ -144,7 +144,7 @@ def client_side_validated(form_class):
                             if len(constraint) != 1:
                                 raise ImproperlyConfigured
                             constraint = dict(constraint).popitem()
-                        except Exception as e:
+                        except Exception:
                             pass
                     if len(constraint) != 2:
                         raise ImproperlyConfigured(

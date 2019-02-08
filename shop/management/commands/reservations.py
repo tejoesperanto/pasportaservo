@@ -13,8 +13,8 @@ class Command(BaseCommand):
         book = Group.objects.get(name='libro2017')
         writer = csv.writer(f)
         users = (
-            User.objects.filter(groups__name='libro2017') &
-            User.objects.exclude(reservation__isnull=True)
+            User.objects.filter(groups__name='libro2017')
+            & User.objects.exclude(reservation__isnull=True)
         ).order_by('reservation__amount', 'first_name').distinct()
         for user in users:
             writer.writerow([

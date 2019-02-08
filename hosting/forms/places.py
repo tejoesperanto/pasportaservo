@@ -131,8 +131,8 @@ class PlaceForm(forms.ModelForm):
         place = super().save(commit=False)
 
         residence_change = ['country', 'state_province', 'city', 'postcode']
-        if (hasattr(self, 'instance') and
-                any(field in self.changed_data and field in self.cleaned_data for field in residence_change)):
+        if hasattr(self, 'instance') and \
+                any(field in self.changed_data and field in self.cleaned_data for field in residence_change):
             # When the user moves to a different country, state, or city their
             # previously saved location (geopoint) is not up-to-date anymore.
             place.location = None

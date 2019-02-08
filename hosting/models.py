@@ -516,8 +516,8 @@ class Profile(TrackingModel, TimeStampedModel):
         return '--'
 
     def __lt__(self, other):
-        return ((self.last_name < other.last_name) or
-                (self.last_name == other.last_name and self.first_name < other.first_name))
+        return ((self.last_name < other.last_name)
+                or (self.last_name == other.last_name and self.first_name < other.first_name))
 
     def __repr__(self):
         return "<{} #{}: {}>".format(self.__class__.__name__, self.id, self.__str__())

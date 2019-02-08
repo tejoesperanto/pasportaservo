@@ -199,9 +199,19 @@ $(function() {
                 userInputs: ['#id_username', '#id_email', '#id_old_password'],
                 zxcvbnTerms: ["pasporta", "servo", "saluton", "esperanto", "esperantist", "zamenhof", "pasvorto", "sekret"]
             },
+            rules: {
+                scores: {
+                    wordMaxLength: 2
+                },
+                activated: {
+                    wordMaxLength: true
+                }
+            },
             ui: {
+                bootstrap3: true,
                 showVerdictsInsideProgressBar: true,
-                progressBarMinPercentage: 15,
+                progressBarMinWidth: 55,
+                progressBarMinPercentage: 17,
                 progressBarEmptyPercentage: 0,
                 colorClasses: ['danger', 'danger', 'danger', 'warning', 'success', 'success']
             }
