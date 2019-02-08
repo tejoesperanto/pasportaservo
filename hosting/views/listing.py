@@ -125,9 +125,10 @@ class SearchView(PlaceListView):
         if len(self.query) <= 3:
             return self.queryset
         lookup = (
-            Q(owner__user__username__icontains=self.query) |
-            Q(owner__first_name__icontains=self.query) |
-            Q(owner__last_name__icontains=self.query) |
-            Q(closest_city__icontains=self.query)
+            Q()
+            | Q(owner__user__username__icontains=self.query)
+            | Q(owner__first_name__icontains=self.query)
+            | Q(owner__last_name__icontains=self.query)
+            | Q(closest_city__icontains=self.query)
         )
         return self.queryset.filter(lookup).select_related('owner__user')

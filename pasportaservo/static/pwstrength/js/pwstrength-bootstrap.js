@@ -1,6 +1,6 @@
 /*!
 * jQuery Password Strength plugin for Twitter Bootstrap
-* Version: 2.0.6
+* Version: 3.0.2
 *
 * Copyright (c) 2008-2013 Tane Piper
 * Copyright (c) 2013 Alejandro Blanco
@@ -19,7 +19,9 @@ var i18n = {};
     'use strict';
 
     i18n.fallback = {
-        "wordLength": "Your password is too short",
+        "wordMinLength": "Your password is too short",
+        "wordMaxLength": "Your password is too long",
+        "wordInvalidChar": "Your password contains an invalid character",
         "wordNotEmail": "Do not use your email as your password",
         "wordSimilarToUsername": "Your password cannot contain your username",
         "wordTwoCharacterClasses": "Use different character classes",
@@ -80,7 +82,7 @@ try {
         return 0;
     };
 
-    validation.wordLength = function (options, word, score) {
+    validation.wordMinLength = function (options, word, score) {
         var wordlen = word.length,
             lenScore = Math.pow(wordlen, options.rules.raisePower);
         if (wordlen < options.common.minChar) {
@@ -88,6 +90,31 @@ try {
         }
         return lenScore;
     };
+
+    validation.wordMaxLength = function (options, word, score) {
+        var wordlen = word.length,
+            lenScore = Math.pow(wordlen, options.rules.raisePower);
+        if (wordlen > options.common.maxChar) {
+            return score;
+        }
+        return lenScore;
+    };
+
+    validation.wordInvalidChar = function (options, word, score) {
+        if (options.common.invalidCharsRegExp.test(word)) {
+            return score;
+        }
+        return 0;
+    };
+
+    validation.wordMinLengthStaticScore = function (options, word, score) {
+        return word.length < options.common.minChar ? 0 : score;
+    };
+
+    validation.wordMaxLengthStaticScore = function (options, word, score) {
+        return word.length > options.common.maxChar ? 0 : score;
+    };
+
 
     validation.wordSimilarToUsername = function (options, word, score) {
         var username = $(options.common.usernameField).val();
@@ -167,6 +194,13 @@ try {
         return word.match(/([a-zA-Z0-9].*[!,@,#,$,%,\^,&,*,?,_,~])|([!,@,#,$,%,\^,&,*,?,_,~].*[a-zA-Z0-9])/) && score;
     };
 
+    validation.wordIsACommonPassword = function (options, word, score) {
+        if ($.inArray(word, options.rules.commonPasswords) >= 0) {
+            return score;
+        }
+        return 0;
+    };
+
     rulesEngine.validation = validation;
 
     rulesEngine.executeRules = function (options, word) {
@@ -198,10 +232,6 @@ try {
             }
         });
 
-        if ($.isFunction(options.common.onScore)) {
-            totalScore = options.common.onScore(options, word, totalScore);
-        }
-
         return totalScore;
     };
 }(jQuery, rulesEngine));
@@ -221,7 +251,9 @@ var defaultOptions = {};
 
 defaultOptions.common = {};
 defaultOptions.common.minChar = 6;
+defaultOptions.common.maxChar = 20;
 defaultOptions.common.usernameField = "#username";
+defaultOptions.common.invalidCharsRegExp = new RegExp(/[\s,'"]/);
 defaultOptions.common.userInputs = [
     // Selectors for input fields with user input
 ];
@@ -239,7 +271,9 @@ defaultOptions.rules = {};
 defaultOptions.rules.extra = {};
 defaultOptions.rules.scores = {
     wordNotEmail: -100,
-    wordLength: -50,
+    wordMinLength: -50,
+    wordMaxLength: -50,
+    wordInvalidChar: -100,
     wordSimilarToUsername: -100,
     wordSequences: -20,
     wordTwoCharacterClasses: 2,
@@ -252,15 +286,18 @@ defaultOptions.rules.scores = {
     wordTwoSpecialChar: 5,
     wordUpperLowerCombo: 2,
     wordLetterNumberCombo: 2,
-    wordLetterNumberCharCombo: 2
+    wordLetterNumberCharCombo: 2,
+    wordIsACommonPassword: -100
 };
 defaultOptions.rules.activated = {
     wordNotEmail: true,
-    wordLength: true,
+    wordMinLength: true,
+    wordMaxLength: false,
+    wordInvalidChar: false,
     wordSimilarToUsername: true,
     wordSequences: true,
-    wordTwoCharacterClasses: false,
-    wordRepetitions: false,
+    wordTwoCharacterClasses: true,
+    wordRepetitions: true,
     wordLowercase: true,
     wordUppercase: true,
     wordOneNumber: true,
@@ -269,19 +306,124 @@ defaultOptions.rules.activated = {
     wordTwoSpecialChar: true,
     wordUpperLowerCombo: true,
     wordLetterNumberCombo: true,
-    wordLetterNumberCharCombo: true
+    wordLetterNumberCharCombo: true,
+    wordIsACommonPassword: true
 };
 defaultOptions.rules.raisePower = 1.4;
+// List taken from https://github.com/danielmiessler/SecLists (MIT License)
+defaultOptions.rules.commonPasswords = [
+    '123456',
+    'password',
+    '12345678',
+    'qwerty',
+    '123456789',
+    '12345',
+    '1234',
+    '111111',
+    '1234567',
+    'dragon',
+    '123123',
+    'baseball',
+    'abc123',
+    'football',
+    'monkey',
+    'letmein',
+    '696969',
+    'shadow',
+    'master',
+    '666666',
+    'qwertyuiop',
+    '123321',
+    'mustang',
+    '1234567890',
+    'michael',
+    '654321',
+    'pussy',
+    'superman',
+    '1qaz2wsx',
+    '7777777',
+    'fuckyou',
+    '121212',
+    '000000',
+    'qazwsx',
+    '123qwe',
+    'killer',
+    'trustno1',
+    'jordan',
+    'jennifer',
+    'zxcvbnm',
+    'asdfgh',
+    'hunter',
+    'buster',
+    'soccer',
+    'harley',
+    'batman',
+    'andrew',
+    'tigger',
+    'sunshine',
+    'iloveyou',
+    'fuckme',
+    '2000',
+    'charlie',
+    'robert',
+    'thomas',
+    'hockey',
+    'ranger',
+    'daniel',
+    'starwars',
+    'klaster',
+    '112233',
+    'george',
+    'asshole',
+    'computer',
+    'michelle',
+    'jessica',
+    'pepper',
+    '1111',
+    'zxcvbn',
+    '555555',
+    '11111111',
+    '131313',
+    'freedom',
+    '777777',
+    'pass',
+    'fuck',
+    'maggie',
+    '159753',
+    'aaaaaa',
+    'ginger',
+    'princess',
+    'joshua',
+    'cheese',
+    'amanda',
+    'summer',
+    'love',
+    'ashley',
+    '6969',
+    'nicole',
+    'chelsea',
+    'biteme',
+    'matthew',
+    'access',
+    'yankees',
+    '987654321',
+    'dallas',
+    'austin',
+    'thunder',
+    'taylor',
+    'matrix'
+];
 
 defaultOptions.ui = {};
 defaultOptions.ui.bootstrap2 = false;
-defaultOptions.ui.bootstrap4 = false;
+defaultOptions.ui.bootstrap3 = false;
 defaultOptions.ui.colorClasses = [
     "danger", "danger", "danger", "warning", "warning", "success"
 ];
 defaultOptions.ui.showProgressBar = true;
 defaultOptions.ui.progressBarEmptyPercentage = 1;
 defaultOptions.ui.progressBarMinPercentage = 1;
+defaultOptions.ui.progressExtraCssClasses = '';
 defaultOptions.ui.progressBarExtraCssClasses = '';
 defaultOptions.ui.showPopover = false;
 defaultOptions.ui.popoverPlacement = "bottom";
@@ -391,7 +533,7 @@ var ui = {};
                 "'><div class='";
         } else {
             // Bootstrap 3 & 4
-            progressbar += "'><div class='" +
+            progressbar += options.ui.progressExtraCssClasses + "'><div class='" +
                 options.ui.progressBarExtraCssClasses + " progress-";
         }
         progressbar += "bar'>";
@@ -434,7 +576,12 @@ var ui = {};
     };
 
     ui.initPopover = function (options, $el) {
-        $el.popover("destroy");
+        try {
+            $el.popover("destroy");
+        } catch (error) {
+            // Bootstrap 4.2.X onwards
+            $el.popover("dispose");
+        }
         $el.popover({
             html: true,
             placement: options.ui.popoverPlacement,
@@ -471,16 +618,16 @@ var ui = {};
         }
 
         $.each(options.ui.colorClasses, function (idx, value) {
-            if (options.ui.bootstrap4) {
-                $bar.removeClass("bg-" + value);
-            } else {
+            if (options.ui.bootstrap2 || options.ui.bootstrap3) {
                 $bar.removeClass(cssPrefix + "bar-" + value);
+            } else {
+                $bar.removeClass("bg-" + value);
             }
         });
-        if (options.ui.bootstrap4) {
-            $bar.addClass("bg-" + options.ui.colorClasses[cssClass]);
-        } else {
+        if (options.ui.bootstrap2 || options.ui.bootstrap3) {
             $bar.addClass(cssPrefix + "bar-" + options.ui.colorClasses[cssClass]);
+        } else {
+            $bar.addClass("bg-" + options.ui.colorClasses[cssClass]);
         }
         $bar.css("width", percentage + '%');
     };
@@ -490,6 +637,9 @@ var ui = {};
         $verdict.removeClass(options.ui.colorClasses.join(' '));
         if (cssClass > -1) {
             $verdict.addClass(options.ui.colorClasses[cssClass]);
+        }
+        if (options.ui.showVerdictsInsideProgressBar) {
+            $verdict.css('white-space', 'nowrap');
         }
         $verdict.html(text);
     };
@@ -544,25 +694,44 @@ var ui = {};
             $el.find("+ .popover .popover-content").html(html);
         } else {
             // It's hidden
-            popover.options.content = html;
+            if (options.ui.bootstrap2 || options.ui.bootstrap3) {
+                popover.options.content = html;
+            } else {
+                popover.config.content = html;
+            }
             $el.popover("show");
         }
     };
 
     ui.updateFieldStatus = function (options, $el, cssClass, remove) {
-        var targetClass = options.ui.bootstrap2 ? ".control-group" : ".form-group",
-            $container = $el.parents(targetClass).first();
+        var $target = $el;
+
+        if (options.ui.bootstrap2) {
+            $target = $el.parents(".control-group").first();
+        } else if (options.ui.bootstrap3) {
+            $target = $el.parents(".form-group").first();
+        }
 
         $.each(statusClasses, function (idx, css) {
-            if (!options.ui.bootstrap2) { css = "has-" + css; }
-            $container.removeClass(css);
+            if (options.ui.bootstrap3) {
+                css = "has-" + css;
+            } else if (!options.ui.bootstrap2) { // BS4
+                if (css === "error") { css = "danger"; }
+                css = "border-" + css;
+            }
+            $target.removeClass(css);
         });
 
         if (remove) { return; }
 
-        cssClass = statusClasses[cssClass];
-        if (!options.ui.bootstrap2) { cssClass = "has-" + cssClass; }
-        $container.addClass(cssClass);
+        cssClass = statusClasses[Math.floor(cssClass / 2)];
+        if (options.ui.bootstrap3) {
+            cssClass = "has-" + cssClass;
+        } else if (!options.ui.bootstrap2) { // BS4
+            if (cssClass === "error") { cssClass = "danger"; }
+            cssClass = "border-" + cssClass;
+        }
+        $target.addClass(cssClass);
     };
 
     ui.percentage = function (options, score, maximun) {
@@ -677,13 +846,18 @@ var methods = {};
             } else {
                 score = rulesEngine.executeRules(options, word);
             }
+            if ($.isFunction(options.common.onScore)) {
+                score = options.common.onScore(options, word, score);
+            }
         }
         ui.updateUI(options, $el, score);
         verdictText = ui.getVerdictAndCssClass(options, score);
         verdictLevel = verdictText[1];
         verdictText = verdictText[0];
 
-        if (options.common.debug) { console.log(score + ' - ' + verdictText); }
+        if (options.common.debug) {
+            console.log(score + ' - ' + verdictText);
+        }
 
         if ($.isFunction(options.common.onKeyUp)) {
             options.common.onKeyUp(event, {
@@ -704,7 +878,7 @@ var methods = {};
             callback;
 
         callback = function () {
-            var newWord =  $el.val();
+            var newWord = $el.val();
 
             if (newWord !== word) {
                 onKeyUp(event);
@@ -785,6 +959,28 @@ var methods = {};
 
     methods.ruleActive = function (rule, active) {
         applyToAll.call(this, rule, "activated", active);
+    };
+
+    methods.ruleIsMet = function (rule) {
+        if ($.isFunction(rulesEngine.validation[rule])) {
+            if (rule === "wordMinLength") {
+                rule = "wordMinLengthStaticScore";
+            } else if (rule === "wordMaxLength") {
+                rule = "wordMaxLengthStaticScore";
+            }
+
+            var rulesMetCnt = 0;
+
+            this.each(function (idx, el) {
+                var options = $(el).data("pwstrength-bootstrap");
+
+                rulesMetCnt += rulesEngine.validation[rule](options, $(el).val(), 1);
+            });
+
+            return (rulesMetCnt === this.length);
+        }
+
+        $.error("Rule " + rule + " does not exist on jQuery.pwstrength-bootstrap.validation");
     };
 
     $.fn.pwstrength = function (method) {

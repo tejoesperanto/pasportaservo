@@ -54,8 +54,7 @@ class ContactExportView(AuthMixin, generic.ListView):
         with tempfile.TemporaryDirectory() as tempdir:
             with open(join(tempdir, 'contacts.csv'), 'w+') as f:
                 writer = csv.writer(f)
-                writer.writerow(self.user_fields + self.owner_fields +
-                                self.place_fields + self.other_fields)
+                writer.writerow(self.user_fields + self.owner_fields + self.place_fields + self.other_fields)
                 for place in context['place_list']:
                     row = self.get_row(place)
                     writer.writerow(row)

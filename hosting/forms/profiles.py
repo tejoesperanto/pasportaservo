@@ -43,8 +43,8 @@ class ProfileForm(forms.ModelForm):
         self.fields['names_inversed'].label = _("Names ordering")
 
         field_bd = self.fields['birth_date']
-        if (hasattr(self, 'instance') and
-                (self.instance.has_places_for_hosting or self.instance.has_places_for_meeting)):
+        if hasattr(self, 'instance') and \
+                (self.instance.has_places_for_hosting or self.instance.has_places_for_meeting):
             if self.instance.has_places_for_hosting:
                 message = _("The minimum age to be allowed hosting is {age:d}.")
                 allowed_age = config.host_min_age

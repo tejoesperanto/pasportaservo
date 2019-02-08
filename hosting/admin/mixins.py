@@ -16,9 +16,11 @@ class ShowCountryMixin(object):
 class ShowConfirmedMixin(object):
     def display_confirmed(self, obj):
         return format_html(
-            display_for_value(obj.confirmed_on is not None, None, boolean=True) +
-            ('&nbsp; ' + date_format(obj.confirmed_on, 'DATETIME_FORMAT', use_l10n=True)
-             if obj.confirmed_on else "")
+            display_for_value(obj.confirmed_on is not None, None, boolean=True)
+            + (
+                '&nbsp; ' + date_format(obj.confirmed_on, 'DATETIME_FORMAT', use_l10n=True)
+                if obj.confirmed_on else ""
+            )
         )
 
     display_confirmed.short_description = _("confirmed on")

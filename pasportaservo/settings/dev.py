@@ -38,7 +38,6 @@ DEBUG_TOOLBAR_CONFIG = {
     'JQUERY_URL': '/static/js/jquery.min.js',
     'DISABLE_PANELS': {
         'debug_toolbar.panels.redirects.RedirectsPanel',
-        'debug_toolbar.panels.templates.TemplatesPanel',
     },
 }
 
