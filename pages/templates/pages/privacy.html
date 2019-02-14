@@ -7,16 +7,16 @@
 {% block page %}
     <h1>Politiko pri privateco ĉe Pasporta Servo</h1>
     <h2>
-        <small class="pull-right">En efiko ekde {{ effective_date }}</small>
+        <small class="pull-right">En efiko ekde {{ view.effective_date }}</small>
     </h2>
     <p class="clearfix"></p>
 
     <br />
-    {% include './snippets/privacy_policy_initial.html' %}
+    {{ view.policy_content }}
 
     <blockquote>
         <p class="clearfix"></p>
-        <small class="pull-right" role="note">Tiu ĉi politiko estas en efiko ekde {{ effective_date }}.</small>
+        <small class="pull-right" role="note">Tiu ĉi politiko estas en efiko ekde {{ view.effective_date }}.</small>
         <p class="clearfix"></p>
     </blockquote>
 {% endblock page %}
