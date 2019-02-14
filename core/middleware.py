@@ -75,31 +75,6 @@ class AccountFlagsMiddleware(MiddlewareMixin):
 
         # Has the user consented to the most up-to-date usage policy?
         policy = (Policy.objects.order_by('-id').values('version', 'content'))[0:1]
-        # TODO: temporary fallback, when flat pages are available again remove
-        #       this (id's should be extracted from flat pages only).
-        from django.template.loader import get_template
-
-        class MonkeyDict(dict):
-            def values_list(self, param):
-                return self[param]
-
-            def first(self):
-                if not getattr(self, 'parsed', False):
-                    self['content'] = get_template(self['content']).template.source
-                self.parsed = True
-                return self
-
-            def __getitem__(self, index):
-                if index == 0:
-                    return self.first()
-                else:
-                    return super().__getitem__(index)
-
-        policy = MonkeyDict(
-            version='2018-001',
-            content='pages/snippets/privacy_policy_initial.html',
-        )
-        # ENDTODO
         if trouble_view is not None:
             agreement = Agreement.objects.filter(
                 user=request.user, policy_version=policy.values_list('version'), withdrawn__isnull=True)

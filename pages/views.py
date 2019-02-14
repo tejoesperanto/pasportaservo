@@ -2,11 +2,13 @@ from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
+from django.utils.functional import cached_property
 from django.utils.text import format_lazy
 from django.utils.translation import pgettext_lazy
 from django.views import generic
 
 from core.auth import PERM_SUPERVISOR
+from core.mixins import flatpages_as_templates
 from core.models import Policy
 from hosting.models import Place
 from hosting.utils import sort_by_name
@@ -20,19 +22,25 @@ class TermsAndConditionsView(generic.TemplateView):
     template_name = 'pages/terms_conditions.html'
 
 
+@flatpages_as_templates
 class PrivacyPolicyView(generic.TemplateView):
     template_name = 'pages/privacy.html'
     standalone_policy_view = True
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # TODO: remove this ugly hack which is needed only because DjangoCodeMirror's
-        #       incompatibility with Django 1.11 prevents using the flat pages.
-        from django.template.loader import get_template
-        policy = get_template('pages/snippets/privacy_policy_initial.html').template.source
-        # ENDTODO
-        context['effective_date'] = Policy.get_effective_date_for_policy(policy)
-        return context
+    def get(self, request, *args, **kwargs):
+        try:
+            self._policy = Policy.objects.order_by('-id').values('content')[0]
+        except IndexError as ierr:
+            raise RuntimeError("Service misconfigured: No privacy policy is defined.") from ierr
+        return super().get(request, *args, **kwargs)
+
+    @cached_property
+    def policy_content(self):
+        return self.render_flat_page(self._policy)
+
+    @cached_property
+    def effective_date(self):
+        return Policy.get_effective_date_for_policy(self._policy['content'])
 
 
 class SupervisorsView(generic.TemplateView):
