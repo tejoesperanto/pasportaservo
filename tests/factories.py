@@ -1,12 +1,18 @@
 # https://faker.readthedocs.io/en/latest/providers/faker.providers.person.html
-from random import choice
+from random import choice, random, uniform as uniform_random
 
+from django.contrib.gis.geos import Point
+
+from django_countries.data import COUNTRIES
+from django_countries.fields import Country
 from factory import (
-    DjangoModelFactory, Faker, LazyAttribute,
-    PostGenerationMethodCall, RelatedFactory, SubFactory,
+    DjangoModelFactory, Faker, LazyAttribute, PostGenerationMethodCall,
+    RelatedFactory, SubFactory, lazy_attribute,
 )
 
 from hosting.models import MR, MRS, PRONOUN_CHOICES
+from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
+from maps.data import COUNTRIES_GEO
 
 from .constants import PERSON_LOCALES
 
@@ -76,3 +82,29 @@ class ProfileSansAccountFactory(ProfileFactory):
         django_get_or_create = None
 
     user = None
+
+
+class PlaceFactory(DjangoModelFactory):
+    class Meta:
+        model = 'hosting.Place'
+        django_get_or_create = ('owner',)
+
+    owner = SubFactory('tests.factories.ProfileFactory')
+    country = LazyAttribute(lambda obj: Country(choice(list(COUNTRIES))))
+    @lazy_attribute
+    def state_province(self):
+        if self.country in COUNTRIES_WITH_MANDATORY_REGION or random() > 0.85:
+            return Faker('state').generate({})
+        else:
+            return ""
+    city = Faker('city')
+    address = Faker('address')
+    @lazy_attribute
+    def location(self):
+        # Cannot use the 'local_latlng' Faker, they don't have all countries in the database!
+        return Point(
+            [uniform_random(a, b) for a, b in zip(*COUNTRIES_GEO[self.country]['bbox'].values())],
+            srid=SRID)
+    description = Faker('paragraph', nb_sentences=4)
+    short_description = Faker('text', max_nb_chars=140)
+    in_book = False
