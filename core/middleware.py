@@ -3,6 +3,7 @@ from django.contrib.auth.views import (
     LoginView, LogoutView, redirect_to_login as redirect_to_intercept,
 )
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.template.response import TemplateResponse
 from django.urls import Resolver404, resolve, reverse
 from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
@@ -13,6 +14,7 @@ from core.models import Agreement, Policy, SiteConfiguration
 from core.views import AgreementRejectView, AgreementView, HomeView
 from hosting.models import Preferences, Profile
 from hosting.validators import TooNearPastValidator
+from pasportaservo.urls import url_index_debug, url_index_postman
 
 
 class AccountFlagsMiddleware(MiddlewareMixin):
@@ -26,7 +28,7 @@ class AccountFlagsMiddleware(MiddlewareMixin):
         if not request.user.is_authenticated:
             # Only relevant to logged in users.
             return
-        if request.path.startswith(reverse('admin:index')) or request.path.startswith('/__debug__/'):
+        if request.path.startswith(reverse('admin:index')) or request.path.startswith(url_index_debug):
             # Only relevant when using the website itself (not Django-Admin or debug tools).
             request.skip_hosting_checks = True
             return
@@ -63,9 +65,9 @@ class AccountFlagsMiddleware(MiddlewareMixin):
             # A non-existent page is ok.
             pass
         if trouble_view is not None and len(birth_date) != 0 and birth_date[0]:
-            birth_date = birth_date[0]  # Returned as a list from the query.
+            birth_date_value = birth_date[0]  # Returned as a list from the query.
             try:
-                TooNearPastValidator(SiteConfiguration.USER_MIN_AGE)(birth_date)
+                TooNearPastValidator(SiteConfiguration.USER_MIN_AGE)(birth_date_value)
             except ValidationError:
                 raise PermissionDenied(format_lazy(
                     _("Unfortunately, you are still too young to use Pasporta Servo. "
@@ -94,3 +96,17 @@ class AccountFlagsMiddleware(MiddlewareMixin):
                 # Policy most probably will not be needed, so it is lazily
                 # evaluated to spare a superfluous query on the database.
                 request.user.consent_obtained = policy
+
+        if request.path.startswith(url_index_postman) and len(birth_date) == 0 and not request.user.is_superuser:
+            # We can reuse the birth date query result to avoid an additional
+            # query in the DB.  For users with a profile, the result will not
+            # be empty and hold some value (either datetime or None).
+            t = TemplateResponse(
+                    request, 'registration/profile_create.html', status=403,
+                    context={
+                        'function_title': _("Inbox"),
+                        'function_description': _("To be able to communicate with other members of the PS community, "
+                                                  "you need to create a profile."),
+                    })
+            t.render()
+            return t
