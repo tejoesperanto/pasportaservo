@@ -9,9 +9,13 @@
         {% if place.available %}
             {% trans "A place in" %}
         {% else %}
-            {{ place.owner.name|default:place.owner.INCOGNITO }},
+            {{ place.owner.name|default:place.owner.INCOGNITO }} &ndash;
         {% endif %}
-        {{ place }}
+        {% if user.is_authenticated %}
+            {{ place }}
+        {% else %}
+            {{ place.get_country_display }}
+        {% endif %}
     {% endif %}
 {% endblock %}
 
