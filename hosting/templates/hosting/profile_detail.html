@@ -326,7 +326,7 @@
                     </div>
                 {% else %}
                     {% if not place.visibility.online_public %}
-                        {% expr _("not displayed to visitors") as concealed_title %}
+                        {% expr _("not displayed to other users") as concealed_title %}
                         <span class="conceal-marker fa fa-eye-slash pull-left text-muted" aria-hidden="true"
                               title="{{ concealed_title }}" data-toggle="tooltip"></span>
                         <span class="sr-only">{% trans "Note " context 'Title' %}: {{ concealed_title }}</span>
@@ -384,7 +384,7 @@
                 {% expr "" as concealed_class %}{% expr "" as concealed_title %}
                 {% if not phone.visibility.online_public %}
                     {% expr "concealed" as concealed_class %}
-                    {% expr _("not displayed to visitors") as concealed_title %}
+                    {% expr _("not displayed to other users") as concealed_title %}
                 {% endif %}
                 {% if not phone.visibility.online_public and phone.visibility.online_authed %}
                     {% expr "concealed-partially" as concealed_class %}
@@ -408,5 +408,49 @@
             {% endfor %}
         </ul>
         {% block phone_add_buttons %}{% endblock %}
+
+        <hr />
+
+        {% if profile.email %}
+            <h2 class="owner">{% trans "Public email address" %}</h2>
+            <ul class="list-group">
+                {% expr "" as concealed_class %}{% expr "" as concealed_title %}{% expr "" as concealed_reason %}
+                {% if not profile.email_visibility.online_public and profile.email_visibility.online_authed  %}
+                    {% expr "concealed-partially" as concealed_class %}
+                    {% expr _("displayed to guests and hosts only") as concealed_title %}
+                {% endif %}
+                {% if not profile.email_visibility.online_public and not profile.email_visibility.online_authed or profile.email|is_invalid %}
+                    {% expr "concealed" as concealed_class %}
+                    {% expr _("not displayed to other users") as concealed_title %}
+                    {% if profile.email|is_invalid %}
+                        {% expr _("this email address seems invalid") as concealed_reason %}
+                    {% endif %}
+                {% endif %}
+
+                <li class="list-group-item list-vertical-align {{ concealed_class }}">
+                    {% block email_edit_buttons %}{% endblock %}
+
+                    <p class="public-email text-nowrap">
+                        {{ profile|icon:'email' }}
+                        {% if profile.email|is_invalid %}
+                            <span class="number person-email-address"
+                                  data-toggle="tooltip" title="{{ concealed_reason }}" aria-label="{% trans "Warning " context 'Title' %}: {{ concealed_reason }}">
+                                {{ profile.email|clear_invalid }}
+                                <span class="fa fa-exclamation-triangle text-danger" aria-hidden="true"></span>
+                            </span>
+                        {% else %}
+                            <span class="number person-email-address">
+                                {{ profile.email }}
+                            </span>
+                        {% endif %}
+                        {% if concealed_title %}
+                            <span class="conceal-marker fa fa-eye-slash" aria-hidden="true"
+                                  title="{{ concealed_title }}{% if concealed_reason %} – {{ concealed_reason }}{% endif %}" data-toggle="tooltip"></span>
+                            <span class="sr-only">{% trans "Note " context 'Title' %}: {{ concealed_title }}{% if concealed_reason %} – {{ concealed_reason }}{% endif %}</span>
+                        {% endif %}
+                    </p>
+                </li>
+            </ul>
+        {% endif %}
     {% endif %}
 {% endblock page %}

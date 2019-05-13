@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2019-05-09 16:19+0000\n"
+"POT-Revision-Date: 2019-05-13 06:29+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1705,14 +1705,20 @@ msgid_plural "I can host during %(max_night)s nights maximum"
 msgstr[0] "Mi povas gastigi dum %(max_night)s nokto maksimume"
 msgstr[1] "Mi povas gastigi dum %(max_night)s noktoj maksimume"
 
-msgid "not displayed to visitors"
-msgstr "nevidebla al vizitantoj"
+msgid "not displayed to other users"
+msgstr "nevidebla al aliaj pasportservanoj"
 
 msgid "Phones"
 msgstr "Telefonoj"
 
 msgid "displayed to guests and hosts only"
 msgstr "videbla nur al gastoj kaj gastigantoj"
+
+msgid "Public email address"
+msgstr "Publika retpoŝta adreso"
+
+msgid "this email address seems invalid"
+msgstr "tiu ĉi retpoŝtadreso ŝajne ne funkcias"
 
 msgid "Update profile"
 msgstr "Redakti profilon"

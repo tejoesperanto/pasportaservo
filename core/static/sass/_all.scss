@@ -488,18 +488,20 @@ a.contact-details:not(:hover) {
 }
 .list-vertical-align {
     min-height: 3.5em;
-}
-.list-vertical-align .family-member,
-.list-vertical-align .phone-number {
-    margin-top: 0.5em;
-    margin-bottom: 0em;
-}
-.list-vertical-align .member,
-.list-vertical-align .number {
-    font-weight: bold;
-    margin: 0 1em 0 0.5em;
-    & + .conceal-marker {
-        margin-right: 0.6em;
+
+    .family-member,
+    .phone-number,
+    .public-email {
+        margin-top: 0.5em;
+        margin-bottom: 0em;
+    }
+    .member,
+    .number {
+        font-weight: bold;
+        margin: 0 1em 0 0.5em;
+        & + .conceal-marker {
+            margin-right: 0.6em;
+        }
     }
 }
 .family-member .member {
