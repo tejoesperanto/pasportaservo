@@ -147,7 +147,7 @@
         </section>
     </section>
 
-    {% if view.role == roles.OWNER or view.role == roles.ADMIN %}
+    {% if view.role >= roles.OWNER %}
     <section class="callout callout-warning">
         <h4 id="{% trans "privacy" context "URL" %}">
             {% trans "Privacy" %}

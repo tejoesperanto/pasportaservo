@@ -238,7 +238,8 @@ class ProfileSettingsView(ProfileDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['privacy_matrix'] = ProfilePrivacyUpdateView.VisibilityFormSet(
-            profile=self.object, read_only=(self.role > OWNER),
+            profile=self.object,
+            read_only=(self.role > OWNER and self.role < ADMIN),
             prefix=ProfilePrivacyUpdateView.VISIBILITY_FORMSET_PREFIX)
         context['optinouts_form'] = PreferenceOptinsForm(instance=self.object.pref)
         return context
@@ -265,7 +266,7 @@ class ProfileEmailUpdateView(
 
 class ProfilePrivacyUpdateView(AuthMixin, ProfileMixin, generic.View):
     http_method_names = ['post']
-    exact_role = OWNER
+    exact_role = (OWNER, ADMIN)
 
     VisibilityFormSet = modelformset_factory(
         VisibilitySettings,
