@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2019-05-13 06:29+0000\n"
+"POT-Revision-Date: 2019-05-31 21:32+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -2320,6 +2320,13 @@ msgstr "Malforviŝi"
 
 msgid "No messages."
 msgstr ""
+
+#, python-format
+msgid "%(name)s might not know about your message."
+msgstr "supozeble %(name)s povas ne ekscii pri via mesaĝo."
+
+msgid "Consider contacting the user by"
+msgstr "Prefere kontaktu la uzanton per"
 
 msgid "recipient"
 msgstr ""

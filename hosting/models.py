@@ -56,6 +56,7 @@ PRONOUN_CHOICES = (
     ('Ze/He', pgettext_lazy("Personal Pronoun", "ze or he")),
     ('Any', pgettext_lazy("Personal Pronoun", "any")),
 )
+PRONOUN_NEUTRAL_CHOICE = next(p for p in PRONOUN_CHOICES if p[0] == 'They')
 
 MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
 PHONE_TYPE_CHOICES = (
@@ -312,6 +313,8 @@ class VisibilitySettingsForPublicEmail(VisibilitySettings):
 class Profile(TrackingModel, TimeStampedModel):
     INCOGNITO = pgettext_lazy("Name", "Anonymous")
     PRONOUN_ANY = PRONOUN_CHOICES[-1][0]
+    PRONOUN_NEUTRAL = PRONOUN_NEUTRAL_CHOICE[0]
+    PRONOUN_NEUTRAL_VALUE = PRONOUN_NEUTRAL_CHOICE[1]
 
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,

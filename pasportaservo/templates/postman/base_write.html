@@ -1,5 +1,5 @@
 {% extends 'postman/base.html' %}
-{% load i18n static %}
+{% load i18n static expression profile privacy %}
 
 {% block extra_head %}
     {{ block.super }}
@@ -16,6 +16,46 @@
 {% block content %}
     <div id="postman">
         <h1>{% block pm_write_title %}{% endblock %}</h1>
+
+        {% if target_user.email|is_invalid %}
+            <div class="alert alert-danger">
+                <strong>{% trans "Warning " context "Title" %}</strong>&ensp;
+                {% trans "The user's email address seems invalid" %};
+                {% blocktrans with name=target_user.profile|get_pronoun trimmed %}
+                    {{ name }} might not know about your message.
+                {% endblocktrans %}
+
+                {% if target_user.profile.email and not target_user.profile.email|is_invalid %}
+                {% if-visible target_user.profile [email] privileged=view.author_is_authorized %}
+                    {% expr target_user.profile.email as shown_email %}
+                {% endif %}
+                {% endif %}
+                {% if target_public_phones %}
+                    {% expr target_public_phones[0] as shown_phone %}
+                {% endif %}
+                {% if shown_email or shown_phone %}
+                    <br />
+                    {% trans "Consider contacting the user by" %}&nbsp;
+                    {% if shown_email %}
+                        <span class="contact-details text-nowrap">
+                            {% spaceless %}
+                                <span>{{ target_user.profile|icon:'email' }}</span>
+                                <span class="person-email-address adjusted">{{ shown_email }}</span>
+                            {% endspaceless %}
+                        </span>
+                        {% if shown_phone %}
+                            {% trans " or " %}
+                        {% endif %}
+                    {% endif %}
+                    {% if shown_phone %}
+                        <span class="contact-details text-nowrap">
+                            {{ shown_phone.icon }} {{ shown_phone.number.as_international }}
+                        </span>
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% endif %}
+
         <form action="{% if next_url %}?next={{ next_url|urlencode }}{% endif %}" method="post">{% csrf_token %}
             {% block pm_write_recipient %}{% endblock %}
             <div class="form-group">
