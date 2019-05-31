@@ -4,6 +4,8 @@ from django.contrib import admin
 from django.urls import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 
+from .views import ExtendedWriteView
+
 urlpatterns = [
     url('', include('core.urls')),
     url(_(r'^management/'), admin.site.urls),
@@ -26,3 +28,7 @@ if settings.DEBUG:
 url_index_postman = '/'.join([reverse_lazy('postman:inbox').rstrip('/').rsplit('/', maxsplit=1)[0], ''])
 url_index_maps = reverse_lazy('world_map')
 url_index_debug = '/__debug__/'
+
+for module in (m for m in urlpatterns if m.app_name == 'postman'):
+    for pattern in (p for p in module.url_patterns if p.name == 'write'):
+        pattern.callback = ExtendedWriteView.as_view()
