@@ -131,3 +131,14 @@
         <strong>{% trans "Add a phone" %}</strong>
     </a>
 {% endblock %}
+
+{% block email_edit_buttons %}
+    <div class="btn-group pull-right">
+        <a href="{% url 'profile_email_update' profile.pk profile.autoslug %}"
+           class="btn btn-smaller-xxs btn-success"
+           title="{% trans "Update public email" %}">
+            <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+            <span class="hidden-xs">{% trans "Update" %}</span>
+        </a>
+    </div>
+{% endblock %}

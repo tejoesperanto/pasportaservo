@@ -231,8 +231,11 @@ class AuthMixin(AccessMixin):
                                         place=self.get_location(object),
                                         no_obj_context=context_omitted)
         if getattr(self, 'exact_role', None):
-            auth_log.info("exact role allowed: {- %s -} , current role: {- %s -}", self.exact_role, self.role)
-            if self.role == self.exact_role:
+            roles_allowed = self.exact_role if isinstance(self.exact_role, tuple) else (self.exact_role, )
+            auth_log.info(
+                "exact role allowed: {- %s -} , current role: {- %s -}",
+                " or ".join(str(r) for r in roles_allowed), self.role)
+            if self.role in roles_allowed:
                 return object
         else:
             auth_log.info("minimum role allowed: {- %s -} , current role: {- %s -}", self.minimum_role, self.role)
