@@ -6,10 +6,11 @@ from django.contrib.gis.geos import Point
 from django_countries.data import COUNTRIES
 from django_countries.fields import Country
 from factory import (
-    DjangoModelFactory, Faker, LazyAttribute, PostGenerationMethodCall,
-    RelatedFactory, SubFactory, lazy_attribute,
+    DjangoModelFactory, Faker, LazyAttribute, LazyAttributeSequence,
+    PostGenerationMethodCall, RelatedFactory, SubFactory, lazy_attribute,
 )
 from phonenumber_field.phonenumber import PhoneNumber
+from slugify import slugify
 
 from hosting.models import MR, MRS, PHONE_TYPE_CHOICES, PRONOUN_CHOICES
 from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
@@ -127,3 +128,14 @@ class PhoneFactory(DjangoModelFactory):
     country = LazyAttribute(lambda obj: Country(choice(list(COUNTRIES))))
     comments = Faker('text', max_nb_chars=20)
     type = Faker('random_element', elements=[ch[0] for ch in PHONE_TYPE_CHOICES])
+
+
+class ConditionFactory(DjangoModelFactory):
+    class Meta:
+        model = 'hosting.Condition'
+        exclude = ('word',)
+
+    word = Faker('word')
+    name = LazyAttribute(lambda obj: '{} {}.'.format(obj.word.title(), obj.word[::-1]))
+    abbr = LazyAttributeSequence(lambda obj, n: 'p/{}/{}'.format(obj.word[:6], n))
+    slug = LazyAttribute(lambda obj: slugify(obj.abbr, to_lower=True, separator='-'))
