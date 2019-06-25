@@ -14,7 +14,9 @@ from core.models import Agreement, Policy, SiteConfiguration
 from core.views import AgreementRejectView, AgreementView, HomeView
 from hosting.models import Preferences, Profile
 from hosting.validators import TooNearPastValidator
-from pasportaservo.urls import url_index_debug, url_index_postman
+from pasportaservo.urls import (
+    url_index_debug, url_index_maps, url_index_postman,
+)
 
 
 class AccountFlagsMiddleware(MiddlewareMixin):
@@ -24,16 +26,26 @@ class AccountFlagsMiddleware(MiddlewareMixin):
     Checks that pre-conditions for site usage are satisfied.
     """
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        exclude_urls = [
+            reverse('admin:index'),
+            url_index_debug,
+            settings.STATIC_URL,
+            settings.MEDIA_URL,
+            '/favicon.ico',
+            url_index_maps,
+        ]
+        self.exclude_urls = tuple(str(url) for url in exclude_urls)
+
     def process_request(self, request):
         if not request.user.is_authenticated:
             # Only relevant to logged in users.
             return
-        if request.path.startswith(reverse('admin:index')) or request.path.startswith(url_index_debug):
-            # Only relevant when using the website itself (not Django-Admin or debug tools).
-            request.skip_hosting_checks = True
-            return
-        if request.path.startswith(settings.STATIC_URL) or request.path.startswith(settings.MEDIA_URL):
-            # Only relevant when the file requested is not a static one.
+        if request.path.startswith(self.exclude_urls):
+            # Only relevant when using the website itself (not Django-Admin or debug tools),
+            # when the file requested is not a static one,
+            # and when the request is not for resources or configurations related to maps.
             request.skip_hosting_checks = True
             return
         profile = Profile.all_objects.filter(user=request.user)[0:1]
