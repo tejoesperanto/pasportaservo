@@ -1,18 +1,23 @@
 import json
+import logging
 
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.geos import Point
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils.encoding import uri_to_iri
 from django.utils.http import urlquote_plus
 from django.utils.six.moves.urllib.parse import unquote_plus
+from django.utils.translation import pgettext
 from django.views import generic
 
+import geocoder
 from django_countries.fields import Country
 
 from core.auth import SUPERVISOR, AuthMixin
+from maps import SRID
 from maps.utils import bufferize_country_boundaries
 
 from ..models import Place
@@ -106,6 +111,11 @@ class SearchView(PlaceListView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
+        most_recent_moniker, most_recent = pgettext("value::plural", "MOST RECENT"), False
+        if self.query in (most_recent_moniker, most_recent_moniker.replace(" ", "_")):
+            most_recent = True
+            self.query = ''
+
         self.result = geocode(self.query)
         if self.query and self.result.point:
             if any([self.result.state, self.result.city]):
@@ -118,8 +128,24 @@ class SearchView(PlaceListView):
                 self.country_search = True
                 return (self.queryset
                             .filter(country=self.result.country_code.upper())
-                            .order_by('-owner__user__last_login'))
-        return self.queryset.order_by('-owner__user__last_login')
+                            .order_by('-owner__user__last_login', '-id'))
+        qs = self.queryset
+        position = geocoder.ip(self.request.META['REMOTE_ADDR']
+                               if settings.ENVIRONMENT != 'DEV'
+                               else "188.166.58.162")
+        position.point = Point(position.xy, srid=SRID) if position.xy else None
+        logging.getLogger('PasportaServo.geo').debug(
+            "User's position: %s, %s",
+            position.address if position.ok and position.address else "UNKNOWN",
+            position.xy if position.ok else position.error
+        )
+        if position.point and not most_recent:
+            # Results are sorted by distance from user's current location, but probably
+            # it is better not to creep users out by unexpectedly using their location.
+            qs = qs.annotate(internal_distance=Distance('location', position.point)).order_by('internal_distance')
+        else:
+            qs = qs.order_by('-owner__user__last_login', '-id')
+        return qs
 
     def get_detail_queryset(self):
         if len(self.query) <= 3:
