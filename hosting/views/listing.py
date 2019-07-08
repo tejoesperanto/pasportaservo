@@ -116,20 +116,27 @@ class SearchView(PlaceListView):
             most_recent = True
             self.query = ''
 
+        qs = (
+            self.queryset
+            .select_related(None)
+            .defer('description', 'family_members_visibility')
+            .select_related('owner', 'owner__user')
+            .defer('owner__description', 'owner__email_visibility')
+        )
+
         self.result = geocode(self.query)
         if self.query and self.result.point:
             if any([self.result.state, self.result.city]):
-                return (self.queryset
-                            .annotate(distance=Distance('location', self.result.point))
-                            .order_by('distance'))
+                return (qs
+                        .annotate(distance=Distance('location', self.result.point))
+                        .order_by('distance'))
             elif self.result.country:  # We assume it's a country
                 self.paginate_by = 50
                 self.paginate_orphans = 5
                 self.country_search = True
-                return (self.queryset
-                            .filter(country=self.result.country_code.upper())
-                            .order_by('-owner__user__last_login', '-id'))
-        qs = self.queryset
+                return (qs
+                        .filter(country=self.result.country_code.upper())
+                        .order_by('-owner__user__last_login', '-id'))
         position = geocoder.ip(self.request.META['REMOTE_ADDR']
                                if settings.ENVIRONMENT != 'DEV'
                                else "188.166.58.162")
