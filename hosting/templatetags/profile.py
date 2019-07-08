@@ -81,6 +81,24 @@ def supervisor_of(user_or_profile):
     return ("",)
 
 
+@register.simple_tag(takes_context=True)
+def get_approver(context, model_instance):
+    # This tag is provided for enabling transparent caching of User and Profile objects
+    # referenced in the `checked_by` property of TrackingModel instances.  Without such
+    # caching, each instance causes a new DB query even when the approving User is just
+    # the same...
+    if not model_instance or not model_instance.checked_by_id:
+        return None
+    if 'user' in context:
+        default_cache = {context['user'].pk: context['user']}
+    else:
+        default_cache = {}
+    cache = context['view'].__dict__.setdefault('approvers_cache', default_cache)
+    if model_instance.checked_by_id not in cache:
+        cache[model_instance.checked_by_id] = model_instance.checked_by
+    return cache[model_instance.checked_by_id]
+
+
 @register.filter
 def format_pronoun(profile, tag=''):
     tag = tag.lstrip('<').rstrip('>')
@@ -91,8 +109,8 @@ def format_pronoun(profile, tag=''):
 
 
 @register.filter
-def icon(model, field=''):
-    obj = model if not field else model._meta.get_field(field)
+def icon(model_instance, field=''):
+    obj = model_instance if not field else model_instance._meta.get_field(field)
     return getattr(obj, 'icon', '')
 
 
