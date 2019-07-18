@@ -15,6 +15,7 @@ from django.views import generic
 
 import geocoder
 from django_countries.fields import Country
+from el_pagination.views import AjaxListView
 
 from core.auth import SUPERVISOR, AuthMixin
 from maps import SRID
@@ -25,6 +26,10 @@ from ..utils import geocode
 
 
 class PlaceListView(generic.ListView):
+    model = Place
+
+
+class PlacePaginatedListView(AjaxListView):
     model = Place
 
 
@@ -91,8 +96,9 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
         return context
 
 
-class SearchView(PlaceListView):
+class SearchView(PlacePaginatedListView):
     queryset = Place.available_objects.filter(visibility__visible_online_public=True)
+    paginate_first_by = 25
     paginate_by = 25
 
     def get(self, request, *args, **kwargs):
@@ -131,7 +137,7 @@ class SearchView(PlaceListView):
                         .annotate(distance=Distance('location', self.result.point))
                         .order_by('distance'))
             elif self.result.country:  # We assume it's a country
-                self.paginate_by = 50
+                self.paginate_first_by = 50
                 self.paginate_orphans = 5
                 self.country_search = True
                 return (qs

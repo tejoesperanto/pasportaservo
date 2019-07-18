@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n static expression geoformat utils %}
+{% load i18n static geoformat %}
 
 {% block head_title %}
     {% trans "Find accommodation" %}
@@ -20,6 +20,10 @@
     {% if view.query and not view.result.latlng %}
             return document.title.replace('{{ view.query.strip|escapejs }}', 'XXXXXXXXXX');
     {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+        <script src="{% static 'el-pagination/js/el-pagination.js' %}"></script>
 {% endblock %}
 
 {% block page_class %} search{% endblock %}
@@ -86,77 +90,8 @@
 
     {% if place_list %}
         <div class="row place-list"><div class="col-xs-12">{# SEPARATOR #}</div></div>
-    {% endif %}
-    {% for place in place_list %}
-        <div class="row place-list">
-            <div class="col-xs-3 col-sm-2 col-md-1 avatar">
-                <a href="{{ place.owner.get_absolute_url }}">
-                    <img src="{{ place.owner.avatar_url }}" alt="[{% trans "avatar" %}{% if place.owner.name %}: {{ place.owner.name }}{% endif %}]" />
-                </a>
-            </div>
-            {% expr place.available or place.owner_available as offered %}
-            {% expr user.is_authenticated and place.is_blocked as unavailable %}
-            <div class="{% if unavailable %}col-xxs-9 col-xs-6 col-sm-8 col-md-9{% else %}col-xs-9 col-sm-10 col-md-11{% endif %} name">
-                <a href="{{ place.owner.get_absolute_url }}" class="{% if offered %}text-brand{% else %}{% endif %}">
-                    {% if user.is_authenticated %}
-                        {{ place.owner.get_fullname_display }}
-                    {% else %}
-                        {{ place.owner.name|default:place.owner.INCOGNITO }}
-                    {% endif %}
-                </a>
-            </div>
-            {% if unavailable %}
-                <div class="col-xxs-9 col-xs-3 col-sm-2 col-md-2 status">
-                    <span class="label label-default">&nbsp;{% trans "unavailable" %}&nbsp;</span>
-                </div>
-            {% endif %}
-            <div class="col-xs-9 col-sm-10 col-md-11 address">
-                <div class="pull-right">{% include './snippets/checked.html' with object=place %}</div>
-                <a href="{{ place.get_absolute_url }}">
-                    {% if user.is_authenticated %}
-                        {% if place.city %}
-                            {% if offered %}<strong>{% endif %}{{ place.city }}{% if offered %}</strong>{% endif %}
-                        {% endif %}
-                        {% if place.distance %}<small>{{ place.distance.km|floatformat:0 }}&nbsp;km</small>{% endif %}
-                        {% if view.role == roles.ADMIN and place.internal_distance %}
-                            <small>({{ place.internal_distance.km|floatformat:2 }}&nbsp;km)</small>
-                        {% endif %}
-                        <br />
-                        {% if place.state_province %}{{ place.state_province }}, {% endif %}{{ place.country.name }}
-                    {% else %}
-                        {{ place.country.name }}
-                    {% endif %}
-                </a>
-                <div class="status anchor-group">
-                    {% if user.is_authenticated %}
-                        {% list place.available place.tour_guide place.have_a_drink as offer_details %}
-                        {% if offer_details|are_any %}
-                            <span class="sr-only">{% trans "Note " context 'Title' %}:</span>
-                        {% endif %}
-                        {% dict icon="ps-home"       class="host"  title=_("I'm hosting")                       as style_house %}
-                        {% dict icon="ps-city-guide" class="guide" title=_("I can guide around the city")       as style_guide %}
-                        {% dict icon="ps-city-drink" class="drink" title=_("I'd like to have a drink together") as style_drink %}
-
-                        {% cycle style_house style_guide style_drink as offer_style silent %}
-                        {% for proposed_activity in offer_details %}
-                            {% if proposed_activity %}
-                                {% spaceless %}
-                                <div class="anchor-group-item anchor-vert-space-even" data-cycle="{{ forloop.counter }}">
-                                    <span class="place-anchor place-anchor-{{ offer_style.class }} text-label-info">
-                                        <span class="fa {{ offer_style.icon }}" aria-hidden="true"></span>
-                                    </span>
-                                    <span class="label label-info">{{ offer_style.title }}</span>
-                                </div>
-                                {% endspaceless %}
-                            {% endif %}
-                            {% cycle offer_style %}
-                        {% endfor %}
-                        {% resetcycle offer_style %}
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    {% empty %}
+        {% include page_template %}
+    {% else %}
         <div class="row place-list">
             <div class="col-xs-12 help-block text-body">
                 {% if request.GET.ps_q or view.query %}
@@ -166,10 +101,5 @@
                 {% endif %}
             </div>
         </div>
-    {% endfor %}
-    {% if view.country_search and is_paginated %}
-        <small class="text-muted pull-right">
-            ({% trans "inactive hosts temporarily not shown" %})
-        </small>
     {% endif %}
 {% endblock page %}

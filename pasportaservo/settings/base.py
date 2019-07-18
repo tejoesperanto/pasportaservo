@@ -63,6 +63,7 @@ INSTALLED_APPS = (
     'django_countries',
     'djangocodemirror',
     'djgeojson',
+    'el_pagination',
     'logentry_admin',
     'phonenumber_field',
     'bootstrapform',
@@ -191,7 +192,7 @@ CSRF_COOKIE_HTTPONLY = True
 INVALID_PREFIX = "INVALID_"
 
 
-from djangocodemirror.settings import *                                         # noqa  isort:skip
+from djangocodemirror.settings import *  # noqa isort:skip
 
 # Helps entering phone numbers with "00" instead of "+"
 # This means: Interpret phone number as dialed in Poland
@@ -201,6 +202,10 @@ PHONENUMBER_DEFAULT_FORMAT = 'INTERNATIONAL'
 SOLO_CACHE = 'default'
 
 DEFAULT_AVATAR_URL = "mm"
+
+EL_PAGINATION_PAGE_LABEL = "p"
+EL_PAGINATION_PAGE_OUT_OF_RANGE_404 = True
+EL_PAGINATION_ORPHANS = 5
 
 def user_first_name(user):
     try:

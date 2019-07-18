@@ -154,6 +154,19 @@ $(document).ready(function() {
         });
     } // end magnifier setup
 
+    // AJAX Paginator
+    if (typeof $().endlessPaginate !== "undefined") {
+        $.endlessPaginate({
+            paginateOnScroll: true,
+            paginateOnScrollMargin: $('footer').outerHeight(true) + $('.endless_container').outerHeight(),
+            onCompleted: function(context, fragment) {
+                // The 'fragment' is just a String, not much can be done with it
+                // TODO: place tab focus on the first added row
+                enableTooltips();
+            }
+        });
+    }
+
     // Collapsing elements
     $('#family-panel-small').each(function() {
         var familyKey = 'place.ID.family-members.expanded';
@@ -197,11 +210,16 @@ $(document).ready(function() {
         });
     }
 
-    // Bootstrap tooltips and popovers
+    enableTooltips();
+});
+
+
+// Bootstrap tooltips and popovers
+function enableTooltips() {
     $('[data-toggle=tooltip]').tooltip();
     $('[data-toggle=tooltip-lasting]').tooltip({ delay: { show: 0, hide: 2000, } });
     $('[data-toggle=popover]').popover();
-});
+}
 
 
 // Host preferences popover
