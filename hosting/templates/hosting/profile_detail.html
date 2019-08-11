@@ -283,7 +283,11 @@
                         <h4>{{ place.country.name }}</h4>
 
                         <div class="anchor-group">
-                            {% list place.tour_guide place.have_a_drink place.max_guest place.max_night as offer_details %}
+                            {% if place.available %}
+                                {% list place.tour_guide place.have_a_drink place.max_guest place.max_night as offer_details %}
+                            {% else %}
+                                {% list place.tour_guide place.have_a_drink as offer_details %}
+                            {% endif %}
                             {% if offer_details|are_any %}
                                 <span class="sr-only">{% trans "Note " context 'Title' %}:</span>
                                 {% blocktrans count max_host=place.max_guest|default:0 asvar desc_max_guest trimmed %}
