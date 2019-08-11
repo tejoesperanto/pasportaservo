@@ -261,6 +261,7 @@ class ProfileEmailUpdateView(
         generic.UpdateView):
     template_name = 'hosting/profile-email_form.html'
     form_class = ProfileEmailUpdateForm
+    success_with_anchor = 'e'
     minimum_role = OWNER
 
 

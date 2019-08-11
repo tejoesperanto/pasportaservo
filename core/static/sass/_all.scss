@@ -83,6 +83,19 @@ code, kbd, pre, samp {
        -moz-transition: #{$params};
          -o-transition: #{$params};
 }
+@mixin highlighter($duration: 0.75s) {
+    @include transition(background-color $duration);
+    $color-border-hl: lighten($color-brand, 27%);
+    &.highlight {
+        background-color: lighten($color-brand, 44%) !important;
+        border-top-color: $color-border-hl !important;
+        border-bottom-color: $color-border-hl !important;
+        border-right-color: $color-border-hl !important;
+    }
+    &:not(.callout).highlight {
+        border-left-color: $color-border-hl !important;
+    }
+}
 
 .btn-vert-space {
     margin-bottom: 5px;
@@ -486,6 +499,11 @@ a.contact-details:not(:hover) {
         margin-right: 0.6em;
     }
 }
+.owned-place,
+.owned-phone,
+.owned-email {
+    @include highlighter();
+}
 .list-vertical-align {
     min-height: 3.5em;
 
@@ -660,10 +678,7 @@ a.contact-details:not(:hover) {
     width: 40px;
 }
 .place-supervisor-detail {
-    @include transition(background-color 0.5s);
-    &.highlight {
-        background-color: #fff8f2;
-    }
+    @include highlighter();
     .control-buttons {
         margin-left: 20px;
     }

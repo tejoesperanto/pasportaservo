@@ -36,13 +36,27 @@ class ProfileMixin(object):
 
 
 class ProfileModifyMixin(object):
+    url_anchors = {Place: 'p', Phone: 't'}
+
     def get_success_url(self, *args, **kwargs):
         if 'next' in self.request.GET:
             return self.request.GET.get('next')
+
+        success_url, success_url_anchor = None, None
         if hasattr(self.object, 'profile'):
-            return self.object.profile.get_edit_url()
+            success_url = self.object.profile.get_edit_url()
+            success_url_anchor = self.url_anchors.get(self.model)
         if type(self.object) is Profile:
-            return self.object.get_edit_url()
+            success_url = self.object.get_edit_url()
+            success_url_anchor = getattr(self, 'success_with_anchor', None)
+        if success_url_anchor:
+            url_pattern = '{url}#{anchor}{obj_id}'
+            return url_pattern.format(
+                url=success_url,
+                anchor=success_url_anchor,
+                obj_id=self.object.pk)
+        else:
+            return success_url
 
 
 class ProfileIsUserMixin(object):
