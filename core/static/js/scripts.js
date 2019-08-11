@@ -108,6 +108,21 @@ $(document).ready(function() {
         $('.highlight-custom').blur( del_highlight);
     }();
 
+    // Highlighting elements pointed at via the URL
+    if (window.location.hash) {
+        var targetId = window.location.hash.substr(1);
+        var targetEl = document.getElementById(targetId);
+        if (targetEl) {
+            targetEl.scrollIntoView();
+            setTimeout(function() {
+                targetEl.className += ' highlight';
+            }, 1200);
+            setTimeout(function() {
+                targetEl.className = targetEl.className.replace(/( +)highlight\b/g, '');
+            }, 2500);
+        }
+    }
+
     // Profile picture magnifier
     if (typeof $().magnificPopup !== "undefined") {
         $('.profile-detail .owner .avatar img, a:has(#avatar-preview_id)').each(function() {

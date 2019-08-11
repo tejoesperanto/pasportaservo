@@ -248,10 +248,12 @@
             {% expr False as place_owner_or_supervisor %}
         {% endif %}
         <ul class="list-group">
-            <li class="list-group-item owned-place
-                       {% if perms.hosting.can_supervise and place.checked %}text-success{% endif %}
-                       {% if not place.visibility.online_public %}concealed{% endif %}
-                      ">
+            <li class="{% filter compact %}
+                            list-group-item owned-place
+                            {% if perms.hosting.can_supervise and place.checked %}text-success{% endif %}
+                            {% if not place.visibility.online_public %}concealed{% endif %}
+                       {% endfilter %}"
+                id="p{{ place.pk }}">
                 <div class="btn-group pull-right">
                     {% block place_edit_buttons %}{% endblock %}
                     <a href="{% url 'place_detail' place.pk %}" class="btn btn-primary" title="{% trans "View details of this place" %}">
@@ -390,7 +392,7 @@
                     {% expr "concealed-partially" as concealed_class %}
                     {% expr _("displayed to guests and hosts only") as concealed_title %}
                 {% endif %}
-                <li class="list-group-item list-vertical-align {{ concealed_class }}">
+                <li class="list-group-item owned-phone list-vertical-align {{ concealed_class }}" id="t{{ phone.pk }}">
                     {% block phone_edit_buttons %}{% endblock %}
 
                     <p class="phone-number">
@@ -427,7 +429,7 @@
                     {% endif %}
                 {% endif %}
 
-                <li class="list-group-item list-vertical-align {{ concealed_class }}">
+                <li class="list-group-item owned-email list-vertical-align {{ concealed_class }}" id="e{{ profile.pk }}">
                     {% block email_edit_buttons %}{% endblock %}
 
                     <p class="public-email text-nowrap">
