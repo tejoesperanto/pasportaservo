@@ -3,11 +3,11 @@ from django.views import generic
 from core.auth import AuthMixin
 
 from ..forms import PhoneCreateForm, PhoneForm
-from ..mixins import (
+from ..models import Phone
+from .mixins import (
     CreateMixin, DeleteMixin, PhoneMixin,
     ProfileIsUserMixin, ProfileModifyMixin, UpdateMixin,
 )
-from ..models import Phone
 
 
 class PhoneCreateView(

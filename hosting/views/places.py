@@ -30,11 +30,11 @@ from ..forms import (
     PlaceBlockForm, PlaceCreateForm, PlaceForm,
     PlaceLocationForm, UserAuthorizedOnceForm, UserAuthorizeForm,
 )
-from ..mixins import (
+from ..models import LOCATION_CITY, Place, Profile, Whereabouts
+from .mixins import (
     CreateMixin, DeleteMixin, PlaceMixin, PlaceModifyMixin,
     ProfileIsUserMixin, ProfileModifyMixin, UpdateMixin,
 )
-from ..models import LOCATION_CITY, Place, Profile, Whereabouts
 
 User = get_user_model()
 

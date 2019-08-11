@@ -33,9 +33,11 @@ from commonmark import commonmark
 
 from blog.models import Post
 from core.models import Policy
-from hosting.mixins import ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin
 from hosting.models import Phone, Place, Profile
 from hosting.utils import value_without_invalid_marker
+from hosting.views.mixins import (
+    ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin,
+)
 from links.utils import create_unique_url
 
 from .auth import ADMIN, OWNER, SUPERVISOR, AuthMixin
