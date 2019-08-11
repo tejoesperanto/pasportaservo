@@ -27,11 +27,11 @@ from ..forms import (
     PreferenceOptinsForm, ProfileCreateForm, ProfileEmailUpdateForm,
     ProfileForm, VisibilityForm, VisibilityFormSetBase,
 )
-from ..mixins import (
+from ..models import Profile, VisibilitySettings
+from .mixins import (
     DeleteMixin, ProfileIsUserMixin, ProfileMixin,
     ProfileModifyMixin, UpdateMixin,
 )
-from ..models import Profile, VisibilitySettings
 
 User = get_user_model()
 

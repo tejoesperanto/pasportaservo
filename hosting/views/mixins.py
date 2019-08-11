@@ -7,7 +7,7 @@ from django.views.decorators.cache import never_cache
 
 from core.auth import OWNER
 
-from .models import Phone, Place, Profile
+from ..models import Phone, Place, Profile
 
 
 class ProfileMixin(object):
@@ -103,6 +103,8 @@ class PlaceModifyMixin(object):
 
 
 class PhoneMixin(object):
+    model = Phone
+
     def get_object(self, queryset=None):
         return get_object_or_404(Phone, pk=self.kwargs['pk'], profile=self.kwargs['profile_pk'])
 

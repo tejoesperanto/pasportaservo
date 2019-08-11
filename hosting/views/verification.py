@@ -15,8 +15,8 @@ from core.auth import SUPERVISOR, AuthMixin
 from core.mixins import LoginRequiredMixin
 
 from ..forms import PlaceForm, ProfileForm
-from ..mixins import PlaceMixin
 from ..models import Profile
+from .mixins import PlaceMixin
 
 
 class InfoConfirmView(LoginRequiredMixin, generic.View):
