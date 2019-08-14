@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2019-07-18 07:55+0000\n"
+"POT-Revision-Date: 2019-08-14 10:08+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1425,6 +1425,12 @@ msgstr "Permesoj"
 
 msgid "View as an authorized user"
 msgstr "Rigardi kvazaŭ permesita uzanto"
+
+msgid "View as a regular user"
+msgstr "Rigardi kvazaŭ ordinara uzanto"
+
+msgid "Regular preview"
+msgstr "Ordinara vido"
 
 msgid "Short description"
 msgstr "Mallonga priskribo"
