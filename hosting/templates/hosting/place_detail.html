@@ -366,7 +366,9 @@
                     </a>
                 {% endif %}
                 {% if place_owner_or_supervisor or user.profile in place.family_members_cache %}
-                    <a href="{% url 'place_location_update' place.pk %}" class="btn btn-success btn-vert-space" title="{% trans "Update location on map" %}">
+                    <a href="{% url 'place_location_update' place.pk %}"
+                       class="btn btn-success btn-vert-space"
+                       title="{% trans "Update location on map" %}">
                         <span class="fa fa-map-marker" aria-hidden="true"></span>
                         <span class="hidden-xxs">{% trans "Edit location" %}</span>
                     </a>
@@ -375,7 +377,9 @@
                             {% trans "my " as kin %}
                         {% endif %}
                         {% if place_owner_or_supervisor %}
-                            <a href="{% url 'place_update' place.pk %}" class="btn btn-success" title="{% blocktrans %}Update {{ kin }}place{% endblocktrans %}">
+                            <a href="{% url 'place_update' place.pk %}?next={{ request.get_full_path|urlencode }}"
+                               class="btn btn-success"
+                               title="{% blocktrans %}Update {{ kin }}place{% endblocktrans %}">
                                 <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
                                 <span class="">{% trans "Update" %}</span>
                             </a>
@@ -389,12 +393,24 @@
                             </a>
                         {% endif %}
                         {% if not view.verbose_view %}
-                            <a href="{% url 'place_detail_verbose' place.pk %}" class="btn btn-primary" title="{% trans "View as an authorized user" %}">
+                            <a href="{% url 'place_detail_verbose' place.pk %}"
+                               class="btn btn-primary"
+                               title="{% trans "View as an authorized user" %}">
                                 <span class="fa-stack fa-stack-sm" aria-hidden="true">
                                     <span class="fa fa-eye fa-stack-1x"              style="top: -0.8ex"></span>
                                     <span class="fa fa-long-arrow-right fa-stack-1x" style="top: +0.5ex"></span>
                                 </span>&nbsp;
                                 <span class="hidden-xxs">{% trans "Full preview" %}</span>
+                            </a>
+                        {% else %}
+                            <a href="{% url 'place_detail' place.pk %}"
+                               class="btn btn-primary"
+                               title="{% trans "View as a regular user" %}">
+                                <span class="fa-stack fa-stack-sm" aria-hidden="true">
+                                    <span class="fa fa-circle-o fa-stack-1x"         style="top: -0.8ex"></span>
+                                    <span class="fa fa-long-arrow-right fa-stack-1x" style="top: +0.6ex"></span>
+                                </span>&nbsp;
+                                <span class="hidden-xxs">{% trans "Regular preview" %}</span>
                             </a>
                         {% endif %}
                     </span>
