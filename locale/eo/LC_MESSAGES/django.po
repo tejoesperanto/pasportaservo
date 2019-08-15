@@ -1376,6 +1376,9 @@ msgstr "mi povas ĉiĉeroni"
 msgid "I'd like to have a drink together"
 msgstr "mi emas trinkejumi"
 
+msgid "Indicate unavailability"
+msgstr "Indiki maldisponeblon"
+
 msgid "unavailable"
 msgstr "maldisponebla"
 

@@ -82,7 +82,8 @@
                 <div class="btn-group edit-buttons">
                     {% block profile_edit_buttons %}
                         {% if view.role != roles.OWNER and not profile.deleted_on %}
-                            <a href="{% url 'postman:write' profile.user.username %}" class="btn btn-primary"
+                            <a href="{% url 'postman:write' profile.user.username %}"
+                               class="btn btn-primary"
                                 {% if profile.user.email|is_invalid %}
                                     title="{% trans "The user's email address seems invalid" %}"
                                     data-toggle="tooltip" data-container="body" data-placement="bottom"
@@ -100,7 +101,8 @@
                             {% if view.role == roles.OWNER %}{% trans "Update my details" as update_title %}{% endif %}
                             <a href="{% url 'profile_edit' profile.pk profile.autoslug %}"
                                class="btn btn-success"
-                               title="{{ update_title }}">
+                               title="{{ update_title }}"
+                               data-toggle="tooltip" data-container="body" data-placement="bottom">
                                 <span class="fa fa-pencil" aria-hidden="true"></span>&nbsp; {% trans "Modify account" %}
                             </a>
                         {% endif %}
@@ -254,9 +256,12 @@
                             {% if not place.visibility.online_public %}concealed{% endif %}
                        {% endfilter %}"
                 id="p{{ place.pk }}">
-                <div class="btn-group pull-right">
+                <div class="btn-group control-buttons pull-right">
                     {% block place_edit_buttons %}{% endblock %}
-                    <a href="{% url 'place_detail' place.pk %}" class="btn btn-primary" title="{% trans "View details of this place" %}">
+                    <a href="{% url 'place_detail' place.pk %}"
+                       class="btn btn-primary"
+                       title="{% trans "View details of this place" %}"
+                       data-toggle="tooltip" data-container="#p{{ place.pk }}">
                         <span class="fa fa-arrow-right" aria-hidden="true"></span>
                         <span class="{% if view.public_view %}hidden-xxs{% else %}hidden-xs{% endif %}">{% trans "View" %}</span>
                     </a>

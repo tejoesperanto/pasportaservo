@@ -140,8 +140,12 @@
                                 </p>
                             {% endif %}
                             {% if view.role == roles.OWNER and not place.deleted %}
-                                <div class="place-blocking text-right pull-right">
-                                    <button data-target="#set-blocking" class="btn btn-default btn-sm" data-toggle="collapse" aria-haspopup="true" aria-expanded="false">
+                                <div class="place-blocking text-right pull-right"
+                                     title="{% trans "Indicate unavailability" %}" data-toggle="tooltip">
+                                    <button data-target="#set-blocking"
+                                            class="btn btn-default btn-sm"
+                                            data-toggle="collapse"
+                                            aria-haspopup="true" aria-expanded="false">
                                         <span class="sr-only">{% trans "unavailable" %} ?</span>
                                         <span class="fa fa-clock-o" aria-hidden="true"></span>
                                     </button>
@@ -349,7 +353,7 @@
             {# END OF PLACE DETAILS #}
             </div>
 
-            <p class="col-xs-12">
+            <p class="col-xs-12 place-control control-buttons">
             {# CONTACT AND CONTROL BUTTONS #}
                 {% if view.role != roles.OWNER and not place.owner.deleted_on %}
                     <a href="{% url 'postman:write' place.owner.user.username %}" class="btn btn-primary btn-vert-space"
@@ -368,7 +372,7 @@
                 {% if place_owner_or_supervisor or user.profile in place.family_members_cache %}
                     <a href="{% url 'place_location_update' place.pk %}"
                        class="btn btn-success btn-vert-space"
-                       title="{% trans "Update location on map" %}">
+                       title="{% trans "Update location on map" %}" data-toggle="tooltip">
                         <span class="fa fa-map-marker" aria-hidden="true"></span>
                         <span class="hidden-xxs">{% trans "Edit location" %}</span>
                     </a>
@@ -379,7 +383,8 @@
                         {% if place_owner_or_supervisor %}
                             <a href="{% url 'place_update' place.pk %}?next={{ request.get_full_path|urlencode }}"
                                class="btn btn-success"
-                               title="{% blocktrans %}Update {{ kin }}place{% endblocktrans %}">
+                               title="{% blocktrans %}Update {{ kin }}place{% endblocktrans %}"
+                               data-toggle="tooltip" data-container=".control-buttons.place-control">
                                 <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
                                 <span class="">{% trans "Update" %}</span>
                             </a>
@@ -387,7 +392,8 @@
                         {% if view.role == roles.OWNER %}
                             <a href="{% url 'authorize_user' place.pk %}?next={{ request.get_full_path|urlencode }}"
                                class="btn btn-warning"
-                               title="{% trans "Authorized users" %}">
+                               title="{% trans "Authorized users" %}"
+                               data-toggle="tooltip" data-container=".control-buttons.place-control">
                                 <span class="fa fa-eye" aria-hidden="true"></span>
                                 <span class="hidden-xxs">{% trans "Authorizations" %}</span>
                             </a>
@@ -395,7 +401,8 @@
                         {% if not view.verbose_view %}
                             <a href="{% url 'place_detail_verbose' place.pk %}"
                                class="btn btn-primary"
-                               title="{% trans "View as an authorized user" %}">
+                               title="{% trans "View as an authorized user" %}"
+                               data-toggle="tooltip" data-container=".control-buttons.place-control">
                                 <span class="fa-stack fa-stack-sm" aria-hidden="true">
                                     <span class="fa fa-eye fa-stack-1x"              style="top: -0.8ex"></span>
                                     <span class="fa fa-long-arrow-right fa-stack-1x" style="top: +0.5ex"></span>
@@ -405,7 +412,8 @@
                         {% else %}
                             <a href="{% url 'place_detail' place.pk %}"
                                class="btn btn-primary"
-                               title="{% trans "View as a regular user" %}">
+                               title="{% trans "View as a regular user" %}"
+                               data-toggle="tooltip" data-container=".control-buttons.place-control">
                                 <span class="fa-stack fa-stack-sm" aria-hidden="true">
                                     <span class="fa fa-circle-o fa-stack-1x"         style="top: -0.8ex"></span>
                                     <span class="fa fa-long-arrow-right fa-stack-1x" style="top: +0.6ex"></span>

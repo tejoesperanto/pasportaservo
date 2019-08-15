@@ -34,7 +34,8 @@
             <form class="search" id="searchform" role="form" method="GET" action="{% url 'search' %}">
                 {% if not view.query or not view.result.point %}
                     <a class="btn btn-default pull-right" href="{% url 'world_map' %}" id="maplink"
-                       title="{% trans "Map of hosts" %}" tabindex="2">
+                       title="{% trans "Map of hosts" %}" tabindex="2"
+                       data-toggle="tooltip" data-placement="bottom">
                         <span class="fa fa-globe fa-lg" aria-hidden="true"></span>
                         <span class="sr-only">{% trans "Map of hosts" %}</span>
                     </a>

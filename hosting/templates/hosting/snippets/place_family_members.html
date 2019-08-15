@@ -16,7 +16,8 @@
                 {% spaceless %}
                 {# INFORMATION ABOUT FAMILY MEMBER, AND IF APPLICABLE, LINK TO THE PROFILE #}
                     {% if member|show_family_member_link:user_role %}
-                        <a href="{{ member.get_absolute_url }}" data-toggle="popover" data-trigger="hover focus" data-placement="top"
+                        <a href="{{ member.get_absolute_url }}"
+                           data-toggle="popover" data-trigger="hover focus" data-placement="top"
                            data-content="<img src='{{ member.avatar_url }}' height='90'>" data-html="true">
                     {% endif %}
                         <span {% if member.deleted %}class="text-muted" title="{% trans "Deleted profile" %}"{% endif %}>
