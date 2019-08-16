@@ -15,6 +15,8 @@ from django.http import (
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.urls import reverse_lazy
+from django.utils.http import urlquote_plus
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.views import generic
 
@@ -356,7 +358,10 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse_lazy('authorize_user', kwargs={'pk': self.kwargs['pk']})
+        success_url = reverse_lazy('authorize_user', kwargs={'pk': self.kwargs['pk']})
+        if self.request.GET.get('next', default='').strip():
+            return format_lazy('{}?next={}', success_url, urlquote_plus(self.request.GET['next']))
+        return success_url
 
     def send_email(self, user, place):
         config = SiteConfiguration.get_solo()
