@@ -3,7 +3,7 @@
 
 {% block head_title %}{% trans "Authorized users" %}: {{ place }}{% endblock %}
 
-{% block form_action %}{% url 'authorize_user' pk=place.pk %}?next={{ request.GET.next }}{% endblock %}
+{% block form_action %}{% url 'authorize_user' pk=place.pk %}{% if request.GET.next.strip %}?next={{ request.GET.next|urlencode:"" }}{% endif %}{% endblock %}
 {% block form_submit_button %}<span class="fa fa-plus" aria-hidden="true"></span> {% trans "Authorize" %}{% endblock %}
 
 {% block form_before %}
@@ -16,7 +16,9 @@
 
 
 {% block form_back_link %}
-    <a href="{{ request.GET.next }}" class="btn btn-default" 
+    {% url 'place_detail' place.pk  as place_page_url %}
+    <a href="{{ request.GET.next.strip|default:place_page_url }}"
+       class="btn btn-default"
        title="{% if back_to %}{% blocktrans %}Back to {{ back_to }}{% endblocktrans %}{% else %}{% trans "Back" %}{% endif %}">
         <span class="fa fa-arrow-left" aria-hidden="true"></span>
         <span class="hidden-xxs">{% trans "Back" %}</span>
@@ -29,7 +31,7 @@
     {% url 'authorize_user' place.pk  as auth_form_url %}
     {% for auth_user, auth_form in authorized_set %}
         <div class="col-xs-12 col-md-6 col-md-offset-3">
-            <form method="POST" action="{{ auth_form_url }}?next={{ request.GET.next }}">
+            <form method="POST" action="{{ auth_form_url }}{% if request.GET.next.strip %}?next={{ request.GET.next|urlencode:"" }}{% endif %}">
                 <p class="col-xs-12 well authorized-user">
                     <span class="avatar">
                         <img class="center-block" src="{{ auth_user.profile.avatar_url }}" height="30" alt="[{% trans "avatar" %}]" />
