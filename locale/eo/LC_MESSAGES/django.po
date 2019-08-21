@@ -2197,6 +2197,9 @@ msgstr "^landaj-organizantoj/$"
 msgid "OK"
 msgstr "Enordas"
 
+msgid "Back to previous page"
+msgstr "Reen al antaŭa paĝo"
+
 msgid "Server error"
 msgstr "Servila eraro"
 

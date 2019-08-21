@@ -57,7 +57,7 @@ window.addEventListener("load", function() {
             }
         });
         map.on('click', 'places', function(e) {
-            var placePanel = document.getElementById('place-' + e.features[0].id);
+            var placePanel = document.getElementById('p-' + e.features[0].id);
             if (!placePanel)
                 return;
             placePanel.scrollIntoView();
