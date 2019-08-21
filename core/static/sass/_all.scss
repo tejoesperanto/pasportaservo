@@ -692,6 +692,7 @@ html.js-enabled #tasks-header[data-toggle="collapse"] {
         margin-left: 20px;
     }
     .control-buttons .timestamp {
+        white-space: pre;
         margin-bottom: 0px;
         margin-right: 1px;
         &:first-of-type {
