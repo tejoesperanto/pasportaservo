@@ -164,16 +164,22 @@
                             </div>
                         </div>
 
-                        <p class="timestamp text-right text-muted" title="{% trans "last login" %}<br />{{ place.owner.user.last_login }}"
+                        {% spaceless %}
+                        <p class="timestamp text-right text-muted"
+                           title="{% trans "last login" %}<br />{{ place.owner.user.last_login|default:_("never") }}"
                            data-toggle="tooltip" data-html="true" data-placement="bottom">
                             <small class="fa fa-sign-in" aria-hidden="true" style="position: relative; left: -2px"></small>
-                            <small><samp>{{ place.owner.user.last_login|date:"Y-m-d H:i" }} UTC</samp></small>
+                            <small><samp> {{ place.owner.user.last_login|date:"Y-m-d H:i"|default:"—"|stringformat:"-16s" }} UTC</samp></small>
                         </p>
-                        <p class="timestamp text-right text-muted" title="{% trans "last modification" %}<br />{{ place.modified }}"
+                        {% endspaceless %}
+                        {% spaceless %}
+                        <p class="timestamp text-right text-muted"
+                           title="{% trans "last modification" %}<br />{{ place.modified|default:_("never") }}"
                            data-toggle="tooltip" data-html="true" data-placement="bottom">
                             <small class="fa fa-pencil-square-o" aria-hidden="true"></small>
-                            <small><samp>{{ place.modified|date:"Y-m-d H:i" }} UTC</samp></small>
+                            <small><samp> {{ place.modified|date:"Y-m-d H:i"|default:"—"|stringformat:"-16s" }} UTC</samp></small>
                         </p>
+                        {% endspaceless %}
                     {# END OF CONTROL BUTTONS #}
                     </div>
 

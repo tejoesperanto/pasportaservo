@@ -1556,6 +1556,9 @@ msgstr "Nekontrolita"
 msgid "last login"
 msgstr "lasta ensaluto"
 
+msgid "never"
+msgstr "neniam"
+
 msgid "last modification"
 msgstr "lasta redakto"
 
