@@ -187,6 +187,11 @@
                                 {% endif %}
                             </h4>
                         </a>
+                        <a href="{% url 'profile_update' place.profile.pk place.profile.autoslug %}?next={{ current_page_position|urlencode:"" }}"
+                           class="btn btn-default btn-sm btn-vert-space">
+                            {% trans "Update profile" %}
+                        </a>
+
                         <div class="address">
                             {{ place.address }}<br />
                             {{ place.postcode}} <span class="fa fa-dot-circle-o" aria-hidden="true"></span> <strong>{{ place.city }}</strong><br />
@@ -224,8 +229,11 @@
                             {% for phone in place.profile.phones.all %}
                                 {% if not phone.deleted %}
                                     <small class="phone-number">
-                                        {{ phone.icon }}
-                                        <b class="number">{{ phone.number.as_international }}</b>
+
+                                        <b class="number">
+                                            {{ phone.icon }}
+                                            {{ phone.number.as_international }}
+                                        </b>
                                         <em class="comment{% if phone.comments|is_esperanto_surrogate %} text-surrogate text-warning{% endif %}">
                                             {{ phone.comments }}
                                             {% if phone.comments|is_esperanto_surrogate %}
@@ -234,6 +242,14 @@
                                                       aria-label="{% trans "Warning " context 'Title' %}: {% trans "Esperanto letters?" %}"></span>
                                             {% endif %}
                                         </em>
+                                        {% spaceless %}
+                                        <a href="{% url 'phone_update' place.profile.pk phone.pk %}?next={{ current_page_position|urlencode:"" }}"
+                                           class="action-edit-inline text-label-success"
+                                           title="{% trans "Update a phone number" %}" data-toggle="tooltip">
+                                            <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+                                            <span class="sr-only">{% trans "Update a phone number" %}</span>
+                                        </a>
+                                        {% endspaceless %}
                                     </small>
                                 {% endif %}
                             {% endfor %}
