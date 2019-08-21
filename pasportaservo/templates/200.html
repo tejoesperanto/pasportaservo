@@ -3,3 +3,20 @@
 
 {% block home_title %}200{% endblock %}
 {% block home_subtitle %}{% trans "OK" %}{% endblock %}
+
+{% block pre-page %}{% endblock %}
+
+{% block home_content %}
+    {% if request.GET.next.strip %}
+        <div class="row">
+            <div class="col-md-12" style="text-align: center; margin-bottom: 2em">
+                <a href="{{ request.GET.next }}" class="btn btn-lg btn-default" tabindex="1">
+                    <span class="fa fa-arrow-left" aria-hidden="true"></span>&nbsp;
+                    {% trans "Back to previous page" %}
+                </a>
+            </div>
+        </div>
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}

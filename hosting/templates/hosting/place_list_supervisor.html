@@ -127,7 +127,9 @@
             {% endif %}
             {% for place in confirmed_state.list %}
                 <div class="place-supervisor-detail callout {% if place.checked %}callout-success{% endif %} {% if not place.confirmed %}callout-warning{% endif %}"
-                     id="place-{{ place.pk }}">
+                     id="p-{{ place.pk }}">
+                    {% expr request.get_full_path()+"#p-"+str(place.pk) as current_page_position %}
+
                     <div class="control-buttons pull-right">
                     {# CONTROL BUTTONS: CHECK, UPDATE; IMPORTANT TIMESTAMPS #}
                         <div class="btn-toolbar" role="toolbar">
@@ -249,7 +251,8 @@
                             </span>
                         {% else %}
                             <span class="person-email-address">{{ place.profile.user.email|urlize }}</span>
-                            <form action="{% url 'staff_email_mark_invalid' place.profile.pk place.profile.autoslug %}" method="POST"
+                            <form action="{% url 'staff_email_mark_invalid' place.profile.pk place.profile.autoslug %}?next={{ current_page_position|urlencode:"" }}"
+                                  method="POST"
                                   class="unwrap-after-success" style="display: inline">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-default btn-xs btn-vert-space-even ajax"
@@ -261,7 +264,7 @@
                                 </button>
                             </form>
                         {% endif %}
-                        <a href="{% url 'staff_email_update' place.profile.pk place.profile.autoslug %}?next={{ request.get_full_path|urlencode }}"
+                        <a href="{% url 'staff_email_update' place.profile.pk place.profile.autoslug %}?next={{ current_page_position|urlencode:"" }}"
                            class="btn btn-default btn-sm">
                             {% trans "Update email" %}
                         </a>
