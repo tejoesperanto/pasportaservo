@@ -20,7 +20,7 @@
 {% block page_class %} profile-detail{% endblock %}
 
 {% block page %}
-    {% if user.profile and user.profile.has_places_for_book and not user.profile.places_confirmed %}
+    {% if user.profile and user.profile.has_places_for_in_book and not user.profile.places_confirmed %}
     {# PAGE-TOP REQUEST TO APPROVE HOSTING DATA #}
         <div class="row bg-info top-notice remove-after-success">
             {% if view.role != roles.OWNER %}

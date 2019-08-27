@@ -1,5 +1,7 @@
+import re
+from collections import namedtuple
 from datetime import date
-from functools import partialmethod
+from functools import partial, partialmethod
 
 from django.apps import apps
 from django.conf import settings
@@ -8,7 +10,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.db.models import LineStringField, PointField
 from django.db import models, transaction
-from django.db.models import F, Q, Value as V
+from django.db.models import F, Value as V
 from django.db.models.functions import Concat, Substr
 from django.urls import reverse
 from django.utils import timezone
@@ -28,6 +30,10 @@ from core.utils import camel_case_split
 from maps import SRID
 
 from .fields import StyledEmailField, SuggestiveField
+from .filters import (
+    HostingFilter, InBookFilter, MeetingFilter,
+    OkForBookFilter, OkForGuestsFilter,
+)
 from .gravatar import email_to_gravatar
 from .managers import AvailableManager, NotDeletedManager, TrackingManager
 from .utils import UploadAndRenameAvatar, value_without_invalid_marker
@@ -452,64 +458,66 @@ class Profile(TrackingModel, TimeStampedModel):
         return slugify(self.name) or '--'
 
     @cached_property
-    def is_hosting(self):
-        """
-        Return number of owned places where the user hosts and are visible to the public.
-        """
-        return self.owned_places.filter(
-            available=True, deleted=False, visibility__visible_online_public=True,
-        ).count()
+    def _listed_places(self):
+        fields = (
+            'id',
+            # host's offer (hosting/meeting):
+            'available', 'tour_guide', 'have_a_drink',
+            # in printed edition?
+            'in_book',
+            # visibility preferences:
+            'visibility__visible_online_public', 'visibility__visible_in_book',
+            # verification status:
+            'confirmed', 'checked',
+        )
+        objects = self.owned_places.filter(deleted=False).values(*fields)
+        return tuple(namedtuple('SimplePlaceContainer', place.keys())(*place.values()) for place in objects)
 
-    @cached_property
-    def has_places_for_hosting(self):
-        return self.owned_places.filter(
-            available=True, deleted=False,
-        ).count()
-
-    @cached_property
-    def is_meeting(self):
-        """
-        Return number of owned places where the user is ready to meet up with guests
-        and are visible to the public.
-        """
-        owner_available = Q(tour_guide=True) | Q(have_a_drink=True)
-        return self.owned_places.filter(
-            owner_available, deleted=False, visibility__visible_online_public=True,
-        ).count()
-
-    @cached_property
-    def has_places_for_meeting(self):
-        return self.owned_places.filter(
-            Q(tour_guide=True) | Q(have_a_drink=True), deleted=False,
-        ).count()
-
-    @cached_property
-    def is_in_book(self):
-        """
-        Return number of owned places selected to appear in the printed edition and
-        not (temporarily) hidden for publication.
-        """
-        return self.owned_places.filter(
-            available=True, in_book=True, deleted=False, visibility__visible_in_book=True,
-        ).count()
-
-    @cached_property
-    def has_places_for_book(self):
-        return self.owned_places.filter(
-            available=True, in_book=True, deleted=False,
-        ).count()
-
-    def is_ok_for_book(self, accept_confirmed=False, accept_approved=True):
-        book_filter = Q(confirmed=True) if accept_confirmed else Q()
-        book_filter |= Q(checked=True) if accept_approved else Q()
-        return self.owned_places.filter(
-            book_filter, available=True, in_book=True,
-            deleted=False, visibility__visible_in_book=True,
-        ).exists()
+    def _count_listed_places(self, attr, query, restrained_search, **kwargs):
+        cached = self.__dict__.setdefault('_host_offer_cache', {}).get(attr) if not len(kwargs) else None
+        if not cached:
+            try:
+                _filter = {
+                    'hosting': HostingFilter,
+                    'meeting': MeetingFilter,
+                    'accepting_guests': OkForGuestsFilter,
+                    'in_book': InBookFilter,
+                    'ok_for_book': OkForBookFilter,
+                }[query](restrained_search, **kwargs)
+            except KeyError:
+                raise AttributeError("Query '%s' is not implemented for model Profile" % query)
+            else:
+                cached = len([p.id for p in self._listed_places if _filter(p)])
+            if not len(kwargs):
+                self._host_offer_cache[attr] = cached
+        return cached
 
     @property
     def places_confirmed(self):
         return all(p.confirmed for p in self.owned_places.filter(deleted=False, in_book=True))
+
+    def __getattr__(self, attr):
+        """
+        This dynamic attribute access allows to query the status of the profile as a host.
+        The following queries are supported:
+            * is_hosting / has_places_for_hosting
+            * is_meeting / has_places_for_meeting
+            * is_accepting_guests / has_places_for_accepting_guests
+            * is_in_book / has_places_for_in_book
+            * is_ok_for_book
+        """
+        m = re.match(r'^(is|has_places_for)_([a-z_]+)$', attr)
+        if not m:
+            raise AttributeError("Attribute %s does not exist on model Profile" % attr)
+        query = m.group(2).lower()
+        restrained_search = m.group(1) == 'is'
+        customizable_queries = {
+            'ok_for_book': {'accept_confirmed': False, 'accept_approved': True},
+        }
+        if query in customizable_queries:
+            return partial(self._count_listed_places, attr, query, restrained_search, **customizable_queries[query])
+        else:
+            return self._count_listed_places(attr, query, restrained_search)
 
     def __str__(self):
         if self.full_name:
