@@ -59,7 +59,7 @@ class ProfileForm(forms.ModelForm):
         field_bd.widget.attrs['data-date-end-date'] = '0d'
         field_bd.widget.attrs['pattern'] = '[1-2][0-9]{3}-((0[1-9])|(1[0-2]))-((0[1-9])|([12][0-9])|(3[0-1]))'
 
-        if hasattr(self, 'instance') and self.instance.has_places_for_book:
+        if hasattr(self, 'instance') and self.instance.has_places_for_in_book:
             message = _("This field is required to be printed in the book.")
             for field in self._validation_meta.book_required_fields:
                 req_field = self.fields[field]
@@ -77,7 +77,7 @@ class ProfileForm(forms.ModelForm):
         cleaned_data = super().clean()
         if hasattr(self, 'instance'):
             profile = self.instance
-            for_book = profile.has_places_for_book
+            for_book = profile.has_places_for_in_book
             all_filled = all([cleaned_data.get(field, False) for field in self._validation_meta.book_required_fields])
             message = _("You want to be in the printed edition of Pasporta Servo. "
                         "In order to have a quality product, some fields are required. "
