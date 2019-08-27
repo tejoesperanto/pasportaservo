@@ -188,7 +188,7 @@ $(document).ready(function() {
             var general_errors = response.err__all__;
             $op_errors.empty();
             if (general_errors != undefined) {
-                $op_errors.append($(document.createElement('li')).text(general_errors.join(" ")));
+                $op_errors.append($(document.createElement('li')).text(general_errors.join(" ⁕ ")));
             }
             for (var field in response.err) {
                 $op_errors.append($(document.createElement('li')).text(

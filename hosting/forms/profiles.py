@@ -83,7 +83,15 @@ class ProfileForm(forms.ModelForm):
                         "In order to have a quality product, some fields are required. "
                         "If you think there is a problem, please contact us.")
             if for_book and not all_filled:
-                raise forms.ValidationError(message)
+                if profile.has_places_for_hosting != profile.has_places_for_in_book:
+                    clarify_message = format_lazy(
+                        _("You are a host in {count_as_host} places, "
+                          "of which {count_for_book} should be in the printed edition."),
+                        count_as_host=profile.has_places_for_accepting_guests,
+                        count_for_book=profile.has_places_for_in_book)
+                    raise forms.ValidationError([message, clarify_message])
+                else:
+                    raise forms.ValidationError(message)
         return cleaned_data
 
 
