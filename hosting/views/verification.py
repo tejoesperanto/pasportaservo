@@ -52,7 +52,7 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
     the requirements from hosts and guests.
     """
     http_method_names = ['post']
-    template_name = '200.html'
+    template_names = {True: '200.html', False: 'hosting/place_check_detail.html'}
     minimum_role = SUPERVISOR
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
@@ -87,5 +87,8 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
         if request.is_ajax():
             return JsonResponse(viewresponse)
         else:
-            # Not implemented; only AJAX requests are expected.
-            return TemplateResponse(request, self.template_name)
+            return TemplateResponse(
+                request,
+                self.template_names[data_correct],
+                context={'view': self, 'place': place, 'result': viewresponse}
+            )
