@@ -1323,6 +1323,13 @@ msgstr "Nuligita profilo"
 msgid "Remove user"
 msgstr "Forigi uzanton"
 
+msgid "Hosting place verification"
+msgstr "Kontrolo de loĝejo"
+
+msgctxt "Adverb"
+msgid "General"
+msgstr "Ĝenerale"
+
 msgid "my "
 msgstr "mian "
 

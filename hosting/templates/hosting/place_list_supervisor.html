@@ -138,9 +138,11 @@
                                 {% if place.checked %}
                                     {% include './snippets/checked.html' with object=place button=True button_id=id_check_status %}
                                 {% else %}
-                                    <form action="{% url 'place_check' place.pk %}" method="POST" class="unwrap-after-success">
+                                    <form action="{% url 'place_check' place.pk %}?next={{ current_page_position|urlencode:"" }}"
+                                          method="POST"
+                                          class="unwrap-after-success">
                                         {% csrf_token %}
-                                        <button type="button" id="{{ id_check_status }}" class="btn btn-warning ajax"
+                                        <button type="submit" id="{{ id_check_status }}" class="btn btn-warning ajax"
                                                 aria-live="assertive" aria-atomic="true"
                                                 data-csrf="{{ csrf_token }}"
                                                 data-hover-text="{% trans "Check?" %}"
@@ -151,8 +153,9 @@
                                                 data-failure-message="check-place-check-errors"
                                                 autocomplete="off">
                                             {% trans "Not checked" %}
+                                            <span class="sr-only">({% trans "Check?" %})</span>
                                         </button>
-                                        <span class="fa fa-clock-o fa-spin process-icon" style="display: none" aria-label="{% trans "working..." %}">
+                                        <span class="fa fa-clock-o fa-spin process-icon" style="display: none" aria-label="{% trans "working..." %}"></span>
                                     </form>
                                 {% endif %}
                             </div>

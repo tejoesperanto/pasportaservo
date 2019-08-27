@@ -192,7 +192,7 @@ $(document).ready(function() {
             }
             for (var field in response.err) {
                 $op_errors.append($(document.createElement('li')).text(
-                    field + ": " + response.err[field]
+                    field + ": " + response.err[field].map(function(e) { return e.replace(/[.!]+$/g, "") }).join("; ")
                 ));
             }
             $op_notify.modal();

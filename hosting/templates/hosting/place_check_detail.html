@@ -1,0 +1,60 @@
+{% extends 'core/base.html' %}
+{% load i18n %}
+
+{% block head_title %}
+    {% trans "Hosting place verification" %}:
+    {{ place.owner.name|default:place.owner.INCOGNITO }}, {{ place.get_locality_display }}
+{% endblock %}
+
+{% block safe_page_title %}
+    {% if True %}
+            return document.title.replace('{{ place.get_locality_display|escapejs }}', 'XXXXXX (XXXXXX)');
+    {% endif %}
+{% endblock %}
+
+{% block page %}
+    <p class="text-center lead">{% trans "There is a problem with this host's data…" %}</p>
+    <div class="row">
+        <div class="col-xs-12 col-md-6 col-md-offset-3">
+            <dl class="list-group">
+                {% if result.err__all__ %}
+                    <dt class="list-group-item list-group-item-warning">{% trans "General" context "Adverb" %}</dt>
+                    <dd class="list-group-item">
+                        {% for err in result.err__all__ %}
+                            <p>{{ err }}</p>
+                        {% endfor %}
+                    </dd>
+                {% endif %}
+                {% for field_name, field_errors in result.err.items %}
+                    <dt class="list-group-item list-group-item-warning">{{ field_name }}</dt>
+                    <dd class="list-group-item">
+                        {% for err in field_errors %}
+                            <p>{{ err }}</p>
+                        {% endfor %}
+                    </dd>
+                {% endfor %}
+            </dl>
+            <div class="btn-group btn-vert-space pull-right">
+                <a href="{% url 'profile_update' place.owner.pk place.owner.autoslug %}?next={{ request.GET.next|urlencode:"" }}"
+                   class="btn btn-success" tabindex="2">
+                    <span class="hidden-xxs" aria-hidden="true">
+                        <span class="fa fa-user"></span>&nbsp;<span class="fa fa-pencil"></span>&nbsp;
+                    </span>
+                    {% trans "Update profile" %}
+                </a>
+                <a href="{% url 'place_update' place.pk %}?next={{ request.GET.next|urlencode:"" }}"
+                   class="btn btn-success" tabindex="2">
+                    <span class="hidden-xxs" aria-hidden="true">
+                        <span class="fa fa-home"></span>&nbsp;<span class="fa fa-pencil"></span>&nbsp;
+                    </span>
+                    {% blocktrans %}Update {{ kin }}place{% endblocktrans %}
+                </a>
+            </div>
+            <a href="{{ request.GET.next|default:"javascript:history.go(-1)" }}"
+               class="btn btn-default btn-vert-space" tabindex="1">
+                <span class="fa fa-arrow-left" aria-hidden="true"></span>&nbsp;
+                {% trans "Back to previous page" %}
+            </a>
+        </div>
+    </div>
+{% endblock page %}

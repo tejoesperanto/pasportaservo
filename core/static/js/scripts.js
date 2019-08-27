@@ -21,7 +21,7 @@ $(document).ready(function() {
     // Button hover
     $('.btn').hover(function() {
         var $this = $(this);
-        $this.data('original-text', $this.text());
+        $this.data('original-text', $this.html());
         if ($this.data('hover-text')) {
             var preserveWidth = $this.width();
             $this.text($this.data('hover-text')).width(preserveWidth);
@@ -32,7 +32,7 @@ $(document).ready(function() {
     }, function() {
         var $this = $(this);
         if ($this.data('hover-text') && $this.data('original-text')) {
-            $this.text($this.data('original-text')).width("auto");
+            $this.html($this.data('original-text')).width("auto");
         }
         if ($this.data('hover-class')) {
             $this.removeClass($this.data('hover-class'));
