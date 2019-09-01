@@ -1,6 +1,9 @@
 from django import forms
 from django.core import checks
 from django.db import models
+from django.db.models.fields.related_descriptors import (
+    ForwardManyToOneDescriptor,
+)
 from django.utils import six
 from django.utils.html import format_html
 from django.utils.itercompat import is_iterable
@@ -150,6 +153,17 @@ class ForeigKeyWithSuggestions(models.ForeignKey):
 
     def get_attname(self):
         return '{}_value'.format(self.name)
+
+    class LenientForwardDescriptor(ForwardManyToOneDescriptor):
+        def get_object(self, model_instance):
+            try:
+                return super().get_object(model_instance)
+            except models.ObjectDoesNotExist:
+                data = {'pk': -1}
+                data[self.field.to_fields[0]] = getattr(model_instance, self.field.attname)
+                return self.field.remote_field.model(**data)
+
+    forward_related_accessor_class = LenientForwardDescriptor
 
     def validate(self, value, model_instance):
         _handle_invalid_choice(self, value, model_instance, code='invalid')
