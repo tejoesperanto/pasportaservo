@@ -351,6 +351,7 @@ class Profile(TrackingModel, TimeStampedModel):
         _("gender"),
         blank=True,
         choices='hosting.Gender', to_field='name',
+        db_column='gender_value',
         help_text=_("Type your preference or select one from the suggestions."))
     pronoun = models.CharField(
         _("personal pronoun"),
