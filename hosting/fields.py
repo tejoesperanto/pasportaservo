@@ -151,9 +151,6 @@ class ForeigKeyWithSuggestions(models.ForeignKey):
             )
         return errors
 
-    def get_attname(self):
-        return '{}_value'.format(self.name)
-
     class LenientForwardDescriptor(ForwardManyToOneDescriptor):
         def get_object(self, model_instance):
             try:

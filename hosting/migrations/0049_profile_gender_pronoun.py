@@ -14,10 +14,11 @@ class Migration(migrations.Migration):
 
     operations = [
         # Help text for users to better understand the form field
+        # Explicit db_column to avoid losing data due to a (non-versionable) change of ForeigKeyWithSuggestions' attname
         migrations.AlterField(
             model_name='profile',
             name='gender',
-            field=hosting.fields.ForeigKeyWithSuggestions(blank=True, choices='hosting.Gender', help_text='Type your preference or select one from the suggestions.', to_field='name', verbose_name='gender'),
+            field=hosting.fields.ForeigKeyWithSuggestions(blank=True, choices='hosting.Gender', db_column='gender_value', help_text='Type your preference or select one from the suggestions.', to_field='name', verbose_name='gender'),
         ),
         # Additional and more inclusive pronouns
         migrations.AlterField(

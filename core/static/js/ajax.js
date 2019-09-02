@@ -211,7 +211,9 @@ $(document).ready(function() {
             }
             var $marker = $this.siblings($this.data('process-elem') || "undefined");
             var buttonWidth = $this.width();
-            $this.prop('disabled', true);
+            $this.prop('disabled', true)
+                 .removeData('hover-text').removeAttr('data-hover-text')
+                 .removeData('hover-class').removeAttr('data-hover-class');
             if ($marker.length) {
                 $this.html($marker).width(buttonWidth);
                 $marker.show().delay(Math.random()*1500 + 1000)
