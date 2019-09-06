@@ -1,0 +1,26 @@
+{% extends 'core/base.html' %}
+{% load i18n %}
+
+{% block head_title %}
+    {% trans "Profile required" as default_title %}
+    {{ function_title|default:default_title }}
+{% endblock %}
+
+{% block page %}
+    <h1 class="text-center text-label-warning">
+        <span class="fa-stack" aria-hidden="true">
+            <span class="fa fa-circle fa-stack-2x"></span>
+            <span class="fa fa-hand-stop-o fa-stack-1x fa-inverse"></span>
+        </span>
+        <span class="sr-only">{% trans "Profile required" %}</span>
+    </h1>
+
+    <h3 class="text-center">
+        {% trans "In order to use this function of the website, you need to create a profile first." as default_description %}
+        {{ function_description|default:default_description }}
+    </h3>
+
+    <div class="text-center" style="margin-top: 40px; margin-bottom: 10px;">
+        <a class="btn btn-lg btn-success" href="{% url 'profile_create' %}"><strong>{% trans "Create profile" %}</strong></a>
+    </div>
+{% endblock page %}
