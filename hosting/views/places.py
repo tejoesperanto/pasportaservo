@@ -7,7 +7,6 @@ from datetime import date
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.gis.geos import LineString, Point
-from django.core.exceptions import NON_FIELD_ERRORS
 from django.core.mail import send_mail
 from django.http import (
     HttpResponse, HttpResponseRedirect, JsonResponse, QueryDict,
@@ -29,7 +28,7 @@ from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
 from maps.utils import bufferize_country_boundaries
 
 from ..forms import (
-    PlaceBlockForm, PlaceCreateForm, PlaceForm,
+    PlaceBlockForm, PlaceBlockQuickForm, PlaceCreateForm, PlaceForm,
     PlaceLocationForm, UserAuthorizedOnceForm, UserAuthorizeForm,
 )
 from ..models import LOCATION_CITY, Place, Profile, Whereabouts
@@ -185,7 +184,7 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
                 block['format_until'] = "MONTH_DAY_FORMAT" if place.blocked_until.year == today.year else "DATE_FORMAT"
         else:
             block['enabled'] = False
-        block['form'] = PlaceBlockForm(instance=place)
+        block['form'] = PlaceBlockQuickForm(instance=place)
         return block
 
     def validate_access(self):
@@ -287,15 +286,24 @@ class PlaceDetailVerboseView(PlaceDetailView):
             return HttpResponseRedirect(reverse_lazy('place_detail', kwargs={'pk': self.kwargs['pk']}))
 
 
-class PlaceBlockView(AuthMixin, PlaceMixin, generic.View):
-    http_method_names = ['put']
+class PlaceBlockView(AuthMixin, PlaceMixin, generic.UpdateView):
+    http_method_names = ['get', 'post', 'put']
+    template_name = 'hosting/place_block_form.html'
+    form_class = PlaceBlockForm
     exact_role = OWNER
 
+    def get_permission_denied_message(self, *args, **kwargs):
+        return _("Only the owner of the place can access this page")
+
+    def get_success_url(self, *args, **kwargs):
+        if 'next' in self.request.GET:
+            return self.request.GET.get('next')
+        else:
+            return super().get_success_url(*args, **kwargs)
+
     def put(self, request, *args, **kwargs):
-        place = self.get_object()
-        if place.deleted:
-            return JsonResponse({'result': False, 'err': {NON_FIELD_ERRORS: [_("Deleted place"), ]}})
-        form = PlaceBlockForm(data=QueryDict(request.body), instance=place)
+        self.object = self.get_object()
+        form = PlaceBlockQuickForm(data=QueryDict(request.body), instance=self.object)
         data_correct = form.is_valid()
         response = {'result': data_correct}
         if data_correct:
@@ -319,7 +327,7 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
         kwargs['auth_base'] = self.place
         return super().dispatch(request, *args, **kwargs)
 
-    def get_permission_denied_message(self, object, context_omitted=False):
+    def get_permission_denied_message(self, *args, **kwargs):
         return _("Only the owner of the place can access this page")
 
     def get_context_data(self, **kwargs):

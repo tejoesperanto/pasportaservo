@@ -120,7 +120,7 @@
                         {% expr "text-warning" as confirm_color %}
                     {% endif %}
                     <div class="edit-buttons btn history-link"
-                         title="{% trans "profile" %} {{ confirm_title }} <br /> {{ profile.confirmed_on|date:"DATE_FORMAT" }}"
+                         data-title="{% trans "profile" %} {{ confirm_title }} <br /> {{ profile.confirmed_on|date:"DATE_FORMAT" }}"
                          data-toggle="tooltip" data-placement="left auto" data-html="true">
                         <span class="fa fa-list-alt {{ confirm_color }}"></span>
                         <span class="fa fa-{{ profile.confirmed|yesno:'check-,' }}square-o {{ confirm_color }}"></span>

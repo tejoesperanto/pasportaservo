@@ -225,9 +225,6 @@ class PlaceBlockForm(forms.ModelForm):
     class Meta:
         model = Place
         fields = ['blocked_from', 'blocked_until']
-    dirty = forms.ChoiceField(
-        choices=(('blocked_from', 1), ('blocked_until', 2)),
-        widget=forms.HiddenInput, label="")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -236,10 +233,62 @@ class PlaceBlockForm(forms.ModelForm):
             'data-date-force-parse': 'false',
             'data-date-autoclose': 'true',
             'placeholder': 'jjjj-mm-tt',
+        }
+
+        for field_name in self._meta.fields:
+            self.fields[field_name].widget.attrs.update(widget_settings)
+
+    def filter_cleaned_data(self, cleaned_data):
+        return cleaned_data
+
+    def clean(self):
+        """
+        Checks that place was not deleted (in this case, update is not allowed).
+        Checks if starting date is earlier than the ending date.
+        """
+        if self.instance.deleted:
+            raise forms.ValidationError(_("Deleted place"), code='deleted')
+
+        cleaned_data = super().clean()
+        cleaned_data = self.filter_cleaned_data(cleaned_data)
+        CleanedData = namedtuple('CleanedData', 'blocked_from, blocked_until')
+        data = CleanedData(cleaned_data.get('blocked_from'), cleaned_data.get('blocked_until'))
+
+        today = date.today()
+        if (data.blocked_from or today) < today:
+            self.add_error('blocked_from', _("Preferably select a date in the future."))
+        if (data.blocked_until or today) < today:
+            self.add_error('blocked_until', _("Preferably select a date in the future."))
+
+        if self.__class__ is PlaceBlockForm:
+            compare_with = data
+        if self.__class__ is PlaceBlockQuickForm:
+            compare_with = self.instance
+
+        if data.blocked_until and compare_with.blocked_from:
+            if data.blocked_until <= compare_with.blocked_from:
+                raise forms.ValidationError(_("Unavailability should finish after it starts."),
+                                            code='dates_agreement')
+        if data.blocked_from and compare_with.blocked_until:
+            if data.blocked_from >= compare_with.blocked_until:
+                raise forms.ValidationError(_("Unavailability should start before it finishes."),
+                                            code='dates_agreememt')
+
+        return cleaned_data
+
+
+class PlaceBlockQuickForm(PlaceBlockForm):
+    dirty = forms.ChoiceField(
+        choices=(('blocked_from', 1), ('blocked_until', 2)),
+        widget=forms.HiddenInput, label="")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        widget_settings = {
             'data-on-ajax-setup': 'blockPlaceSetup',
             'data-on-ajax-success': 'blockPlaceSuccess',
         }
-        widget_classes = ' form-control input-sm ajax-on-change'
+        widget_classes = ' form-control quick-form-control input-sm ajax-on-change'
 
         for (field_name, field_label) in (('blocked_from', _("commencing on")),
                                           ('blocked_until', _("concluding on"))):
@@ -251,27 +300,10 @@ class PlaceBlockForm(forms.ModelForm):
             value = self[field_name].value()
             attrs['data-value'] = field.widget.format_value(value) if value is not None else ''
 
-    def clean(self):
-        """
-        Checks if starting date is earlier than the ending date.
-        """
-        cleaned_data = super().clean()
+    def filter_cleaned_data(self, cleaned_data):
+        # Only inspect the field that was just changed (named in the 'dirty' parameter).
         cleaned_data = dict((k, v) for k, v in cleaned_data.items()
                             if k == cleaned_data.get('dirty', ''))
-
-        today = date.today()
-        if (cleaned_data.get('blocked_from') or today) < today:
-            self.add_error('blocked_from', _("Preferably select a date in the future."))
-        if (cleaned_data.get('blocked_until') or today) < today:
-            self.add_error('blocked_until', _("Preferably select a date in the future."))
-
-        if cleaned_data.get('blocked_until') and self.instance.blocked_from:
-            if cleaned_data['blocked_until'] <= self.instance.blocked_from:
-                raise forms.ValidationError(_("Unavailability should finish after it starts."))
-        if cleaned_data.get('blocked_from') and self.instance.blocked_until:
-            if cleaned_data['blocked_from'] >= self.instance.blocked_until:
-                raise forms.ValidationError(_("Unavailability should start before it finishes."))
-
         return cleaned_data
 
 

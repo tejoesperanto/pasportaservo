@@ -114,7 +114,7 @@ class ProfileRestoreView(
     template_name = 'hosting/profile_confirm_restore.html'
     exact_role = ADMIN
 
-    def get_permission_denied_message(self, object, context_omitted=False):
+    def get_permission_denied_message(self, *args, **kwargs):
         return _("Only administrators can access this page")
 
     def get_context_data(self, **kwargs):
@@ -274,7 +274,7 @@ class ProfilePrivacyUpdateView(AuthMixin, ProfileMixin, generic.View):
         form=VisibilityForm, formset=VisibilityFormSetBase, extra=0)
     VISIBILITY_FORMSET_PREFIX = 'publish'
 
-    def get_permission_denied_message(self, object, context_omitted=False):
+    def get_permission_denied_message(self, *args, **kwargs):
         return _("Only the user themselves can access this page")
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
