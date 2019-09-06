@@ -25,6 +25,7 @@
         <div class="col-xs-12 well {% block base_form_class %}base-form{% endblock %}{% block form_block_class %}{% endblock %}">
             <h4 class="{% block form_title_class %}{% endblock %}">{% block form_title %}{% endblock %}</h4>
             <p class="tip">{% block form_tip %}{% endblock %}</p>
+            {% block form_tip_after %}{% endblock %}
             <form class="form" method="POST" action="{% block form_action %}{% endblock %}" {% block enctype %}{% endblock %}>
                 <div class="{% block form_contents_class %}col-md-10 col-md-offset-1{% endblock %}">
                     {% csrf_token %}

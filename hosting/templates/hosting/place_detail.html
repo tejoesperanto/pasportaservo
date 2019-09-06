@@ -143,15 +143,22 @@
                                 <div class="place-blocking text-right pull-right"
                                      title="{% trans "Indicate unavailability" %}" data-toggle="tooltip">
                                     <button data-target="#set-blocking"
-                                            class="btn btn-default btn-sm"
+                                            class="btn btn-default btn-sm requires-scripting"
                                             data-toggle="collapse"
                                             aria-haspopup="true" aria-expanded="false">
                                         <span class="sr-only">{% trans "unavailable" %} ?</span>
                                         <span class="fa fa-clock-o" aria-hidden="true"></span>
                                     </button>
                                     <div id="set-blocking" class="panel panel-default place-blocking-panel collapse">
-                                    {% include './snippets/place_blocking_form.html' with place=place form=blocking.form form_class="panel-body" csrf_token=csrf_token only %}
+                                        {% include './snippets/place_blocking_quick_form.html' with place=place form=blocking.form form_class="panel-body" csrf_token=csrf_token only %}
                                     </div>
+                                    <noscript>
+                                        <a href="{% url 'place_block' place.pk %}?next={{ request.get_full_path|urlencode }}"
+                                           class="btn btn-default btn-sm">
+                                            <span class="sr-only">{% trans "unavailable" %} ?</span>
+                                            <span class="fa fa-clock-o" aria-hidden="true"></span>
+                                        </a>
+                                    </noscript>
                                 </div>
                             {% endif %}
 

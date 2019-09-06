@@ -1,0 +1,20 @@
+{% extends 'core/base_form.html' %}
+{% load i18n %}
+
+{% block head_title %}
+    {% trans "Indicate unavailability" %} ({{ place }})
+{% endblock %}
+
+{% block safe_page_title %}
+    {% if True %}
+            return document.title.replace('{{ place|stringformat:"s"|escapejs }}', 'XXXXXXXX');
+    {% endif %}
+{% endblock %}
+
+{% block form_title %}
+    {% trans "I am not available over here" %} : {{ place }}
+{% endblock %}
+{% block form_tip %}
+    {% trans "Leave the corresponding field empty if the starting or the ending date is not known." %}
+{% endblock %}
+{% block form_tip_after %}<hr />{% endblock %}

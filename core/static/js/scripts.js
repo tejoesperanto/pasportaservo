@@ -44,15 +44,18 @@ $(document).ready(function() {
         $('#id_blocked_from, #id_blocked_until').each(function () {
             var $input = $(this);
             var $toggler = $(document.createElement('span'));
-            $toggler.addClass('fa fa-calendar form-control-feedback datepicker-btn-inline')
+            $toggler.addClass('form-control-feedback datepicker-btn-inline')
                     .attr('aria-hidden', "true")
+                    .append($(document.createElement('span')).addClass('fa fa-calendar'))
                     .click(function() { $input.datepicker("show"); });
-            var id_helper = this.id + '_descript';
-            $input.siblings('.help-block').addClass('sr-only').attr('id', id_helper).end()
-                  .attr('aria-describedby', id_helper)
-                  .after($toggler)
-                  .data({dateShowOnFocus: false, dateKeyboardNavigation: false})
+            $input.after($toggler)
                   .parent().addClass('has-feedback');
+            if ($input.hasClass('quick-form-control')) {
+                var id_helper = this.id + '_descript';
+                $input.data({dateShowOnFocus: false, dateKeyboardNavigation: false})
+                      .siblings('.help-block').addClass('sr-only').attr('id', id_helper).end()
+                      .attr('aria-describedby', id_helper);
+            }
         });
 
         var fields_date = [$('#id_birth_date'),
