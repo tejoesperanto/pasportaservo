@@ -109,6 +109,17 @@ def format_pronoun(profile, tag=''):
 
 
 @register.filter
+def get_pronoun(profile):
+    if profile and profile.pronoun:
+        if profile.pronoun == profile.PRONOUN_ANY:
+            return profile.PRONOUN_NEUTRAL_VALUE
+        else:
+            return profile.get_pronoun_parts()[0]
+    else:
+        return Profile.PRONOUN_NEUTRAL_VALUE
+
+
+@register.filter
 def icon(model_instance, field=''):
     obj = model_instance if not field else model_instance._meta.get_field(field)
     return getattr(obj, 'icon', '')

@@ -1,16 +1,18 @@
 # https://faker.readthedocs.io/en/latest/providers/faker.providers.person.html
-from random import choice, random, uniform as uniform_random
+from random import choice, randint, random, uniform as uniform_random
 
 from django.contrib.gis.geos import Point
 
 from django_countries.data import COUNTRIES
 from django_countries.fields import Country
 from factory import (
-    DjangoModelFactory, Faker, LazyAttribute, PostGenerationMethodCall,
-    RelatedFactory, SubFactory, lazy_attribute,
+    DjangoModelFactory, Faker, LazyAttribute, LazyAttributeSequence,
+    PostGenerationMethodCall, RelatedFactory, SubFactory, lazy_attribute,
 )
+from phonenumber_field.phonenumber import PhoneNumber
+from slugify import slugify
 
-from hosting.models import MR, MRS, PRONOUN_CHOICES
+from hosting.models import MR, MRS, PHONE_TYPE_CHOICES, PRONOUN_CHOICES
 from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
 from maps.data import COUNTRIES_GEO
 
@@ -108,3 +110,32 @@ class PlaceFactory(DjangoModelFactory):
     description = Faker('paragraph', nb_sentences=4)
     short_description = Faker('text', max_nb_chars=140)
     in_book = False
+
+
+class PhoneFactory(DjangoModelFactory):
+    class Meta:
+        model = 'hosting.Phone'
+        django_get_or_create = ('profile',)
+
+    profile = SubFactory('tests.factories.ProfileFactory')
+    @lazy_attribute
+    def number(self):
+        # the Faker's phone-number provider is a mess.
+        phone = PhoneNumber()
+        while not phone.is_valid():
+            phone = PhoneNumber(country_code=randint(1, 999), national_number=randint(10000000, 9999999990))
+        return phone
+    country = LazyAttribute(lambda obj: Country(choice(list(COUNTRIES))))
+    comments = Faker('text', max_nb_chars=20)
+    type = Faker('random_element', elements=[ch[0] for ch in PHONE_TYPE_CHOICES])
+
+
+class ConditionFactory(DjangoModelFactory):
+    class Meta:
+        model = 'hosting.Condition'
+        exclude = ('word',)
+
+    word = Faker('word')
+    name = LazyAttribute(lambda obj: '{} {}.'.format(obj.word.title(), obj.word[::-1]))
+    abbr = LazyAttributeSequence(lambda obj, n: 'p/{}/{}'.format(obj.word[:6], n))
+    slug = LazyAttribute(lambda obj: slugify(obj.abbr, to_lower=True, separator='-'))
