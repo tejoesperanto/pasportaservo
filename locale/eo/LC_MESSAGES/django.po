@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2019-05-31 21:32+0000\n"
+"POT-Revision-Date: 2019-07-18 07:55+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1474,14 +1474,20 @@ msgstr "Detale…"
 msgid "No results found for <em>%(query)s</em>. Here are some active hosts!"
 msgstr "Neniu rezulto por <em>%(query)s</em>. Jen kelkaj aktivaj gastigantoj!"
 
-msgid "I'm hosting"
-msgstr "mi gastigas"
-
 msgid "Sorry, no kind hosts found…"
 msgstr "Bedaŭrinde ni ne trovis gastigemulojn…"
 
-msgid "inactive hosts temporarily not shown"
-msgstr "neaktivaj gastigantoj momente ne estas montritaj"
+msgid "I'm hosting"
+msgstr "mi gastigas"
+
+msgid "further results &raquo;"
+msgstr "pliaj rezultoj &raquo;"
+
+msgid "working..."
+msgstr "prilaboras..."
+
+msgid "you reached the end of the list"
+msgstr "vi atingis la finon de la listo"
 
 msgid "checked"
 msgid_plural "checked"
@@ -1529,9 +1535,6 @@ msgstr "Kontrolita"
 
 msgid "Not checked"
 msgstr "Nekontrolita"
-
-msgid "working..."
-msgstr "prilaboras..."
 
 msgid "last login"
 msgstr "lasta ensaluto"
@@ -2024,6 +2027,10 @@ msgstr "Dosiertipo ne akceptebla"
 #, python-brace-format
 msgid "Please keep filesize under {limit}. Current filesize {current}"
 msgstr "Bv. certigu ke dosiergrando estas sub {limit}. Nuna grando: {current}"
+
+msgctxt "value::plural"
+msgid "MOST RECENT"
+msgstr "PLEJ LASTAJ"
 
 msgid "The data is not saved yet! Note the specified errors."
 msgstr ""
