@@ -143,7 +143,7 @@ class SearchView(PlacePaginatedListView):
                 return (qs
                         .filter(country=self.result.country_code.upper())
                         .order_by('-owner__user__last_login', '-id'))
-        position = geocoder.ip(self.request.META['REMOTE_ADDR']
+        position = geocoder.ip(self.request.META['HTTP_X_REAL_IP']
                                if settings.ENVIRONMENT != 'DEV'
                                else "188.166.58.162")
         position.point = Point(position.xy, srid=SRID) if position.xy else None
