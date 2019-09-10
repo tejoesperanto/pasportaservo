@@ -1,5 +1,3 @@
-from django.conf import settings
-
 import postman
 
 
@@ -8,6 +6,7 @@ def patch_postman():
 
     def patched_notify_user(object, action, site):
         from postman.utils import notification
+        from django.conf import settings
         if not notification:
             if action == 'rejection':
                 user = object.sender
