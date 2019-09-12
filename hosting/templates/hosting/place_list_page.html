@@ -36,7 +36,7 @@
                             {% if offered %}<strong>{% endif %}{{ place.city }}{% if offered %}</strong>{% endif %}
                         {% endif %}
                         {% if place.distance %}<small>{{ place.distance.km|floatformat:0 }}&nbsp;km</small>{% endif %}
-                        {% if view.role == roles.ADMIN and place.internal_distance %}
+                        {% if user.is_superuser and place.internal_distance %}
                             <small>({{ place.internal_distance.km|floatformat:2 }}&nbsp;km)</small>
                         {% endif %}
                         <br />
