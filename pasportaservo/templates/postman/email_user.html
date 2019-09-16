@@ -1,8 +1,8 @@
 {% extends "email/base_email.html" %}
-{% load i18n domain expression %}
+{% load i18n domain variable %}
 
 {% block heading %}
-    {% expr object.sender.profile.get_absolute_url() as sender_url %}
+    {% asvar sender_url %}{{ object.sender.profile.get_absolute_url }}{% endasvar %}
     {% if sender_url %}
         {% domain sender_url asvar='sender_url' %}
         {% blocktrans with url=sender_url sender=object.obfuscated_sender trimmed %}

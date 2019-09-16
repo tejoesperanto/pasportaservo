@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n static expression %}
+{% load i18n static variable %}
 {% load is_invalid clear_invalid is_esperanto_surrogate from profile %}
 
 {% block head_title %}{{ view.country.name }}{% endblock %}
@@ -128,13 +128,13 @@
             {% for place in confirmed_state.list %}
                 <div class="place-supervisor-detail callout {% if place.checked %}callout-success{% endif %} {% if not place.confirmed %}callout-warning{% endif %}"
                      id="p-{{ place.pk }}">
-                    {% expr request.get_full_path()+"#p-"+str(place.pk) as current_page_position %}
+                    {% asvar current_page_position %}{{ request.get_full_path }}#p-{{ place.pk }}{% endasvar %}
 
                     <div class="control-buttons pull-right">
                     {# CONTROL BUTTONS: CHECK, UPDATE; IMPORTANT TIMESTAMPS #}
                         <div class="btn-toolbar" role="toolbar">
                             <div class="btn-group" role="group">
-                                {% expr "check-place-"+str(place.pk) as id_check_status %}
+                                {% asvar id_check_status %}check-place-{{ place.pk }}{% endasvar %}
                                 {% if place.checked %}
                                     {% include './snippets/checked.html' with object=place button=True button_id=id_check_status %}
                                 {% else %}
@@ -195,11 +195,11 @@
                         <div class="description-short {% if place.short_description.strip %}has-content{% endif %}">
                             {% with desc=place.short_description %}
                                 {% if desc|is_esperanto_surrogate %}
-                                    {% expr "text-surrogate text-warning" as description_color %}
-                                    {% expr _("Esperanto letters?") as description_text_warning %}
+                                    {% asvar description_color %}text-surrogate text-warning{% endasvar %}
+                                    {% asvar description_text_warning %}{% trans "Esperanto letters?" %}{% endasvar %}
                                 {% endif %}
                                 {% if desc|length > 135 %}
-                                    {% expr _("Description too long.") as description_length_warning %}
+                                    {% asvar description_length_warning %}{% trans "Description too long." %}{% endasvar %}
                                 {% endif %}
                                 <small class="{{ description_color }}">
                                     {{ desc }}
