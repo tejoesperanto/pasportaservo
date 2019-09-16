@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n static expression %}
+{% load i18n static variable %}
 
 {% block head_title %}Oftaj demandoj{% endblock %}
 
@@ -7,7 +7,7 @@
 
 {% block page %}
     <h1>Oftaj Demandoj</h1>
-    {% expr "saluton [cxe] pasportaservo.org" as contact_email %}
+    {% asvar contact_email %}saluton [cxe] pasportaservo.org{% endasvar %}
 
     <section>
         <h3 name="pri-registrigho">Pri kaj post la registriĝo.</h3>

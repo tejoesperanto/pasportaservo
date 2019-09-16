@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n static expression profile privacy utils %}
+{% load i18n static expression variable profile privacy utils %}
 
 {% block head_title %}
     {% if view.role == roles.OWNER %}
@@ -337,7 +337,7 @@
                     </div>
                 {% else %}
                     {% if not place.visibility.online_public %}
-                        {% expr _("not displayed to other users") as concealed_title %}
+                        {% trans "not displayed to other users" as concealed_title %}
                         <span class="conceal-marker fa fa-eye-slash pull-left text-muted" aria-hidden="true"
                               title="{{ concealed_title }}" data-toggle="tooltip"></span>
                         <span class="sr-only">{% trans "Note " context 'Title' %}: {{ concealed_title }}</span>
@@ -392,14 +392,14 @@
         <h2 class="owner">{% trans "Phones" %}</h2>
         <ul class="list-group phone-list">
             {% for phone in phones %}
-                {% expr "" as concealed_class %}{% expr "" as concealed_title %}
+                {% delvar concealed_class concealed_title %}
                 {% if not phone.visibility.online_public %}
-                    {% expr "concealed" as concealed_class %}
-                    {% expr _("not displayed to other users") as concealed_title %}
+                    {% asvar concealed_class %}concealed{% endasvar %}
+                    {% asvar concealed_title %}{% trans "not displayed to other users" %}{% endasvar %}
                 {% endif %}
                 {% if not phone.visibility.online_public and phone.visibility.online_authed %}
-                    {% expr "concealed-partially" as concealed_class %}
-                    {% expr _("displayed to guests and hosts only") as concealed_title %}
+                    {% asvar concealed_class %}concealed-partially{% endasvar %}
+                    {% asvar concealed_title %}{% trans "displayed to guests and hosts only" %}{% endasvar %}
                 {% endif %}
                 <li class="list-group-item owned-phone list-vertical-align {{ concealed_class }}" id="t{{ phone.pk }}">
                     {% block phone_edit_buttons %}{% endblock %}
@@ -425,16 +425,16 @@
         {% if profile.email %}
             <h2 class="owner">{% trans "Public email address" %}</h2>
             <ul class="list-group">
-                {% expr "" as concealed_class %}{% expr "" as concealed_title %}{% expr "" as concealed_reason %}
+                {% delvar concealed_class concealed_title concealed_reason %}
                 {% if not profile.email_visibility.online_public and profile.email_visibility.online_authed  %}
-                    {% expr "concealed-partially" as concealed_class %}
-                    {% expr _("displayed to guests and hosts only") as concealed_title %}
+                    {% asvar concealed_class %}concealed-partially{% endasvar %}
+                    {% asvar concealed_title %}{% trans "displayed to guests and hosts only" %}{% endasvar %}
                 {% endif %}
                 {% if not profile.email_visibility.online_public and not profile.email_visibility.online_authed or profile.email|is_invalid %}
-                    {% expr "concealed" as concealed_class %}
-                    {% expr _("not displayed to other users") as concealed_title %}
+                    {% asvar concealed_class %}concealed{% endasvar %}
+                    {% asvar concealed_title %}{% trans "not displayed to other users" %}{% endasvar %}
                     {% if profile.email|is_invalid %}
-                        {% expr _("this email address seems invalid") as concealed_reason %}
+                        {% asvar concealed_reason %}{% trans "this email address seems invalid" %}{% endasvar %}
                     {% endif %}
                 {% endif %}
 
