@@ -1,7 +1,7 @@
 import re
-from datetime import datetime
 
 from django.test import override_settings
+from django.utils import timezone
 
 from django_webtest import WebTest
 
@@ -25,5 +25,5 @@ class AgreementModelTests(WebTest):
     def test_str(self):
         accord = AgreementFactory()
         self.assertRegex(str(accord), 'User .+ agreed to \'{}\' '.format(re.escape(accord.policy_version)))
-        accord = AgreementFactory(withdrawn=datetime.now())
+        accord = AgreementFactory(withdrawn=timezone.now())
         self.assertRegex(str(accord), 'User .+ agreed to \'{}\' '.format(re.escape(accord.policy_version)))
