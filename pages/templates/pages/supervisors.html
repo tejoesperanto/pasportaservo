@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n static variable %}
+{% load i18n static variable utils %}
 {% load is_supervisor_of from profile %}
 
 {% block head_title %}{% trans "Supervisors" %}{% endblock %}
@@ -25,7 +25,12 @@
     <h1>{% trans "Supervisors" %}</h1>
 
     <p class="well" id="supervisors-wanted" touch-action="none">
-        <button type="button" class="close" title="{% trans "Hide" %}" aria-label="{% trans "Hide" %}"><span aria-hidden="true">&times;</span></button>
+        {% spaceless %}
+            <button type="button" class="close requires-scripting"
+                    title="{% trans "Hide" %}" aria-label="{% trans "Hide" %}">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        {% endspaceless %}
         Ni serĉas Landajn Organizantojn! Se ne estas nomo apud lando, tio signifas, ke la posteno estas vaka
         kaj ni bezonas vin. <br class="visible-sm-block visible-md-block visible-lg-block" />
         Se vi volas iĝi LO, bonvole sendu mesaĝon al <a href="mailto:saluton [cxe] pasportaservo.org">saluton
@@ -38,7 +43,7 @@
                  data-toggle="collapse" data-target="#tasks" aria-controls="tasks" aria-expanded="true">
                 <h4 class="panel-title">
                     Taskoj de la Landaj Organizantoj
-                    <button class="btn switch pull-right bg-info" aria-hidden="true"></button>
+                    <button class="btn switch requires-scripting pull-right bg-info" aria-hidden="true"></button>
                 </h4>
             </div>
             <div class="panel-collapse collapse in" id="tasks" role="tabpanel"
@@ -70,12 +75,12 @@
         <div role="navigation">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" {% if not view.in_book_status %}class="active"{% endif %}>
-                    <a href="#countries-available" aria-controls="countries-available" role="tab" data-toggle="tab">
+                    <a href="{% url 'supervisors' %}#countries-available" aria-controls="countries-available" role="tab" data-toggle="tab">
                         {% trans "All hosts" %}
                     </a>
                 </li>
                 <li role="presentation" {% if view.in_book_status %}class="active"{% endif %}>
-                    <a href="#countries-in_book" aria-controls="countries-in_book" role="tab" data-toggle="tab">
+                    <a href="{% url 'supervisors' in_book=1 %}#countries-in_book" aria-controls="countries-in_book" role="tab" data-toggle="tab">
                         {% trans "In the book" %}
                     </a>
                 </li>
@@ -144,19 +149,23 @@
                         <div class="progress-bar progress-bar-success"
                              style="width: {{ checked_progress }}%; {{ dimmed }}"
                              data-toggle="tooltip"
-                             title="{{ country.checked_count }}
-                                    {% blocktrans count counter=country.checked_count trimmed %}
-                                        place checked{% plural %}places checked
-                                    {% endblocktrans %}">
+                             title="{% filter compact %}
+                                        {{ country.checked_count }}
+                                        {% blocktrans count counter=country.checked_count trimmed %}
+                                            place checked{% plural %}places checked
+                                        {% endblocktrans %}
+                                    {% endfilter %}">
                             <strong>{{ country.checked_count }}</strong>
                         </div>
                         <div class="progress-bar progress-bar-info progress-bar-striped"
                              style="width: {{ confirmed_progress }}%; {{ dimmed }}"
                              data-toggle="tooltip"
-                             title="{{ country.only_confirmed_count }}
-                                    {% blocktrans count counter=country.only_confirmed_count trimmed %}
-                                        place confirmed{% plural %}places confirmed
-                                    {% endblocktrans %}">
+                             title="{% filter compact %}
+                                        {{ country.only_confirmed_count }}
+                                        {% blocktrans count counter=country.only_confirmed_count trimmed %}
+                                            place confirmed{% plural %}places confirmed
+                                        {% endblocktrans %}
+                                    {% endfilter %}">
                             {{ country.only_confirmed_count }}
                         </div>
                     </div>

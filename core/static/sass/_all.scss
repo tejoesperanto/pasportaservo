@@ -666,7 +666,7 @@ a.contact-details:not(:hover) {
     vertical-align: -20%;
 }
 
-#tasks-header[data-toggle="collapse"] {
+html.js-enabled #tasks-header[data-toggle="collapse"] {
     cursor: pointer;
 }
 #tasks-header .switch {
