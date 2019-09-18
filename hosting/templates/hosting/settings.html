@@ -122,10 +122,10 @@
         <p class="help-block">{% trans "We send e-mails to this address. It will never be public." %}</p>
 
         <section class="well well-sm">
-            <button data-target="#set-public-email" class="btn btn-primary btn-vert-space btn-xs" data-toggle="collapse" >
+            <button data-target="#set-public-email" class="btn btn-primary btn-vert-space btn-xs" data-toggle="collapse">
                 {% trans "Public email?" %}
             </button>
-            <div id="set-public-email" class="collapse{% if profile.email %} in{% endif %}">
+            <div id="set-public-email" class="collapse when-scripting {% if profile.email %} in{% endif %}">
                 {% trans "[no email address]" as no_email %}
                 <samp><small>
                     {% if profile.email|is_invalid %}
@@ -164,10 +164,10 @@
                         <span class="notification">{% trans "saved" %}</span>
                     </span>
                     {{ optinouts_form|bootstrap }}
-                    <a id="analytics_more_link" data-target="#analytics_more" data-toggle="collapse" style="cursor: help">
+                    <a id="analytics_more_link" data-target="#analytics_more" data-toggle="collapse" style="cursor: help" class="requires-scripting">
                         {% trans "More&nbsp;information about the measurement technologies." %}
                     </a>
-                    <div class="collapse" id="analytics_more">
+                    <div class="collapse when-scripting" id="analytics_more">
                         <div class="well well-sm">
                             <div class="help-block">
                                 {% blocktrans trimmed %}

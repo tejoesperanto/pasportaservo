@@ -4,7 +4,10 @@
             <div class="panel-title">
                 <small><strong>{% trans "Full details viewable by:" %}</strong></small>
                 {% if view.role == roles.OWNER %}
-                    <a href="{% url 'authorize_user' place_pk %}" target="authorizations" class="pull-right" title="{% trans "in new window" %}">
+                    <a href="{% url 'authorize_user' place_pk %}{% if back_to %}?next={{ back_to|urlencode:"" }}{% endif %}"
+                       target="authorizations"
+                       class="pull-right"
+                       title="{% trans "in new window" %}">
                         <small><span class="fa fa-external-link" aria-hidden="true"></span></small>
                         <span class="sr-only">[{% trans "in new window" %}]</span>
                     </a>
