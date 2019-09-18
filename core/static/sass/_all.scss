@@ -27,9 +27,6 @@ body, .same-as-body {
     text-justify: inter-character;
 }
 
-.requires-scripting {
-    display: none;
-}
 .edit-buttons {
     float: right;
     margin-bottom: 1em;
@@ -46,6 +43,15 @@ body, .same-as-body {
     .fa {
         position: relative;
         top: 1px;
+    }
+}
+
+html:not(.js-enabled) {
+    .requires-scripting {
+        display: none;
+    }
+    .collapse.when-scripting {
+        display: block;
     }
 }
 

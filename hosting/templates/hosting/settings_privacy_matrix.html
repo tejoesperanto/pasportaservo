@@ -49,14 +49,27 @@
                     </div>
                     {% if 'auth' in venue.name and asset.obj.authorized_users_cache.query %}
                         {% asvar id_auth_panel %}authlist-{{ asset.obj.visibility.pk }}{% endasvar %}
-                        <button class="authorized-list switch btn btn-default btn-xs"
+                        <button class="authorized-list switch requires-scripting btn btn-default btn-xs"
                                 data-target="#{{ id_auth_panel }}"
                                 aria-controls="{{ id_auth_panel }}" aria-expanded="false" aria-haspopup="true">
                             <span class="fa fa-eye" aria-hidden="true"></span>
                             <span class="fa fa-question" aria-hidden="true"></span>
                             <span class="sr-only">{% trans "who can view ?" %}</span>
                         </button>
-                        {% include './snippets/place_authorizations.html' with id=id_auth_panel place_pk=asset.obj.pk authorized_set=asset.obj.authorized_users_cache is_collapsed=True %}
+                        {% asvar current_page_position %}{{ request.get_full_path }}#{% trans "privacy" context "URL" %}{% endasvar %}
+                        {% if view.role == roles.OWNER %}
+                            <noscript>
+                                <a href="{% url 'authorize_user' asset.obj.pk %}?next={{ current_page_position|urlencode:"" }}"
+                                   target="authorizations"
+                                   class="authorized-list switch btn btn-default btn-xs"
+                                   title="{% trans "who can view ?" %}">
+                                    <span class="fa fa-eye" aria-hidden="true"></span>
+                                    <span class="fa fa-question" aria-hidden="true"></span>
+                                    <span class="sr-only">{% trans "who can view ?" %} [{% trans "in new window" %}]</span>
+                                </a>
+                            </noscript>
+                        {% endif %}
+                        {% include './snippets/place_authorizations.html' with id=id_auth_panel place_pk=asset.obj.pk authorized_set=asset.obj.authorized_users_cache is_collapsed=True back_to=current_page_position %}
                     {% endif %}
                 </div>
             </td>

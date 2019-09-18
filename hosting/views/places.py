@@ -333,9 +333,9 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['place'] = self.place
-        m = re.match(r'^/([a-zA-Z]+)/', self.request.GET.get('next', default=''))
+        m = re.match(r'^/([a-zA-Z]+)/(?:\d+/[\w-]+/([a-zA-Z]+)/)?', self.request.GET.get('next', default=''))
         if m:
-            context['back_to'] = m.group(1).lower()
+            context['back_to'] = m.group(1).lower() if not m.group(2) else m.group(2).lower()
 
         def order_by_name(user):
             try:
