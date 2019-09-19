@@ -343,13 +343,13 @@
                         <span class="fa fa-bed fa-fw text-muted" aria-label="{% trans "Note " context 'Title' %}"></span>&nbsp;
                         {% trans "Other dwellers at this place." %}
                         {% if shall_display_family_members and not place.family_is_anonymous %}
-                            <button data-target="#family-panel-small" class="switch btn btn-xs" data-toggle="collapse" aria-controls="family-panel-small" aria-expanded="false">
+                            <button data-target="#family-panel-small" class="switch requires-scripting btn btn-xs" data-toggle="collapse" aria-controls="family-panel-small" aria-expanded="false">
                                 &nbsp;<span class="fa fa-caret-right fa-lg" aria-label="{% trans "Show" %}" data-aria-label-inactive="{% trans "Hide" %}"></span>&nbsp;
                             </button>
                         {% endif %}
                     </p>
                     {% if shall_display_family_members and not place.family_is_anonymous %}
-                        <ul id="family-panel-small" class="collapse">
+                        <ul id="family-panel-small" class="collapse when-scripting">
                             {% include './snippets/place_family_members.html' with user_role=view.role show_anonymously=False %}
                         </ul>
                     {% endif %}
