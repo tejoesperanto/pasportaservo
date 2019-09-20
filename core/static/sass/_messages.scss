@@ -16,11 +16,11 @@
     &.warning { background-color: #d99c5f; }
     &.error   { background-color: #d95f5f; }
 
-    &.eminent {
+    html.js-enabled &.eminent {
         position: fixed;
-        top: 50%;
-        left: 30%;
-        width: 40%;
+        top: 50% !important;
+        left: 30% !important;
+        width: 40% !important;
         border: solid 4px #bbb;
         border-radius: 3px;
         z-index: 1030;
