@@ -1,10 +1,16 @@
-{% load i18n %}
-<div class="container-fluid message {{ message.tags }} {{ level }}
-    {% if daily %}
-        sticky-{% now 'Y-m-d' %}-{{ sticky_class }}
-    {% elif monthly %}
-        sticky-{% now 'Y-m' %}-{{ sticky_class }}
-    {% endif %}">
+{% load i18n utils %}
+<div class="{% filter compact %}
+                container-fluid message {{ message.tags }} {{ level }}
+                {% if daily %}
+                    sticky-{% now 'Y-m-d' %}-{{ sticky_class }}
+                {% elif monthly %}
+                    sticky-{% now 'Y-m' %}-{{ sticky_class }}
+                {% endif %}
+            {% endfilter %}">
     {{ message }}
-    <button type="button" class="close" title="{% trans "Hide" %}" aria-label="{% trans "Hide" %}"><span aria-hidden="true">&times;</span></button>
+    {% spaceless %}
+    <button type="button" class="close requires-scripting" title="{% trans "Hide" %}" aria-label="{% trans "Hide" %}">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    {% endspaceless %}
 </div>
