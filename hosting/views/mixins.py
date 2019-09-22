@@ -1,8 +1,11 @@
+from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.html import format_html
+from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import never_cache
 
 from core.auth import OWNER
@@ -90,6 +93,21 @@ class CreateMixin(object):
         return super().dispatch(request, *args, **kwargs)
 
 
+class ProfileAssociatedObjectCreateMixin(object):
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if self.role == OWNER:
+            url = ''.join((
+                reverse('profile_settings', kwargs={'pk': self.create_for.pk, 'slug': self.create_for.autoslug}),
+                '#ppv', str(self.object.visibility.pk),
+            ))
+            msg_affirm = self.get_confirmation_message()
+            msg_remind = _("<a href=\"{url}\">Don't forget to choose</a> where it should be displayed.")
+            messages.info(self.request, extra_tags='eminent',
+                          message=format_html("{}&ensp;{}", msg_affirm, format_html(msg_remind, url=url)))
+        return response
+
+
 class PlaceMixin(object):
     model = Place
 
@@ -111,7 +129,7 @@ class PlaceModifyMixin(object):
     def form_valid(self, form):
         response = super().form_valid(form)
         if '_gotomap' in self.request.POST or form.confidence < 8:
-            map_url = reverse_lazy('place_location_update', kwargs={'pk': self.object.pk})
+            map_url = reverse('place_location_update', kwargs={'pk': self.object.pk})
             return HttpResponseRedirect(map_url)
         return response
 
