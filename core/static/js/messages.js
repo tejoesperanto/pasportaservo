@@ -23,8 +23,8 @@ $(document).ready(function() {
             msgbox = messages.filter('.success').first();
         messages.first().before(messages.clone(true).removeClass('eminent'));
         messages.not(msgbox).hide();
-        window.setTimeout(function () { msgbox.addClass('out') }, 3000);
-        window.setTimeout(function () { messages.children('.close').click() }, 5000);
+        window.setTimeout(function () { msgbox.addClass('out') }, 4000);
+        window.setTimeout(function () { messages.children('.close').click() }, 6000);
     }();
 
     // Close sticky message

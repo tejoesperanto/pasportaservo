@@ -15,7 +15,7 @@
     </thead>
     <tbody>
         {% for asset in privacy_matrix %}
-        <tr>
+        <tr id="ppv{{ asset.obj.visibility.pk }}" class="asset-privacy-settings">
             <td>
                 <div class="asset-icon text-warning" aria-hidden="true">{{ asset.obj.icon }}</div>
                 <span class="sr-only">{{ asset.hint.value }}</span>
@@ -56,7 +56,7 @@
                             <span class="fa fa-question" aria-hidden="true"></span>
                             <span class="sr-only">{% trans "who can view ?" %}</span>
                         </button>
-                        {% asvar current_page_position %}{{ request.get_full_path }}#{% trans "privacy" context "URL" %}{% endasvar %}
+                        {% asvar current_page_position %}{{ request.get_full_path }}#ppv{{ asset.obj.visibility.pk }}{% endasvar %}
                         {% if view.role == roles.OWNER %}
                             <noscript>
                                 <a href="{% url 'authorize_user' asset.obj.pk %}?next={{ current_page_position|urlencode:"" }}"

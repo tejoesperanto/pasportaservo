@@ -565,6 +565,9 @@ a.contact-details:not(:hover) {
         vertical-align: middle !important;
         text-align: center !important;
     }
+    tr.asset-privacy-settings {
+        @include highlighter();
+    }
     .asset-icon {
         float: left;
         width: 13%;
