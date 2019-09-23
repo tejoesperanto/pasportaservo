@@ -144,4 +144,5 @@ def is_esperanto_surrogate(value):
 
 
 re_esperanto = re.compile(r'cx|gx|hx|jx|sx|ux|ch|gh|hh|jh|sh|'
-                          r'c\^|g\^|h\^|j\^|s\^|u\^|u~|\^c|\^g|\^h|\^j|\^s|\^u|~u')
+                          r'c\^|g\^|h\^|j\^|s\^|u\^|u~|\^c|\^g|\^h|\^j|\^s|\^u|~u',
+                          re.IGNORECASE)
