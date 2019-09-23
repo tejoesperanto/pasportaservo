@@ -175,7 +175,7 @@ class CustomGroupAdmin(GroupAdmin):
                     is_deleted = is_deleted or u.profile.deleted_on
                 indicator = '<span style="color:#dd4646">&#x2718;!</span>' if is_deleted else ''
                 yield " ".join([indicator, account_link, profile_link])
-        return format_html(", ".join(get_formatted_list()))
+        return format_html(", ".join(get_formatted_list())) if len(obj.name) == 2 else "-"
     supervisors.short_description = _("Supervisors")
 
     class CountryGroup(Group):
@@ -398,7 +398,9 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     checked_by__name.admin_order_field = 'checked_by__username'
 
     def supervisor(self, obj):
-        country_list = CustomGroupAdmin.CountryGroup.objects.filter(user__pk=obj.user_id if obj.user_id else -1)
+        country_list = CustomGroupAdmin.CountryGroup.objects.filter(
+            name__regex=r'^[A-Z]{2}$',
+            user__pk=obj.user_id if obj.user_id else -1)
         if country_list:
             return format_html(',&nbsp; '.join(map(str, country_list)))
         else:
