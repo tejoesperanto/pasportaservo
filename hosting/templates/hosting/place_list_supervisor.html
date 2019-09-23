@@ -254,7 +254,8 @@
                                             {% if phone_dimmed_reason %}style="opacity: 0.55"{% endif %}>
                                             {{ phone.comments }}
                                             {% if phone.comments|is_esperanto_surrogate %}
-                                                <span class="fa fa-exclamation-triangle text-warning" data-toggle="tooltip"
+                                                <span class="fa fa-exclamation-triangle text-warning"
+                                                      data-toggle="tooltip" data-container="#p-{{ place.pk }} address"
                                                       title="{% trans "Esperanto letters?" %}"
                                                       aria-label="{% trans "Warning " context 'Title' %}: {% trans "Esperanto letters?" %}"></span>
                                             {% endif %}
