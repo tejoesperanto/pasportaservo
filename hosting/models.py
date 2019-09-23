@@ -225,6 +225,11 @@ class VisibilitySettings(models.Model):
         """Can this data appear in the printed edition?"""
         return True
 
+    @property
+    def concealed(self):
+        """Can this data be seen by anyone apart from owner and supervisors?"""
+        return not any([self.visible_online_public, self.visible_online_authed, self.visible_in_book])
+
     _PREFIX = 'visible_'
 
     @classmethod

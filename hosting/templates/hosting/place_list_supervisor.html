@@ -226,15 +226,32 @@
                             {% endwith %}
                         </div>
                         <div>
+                            {# TODO: Phones are re-fetched even though they are in a prefetch... #}
                             {% for phone in place.profile.phones.all %}
                                 {% if not phone.deleted %}
                                     <small class="phone-number">
-
-                                        <b class="number">
+                                        {% asvar phone_dimmed_reason trimmed %}
+                                            {% if view.in_book_status is True and not phone.visibility.in_book %}
+                                                {% trans "not printed in the book" %}
+                                            {% endif %}
+                                            {% if view.in_book_status is False and not phone.visibility.online_public and not phone.visibility.online_authed %}
+                                                {% trans "not displayed to other users" %}
+                                            {% endif %}
+                                            {% if view.in_book_status is None and phone.visibility.concealed %}
+                                                {% trans "The owner set it as not visible to other users" %}
+                                            {% endif %}
+                                        {% endasvar %}
+                                        {% if phone_dimmed_reason %}
+                                            <span class="sr-only">{% trans "Note " context 'Title' %}: {{ phone_dimmed_reason }}"</span>
+                                        {% endif %}
+                                        <b class="number{% if phone_dimmed_reason %} text-muted{% endif %}"
+                                           data-toggle="tooltip" data-placement="top"
+                                           title="{{ phone_dimmed_reason }}">
                                             {{ phone.icon }}
                                             {{ phone.number.as_international }}
                                         </b>
-                                        <em class="comment{% if phone.comments|is_esperanto_surrogate %} text-surrogate text-warning{% endif %}">
+                                        <em class="comment{% if phone.comments|is_esperanto_surrogate %} text-surrogate text-warning{% endif %}"
+                                            {% if phone_dimmed_reason %}style="opacity: 0.55"{% endif %}>
                                             {{ phone.comments }}
                                             {% if phone.comments|is_esperanto_surrogate %}
                                                 <span class="fa fa-exclamation-triangle text-warning" data-toggle="tooltip"

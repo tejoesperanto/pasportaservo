@@ -1569,6 +1569,12 @@ msgstr "Esperantaj literoj?"
 msgid "Description too long."
 msgstr "Priskribo tro longa."
 
+msgid "not printed in the book"
+msgstr "ne aperas en la libreto"
+
+msgid "not displayed to other users"
+msgstr "nevidebla al aliaj pasportservanoj"
+
 msgid "Mark invalid"
 msgstr "Marki kiel nefunkcianta"
 
@@ -1724,9 +1730,6 @@ msgid "I can host during %(max_night)s night maximum"
 msgid_plural "I can host during %(max_night)s nights maximum"
 msgstr[0] "Mi povas gastigi dum %(max_night)s nokto maksimume"
 msgstr[1] "Mi povas gastigi dum %(max_night)s noktoj maksimume"
-
-msgid "not displayed to other users"
-msgstr "nevidebla al aliaj pasportservanoj"
 
 msgid "Phones"
 msgstr "Telefonoj"
