@@ -170,11 +170,35 @@
                                title="{% trans "invalid email" %}" data-toggle="tooltip"></small>
                     {% endif %}
                 </h4>
+                <h4>
+                    <small>{% trans "last login"|capfirst %}</small>
+                    <br class="visible-xxs-inline" />
+                    <span class="">{{ profile.user.last_login|date:"DATE_FORMAT"|default:_("never") }}</span>
+                </h4>
             </div>
         {% endif %}
     </div>
 
     <hr />
+
+    {% if view.role >= roles.SUPERVISOR %}
+        {% spaceless %}
+            {% asvar last_editor trimmed %}
+                {% if profile.checked %}
+                    {% trans "by a supervisor" %}
+                {% else %}
+                    {% trans "owner" %}
+                {% endif %}
+            {% endasvar %}
+            <span class="timestamp timestamp-edit pull-right text-muted"
+                  data-title="{% trans "last modification" %}:<br />{{ profile.modified }}<br />({{ last_editor }})"
+                  data-toggle="tooltip" data-placement="top" data-html="true">
+                <small class="fa fa-pencil-square-o" aria-hidden="true"></small>
+                <span class="sr-only">{% trans "last modification" %}</span>
+                <small><samp> {{ profile.modified|date:"Y-m-d H:i" }} UTC</samp></small>
+            </span>
+        {% endspaceless %}
+    {% endif %}
 
     <h2 class="owner">{% trans "About me" %}</h2>
     {{ profile.description|linebreaks }}
