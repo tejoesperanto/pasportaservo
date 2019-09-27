@@ -1,6 +1,6 @@
 {% extends 'core/base.html' %}
 {% load i18n l10n static geojson_tags %}
-{% load profile privacy expression utils %}
+{% load profile privacy expression variable utils %}
 
 {% block head_title %}
     {% if view.role == roles.OWNER %}
@@ -223,6 +223,28 @@
                             </p>
                         {% endif %}
                         {% endif %}
+
+                        {% if view.role >= roles.SUPERVISOR %}
+                            <p class="col-xs-12 staff">
+                            {# INFORMATION FOR SUPERVISORS #}
+                                {% spaceless %}
+                                    {% asvar last_editor trimmed %}
+                                        {% if place.checked %}
+                                            {% trans "by a supervisor" %}
+                                        {% else %}
+                                            {% trans "owner" %}
+                                        {% endif %}
+                                    {% endasvar %}
+                                    <span class="timestamp timestamp-edit text-muted"
+                                          data-title="{% trans "last modification" %}:<br />{{ place.modified }}<br />({{ last_editor }})"
+                                          data-toggle="tooltip" data-placement="top" data-html="true">
+                                        <small class="fa fa-fw fa-pencil-square-o" aria-hidden="true"></small>
+                                        <span class="sr-only">{% trans "last modification" %}</span>
+                                        <small><samp> {{ place.modified|date:"Y-m-d H:i" }} UTC</samp></small>
+                                    </span>
+                                {% endspaceless %}
+                            </p>
+                        {% endif %}
                     </div>
                 </div>
             {# END OF OWNER'S DETAILS #}
@@ -231,7 +253,7 @@
             <div class="row">
             {# DETAILS AND CONDITIONS OF THE PLACE ON LARGE SCREENS - ACCESSIBLE ONLY TO AUTHENTICATED USERS #}
             {% if user.is_authenticated %}
-                <div class="col-md-12 hidden-xs hidden-sm">
+                <div class="col-md-12 hidden-xs hidden-sm description-largevp">
                     {% list place.description place.contact_before place.max_guest place.max_night as accommodation_details %}
                     {% if accommodation_details|are_any %}
                         <h3>{% trans "Description" %}</h3>
@@ -324,7 +346,7 @@
         </div>
 
         {% if user.is_authenticated %}
-            <div class="col-xs-12 hidden-md hidden-lg description-small">
+            <div class="col-xs-12 hidden-md hidden-lg description-smallvp">
             {# DETAILS AND CONDITIONS OF THE PLACE ON SMALL SCREENS - ACCESSIBLE ONLY TO AUTHENTICATED USERS #}
                 <a id="status-anchors_notification" class="col-xs-12 anchor-notify" data-placement="bottom"
                    data-content="{% include './snippets/place_owner_anchors.html' %}"></a>

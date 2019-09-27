@@ -353,7 +353,16 @@ header:not(.home) #subtitle,
 .place-detail .place-blocking {
     clear: right;
 }
-.description-small {
+.place-detail .timestamp {
+    font-size: 80%;
+    white-space: pre;
+}
+.description-largevp {
+    p:first-child {
+        margin-top: 10px;
+    }
+}
+.description-smallvp {
     margin-top: 1em;
     margin-bottom: 1em;
 }
@@ -488,6 +497,14 @@ p.tip {
     .mfp-wrap {
         position: fixed !important;
         top: 0px !important;
+    }
+}
+.profile-detail .timestamp {
+    font-size: 80%;
+    white-space: pre;
+    &.timestamp-edit {
+        position: relative;
+        top: 1.15ex;
     }
 }
 .contact-details:not(a) {

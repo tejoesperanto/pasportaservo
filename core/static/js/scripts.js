@@ -242,7 +242,7 @@ function enableTooltips() {
 
 // Host preferences popover
 function displayAnchorsNotification() {
-    var blockSmallDescription = $('.description-small');
+    var blockSmallDescription = $('.description-smallvp');
     $('html, body').animate({ scrollTop: blockSmallDescription.offset().top - 10 }, 500);
 
     var origin = $('.anchor-notify');

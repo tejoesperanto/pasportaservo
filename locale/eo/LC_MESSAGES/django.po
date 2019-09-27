@@ -1390,6 +1390,12 @@ msgstr "Indiki maldisponeblon"
 msgid "unavailable"
 msgstr "maldisponebla"
 
+msgid "by a supervisor"
+msgstr "fare de landa organizanto"
+
+msgid "last modification"
+msgstr "lasta redakto"
+
 msgid "Description"
 msgstr "Priskribo"
 
@@ -1558,9 +1564,6 @@ msgstr "lasta ensaluto"
 
 msgid "never"
 msgstr "neniam"
-
-msgid "last modification"
-msgstr "lasta redakto"
 
 #, python-format
 msgid "%(age)s y.o."
