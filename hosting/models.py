@@ -969,6 +969,14 @@ class Gender(models.Model):
         verbose_name = _("gender")
         verbose_name_plural = _("genders")
 
+    def __eq__(self, other):
+        if isinstance(other, Gender):
+            return self.name == other.name
+        elif isinstance(other, str):
+            return self.name == other
+        else:
+            return NotImplemented
+
     def __str__(self):
         return self.name
 

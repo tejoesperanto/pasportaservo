@@ -114,7 +114,6 @@ class ProfileSansAccountFactory(ProfileFactory):
 class PlaceFactory(DjangoModelFactory):
     class Meta:
         model = 'hosting.Place'
-        django_get_or_create = ('owner',)
 
     owner = factory.SubFactory('tests.factories.ProfileFactory')
     country = factory.LazyFunction(lambda: Country(choice(list(COUNTRIES))))
@@ -144,7 +143,6 @@ class PlaceFactory(DjangoModelFactory):
 class PhoneFactory(DjangoModelFactory):
     class Meta:
         model = 'hosting.Phone'
-        django_get_or_create = ('profile',)
 
     profile = factory.SubFactory('tests.factories.ProfileFactory')
 
