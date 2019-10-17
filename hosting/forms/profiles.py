@@ -83,17 +83,26 @@ class ProfileForm(forms.ModelForm):
         printed in the paper edition.
         """
         cleaned_data = super().clean()
+
         if hasattr(self, 'instance'):
             profile = self.instance
+
+            has_offer = profile.has_places_for_accepting_guests
+            names_filled = any([cleaned_data.get(field, False) for field in ('first_name', 'last_name')])
             for_book = profile.has_places_for_in_book
             all_filled = all([
                 cleaned_data.get(field, False)
                 for field in self._validation_meta.book_required_fields
             ])
-            message = _("You want to be in the printed edition of Pasporta Servo. "
-                        "In order to have a quality product, some fields are required. "
-                        "If you think there is a problem, please contact us.")
+
+            if has_offer and not for_book and not names_filled:
+                message = _("Please indicate how guests should name you")
+                raise forms.ValidationError(message)
+
             if for_book and not all_filled:
+                message = _("You want to be in the printed edition of Pasporta Servo. "
+                            "In order to have a quality product, some fields are required. "
+                            "If you think there is a problem, please contact us.")
                 if profile.has_places_for_hosting != profile.has_places_for_in_book:
                     clarify_message = format_lazy(
                         _("You are a host in {count_as_host} places, "
@@ -103,6 +112,7 @@ class ProfileForm(forms.ModelForm):
                     raise forms.ValidationError([message, clarify_message])
                 else:
                     raise forms.ValidationError(message)
+
             if profile.death_date and 'birth_date' in cleaned_data:
                 if cleaned_data['birth_date'] > profile.death_date:
                     # Sanity check for life dates congruence.
@@ -112,6 +122,7 @@ class ProfileForm(forms.ModelForm):
                     self.add_error(
                         'birth_date', format_lazy(field_bd_message, profile.death_date)
                     )
+
         return cleaned_data
 
 

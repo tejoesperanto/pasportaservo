@@ -174,7 +174,7 @@ class ProfileFormTests(WebTest):
                                          self.profile_hosting_and_meeting,
                                          self.profile_in_book,
                                          self.profile_in_book_complex):
-                with self.subTest(condition=profile_tag, birth_date=birth_date):
+                with self.subTest(condition=profile_tag, birth_date=birth_date, violation=violation_type):
                     form = ProfileForm(
                         {
                             'first_name': "Aa",
@@ -185,10 +185,20 @@ class ProfileFormTests(WebTest):
                         instance=profile)
                     self.assertFalse(form.is_valid())
                     self.assertIn('birth_date', form.errors)
-                    if violation_type == "too unborn" and profile_tag == "simple":
-                        self.assertEqual(form.errors, {
-                            'birth_date': ["Ensure this value is less than or equal to {}.".format(today)],
-                        })
+                    if violation_type == "too unborn":
+                        if profile_tag == "simple":
+                            self.assertEqual(form.errors, {
+                                'birth_date': ["Ensure this value is less than or equal to {}.".format(today)],
+                            })
+                        elif profile_tag == "deceased":
+                            self.assertEqual(form.errors, {
+                                'birth_date': ["The indicated date of birth is in conflict with the date of death"
+                                               " ({:%Y-%m-%d}).".format(profile.death_date)],
+                            })
+                        else:
+                            self.assertTrue(any(err.startswith("The minimum age to be allowed ")
+                                                for err in form.errors['birth_date']),
+                                            msg="Form field 'birth_date' error does not indicate minimum age.")
                     if violation_type == "too dead":
                         self.assertEqual(form.errors, {
                             'birth_date': ["Ensure this value is greater than or equal to {}.".format(max_past)],
