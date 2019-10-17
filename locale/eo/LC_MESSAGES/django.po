@@ -1095,6 +1095,9 @@ msgstr "Familia · Persona"
 msgid "Names ordering"
 msgstr "Ordigo de la nomoj"
 
+msgid "Please indicate how guests should name you"
+msgstr "Bonvole indiku kiel gastoj nomu vin"
+
 #, python-brace-format
 msgid ""
 "You are a host in {count_as_host} places, of which {count_for_book} should "
