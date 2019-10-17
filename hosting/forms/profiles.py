@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django import forms
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
@@ -54,6 +56,9 @@ class ProfileForm(forms.ModelForm):
             message = format_lazy(message, age=allowed_age)
             field_bd.required = True
             field_bd.validators.append(TooNearPastValidator(allowed_age))
+            # We have to manually create a copy of the error messages dict because Django does not do it:
+            # https://code.djangoproject.com/ticket/30839#ticket
+            field_bd.error_messages = deepcopy(field_bd.error_messages)
             field_bd.error_messages['max_value'] = message
         field_bd.widget.attrs['placeholder'] = 'jjjj-mm-tt'
         field_bd.widget.attrs['data-date-end-date'] = '0d'
@@ -64,6 +69,9 @@ class ProfileForm(forms.ModelForm):
             for field in self._validation_meta.book_required_fields:
                 req_field = self.fields[field]
                 req_field.required = True
+                # We have to manually create a copy of the error messages dict because Django does not do it:
+                # https://code.djangoproject.com/ticket/30839#ticket
+                req_field.error_messages = deepcopy(req_field.error_messages)
                 req_field.error_messages['required'] = message
                 req_field.widget.attrs['data-error-required'] = message
 
