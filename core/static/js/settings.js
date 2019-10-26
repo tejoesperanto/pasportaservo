@@ -103,9 +103,7 @@ $(document).ready(function() {
     window.updatePrivacyFailure = function($this) {
         $this.closest('form').data('unsaved', true);
         var unsavedNotifier = function(event) {
-            var notification = (document.documentElement.lang == "eo")
-                               ? "Vi ne jam konservis la agordojn de privateco."
-                               : "You have not yet saved the privacy settings.";
+            var notification = gettext("You have not yet saved the privacy settings.");
             var $notifyEl = $(document.createElement('span'))
                 .addClass('alert alert-info flyover in')
                 .text(notification)

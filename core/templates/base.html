@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load i18n static compress sass_tags utils %}
+{% load i18n statici18n static compress sass_tags utils %}
 
 <html lang="eo">
     <head>
@@ -39,6 +39,7 @@
         <script src="{% static 'js/jquery.min.js' %}"></script>
         <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
         {% compress js %}
+            <script src="{% statici18n 'eo' %}"></script>
             <script src="{% static 'js/cookies.min.js' %}"></script>
             <script src="{% static 'js/scripts.js' %}"></script>
             <script src="{% static 'js/messages.js' %}"></script>
