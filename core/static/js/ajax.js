@@ -52,11 +52,10 @@ $(document).ready(function() {
                     container: 'body',
                     placement: "bottom",
                     html: true,
-                    title: ((document.documentElement.lang == "eo") ? "Servila eraro" : "Server error") + " (" + xhr.status + ")",
+                    title: gettext("Server error") + " (" + xhr.status + ")",
                     content: "<span class='help-block'>" +
-                             ((document.documentElement.lang == "eo") ?
-                              "Io misfunkciis. Bonvole reprovu; <br class='visible-xxs-inline'>se la eraro denove okazas, <a href='{url}'>kontaktu nin</a>." :
-                              "Something misfunctioned.<br>Please retry; if the error repeats itself, please <a href='{url}'>contact us</a>."
+                             gettext(
+                                "Something misfunctioned.<br>Please retry; if the error repeats itself, please <a href='{url}'>contact us</a>."
                              ).replace("{url}", "mailto:saluton [cxe] pasportaservo.org").replace(" [cxe] ", "@") +
                              "</span>"
                 }).popover("show");

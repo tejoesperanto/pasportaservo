@@ -78,6 +78,7 @@ def updatestrings(runlocal=True, _inside_env=False):
 
 @task
 def updatestatic():
+    run("./manage.py compilejsi18n -l eo")
     run("./manage.py compilescss")
     run("./manage.py collectstatic --noinput %s" %
         ("--ignore=*.scss" if env.site == 'prod' else ""))

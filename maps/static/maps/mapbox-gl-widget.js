@@ -70,9 +70,7 @@ window.addEventListener("load", function() {
                 submit.disabled = (zoomLevel < selectOnlyOnZoom);
                 submit.title = (!submit.disabled) ?
                     submit.getAttribute('data-initial-title') :
-                    (document.documentElement.lang == "eo") ?
-                        "Bonvole pliproksimigu la mapon por elekti punkton." :
-                        "Please zoom in the map to select a point.";
+                    gettext("Please zoom in the map to select a point.");
             }
         });
 

@@ -135,8 +135,8 @@ $(document).ready(function() {
                 key: "profile-picture",
                 closeOnContentClick: true,
                 closeBtnInside: false,
-                tLoading: (document.documentElement.lang == "eo") ? "Ŝargata ▪ ▪ ▪" : "Loading ▪ ▪ ▪",
-                tClose: (document.documentElement.lang == "eo") ? "Fermi" : "Close",
+                tLoading: gettext("Loading ▪ ▪ ▪"),
+                tClose: gettext("Close"),
                 disableOn: function() {
                     if ($magnifiedElem.is('[data-mfp-always]') || $magnifiedElem.has('[data-mfp-always]').length) {
                         return true;
@@ -146,8 +146,7 @@ $(document).ready(function() {
                     }
                 },
                 image: {
-                    tError: (document.documentElement.lang == "eo") ?
-                            "Ne eblas montri la bildon. Bv provu denove." : "Cannot show the image. Please try again.",
+                    tError: gettext("Cannot show the image. Please try again."),
                 },
                 zoom: {
                     enabled: true, duration: 400,

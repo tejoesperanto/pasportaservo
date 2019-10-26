@@ -1,0 +1,49 @@
+# Esperantaj tekstoĉenoj por reta Pasporta Servo.
+# Kopirajto (C) 2015, 2019 TEJO kaj kontribuantoj
+# Al tiu ĉi dosiero aplikiĝas la sama licenco kiel al la tuta kodo de PS.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Pasporta Servo pasportaservo\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-10-25 16:00+0000\n"
+"POT-Revision-Date: 2019-10-26 21:06+0000\n"
+"Last-Translator: Meir <interDist@users.noreply.github.com>\n"
+"Language-Team: EO <saluton@pasportaservo.org>\n"
+"Language: eo\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: core/static/js/ajax.js:55
+msgid "Server error"
+msgstr "Servila eraro"
+
+#: core/static/js/ajax.js:58
+msgid ""
+"Something misfunctioned.<br>Please retry; if the error repeats itself, "
+"please <a href='{url}'>contact us</a>."
+msgstr ""
+"Io misfunkciis. Bonvole reprovu; <br class='visible-xxs-inline'>se la eraro "
+"denove okazas, <a href='{url}'>kontaktu nin</a>."
+
+#: core/static/js/scripts.js:138
+msgid "Loading ▪ ▪ ▪"
+msgstr "Ŝargata ▪ ▪ ▪"
+
+#: core/static/js/scripts.js:139
+msgid "Close"
+msgstr "Fermi"
+
+#: core/static/js/scripts.js:149
+msgid "Cannot show the image. Please try again."
+msgstr "Ne eblas montri la bildon. Bv provu denove."
+
+#: core/static/js/settings.js:106
+msgid "You have not yet saved the privacy settings."
+msgstr "Vi ne jam konservis la agordojn de privateco."
+
+#: maps/static/maps/mapbox-gl-widget.js:73
+msgid "Please zoom in the map to select a point."
+msgstr "Bonvole pliproksimigu la mapon por elekti punkton."

@@ -71,6 +71,7 @@ INSTALLED_APPS = (
     'sass_processor',
     'simplemde',
     'solo',
+    'statici18n',
 
     'blog',
     'book',
@@ -136,6 +137,8 @@ STATICFILES_FINDERS = global_settings.STATICFILES_FINDERS + [
     'sass_processor.finders.CssFinder',
     'compressor.finders.CompressorFinder',
 ]
+STATICI18N_PACKAGES = ('core', 'hosting', 'pages')
+STATICI18N_OUTPUT_DIR = 'js/i18n'
 
 # Database
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
