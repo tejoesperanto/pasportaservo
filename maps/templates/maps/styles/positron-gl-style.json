@@ -38,8 +38,8 @@
       "url": "https://tiles.stadiamaps.com/data/openmaptiles.json"
     }
   },
-  "sprite": "https://openmaptiles.github.io/positron-gl-style/sprite",
-  "glyphs": "https://free.tilehosting.com/fonts/{fontstack}/{range}.pbf?key={{ key }}",
+  "sprite": "https://api.maptiler.com/maps/positron/sprite",
+  "glyphs": "https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key={{ key }}",
   "layers": [
     {
       "id": "background",
