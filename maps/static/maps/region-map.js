@@ -5,14 +5,14 @@
 window.addEventListener("load", function() {
 
     var container = document.getElementById('map');
-    var location = container.hasAttribute('data-coordinates') ? container.getAttribute('data-coordinates') : '';
+    var position = container.hasAttribute('data-coordinates') ? container.getAttribute('data-coordinates') : '';
     try {
-        location = location.trim() ? JSON.parse(location): undefined;
+        position = position.trim() ? JSON.parse(position): undefined;
     }
     catch (e) {
-        location = undefined;
+        position = undefined;
     }
-    if (location === undefined)
+    if (position === undefined)
         return;
 
     mapboxgl.setRTLTextPlugin(GIS_ENDPOINTS['rtl_plugin']);
@@ -23,9 +23,9 @@ window.addEventListener("load", function() {
         pitchWithRotate: false,
         minZoom: 1.5,
         maxZoom: 15,
-        center: location.center,
-        maxBounds: [location.bbox.southwest, location.bbox.northeast],
-    }).jumpTo({center: location.center});
+        center: position.center,
+        maxBounds: [position.bbox.southwest, position.bbox.northeast],
+    }).jumpTo({center: position.center});
     var labels = [];
 
     map.on('load', function() {
