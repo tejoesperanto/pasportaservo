@@ -8,13 +8,13 @@ window.addEventListener("load", function() {
     if (!container) {
         return;
     }
-    var location = container.hasAttribute('data-marker') ? container.getAttribute('data-marker') : '';
-    var locationType = container.getAttribute('data-marker-type') || 'R';
+    var position = container.hasAttribute('data-marker') ? container.getAttribute('data-marker') : '';
+    var positionType = container.getAttribute('data-marker-type') || 'R';
     try {
-        location = location.trim() ? JSON.parse(location) : undefined;
+        position = position.trim() ? JSON.parse(position) : undefined;
     }
     catch (e) {
-        location = undefined;
+        position = undefined;
     }
 
     mapboxgl.setRTLTextPlugin(GIS_ENDPOINTS['rtl_plugin']);
@@ -25,10 +25,10 @@ window.addEventListener("load", function() {
         pitchWithRotate: false,
         minZoom: 0.5,
         maxZoom: 15,
-        zoom: location ? 14 : 0.5,
-        center: location && location.geometry.coordinates || [-175, 75]
+        zoom: position ? 14 : 0.5,
+        center: position && position.geometry.coordinates || [-175, 75]
     });
-    if (locationType == 'R') {
+    if (positionType == 'R') {
         try {
             var bbox = container.hasAttribute('data-bounds') ? container.getAttribute('data-bounds') : '';
             bbox = bbox.trim() ? JSON.parse(bbox) : undefined;
@@ -46,12 +46,12 @@ window.addEventListener("load", function() {
         var nav = new mapboxgl.NavigationControl();
         map.addControl(nav, 'top-left');
 
-        if (location) {
+        if (position) {
             map.addSource("thisplace", {
                 type: "geojson",
-                data: location
+                data: position
             });
-            if (locationType == 'C') {
+            if (positionType == 'C') {
                 map.addLayer({
                     id: "host-marker",
                     type: "circle",
@@ -75,7 +75,7 @@ window.addEventListener("load", function() {
                     }
                 });
             }
-            if (locationType == 'P') {
+            if (positionType == 'P') {
                 map.addLayer({
                     id: "host-marker",
                     type: "circle",
