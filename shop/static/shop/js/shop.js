@@ -9,6 +9,7 @@ $(function() {
     var format = function(num) { return num.toFixed(2).toString().replace('.', ',') };
     // Initiates the state of the Amount button group. See amountRange.
     var initButtonArray = function(amount) {
+        // TODO: the positional selectors :last and :nth will be removed in jQuery 4.0
         if (amount >= 10) {
             $('.btn-group label:last').button('toggle');
         }
