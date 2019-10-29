@@ -254,7 +254,7 @@ $(function() {
             }
         });
     };
-    if ($('#id_first_name, #id_last_name').length != 2) {
+    if ($('#id_first_name, #id_last_name, input[type="radio"][id^="id_names_inversed"]').length != 4) {
         updatePersonNamesExample = function() {};
     }
     $('#id_first_name, #id_last_name').change(updatePersonNamesExample);
