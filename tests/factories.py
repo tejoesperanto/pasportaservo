@@ -53,6 +53,7 @@ class AgreementFactory(DjangoModelFactory):
 class UserFactory(DjangoModelFactory):
     class Meta:
         model = 'auth.User'
+        django_get_or_create = ('username',)
 
     class Params:
         invalid_email = False
