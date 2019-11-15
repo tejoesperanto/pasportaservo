@@ -2,11 +2,13 @@ import string
 from collections import namedtuple
 
 from django.template import Context, Template
+from django.test import tag
 
 from django_webtest import WebTest
 from factory import Faker
 
 
+@tag('templatetags')
 class RandomIdentifierTagTests(WebTest):
     template_string = string.Template("{% load random_identifier from utils %}{% random_identifier $LENGTH %}")
     re_default = r'^[A-Za-z1-9_]{16,48}$'
@@ -31,6 +33,7 @@ class RandomIdentifierTagTests(WebTest):
                 self.assertRegex(page, r'^[A-Za-z1-9_]{%d}$' % length)
 
 
+@tag('templatetags')
 class PublicIdFilterTests(WebTest):
     template_string = "{% load utils %}{{ my_obj|public_id }}"
 
@@ -74,6 +77,7 @@ class PublicIdFilterTests(WebTest):
                     self.assertEqual(page, hash_of_obj)
 
 
+@tag('templatetags')
 class CompactFilterTests(WebTest):
     def test_single_line(self):
         content = "  \t Nam  pretium\vturpis  et\tarcu.   \f"

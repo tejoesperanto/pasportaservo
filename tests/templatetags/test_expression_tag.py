@@ -2,10 +2,12 @@ import logging
 import string
 
 from django.template import Context, Template, TemplateSyntaxError
+from django.test import tag
 
 from django_webtest import WebTest
 
 
+@tag('templatetags')
 class ExpressionTagTests(WebTest):
     _sentinel = {'T': 'F', 'r': 'R', 'u': 'A', 't': 'U', 'h': 'D'}
 
