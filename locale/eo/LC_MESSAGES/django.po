@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2019-08-14 10:08+0000\n"
+"POT-Revision-Date: 2019-11-15 21:52+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -832,11 +832,8 @@ msgstr ""
 msgid "This field is required to be printed in the book."
 msgstr "Tiu ĉi kampo estas deviga por esti printita en la libreto."
 
-msgid "commencing on"
-msgstr "ekde"
-
-msgid "concluding on"
-msgstr "ĝis"
+msgid "Deleted place"
+msgstr "Nuligita loĝejo"
 
 msgid "Preferably select a date in the future."
 msgstr "Prefere elektu daton en estonteco."
@@ -846,6 +843,12 @@ msgstr "Maldisponebleco finiĝu post sia komenco."
 
 msgid "Unavailability should start before it finishes."
 msgstr "Maldisponebleco komenciĝu antaŭ sia fino."
+
+msgid "commencing on"
+msgstr "ekde"
+
+msgid "concluding on"
+msgstr "ĝis"
 
 msgid "Authorize user"
 msgstr "Permesi uzanton"
@@ -1323,12 +1326,38 @@ msgstr "Nuligita profilo"
 msgid "Remove user"
 msgstr "Forigi uzanton"
 
+msgid "Indicate unavailability"
+msgstr "Indiki maldisponeblon"
+
+msgid "I am not available over here"
+msgstr "Mi ne disponeblas ĉi tie"
+
+msgid ""
+"Leave the corresponding field empty if the starting or the ending date is "
+"not known."
+msgstr ""
+"Lasu malplena la respektivan kampon se la komenca aŭ fina dato ne estas "
+"konata."
+
 msgid "Hosting place verification"
 msgstr "Kontrolo de loĝejo"
+
+msgid "There is a problem with this host's data…"
+msgstr "Estas problemo pri la informoj de la gastiganto…"
 
 msgctxt "Adverb"
 msgid "General"
 msgstr "Ĝenerale"
+
+msgid "Update profile"
+msgstr "Redakti profilon"
+
+#, python-format
+msgid "Update %(kin)splace"
+msgstr "Redakti %(kin)sloĝejon"
+
+msgid "Back to previous page"
+msgstr "Reen al antaŭa paĝo"
 
 msgid "my "
 msgstr "mian "
@@ -1355,9 +1384,6 @@ msgstr "Permesitaj uzantoj povos vidi ĉiujn tiujn detalojn."
 msgctxt "Title"
 msgid "Warning "
 msgstr "Averto "
-
-msgid "Deleted place"
-msgstr "Nuligita loĝejo"
 
 msgid "The address is obsolete"
 msgstr "La adreso estas neaktuala"
@@ -1390,9 +1416,6 @@ msgstr "mi povas ĉiĉeroni"
 
 msgid "I'd like to have a drink together"
 msgstr "mi emas trinkejumi"
-
-msgid "Indicate unavailability"
-msgstr "Indiki maldisponeblon"
 
 msgid "unavailable"
 msgstr "maldisponebla"
@@ -1439,10 +1462,6 @@ msgstr "Redakti surmapan pozicion"
 
 msgid "Edit location"
 msgstr "Redakti lokigon"
-
-#, python-format
-msgid "Update %(kin)splace"
-msgstr "Redakti %(kin)sloĝejon"
 
 msgid "Authorizations"
 msgstr "Permesoj"
@@ -1588,14 +1607,14 @@ msgstr "ne aperas en la libreto"
 msgid "not displayed to other users"
 msgstr "nevidebla al aliaj pasportservanoj"
 
+msgid "Update a phone number"
+msgstr "Redakti telefonan numeron"
+
 msgid "Mark invalid"
 msgstr "Marki kiel nefunkcianta"
 
 msgid "Update email"
 msgstr "Redakti retadreson"
-
-msgid "There is a problem with this host's data…"
-msgstr "Estas problemo pri la informoj de la gastiganto…"
 
 msgid ""
 "The description or phone note seems to contain Esperanto written in a "
@@ -1756,9 +1775,6 @@ msgstr "Publika retpoŝta adreso"
 msgid "this email address seems invalid"
 msgstr "tiu ĉi retpoŝtadreso ŝajne ne funkcias"
 
-msgid "Update profile"
-msgstr "Redakti profilon"
-
 msgid "Account"
 msgstr "Konto"
 
@@ -1767,9 +1783,6 @@ msgstr "Rigardi publikan profilon"
 
 msgid "Update public email"
 msgstr "Ŝanĝi retadreson por publikigo"
-
-msgid "Update a phone number"
-msgstr "Redakti telefonan numeron"
 
 msgid "Add a place"
 msgstr "Aldoni loĝejon"
@@ -1880,30 +1893,20 @@ msgstr "en informoj pri la loĝejo, vi ne elektis aperigi ĝin en la libreto"
 msgid "who can view ?"
 msgstr "kiu povas vidi ?"
 
+msgid "in new window"
+msgstr "en nova fenestro"
+
 msgid "approver unknown"
 msgstr "aprobanto nekonata"
 
 msgid "Full details viewable by:"
 msgstr "Plenaj detaloj videblas al:"
 
-msgid "in new window"
-msgstr "en nova fenestro"
-
 msgid "only supervisors"
 msgstr "nur la landaj organizantoj"
 
 msgid "available,unavailable"
 msgstr "disponebla,maldisponebla"
-
-msgid "I am not available over here"
-msgstr "Mi ne disponeblas ĉi tie"
-
-msgid ""
-"Leave the corresponding field empty if the starting or the ending date is "
-"not known."
-msgstr ""
-"Lasu malplena la respektivan kampon se la komenca aŭ fina dato ne estas "
-"konata."
 
 #, python-format
 msgid "%(city)s, near %(closest_city)s"
@@ -2228,9 +2231,6 @@ msgstr "^landaj-organizantoj/$"
 
 msgid "OK"
 msgstr "Enordas"
-
-msgid "Back to previous page"
-msgstr "Reen al antaŭa paĝo"
 
 msgid "Server error"
 msgstr "Servila eraro"
