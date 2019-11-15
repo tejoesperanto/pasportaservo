@@ -1,6 +1,7 @@
 import re
 
 from django import template
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -16,7 +17,7 @@ class VarNode(template.Node):
     def render(self, context):
         result = self.nodelist.render(context)
         if self.trim_contents:
-            result = result.strip()
+            result = mark_safe(result.strip())
         if self.var_is_global:
             context.dicts[0][self.var_name] = result
         else:
