@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, get_user_model, login
 from django.contrib.auth.views import (
+    LoginView as LoginBuiltinView,
     PasswordChangeDoneView as PasswordChangeDoneBuiltinView,
     PasswordChangeView as PasswordChangeBuiltinView,
 )
@@ -22,7 +23,6 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.html import escape
-from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
@@ -47,7 +47,7 @@ from .forms import (
 )
 from .mixins import LoginRequiredMixin, UserModifyMixin, flatpages_as_templates
 from .models import Agreement, SiteConfiguration
-from .utils import send_mass_html_mail
+from .utils import sanitize_next, send_mass_html_mail
 
 User = get_user_model()
 
@@ -66,6 +66,25 @@ class HomeView(generic.TemplateView):
         return self.render_flat_page(block)
 
 
+class LoginView(LoginBuiltinView):
+    # This view enables support for both a custom URL parameter name
+    # for redirection, as well as the built-in one (`next`). This is
+    # needed for third-party libraries that use Django's functions
+    # such as the `login_required` decorator, and cannot be customised.
+    redirect_authenticated_user = True
+    redirect_field_name = settings.REDIRECT_FIELD_NAME
+
+    def get_redirect_url(self):
+        if 'next' in self.request.POST and self.redirect_field_name not in self.request.POST:
+            self.request.POST = self.request.POST.copy()
+            self.request.POST[self.redirect_field_name] = self.request.POST['next']
+        if 'next' in self.request.GET and self.redirect_field_name not in self.request.GET:
+            self.request.GET = self.request.GET.copy()
+            self.request.GET[self.redirect_field_name] = self.request.GET['next']
+
+        return super().get_redirect_url()
+
+
 class RegisterView(generic.CreateView):
     model = User
     template_name = 'registration/register.html'
@@ -79,8 +98,9 @@ class RegisterView(generic.CreateView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_authenticated_redirect_url(self):
-        if self.request.GET.get(settings.REDIRECT_FIELD_NAME):
-            return self.request.GET[settings.REDIRECT_FIELD_NAME]
+        redirect_to = sanitize_next(self.request)
+        if redirect_to:
+            return redirect_to
         try:
             # When user is already authenticated, redirect to profile edit page.
             return self.request.user.profile.get_edit_url()
@@ -134,9 +154,8 @@ class AgreementView(LoginRequiredMixin, generic.TemplateView):
                 Agreement.objects.create(
                     user=request.user,
                     policy_version=request.user.consent_required[0]['version'])
-            target_page = request.GET.get(settings.REDIRECT_FIELD_NAME, '')
-            return HttpResponseRedirect(target_page if target_page and is_safe_url(target_page)
-                                        else reverse_lazy('home'))
+            target_page = sanitize_next(request)
+            return HttpResponseRedirect(target_page or reverse_lazy('home'))
         elif action == 'reject':
             request.session['agreement_rejected'] = self._agreement[1]['version']
             return HttpResponseRedirect(reverse_lazy('agreement_reject'))

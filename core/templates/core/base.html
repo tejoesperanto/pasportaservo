@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
-{% load i18n static utils %}
+{% load i18n static %}
+{% load next random_identifier from utils %}
 
 {% block body %}
     <section class="messages" role="complementary">
@@ -45,9 +46,7 @@
                             <span class="fa fa-sign-out fa-lg" title="{% trans "log out" %}" aria-label="{% trans "log out" %}"></span>
                         </a>
                     {% elif user %} {# 500/403-CSRF error pages don't have a user object #}
-                        <a href="{% url 'login' %}?{{ REDIRECT_FIELD_NAME }}={{ request.get_full_path|urlencode }}">
-                            {% trans "log in" %}
-                        </a>
+                        <a href="{% url 'login' %}?{% next 'this page' %}">{% trans "log in" %}</a>
                     {% endif %}
                 </div>
                 <div class="col-xs-5 col-sm-2 col-md-1 links" role="navigation">
@@ -58,7 +57,7 @@
                             <a href="{% url 'profile_create' %}">{{ user.username }}</a>
                         {% endif %}
                     {% elif user %} {# 500/403-CSRF error pages don't have a user object #}
-                        <a href="{% url 'register' %}?{{ REDIRECT_FIELD_NAME }}={{ request.get_full_path|urlencode }}">{% trans "register" %}</a>
+                        <a href="{% url 'register' %}?{% next 'this page' %}">{% trans "register" %}</a>
                     {% endif %}
                 </div>
             </div>

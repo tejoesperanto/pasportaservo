@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import never_cache
 
 from core.auth import OWNER
+from core.utils import sanitize_next
 
 from ..models import Phone, Place, Profile
 
@@ -42,8 +43,9 @@ class ProfileModifyMixin(object):
     url_anchors = {Place: 'p', Phone: 't'}
 
     def get_success_url(self, *args, **kwargs):
-        if 'next' in self.request.GET:
-            return self.request.GET.get('next')
+        redirect_to = sanitize_next(self.request)
+        if redirect_to:
+            return redirect_to
 
         success_url, success_url_anchor = None, None
         if hasattr(self.object, 'profile'):
@@ -171,6 +173,9 @@ class FamilyMemberMixin(object):
         return self.get_place().country
 
     def get_success_url(self, *args, **kwargs):
+        redirect_to = sanitize_next(self.request)
+        if redirect_to:
+            return redirect_to
         return self.place.owner.get_edit_url()
 
 

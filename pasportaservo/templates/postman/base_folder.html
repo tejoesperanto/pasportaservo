@@ -1,6 +1,7 @@
 {% extends "postman/base.html" %}
 {% load i18n postman_tags %}
 {% load pagination_tags %}
+{% load compact from utils %}
 
 {% comment %}
     WARNING: 'pagination_tags' is a name from the django-pagination application.
@@ -54,7 +55,12 @@
                             {% for message in pm_messages %}
                             <tr class="{% cycle "pm_row_odd" "pm_row_even" %}">
                                 <td>
-                                    <input type="checkbox" {% if by_conversation and message.thread_id %}name="tpks" value="{{ message.thread_id }}"{% else %}name="pks" value="{{ message.pk }}"{% endif %} />
+                                    <input type="checkbox"
+                                        {% if by_conversation and message.thread_id %}
+                                            name="tpks" value="{{ message.thread_id }}"
+                                        {% else %}
+                                            name="pks" value="{{ message.pk }}"
+                                        {% endif %} />
                                 </td>
                                 {% block pm_sender_cell %}
                                     <td>
@@ -73,7 +79,13 @@
                                 <td>
                                     {% if message.is_new %}<strong>{% endif %}{% if not message.is_replied %}<em>{% endif %}
                                     {% block pm_subject %}
-                                        <a href="{% if by_conversation and message.thread_id %}{% url 'postman:view_conversation' message.thread_id %}{% else %}{{message.get_absolute_url }}{% endif %}?next={{ current_url|urlencode }}">
+                                        <a href="{% filter compact %}
+                                                    {% if by_conversation and message.thread_id %}
+                                                        {% url 'postman:view_conversation' message.thread_id %}
+                                                    {% else %}
+                                                        {{ message.get_absolute_url }}
+                                                    {% endif %}
+                                                 {% endfilter %}?next={{ current_url|urlencode }}">
                                             {% include "postman/inc_subject_ex.html" %}
                                         </a>
                                     {% endblock %}

@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load i18n static sass_tags flatpages %}
+{% load next from utils %}
 
 {% block header_class %} home{% endblock %}
 
@@ -26,7 +27,7 @@
                     <a href="{% url 'admin:index' %}">{% trans "admin site" %}</a>
                 {% endif %}
             {% elif user %} {# 500/403-CSRF error pages don't have a user object or custom context #}
-                <a href="{% url 'login' %}?{{ REDIRECT_FIELD_NAME }}={{ request.get_full_path|urlencode }}">{% trans "log in" %}</a>
+                <a href="{% url 'login' %}?{% next 'this page' %}">{% trans "log in" %}</a>
             {% endif %}
         </div>
         <div class="col-xs-5 col-xs-offset-1 col-sm-5 col-sm-offset-0" role="navigation">
@@ -37,7 +38,7 @@
                     <a href="{% url 'profile_create' %}">{{ user.username }}</a>
                 {% endif %}
             {% elif user %} {# 500/403-CSRF error pages don't have a user object or custom context #}
-                <a href="{% url 'register' %}?{{ REDIRECT_FIELD_NAME }}={{ request.get_full_path|urlencode }}">{% trans "register" %}</a>
+                <a href="{% url 'register' %}?{% next 'this page' %}">{% trans "register" %}</a>
             {% endif %}
         </div>
     </div>

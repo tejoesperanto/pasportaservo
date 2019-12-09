@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load i18n static bootstrap %}
+{% load next from utils %}
 {% load is_invalid clear_invalid from profile %}
 
 {% block head_title %}
@@ -138,7 +139,7 @@
                         <span class="person-email-address">{% firstof profile.email no_email %}</span>
                     {% endif %}
                 </small></samp> &nbsp;
-                <a href="{% url 'profile_email_update' profile.pk profile.autoslug %}?next={{ request.get_full_path|urlencode }}"
+                <a href="{% url 'profile_email_update' profile.pk profile.autoslug %}?{% next 'this page' %}"
                    class="btn btn-default btn-sm btn-vert-space-even">
                     {% trans "Update public email" %}
                 </a>

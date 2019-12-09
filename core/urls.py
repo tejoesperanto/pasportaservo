@@ -1,17 +1,16 @@
-from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib.auth.views import (
-    LoginView, LogoutView, PasswordResetCompleteView,
-    PasswordResetConfirmView, PasswordResetDoneView, PasswordResetView,
+    LogoutView, PasswordResetCompleteView, PasswordResetConfirmView,
+    PasswordResetDoneView, PasswordResetView,
 )
-# from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView
 
 from .forms import SystemPasswordResetForm, SystemPasswordResetRequestForm
 from .views import (
-    AgreementRejectView, AgreementView, EmailUpdateView, EmailVerifyView,
-    HomeView, MassMailSentView, MassMailView, PasswordChangeDoneView,
+    AgreementRejectView, AgreementView, EmailUpdateView,
+    EmailVerifyView, HomeView, LoginView, MassMailSentView,
+    MassMailView, PasswordChangeDoneView,
     PasswordChangeView, RegisterView, UsernameChangeView,
 )
 
@@ -19,12 +18,7 @@ urlpatterns = [
     url(r'^$', HomeView.as_view(), name='home'),
 
     url(_(r'^register/$'), RegisterView.as_view(), name='register'),
-    url(_(r'^login/$'),
-        view=LoginView.as_view(
-            redirect_authenticated_user=True,
-            redirect_field_name=settings.REDIRECT_FIELD_NAME,
-        ),
-        name='login'),
+    url(_(r'^login/$'), view=LoginView.as_view(), name='login'),
     url(_(r'^logout/$'), view=LogoutView.as_view(next_page='/'), name='logout'),
 
     url(_(r'^agreement/'), include([

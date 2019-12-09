@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load i18n %}
+{% load next from utils %}
 
 {% block head_title %}
     {% trans "Hosting place verification" %}:
@@ -34,15 +35,17 @@
                     </dd>
                 {% endfor %}
             </dl>
+            {% next 'next page' url_only=True as next_page_url %}
+            {% next next_page_url as next_page_param %}
             <div class="btn-group btn-vert-space pull-right">
-                <a href="{% url 'profile_update' place.owner.pk place.owner.autoslug %}?next={{ request.GET.next|urlencode:"" }}"
+                <a href="{% url 'profile_update' place.owner.pk place.owner.autoslug %}{% if next_page_url %}?{{ next_page_param }}{% endif %}"
                    class="btn btn-success" tabindex="2">
                     <span class="hidden-xxs" aria-hidden="true">
                         <span class="fa fa-user"></span>&nbsp;<span class="fa fa-pencil"></span>&nbsp;
                     </span>
                     {% trans "Update profile" %}
                 </a>
-                <a href="{% url 'place_update' place.pk %}?next={{ request.GET.next|urlencode:"" }}"
+                <a href="{% url 'place_update' place.pk %}{% if next_page_url %}?{{ next_page_param }}{% endif %}"
                    class="btn btn-success" tabindex="2">
                     <span class="hidden-xxs" aria-hidden="true">
                         <span class="fa fa-home"></span>&nbsp;<span class="fa fa-pencil"></span>&nbsp;
@@ -50,8 +53,8 @@
                     {% blocktrans %}Update {{ kin }}place{% endblocktrans %}
                 </a>
             </div>
-            <a href="{{ request.GET.next|default:"javascript:history.go(-1)" }}"
-               class="btn btn-default btn-vert-space" tabindex="1">
+            <a href="{{ next_page_url|default:"javascript:history.go(-1)" }}"
+               class="btn btn-default btn-vert-space{% if not next_page_url %} requires-scripting{% endif %}" tabindex="1">
                 <span class="fa fa-arrow-left" aria-hidden="true"></span>&nbsp;
                 {% trans "Back to previous page" %}
             </a>

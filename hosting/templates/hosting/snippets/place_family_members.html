@@ -1,4 +1,6 @@
-{% load i18n expression profile %}
+{% load i18n expression %}
+{% load next from utils %}
+{% load is_supervisor_of from profile %}
 {% load show_as_family_member show_family_member_link from privacy %}
 
 {% if place.family_is_anonymous %}
@@ -42,14 +44,14 @@
                     {% spaceless %}
                     {# INLINE EDIT BUTTON FOR UPDATING FAMILY MEMBER'S PROFILE #}
                         {% if not member.user_id %}
-                            <a href="{% url 'family_member_update' place.pk member.pk %}?next={{ request.get_full_path|urlencode }}"
+                            <a href="{% url 'family_member_update' place.pk member.pk %}?{% next 'this page' %}"
                                class="action-edit-inline text-label-success"
                                title="{% trans "Update a family member" %}">
                                 <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
                                 <span class="sr-only">{% trans "Update" %}</span>
                             </a>
                         {% elif user|is_supervisor_of:member %}
-                            <a href="{% url 'profile_update' member.pk member.autoslug %}?next={{ request.get_full_path|urlencode }}"
+                            <a href="{% url 'profile_update' member.pk member.autoslug %}?{% next 'this page' %}"
                                class="action-edit-inline text-label-success"
                                title="{% trans "Update profile" %}">
                                 <span class="fa fa-pencil-square-o" aria-hidden="true"></span>

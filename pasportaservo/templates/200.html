@@ -1,5 +1,6 @@
 {% extends "core/home.html" %}
 {% load i18n %}
+{% load next from utils %}
 
 {% block home_title %}200{% endblock %}
 {% block home_subtitle %}{% trans "OK" %}{% endblock %}
@@ -7,10 +8,11 @@
 {% block pre-page %}{% endblock %}
 
 {% block home_content %}
-    {% if request.GET.next.strip %}
+    {% next 'next page' url_only=True as next_page_url %}
+    {% if next_page_url %}
         <div class="row">
             <div class="col-md-12" style="text-align: center; margin-bottom: 2em">
-                <a href="{{ request.GET.next }}" class="btn btn-lg btn-default" tabindex="1">
+                <a href="{{ next_page_url }}" class="btn btn-lg btn-default" tabindex="1">
                     <span class="fa fa-arrow-left" aria-hidden="true"></span>&nbsp;
                     {% trans "Back to previous page" %}
                 </a>

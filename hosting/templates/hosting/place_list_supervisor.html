@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load i18n static variable %}
+{% load next from utils %}
 {% load is_invalid clear_invalid is_esperanto_surrogate from profile %}
 
 {% block head_title %}{{ view.country.name }}{% endblock %}
@@ -128,7 +129,7 @@
             {% for place in confirmed_state.list %}
                 <div class="place-supervisor-detail callout {% if place.checked %}callout-success{% endif %} {% if not place.confirmed %}callout-warning{% endif %}"
                      id="p-{{ place.pk }}">
-                    {% asvar current_page_position %}{{ request.get_full_path }}#p-{{ place.pk }}{% endasvar %}
+                    {% asvar current_page_position %}#p-{{ place.pk }}{% endasvar %}
 
                     <div class="control-buttons pull-right">
                     {# CONTROL BUTTONS: CHECK, UPDATE; IMPORTANT TIMESTAMPS #}
@@ -138,7 +139,7 @@
                                 {% if place.checked %}
                                     {% include './snippets/checked.html' with object=place button=True button_id=id_check_status %}
                                 {% else %}
-                                    <form action="{% url 'place_check' place.pk %}?next={{ current_page_position|urlencode:"" }}"
+                                    <form action="{% url 'place_check' place.pk %}?{% next current_page_position %}"
                                           method="POST"
                                           class="unwrap-after-success">
                                         {% csrf_token %}
@@ -196,7 +197,7 @@
                                 {% endif %}
                             </h4>
                         </a>
-                        <a href="{% url 'profile_update' place.profile.pk place.profile.autoslug %}?next={{ current_page_position|urlencode:"" }}"
+                        <a href="{% url 'profile_update' place.profile.pk place.profile.autoslug %}?{% next current_page_position %}"
                            class="btn btn-default btn-sm btn-vert-space">
                             {% trans "Update profile" %}
                         </a>
@@ -270,7 +271,7 @@
                                             {% endif %}
                                         </em>
                                         {% spaceless %}
-                                        <a href="{% url 'phone_update' place.profile.pk phone.pk %}?next={{ current_page_position|urlencode:"" }}"
+                                        <a href="{% url 'phone_update' place.profile.pk phone.pk %}?{% next current_page_position %}"
                                            class="action-edit-inline text-label-success"
                                            title="{% trans "Update a phone number" %}" data-toggle="tooltip">
                                             <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
@@ -294,7 +295,7 @@
                             </span>
                         {% else %}
                             <span class="person-email-address">{{ place.profile.user.email|urlize }}</span>
-                            <form action="{% url 'staff_email_mark_invalid' place.profile.pk place.profile.autoslug %}?next={{ current_page_position|urlencode:"" }}"
+                            <form action="{% url 'staff_email_mark_invalid' place.profile.pk place.profile.autoslug %}?{% next current_page_position %}"
                                   method="POST"
                                   class="unwrap-after-success" style="display: inline">
                                 {% csrf_token %}
@@ -307,7 +308,7 @@
                                 </button>
                             </form>
                         {% endif %}
-                        <a href="{% url 'staff_email_update' place.profile.pk place.profile.autoslug %}?next={{ current_page_position|urlencode:"" }}"
+                        <a href="{% url 'staff_email_update' place.profile.pk place.profile.autoslug %}?{% next current_page_position %}"
                            class="btn btn-default btn-sm">
                             {% trans "Update email" %}
                         </a>

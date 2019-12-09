@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, get_connection
+from django.utils.http import is_safe_url
 
 
 def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,
@@ -35,3 +36,19 @@ def camel_case_split(identifier):
     from re import finditer
     matches = finditer('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', identifier)
     return [m.group(0) for m in matches]
+
+
+def sanitize_next(request, from_post=False):
+    """
+    Verifies if the redirect target provided in the request is a safe one,
+    meaning (mainly) not pointing to an external domain. Returns the target
+    value in this case, and empty string otherwise.
+    """
+    param_source = request.POST if from_post else request.GET
+    redirect = param_source.get(settings.REDIRECT_FIELD_NAME, default='').strip()
+    if redirect and is_safe_url(url=redirect,
+                                allowed_hosts={request.get_host()},
+                                require_https=request.is_secure()):
+        return redirect
+    else:
+        return ''

@@ -14,7 +14,6 @@ from django.http import (
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.urls import reverse_lazy
-from django.utils.http import urlquote_plus
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.views import generic
@@ -24,6 +23,8 @@ from braces.views import FormInvalidMessageMixin
 from core.auth import ANONYMOUS, OWNER, PERM_SUPERVISOR, SUPERVISOR, AuthMixin
 from core.forms import UserRegistrationForm
 from core.models import SiteConfiguration
+from core.templatetags.utils import next_link
+from core.utils import sanitize_next
 from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
 from maps.utils import bufferize_country_boundaries
 
@@ -296,10 +297,10 @@ class PlaceBlockView(AuthMixin, PlaceMixin, generic.UpdateView):
         return _("Only the owner of the place can access this page")
 
     def get_success_url(self, *args, **kwargs):
-        if 'next' in self.request.GET:
-            return self.request.GET.get('next')
-        else:
-            return super().get_success_url(*args, **kwargs)
+        return self.get_redirect_url() or super().get_success_url(*args, **kwargs)
+
+    def get_redirect_url(self):
+        return sanitize_next(self.request)
 
     def put(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -333,8 +334,11 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['place'] = self.place
-        m = re.match(r'^/([a-zA-Z]+)/(?:\d+/[\w-]+/([a-zA-Z]+)/)?', self.request.GET.get('next', default=''))
-        if m:
+        m = valid_back_link = re.match(
+            r'^/([a-zA-Z]+)/(?:\d+/[\w-]+/([a-zA-Z]+)/)?',
+            self.request.GET.get(settings.REDIRECT_FIELD_NAME, default='')
+        )
+        if valid_back_link:
             context['back_to'] = m.group(1).lower() if not m.group(2) else m.group(2).lower()
 
         def order_by_name(user):
@@ -367,8 +371,9 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
 
     def get_success_url(self):
         success_url = reverse_lazy('authorize_user', kwargs={'pk': self.kwargs['pk']})
-        if self.request.GET.get('next', default='').strip():
-            return format_lazy('{}?next={}', success_url, urlquote_plus(self.request.GET['next']))
+        redirect_to = sanitize_next(self.request)
+        if redirect_to:
+            return format_lazy('{}?{}', success_url, next_link(self.request, redirect_to))
         return success_url
 
     def send_email(self, user, place):

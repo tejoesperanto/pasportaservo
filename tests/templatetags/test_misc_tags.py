@@ -35,7 +35,7 @@ class RandomIdentifierTagTests(WebTest):
 
 @tag('templatetags')
 class PublicIdFilterTests(WebTest):
-    template_string = "{% load utils %}{{ my_obj|public_id }}"
+    template_string = "{% load public_id from utils %}{{ my_obj|public_id }}"
 
     def test_invalid_object(self):
         for obj in (255,
@@ -81,7 +81,7 @@ class PublicIdFilterTests(WebTest):
 class CompactFilterTests(WebTest):
     def test_single_line(self):
         content = "  \t Nam  pretium\vturpis  et\tarcu.   \f"
-        page = Template("{% load utils %}[{{ my_var|compact }}]").render(Context({'my_var': content}))
+        page = Template("{% load compact from utils %}[{{ my_var|compact }}]").render(Context({'my_var': content}))
         self.assertEqual(page, "[Nam pretium turpis et arcu.]")
 
     def test_multiple_lines(self):
@@ -91,7 +91,7 @@ class CompactFilterTests(WebTest):
             sem quam\rsemper libero,  \r
             sit amet  adipiscing   sem\n\n\nneque sed\xA0ipsum.
         """
-        page = Template("{% load utils %}[{{ my_var|compact }}]").render(Context({'my_var': content}))
+        page = Template("{% load compact from utils %}[{{ my_var|compact }}]").render(Context({'my_var': content}))
         self.assertEqual(
             page,
             "[Maecenas tempus, tellus eget condimentum rhoncus,"

@@ -1,5 +1,6 @@
 {% extends 'core/base_form.html' %}
 {% load i18n static %}
+{% load next from utils %}
 
 {% block head_title %}
     {% if view.role >= roles.SUPERVISOR and profile %}
@@ -48,8 +49,10 @@
 {% block enctype %}enctype='multipart/form-data'{% endblock %}
 
 {% block form_back_link %}
-    {% if view.place %} {# back button for family member form #}
-        <a href="{{ request.GET.next }}" class="btn btn-default" title="{% trans "Back" %}">
+    {% if view.place %}
+    {# back button for family member form #}
+        <a href="{% next 'next page' url_only=True default="javascript:history.go(-1)" %}"
+           class="btn btn-default" title="{% trans "Back" %}">
             <span class="fa fa-arrow-left" aria-hidden="true"></span>
             <span class="hidden-xxs">{% trans "Back" %}</span>
         </a>

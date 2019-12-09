@@ -12,6 +12,7 @@ from djgeojson.views import GeoJSONLayerView
 
 from core.auth import SUPERVISOR, AuthMixin
 from core.models import SiteConfiguration
+from core.utils import sanitize_next
 from hosting.models import Place
 
 HOURS = 3600
@@ -34,7 +35,7 @@ class MapTypeConfigureView(generic.View):
         if request.is_ajax():
             response = JsonResponse({'success': 'map-type-configured'})
         else:
-            response = HttpResponseRedirect(request.POST.get('next') or reverse_lazy('home'))
+            response = HttpResponseRedirect(sanitize_next(request, from_post=True) or reverse_lazy('home'))
         response.set_cookie('maptype', map_type, max_age=31557600)
         return response
 
