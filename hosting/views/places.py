@@ -237,14 +237,16 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
         else:
             return super().get_template_names()
 
-    def render_to_response(self, context, **response_kwargs):
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
         barrier = self.validate_access()
         if barrier.redirect:
             if isinstance(barrier.redirect, HttpResponse):
                 return barrier.redirect
             else:
-                return super().render_to_response(
-                    dict(context, object_name=self.object._meta.verbose_name), **response_kwargs
+                context = super().get_context_data()
+                return self.render_to_response(
+                    dict(context, object_name=self.object._meta.verbose_name)
                 )
         if not self.verbose_view:
             # Automatically show the user the verbose view if permission granted (in authorized_users list).
@@ -265,7 +267,8 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
             ]
             if not any(cases):
                 return HttpResponseRedirect(reverse_lazy('place_detail', kwargs={'pk': self.kwargs['pk']}))
-        return super().render_to_response(context, **response_kwargs)
+        context = self.get_context_data()
+        return self.render_to_response(context)
 
     def get_debug_data(self):
         return self.debug
