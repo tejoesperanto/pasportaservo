@@ -3,12 +3,15 @@
 
 {% block head_title %}
     {% if view.role >= roles.SUPERVISOR and place %}
+        {# THIS IS A PLACE EDIT FORM, AND USER IS A SUPERVISOR OR ADMIN #}
         {% blocktrans %}Update {{ kin }}place{% endblocktrans %}:
         {{ place.owner.name|default:place.owner.INCOGNITO }}, {{ place.get_locality_display }}
     {% elif place %}
+        {# THIS IS A PLACE EDIT FORM, AND USER IS THE OWNER #}
         {% blocktrans with kin=_("my ") %}Update {{ kin }}place{% endblocktrans %}
         ({{ place }})
     {% else %}
+        {# THIS IS A PLACE CREATE FORM #}
         {% trans "place"|title %}
         {% if view.role >= roles.SUPERVISOR %}
             {% blocktrans with name=view.create_for.name|default:_("user") %}of {{ name }}{% endblocktrans %}

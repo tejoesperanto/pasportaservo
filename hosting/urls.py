@@ -10,8 +10,8 @@ from .views import (                                                            
     ProfileEditView, ProfileUpdateView, ProfileDeleteView, ProfileRestoreView,
     ProfileSettingsRedirectView, ProfileSettingsView,
     ProfileEmailUpdateView, ProfilePrivacyUpdateView,
-    PlaceCreateView, PlaceDetailView, PlaceDetailVerboseView,
-    PlaceUpdateView, PlaceLocationUpdateView, PlaceDeleteView, PlaceBlockView,
+    PlaceCreateView, PlaceDetailView,
+    PlaceUpdateView, PlaceLocationUpdateView, PlaceBlockView, PlaceDeleteView,
     UserAuthorizeView,
     FamilyMemberCreateView, FamilyMemberUpdateView,
     FamilyMemberRemoveView, FamilyMemberDeleteView,
@@ -61,7 +61,7 @@ urlpatterns = [
     url(_(r'^place/'), include([
         url(r'^(?P<pk>\d+)/', include([
             url(r'^$', PlaceDetailView.as_view(), name='place_detail'),
-            url(_(r'^detailed/$'), PlaceDetailVerboseView.as_view(), name='place_detail_verbose'),
+            url(_(r'^detailed/$'), PlaceDetailView.as_view(verbose_view=True), name='place_detail_verbose'),
             url(_(r'^update/$'), PlaceUpdateView.as_view(), name='place_update'),
             url(_(r'^location/update/$'), PlaceLocationUpdateView.as_view(), name='place_location_update'),
             url(_(r'^check/$'), PlaceCheckView.as_view(), name='place_check'),

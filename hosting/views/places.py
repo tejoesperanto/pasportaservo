@@ -246,45 +246,29 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
                 return super().render_to_response(
                     dict(context, object_name=self.object._meta.verbose_name), **response_kwargs
                 )
-        # Automatically redirect the user to the verbose view if permission granted (in authorized_users list).
-        if barrier.is_authorized and not barrier.is_supervisor and not isinstance(self, PlaceDetailVerboseView):
-            # We switch the class to avoid fetching all data again from the database,
-            # because everything we need is already available here.
-            # TODO: Combine the two views into one class.
-            self.__class__ = PlaceDetailVerboseView
-            return self.render_to_response(context, **response_kwargs)
+        if not self.verbose_view:
+            # Automatically show the user the verbose view if permission granted (in authorized_users list).
+            cases = [
+                barrier.is_authorized and not barrier.is_supervisor,
+            ]
+            if any(cases):
+                self.verbose_view = True
         else:
-            return super().render_to_response(context, **response_kwargs)
+            # Automatically redirect the user to the scarce view if permission to details not granted.
+            # Non-authenticated user is a special case: we will just show the login/registration snippet,
+            # becase we don't want to disclose too much information about the viewing settings.
+            cases = [
+                self.role >= OWNER,
+                not self.request.user.is_authenticated,
+                barrier.is_authorized,
+                barrier.is_family_member,
+            ]
+            if not any(cases):
+                return HttpResponseRedirect(reverse_lazy('place_detail', kwargs={'pk': self.kwargs['pk']}))
+        return super().render_to_response(context, **response_kwargs)
 
     def get_debug_data(self):
         return self.debug
-
-
-class PlaceDetailVerboseView(PlaceDetailView):
-    verbose_view = True
-
-    def render_to_response(self, context, **response_kwargs):
-        barrier = self.validate_access()
-        if barrier.redirect:
-            if isinstance(barrier.redirect, HttpResponse):
-                return barrier.redirect
-            else:
-                return super().render_to_response(
-                    dict(context, object_name=self.object._meta.verbose_name), **response_kwargs
-                )
-        # Automatically redirect the user to the scarce view if permission to details not granted.
-        # Non-authenticated user is a special case: we will just show the login/registration snippet,
-        # becase we don't want to disclose too much information about the viewing settings.
-        cases = [
-            self.role >= OWNER,
-            not self.request.user.is_authenticated,
-            barrier.is_authorized,
-            barrier.is_family_member,
-        ]
-        if any(cases):
-            return super().render_to_response(context, **response_kwargs)
-        else:
-            return HttpResponseRedirect(reverse_lazy('place_detail', kwargs={'pk': self.kwargs['pk']}))
 
 
 class PlaceBlockView(AuthMixin, PlaceMixin, generic.UpdateView):

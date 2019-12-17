@@ -41,10 +41,10 @@
             {% for place in city.list %}
               \begin{minipage}{\textwidth} {# Address block won't break with minipage #}
               {\small
-                {{ place.owner.get_title_display|ctx:"light" }}
+                {{ place.owner.get_title_display|ctx:"light" }}{# TODO: display also the gender; show only non-deleted (and non-hidden) family members. #}
                 {{ place.owner|full_name }}~{{ place.owner.birth_date.year|bracket|ctx:"light" }}{% for member in place.family_members.all %}, {{ member.first_name }}{% if member.birth_date %}~{{ member.birth_date.year|bracket|ctx:"light" }}{% endif %}{% if forloop.last %}:{% endif %}{% endfor %}
                   {% if place.postcode %}{{ place.postcode|escape_latex }}~{% endif %}{{ place.city|escape_latex|ctx:"semibold" }}
-                  {{ place.address|escape_latex }} {% for phone in place.owner.phones.all %}
+                  {{ place.address|escape_latex }} {% for phone in place.owner.phones.all %}{# TODO: show non-deleted phone numbers according to visibility settings and sorted by importance. #}
                   {{ phone.latex }} {{ phone.comments|escape_latex|ctx:"lightitalic,footnotesize" }} {% endfor %}{% if place.owner.email and INVALID_PREFIX not in place.owner.email %}
                 {{ place.owner.email|escape_latex|cmd:"texttt"|ctx:"footnotesize" }}{% endif %}
                   {% if place.max_guest %}{{ place.max_guest }}g\,{% endif %}{% if place.max_night %}\,{{ place.max_night }}n\,{% endif %}{% if place.contact_before %}\,{{ place.contact_before }}t{% endif %}

@@ -5,20 +5,26 @@
 {% block head_title %}
     {% if view.role >= roles.SUPERVISOR and profile %}
         {% if profile.user_id %}
+            {# THIS IS A FULL PROFILE EDIT FORM, AND USER IS A SUPERVISOR OR ADMIN #}
             {% trans "Update user's details" %}{% if profile.name %}: {{ profile.name }} {% else %} #{{ profile.id }} {% endif %}
         {% else %}
+            {# THIS IS A FAMILY MEMBER EDIT FORM, AND USER IS A SUPERVISOR OR ADMIN #}
             {% trans "Update a family member" %}
         {% endif %}
     {% elif profile %}
         {% if user.profile != profile %}
+            {# THIS IS A FAMILY MEMBER EDIT FORM, AND USER IS THE OWNER OF THE CORRESPONDING PLACE #}
             {% trans "Update a family member" %}
         {% else %}
+            {# THIS IS A FULL PROFILE EDIT FORM, AND THE PROFILE BELONGS TO THIS USER #}
             {% trans "Update my details" %}
         {% endif %}
     {% else %}
         {% if user.profile or view.place %}
+            {# THIS IS A FAMILY MEMBER CREATE FORM #}
             {% trans "Add a family member" %}
         {% else %}
+            {# THIS IS A FULL PROFILE CREATE FORM (ONLY FOR THIS USER) #}
             {% trans "My profile" %}
         {% endif %}
     {% endif %}
