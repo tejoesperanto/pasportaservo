@@ -153,7 +153,7 @@
         <h4 id="{% trans "privacy" context "URL" %}">
             {% trans "Privacy" %}
             {% if privacy_matrix.read_only %}
-                &nbsp;<small><span class="label label-info" style="vertical-align: text-top">{% trans "Preview" context 'Title' %}</span></small>
+                &nbsp;<small><span class="label label-info" style="vertical-align: text-top">{% trans "Preview" context "Title" %}</span></small>
             {% endif %}
         </h4>
         <form id="privacy_form" action="{% url 'profile_privacy_update' profile.pk profile.autoslug %}" method="POST" data-csrf="{{ csrf_token }}">
