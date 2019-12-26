@@ -141,6 +141,11 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
                 location = location_truncate(place.location)
                 location_box = location_enclose(location)
                 location_type = 'C'  # = Circle.
+        if place.available or place.owner_available:
+            not_specified = place.location is None or place.location.empty
+            not_accurate = not not_specified and place.location_confidence < 8
+        else:
+            not_specified, not_accurate = None, None
 
         if (location is None or location.empty) and is_authenticated:
             location_type = 'R'  # = Region.
@@ -169,7 +174,10 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
                     {'geom': LineString(coords['bbox']['southwest'], coords['bbox']['northeast'], srid=SRID)},
                 ]
 
-        return {'coords': location, 'box': location_box, 'type': location_type, 'bounds': bounds}
+        return {
+            'coords': location, 'box': location_box, 'type': location_type,
+            'bounds': bounds, 'unknown': not_specified, 'inaccurate': not_accurate,
+        }
 
     @staticmethod
     def calculate_blocking(place):
