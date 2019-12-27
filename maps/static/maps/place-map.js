@@ -17,11 +17,12 @@ window.addEventListener("load", function() {
         position = undefined;
     }
 
-    mapboxgl.setRTLTextPlugin(GIS_ENDPOINTS['rtl_plugin']);
+    mapboxgl.setRTLTextPlugin(GIS_ENDPOINTS['rtl_plugin'], undefined, true);
 
     var map = new mapboxgl.Map({
         container: 'map',
         style: GIS_ENDPOINTS['place_map_style'],
+        locale: (mapboxgl.localui || {})[document.documentElement.lang],
         pitchWithRotate: false,
         minZoom: 0.5,
         maxZoom: 15,

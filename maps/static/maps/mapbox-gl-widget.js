@@ -18,11 +18,12 @@ window.addEventListener("load", function() {
         submit.setAttribute('data-initial-title', submit.title);
     }
 
-    mapboxgl.setRTLTextPlugin(GIS_ENDPOINTS['rtl_plugin']);
+    mapboxgl.setRTLTextPlugin(GIS_ENDPOINTS['rtl_plugin'], undefined, true);
 
     var map = new mapboxgl.Map({
         container: 'map',
         style: GIS_ENDPOINTS['widget_style'],
+        locale: (mapboxgl.localui || {})[document.documentElement.lang],
         attributionControl: false,
         pitchWithRotate: false,
         minZoom: 1,
