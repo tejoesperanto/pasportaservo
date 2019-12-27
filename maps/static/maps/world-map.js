@@ -41,6 +41,7 @@ window.addEventListener("load", function() {
     var map = new mapboxgl.Map({
         container: 'map',
         style: GIS_ENDPOINTS['world_map_style'],
+        locale: (mapboxgl.localui || {})[document.documentElement.lang],
         hash: true,
         minZoom: 1.5,
         maxZoom: 15,

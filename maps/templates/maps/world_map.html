@@ -4,6 +4,7 @@
 {% block head_title %}{% trans "Map of hosts" %}{% endblock %}
 
 {% block extra_js %}
+        <script src="{% static 'maps/mapbox-gl.eo.js' %}"></script>
         <script src="{% static 'maps/world-map.js' %}"></script>
 {% endblock %}
 {% block extra_head %}

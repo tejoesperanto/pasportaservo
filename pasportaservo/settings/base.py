@@ -228,7 +228,7 @@ POSTMAN_DISALLOW_MULTIRECIPIENTS = True
 POSTMAN_DISALLOW_COPIES_ON_REPLY = True
 POSTMAN_NOTIFIER_APP = None
 
-MAPBOX_GL_BASE_STATIC = 'https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.{ext}'
+MAPBOX_GL_BASE_STATIC = 'https://api.tiles.mapbox.com/mapbox-gl-js/v1.6.1/mapbox-gl.{ext}'
 MAPBOX_GL_CSS = MAPBOX_GL_BASE_STATIC.format(ext='css')
 MAPBOX_GL_JS = MAPBOX_GL_BASE_STATIC.format(ext='js')
 MAPBOX_GL_RTL_PLUGIN = 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js'
