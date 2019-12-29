@@ -234,7 +234,7 @@ $(document).ready(function() {
 // Bootstrap tooltips and popovers
 function enableTooltips() {
     $('[data-toggle=tooltip]').tooltip();
-    $('[data-toggle=tooltip-lasting]').tooltip({ delay: { show: 0, hide: 2000, } });
+    $('[data-toggle=tooltip-lasting]').tooltip({ delay: { show: 0, hide: 2500, } });
     $('[data-toggle=popover]').popover();
 }
 
