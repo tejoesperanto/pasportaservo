@@ -15,7 +15,7 @@ class PostFormTests(WebTest):
             'slug',
         ]
         # Verify that the expected fields are part of the form.
-        self.assertEquals(set(expected_fields), set(form.fields))
+        self.assertEqual(set(expected_fields), set(form.fields))
 
     @override_settings(LANGUAGE_CODE='en')
     def test_blank_data(self):
@@ -42,6 +42,6 @@ class PostFormTests(WebTest):
             with self.subTest(field=field):
                 self.assertEqual(getattr(saved_post, field), data[field])
         with self.subTest(field='description'):
-            self.assertEquals(saved_post.description, "<p>{}</p>\n".format(stub.description))
+            self.assertEqual(saved_post.description, "<p>{}</p>\n".format(stub.description))
         with self.subTest(field='body'):
-            self.assertEquals(saved_post.body, "<p>{}</p>\n".format(stub.body))
+            self.assertEqual(saved_post.body, "<p>{}</p>\n".format(stub.body))

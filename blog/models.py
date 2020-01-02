@@ -1,3 +1,5 @@
+import re
+
 from django.conf import settings
 from django.db import models
 from django.db.models import BooleanField, Case, F, Q, When
@@ -43,7 +45,11 @@ class Post(TimeStampedModel):
         _("slug"),
         unique=True)
     content = SimpleMDEField(
-        _("Markdown content"))
+        _("Markdown content"),
+        simplemde_options={
+            'showIcons': ['heading-smaller', 'heading-bigger', 'horizontal-rule'],
+            'spellChecker': False,
+        })
     body = models.TextField(
         _("HTML content"),
         blank=True)
@@ -74,7 +80,7 @@ class Post(TimeStampedModel):
         return reverse_lazy('blog:post', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
-        content = self.content.split("----", 1)
+        content = re.split(r'(?<!-)----(?!-)', self.content, maxsplit=1)
         self.body = commonmark("".join(content))
         self.description = commonmark(content[0])
         return super().save(*args, **kwargs)

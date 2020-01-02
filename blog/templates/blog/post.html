@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load compact from utils %}
 <article class="blog-post">
     <h{{ header_level|default:3 }} class="post-title clearfix">
         <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
@@ -13,7 +14,7 @@
 
         {% if post.has_more and more_type == "link" %}
             {% spaceless %}
-            <a href="{{ post.get_absolute_url }}" class="text-center text-nowrap {{ more_class }}">
+            <a href="{{ post.get_absolute_url }}" class="post-more text-center text-nowrap {{ more_class }}">
                 <em>
                     <span>{% trans "read more" %}</span>
                     <span class="fa fa-long-arrow-right" style="margin-left: 0.6em" aria-label="&#x279e;"></span>
@@ -24,9 +25,15 @@
         {% if post.has_more and more_type == "dots" %}
             <p>
                 &nbsp;
-                <span class="help-block text-nowrap {{ more_class }}">
-                    [&nbsp;&bull;&thinsp;&bull;&thinsp;&bull;&nbsp;]
+                {% filter compact %}
+                <span class="post-more help-block text-nowrap {{ more_class }}">
+                    [&nbsp;
+                    <a href="{{ post.get_absolute_url }}" style="color: inherit; text-decoration: none;">
+                        &bull;&thinsp;&bull;&thinsp;&bull;
+                    </a>
+                    &nbsp;]
                 </span>
+                {% endfilter %}
             </p>
         {% endif %}
     {% if quote %}</blockquote>{% endif %}
