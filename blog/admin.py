@@ -16,6 +16,7 @@ class PostAdmin(admin.ModelAdmin):
         'pub_date',
     )
     prepopulated_fields = {'slug': ('title',)}
+    readonly_fields = ('body', 'description',)
     date_hierarchy = 'created'
 
     def published(self, obj):

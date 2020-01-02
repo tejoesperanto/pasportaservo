@@ -11,7 +11,7 @@
 
 {% block page %}
     <section class="blog blog-post row">
-        <div class="col-xxs-12 col-xs-offset-1 col-xs-10 col-md-offset-2 col-md-8">
+        <div class="col-xxs-12 col-xxs-offset-0 col-xs-10 col-xs-offset-1 col-md-8 col-md-offset-2">
             <div class="btn-toolbar pull-right" role="toolbar">
                 {% if perms.blog %}
                     <div class="btn-group" role="group">
@@ -28,9 +28,10 @@
                 <h1 class="title"><a name="T"></a>{{ post.title }}</h1>
                 <div class="h3 published">
                     <small class="pull-right text-nowrap">
-                        <span class="fa fa-calendar-check-o" aria-hidden="true"></span>&nbsp;
+                        <span class="fa fa-calendar-{{ post.pub_date|yesno:"check,minus" }}-o" aria-hidden="true"></span>&nbsp;
                         <span class="sr-only">{% trans "published on" %} :</span>
                         {{ post.pub_date.date }}
+                        {% if not post.pub_date %}<span class="sr-only">{% trans "never" %}</span>{% endif %}
                     </small>
                 </div>
                 {{ post.body|safe }}

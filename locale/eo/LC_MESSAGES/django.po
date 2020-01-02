@@ -63,6 +63,9 @@ msgstr "Novaĵoj"
 msgid "Update"
 msgstr "Redakti"
 
+msgid "never"
+msgstr "neniam"
+
 msgid "Previous news"
 msgstr "Antaŭa novaĵo"
 
@@ -1607,9 +1610,6 @@ msgstr "Nekontrolita"
 
 msgid "last login"
 msgstr "lasta ensaluto"
-
-msgid "never"
-msgstr "neniam"
 
 #, python-format
 msgid "%(age)s y.o."
