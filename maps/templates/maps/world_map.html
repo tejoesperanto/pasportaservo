@@ -13,8 +13,12 @@
         <script src="{% url 'gis_endpoints' %}?format=js&type=world"></script>
 {% endblock %}
 
+{% block header_class %} world-map{% endblock %}
+
+{% block messages %}{# don't display any messages on this page, only the header. #}{% endblock %}
+
 {% block pre-page %}
-    <div id="map" role="main" style="position: absolute; top: 52px; bottom: 0; width: 100%;">
+    <div id="map" role="main">
         <div class="container hidden" id="webgl-warning">
             <div class="row" style="margin-top: 52px;">
                 <div class="col-xs-12 col-sm-8 col-sm-push-2 text-center">
@@ -61,3 +65,4 @@
 
 {% block footer %}{% endblock %}
 {% block footer_role %}{# NONE: footer is empty here. #}{% endblock %}
+{% block footer_class %} world-map{% endblock %}

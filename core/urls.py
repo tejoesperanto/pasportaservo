@@ -4,7 +4,7 @@ from django.contrib.auth.views import (
     PasswordResetDoneView, PasswordResetView,
 )
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import RedirectView
+from django.views.generic import TemplateView
 
 from .forms import SystemPasswordResetForm, SystemPasswordResetRequestForm
 from .views import (
@@ -47,10 +47,6 @@ urlpatterns = [
             url(_(r'^done/$'), view=PasswordResetCompleteView.as_view(), name='password_reset_complete'),
         ])),
     ])),
-    # Backwards-compatibility for older password reset URLs. They become invalid
-    # quickly, so can be removed after 31 Dec 2017.
-    url(_(r'^reset-password/(?P<uidb64>.+?)/(?P<token>.+?)/$'),
-        RedirectView.as_view(pattern_name='password_reset_confirm', permanent=True)),
     url(_(r'^username/$'), UsernameChangeView.as_view(), name='username_change'),
     url(_(r'^email/'), include([
         url(r'^$', EmailUpdateView.as_view(), name='email_update'),
@@ -63,4 +59,6 @@ urlpatterns = [
             url(_(r'^sent/$'), MassMailSentView.as_view(), name='mass_mail_sent'),
         ])),
     ])),
+
+    url(_(r'^ok$'), TemplateView.as_view(template_name='200.html')),
 ]

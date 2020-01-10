@@ -1,0 +1,5 @@
+{% load split from utils %}
+hidden-xxs
+{% for point in breakpoints|default:""|split:"," %}
+    visible-{{ point }}-{{ type|default:"inline" }}
+{% endfor %}

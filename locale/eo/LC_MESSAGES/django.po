@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2019-12-26 00:21+0000\n"
+"POT-Revision-Date: 2020-01-10 10:48+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -243,18 +243,6 @@ msgstr "Mia profilo"
 msgid "Search"
 msgstr "Serĉi"
 
-msgid "inbox"
-msgstr "poŝtkesto"
-
-#, python-format
-msgid "%(unread)s new message"
-msgid_plural "%(unread)s new messages"
-msgstr[0] "%(unread)s nova mesaĝo"
-msgstr[1] "%(unread)s novaj mesaĝoj"
-
-msgid "log out"
-msgstr "elsaluti"
-
 msgid "log in"
 msgstr "ensaluti"
 
@@ -399,6 +387,24 @@ msgstr "Vi sendis %(nb)s mesaĝojn. Bonege!"
 
 msgid "Hide"
 msgstr "Kaŝi"
+
+msgid "inbox"
+msgstr "poŝtkesto"
+
+#, python-format
+msgid "%(unread)s new message"
+msgid_plural "%(unread)s new messages"
+msgstr[0] "%(unread)s nova mesaĝo"
+msgstr[1] "%(unread)s novaj mesaĝoj"
+
+msgid "log out"
+msgstr "elsaluti"
+
+msgid "avatar"
+msgstr "profilbildo"
+
+msgid "settings"
+msgstr "agordoj"
 
 msgctxt "Title"
 msgid "Registration"
@@ -653,9 +659,6 @@ msgstr "^nova/"
 msgid "^sent/$"
 msgstr "^sukceso/$"
 
-msgid "^reset-password/(?P<uidb64>.+?)/(?P<token>.+?)/$"
-msgstr "^nova-pasvorto/(?P<uidb64>.+?)/(?P<token>.+?)/$"
-
 msgid "^username/$"
 msgstr "^salutnomo/$"
 
@@ -670,6 +673,9 @@ msgstr "^admin/"
 
 msgid "^mass-mail/"
 msgstr "^amassendado/"
+
+msgid "^ok$"
+msgstr "^ĉu$"
 
 msgid "You are logged in."
 msgstr "Vi nun estas ensalutinta."
@@ -1035,9 +1041,6 @@ msgstr ""
 "Mallonga sinprezento. \n"
 "Plidetaligu ĉi tie pri vi mem. Se vi indikis ke via genro estas ne-duuma, "
 "tio helpos la eventualajn gastojn se vi klarigos pli."
-
-msgid "avatar"
-msgstr "profilbildo"
 
 msgid "Small image under 100kB. Ideal size: 140x140 px."
 msgstr "Malgranda bildo, < 100 kB. Idealaj mezuroj: 140×140 punktoj."

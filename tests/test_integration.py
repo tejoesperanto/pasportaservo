@@ -1,3 +1,4 @@
+from django.test import override_settings
 from django.urls import reverse
 
 from django_webtest import WebTest
@@ -13,10 +14,12 @@ class HomeTests(WebTest):
     def test_home(self):
         self.app.get(self.url, status=200)
 
+    @override_settings(LANGUAGE_CODE='en')
     def test_home_logged_in(self):
         user = UserFactory()
         response = self.app.get(self.url, user=user, status=200)
-        self.assertIn(user.username, response.pyquery(".links").text())
+        # self.assertIn(user.username, response.pyquery(".links").text())
+        self.assertIn("log out", response.pyquery("header .navigator .nav-session").text())
 
 
 class BasicProfileTests(WebTest):

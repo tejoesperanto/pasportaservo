@@ -236,7 +236,7 @@
     <div class="pull-left">
         <a href="{% url 'profile_edit' profile.pk profile.autoslug %}" class="btn btn-default" title="{% trans "Back" %}">
             <span class="fa fa-arrow-left" aria-hidden="true"></span>
-            <span>{% trans "Back" %}</span>
+            <span>{% blocktrans with back_to=_("profile") %}Back to {{ back_to }}{% endblocktrans %}</span>
         </a>
     </div>
 {% endblock page %}

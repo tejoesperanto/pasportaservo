@@ -121,15 +121,25 @@ blockquote .table.small:before {
 }
 
 @mixin flexbox {
-    display: flex; display: -webkit-box; display: -webkit-flex; display: -ms-flexbox;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
 }
 @mixin flex-row {
     @include flexbox;
-    flex-direction: row; -webkit-box-orient: horizontal; -webkit-box-direction: normal; -webkit-flex-direction: row; -ms-flex-direction: row;
+        -webkit-box-orient: horizontal;
+     -webkit-box-direction: normal;
+    -webkit-flex-direction: row;
+        -ms-flex-direction: row;
+            flex-direction: row;
 }
 @mixin flex-column {
     @include flexbox;
-    align-items: center; -webkit-box-align: center; -webkit-align-items: center; -ms-flex-align: center;
+      -webkit-box-align: center;
+    -webkit-align-items: center;
+         -ms-flex-align: center;
+            align-items: center;
 }
 .row.vertical-align {
     @include flex-row;

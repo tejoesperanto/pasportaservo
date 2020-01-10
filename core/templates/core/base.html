@@ -10,57 +10,53 @@
     </section>
     <header class="container-fluid{% block header_class %}{% endblock %}" role="banner">
         {% block header %}
-            <div class="row">
-                <div class="col-xs-2 col-sm-3 col-md-2" id="title">
-                    <a href="{% url 'home' %}">P<span class="hidden-xs">asporta&nbsp;</span>S<span class="hidden-xs">ervo</span></a>
-                </div>
-                <div class="hidden-xs col-sm-3 col-md-3" id="subtitle">
-                    {% trans "Esperanto-hosts around the world" %}
-                </div>
-                <div class="col-xs-3 col-sm-2 col-md-1 col-md-offset-4 links" role="navigation">
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'postman:inbox' %}" style="text-decoration: none">
-                            {% trans "inbox" as title_inbox %}
-                            {% if not postman_unread_count %}
-                                <span class="fa fa-envelope-o fa-lg" title="{{ title_inbox }}" aria-label="{{ title_inbox }}"></span>
-                            {% else %}
-                                {% blocktrans count unread=postman_unread_count trimmed asvar verbose_count_inbox %}
-                                    {{ unread }} new message
-                                {% plural %}
-                                    {{ unread }} new messages
-                                {% endblocktrans %}
-                                <span class="fa fa-envelope-o fa-lg"
-                                      title="{{ title_inbox }}: {{ verbose_count_inbox }}"
-                                      aria-label="{{ title_inbox }}"></span>
-                                <sup aria-hidden="true">{{ postman_unread_count|default:"" }}</sup>
-                                <span class="sr-only">{{ verbose_count_inbox }}</span>
-                            {% endif %}
+            <nav class="navigator">
+                {# TODO link: jump to content (for keyboard / voice navigation) #}
+                <div class="pull-left">
+                    <div class="nav-title" id="title">
+                        <a href="{% url 'home' %}">P<span class="hidden-xs">asporta&nbsp;</span>S<span class="hidden-xs">ervo</span></a>
+                    </div>
+                    <div class="nav-search hidden-nano">
+                        <a href="{% url 'search' %}" class="linkicon">
+                            <span class="fa fa-search" aria-hidden="true"
+                                  title="{% trans "Search" %}"
+                                  data-toggle="tooltip" data-placement="bottom"></span>
+                            <span class="sr-only">{% trans "Search"|lower %}</span>
                         </a>
-                    {% else %}
-                        &nbsp;
-                    {% endif %}
+                        <span class="hidden-xs" id="subtitle">
+                            {% trans "Esperanto-hosts around the world" %}
+                        </span>
+                    </div>
                 </div>
-                <div class="col-xs-2 col-sm-2 col-md-1 links" role="navigation">
+                <div class="pull-right">
                     {% if user.is_authenticated %}
-                        <a href="{% url 'logout' %}" style="text-decoration: none">
-                            <span class="fa fa-sign-out fa-lg" title="{% trans "log out" %}" aria-label="{% trans "log out" %}"></span>
-                        </a>
-                    {% elif user %} {# 500/403-CSRF error pages don't have a user object #}
-                        <a href="{% url 'login' %}?{% next 'this page' %}">{% trans "log in" %}</a>
+                        <div class="nav-inbox in">
+                            {% include './snippets/header_icon_inbox.html' %}
+                        </div>
+                        <div class="nav-settings in hidden-nano">
+                            {% include './snippets/header_icon_settings.html' %}
+                        </div>
                     {% endif %}
-                </div>
-                <div class="col-xs-5 col-sm-2 col-md-1 links" role="navigation">
-                    {% if user.is_authenticated %}
-                        {% if user.profile %}
-                            <a href="{{ user.profile.get_absolute_url }}">{{ user.username }}</a>
-                        {% else %}
-                            <a href="{% url 'profile_create' %}">{{ user.username }}</a>
+                    <div class="nav-session{% if user.is_authenticated %} in{% endif %}">
+                        {% if user.is_authenticated %}
+                            {% include './snippets/header_icon_logout.html' %}
+                        {% elif user %} {# 500/403-CSRF error pages don't have a user object #}
+                            <a href="{% url 'login' %}?{% next 'this page' %}" class="linkicon">
+                                {% trans "log in" %}
+                            </a>
                         {% endif %}
-                    {% elif user %} {# 500/403-CSRF error pages don't have a user object #}
-                        <a href="{% url 'register' %}?{% next 'this page' %}">{% trans "register" %}</a>
-                    {% endif %}
+                    </div>
+                    <div class="nav-profile{% if user.is_authenticated %} in{% endif %}">
+                        {% if user.is_authenticated %}
+                            {% include './snippets/header_icon_profile.html' %}
+                        {% elif user %} {# 500/403-CSRF error pages don't have a user object #}
+                            <a href="{% url 'register' %}?{% next 'this page' %}" class="linkicon">
+                                {% trans "register" %}
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
+            </nav>
         {% endblock header %}
     </header>
 
@@ -102,7 +98,7 @@
         {% block page %}{% endblock %}
     </div>
 
-    <footer class="container-fluid" role="{% block footer_role %}note{% endblock %}">
+    <footer class="container-fluid{% block footer_class %}{% endblock %}" role="{% block footer_role %}note{% endblock %}">
         {% block footer %}
             <div class="row">
                 <div class="col-md-12" role="navigation">
