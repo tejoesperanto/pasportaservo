@@ -53,3 +53,9 @@
         line-height: 1.5;
     }
 }
+
+@media (max-width: 319px) {
+    .hidden-nano {
+        display: none !important;
+    }
+}

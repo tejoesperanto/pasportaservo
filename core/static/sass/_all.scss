@@ -1,4 +1,10 @@
 
+html {
+    // Base font size (see 'body') by title's font size (see '#title') and the line height (see bootstrap),
+    // plus the padding and the bottom margin of the fixed header.
+    scroll-padding-top: 16px * (1.6 * 1.45 + 0.5 + 1.0);
+}
+
 body, .same-as-body {
     font-family: $font-stack;
     font-size: 16px;
@@ -84,10 +90,10 @@ code, kbd, pre, samp {
 }
 
 @mixin transition($params...) {
-            transition: #{$params};
     -webkit-transition: #{$params};
        -moz-transition: #{$params};
          -o-transition: #{$params};
+            transition: #{$params};
 }
 @mixin highlighter($duration: 0.75s) {
     @include transition(background-color $duration);
@@ -166,40 +172,152 @@ ul.dropdown-menu-lg li {
 }
 
 
-/* General header. */
+/* General header */
 header {
     color: $color-brand-text;
     background: $color-brand;
-    padding: 0.5em 0;
+    padding: 0.5em 0em 0.25em;
     margin-bottom: 1em;
-}
-header:not(.home) {
-    box-shadow: 0px 3px 5px 0px #d0d0d0;
+
+    &:not(.hero) {
+        /* Graceful improvement: on browsers not supporting "sticky" the header will scroll as in the past */
+        position: sticky;
+        top: 0px;
+        left: 0;
+        right: 0;
+        // Bootstrap's modal is at z1040
+        z-index: 1039;
+    }
+    &:not(.hero):not(.world-map) {
+        box-shadow: 0px 3px 5px 0px #d0d0d0;
+    }
 }
 header a {
     color: $color-brand-text;
+    &:hover {
+        color: $color-brand-text;
+    }
+    &:focus {
+        color: darken($color-primary, 30%);
+        outline-offset: 1px;
+    }
 }
-header a:hover {
-    color: $color-brand-text;
-}
-header .links {
-    font-weight: bold;
-    padding-top: 0.5em;
-    text-align: right;
+header .navigator {
+    position: relative;
+    width: 100%;
+    // keep sane width also for extra-wide screens
+    max-width: 1300px;
+    margin-left: auto;
+    margin-right: auto;
+
+    [class^="nav-"] {
+        display: table-cell;
+        vertical-align: middle;
+    }
+    [class^="nav-"] + [class^="nav-"] {
+        padding-left: 15px;
+    }
+    .nav-title {
+        position: relative;
+        top: -0.12em;
+        a:hover {
+            text-decoration: none;
+        }
+        a:focus {
+            outline: 0;
+        }
+    }
+    .nav-profile.in {
+        // accommodate the missing padding of .linkicon class
+        padding-left: 22px;
+    }
+
+    a.linkicon {
+        display: inline-block;
+        position: relative;
+        text-decoration: none;
+        font-weight: bold;
+        padding: 2px 6px 3px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+
+        &:hover, &:focus, &:active {
+            outline: 0;
+            background-color: scale-color($color-brand-main, $red: -7%, $alpha: -70%);
+            border-width: 1px;
+            border-style: solid;
+            border-color: scale-color($color-brand-main, $saturation: -3%, $lightness: -17%, $alpha: -70%);
+            -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            color: $color-brand-text;
+        }
+        &:active {
+            -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.08);
+            box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.08);
+        }
+    }
+    [class^="nav-"].in a.linkicon {
+        border-radius: 8px 2.5px;
+    }
+    .ticket {
+        font-weight: 500;
+        line-height: 1;
+        position: absolute;
+        top: 0px;
+        left: 4ex;
+        -ms-transform: translateX(-50%);
+        -moz-transform: translateX(-50%);
+        -webkit-transform: translateX(-50%);
+        transform: translateX(-50%);
+        z-index: 2;
+        background-color: $color-brand-aux;
+        border-radius: 8px;
+        padding: 2px 5px;
+        -webkit-box-shadow: -3px 0px 4px -1px #ccc;
+        box-shadow: -3px 0px 4px -1px #ccc;
+    }
+
+    .avatar {
+        display: table-cell;
+        width: 32px;
+        height: 32px;
+        border-radius: 25% 7.5%;
+        overflow: hidden;
+        position: relative;
+        outline: 0;
+
+        &:hover, &:focus {
+            box-shadow: 0 0 5px mix($color-brand-main, #000, 75%);
+        }
+        & > img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            -ms-transform: translate(-50%, -50%);
+            -moz-transform: translate(-50%, -50%);
+            -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+        }
+    }
+
+    [class^="nav-"] .tooltip {
+        margin-top: 6px;
+        padding-left: 4px;
+        padding-right: 4px;
+
+        .tooltip-inner {
+            padding: 2px 6px 1px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    }
 }
 
 header #title, .same-as-title {
     font-family: $font-stack-title;
     font-size: 1.6em;
 }
-header #title a:hover {
-    text-decoration: none;
-}
-header #subtitle {
-    padding-top: 0.5em;
-}
-header:not(.home) #subtitle,
-.message {
+header:not(.hero) #subtitle {
     font-family: $font-stack-hint;
 }
 
@@ -461,7 +579,7 @@ header:not(.home) #subtitle,
 }
 .register .form-group:last-of-type {
     position: absolute;
-    top: -10000px;  /* Hiding honeypot */
+    top: -10000px;  // hiding honeypot
 }
 p.tip {
     font-size: 0.8em;
@@ -738,10 +856,23 @@ html.js-enabled #tasks-header[data-toggle="collapse"] {
 }
 
 
-/* Footer */
+/* World map of accommodations */
+#map[role="main"] {
+    position: absolute;
+    top: 48px;
+    bottom: 0;
+    width: 100%;
+}
+
+
+/* General footer */
 footer {
     text-align: center;
-    padding: 3em 0;
+    padding: 3em 0 4vh;
+
+    &.world-map {
+        display: none;
+    }
 }
 
 
@@ -797,7 +928,7 @@ footer {
 }
 .form-touched:invalid {
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #f77;
-    outline: 0;  /* IE 10 */
+    outline: 0;  // IE 10
 }
 
 .alert.flyover {
@@ -806,7 +937,7 @@ footer {
     position: fixed;
     top: 0;
     opacity: 0.95;
-    z-index: 1050;
+    z-index: 1052;
     @include transition(margin-top 1s, opacity 0.8s linear);
 
     &.in {
@@ -861,6 +992,10 @@ footer {
             }
         }
     }
+
+    footer {
+        padding-bottom: 2vh;
+    }
 }
 /* !XXS */
 @media (min-width: #{$BOOTSTRAP-XS}) {
@@ -870,6 +1005,20 @@ footer {
 }
 /* XS */
 @media (max-width: #{$BOOTSTRAP-SM - 1}) {
+    header:not(.hero) {
+        padding-bottom: 1px;
+    }
+    header .navigator {
+        // the "hero" header does not have a .nav-search element
+        .nav-search {
+            padding-bottom: 6px;
+        }
+        // applicable to both regular and "hero" header
+        .avatar {
+            width: 28px;
+            height: 28px;
+        }
+    }
     .owner h1 {
         margin-top: 0;
         font-size: 24px;
@@ -889,6 +1038,9 @@ footer {
         .asset-value.idented {
             padding-left: 20px;
         }
+    }
+    #map[role="main"] {
+        top: 45px;
     }
 }
 /* SM */
@@ -914,6 +1066,9 @@ footer {
     }
     .map iframe {
         /*height: 500px;*/
+    }
+    footer {
+        padding-bottom: 3em;
     }
 }
 /* LG */

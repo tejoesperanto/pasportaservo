@@ -416,12 +416,15 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @property
     def avatar_url(self):
-        if self.avatar and hasattr(self.avatar, 'url'):
+        if self.avatar and hasattr(self.avatar, 'url') and self.avatar_exists():
             return self.avatar.url
         else:
             email = self.user.email if self.user_id else "family.member@pasportaservo.org"
             email = value_without_invalid_marker(email)
             return email_to_gravatar(email, settings.DEFAULT_AVATAR_URL)
+
+    def avatar_exists(self):
+        return self.avatar and self.avatar.storage.exists(self.avatar.name)
 
     @property
     def icon(self):

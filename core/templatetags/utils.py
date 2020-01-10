@@ -6,6 +6,7 @@ from django import template
 from django.conf import settings
 from django.http import HttpRequest
 from django.utils.http import urlquote
+from django.utils.safestring import SafeData, mark_safe
 
 from core.utils import sanitize_next
 
@@ -52,6 +53,18 @@ def are_all(iterable):
         return all(iterable)
     except (ValueError, TypeError):
         return bool(iterable)
+
+
+@register.filter(is_safe=False)
+def split(value, by):
+    try:
+        parts = value.split(by)
+    except (ValueError, TypeError, AttributeError):
+        return [value]
+    else:
+        if isinstance(value, SafeData):
+            parts = [mark_safe(part) for part in parts]
+        return parts
 
 
 @register.filter(is_safe=False)

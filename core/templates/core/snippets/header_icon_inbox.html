@@ -1,0 +1,34 @@
+{% load i18n %}
+{% load compact mult from utils %}
+
+        <a href="{% url 'postman:inbox' %}" class="linkicon">
+            {% trans "inbox" as title_inbox %}
+            {% if not postman_unread_count %}
+                <span class="fa fa-envelope-o fa-lg" aria-hidden="true"
+                      title="{{ title_inbox|capfirst }}"
+                      data-toggle="tooltip" data-placement="bottom"></span>
+                <span class="{% filter compact %}
+                                {% include './viewport_visibility_class.html' with breakpoints=label_at|default:"lg" %}
+                             {% endfilter %}">&#x2009;{{ title_inbox }}</span>
+            {% else %}
+                {% blocktrans count unread=postman_unread_count trimmed asvar verbose_count_inbox %}
+                    {{ unread }} new message
+                {% plural %}
+                    {{ unread }} new messages
+                {% endblocktrans %}
+                <span class="fa fa-envelope-o fa-lg" aria-hidden="true"
+                      title="{{ title_inbox|capfirst }}: {{ verbose_count_inbox }}"
+                      data-toggle="tooltip" data-placement="bottom"></span>
+                <sup class="ticket" aria-hidden="true">
+                    {% if postman_unread_count > 99 %}
+                        {{ "&middot;"|mult:3|safe }}
+                    {% else %}
+                        {{ postman_unread_count|default:"" }}
+                    {% endif %}
+                </sup>
+                <span class="{% filter compact %}
+                                {% include './viewport_visibility_class.html' with breakpoints=label_at|default:"lg" %}
+                             {% endfilter %}">&#x200A;&#x2002;{{ title_inbox }}</span>
+                <span class="sr-only">{{ verbose_count_inbox }}</span>
+            {% endif %}
+        </a>

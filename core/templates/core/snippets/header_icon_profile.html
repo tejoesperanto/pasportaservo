@@ -1,0 +1,31 @@
+{% load static i18n %}
+{% load compact from utils %}
+
+        {% if user.profile %}
+            <a href="{{ user.profile.get_absolute_url }}" class="avatar"
+               title="{% trans "My profile" %}"
+               data-toggle="tooltip" data-placement="bottom">
+                {% filter compact %}
+                <img src="{{ user.profile.avatar_url }}"
+                     {% if user.profile.avatar %}data-proper-url="{{ user.profile.avatar.url }}"{% endif %}
+                     {% if user.profile.avatar_exists %}
+                        data-h="{{ user.profile.avatar.height }}" data-w="{{ user.profile.avatar.width }}"
+                        {% if user.profile.avatar.width < user.profile.avatar.height %}
+                            width="100%"
+                        {% else %}
+                            height="100%"
+                        {% endif %}
+                     {% else %}
+                        width="100%" height="100%"
+                     {% endif %}
+                     alt="{% trans "My profile"|lower %}" aria-label="{% trans "avatar" %} : {{ user.username }}" />
+                {% endfilter %}
+            </a>
+        {% else %}
+            <a href="{% url 'profile_create' %}" class="avatar"
+               title="{% trans "My profile" %}"
+               data-toggle="tooltip" data-placement="bottom">
+                <img src="{% static 'img/avatar-unknown.png' %}" width="100%" height="100%"
+                     alt="{% trans "My profile"|lower %}" aria-label="{% trans "avatar" %} : {{ user.username }}" />
+            </a>
+        {% endif %}

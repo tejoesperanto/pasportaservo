@@ -1,32 +1,36 @@
-/* Header on home page */
-header.home {
+/* Header on home and hero pages */
+header.hero {
     margin-bottom: 0;
 }
-header.home .links {
-    text-align: center;
+header.hero .navigator {
+    max-width: 1140px;
+
+    a:not(.linkicon) {
+        font-weight: bold;
+    }
 }
 
-header.home #title, .same-as-home-title {
+header.hero #title, .same-as-home-title {
     font-size: 5em;
     text-align: center;
-    margin-top: 1rem;
+    margin-top: 2rem;
     padding-bottom: 0.25em;
 }
-header.home #title small {
+header.hero #title small {
     font-size: 0.3em;
     opacity: 0.5;
     &:hover {
         cursor: help;
     }
 }
-header.home #subtitle {
+header.hero #subtitle {
     font-size: 1.5em;
     text-align: center;
     margin-bottom: 2em;
     font-weight: bold;
 }
 
-header.home form.search {
+header.hero form.search {
     margin-bottom: 2em;
 }
 
@@ -40,6 +44,12 @@ header.home form.search {
     top: 0.7ex;
 }
 
+/* NANO */
+@media (max-width: 319px) {
+    header.hero #title {
+        font-size: 20vw;
+    }
+}
 /* XXS */
 @media (max-width: #{$BOOTSTRAP-XS - 1}) {
     .blog-post .post-title a:after {
@@ -51,10 +61,29 @@ header.home form.search {
         top: 0.85ex;
     }
 }
+/* !XSS */
+@media (min-width: #{$BOOTSTRAP-XS}) {
+    header.hero .navigator {
+        .nav-session.out {
+            position: absolute;
+            left: 20%;
+        }
+        .nav-profile.out {
+            position: absolute;
+            right: 20%;
+        }
+    }
+}
 /* XS */
 @media (max-width: #{$BOOTSTRAP-SM - 1}) {
-    header.home #title {
+    header.hero #title {
         font-size: 4em;
+    }
+    header.hero #subtitle {
+        margin-top: 0.5em;
+    }
+    #home-explain.has-content {
+        padding-top: 2em;
     }
 }
 /* SM */
@@ -62,20 +91,20 @@ header.home form.search {
 }
 /* MD */
 @media (min-width: #{$BOOTSTRAP-MD}) {
-    header.home form.search {
+    header.hero form.search {
         margin-bottom: 2em;
     }
-    header.home #title {
+    header.hero #title {
         margin-top: 1em;
         padding-bottom: 0.5em;
     }
 }
 /* LG */
 @media (min-width: #{$BOOTSTRAP-LG - 30}) {
-    header.home form.search {
+    header.hero form.search {
         margin-bottom: 5em;
     }
-    header.home #title {
+    header.hero #title {
         margin-top: 1em;
         padding-bottom: 1em;
     }

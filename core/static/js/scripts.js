@@ -112,19 +112,38 @@ $(document).ready(function() {
     }();
 
     // Highlighting elements pointed at via the URL
-    if (window.location.hash) {
-        var targetId = window.location.hash.substr(1);
-        var targetEl = document.getElementById(targetId);
-        if (targetEl) {
-            targetEl.scrollIntoView();
-            setTimeout(function() {
-                targetEl.className += ' highlight';
-            }, 1200);
-            setTimeout(function() {
-                targetEl.className = targetEl.className.replace(/( +)highlight\b/g, '');
-            }, 2500);
+    if (["fixed", "sticky"].indexOf($('header').css('position')) >= 0) {
+        function repositionTarget(targetEl) {
+            var $header = $('header'),
+                positionDiff = targetEl.getBoundingClientRect().top - $header[0].getBoundingClientRect().bottom,
+                margin = $header.outerHeight(true) - $header.outerHeight();
+            if (typeof window.scrollBy === 'function') {
+                if (positionDiff > margin * 1.5 || positionDiff <= 0) {
+                    // Element is located far down... => Scroll the window to top with buffer of 10px.
+                    // Element is located beneath the header... => Scroll the window to bottom with buffer of 10px.
+                    window.scrollBy(0, positionDiff - 10);
+                }
+            }
+            else {
+                targetEl.scrollIntoView();
+            }
         }
     }
+    else {
+        function repositionTarget(targetEl) {
+            targetEl.scrollIntoView();
+        }
+    }
+    $(':target').each(function() {
+        var $targetEl = $(this);
+        repositionTarget(this);
+        setTimeout(function() {
+            $targetEl.addClass('highlight');
+        }, 1200);
+        setTimeout(function() {
+            $targetEl.removeClass('highlight');
+        }, 2500);
+    });
 
     // Profile picture magnifier
     if (typeof $().magnificPopup !== "undefined") {

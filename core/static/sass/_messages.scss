@@ -3,6 +3,7 @@
 .message {
     position: relative;
     color: white;
+    font-family: $font-stack-hint;
     font-weight: bold;
     font-size: 0.85em;
     letter-spacing: 0.015em;
@@ -33,7 +34,7 @@
         }
 
         /* XS */
-        @media (max-width: 767px) {
+        @media (max-width: #{$BOOTSTRAP-SM - 1}) {
             display: none;
         }
     }
