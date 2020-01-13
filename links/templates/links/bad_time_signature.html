@@ -1,7 +1,10 @@
-{% extends "core/home.html" %}
+{% extends 'core/base_hero.html' %}
 {% load i18n %}
 
-{% block home_title %}{% trans "Bad Time Signature" %}{% endblock %}
-{% block home_subtitle %}{% trans "The link seems not valid" %}{% endblock %}
+{% block hero_title %}{% trans "Invalid Link" %}{% endblock %}
+{% block hero_subtitle %}
+    {% trans "Bad Time Signature" %};
+    {% trans "The link seems not valid" %}
+{% endblock %}
 
-{% block pre-page %}{% endblock %}
+{% block hero_content %}{% endblock %}

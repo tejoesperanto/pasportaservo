@@ -1,13 +1,11 @@
-{% extends "core/home.html" %}
+{% extends 'core/base_hero.html' %}
 {% load i18n %}
 {% load next from utils %}
 
-{% block home_title %}200{% endblock %}
-{% block home_subtitle %}{% trans "OK" %}{% endblock %}
+{% block hero_title %}200{% endblock %}
+{% block hero_subtitle %}{% trans "OK" %}{% endblock %}
 
-{% block pre-page %}{% endblock %}
-
-{% block home_content %}
+{% block hero_content %}
     {% next 'next page' url_only=True as next_page_url %}
     {% if next_page_url %}
         <div class="row">

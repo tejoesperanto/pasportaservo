@@ -1,12 +1,15 @@
-{% extends "core/home.html" %}
+{% extends 'core/base_hero.html' %}
 {% load i18n %}
 
 {% block head_title %}{% trans "Server error" %} &bull; {{ block.super }}{% endblock %}
 
-{% block home_title %}500{% endblock %}
-{% block home_subtitle %}
-    {% trans "Programmation error on the server" %}<br />
-    <small>{% trans "The administrators have been informed of the problem and will fix it as soon as possible." %}</small>
+{% block hero_title %}500{% endblock %}
+{% block hero_subtitle %}
+    {% trans "Programmation error on the server" %}
+    <br />
+    <small style="color: #ffeee0">
+        {% trans "The administrators have been informed of the problem and will fix it as soon as possible." %}
+    </small>
 {% endblock %}
 
-{% block pre-page %}{% endblock %}
+{% block hero_content %}{% endblock %}

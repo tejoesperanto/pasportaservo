@@ -1,90 +1,5 @@
-{% extends 'core/base.html' %}
-{% load i18n static sass_tags flatpages %}
-{% load next from utils %}
-
-{% block header_class %} hero{% endblock %}
-
-{% block extra_css %}
-        <link rel="stylesheet" href="{% sass_src 'css/pasportaservo-home.scss' %}">
-{% endblock %}
-
-
-{% block header %}
-    <div class="navigator" role="navigation">
-        <div class="pull-left">
-            {% if user.is_authenticated %}
-                <div class="nav-inbox">
-                    {% include './snippets/header_icon_inbox.html' with label_at='sm,md,lg' %}
-                </div>
-                {% if user.is_staff and user.is_superuser %}
-                    <div class="nav-admin">
-                        <a href="{% url 'admin:index' %}" target="ps_admin" class="linkicon">
-                            <span class="fa fa-th-list fa-lg" style="position: relative; top: 1px;" aria-hidden="true"
-                                  title="{% trans "admin site"|capfirst %}"
-                                  data-toggle="tooltip" data-placement="bottom"></span>
-                            <span class="hidden-xxs hidden-xs">&#x2009;{% trans "admin site" %}</span>
-                        </a>
-                    </div>
-                {% endif %}
-                <div class="nav-session">
-                    {% include './snippets/header_icon_logout.html' with label_at='sm,md,lg' %}
-                </div>
-            {% elif user %} {# 500/403-CSRF error pages don't have a user object or custom context #}
-                <div class="nav-session out">
-                    <a href="{% url 'login' %}{% if request.get_full_path != '/' %}?{% next 'this page' %}{% endif %}">
-                        {% trans "log in" %}
-                    </a>
-                </div>
-            {% endif %}
-        </div>
-        <div class="pull-right">
-            {% if user.is_authenticated %}
-                <div class="nav-settings">
-                    {% include './snippets/header_icon_settings.html' with label_at='sm,md,lg' %}
-                </div>
-                <div class="nav-profile">
-                    {% include './snippets/header_icon_profile.html' %}
-                </div>
-            {% elif user %} {# 500/403-CSRF error pages don't have a user object or custom context #}
-                <div class="nav-profile out">
-                    <a href="{% url 'register' %}{% if request.get_full_path != '/' %}?{% next 'this page' %}{% endif %}">
-                        {% trans "register" %}
-                    </a>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-    <div class="clearfix">&#x200B;</div>
-
-    <div class="row" role="heading">
-        <div class="col-md-12" id="title" aria-level="1">
-            {% block home_title %}Pasporta Servo{% endblock %}
-        </div>
-        <div class="col-md-12" id="subtitle" aria-level="2">
-            {% block home_subtitle %}{% trans "The famous hosting service for Esperanto-speakers" %}{% endblock %}
-        </div>
-    </div>
-
-    <div class="container">
-        {% block home_content %}
-        <form class="form-inline row search" id="searchform" role="search form" method="GET" action="{% url 'search' %}">
-            <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="form-group" style="width: 100%">
-                    <div class="input-group" style="width: 100%">
-                        <input class="form-control" type="search" id="searchinput" name="ps_q"
-                               placeholder="{% trans "Search for a country, a region, or a city…" %}">
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="submit" id="search" style="min-width: 40px; width: 100%;">
-                                <span aria-label="{% trans "Search" %}" class="fa fa-search fa-lg"></span>
-                            </button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </form>
-        {% endblock %}
-    </div>
-{% endblock header %}
+{% extends 'core/base_hero.html' %}
+{% load i18n static flatpages %}
 
 {% block pre-page %}
     <section id="home-explain" class="container{% if view.news or view.right_block %} has-content{% endif %}" role="complementary">
@@ -142,5 +57,3 @@
         {% endspaceless %}
     </div>
 {% endblock page %}
-
-{% block footer_role %}complementary{% endblock %}

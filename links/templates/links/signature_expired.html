@@ -1,7 +1,11 @@
-{% extends "core/home.html" %}
+{% extends 'core/base_hero.html' %}
 {% load i18n %}
 
-{% block home_title %}{% trans "Signature Expired" %}{% endblock %}
-{% block home_subtitle %}{% trans "The link is not valid anymore" %}{% endblock %}
+{% block hero_title %}{% trans "Invalid Link" %}{% endblock %}
+{% block hero_subtitle %}
+    {% trans "Signature Expired" %}
+    <br /><br />
+    <small>{% trans "The link is not valid anymore" %}</small>
+{% endblock %}
 
-{% block pre-page %}{% endblock %}
+{% block hero_content %}{% endblock %}
