@@ -1,9 +1,7 @@
-{% extends "core/home.html" %}
+{% extends 'core/base_hero.html' %}
 {% load i18n %}
 
 {% block head_title %}{% trans "Server error" %} &bull; {{ block.super }}{% endblock %}
 
-{% block home_title %}404{% endblock %}
-{% block home_subtitle %}{% trans "Page not found" %}{% endblock %}
-
-{% block pre-page %}{% endblock %}
+{% block hero_title %}404{% endblock %}
+{% block hero_subtitle %}{% trans "Page not found" %}{% endblock %}

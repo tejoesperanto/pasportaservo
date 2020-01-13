@@ -267,6 +267,15 @@ msgstr "Landaj organizantoj"
 msgid "Confirm"
 msgstr "Konfirmi"
 
+msgid "admin site"
+msgstr "administrilo"
+
+msgid "The famous hosting service for Esperanto-speakers"
+msgstr "La fama gastiga servo por esperantistoj"
+
+msgid "Search for a country, a region, or a city…"
+msgstr "Serĉu per lando, regiono aŭ urbo…"
+
 msgid "Agreement between You and"
 msgstr "Kontrakto inter Vi kaj"
 
@@ -353,15 +362,6 @@ msgstr "Bedaŭrinde la informoj pri tiu ĉi %(object)s ne plu estas disponeblaj.
 
 msgid "Unfortunately, this information is not available anymore."
 msgstr "Bedaŭrinde tiuj ĉi informoj ne plu estas disponeblaj."
-
-msgid "admin site"
-msgstr "administrilo"
-
-msgid "The famous hosting service for Esperanto-speakers"
-msgstr "La fama gastiga servo por esperantistoj"
-
-msgid "Search for a country, a region, or a city…"
-msgstr "Serĉu per lando, regiono aŭ urbo…"
 
 msgid "at"
 msgstr "ĉe"
@@ -2121,6 +2121,9 @@ msgstr "Informoj jam konfirmitaj"
 msgid "You already confirmed the accuracy of your profile and address. Thanks!"
 msgstr "Vi jam konfirmis la aktualecon de viaj profilo kaj adreso. Dankon!"
 
+msgid "Invalid Link"
+msgstr "Malbona ligilo"
+
 msgid "Bad Time Signature"
 msgstr "Malbona tempostampo"
 
@@ -2130,9 +2133,6 @@ msgstr "La ligilo ne ŝajnas esti valida plu."
 msgid ""
 "You just confirmed that your profile and address are up-to-date. Thanks!"
 msgstr "Vi ĵus konfirmis ke viaj profilo kaj adreso estas aktualaj. Dankon!"
-
-msgid "Invalid Link"
-msgstr "Malbona ligilo"
 
 msgid "The link is not valid"
 msgstr "La ligilo havas malbonan formon aŭ malĝustan konfirmo-ĵetonon."

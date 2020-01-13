@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views import generic
 
 from itsdangerous import (
-    BadTimeSignature, SignatureExpired, URLSafeTimedSerializer,
+    BadSignature, BadTimeSignature, SignatureExpired, URLSafeTimedSerializer,
 )
 
 from core.models import SiteConfiguration
@@ -28,6 +28,8 @@ class UniqueLinkView(generic.TemplateView):
             self.template_name = 'links/signature_expired.html'
         except BadTimeSignature:
             self.template_name = 'links/bad_time_signature.html'
+        except BadSignature:
+            self.template_name = 'links/invalid_link.html'
         else:
             return self.redirect(request, payload, *args, **kwargs)
         return super().get(request, *args, **kwargs)

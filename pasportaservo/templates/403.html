@@ -1,10 +1,10 @@
-{% extends "core/home.html" %}
+{% extends 'core/base_hero.html' %}
 {% load i18n %}
 
 {% block head_title %}{% trans "Server error" %} &bull; {{ block.super }}{% endblock %}
 
-{% block home_title %}403{% endblock %}
-{% block home_subtitle %}
+{% block hero_title %}403{% endblock %}
+{% block hero_subtitle %}
     {% if exception %}
         {{ exception }}
     {% else %}
@@ -12,4 +12,4 @@
     {% endif %}
 {% endblock %}
 
-{% block pre-page %}{% endblock %}
+{% block hero_content %}{% endblock %}
