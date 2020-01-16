@@ -120,6 +120,21 @@ def get_pronoun(profile):
 
 
 @register.filter
+def avatar_dimension(profile, size_percent=100):
+    if profile and profile.avatar_exists():
+        if profile.avatar.width < profile.avatar.height:
+            dimension = ["width"]
+        else:
+            dimension = ["height"]
+    else:
+        dimension = ["width", "height"]
+    return mark_safe(" ".join(
+        "{attr}=\"{s:.2f}%\"".format(attr=attr, s=float(size_percent))
+        for attr in dimension
+    ))
+
+
+@register.filter
 def icon(model_instance, field=''):
     obj = model_instance if not field else model_instance._meta.get_field(field)
     return getattr(obj, 'icon', '')

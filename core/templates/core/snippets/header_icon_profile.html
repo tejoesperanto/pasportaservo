@@ -1,5 +1,6 @@
 {% load static i18n %}
 {% load compact from utils %}
+{% load avatar_dimension from profile %}
 
         {% if user.profile %}
             <a href="{{ user.profile.get_absolute_url }}" class="avatar"
@@ -8,16 +9,7 @@
                 {% filter compact %}
                 <img src="{{ user.profile.avatar_url }}"
                      {% if user.profile.avatar %}data-proper-url="{{ user.profile.avatar.url }}"{% endif %}
-                     {% if user.profile.avatar_exists %}
-                        data-h="{{ user.profile.avatar.height }}" data-w="{{ user.profile.avatar.width }}"
-                        {% if user.profile.avatar.width < user.profile.avatar.height %}
-                            width="100%"
-                        {% else %}
-                            height="100%"
-                        {% endif %}
-                     {% else %}
-                        width="100%" height="100%"
-                     {% endif %}
+                     {{ user.profile|avatar_dimension }}
                      alt="{% trans "My profile"|lower %}" aria-label="{% trans "avatar" %} : {{ user.username }}" />
                 {% endfilter %}
             </a>

@@ -32,6 +32,29 @@ body, .same-as-body {
     text-align: justify;
     text-justify: inter-character;
 }
+%avatar-enclosure {
+    position: relative;
+    overflow: hidden;
+    outline: 0;
+
+    & > img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -ms-transform: translate(-50%, -50%);
+        -moz-transform: translate(-50%, -50%);
+        -webkit-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+    }
+}
+@mixin avatar-chrome($right-aligned: false) {
+    @if not $right-aligned {
+        border-radius: 7.5% 25%;
+    }
+    @else {
+        border-radius: 25% 7.5%;
+    }
+}
 
 .edit-buttons {
     float: right;
@@ -278,25 +301,14 @@ header .navigator {
     }
 
     .avatar {
+        @extend %avatar-enclosure;
         display: table-cell;
         width: 32px;
         height: 32px;
-        border-radius: 25% 7.5%;
-        overflow: hidden;
-        position: relative;
-        outline: 0;
+        @include avatar-chrome($right-aligned: true);
 
         &:hover, &:focus {
             box-shadow: 0 0 5px mix($color-brand-main, #000, 75%);
-        }
-        & > img {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            -ms-transform: translate(-50%, -50%);
-            -moz-transform: translate(-50%, -50%);
-            -webkit-transform: translate(-50%, -50%);
-            transform: translate(-50%, -50%);
         }
     }
 
@@ -463,10 +475,14 @@ header:not(.hero) #subtitle {
 .place-list .avatar img {
     width: 100%;
     max-width: 100px;
+    @include avatar-chrome;
 }
 .place-detail .owner .avatar {
     padding-right: 0;
     margin-bottom: 0.5em;
+    img {
+        @include avatar-chrome;
+    }
 }
 .place-detail .place-blocking {
     clear: right;
@@ -593,8 +609,16 @@ p.tip {
 
 
 /* Profile */
-.profile-detail .owner .name {
-    @extend .person-full-name;
+.profile-detail .owner {
+    .name {
+        @extend .person-full-name;
+    }
+    h1.align-top {
+        margin-top: 0;
+    }
+    .avatar > img {
+        @include avatar-chrome;
+    }
 }
 @media (max-width: 540px) {
     .profile-detail .owner .avatar {
@@ -764,13 +788,27 @@ a.contact-details:not(:hover) {
     }
     .avatar {
         display: inline-block;
-        overflow: hidden;
         vertical-align: middle;
+        @extend %avatar-enclosure;
+        @include avatar-chrome;
     }
     .avatar {
         width: 30px;
         height: 30px;
         margin-right: 0.5ex;
+        &:after {
+            content: "";
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: solid 1px rgba(0, 0, 0, 0.10);
+            @include avatar-chrome;
+        }
+    }
+    &.well .avatar:after {
+        border-color: rgba(0, 0, 0, 0.15);
     }
 }
 .authorized-user.compact {

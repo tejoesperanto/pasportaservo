@@ -132,11 +132,17 @@
     <div class="row owner">
         <div class="col-xs-3 col-md-2">
             <span class="avatar" data-content-provider="fa" data-content="&#xf002;">
-                <img src="{{ profile.avatar_url }}" data-mfp-src="{{ profile.avatar_url }}" alt="[{% trans "avatar" %}]"/>
+                <img src="{{ profile.avatar_url }}"
+                     data-mfp-src="{{ profile.avatar_url }}"
+                     {% if profile.avatar %}data-proper-url="{{ profile.avatar.url }}"{% endif %}
+                     alt="[{% trans "avatar" %}]" />
             </span>
+            {% if profile.avatar_exists and profile.avatar.width > profile.avatar.height|mult:1.5 %}
+                {% expr True as narrow_avatar %}
+            {% endif %}
         </div>
         <div class="col-xs-9 col-md-10">
-            <h1 class="name">
+            <h1 class="name{% if narrow_avatar %} align-top{% endif %}">
                 <small>{{ profile.get_title_display }}</small>
                 {% if view.role >= roles.SUPERVISOR and not profile.first_name and not profile.last_name %}
                     {{ profile.INCOGNITO }}
