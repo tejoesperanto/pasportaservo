@@ -1,4 +1,4 @@
-{% load i18n utils %}
+{% load i18n utils %}{% load avatar_dimension from profile %}
     <div id="{{ id }}" class="authorized-list panel panel-default panel-compact {% if is_collapsed %}collapse{% endif %}">
         <div class="panel-heading">
             <div class="panel-title">
@@ -36,7 +36,7 @@
                         </div>
                         <div class="col-xs-1 col-avatar">
                             <span class="avatar">
-                                <img class="center-block" src="{{ auth_user.profile.avatar_url }}" height="25" />
+                                <img src="{{ auth_user.profile.avatar_url }}" {{ auth_user.profile|avatar_dimension }} />
                             </span>
                         </div>
                         <div class="col-xs-9 col-name">

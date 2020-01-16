@@ -1,6 +1,7 @@
 {% extends 'core/base_form.html' %}
 {% load i18n %}
 {% load next from utils %}
+{% load avatar_dimension from profile %}
 
 {% block head_title %}{% trans "Authorized users" %}: {{ place }}{% endblock %}
 
@@ -41,7 +42,7 @@
             <form method="POST" action="{{ auth_form_url }}{% if next_page_url %}?{{ next_page_param }}{% endif %}">
                 <p class="col-xs-12 well authorized-user">
                     <span class="avatar">
-                        <img class="center-block" src="{{ auth_user.profile.avatar_url }}" height="30" alt="[{% trans "avatar" %}]" />
+                        <img src="{{ auth_user.profile.avatar_url }}" {{ auth_user.profile|avatar_dimension }} alt="[{% trans "avatar" %}]" />
                     </span>
                     <span class="name">
                         <a href="{{ auth_user.profile.get_absolute_url }}">
