@@ -8,6 +8,11 @@ header.hero .navigator {
     a:not(.linkicon) {
         font-weight: bold;
     }
+    .navskip > a {
+        &:focus, &:active {
+            top: 0;
+        }
+    }
 }
 
 header.hero #title, .same-as-hero-title {

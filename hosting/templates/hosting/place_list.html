@@ -26,6 +26,8 @@
         <script src="{% static 'el-pagination/js/el-pagination.js' %}"></script>
 {% endblock %}
 
+{% block content-at %}{% trans "results-start" context "URL" %}{% endblock %}
+
 {% block page_class %} search{% endblock %}
 
 {% block page %}
@@ -55,6 +57,7 @@
                     </div>
                 </div>
             </form>
+            <a name="{% trans "results-start" context "URL" %}" tabindex="-1"></a>
         </div>
     </div>
 

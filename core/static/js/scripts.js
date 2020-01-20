@@ -15,6 +15,17 @@ $(document).ready(function() {
     // Lazy load images
     $('.lazy').addClass('loaded');
 
+    // Navigation skipping
+    $('.navskip > a').click(function() {
+        var targetName = this.getAttribute('href').substring(1);
+        var targetElem = document.getElementById(targetName) || document.getElementsByName(targetName)[0];
+        if (targetElem) {
+            window.scroll(0, targetElem.getBoundingClientRect().top);
+            targetElem.focus();
+        }
+        return false;
+    });
+
     // Checkboxes with undefined value
     $('input[type="checkbox"][data-initial="None"]').prop('indeterminate', true);
 

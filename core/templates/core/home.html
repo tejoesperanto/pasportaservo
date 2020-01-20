@@ -1,14 +1,23 @@
 {% extends 'core/base_hero.html' %}
 {% load i18n static flatpages %}
 
+{% block content-at %}{% if view.news or view.right_block %}{% trans "whats-new" context "URL" %}{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block nav-skip-label %}{% trans "Jump to content" %}{% endblock %}
+
 {% block pre-page %}
     <section id="home-explain" class="container{% if view.news or view.right_block %} has-content{% endif %}" role="complementary">
+        <a name="{% trans "whats-new" context "URL" %}" tabindex="-1"></a>
         <div class="row">
             <div class="col-xs-12 col-md-6">
                 {% if view.news %}
                     <h2 class="text-center">
                         <strong><a href="{% url 'blog:posts' %}">{% trans "News" %}</a></strong>
                     </h2>
+                    {% if view.right_block %}
+                        <a href="#{% trans "how-to-use" context "URL" %}" class="sr-only sr-only-focusable">
+                            {% trans "Skip the news" %}<span class="fa fa-arrow-circle-o-right" aria-hidden="true" style="margin-left: 1.2ex"></span>
+                        </a>
+                    {% endif %}
                 {% endif %}
                 {% for post in view.news %}
                     {% include 'blog/post.html' with post=post header_level=3 quote=True more_class='pull-right' more_type="dots" only %}
@@ -16,6 +25,7 @@
             </div>
 
             <div class="col-xs-12 col-md-5 col-md-offset-1">
+                <a name="{% trans "how-to-use" context "URL" %}" tabindex="-1"></a>
                 {{ view.right_block }}
             </div>
         </div>

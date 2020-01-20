@@ -254,6 +254,20 @@ header .navigator {
         // accommodate the missing padding of .linkicon class
         padding-left: 22px;
     }
+    .navskip > a {
+        &:focus, &:active {
+            position: absolute;
+            top: 3px;
+            height: 28px;
+            min-height: 1em;
+            z-index: 10;
+            background-color: $color-brand-main;
+            border: solid 2px $color-brand-aux;
+            padding-left: 1ex;
+            padding-right: 1ex;
+            box-shadow: 0px 0px 0.5em rgba(255, 255, 255, 0.25);
+        }
+    }
 
     a.linkicon {
         display: inline-block;
@@ -1051,6 +1065,11 @@ footer {
         // the "hero" header does not have a .nav-search element
         .nav-search {
             padding-bottom: 6px;
+        }
+        .navskip > a {
+            &:focus, &:active {
+                top: 1px;
+            }
         }
         // applicable to both regular and "hero" header
         .avatar {

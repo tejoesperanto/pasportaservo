@@ -10,6 +10,14 @@
 
 {% block header %}
     <nav class="navigator">
+        {% block nav-skip %}
+            <div class="navskip">
+                <a href="#{% block content-at %}{% trans "content-start" context "URL" %}{% endblock %}"
+                   class="sr-only sr-only-focusable">
+                    {% block nav-skip-label %}{% trans "Skip navigation buttons" %}{% endblock %}
+                </a>
+            </div>
+        {% endblock %}
         <div class="pull-left">
             {% if user.is_authenticated %}
                 <div class="nav-inbox">
@@ -55,6 +63,7 @@
     </nav>
     <div class="clearfix">&#x200B;</div>
 
+    <a name="{% trans "content-start" context "URL" %}" tabindex="-1"></a>
     <div class="row" role="heading">
         <div class="col-md-12" id="title" aria-level="1">
             {% block hero_title %}Pasporta Servo{% endblock %}
