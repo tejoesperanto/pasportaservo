@@ -5,6 +5,8 @@
 {% block hero_title %}200{% endblock %}
 {% block hero_subtitle %}{% trans "OK" %}{% endblock %}
 
+{% block nav-skip %}{% endblock %}
+
 {% block hero_content %}
     {% next 'next page' url_only=True as next_page_url %}
     {% if next_page_url %}

@@ -243,6 +243,13 @@ msgstr "Mia profilo"
 msgid "Search"
 msgstr "Serĉi"
 
+msgctxt "URL"
+msgid "content-start"
+msgstr "enhavo-komenco"
+
+msgid "Skip navigation buttons"
+msgstr "Pretersalti navigajn butonojn"
+
 msgid "log in"
 msgstr "ensaluti"
 
@@ -362,6 +369,20 @@ msgstr "Bedaŭrinde la informoj pri tiu ĉi %(object)s ne plu estas disponeblaj.
 
 msgid "Unfortunately, this information is not available anymore."
 msgstr "Bedaŭrinde tiuj ĉi informoj ne plu estas disponeblaj."
+
+msgctxt "URL"
+msgid "whats-new"
+msgstr "kio-novas"
+
+msgid "Jump to content"
+msgstr "Transsalti al enhavo"
+
+msgctxt "URL"
+msgid "how-to-use"
+msgstr "kiel-uzi"
+
+msgid "Skip the news"
+msgstr "Pretersalti la novaĵojn"
 
 msgid "at"
 msgstr "ĉe"
@@ -1532,6 +1553,10 @@ msgstr "Konfirmi kaj redakti lokigon"
 
 msgid "Nothing found for"
 msgstr "Nenio trovita por"
+
+msgctxt "URL"
+msgid "results-start"
+msgstr "rezulto-komenco"
 
 msgid "Map of hosts"
 msgstr "Mapo de gastigantoj"

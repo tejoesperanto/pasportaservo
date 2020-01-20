@@ -11,7 +11,11 @@
     <header class="container-fluid{% block header_class %}{% endblock %}" role="banner">
         {% block header %}
             <nav class="navigator">
-                {# TODO link: jump to content (for keyboard / voice navigation) #}
+                <div class="navskip">
+                    <a href="#{% block content-at %}{% trans "content-start" context "URL" %}{% endblock %}" class="sr-only sr-only-focusable">
+                        {% block nav-skip-label %}{% trans "Skip navigation buttons" %}{% endblock %}
+                    </a>
+                </div>
                 <div class="pull-left">
                     <div class="nav-title" id="title">
                         <a href="{% url 'home' %}">P<span class="hidden-xs">asporta&nbsp;</span>S<span class="hidden-xs">ervo</span></a>
@@ -57,6 +61,7 @@
                     </div>
                 </div>
             </nav>
+            <a name="{% trans "content-start" context "URL" %}" tabindex="-1"></a>
         {% endblock header %}
     </header>
 

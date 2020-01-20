@@ -4,6 +4,9 @@
     font-size: 14px;
 }
 
+a:not([href]) {
+    outline: 0;
+}
 .tooltip-inner a {
     color: #ddd;
     text-decoration: underline #fff dotted;
