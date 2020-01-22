@@ -362,7 +362,7 @@
         </section>
 
         {% if user.is_authenticated %}
-            <section class="col-xs-12 hidden-md hidden-lg description-smallvp" aria-hidden="true">
+            <section class="col-xs-12 hidden-md hidden-lg description-smallvp" aria-label="{% trans "Description and conditions" %}">
             {# DETAILS AND CONDITIONS OF THE PLACE ON SMALL SCREENS - ACCESSIBLE ONLY TO AUTHENTICATED USERS #}
                 <a id="status-anchors_notification" class="col-xs-12 anchor-notify" data-placement="bottom"
                    data-content="{% include './snippets/place_owner_anchors.html' %}"></a>
