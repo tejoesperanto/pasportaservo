@@ -18,7 +18,12 @@
                 </div>
                 <div class="pull-left">
                     <div class="nav-title" id="title">
-                        <a href="{% url 'home' %}">P<span class="hidden-xs">asporta&nbsp;</span>S<span class="hidden-xs">ervo</span></a>
+                        {% spaceless %}
+                        <a href="{% url 'home' %}" aria-label="{% trans "Home page" %}">
+                            <span>P</span><span class="hidden-xs">asporta&nbsp;</span>
+                            <span>S</span><span class="hidden-xs">ervo</span>
+                        </a>
+                        {% endspaceless %}
                     </div>
                     <div class="nav-search hidden-nano">
                         <a href="{% url 'search' %}" class="linkicon">
@@ -27,7 +32,7 @@
                                   data-toggle="tooltip" data-placement="bottom"></span>
                             <span class="sr-only">{% trans "Search"|lower %}</span>
                         </a>
-                        <span class="hidden-xs" id="subtitle">
+                        <span class="hidden-xs" id="subtitle" aria-hidden="true">
                             {% trans "Esperanto-hosts around the world" %}
                         </span>
                     </div>
@@ -126,6 +131,7 @@
                     </span>
                 </div>
             </div>
+            <a href="#top" class="pull-right sr-only sr-only-focusable">{% trans "Back to top of page" %} &#8613;</a>
         {% endblock footer %}
     </footer>
 

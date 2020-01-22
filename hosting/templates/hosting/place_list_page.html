@@ -7,14 +7,20 @@
 
     {% for place in place_list %}
         <div class="row place-list">
+            <div class="sr-only">&#8962;&nbsp; <em>{% trans "place"|upper %}</em></div>
+            {% comment %}
+                TODO {{ forloop.counter0|add:endless.page.start_index }}
+                when endless-pagination fixes start_index bug
+            {% endcomment %}
             <div class="col-xs-3 col-sm-2 col-md-1 avatar">
-                <a href="{{ place.owner.get_absolute_url }}">
+                <a href="{{ place.owner.get_absolute_url }}" tabindex="-1">
                     <img src="{{ place.owner.avatar_url }}" alt="[{% trans "avatar" %}{% if place.owner.name %}: {{ place.owner.name }}{% endif %}]" />
                 </a>
             </div>
             {% expr place.available or place.owner_available as offered %}
             {% expr user.is_authenticated and place.is_blocked as unavailable %}
             <div class="{% if unavailable %}col-xxs-9 col-xs-6 col-sm-8 col-md-9{% else %}col-xs-9 col-sm-10 col-md-11{% endif %} name">
+                <span class="sr-only">{% trans "profile"|capfirst %}:</span>
                 <a href="{{ place.owner.get_absolute_url }}" class="{% if offered %}text-brand{% else %}{% endif %}">
                     {% if user.is_authenticated %}
                         {{ place.owner.get_fullname_display }}
@@ -29,6 +35,7 @@
                 </div>
             {% endif %}
             <div class="col-xs-9 col-sm-10 col-md-11 address">
+                <span class="sr-only">{% trans "address"|capfirst %}:</span>
                 <div class="pull-right">{% include './snippets/checked.html' with object=place %}</div>
                 <a href="{{ place.get_absolute_url }}">
                     {% if user.is_authenticated %}
@@ -49,7 +56,7 @@
                     {% if user.is_authenticated %}
                         {% list place.available place.tour_guide place.have_a_drink as offer_details %}
                         {% if offer_details|are_any %}
-                            <span class="sr-only">{% trans "Note " context 'Title' %}:</span>
+                            <span class="sr-only">{% trans "Notes " context 'Title' %}:</span>
                         {% endif %}
                         {% dict icon="ps-home"       class="host"  title=_("I'm hosting")                       as style_house %}
                         {% dict icon="ps-city-guide" class="guide" title=_("I can guide around the city")       as style_guide %}
@@ -85,7 +92,9 @@
         <span class="sr-only">{% trans "working..." %}</span>
     {% endasvar %}
     {% show_more more_template loading_template "btn btn-xs btn-default" %}
+    {# TODO after loading the next page, (tab) focus should be set to its start #}
     {% if endless.page.has_previous and not endless.page.has_next %}
+        <hr class="hidden" />
         <small class="text-muted">
             {% trans "you reached the end of the list" %} &nbsp;<span class="fa fa-cube" aria-hidden="true"></span>
         </small>

@@ -24,10 +24,10 @@
 {% block page %}
     <h1>{% trans "Supervisors" %}</h1>
 
-    <p class="well" id="supervisors-wanted" touch-action="none">
+    <p class="well" id="supervisors-wanted" aria-label="{% trans "Call-to-action" %}" touch-action="none">
         {% spaceless %}
             <button type="button" class="close requires-scripting"
-                    title="{% trans "Hide" %}" aria-label="{% trans "Hide" %}">
+                    title="{% trans "Hide" %}" aria-label="{% trans "Hide call-to-action" %}">
                 <span aria-hidden="true">&times;</span>
             </button>
         {% endspaceless %}
@@ -43,7 +43,7 @@
                  data-toggle="collapse" data-target="#tasks" aria-controls="tasks" aria-expanded="true">
                 <h4 class="panel-title">
                     Taskoj de la Landaj Organizantoj
-                    <button class="btn switch requires-scripting pull-right bg-info" aria-hidden="true"></button>
+                    <button type="button" class="btn switch requires-scripting pull-right bg-info" aria-hidden="true"></button>
                 </h4>
             </div>
             <div class="panel-collapse collapse in" id="tasks" role="tabpanel"
@@ -91,24 +91,24 @@
 
     <div class="tab-content">
         {% for country_list_type, country_list in countries.items %}
-        <div id="countries-{{ country_list_type }}"
+        <div id="countries-{{ country_list_type }}" role="table"
              class="tab-pane table-like-grid countries-list {{ country_list_type }} fade{% if country_list.active %} in active{% endif %}">
-            <div class="row grid-header">
-                <div class="col-xxs-8  col-xs-8  col-sm-5 col-lg-4">
+            <div role="row" class="row grid-header">
+                <div role="columnheader" class="col-xxs-8  col-xs-8  col-sm-5 col-lg-4">
                     <strong>{% trans "code"|capfirst %}</strong>
                     &nbsp;
                     <strong>{% trans "country"|capfirst %}</strong>
                 </div>
-                <div class="col-xxs-4  col-xs-4  col-sm-4 col-lg-5">
+                <div role="columnheader" class="col-xxs-4  col-xs-4  col-sm-4 col-lg-5">
                     <strong>{% trans "status"|capfirst %}</strong>
                 </div>
-                <div class="col-xxs-12 col-xs-12 col-sm-3 col-lg-3">
+                <div role="columnheader" class="col-xxs-12 col-xs-12 col-sm-3 col-lg-3">
                     <strong>{% trans "Supervisors" %}</strong>
                 </div>
             </div>
             {% for country in country_list.data %}
-            <div class="row">
-                <div class="col-xxs-12 col-xs-8 col-sm-5 col-lg-4">
+            <div role="row" class="row">
+                <div role="cell" class="col-xxs-12 col-xs-8 col-sm-5 col-lg-4">
                     <div class="btn btn-sm country-code">
                         <span>{{ country.code }}</span>
                         <img src="{{ country.flag }}" alt="" style="display: none" aria-hidden="true" />
@@ -136,7 +136,7 @@
                         <span class="badge">{{ country.place_count }}</span>
                     </a>
                 </div>
-                <div class="col-xxs-12 col-xs-4 col-sm-4 col-lg-5 pull-xs-right pull-sm-left">
+                <div role="cell" class="col-xxs-12 col-xs-4 col-sm-4 col-lg-5 pull-xs-right pull-sm-left">
                     {% widthratio country.checked_count country.place_count 100 as checked_progress %}
                     {% widthratio country.only_confirmed_count country.place_count 100 as confirmed_progress %}
                     <small><strong>{{ checked_progress }}%</strong></small>
@@ -170,7 +170,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xxs-12 col-xs-8 col-sm-3 col-lg-3 person-full-name">
+                <div role="cell" class="col-xxs-12 col-xs-8 col-sm-3 col-lg-3 person-full-name">
                     {% for supervisor in country.supervisors %}
                         {% spaceless %}
                         <a href="{{ supervisor.get_absolute_url }}">

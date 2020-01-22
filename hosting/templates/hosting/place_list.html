@@ -33,7 +33,7 @@
 {% block page %}
     <div class="row">
         <div class="col-xs-12 col-md-offset-2 col-md-8">
-            <form class="search" id="searchform" role="form" method="GET" action="{% url 'search' %}">
+            <form class="search" id="searchform" role="search" method="GET" action="{% url 'search' %}">
                 {% if not view.query or not view.result.point %}
                     <a class="btn btn-default pull-right" href="{% url 'world_map' %}" id="maplink"
                        title="{% trans "Map of hosts" %}" tabindex="2"
@@ -43,6 +43,9 @@
                     </a>
                 {% endif %}
                 <div class="form-group">
+                    <label class="sr-only" for="searchinput">
+                        {% trans "Search for a country, a region, or a city…" %}
+                    </label>
                     <div class="input-group">
                         <input class="form-control" type="search" id="searchinput"
                                name="ps_q" value="{{ view.query }}" tabindex="1"

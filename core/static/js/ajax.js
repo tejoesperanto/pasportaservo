@@ -26,6 +26,7 @@ $(document).ready(function() {
 
     function ajaxPerform($this, target, requestType, requestData) {
         $this.addClass('disabled');
+        $this.attr('aria-busy', "true");
         $.ajax({
             type: requestType,
             url: target,
@@ -35,6 +36,7 @@ $(document).ready(function() {
             success: function(response) {
                 var successCallback = window[$this.data('on-ajax-success')];
                 $this.removeClass('disabled');
+                $this.attr('aria-busy', "false");
                 if (typeof(successCallback) === 'function') {
                     successCallback($this, response);
                 }
@@ -42,6 +44,7 @@ $(document).ready(function() {
             error: function(xhr) {
                 var errorCallback = window[$this.data('on-ajax-error')];
                 $this.removeClass('disabled');
+                $this.attr('aria-busy', "false");
                 if (typeof(errorCallback) === 'function') {
                     errorCallback($this, xhr);
                 }
@@ -135,7 +138,7 @@ $(document).ready(function() {
             $this.addClass('btn-warning');
         }
         if ($this.data('success-message')) {
-            $('#'+$this.data('success-message')).modal();
+            $('#'+$this.data('success-message')).data('relatedSource', $this).modal();
         }
     };
 
@@ -183,6 +186,7 @@ $(document).ready(function() {
     window.checkPlaceSuccess = function($this, response) {
         if (response.result === false) {
             var $op_notify = $('#'+$this.data('failure-message'));
+            var $op_header = $op_notify.find('.modal-title');
             var $op_errors = $op_notify.find('ul');
             var general_errors = response.err__all__;
             $op_errors.empty();
@@ -194,6 +198,8 @@ $(document).ready(function() {
                     field + ": " + response.err[field].map(function(e) { return e.replace(/[.!]+$/g, "") }).join("; ")
                 ));
             }
+            $op_header.text($op_header.data('title'));
+            $op_notify.data('relatedSource', $this);
             $op_notify.modal();
             $op_errors.parent()[0].scrollTop = 0;
         }

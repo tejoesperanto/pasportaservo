@@ -34,12 +34,16 @@
             {% widthratio checked_count place_count 100 as checked_progress %}
             {% widthratio confirmed_count place_count 100 as confirmed_progress %}
             <div class="progress" title="{{ checked_title }}" data-toggle="tooltip">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ checked_progress }}" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em; width: {{ checked_progress }}%">
+                <div class="progress-bar progress-bar-success" role="progressbar"
+                     aria-valuenow="{{ checked_progress }}" aria-valuemin="0" aria-valuemax="100"
+                     style="min-width: 2em; width: {{ checked_progress }}%">
                     {{ checked_count }}
                 </div>
             </div>
             <div class="progress" title="{{ confirmed_title }}" data-toggle="tooltip">
-                <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="{{ confirmed_progress }}" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em; width: {{ confirmed_progress }}%">
+                <div class="progress-bar progress-bar-info" role="progressbar"
+                     aria-valuenow="{{ confirmed_progress }}" aria-valuemin="0" aria-valuemax="100"
+                     style="min-width: 2em; width: {{ confirmed_progress }}%">
                     {{ confirmed_count }}
                 </div>
             </div>
@@ -49,7 +53,10 @@
     <h1 class="text-center" style="padding: 10px;">
         {{ view.country.name }}
         {% if country_coordinates %}
-            <button class="btn btn-default collapsed requires-scripting" style="margin-left: 1em" data-target="#map-container" data-toggle="collapse" aria-controls="map-container" aria-expanded="false" title="{% trans "Map of the country" %}">
+            <button class="btn btn-default collapsed requires-scripting" style="margin-left: 1em"
+                    type="button" data-target="#map-container" data-toggle="collapse"
+                    aria-controls="map-container" aria-expanded="false"
+                    title="{% trans "Map of the country" %}">
                 <span class="fa fa-lg fa-globe" aria-hidden="true"></span>
                 <span class="sr-only">{% trans "Map of the country" %}</span>
             </button>
@@ -115,7 +122,7 @@
 
     {% regroup place_list by confirmed as confirmed_list %}
     {% for confirmed_state in confirmed_list %}
-        <div>
+        <section>
             {% if confirmed_state.grouper %}
                 <h3 id="{% trans "confirmed" context "URL" %}" class="text-center text-info">
                     {{ confirmed_title|capfirst }}
@@ -132,6 +139,7 @@
                      id="p-{{ place.pk }}">
                     {% asvar current_page_position %}#p-{{ place.pk }}{% endasvar %}
 
+                    <div class="sr-only">&#8962;&nbsp; <em>{% trans "place"|upper %} {{ forloop.counter }}</em></div>
                     <div class="control-buttons pull-right">
                     {# CONTROL BUTTONS: CHECK, UPDATE; IMPORTANT TIMESTAMPS #}
                         <div class="btn-toolbar" role="toolbar">
@@ -174,6 +182,7 @@
                            title="{% trans "last login" %}<br />{{ place.owner.user.last_login|default:_("never") }}"
                            data-toggle="tooltip" data-html="true" data-placement="bottom">
                             <small class="fa fa-sign-in" aria-hidden="true" style="position: relative; left: -2px"></small>
+                            <span class="sr-only">{% trans "last login" %}</span>
                             <small><samp> {{ place.owner.user.last_login|date:"Y-m-d H:i"|default:"—"|stringformat:"-16s" }} UTC</samp></small>
                         </p>
                         {% endspaceless %}
@@ -182,6 +191,7 @@
                            title="{% trans "last modification" %}<br />{{ place.modified|default:_("never") }}"
                            data-toggle="tooltip" data-html="true" data-placement="bottom">
                             <small class="fa fa-pencil-square-o" aria-hidden="true"></small>
+                            <span class="sr-only">{% trans "last modification" %}</span>
                             <small><samp> {{ place.modified|date:"Y-m-d H:i"|default:"—"|stringformat:"-16s" }} UTC</samp></small>
                         </p>
                         {% endspaceless %}
@@ -241,6 +251,7 @@
                             {% for phone in place.profile.phones.all %}
                                 {% if not phone.deleted %}
                                     <small class="phone-number">
+                                        <span class="sr-only">&#9743;&nbsp;</span>
                                         {% asvar phone_dimmed_reason trimmed %}
                                             {% if view.in_book_status is True and not phone.visibility.in_book %}
                                                 {% trans "not printed in the book" %}
@@ -253,7 +264,7 @@
                                             {% endif %}
                                         {% endasvar %}
                                         {% if phone_dimmed_reason %}
-                                            <span class="sr-only">{% trans "Note " context 'Title' %}: {{ phone_dimmed_reason }}"</span>
+                                            <span class="sr-only">{% trans "Note " context 'Title' %}: {{ phone_dimmed_reason }}</span>
                                         {% endif %}
                                         <b class="number{% if phone_dimmed_reason %} text-muted{% endif %}"
                                            data-toggle="tooltip" data-placement="top"
@@ -316,7 +327,7 @@
                     </div>
                 </div>
             {% endfor %}
-        </div>
+        </section>
     {% empty %}
         <div class="row place-list">
             <div class="col-xs-12 help-block text-body">
@@ -329,7 +340,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title text-danger" id="check-place-check-errors-title">{% trans "There is a problem with this host's data…" %}</h5>
+                    <h5 class="modal-title text-danger" id="check-place-check-errors-title" data-title="{% trans "There is a problem with this host's data…" %}"></h5>
                 </div>
                 <div class="modal-body">
                     <ul></ul>
