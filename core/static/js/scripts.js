@@ -286,7 +286,21 @@ $(document).ready(function() {
 
 // Bootstrap tooltips and popovers
 function enableTooltips() {
-    $(document).tooltip({ selector: '[data-toggle="tooltip"]' });
+    function realignTooltip(tip, elem) {
+        placement = elem.getAttribute('data-placement') || 'top';
+        if (placement == 'left' && elem.getBoundingClientRect().left < 85) {
+            return 'bottom';
+        }
+        if (placement == 'right' && elem.getBoundingClientRect().right > window.outerWidth - 85) {
+            return 'bottom';
+        }
+        return placement;
+    }
+    $('[data-toggle="tooltip"][title][data-title]').each(function() {
+        this.setAttribute('data-simple-title', this.getAttribute('title'));
+        this.removeAttribute('title');
+    });
+    $(document).tooltip({ selector: '[data-toggle="tooltip"]', placement: realignTooltip });
     $('body').tooltip({ selector: '[data-toggle="tooltip-lasting"]',
                         delay: { show: 0, hide: 2500 } });
     $('[data-toggle="popover"]').popover();
