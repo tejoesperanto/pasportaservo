@@ -90,7 +90,9 @@
                                 {% endif %}
                             >
                                 <span class="fa fa-paper-plane" aria-hidden="true"></span>&nbsp;
-                                {% trans "Write message" %}
+                                <span class="hidden-xxs">{% trans "Write message" %}</span>
+                                <span hidden class="hidden"> / </span>
+                                <span class="visible-xxs-inline">{% trans "Chat" context "Verb" %}</span>
                                 {% if profile.user.email|is_invalid %}
                                     <sup><span class="fa fa-exclamation-triangle" aria-hidden="true"></span></sup>
                                 {% endif %}

@@ -1084,6 +1084,11 @@ footer {
     h2.owner {
         font-size: 24px;
     }
+    form > .form-contents {
+        p {
+            margin-bottom: 0;
+        }
+    }
     #page.search #georesult {
         .maplink {
             font-size: 14px;
@@ -1110,6 +1115,10 @@ footer {
     .map iframe {
         border-radius: 4px;
         /*height: 300px;*/
+    }
+    form > .form-contents {
+        width: 85%;
+        margin-left: 7.5%;
     }
     #page.search #georesult {
         #geoerror + .popover {
