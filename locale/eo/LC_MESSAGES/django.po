@@ -1525,6 +1525,10 @@ msgstr "La retpoŝta adreso de tiu ĉi uzanto ŝajne ne funkcias"
 msgid "Write message"
 msgstr "Sendi mesaĝon"
 
+msgctxt "Verb"
+msgid "Chat"
+msgstr "Mesaĝi"
+
 msgid "the location is unknown"
 msgstr "la lokigo ne estas konata"
 
