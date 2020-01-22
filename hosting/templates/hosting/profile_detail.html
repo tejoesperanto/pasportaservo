@@ -120,6 +120,7 @@
                         {% expr "text-warning" as confirm_color %}
                     {% endif %}
                     <div class="edit-buttons btn history-link"
+                         title="{% trans "profile" %} {{ confirm_title }} {{ profile.confirmed_on|date:"DATE_FORMAT" }}"
                          data-title="{% trans "profile" %} {{ confirm_title }} <br /> {{ profile.confirmed_on|date:"DATE_FORMAT" }}"
                          data-toggle="tooltip" data-placement="left auto" data-html="true">
                         <span class="fa fa-list-alt {{ confirm_color }}"></span>
@@ -197,6 +198,7 @@
                 {% endif %}
             {% endasvar %}
             <span class="timestamp timestamp-edit pull-right text-muted"
+                  title="{% trans "last modification" %}"
                   data-title="{% trans "last modification" %}:<br />{{ profile.modified }}"
                   data-toggle="tooltip" data-placement="top" data-html="true">
                 <small class="fa fa-pencil-square-o" aria-hidden="true"></small>

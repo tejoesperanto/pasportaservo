@@ -179,7 +179,8 @@
 
                         {% spaceless %}
                         <p class="timestamp text-right text-muted"
-                           title="{% trans "last login" %}<br />{{ place.owner.user.last_login|default:_("never") }}"
+                           title="{% trans "last login" %}{% if not place.owner.user.last_login %} ({% trans "never" %}){% endif %}"
+                           data-title="{% trans "last login" %}<br />{{ place.owner.user.last_login|default:_("never") }}"
                            data-toggle="tooltip" data-html="true" data-placement="bottom">
                             <small class="fa fa-sign-in" aria-hidden="true" style="position: relative; left: -2px"></small>
                             <span class="sr-only">{% trans "last login" %}</span>
@@ -188,7 +189,8 @@
                         {% endspaceless %}
                         {% spaceless %}
                         <p class="timestamp text-right text-muted"
-                           title="{% trans "last modification" %}<br />{{ place.modified|default:_("never") }}"
+                           title="{% trans "last modification" %}{% if not place.modified %} ({% trans "never" %}){% endif %}"
+                           data-title="{% trans "last modification" %}<br />{{ place.modified|default:_("never") }}"
                            data-toggle="tooltip" data-html="true" data-placement="bottom">
                             <small class="fa fa-pencil-square-o" aria-hidden="true"></small>
                             <span class="sr-only">{% trans "last modification" %}</span>
@@ -232,9 +234,10 @@
                                     {% if description_length_warning %}
                                         <span class="text-danger text-nowrap">
                                             <span class="fa fa-exclamation-triangle" data-toggle="tooltip" data-html="true"
-                                                  title="{{ description_text_warning }}
-                                                         {% if description_text_warning and description_length_warning %}<br />{% endif %}
-                                                         {{ description_length_warning }}"
+                                                  title="{{ description_text_warning }} {{ description_length_warning }} "
+                                                  data-title="{{ description_text_warning }}
+                                                              {% if description_text_warning and description_length_warning %}<br />{% endif %}
+                                                              {{ description_length_warning }}"
                                                   aria-label="{% trans "Warning " context 'Title' %}"></span>
                                             {{ desc|length }}&#8202;/&#8202;135
                                         </span>
