@@ -36,7 +36,8 @@
                         </div>
                         <div class="col-xs-1 col-avatar">
                             <span class="avatar">
-                                <img src="{{ auth_user.profile.avatar_url }}" {{ auth_user.profile|avatar_dimension }} />
+                                <img src="{{ auth_user.profile.avatar_url }}" {{ auth_user.profile|avatar_dimension }}
+                                     alt="[{% trans "avatar" %}{% if auth_user.profile.name %}: {{ auth_user.profile.name }}{% endif %}]" />
                             </span>
                         </div>
                         <div class="col-xs-9 col-name">

@@ -122,8 +122,8 @@
         {% endif %}
         <p class="help-block">{% trans "We send e-mails to this address. It will never be public." %}</p>
 
-        <section class="well well-sm">
-            <button data-target="#set-public-email" class="btn btn-primary btn-vert-space btn-xs" data-toggle="collapse">
+        <section class="well well-sm" aria-label="{% trans "Public email address" %}">
+            <button type="button" data-target="#set-public-email" class="btn btn-primary btn-vert-space btn-xs" data-toggle="collapse">
                 {% trans "Public email?" %}
             </button>
             <div id="set-public-email" class="collapse when-scripting {% if profile.email %} in{% endif %}">
@@ -194,6 +194,8 @@
                         </div>
                     </div>
                 </div>
+            {% endif %}
+            {% if not privacy_matrix.read_only %}
                 {% csrf_token %}
                 <div class="pull-right">
                     <button type="submit" class="btn btn-default" id="id_privacy_form_submit">

@@ -30,25 +30,34 @@ $(document).ready(function() {
     $('input[type="checkbox"][data-initial="None"]').prop('indeterminate', true);
 
     // Button hover
-    $('.btn').hover(function() {
-        var $this = $(this);
-        $this.data('original-text', $this.html());
-        if ($this.data('hover-text')) {
-            var preserveWidth = $this.width();
-            $this.text($this.data('hover-text')).width(preserveWidth);
-        }
-        if ($this.data('hover-class')) {
-            $this.addClass($this.data('hover-class'));
-        }
-    }, function() {
-        var $this = $(this);
-        if ($this.data('hover-text') && $this.data('original-text')) {
-            $this.html($this.data('original-text')).width("auto");
-        }
-        if ($this.data('hover-class')) {
-            $this.removeClass($this.data('hover-class'));
-        }
-    });
+    +function() {
+        var buttonSelector = '.btn[data-hover-text], .btn[data-hover-class]';
+        var handlerIn = function() {
+                var $this = $(this);
+                if ($this.data('hover-text') && !$this.data('original-text')) {
+                    var preserveWidth = $this.width();
+                    $this.data('original-text', $this.html());
+                    $this.text($this.data('hover-text')).width(preserveWidth);
+                }
+                if ($this.data('hover-class')) {
+                    $this.addClass($this.data('hover-class'));
+                }
+        };
+        var handlerOut = function() {
+                var $this = $(this);
+                if ($this.data('hover-text') && $this.data('original-text')) {
+                    $this.html($this.data('original-text')).width("auto");
+                    $this.data('original-text', "");
+                }
+                if ($this.data('hover-class')) {
+                    $this.removeClass($this.data('hover-class'));
+                }
+        };
+        $(buttonSelector)
+            .hover(handlerIn, handlerOut)
+            .focusin(handlerIn)
+            .focusout(handlerOut);
+    }();
 
     // Date picker widget for date fields
     if (typeof $().datepicker !== "undefined") {
@@ -209,7 +218,6 @@ $(document).ready(function() {
             onCompleted: function(context, fragment) {
                 // The 'fragment' is just a String, not much can be done with it
                 // TODO: place tab focus on the first added row
-                enableTooltips();
             }
         });
     }
@@ -248,6 +256,21 @@ $(document).ready(function() {
         $('[data-target="#map-container"]').toggleClass('active');
     });
 
+    // Modal focus handling
+    $(document).on('show.bs.modal', '.modal', function(event) {
+        var $target = $(event.target);
+        if (!$target.data('relatedSource') && event.relatedTarget) {
+            $target.data('relatedSource', event.relatedTarget);
+        }
+    });
+    $(document).on('hidden.bs.modal', '.modal', function(event) {
+        var $target = $(event.target), sourceAttr = 'relatedSource';
+        if ($target.data(sourceAttr)) {
+            $target.data(sourceAttr).focus();
+            $target.removeData(sourceAttr);
+        }
+    });
+
     // Host preferences popover setup
     if ($('#status-anchors_notification')[0]) {
         $('.anchor-notify').popover({
@@ -263,9 +286,10 @@ $(document).ready(function() {
 
 // Bootstrap tooltips and popovers
 function enableTooltips() {
-    $('[data-toggle=tooltip]').tooltip();
-    $('[data-toggle=tooltip-lasting]').tooltip({ delay: { show: 0, hide: 2500, } });
-    $('[data-toggle=popover]').popover();
+    $(document).tooltip({ selector: '[data-toggle="tooltip"]' });
+    $('body').tooltip({ selector: '[data-toggle="tooltip-lasting"]',
+                        delay: { show: 0, hide: 2500 } });
+    $('[data-toggle="popover"]').popover();
 }
 
 

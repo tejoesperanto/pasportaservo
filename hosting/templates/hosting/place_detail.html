@@ -65,7 +65,7 @@
 
     <div class="row place-detail" data-id="{{ place.pk }}">
         <div class="col-xs-12 col-md-6 owner">
-            <div class="row">
+            <section class="row" aria-label="{% trans "Important information" %}">
                 <div class="col-xs-12 warning" style="min-height: 0px">
                 {# ALERT ABOUT A PLACE THAT WAS DELETED OR UNPUBLISHED #}
                     {% if place.deleted and user.is_authenticated %}
@@ -107,16 +107,16 @@
                     {% endif %}
                 </div>
             {# END OF PLACE AND OWNER WARNINGS #}
-            </div>
+            </section>
 
             <div class="row">
             {# OWNER'S DETAILS: NAME, ADDRESS, PHONE NUMBERS (IN VERBOSE VIEW) #}
-                <div class="col-xs-3 avatar">
-                    <a href="{{ place.owner.get_absolute_url }}">
+                <div class="col-xs-3 avatar" aria-hidden="true">
+                    <a href="{{ place.owner.get_absolute_url }}" tabindex="-1">
                         <img src="{{ place.owner.avatar_url }}" alt="[{% trans "avatar" %}{% if place.owner.name %}: {{ place.owner.name }}{% endif %}]" />
                     </a>
                 </div>
-                <div class="col-xs-9">
+                <section class="col-xs-9" aria-label="{% trans "Address and availability" %}">
                     <div class="row">
                         <div class="col-xs-12">
                             {% if user.is_authenticated %}
@@ -145,7 +145,7 @@
                                      title="{% trans "Indicate unavailability" %}" data-toggle="tooltip">
                                     <button data-target="#set-blocking"
                                             class="btn btn-default btn-sm requires-scripting"
-                                            data-toggle="collapse"
+                                            type="button" data-toggle="collapse"
                                             aria-haspopup="true" aria-expanded="false">
                                         <span class="sr-only">{% trans "unavailable" %} ?</span>
                                         <span class="fa fa-clock-o" aria-hidden="true"></span>
@@ -247,14 +247,14 @@
                             </p>
                         {% endif %}
                     </div>
-                </div>
+                </section>
             {# END OF OWNER'S DETAILS #}
             </div>
 
             <div class="row">
             {# DETAILS AND CONDITIONS OF THE PLACE ON LARGE SCREENS - ACCESSIBLE ONLY TO AUTHENTICATED USERS #}
             {% if user.is_authenticated %}
-                <div class="col-md-12 hidden-xs hidden-sm description-largevp">
+                <section class="col-md-12 hidden-xs hidden-sm description-largevp" aria-label="{% trans "Description and conditions" %}">
                     {% list place.description place.contact_before place.max_guest place.max_night as accommodation_details %}
                     {% if accommodation_details|are_any %}
                         <h3>{% trans "Description" %}</h3>
@@ -283,7 +283,7 @@
                             {% trans "Other dwellers at this place." %}
                         {% endif %}
                     </p>
-                </div>
+                </section>
             {% else %}
                 {# UNAUTHENTICATED USERS ARE INVITED TO REGISTER #}
                 {% include 'core/snippets/registration.html' with form=register_form %}
@@ -292,7 +292,7 @@
             </div>
         </div>
 
-        <div class="col-xs-12 col-md-6 map">
+        <section class="col-xs-12 col-md-6 map" aria-label="{% trans "Location on map" %}">
         {# LOCATION ON WORLD MAP #}
             {% if place_location.unknown and place_owner_or_supervisor and not place.deleted and place.visibility.visible_online_public %}
                 <div class="alert alert-small alert-danger">
@@ -344,7 +344,8 @@
                                 {% endfor %}
                             {% endif %}
                         <>&size=720x400@2x&manual_attribution=true<>
-                        {% endlocalize %}{% endspaceless %}{% endfilter %}" />
+                        {% endlocalize %}{% endspaceless %}{% endfilter %}"
+                     alt="[{% trans "Location on map" %}]" />
             {% if not simple_map %}
                 </noscript>
             {% endif %}
@@ -357,10 +358,10 @@
                     {% if not simple_map %}{% trans "Use a simple map" %}{% else %}{% trans "Use a fully-capable map" %}{% endif %}
                 </button>
             </form>
-        </div>
+        </section>
 
         {% if user.is_authenticated %}
-            <div class="col-xs-12 hidden-md hidden-lg description-smallvp">
+            <section class="col-xs-12 hidden-md hidden-lg description-smallvp" aria-hidden="true">
             {# DETAILS AND CONDITIONS OF THE PLACE ON SMALL SCREENS - ACCESSIBLE ONLY TO AUTHENTICATED USERS #}
                 <a id="status-anchors_notification" class="col-xs-12 anchor-notify" data-placement="bottom"
                    data-content="{% include './snippets/place_owner_anchors.html' %}"></a>
@@ -379,7 +380,10 @@
                         <span class="fa fa-bed fa-fw text-muted" aria-label="{% trans "Note " context 'Title' %}"></span>&nbsp;
                         {% trans "Other dwellers at this place." %}
                         {% if shall_display_family_members and not place.family_is_anonymous %}
-                            <button data-target="#family-panel-small" class="switch requires-scripting btn btn-xs" data-toggle="collapse" aria-controls="family-panel-small" aria-expanded="false">
+                            <button data-target="#family-panel-small"
+                                    class="switch requires-scripting btn btn-xs"
+                                    type="button" data-toggle="collapse"
+                                    aria-controls="family-panel-small" aria-expanded="false">
                                 &nbsp;<span class="fa fa-caret-right fa-lg" aria-label="{% trans "Show" %}" data-aria-label-inactive="{% trans "Hide" %}"></span>&nbsp;
                             </button>
                         {% endif %}
@@ -394,7 +398,7 @@
                     {% include './snippets/place_conditions.html' with conditions=place.conditions_cache only %}
                 {% endif %}
             {# END OF PLACE DETAILS #}
-            </div>
+            </section>
 
             <p class="col-xs-12 place-control control-buttons">
             {# CONTACT AND CONTROL BUTTONS #}
@@ -481,7 +485,7 @@
         {% endif %}
 
         {% if place_owner_or_supervisor or user.profile in place.family_members_cache %}
-            <div class="col-xs-12">
+            <section class="col-xs-12" aria-label="{% trans "Summary of place's settings of the owner" %}">
             {# PREVIEW OF PLACE SETTINGS. NOT FOR VISITORS. #}
                 <p class="help-block">
                     {% trans "Short description" %}:&nbsp;
@@ -518,7 +522,7 @@
                     {% endspaceless %})</span>
                 </p>
                 {% endif %}
-            </div>
+            </section>
         {% endif %}
     </div>
 {% endblock page %}

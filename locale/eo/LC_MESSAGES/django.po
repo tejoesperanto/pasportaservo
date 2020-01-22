@@ -243,12 +243,18 @@ msgstr "Mia profilo"
 msgid "Search"
 msgstr "Serĉi"
 
+msgid "at"
+msgstr "ĉe"
+
 msgctxt "URL"
 msgid "content-start"
 msgstr "enhavo-komenco"
 
 msgid "Skip navigation buttons"
 msgstr "Pretersalti navigajn butonojn"
+
+msgid "Home page"
+msgstr "Hejma paĝo"
 
 msgid "log in"
 msgstr "ensaluti"
@@ -270,6 +276,9 @@ msgstr "Privateco"
 
 msgid "Supervisors"
 msgstr "Landaj organizantoj"
+
+msgid "Back to top of page"
+msgstr "Reen al paĝo-supro"
 
 msgid "Confirm"
 msgstr "Konfirmi"
@@ -384,9 +393,6 @@ msgstr "kiel-uzi"
 msgid "Skip the news"
 msgstr "Pretersalti la novaĵojn"
 
-msgid "at"
-msgstr "ĉe"
-
 msgid "Contact us via Skype"
 msgstr "Kontaktu nin per Skajpo"
 
@@ -408,6 +414,9 @@ msgstr "Vi sendis %(nb)s mesaĝojn. Bonege!"
 
 msgid "Hide"
 msgstr "Kaŝi"
+
+msgid "Hide this message"
+msgstr "Kaŝi tiun ĉi mesaĝon"
 
 msgid "inbox"
 msgstr "poŝtkesto"
@@ -1408,6 +1417,9 @@ msgstr "Tio estas la detala paĝo de via loĝloko"
 msgid "Authorized users will receive access to these details."
 msgstr "Permesitaj uzantoj povos vidi ĉiujn tiujn detalojn."
 
+msgid "Important information"
+msgstr "Gravaj informoj"
+
 msgctxt "Title"
 msgid "Warning "
 msgstr "Averto "
@@ -1438,6 +1450,9 @@ msgstr "ekde %(date)s"
 msgid "until %(date)s"
 msgstr "ĝis %(date)s"
 
+msgid "Address and availability"
+msgstr "Adreso kaj disponebleco"
+
 msgid "I can guide around the city"
 msgstr "mi povas ĉiĉeroni"
 
@@ -1452,6 +1467,9 @@ msgstr "fare de landa organizanto"
 
 msgid "last modification"
 msgstr "lasta redakto"
+
+msgid "Description and conditions"
+msgstr "Priskribo kaj kondiĉoj"
 
 msgid "Description"
 msgstr "Priskribo"
@@ -1468,6 +1486,9 @@ msgstr "Mi ne troviĝas konstante ĉe tiu ĉi adreso; kontaktiĝu anticipe."
 
 msgid "Other dwellers at this place."
 msgstr "Mi havas kunloĝantojn."
+
+msgid "Location on map"
+msgstr "Pozicio sur la mapo"
 
 msgid ""
 "Your location is unknown, other users will not be able to find you via the "
@@ -1521,6 +1542,9 @@ msgstr "Rigardi kvazaŭ ordinara uzanto"
 
 msgid "Regular preview"
 msgstr "Ordinara vido"
+
+msgid "Summary of place's settings of the owner"
+msgstr "Resumo de loĝejaj agordoj de la posedanto"
 
 msgid "Short description"
 msgstr "Mallonga priskribo"
@@ -1576,6 +1600,10 @@ msgstr "Neniu rezulto por <em>%(query)s</em>. Jen kelkaj aktivaj gastigantoj!"
 
 msgid "Sorry, no kind hosts found…"
 msgstr "Bedaŭrinde ni ne trovis gastigemulojn…"
+
+msgctxt "Title"
+msgid "Notes "
+msgstr "Rimarkoj "
 
 msgid "I'm hosting"
 msgstr "mi gastigas"
@@ -2244,6 +2272,12 @@ msgstr "kundividataj-informoj"
 msgctxt "URL"
 msgid "cookies"
 msgstr "kuketoj"
+
+msgid "Call-to-action"
+msgstr "Alvoko"
+
+msgid "Hide call-to-action"
+msgstr "Kaŝi alvokon"
 
 msgctxt "URL"
 msgid "countries-list"

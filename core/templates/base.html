@@ -28,7 +28,8 @@
         <link rel="manifest"                                href="{% static 'img/marker/android-manifest.json' %}?v=1">
         <meta name="theme-color"                            content="#ee6600">
 
-        <link rel="alternate" type="application/atom+xml" title="Pasporta Servo" href="{% url 'blog:atom' %}">
+        <link rel="alternate" type="application/atom+xml" title="Pasporta Servo: {% trans "News" %}" href="{% url 'blog:atom' %}">
+        <link rel="search" title="{% trans "Search" %} {% trans "at" %} Pasporta Servo" href="{% url 'search' %}">
 
         <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
         <link rel="stylesheet" href="{% static 'bootstrap/css/font-awesome.min.css' %}">

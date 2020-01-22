@@ -6,10 +6,11 @@
                 {% elif monthly %}
                     sticky-{% now 'Y-m' %}-{{ sticky_class }}
                 {% endif %}
-            {% endfilter %}">
-    {{ message }}
+            {% endfilter %}"
+     role="alertdialog" aria-describedby="MSG_{% random_identifier 7 as message_id %}{{ message_id }}">
+    <span id="MSG_{{ message_id }}">{{ message }}</span>
     {% spaceless %}
-    <button type="button" class="close requires-scripting" title="{% trans "Hide" %}" aria-label="{% trans "Hide" %}">
+    <button type="button" class="close requires-scripting" title="{% trans "Hide" %}" aria-label="{% trans "Hide this message" %}">
         <span aria-hidden="true">&times;</span>
     </button>
     {% endspaceless %}

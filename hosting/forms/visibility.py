@@ -218,6 +218,7 @@ class VisibilityFormSetBase(forms.BaseModelFormSet):
                 When(model_type=PLACE, then=Value(str(_("A place in")))),
                 When(model_type=PHONE, then=Value(str(_("Phone number")))),
                 When(model_type=PUBLIC_EMAIL, then=Value(str(_("Email address")))),
+                default=Value(""),
                 output_field=CharField(),
             ),
             indent=Case(

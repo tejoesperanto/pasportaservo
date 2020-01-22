@@ -34,6 +34,7 @@
                     <div class="text-center">
                         <span class="fa fa-check text-label-success visibility-success" style="visibility: hidden"
                               aria-role="status" data-notification="{% trans "saved" %}"></span>
+                        <span class="sr-only">{% cycle _("all visitors") _("guests and hosts") _("in book") %}</span>
                         {{ venue }}
                         {% if venue.hosting_notification and not privacy_matrix.read_only %}
                             {% if not asset.obj.available %}
@@ -51,7 +52,7 @@
                     {% if 'auth' in venue.name and asset.obj.authorized_users_cache.query %}
                         {% asvar id_auth_panel %}authlist-{{ asset.obj.visibility.pk }}{% endasvar %}
                         <button class="authorized-list switch requires-scripting btn btn-default btn-xs"
-                                data-target="#{{ id_auth_panel }}"
+                                type="button" data-target="#{{ id_auth_panel }}"
                                 aria-controls="{{ id_auth_panel }}" aria-expanded="false" aria-haspopup="true">
                             <span class="fa fa-eye" aria-hidden="true"></span>
                             <span class="fa fa-question" aria-hidden="true"></span>
