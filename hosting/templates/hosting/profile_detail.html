@@ -150,18 +150,14 @@
                 {% endif %}
                 {{ profile.get_fullname_display }}
             </h1>
+            <p>
+                {% if profile.birth_date %}
+                    {% blocktrans with age=profile.age %}{{ age }} y.o.{% endblocktrans %}
+                    &nbsp;
+                {% endif %}
+                {% include './snippets/checked.html' with object=profile %}
+            </p>
         </div>
-        {% if profile.birth_date or perms.hosting.can_supervise %}
-            <div class="col-xs-8 col-sm-9">
-                <p>
-                    {% if profile.birth_date %}
-                        {% blocktrans with age=profile.age %}{{ age }} y.o.{% endblocktrans %}
-                        &nbsp;
-                    {% endif %}
-                    {% include './snippets/checked.html' with object=profile %}
-                </p>
-            </div>
-        {% endif %}
         {% if view.role >= roles.SUPERVISOR %}
             <div class="col-xxs-12 col-xs-8 col-sm-9">
                 <h4>
