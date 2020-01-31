@@ -44,9 +44,9 @@
                             {% else %}
                                 {% delvar asterisk_title %}
                             {% endif %}
-                            <span class="fa fa-asterisk text-muted asterisk"
+                            <span class="fa fa-asterisk text-muted asterisk" tabindex="0"
                                   title="{{ asterisk_title }}"
-                                  data-toggle="tooltip" data-placement="left" data-container="body"></span>
+                                  data-toggle="tooltip" data-placement="left" data-container="body" data-trigger="hover focus click"></span>
                         {% endif %}
                     </div>
                     {% if 'auth' in venue.name and asset.obj.authorized_users_cache.query %}
@@ -76,6 +76,12 @@
                 </div>
             </td>
             {% endfor %}
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">
+                <em>{% trans "You have provided no accommodation or contact details..." %}</em>
+            </td>
         </tr>
         {% endfor %}
     </tbody>

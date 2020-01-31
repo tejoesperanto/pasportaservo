@@ -728,11 +728,48 @@ a.contact-details:not(:hover) {
 }
 
 #page.settings #privacy_form {
-    table:not(.preview) {
-        margin-bottom: 30px;
+    .privacy-matrix-container {
+        overflow-x: auto;
     }
-    table.preview {
-        margin-bottom: 0px;
+    .suggest-adjust-screen {
+        display: none;
+        .help-block {
+            margin-top: 0;
+            display: none;
+            background-repeat: no-repeat;
+            background-size: 40px auto;
+
+            @media screen {
+                &.in {
+                    display: block;
+                }
+            }
+        }
+        .help-block:after {
+            content: attr(data-suggestion);
+            font-style: italic;
+        }
+        .help-block.with-icon:after {
+            display: inline-block;
+            margin-left: 48px;
+        }
+    }
+    @media screen and (max-width: 600px) {
+        .suggest-adjust-screen {
+            display: block;
+            .help-block.slide-right {
+                display: block;
+            }
+        }
+    }
+    table {
+        min-width: 534px;
+        &:not(.preview) {
+            margin-bottom: 30px;
+        }
+        &.preview {
+            margin-bottom: 0px;
+        }
     }
     th.header-in_book {
         vertical-align: middle !important;
