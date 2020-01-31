@@ -157,7 +157,22 @@
             {% endif %}
         </h4>
         <form id="privacy_form" action="{% url 'profile_privacy_update' profile.pk profile.autoslug %}" method="POST" data-csrf="{{ csrf_token }}">
-            {% include './settings_privacy_matrix.html' %}
+            <div class="suggest-adjust-screen well well-sm" aria-hidden="true">
+                <p class="help-block with-icon turn-device"
+                   style="min-height: 40px; background-image: url('{% get_static_prefix %}img/adjust-device{% if 'iPhone' in request.META.HTTP_USER_AGENT %}-i{% endif %}.png');"
+                   data-suggestion="{% trans "We recommend to turn your device on its side (and make sure orientation changes are allowed) to see the table better." %}">
+                </p>
+                <p class="help-block with-icon grow-window"
+                   style="min-height: 20px; background-image: url('{% static 'img/adjust-window.png' %}');"
+                   data-suggestion="{% trans "We recommend to make the browser window wider to see the table better." %}">
+                </p>
+                <p class="help-block slide-right"
+                   data-suggestion="{% trans "Slide the table to the right to see additional settings." %}">
+                </p>
+            </div>
+            <div class="privacy-matrix-container">
+                {% include './settings_privacy_matrix.html' %}
+            </div>
             {% if view.role == roles.OWNER %}
                 <div class="privacy-checkbox">
                     <span class="text-label-success small text-nowrap optinout-success" style="display: none" aria-role="status">

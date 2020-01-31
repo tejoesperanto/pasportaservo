@@ -4,7 +4,70 @@
 
 $(document).ready(function() {
 
-    // Automatically checks or unchecks the paired toggles
+    // Displays a suggestion to adjust the device or browser window when necessary.
+    if (typeof screen !== "undefined") {
+        var $matrix = $('.privacy-matrix-container table'),
+            $matrixContainer = $matrix.parent();
+        var $hintsBlock = $('.suggest-adjust-screen'),
+            hints = {
+                'turn-device': $hintsBlock.find('.turn-device'),
+                'grow-window': $hintsBlock.find('.grow-window'),
+                'slide-right': $hintsBlock.find('.slide-right'),
+            };
+        var conditions = {
+                'turn-device': function() {
+                    return screen.availWidth < 768 && screen.availWidth < screen.availHeight
+                           && !('orientation' in window && Math.abs(window.orientation) == 90);
+                },
+                'grow-window': function() {
+                    return window.outerWidth < screen.availWidth && window.outerWidth > 0 && window.innerWidth <= 768;
+                },
+                'slide-right': function() {
+                    return $matrix.outerWidth() > $matrixContainer.innerWidth();
+                },
+        };
+
+        function screenChangeHandler() {
+            var shownHints = 0;
+            for (var type in hints) {
+                shownHints += didScreenConditionChange(hints[type], conditions[type]);
+            }
+            if (shownHints > 0) {
+                $hintsBlock.show();
+                $hintsBlock.find('.help-block.in').css('margin-bottom', '').last().css('margin-bottom', 0);
+            }
+            else {
+                $hintsBlock.hide();
+            }
+        };
+        /* handling both 'resize' and 'orientationchange' events is required, due to:
+         *  •  iOS firing resize events, but the window orientation being incorrect when the event is handled
+         *  •  Android supporting also pop-out windows and split screen (essentially creating a window)
+         *  •  the desktop browsers not firing and not supporting any events related to the window orientation
+         */
+        window.addEventListener('resize', screenChangeHandler);
+        window.addEventListener('orientationchange', screenChangeHandler);
+        try {
+            window.dispatchEvent(new Event('resize'));
+        }
+        catch (e) {
+            var event = document.createEvent('UIEvent');
+            event.initEvent('resize', false, false);
+            window.dispatchEvent(event);
+        }
+    }
+    function didScreenConditionChange($hint, condition) {
+        if (condition()) {
+            $hint.addClass('in');
+            return 1;
+        }
+        else {
+            $hint.removeClass('in');
+            return 0;
+        }
+    }
+
+    // Automatically checks or unchecks the paired toggles.
     function updatePairedPrivacyToggle(event) {
         var onlyForCondition = event.data;
         if (onlyForCondition === true || onlyForCondition === false)

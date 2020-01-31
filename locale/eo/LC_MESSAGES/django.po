@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2020-01-10 10:48+0000\n"
+"POT-Revision-Date: 2020-01-31 15:45+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1906,6 +1906,21 @@ msgctxt "Title"
 msgid "Preview"
 msgstr "Antaŭrigardo"
 
+msgid ""
+"We recommend to turn your device on its side (and make sure orientation "
+"changes are allowed) to see the table better."
+msgstr ""
+"Ni rekomendas turni vian aparaton al ĝia flanko (certigante ke ŝanĝoj de "
+"orientiĝo estas permesitaj) por vidi la tabelon pli bone."
+
+msgid "We recommend to make the browser window wider to see the table better."
+msgstr ""
+"Ni rekomendas plilarĝigi la fenestron de la retumilo por vidi la tabelon pli "
+"bone."
+
+msgid "Slide the table to the right to see additional settings."
+msgstr "Rulu la tabelon dekstren por vidi la pliajn agordojn."
+
 msgid "saved"
 msgstr "konservita"
 
@@ -1975,6 +1990,9 @@ msgstr "kiu povas vidi ?"
 
 msgid "in new window"
 msgstr "en nova fenestro"
+
+msgid "You have provided no accommodation or contact details..."
+msgstr "Vi indikis neniujn loĝ- aŭ kontakt-informojn…"
 
 msgid "approver unknown"
 msgstr "aprobanto nekonata"
