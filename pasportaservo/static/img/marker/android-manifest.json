@@ -1,5 +1,6 @@
 {
     "name": "Pasporta Servo",
+    "short_name": "Pasporta Servo",
     "icons": [
         {
             "src": "/static/img/marker/PS_android-36.png",
@@ -33,6 +34,8 @@
             "density": 4.0
         }
     ],
+    "description": "Gastiga servo; tutmonda reto de esperantistoj–gastigantoj (kaj gastoj), konsistanta el adresaro de homoj el la tuta mondo, kiuj proponas la eblon gasti en iliaj hejmoj senpage · Hospitality service functioning in the Esperanto language and consisting of a world-wide network of hosts offering the option to stay in their homes for free.",
+    "lang": "Esperanto",
     "start_url": "/profilo/?utm_source=web_app_manifest",
     "display": "standalone",
     "theme_color": "#ee6600"
