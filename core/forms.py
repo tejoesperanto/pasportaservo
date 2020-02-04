@@ -1,3 +1,5 @@
+import logging
+
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -41,22 +43,31 @@ class UserRegistrationForm(SystemEmailFormMixin, UserCreationForm):
     email = forms.EmailField(
         label=_("Email address"), max_length=254)
     # Honeypot:
-    name = forms.CharField(
+    realm = forms.CharField(
         widget=forms.TextInput(attrs={'autocomplete': 'off'}),
         required=False,
-        help_text=_("Leave blank"))
+        help_text=_("Protection against automated registrations. "
+                    "Make sure that this field is kept completely blank."))
 
     def __init__(self, *args, **kwargs):
+        self.view_request = kwargs.pop('view_request', None)
         super().__init__(*args, **kwargs)
+
         User._meta.get_field('email')._unique = True
         for fieldname in ['username', 'password1', 'password2', 'email']:
             self.fields[fieldname].help_text = None
             self.fields[fieldname].widget.attrs['placeholder'] = self.fields[fieldname].label
 
-    def clean_name(self):
-        """Remove flies from the honeypot."""
-        flies = self.cleaned_data['name']
+    def clean_realm(self):
+        """
+        Remove flies from the honeypot.
+        """
+        flies = self.cleaned_data['realm']
         if flies:
+            logging.getLogger('PasportaServo.auth').error(
+                "Registration failed, flies found in honeypot.",
+                extra={'request': self.view_request},
+            )
             raise forms.ValidationError("")
         return flies
 
