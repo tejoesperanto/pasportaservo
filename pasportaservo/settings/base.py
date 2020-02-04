@@ -150,6 +150,25 @@ DATABASES = {
     }
 }
 
+# Logging
+# https://docs.djangoproject.com/en/stable/topics/logging/#configuring-logging
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+        }
+    },
+    'loggers': {
+        'PasportaServo.auth': {
+            'handlers': ['mail_admins'],
+        },
+    },
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 

@@ -21,12 +21,14 @@ from django.template.loader import get_template
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 from django.views import generic
+from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.vary import vary_on_headers
 
 from commonmark import commonmark
@@ -91,6 +93,7 @@ class RegisterView(generic.CreateView):
     form_class = UserRegistrationForm
     success_url = reverse_lazy('profile_create')
 
+    @method_decorator(sensitive_post_parameters('password1', 'password2'))
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             # Only anonymous (non-authenticated) users should access the registration page.
@@ -107,6 +110,11 @@ class RegisterView(generic.CreateView):
         except Profile.DoesNotExist:
             # If profile does not exist yet, redirect to profile creation page.
             return self.success_url
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['view_request'] = self.request
+        return kwargs
 
     def form_valid(self, form):
         self.object = form.save()

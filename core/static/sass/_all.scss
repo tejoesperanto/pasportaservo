@@ -629,7 +629,7 @@ header:not(.hero) #subtitle {
 .register label, .login label {
     display: none;
 }
-.register .form-group:last-of-type {
+.register .form-group:last-of-type:not(.has-error) {
     position: absolute;
     top: -10000px;  // hiding honeypot
 }
