@@ -1061,6 +1061,14 @@ footer {
 }
 .help-block {
     font-size: 0.9em;
+    & > kbd {
+        background-color: rgba(darken($color-default-bg, 75%), 0.75);
+        font-size: 85%;
+        font-size: unquote("max(85%, 12px)");
+    }
+}
+.form-group.has-error .help-block > kbd {
+    background-color: $color-danger-bg;
 }
 .input-lg {
     font-size: 1.5em;

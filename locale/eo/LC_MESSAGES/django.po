@@ -94,6 +94,26 @@ msgstr "Nur la landaj organizantoj de {this_country} povas aliri tiun ĉi paĝon
 msgid "Only administrators can access this page"
 msgstr "Nur administrantoj povas aliri tiun ĉi paĝon"
 
+msgid "A user with a similar username already exists."
+msgstr "Uzanto kun simila salutnomo jam ekzistas."
+
+msgid ""
+"Enter a username conforming to these rules:  This value may contain only "
+"letters, numbers, and the symbols <kbd>@</kbd> <kbd>.</kbd> <kbd>+</kbd> "
+"<kbd>-</kbd> <kbd>_</kbd>. Spaces are not allowed."
+msgstr ""
+"Enigu salutnomon laŭantan la jenajn regulojn:  Ĉi-tiu valoro povas enhavi "
+"nur literojn, ciferojn kaj la simbolojn <kbd>@</kbd> <kbd>.</kbd> <kbd>+</"
+"kbd> <kbd>-</kbd> <kbd>_</kbd>. Spacoj ne estas allasataj."
+
+#, python-format
+msgid ""
+"Ensure that this value has at most %(limit_value)d characters (it has now "
+"%(show_value)d)."
+msgstr ""
+"Certigu ke tiu ĉi valoro maksimume enhavu %(limit_value)d karaktrojn "
+"(nuntempe ĝi havas %(show_value)d)."
+
 msgid "Enter a valid email address."
 msgstr "Enigu retadreson en ĝusta formo."
 

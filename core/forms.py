@@ -9,8 +9,9 @@ from django.contrib.auth.forms import (
 from django.contrib.auth.hashers import UNUSABLE_PASSWORD_PREFIX
 from django.core.mail import send_mail
 from django.db.models import Q, Value as V
-from django.db.models.functions import Concat
+from django.db.models.functions import Concat, Lower
 from django.template.loader import get_template
+from django.utils.safestring import mark_safe
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 
 from hosting.models import Profile
@@ -22,24 +23,65 @@ from .models import SiteConfiguration
 User = get_user_model()
 
 
+class UsernameFormMixin(object):
+    username_error_messages = {
+        # We do not want to disclose the exact usernames in the system through
+        # the error messages, and thus facilitate user enumeration attacks...
+        'unique': _("A user with a similar username already exists."),
+        # Clearly spell out to the potential new users what a valid username is.
+        'invalid': mark_safe(_(
+            "Enter a username conforming to these rules: "
+            " This value may contain only letters, numbers, and the symbols"
+            " <kbd>@</kbd> <kbd>.</kbd> <kbd>+</kbd> <kbd>-</kbd> <kbd>_</kbd>."
+            " Spaces are not allowed."
+        )),
+        # Indicate what are the limitations in terms of number of characters.
+        'max_length': _(
+            "Ensure that this value has at most %(limit_value)d characters "
+            "(it has now %(show_value)d)."
+        ),
+    }
+
+    def clean_username(self):
+        """
+        Ensure that the username provided is unique (in a case-insensitive manner).
+        This check replaces the Django's built-in uniqueness verification.
+        """
+        username = self.cleaned_data['username']
+        if User.objects.filter(username__iexact=username).exists():
+            raise forms.ValidationError(self._meta.error_messages['username']['unique'])
+        return username
+
+
 class SystemEmailFormMixin(object):
+    email_error_messages = {
+        'max_length': _(
+            "Ensure that this value has at most %(limit_value)d characters "
+            "(it has now %(show_value)d)."
+        ),
+    }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Stores the value before the change.
         self.previous_email = value_without_invalid_marker(self.instance.email)
 
     def clean_email(self):
-        email = self.cleaned_data['email']
-        if not email:
+        """
+        Ensure that the email address provided is unique (in a case-insensitive manner).
+        """
+        email_value = self.cleaned_data['email']
+        if not email_value:
             raise forms.ValidationError(_("Enter a valid email address."))
-        invalid_email = Concat(V(settings.INVALID_PREFIX), V(email))
-        emails_lookup = Q(email=email) | Q(email=invalid_email)
-        if email and email != self.previous_email and User.objects.filter(emails_lookup).exists():
+        invalid_email = Concat(V(settings.INVALID_PREFIX), V(email_value))
+        emails_lookup = Q(email_lc=V(email_value.lower())) | Q(email__iexact=invalid_email)
+        if email_value and email_value.lower() != self.previous_email.lower() \
+                and User.objects.annotate(email_lc=Lower('email')).filter(emails_lookup).exists():
             raise forms.ValidationError(_("User address already in use."))
-        return email
+        return email_value
 
 
-class UserRegistrationForm(SystemEmailFormMixin, UserCreationForm):
+class UserRegistrationForm(UsernameFormMixin, SystemEmailFormMixin, UserCreationForm):
     email = forms.EmailField(
         label=_("Email address"), max_length=254)
     # Honeypot:
@@ -48,6 +90,12 @@ class UserRegistrationForm(SystemEmailFormMixin, UserCreationForm):
         required=False,
         help_text=_("Protection against automated registrations. "
                     "Make sure that this field is kept completely blank."))
+
+    class Meta(UserCreationForm.Meta):
+        error_messages = {
+            'email': SystemEmailFormMixin.email_error_messages,
+            'username': UsernameFormMixin.username_error_messages,
+        }
 
     def __init__(self, *args, **kwargs):
         self.view_request = kwargs.pop('view_request', None)
@@ -80,10 +128,11 @@ class UserRegistrationForm(SystemEmailFormMixin, UserCreationForm):
     save.alters_data = True
 
 
-class UsernameUpdateForm(forms.ModelForm):
+class UsernameUpdateForm(UsernameFormMixin, forms.ModelForm):
     class Meta:
         model = User
         fields = ['username']
+        error_messages = {'username': UsernameFormMixin.username_error_messages}
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -97,6 +146,7 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
     class Meta:
         model = User
         fields = ['email']
+        error_messages = {'email': SystemEmailFormMixin.email_error_messages}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
