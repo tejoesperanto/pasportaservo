@@ -158,7 +158,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'mail_admins': {
-            'level': 'ERROR',
+            'level': 'WARNING',
             'class': 'django.utils.log.AdminEmailHandler',
         }
     },
@@ -203,6 +203,7 @@ LOGIN_REDIRECT_URL = '/'
 REDIRECT_FIELD_NAME = "ps_m"
 
 DEFAULT_FROM_EMAIL = 'Pasporta Servo <saluton@pasportaservo.org>'
+SERVER_EMAIL = 'teknika@pasportaservo.org'
 
 CSRF_COOKIE_AGE = None
 CSRF_COOKIE_HTTPONLY = True

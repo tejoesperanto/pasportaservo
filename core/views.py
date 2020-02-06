@@ -1,5 +1,5 @@
 from copy import copy
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib import messages
@@ -26,8 +26,11 @@ from django.utils.functional import cached_property
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
-from django.utils.translation import pgettext_lazy, ugettext_lazy as _
+from django.utils.translation import (
+    gettext as _t, pgettext_lazy, ugettext_lazy as _,
+)
 from django.views import generic
+from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.vary import vary_on_headers
 
@@ -45,7 +48,8 @@ from links.utils import create_unique_url
 from .auth import ADMIN, OWNER, SUPERVISOR, AuthMixin
 from .forms import (
     EmailStaffUpdateForm, EmailUpdateForm, MassMailForm,
-    SystemPasswordChangeForm, UsernameUpdateForm, UserRegistrationForm,
+    SystemPasswordChangeForm, UserAuthenticationForm,
+    UsernameUpdateForm, UserRegistrationForm,
 )
 from .mixins import LoginRequiredMixin, UserModifyMixin, flatpages_as_templates
 from .models import Agreement, SiteConfiguration
@@ -69,10 +73,13 @@ class HomeView(generic.TemplateView):
 
 
 class LoginView(LoginBuiltinView):
-    # This view enables support for both a custom URL parameter name
-    # for redirection, as well as the built-in one (`next`). This is
-    # needed for third-party libraries that use Django's functions
-    # such as the `login_required` decorator, and cannot be customised.
+    """
+    This view enables support for both a custom URL parameter name
+    for redirection, as well as the built-in one (`next`). This is
+    needed for third-party libraries that use Django's functions
+    such as the `login_required` decorator, and cannot be customised.
+    """
+    authentication_form = UserAuthenticationForm
     redirect_authenticated_user = True
     redirect_field_name = settings.REDIRECT_FIELD_NAME
 
@@ -127,6 +134,51 @@ class RegisterView(generic.CreateView):
         login(self.request, user)
         messages.success(self.request, _("You are logged in."))
         return result
+
+
+class AccountRestoreRequestView(generic.TemplateView):
+    template_name = '200.html'
+
+    @never_cache
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            # Only anonymous (non-authenticated) users are expected to access this page.
+            return HttpResponseRedirect(self.get_authenticated_redirect_url())
+        request_id = request.session.pop('restore_request_id', None)
+        if request_id is None or not isinstance(request_id[1], float):
+            # When the restore request ID is missing or invalid, just show the login page.
+            return HttpResponseRedirect(reverse_lazy('login'))
+        if datetime.now() - datetime.fromtimestamp(request_id[1]) > timedelta(hours=1):
+            # When the restore request ID is expired (older than 1 hour), redirect to the login page.
+            # This is to prevent abuse, when the user leaves their browser or device open and
+            # a different person attempts to (mis)use the restoration request functionality...
+            messages.warning(self.request, _("Something misfunctioned. Please log in again and retry."))
+            return HttpResponseRedirect(reverse_lazy('login'))
+        # Otherwise, send mail to admins.
+        send_mail(
+            _t("Note to admin: User requests to reactivate their account; ref: {}.").format(request_id[0]),
+            "--",
+            None,
+            ['{} <{}>'.format(nick, addr) for nick, addr in settings.ADMINS],
+            fail_silently=False)
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_authenticated_redirect_url(self):
+        redirect_to = sanitize_next(self.request)
+        if redirect_to:
+            return redirect_to
+        try:
+            # When user is already authenticated, redirect to profile's page.
+            return self.request.user.profile.get_absolute_url()
+        except Profile.DoesNotExist:
+            # If profile does not exist yet, redirect to home.
+            return reverse_lazy('home')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['success_message'] = _("An administrator will contact you soon.")
+        return context
 
 
 @flatpages_as_templates

@@ -60,3 +60,5 @@ if DEBUG:
     EMAIL_HOST = '127.0.0.1'
     EMAIL_PORT = '1025'
     INTERNAL_IPS = ('127.0.0.1',)
+
+EMAIL_SUBJECT_PREFIX = '[PS test] '

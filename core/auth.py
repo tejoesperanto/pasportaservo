@@ -39,6 +39,13 @@ class SupervisorAuthBackend(ModelBackend):
 
     _perm_sv_particular_re = re.compile(r'^%s\.[A-Z]{2}$' % PERM_SUPERVISOR.replace('.', '\\.'), re.I)
 
+    def user_can_authenticate(self, user):
+        """
+        Allow all logins. The actual policy will be handled by the AuthenticationForm's
+        method confirm_login_allowed().
+        """
+        return True
+
     def get_user_supervisor_of(self, user_obj, obj=None, code=False):
         """
         Calculate responsibilities, globally or for an optional object.

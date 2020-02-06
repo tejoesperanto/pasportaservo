@@ -8,9 +8,9 @@ from django.views.generic import TemplateView
 
 from .forms import SystemPasswordResetForm, SystemPasswordResetRequestForm
 from .views import (
-    AgreementRejectView, AgreementView, EmailUpdateView,
-    EmailVerifyView, HomeView, LoginView, MassMailSentView,
-    MassMailView, PasswordChangeDoneView,
+    AccountRestoreRequestView, AgreementRejectView, AgreementView,
+    EmailUpdateView, EmailVerifyView, HomeView, LoginView,
+    MassMailSentView, MassMailView, PasswordChangeDoneView,
     PasswordChangeView, RegisterView, UsernameChangeView,
 )
 
@@ -19,6 +19,7 @@ urlpatterns = [
 
     url(_(r'^register/$'), RegisterView.as_view(), name='register'),
     url(_(r'^login/$'), view=LoginView.as_view(), name='login'),
+    url(_(r'^login/reactivate/$'), view=AccountRestoreRequestView.as_view(), name='login_restore'),
     url(_(r'^logout/$'), view=LogoutView.as_view(next_page='/'), name='logout'),
 
     url(_(r'^agreement/'), include([
