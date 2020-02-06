@@ -3,7 +3,7 @@
 {% load next from utils %}
 
 {% block hero_title %}200{% endblock %}
-{% block hero_subtitle %}{% trans "OK" %}{% endblock %}
+{% block hero_subtitle %}{% trans "OK" %}{% if success_message %} : {{ success_message }}{% endif %}{% endblock %}
 
 {% block nav-skip %}{% endblock %}
 

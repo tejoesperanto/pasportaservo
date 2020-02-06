@@ -147,6 +147,20 @@ msgstr ""
 "Protekto kontraŭ aŭtomatigitaj registriĝoj. Certiĝu ke tiu ĉi kampo restas "
 "tute malplena."
 
+msgid ""
+"Please enter the correct username and password. Note that both fields are "
+"case-sensitive ('aBc' is different from 'abc')."
+msgstr ""
+"Bonvole enigu ĝustajn salutnomon kaj pasvorton. Notu, ke ambaŭ kampoj estas "
+"uskleco-distingaj (‘aBc’ ne estas la sama kiel ‘abc’)."
+
+#, python-format
+msgid ""
+"Would you like to re-enable it? <a href=\"%(url)s\">Inform an administrator."
+"</a>"
+msgstr ""
+"Ĉu vi ŝatus reaktivigi ĝin? <a href=\"%(url)s\">Informi administranton.</a>"
+
 msgid "[Pasporta Servo] Change of email address"
 msgstr "[Pasporta Servo] Retpoŝtadreso ĉe retejo ŝanĝita"
 
@@ -625,6 +639,9 @@ msgstr ""
 msgid "Choose password"
 msgstr "Elekti pasvorton"
 
+msgid "An administrator will contact you soon."
+msgstr "Administranto baldaŭ kontaktiĝos kun vi."
+
 #, python-format
 msgid ""
 "You're receiving this email in order to verify your email address at "
@@ -644,8 +661,8 @@ msgctxt "Title"
 msgid "Log In"
 msgstr "Ensaluto"
 
-msgid "Log in with your username and password."
-msgstr "Ensalutu per via uzantnomo kaj pasvorto"
+msgid "Log in with your username and password"
+msgstr "Ensalutu per via uzanto-nomo kaj pasvorto"
 
 msgid "Forgot password?"
 msgstr "Mi forgesis mian pasvorton"
@@ -739,6 +756,9 @@ msgstr "^registrado/$"
 msgid "^login/$"
 msgstr "^ensaluti/$"
 
+msgid "^login/reactivate/$"
+msgstr "^ensaluti/reaktivigo/$"
+
 msgid "^logout/$"
 msgstr "^elsaluti/$"
 
@@ -780,6 +800,13 @@ msgstr "^ĉu$"
 
 msgid "You are logged in."
 msgstr "Vi nun estas ensalutinta."
+
+msgid "Something misfunctioned. Please log in again and retry."
+msgstr "Io misfunkciis. Bonvole ensalutu denove kaj reprovu."
+
+#, python-brace-format
+msgid "Note to admin: User requests to reactivate their account; ref: {}."
+msgstr "Sciigo al admino: Uzanto petas reaktivigi sian PS-konton; ref: {}."
 
 msgid "Farewell !"
 msgstr "Adiaŭ !"

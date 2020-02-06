@@ -1,10 +1,13 @@
 import logging
+from datetime import datetime
+from uuid import uuid4
 
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import (
-    PasswordChangeForm, PasswordResetForm, SetPasswordForm, UserCreationForm,
+    AuthenticationForm, PasswordChangeForm,
+    PasswordResetForm, SetPasswordForm, UserCreationForm,
 )
 from django.contrib.auth.hashers import UNUSABLE_PASSWORD_PREFIX
 from django.core.exceptions import NON_FIELD_ERRORS
@@ -12,6 +15,7 @@ from django.core.mail import send_mail
 from django.db.models import Q, Value as V
 from django.db.models.functions import Concat, Lower
 from django.template.loader import get_template
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 
@@ -162,6 +166,40 @@ class UserRegistrationForm(UsernameFormMixin, PasswordFormMixin, SystemEmailForm
             user.save()
         return user
     save.alters_data = True
+
+
+class UserAuthenticationForm(AuthenticationForm):
+    def __init__(self, request=None, *args, **kwargs):
+        super().__init__(request, *args, **kwargs)
+        self.error_messages['invalid_login'] = _(
+            "Please enter the correct username and password. "
+            "Note that both fields are case-sensitive "
+            "('aBc' is different from 'abc')."
+        )
+
+    def confirm_login_allowed(self, user):
+        """
+        Allow full login by active users, and inform inactive users that their
+        account is disabled and they can request and admin to re-enable it.
+        """
+        if not user.is_active:
+            case_id = str(uuid4()).upper()
+            logging.getLogger('PasportaServo.auth').warning(
+                "User '{u.username}' tried to log in, but the account is deactivated [{cid}]."
+                .format(u=user, cid=case_id)
+            )
+            self.request.session['restore_request_id'] = (case_id, datetime.now().timestamp())
+            raise forms.ValidationError([
+                forms.ValidationError(
+                    self.error_messages['inactive'],
+                    code='inactive',
+                ),
+                forms.ValidationError(
+                    _("Would you like to re-enable it? <a href=\"%(url)s\">Inform an administrator.</a>"),
+                    code='restore_hint',
+                    params={'url': reverse('login_restore')},
+                ),
+            ])
 
 
 class UsernameUpdateForm(UsernameFormMixin, forms.ModelForm):
