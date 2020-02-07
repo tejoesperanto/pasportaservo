@@ -290,9 +290,9 @@ class SystemPasswordResetRequestForm(PasswordResetForm):
         Given an email address, returns a matching user who should receive
         a reset message.
         """
-        active_users = User._default_manager.filter(is_active=True)
+        users = User._default_manager.filter()
         invalid_email = Concat(V(settings.INVALID_PREFIX), V(email))
-        lookup_users = active_users.filter(Q(email__iexact=email) | Q(email__iexact=invalid_email))
+        lookup_users = users.filter(Q(email__iexact=email) | Q(email__iexact=invalid_email))
 
         def remove_invalid_prefix(user):
             user.email = value_without_invalid_marker(user.email)
@@ -304,6 +304,24 @@ class SystemPasswordResetRequestForm(PasswordResetForm):
             u for u in lookup_users
             if u.password is not None and not u.password.startswith(UNUSABLE_PASSWORD_PREFIX)
         ))
+
+    def send_mail(self,
+                  subject_template_name, email_template_name, context, *args,
+                  html_email_template_name=None, **kwargs):
+        user_is_active = context['user'].is_active
+        html_email_template_name = html_email_template_name[user_is_active]
+        email_template_name = email_template_name[user_is_active]
+        if not user_is_active:
+            case_id = str(uuid4()).upper()
+            logging.getLogger('PasportaServo.auth').warning(
+                "User '{u.username}' tried to reset the login password, but the account is deactivated [{cid}]."
+                .format(u=context['user'], cid=case_id)
+            )
+            context['restore_request_id'] = case_id
+
+        args = [subject_template_name, email_template_name, context, *args]
+        kwargs.update(html_email_template_name=html_email_template_name)
+        super().send_mail(*args, **kwargs)
 
 
 class SystemPasswordResetForm(PasswordFormMixin, SetPasswordForm):

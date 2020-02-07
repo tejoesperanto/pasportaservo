@@ -8,6 +8,7 @@ from django.contrib.auth.views import (
     LoginView as LoginBuiltinView,
     PasswordChangeDoneView as PasswordChangeDoneBuiltinView,
     PasswordChangeView as PasswordChangeBuiltinView,
+    PasswordResetView as PasswordResetBuiltinView,
 )
 from django.contrib.flatpages.models import FlatPage
 from django.core.mail import send_mail
@@ -270,6 +271,17 @@ class AgreementRejectView(LoginRequiredMixin, generic.TemplateView):
             agreement.update(withdrawn=now)
         messages.info(request, _("Farewell !"))
         return HttpResponseRedirect(reverse_lazy('home'))
+
+
+class PasswordResetView(PasswordResetBuiltinView):
+    """
+    This extension of Django's built-in view allows to send a different
+    email depending on whether the user is active (True) or no (False).
+    See also the companion SystemPasswordResetRequestForm.
+    """
+    html_email_template_name = {True: 'email/password_reset.html', False: 'email/password_reset_activate.html'}
+    email_template_name = {True: 'email/password_reset.txt', False: 'email/password_reset_activate.txt'}
+    subject_template_name = 'email/password_reset_subject.txt'
 
 
 class PasswordChangeView(LoginRequiredMixin, PasswordChangeBuiltinView):

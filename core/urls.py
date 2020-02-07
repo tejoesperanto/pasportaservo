@@ -1,17 +1,19 @@
 from django.conf.urls import include, url
 from django.contrib.auth.views import (
-    LogoutView, PasswordResetCompleteView, PasswordResetConfirmView,
-    PasswordResetDoneView, PasswordResetView,
+    LogoutView, PasswordResetCompleteView,
+    PasswordResetConfirmView, PasswordResetDoneView,
 )
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView
 
 from .forms import SystemPasswordResetForm, SystemPasswordResetRequestForm
-from .views import (
-    AccountRestoreRequestView, AgreementRejectView, AgreementView,
-    EmailUpdateView, EmailVerifyView, HomeView, LoginView,
-    MassMailSentView, MassMailView, PasswordChangeDoneView,
-    PasswordChangeView, RegisterView, UsernameChangeView,
+
+from .views import (  # isort:skip
+    HomeView, RegisterView, LoginView, AccountRestoreRequestView, PasswordResetView,
+    AgreementView, AgreementRejectView,
+    PasswordChangeView, PasswordChangeDoneView, UsernameChangeView,
+    EmailUpdateView, EmailVerifyView,
+    MassMailView, MassMailSentView,
 )
 
 urlpatterns = [
@@ -34,9 +36,6 @@ urlpatterns = [
             url(r'^$',
                 view=PasswordResetView.as_view(
                     form_class=SystemPasswordResetRequestForm,
-                    html_email_template_name='email/password_reset.html',
-                    email_template_name='email/password_reset.txt',
-                    subject_template_name='email/password_reset_subject.txt',
                 ),
                 name='password_reset'),
             url(_(r'^sent/$'), view=PasswordResetDoneView.as_view(), name='password_reset_done'),

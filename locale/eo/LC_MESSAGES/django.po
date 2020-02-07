@@ -639,6 +639,20 @@ msgstr ""
 msgid "Choose password"
 msgstr "Elekti pasvorton"
 
+msgid "You would like to set a new login password."
+msgstr "Vi ŝatus agordi novan ensalutan pasvorton."
+
+msgid ""
+"Unfortunately, you deactivated your account previously, and first it needs "
+"to be re-activated."
+msgstr ""
+"Bedaŭrinde vi malaktivigis vian konton en la pasinteco, kaj unue necesas ĝin "
+"restarigi."
+
+msgid ""
+"Reply to this email message if you would like to re-activate the account;"
+msgstr "Respondu al tiu ĉi retpoŝta mesaĝo se vi ŝatus re-aktivigi la konton;"
+
 msgid "An administrator will contact you soon."
 msgstr "Administranto baldaŭ kontaktiĝos kun vi."
 
