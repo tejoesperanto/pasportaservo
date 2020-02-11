@@ -1,0 +1,17 @@
+{% load i18n %}{% load compact from utils %}{% autoescape off %}
+{% filter compact %}
+    {% if user.profile %}
+        {% blocktrans with user_first_name=user.profile.name|default:user.username trimmed %}
+            Dear {{ user_first_name }},
+        {% endblocktrans %}
+    {% else %}
+        {% trans "Dear user," %}
+    {% endif %}
+{% endfilter %}
+
+{% block information %}{% trans "Your username, in case you've forgotten:" %} {{ user.username }}{% endblock %}
+{% block additional_information %}{% endblock %}
+
+{% trans "Thanks for using our site!" %}
+{% blocktrans %}The {{ site_name }} team.{% endblocktrans %}
+{% endautoescape %}

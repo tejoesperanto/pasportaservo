@@ -1,23 +1,23 @@
 {% extends 'core/base_form.html' %}
-{% load i18n %}
+{% load i18n bootstrap %}
 
-{% block head_title %}{% trans "Password reset" %}{% endblock %}
+{% block head_title %}{% trans "Username" %}{% endblock %}
 {% block head_title_separator %}{% trans "at" %}{% endblock %}
 
-{% block form_title %}{% trans "Password reset" %}{% endblock %}
+{% block form_title %}{% trans "Username reminder" %}{% endblock %}
 {% block form_tip_after %}
     <p class="tip justified">
-        {% blocktrans with field=_("password") trimmed %}
+        {% blocktrans with field=_("username") trimmed %}
             Keep in mind that the field '{{ field }}' distinguishes between upper-case ('Q') and lower-case ('q') letters.
         {% endblocktrans %}
     </p>
     <p class="tip justified">
         {% blocktrans trimmed %}
-            Have you forgotten your password?
+            Have you forgotten your username?
             Enter below your email address with which you've registered,
-            and we will email instructions for setting a new one.
+            and we will email a reminder.
         {% endblocktrans %}
     </p>
 {% endblock %}
-{% block form_block_class %} password reset{% endblock %}
+{% block form_block_class %} username remind{% endblock %}
 {% block form_submit_button %}{% trans "Send" %}{% endblock %}

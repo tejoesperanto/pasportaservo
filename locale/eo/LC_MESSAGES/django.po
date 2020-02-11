@@ -159,7 +159,7 @@ msgid ""
 "Would you like to re-enable it? <a href=\"%(url)s\">Inform an administrator."
 "</a>"
 msgstr ""
-"Ĉu vi ŝatus reaktivigi ĝin? <a href=\"%(url)s\">Informi administranton.</a>"
+"Ĉu vi ŝatus ĝin reaktivigi? <a href=\"%(url)s\">Informi administranton.</a>"
 
 msgid "[Pasporta Servo] Change of email address"
 msgstr "[Pasporta Servo] Retpoŝtadreso ĉe retejo ŝanĝita"
@@ -667,6 +667,15 @@ msgstr ""
 msgid "Please go to the following page to complete the verification:"
 msgstr "Bonvole iru al la jena paĝo por finaranĝi la kontroladon:"
 
+msgid "Username"
+msgstr "Salutnomo"
+
+msgid "Log in"
+msgstr "Ensaluti"
+
+msgid "Username reminder"
+msgstr "Memorigo pri salutnomo"
+
 msgctxt "Imperative"
 msgid "Log in"
 msgstr "Ensalutu"
@@ -678,11 +687,13 @@ msgstr "Ensaluto"
 msgid "Log in with your username and password"
 msgstr "Ensalutu per via uzanto-nomo kaj pasvorto"
 
-msgid "Forgot password?"
-msgstr "Mi forgesis mian pasvorton"
-
-msgid "Log in"
-msgstr "Ensaluti"
+#, python-format
+msgid ""
+"I forgot <a href=\"%(pwd_url)s\">my password</a> or <a href=\"%(usr_url)s"
+"\">my username</a>"
+msgstr ""
+"Mi forgesis <a href=\"%(pwd_url)s\">mian pasvorton</a> aŭ <a href="
+"\"%(usr_url)s\">mian salutnomon</a>"
 
 msgid "Change password"
 msgstr "Ŝanĝi pasvorton"
@@ -732,19 +743,45 @@ msgid "New password link"
 msgstr "Nova pasvorta ligilo"
 
 msgid ""
-"We've emailed you instructions for setting your password, if an account "
-"exists with the email you entered. You should receive them shortly."
+"We've emailed you instructions for setting your password. If an account "
+"exists for the email address you provided, you should receive them shortly."
 msgstr ""
+"Ni retpoŝtis al vi instrukciojn por agordi la pasvorton. Se la konto "
+"koncerna al la retpoŝta adreso kiun vi indikis ekzistas, vi baldaŭ devus "
+"ilin ricevi."
 
 msgid ""
-"If you don't receive an email, please make sure you've entered the address "
-"you registered with, and check your spam folder."
+"If you don't receive an email message, please make sure you've entered the "
+"email address you registered with. Also, check your spam folder."
 msgstr ""
+"Se vi ne ricevas retpoŝtmesaĝon, bonvole certiĝu ke vi entajpis tiun adreson "
+"per kiu vi registriĝis. Krom tio, kontrolu vian spam-dosierujon."
+
+#, python-format
+msgid ""
+"If the instruction emails do not seem to reach you, please <a href=\"mailto:"
+"%(SUPPORT_EMAIL)s\">contact us</a>."
+msgstr ""
+"Ĉe la okazo ke la instrukciaj mesaĝoj ŝajne tute ne atingas vin, bonvolu <a "
+"href=\"mailto:%(SUPPORT_EMAIL)s\">kontakti nin</a>."
+
+msgid "password"
+msgstr "pasvorto"
+
+#, python-format
+msgid ""
+"Keep in mind that the field '%(field)s' distinguishes between upper-case "
+"('Q') and lower-case ('q') letters."
+msgstr ""
+"Memoru ke la kampo ‘%(field)s’ distingas usklecon, do inter majusk&shy;laj "
+"('E') kaj minusklaj literoj ('e')."
 
 msgid ""
-"Forgotten your password? Enter your email address below, and we'll email "
-"instructions for setting a new one."
+"Have you forgotten your password? Enter below your email address with which "
+"you've registered, and we will email instructions for setting a new one."
 msgstr ""
+"Ĉu vi forgesis vian pasvorton? Malsupre enigu vian retpoŝt&shy;adreson per "
+"kiu vi registriĝis kaj ni retpoŝte sendos instruk&shy;ciojn por agordi novan."
 
 msgid "Send"
 msgstr "Sendi"
@@ -763,6 +800,23 @@ msgstr "Krei profilon"
 msgctxt "Imperative"
 msgid "Register"
 msgstr "Registriĝu"
+
+msgid ""
+"We've emailed you a reminder of your username. If an account exists for the "
+"email address you provided, you should receive it shortly."
+msgstr ""
+"Ni retpoŝtis al vi memorigon pri via ensalutnomo. Se la konto koncerna al la "
+"retpoŝta adreso kiun vi indikis ekzistas, vi baldaŭ devus ĝin ricevi."
+
+msgid "username"
+msgstr "salutnomo"
+
+msgid ""
+"Have you forgotten your username? Enter below your email address with which "
+"you've registered, and we will email a reminder."
+msgstr ""
+"Ĉu vi forgesis vian salutnomon? Malsupre enigu vian retpoŝt&shy;adreson per "
+"kiu vi registriĝis kaj ni retpoŝte sendos memori&shy;gon."
 
 msgid "^register/$"
 msgstr "^registrado/$"
@@ -794,8 +848,11 @@ msgstr "^nova/"
 msgid "^sent/$"
 msgstr "^sukceso/$"
 
-msgid "^username/$"
-msgstr "^salutnomo/$"
+msgid "^username/"
+msgstr "^salutnomo/"
+
+msgid "^remind/"
+msgstr "^memorigo/"
 
 msgid "^email/"
 msgstr "^retadreso/"
@@ -1003,9 +1060,6 @@ msgstr "ĝis"
 
 msgid "Authorize user"
 msgstr "Permesi uzanton"
-
-msgid "username"
-msgstr "salutnomo"
 
 msgid "User does not exist"
 msgstr "Tiu ĉi uzanto ne ekzistas"
@@ -2016,9 +2070,6 @@ msgstr "Aldoni kunloĝanton"
 
 msgid "Add a phone"
 msgstr "Aldoni telefon-numeron"
-
-msgid "password"
-msgstr "pasvorto"
 
 msgctxt "Title"
 msgid "Email"

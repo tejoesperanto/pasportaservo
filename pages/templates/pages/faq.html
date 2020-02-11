@@ -17,7 +17,8 @@
                 <ul>
                     <li>
                         {% url 'password_reset' as pwd_reset_url %}
-                        Petu novan per via retpoŝta adreso ĉi tie: <a href="{{ pwd_reset_url }}">pasportaservo.org<wbr>{{ pwd_reset_url }}</a>.
+                        Petu novan per via retpoŝta adreso ĉi tie:
+                        <a href="{{ pwd_reset_url }}">pasportaservo.org<wbr>{{ pwd_reset_url }}</a>.
                     </li>
                     <li>Entajpu vian retpoŝtadreson kaj klaku “Sendi”, vi ricevos retleteron kun ligilo.</li>
                     <li>Klaku la ligilon kaj vi povos registri vian novan pasvorton.</li>
@@ -27,7 +28,14 @@
 
             {% asvar Question %}Mi forgesis mian salutnomon! Kion mi faru?{% endasvar %}
             {% asvar Answer %}
-                <a href="mailto:{{ SUPPORT_EMAIL }}">Skribu al ni</a>, kaj ni sendos al vi rememorigilon.
+                <ul>
+                    <li>
+                        {% url 'username_remind' as usr_remind_url %}
+                        Petu memorigon de la salutnomo per via retpoŝta adreso ĉi tie:
+                        <a href="{{ usr_remind_url }}">pasportaservo.org<wbr>{{ usr_remind_url }}</a>.
+                    </li>
+                    <li>Entajpu vian retpoŝtadreson kaj klaku “Sendi”, vi ricevos retleteron kun via salutnomo.</li>
+                </ul>
             {% endasvar %}
             {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 

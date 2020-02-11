@@ -626,16 +626,6 @@ header:not(.hero) #subtitle {
 .owner .register {
     margin-top: 1em;
 }
-.register label, .login label {
-    display: none;
-}
-.register .form-group:last-of-type:not(.has-error) {
-    position: absolute;
-    top: -10000px;  // hiding honeypot
-}
-p.tip {
-    font-size: 0.8em;
-}
 #map:not([role="main"]) {
     background: url('/static/img/maps/map_loading_250.gif') no-repeat center/50% black;
 }
@@ -1028,13 +1018,32 @@ footer {
 .base-form h4 {
     margin-top: 0;
 }
+.register label, .login label {
+    display: none;
+}
+.register .form-group:last-of-type:not(.has-error) {
+    position: absolute;
+    top: -10000px;  // hiding honeypot
+}
+.login .pull-right > button[type="submit"] {
+    margin-left: 1em;
+}
+p.tip {
+    font-size: 0.8em;
+}
+.base-form p.tip.justified {
+    text-align: justify;
+    -moz-text-align-last: center;
+    text-align-last: center;
+}
 
 #id_conditions_chosen .chosen-choices {
     padding: 2px;
     padding-left: 5px;
-}
-#id_conditions_chosen .chosen-choices input[type="text"] {
-    height: 26px;
+
+    input[type="text"] {
+        height: 26px;
+    }
 }
 #id_avatar {
     width: 100%;
@@ -1221,9 +1230,11 @@ footer {
         border-radius: 4px;
         /*height: 300px;*/
     }
-    form > .form-contents {
+    form > .form-contents,
+    .base-form p.tip.justified {
         width: 85%;
-        margin-left: 7.5%;
+        margin-left: auto;
+        margin-right: auto;
     }
     #page.search #georesult {
         #geoerror + .popover {

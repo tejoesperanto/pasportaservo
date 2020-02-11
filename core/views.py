@@ -50,7 +50,7 @@ from .auth import ADMIN, OWNER, SUPERVISOR, AuthMixin
 from .forms import (
     EmailStaffUpdateForm, EmailUpdateForm, MassMailForm,
     SystemPasswordChangeForm, UserAuthenticationForm,
-    UsernameUpdateForm, UserRegistrationForm,
+    UsernameRemindRequestForm, UsernameUpdateForm, UserRegistrationForm,
 )
 from .mixins import LoginRequiredMixin, UserModifyMixin, flatpages_as_templates
 from .models import Agreement, SiteConfiguration
@@ -294,6 +294,19 @@ class PasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneBuiltinView):
     # Must use the custom LoginRequired mixin, otherwise redirection
     # after the authentication will not work as expected.
     pass
+
+
+class UsernameRemindView(PasswordResetView):
+    template_name = 'registration/username_remind_form.html'
+    form_class = UsernameRemindRequestForm
+    html_email_template_name = {True: 'email/username_remind.html', False: 'email/username_remind_activate.html'}
+    email_template_name = {True: 'email/username_remind.txt', False: 'email/username_remind_activate.txt'}
+    subject_template_name = 'email/username_remind_subject.txt'
+    success_url = reverse_lazy('username_remind_done')
+
+
+class UsernameRemindDoneView(generic.TemplateView):
+    template_name = 'registration/username_remind_done.html'
 
 
 class UsernameChangeView(LoginRequiredMixin, UserModifyMixin, generic.UpdateView):

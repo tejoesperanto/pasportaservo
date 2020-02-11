@@ -9,7 +9,8 @@ from django.views.generic import TemplateView
 from .forms import SystemPasswordResetForm, SystemPasswordResetRequestForm
 
 from .views import (  # isort:skip
-    HomeView, RegisterView, LoginView, AccountRestoreRequestView, PasswordResetView,
+    HomeView, RegisterView, LoginView, AccountRestoreRequestView,
+    PasswordResetView, UsernameRemindView, UsernameRemindDoneView,
     AgreementView, AgreementRejectView,
     PasswordChangeView, PasswordChangeDoneView, UsernameChangeView,
     EmailUpdateView, EmailVerifyView,
@@ -47,7 +48,13 @@ urlpatterns = [
             url(_(r'^done/$'), view=PasswordResetCompleteView.as_view(), name='password_reset_complete'),
         ])),
     ])),
-    url(_(r'^username/$'), UsernameChangeView.as_view(), name='username_change'),
+    url(_(r'^username/'), include([
+        url(r'^$', UsernameChangeView.as_view(), name='username_change'),
+        url(_(r'^remind/'), include([
+            url(r'^$', view=UsernameRemindView.as_view(), name='username_remind'),
+            url(_(r'^sent/$'), view=UsernameRemindDoneView.as_view(), name='username_remind_done'),
+        ])),
+    ])),
     url(_(r'^email/'), include([
         url(r'^$', EmailUpdateView.as_view(), name='email_update'),
         url(_(r'^verify/$'), EmailVerifyView.as_view(), name='email_verify'),

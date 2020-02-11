@@ -1,0 +1,17 @@
+{% extends "email/base_email.html" %}
+{% load i18n domain %}
+
+{% block heading %}{% trans "Username" %}{% endblock %}
+
+{% block preheader %}
+    {% trans "Your username, in case you've forgotten:" %} {{ user.username }}
+{% endblock preheader %}
+
+{% block body %}
+    {% trans "Your username, in case you've forgotten:" %} <em>{{ user.username }}</em>
+{% endblock body %}
+
+{% block call_to_action %}
+    {% url 'login' as url %}{% trans "Log in" as text %}
+    {% include "email/snippets/button.html" %}
+{% endblock %}
