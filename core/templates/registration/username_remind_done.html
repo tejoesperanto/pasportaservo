@@ -1,16 +1,15 @@
 {% extends 'core/base.html' %}
 {% load i18n %}
 
-{% block head_title %}{% trans "Password reset" %}{% endblock %}
+{% block head_title %}{% trans "Username" %}{% endblock %}
 {% block head_title_separator %}{% trans "at" %}{% endblock %}
 
 {% block page %}
-    <h1 class="text-center">{% trans "Password reset" %}</h1>
+    <h1 class="text-center">{% trans "Username reminder" %}</h1>
     <h3 class="text-center">
         {% blocktrans trimmed %}
-            We've emailed you instructions for setting your password.
-            If an account exists for the email address you provided,
-            you should receive them shortly.
+            We've emailed you a reminder of your username. If an account exists
+            for the email address you provided, you should receive it shortly.
         {% endblocktrans %}
     </h3>
     <br />

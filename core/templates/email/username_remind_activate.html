@@ -1,0 +1,13 @@
+{% extends 'email/password_reset_activate.html' %}
+{% load i18n %}
+
+{% block heading %}{% trans "Username" %}{% endblock %}
+
+{% block preheader %}
+    {% trans "Your username, in case you've forgotten:" %} {{ user.username }}
+{% endblock preheader %}
+
+{% block information %}
+        {% trans "Your username, in case you've forgotten:" %} <em>{{ user.username }}</em>
+            <br />
+{% endblock %}

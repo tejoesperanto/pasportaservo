@@ -24,8 +24,11 @@
 {% endblock %}
 
 {% block fields_after %}
-    <p class="pull-left text-left">
-        <a href="{% url 'password_reset' %}">{% trans "Forgot password?" %}</a>
+    <p class="pull-left text-left keep-margin">
+        {% url 'password_reset' as password_reset_url %}{% url 'username_remind' as username_remind_url %}
+        {% blocktrans with pwd_url=password_reset_url usr_url=username_remind_url trimmed %}
+            I forgot <a href="{{ pwd_url }}">my password</a> or <a href="{{ usr_url }}">my username</a>
+        {% endblocktrans %}
     </p>
 {% endblock %}
 {% block form_submit_button %}{% trans "Log in" %}{% endblock %}

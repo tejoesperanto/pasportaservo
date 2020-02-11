@@ -285,6 +285,8 @@ class EmailStaffUpdateForm(SystemEmailFormMixin, forms.ModelForm):
 
 
 class SystemPasswordResetRequestForm(PasswordResetForm):
+    admin_inactive_user_notification = "User '{u.username}' tried to reset the login password"
+
     def get_users(self, email):
         """
         Given an email address, returns a matching user who should receive
@@ -314,7 +316,7 @@ class SystemPasswordResetRequestForm(PasswordResetForm):
         if not user_is_active:
             case_id = str(uuid4()).upper()
             logging.getLogger('PasportaServo.auth').warning(
-                "User '{u.username}' tried to reset the login password, but the account is deactivated [{cid}]."
+                (self.admin_inactive_user_notification + ", but the account is deactivated [{cid}].")
                 .format(u=context['user'], cid=case_id)
             )
             context['restore_request_id'] = case_id
@@ -337,6 +339,10 @@ class SystemPasswordResetForm(PasswordFormMixin, SetPasswordForm):
 
 class SystemPasswordChangeForm(PasswordFormMixin, PasswordChangeForm):
     analyze_password_field = 'new_password1'
+
+
+class UsernameRemindRequestForm(SystemPasswordResetRequestForm):
+    admin_inactive_user_notification = "User '{u.username}' requested a reminder of the username"
 
 
 class MassMailForm(forms.Form):
