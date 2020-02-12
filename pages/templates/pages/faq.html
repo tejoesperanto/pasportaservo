@@ -1,9 +1,10 @@
 {% extends 'core/base.html' %}
-{% load i18n static variable %}
+{% load i18n variable %}
 
 {% block head_title %}Oftaj demandoj{% endblock %}
 
 {% block page_class %} page{% endblock %}
+{% block page_microdata %}itemscope itemtype="https://schema.org/FAQPage"{% endblock %}
 
 {% block page %}
     <h1>Oftaj Demandoj</h1>
@@ -12,29 +13,31 @@
     <section aria-labelledby="faq-registration">
         <h3 id="faq-registration" name="pri-registrigho">Pri kaj post la registriĝo.</h3>
         <dl class="list-group">
-            <dt class="list-group-item list-group-item-info">Mi forgesis mian pasvorton! Kion mi faru?</dt>
-            <dd class="list-group-item">
+            {% asvar Question %}Mi forgesis mian pasvorton! Kion mi faru?{% endasvar %}
+            {% asvar Answer %}
                 <ul>
                     <li>
                         {% url 'password_reset' as pwd_reset_url %}
-                        Petu novan per via retpoŝta adreso ĉi tie: <a href="{{ pwd_reset_url }}">pasportaservo.org{{ pwd_reset_url }}</a>.
+                        Petu novan per via retpoŝta adreso ĉi tie: <a href="{{ pwd_reset_url }}">pasportaservo.org<wbr>{{ pwd_reset_url }}</a>.
                     </li>
                     <li>Entajpu vian retpoŝtadreson kaj klaku “Sendi”, vi ricevos retleteron kun ligilo.</li>
                     <li>Klaku la ligilon kaj vi povos registri vian novan pasvorton.</li>
                 </ul>
-            </dd>
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 
-            <dt class="list-group-item list-group-item-info">Mi forgesis mian salutnomon! Kion mi faru?</dt>
-            <dd class="list-group-item">
+            {% asvar Question %}Mi forgesis mian salutnomon! Kion mi faru?{% endasvar %}
+            {% asvar Answer %}
                 <a href="mailto:{{ contact_email }}">Skribu al ni</a>, kaj ni sendos al vi rememorigilon.
-            </dd>
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 
-            <dt class="list-group-item list-group-item-info">Mia retadreso ne plu aktualas / mi volas ŝanĝi mian registritan retadreson. Kion mi faru?</dt>
-            <dd class="list-group-item">
+            {% asvar Question %}Mia retadreso ne plu aktualas / mi volas ŝanĝi mian registritan retadreson. Kion mi faru?{% endasvar %}
+            {% asvar Answer %}
                 <ul>
                     <li>
                         {% url 'email_update' as email_update_url %}
-                        Provizu vian novan retpoŝtan adreson ĉi tie: <a href="{{ email_update_url }}">pasportaservo.org{{ email_update_url }}</a>.
+                        Provizu vian novan retpoŝtan adreson ĉi tie: <a href="{{ email_update_url }}">pasportaservo.org<wbr>{{ email_update_url }}</a>.
                     </li>
                     <li>
                         Atentu ke vi devas klaki la ligilon en konfirma retletero kiun ni sendos al la nova adreso,
@@ -47,13 +50,15 @@
                         Se vi ne ricevas la konfirman retleteron, <a href="mailto:{{ contact_email }}">skribu al ni</a>.
                     </li>
                 </ul>
-            </dd>
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 
-            <dt class="list-group-item list-group-item-info">Kie estas la mapo de gastigantoj?</dt>
-            <dd class="list-group-item">
+            {% asvar Question %}Kie estas la mapo de gastigantoj?{% endasvar %}
+            {% asvar Answer %}
                 La mapo estas esplorebla <a href="{% url 'world_map' %}">ĉi tie</a>.
                 Ĉiun fojon kiam vi serĉas gastigantojn, vi vidos ankaŭ ligilon al la mapo de la petata regiono.
-            </dd>
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
         </dl>
     </section>
 
@@ -62,21 +67,24 @@
     <section aria-labelledby="faq-reasons">
         <h3 id="faq-reasons" name="kial-gastiganto">Kial mi fariĝu gastiganto?</h3>
         <dl class="list-group">
-            <dt class="list-group-item list-group-item-info">Sed mi jam gastigas eĉ sen esti en la Pasporta Servo!</dt>
-            <dd class="list-group-item">
-                Se vi oficiale aperas en la Pasporta Servo, ankaŭ novuloj povas vin trovi.
-            </dd>
+            {% asvar Question %}Sed mi jam gastigas eĉ sen esti en la Pasporta Servo!{% endasvar %}
+            {% asvar Answer %}
+                Se vi oficiale aperas en Pasporta Servo, ankaŭ novuloj kaj homoj el aliaj anguloj de la planedo
+                povas vin trovi.
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 
-            <dt class="list-group-item list-group-item-info">Sed venos tro da gastoj, se mi estos en la gastiganto-listo!</dt>
-            <dd class="list-group-item">
+            {% asvar Question %}Sed venos tro da gastoj, se mi estos en la gastiganto-listo!{% endasvar %}
+            {% asvar Answer %}
                 Vi ĉiam rajtas rifuzi tranokto-peton sen klarigi kial.
-            </dd>
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 
-            <dt class="list-group-item list-group-item-info">Sed mi ne povas gastigi la tutan jaron, mi ne ofte estas hejme.</dt>
-            <dd class="list-group-item">
+            {% asvar Question %}Sed mi ne povas gastigi la tutan jaron, mi ne ofte estas hejme.{% endasvar %}
+            {% asvar Answer %}
                 La gastoj ĉiam devas anonci sin antaŭ ol veni al vi, do vi vidos, ĉu vi tiam estos hejme aŭ ne.
-            </dd>
-            <dd class="list-group-item">
+            {% endasvar %}
+            {% asvar AnswerAlt %}
                 Vi krome povas indiki ĉe via loĝejo periodon kiam vi ne havas eblecon gastigi, se vi anticipe konas la datojn.
                 <br />
                 En via <a href="{% url 'profile_redirect' %}">profilo</a> estas la “Loĝejo”-parto de la paĝo.
@@ -84,33 +92,39 @@
                 Aperos la paĝo de via loĝejo, tie klaku sur la butono
                 <span class="btn btn-default btn-sm disabled"><span class="sr-only">Maldisponebla?</span><span class="fa fa-clock-o" aria-hidden="true"></span></span>.
                 Elektu la datojn kiam via maldisponebleco komenciĝas kaj/aŭ finiĝas.
-            </dd>
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer Answer_Alt1=AnswerAlt only %}
 
-            <dt class="list-group-item list-group-item-info">Eĉ se mi havas dormlokon, mi ne havas tempon/emon prizorgi gasto(j)n.</dt>
-            <dd class="list-group-item">
+            {% asvar Question %}Eĉ se mi havas dormlokon, mi ne havas tempon aŭ emon prizorgi gasto(j)n.{% endasvar %}
+            {% asvar Answer %}
                 La gastoj devas esti memstaraj. La ideo de Pasporta Servo estas, ke oni helpas pri la tranoktado,
                 ĉiu aldona bonkoreco&thinsp;/&thinsp;servo&thinsp;/&thinsp;ĉiĉeronado dependas de la gastiganto.
                 Se vi ne havas tempon/emon, do vi ne havas. Neniu devigas vin tion fari.
-            </dd>
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 
-            <dt class="list-group-item list-group-item-info">Sed mi ne havas apartan gastoĉambron aŭ liton. Mi nur povas plankon proponi.</dt>
-            <dd class="list-group-item">
+            {% asvar Question %}Sed mi ne havas apartan gastoĉambron aŭ liton. Mi nur povas plankon proponi.{% endasvar %}
+            {% asvar Answer %}
                 Ankaŭ tute bone! Indiku ekzakte kiajn kondiĉojn vi havas, kaj la gastoj devos akcepti tion.
-            </dd>
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 
-            <dt class="list-group-item list-group-item-info">Sed mi loĝas en tiom fora loko, ke neniu venus al mia urbo!</dt>
-            <dd class="list-group-item">
+            {% asvar Question %}Sed mi loĝas en tiom fora loko, ke neniu venus al mia urbo!{% endasvar %}
+            {% asvar Answer %}
                 Invitu la gastojn al vi! Uzu frapan rimarkon apud via adreso kial indas viziti vin kaj la ĉirkaŭaĵon.
-            </dd>
-            <dd class="list-group-item">
+            {% endasvar %}
+            {% asvar AnswerAlt %}
                 Proponu aktivecon! Skribu bonvenan teksteton.
                 Kontaktu aliajn gastigantojn en via regiono por povi proponi plurajn lokojn proksime.
-            </dd>
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer Answer_Alt1=AnswerAlt only %}
 
-            <dt class="list-group-item list-group-item-info">Sed mi ne volas aranĝi invitleteron por gastoj!</dt>
-            <dd class="list-group-item">
-                Tion vi tute ne devas fari. Se iu petas vin, simple rifuzu.
-            </dd>
+            {% asvar Question %}Sed mi ne volas aranĝi invitleteron por gastoj!{% endasvar %}
+            {% asvar Answer %}
+                Tion vi tute ne devas fari. Ajnajn formalaĵojn rilatajn al vizoj aŭ restadpermesoj k.s.,
+                la gastoj devas prizorgi per propraj rimedoj. Se iu petas vin, simple rifuzu.
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
         </dl>
     </section>
 
@@ -119,39 +133,52 @@
     <section aria-labelledby="faq-being-guest">
         <h3 id="faq-being-guest" name="pri-gastoj">Se vi estas gasto&hellip;</h3>
         <dl class="list-group">
-            <dt class="list-group-item list-group-item-info">Ĉu estas limo pri kiom da adresoj aŭ tranoktebloj mi rajtas uzi?</dt>
-            <dd class="list-group-item">
+            {% asvar Question %}Ĉu estas limo pri kiom da adresoj aŭ tranoktebloj mi rajtas uzi?{% endasvar %}
+            {% asvar Answer %}
                 Ne, ne ekzistas limo. Ĉiam dependas de la unuopaj gastigantoj, ĉu ili povas vin gastigi aŭ ne.
-            </dd>
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 
-            <dt class="list-group-item list-group-item-info">Ĉu mi vere, ĉiam devas antaŭe kontakti la gastigantojn?</dt>
-            <dd class="list-group-item">
+            {% asvar Question %}Ĉu mi vere, ĉiam devas antaŭe kontakti la gastigantojn?{% endasvar %}
+            {% asvar Answer %}
                 Kelkaj gastigantoj pretas akcepti gastojn sen antaŭa anonco, sed nur por malmultaj tio estas tute akceptebla.
                 <br />
                 En la paĝo de loĝloko (kaj en la libreto, apud la adreso) vi ĉiam vidas la kondiĉojn indikitajn de la gastiganto.
                 Se oni petas interkonsenton kontakti pli frue telefone, do faru tion; se retletere, tion.
                 <br />
                 Bonvolu ĉiam respekti la petitajn limigojn de la gastiganto.
-            </dd>
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 
-            <dt class="list-group-item list-group-item-info">Kiom da tempo mi rajtas resti ĉe la gastiganto?</dt>
-            <dd class="list-group-item">
+            {% asvar Question %}Kiom da tempo mi rajtas resti ĉe la gastiganto?{% endasvar %}
+            {% asvar Answer %}
                 Same kiel pri kontaktado, ankaŭ la resto-daŭro estas indikita.
                 Kelkaj akceptas nur por unu nokto; okazas, ke tute ne gravas por la gastiganto kiom longe vi restas.
                 Vi antaŭanoncu kiom da noktoj vi deziras resti, kaj nepre interkonsentu.
-            </dd>
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 
-            <dt class="list-group-item list-group-item-info">Kion mi faru se gastiganto rifuzas mian tranokto-peton?</dt>
-            <dd class="list-group-item">
-                Tio kelkfoje okazas. Oni ne ĉiam havas tempon kaj la kondiĉojn gastigi. Serĉu alian gastiganton.
-            </dd>
+            {% asvar Question %}Kion mi faru se gastiganto rifuzas mian tranokto-peton?{% endasvar %}
+            {% asvar Answer %}
+                Tio foje okazas. Oni ne ĉiam havas tempon kaj la kondiĉojn gastigi. Serĉu alian gastiganton.
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 
-            <dt class="list-group-item list-group-item-info">Ĉu mia gastiganto ankaŭ donos al mi manĝaĵon?</dt>
-            <dd class="list-group-item">
+            {% asvar Question %}Ĉu mia gastiganto ankaŭ donos al mi manĝaĵon?{% endasvar %}
+            {% asvar Answer %}
                 Denove, tio estas laŭ interkonsento.
                 La gastiganto rajtas peti repagon por la manĝado, sed la gastiganto tute ne devas proponi manĝojn.
                 Vi, kiel gasto, povas proponi kuiri aŭ prepari kune!
-            </dd>
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
+
+            {% asvar Question %}Ĉu mia gastiganto helpos min akiri vizon aŭ restadpermeson?{% endasvar %}
+            {% asvar Answer %}
+                Ne. La ideo de Pasporta Servo estas, ke oni helpas pri la tranoktado, en neformala maniero.
+                Gastigantoj ne povas (kaj foje eĉ ne rajtas) respondeci pri vi antaŭ la instancoj de sia lando.
+                Ĉiujn oficialajn paperojn necesajn por laŭleĝa restado en la lando, vi devas aranĝi formale, mem.
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
         </dl>
     </section>
 
@@ -160,36 +187,45 @@
     <section aria-labelledby="faq-printed-edition">
         <h3 id="faq-printed-edition" name="libreto">Pasporta Servo &ndash; libra versio.</h3>
         <dl class="list-group">
-            <dt class="list-group-item list-group-item-info">Kiel mi scias, ke mi aperos en la libro?</dt>
-            <dd class="list-group-item">
+            {% asvar Question %}Kiel mi sciu, ke mi aperos en la libro?{% endasvar %}
+            {% asvar Answer %}
                 En la paĝo de via loĝejo, sube, “printi en la PS-libreto”: devas esti <strong>jes</strong>.
                 <br />
-                Krome, se vi estis ĝis nun en la libreto, kaj vi denove volas aperi en ĝi, vi konfirmu per la retletero, kiun ni sendos al vi.
-            </dd>
+                Krome, se vi estis ĝis nun en la libreto, kaj vi denove volas aperi en ĝi,
+                vi konfirmu per la retletero, kiun ni sendos al vi.
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 
-            <dt class="list-group-item list-group-item-info">Mi ne plu volas aperi en la libro. Kion mi faru?</dt>
-            <dd class="list-group-item">
+            {% asvar Question %}Mi ne plu volas aperi en la libro. Kion mi faru?{% endasvar %}
+            {% asvar Answer %}
                 En via <a href="{% url 'profile_redirect' %}">profilo</a> estas la “Loĝejo”-parto de la paĝo.
                 Klaku sur la butono dekstre <span class="btn btn-primary btn-sm disabled"><span class="fa fa-arrow-right" aria-hidden="true"></span> Rigardi</span>.
-                Aperos la paĝo de via loĝejo, tie klaku sur la butono <span class="btn btn-success btn-sm disabled"><span class="fa fa-pencil-square-o" aria-hidden="true"></span> Redakti</span>.
+                Aperos la paĝo de via loĝejo, tie klaku sur la butono
+                <span class="btn btn-success btn-sm disabled"><span class="fa fa-pencil-square-o" aria-hidden="true"></span> Redakti</span>.
                 <br />
-                En la redakta formularo iru tute malsupren kaj vidu ĉu estas markilo <span class="fa fa-check" aria-label="&#x2713;"></span> apud “Printu en la PS-libreto”,
-                se jes, forigu ĝin kaj konservu.
-            </dd>
-            <dd class="list-group-item">
+                En la redakta formularo iru tute malsupren kaj vidu ĉu estas markilo <span class="fa fa-check" aria-label="&#x2713;"></span>
+                apud “Printu en la PS-libreto”, se jes, forigu ĝin kaj konservu.
+            {% endasvar %}
+            {% asvar AnswerAlt %}
                 Se vi ne scias kiel ŝanĝi vian profilon, <a href="mailto:{{ contact_email }}">skribu al ni</a>.
-            </dd>
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer Answer_Alt1=AnswerAlt only %}
 
-            <dt class="list-group-item list-group-item-info">Mi ankoraŭ neniam estis en la libro, sed nun volas aperi en ĝi. Kion mi faru?</dt>
-            <dd class="list-group-item">
-                En la paĝo de via loĝejo, sube, kontrolu kio aperas ĉe “printi en la PS-libreto”. Se <strong>jes</strong>, vi aperos en la libreto! Se ne:
+            {% asvar Question %}Mi ankoraŭ neniam estis en la libro, sed nun volas aperi en ĝi. Kion mi faru?{% endasvar %}
+            {% asvar Answer %}
+                En la paĝo de via loĝejo, sube, kontrolu kio aperas ĉe “printi en la PS-libreto”.
+                Se <strong>jes</strong>, vi aperos en la libreto! Se ne:
                 <br />
                 Klaku sur la butono <span class="btn btn-success btn-sm disabled"><span class="fa fa-pencil-square-o" aria-hidden="true"></span> Redakti</span> tie.
-                En la redakta formularo iru tute malsupren kaj certiĝu ke estas markilo <span class="fa fa-check" aria-label="&#x2713;"></span> apud “Printu en la PS-libreto”, konservu.
-                Ankaŭ certiĝu ke en la <a href="{% url 'profile_settings_shortcut' %}#{% trans "privacy" context "URL" %}">privatecaj agordoj</a> la loĝejo estas markita ke ĝi estu videbla en la libreto.
+                En la redakta formularo iru tute malsupren kaj certiĝu ke estas markilo <span class="fa fa-check" aria-label="&#x2713;"></span>
+                apud “Printu en la PS-libreto”, konservu.
+                Ankaŭ certiĝu ke en la <a href="{% url 'profile_settings_shortcut' %}#{% trans "privacy" context "URL" %}">privatecaj agordoj</a>
+                la loĝejo estas markita ke ĝi estu videbla en la libreto.
                 <br />
-                Se vi ankoraŭ ne havas profilon en la retejo, <a href="{% url 'profile_create' %}">kreu ĝin</a>, kaj poste nepre elektu esti printita en la libreto.
-            </dd>
+                Se vi ankoraŭ ne havas profilon en la retejo, <a href="{% url 'profile_create' %}">kreu ĝin</a>,
+                kaj poste nepre elektu esti printita en la libreto.
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
         </dl>
     </section>
 

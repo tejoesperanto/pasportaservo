@@ -1,0 +1,25 @@
+
+            <dt class="list-group-item list-group-item-info" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question"
+                id="{{ Question|slugify }}" itemref="respondo_{{ Question|slugify}}">
+                <a href="#{{ Question|slugify }}" class="linking-grip" aria-hidden="true"><span class="fa fa-link"></span></a>
+                <span itemprop="name">{{ Question }}</span>
+            </dt>
+            <dd class="list-group-item" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer" id="respondo_{{ Question|slugify }}">
+                {% if Answer.strip|slice:':3' == '<ul' %}
+                    {{ Answer.strip|slice:':3'|safe }} itemprop="text"{{ Answer.strip|slice:'3:'|safe }}
+                {% else %}
+                    <span itemprop="text">
+                        {{ Answer.strip|safe }}
+                    </span>
+                {% endif %}
+            </dd>
+            {% if Answer_Alt1 %}
+                <dd class="list-group-item" id="respondo_alt_{{ Question|slugify }}">
+                    {{ Answer_Alt1.strip|safe }}
+                </dd>
+            {% endif %}
+            {% if Answer_Alt2 %}
+                <dd class="list-group-item" id="respondo_alt2_{{ Question|slugify }}">
+                    {{ Answer_Alt2.strip|safe }}
+                </dd>
+            {% endif %}
