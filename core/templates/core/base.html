@@ -104,7 +104,8 @@
 
     {% block pre-page %}{% endblock %}
 
-    <div id="page" role="{% block page_role %}main{% endblock %}" class="container{% block page_class %}{% endblock %}">
+    <div id="page" role="{% block page_role %}main{% endblock %}" {% block page_microdata %}{% endblock %}
+         class="container{% block page_class %}{% endblock %}">
         {% block page %}{% endblock %}
     </div>
 
