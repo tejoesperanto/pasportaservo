@@ -15,21 +15,21 @@
 
 ### [Pasporta Servo](https://eo.wikipedia.org/wiki/Pasporta_Servo) estas senpaga tutmonda gastiga servo.
 
-#### La projekto komencis en 1974 kiel eta jarlibro, kaj ekde 2009 ankaŭ daŭras kiel retejo. En tiu ĉi deponejo kolektiĝas la kodo kiu ruligas la retejon [pasportaservo.org](https://pasportaservo.org).
-
+**La projekto komenciĝis en 1974 kiel eta jarlibro, kaj ekde 2009 daŭras ankaŭ kiel retejo
+  (unue surbaze de Drupalo kaj nuntempe sur [Dĵango](https://www.djangoproject.com)).
+  En tiu ĉi deponejo kolektiĝas la kodo kiu ruligas la retejon [pasportaservo.org](https://pasportaservo.org).**
 
 - [Kontribui](#kontribui)
 - [Instali](#instali)
 - [Licenco](#licenco)
 
-## Kontribui
 
-Ĉu vi trovis cimon? Ĉu vi havas ideo kiel plibonigi la retejon? Nepre kreu [novan atentindaĵon](https://github.com/tejo-esperanto/pasportaservo/issues/new).
+# Kᴏɴᴛʀɪʙᴜɪ
+
+Ĉu vi trovis cimon? Ĉu vi havas ideon kiel plibonigi la retejon? Nepre kreu [novan atentindaĵon](https://github.com/tejo-esperanto/pasportaservo/issues/new).
 
 
-
-## Instali
-# INSTALI
+# Iɴꜱᴛᴀʟɪ
 
 Ubuntu 16.10 / Debian Stretch:
 
@@ -59,10 +59,10 @@ Por ĉiuj:
 
 #### Fontkodo
 
-Iru al la [Github projektpaĝo](https://github.com/tejo-esperanto/pasportaservo)
-kaj forku ĝin. Poste, vi povas kloni ĝin:
+Iru al la [GitHub-projektpaĝo](https://github.com/tejo-esperanto/pasportaservo)
+kaj forku la deponejon. Poste, vi povas kloni ĝin (ne forgesu tion fari ene de virtuala medio):
 
-    git clone https://github.com/via-uzantnomo/pasportaservo.git
+    git clone https://github.com/{via-uzantnomo}/pasportaservo.git
     cd pasportaservo
     pip install wheel
     pip install -r requirements/dev.txt
@@ -73,22 +73,24 @@ kaj forku ĝin. Poste, vi povas kloni ĝin:
 
 Ĉu bone? Vidu http://localhost:8000
 
-----
-
 
 #### Retmesaĝoj
 
-Dum disvolvigo, estas praktika uzi *MailDump* por provadi sendi retmesaĝoj.
-Ekster la *env* virtuala medio, kun Pitono 2:
+Dum disvolvigo, estas praktika uzi *MailDump* por provadi sendi retmesaĝojn.
+Ekster la *env* virtuala medio, kun Pitono:
 
     pip install --user maildump
     maildump
 
 
+----
+
+
 ### Problem-solvado
 
 #### PostgreSQL: `unrecognized option --interactive`
-Se la komando `sudo -u postgres createuser --interactive` malsukcesas (ekz., vi ricevas eraron "unrecognized option --interactive"), provu:
+Se la komando `sudo -u postgres createuser --interactive` malsukcesas
+(ekz., vi ricevas eraron "unrecognized option --interactive"), provu:
 
     $ sudo -u postgres psql
     psql (9.6.6)
@@ -96,7 +98,7 @@ Se la komando `sudo -u postgres createuser --interactive` malsukcesas (ekz., vi 
     postgres=# CREATE ROLE {via-uzantonomo} WITH LOGIN CREATEDB CREATEROLE;
     postgres=# \q
 
-#### PostgreSQL: Ĉu mi bone kreis la datumbazoj?
+#### PostgreSQL: Ĉu mi bone kreis la datumbazojn?
 
     $ sudo -u postgres psql
     psql (9.5.4)
@@ -118,15 +120,18 @@ Se vi vidas tabelon kiel ĉi-supre, ĉio glate paŝis.
 
 ### Komprenu la strukturon de la kodo
 
-- **pasportaservo/**: ĝenerala dosierujo kun konfiguro, baz-nivelaj URL-oj…
-- **hosting/**: la ĉefa programo por gastiganta servo
+- **pasportaservo/**: ĝenerala dosierujo kun konfiguro, baz-nivelaj URL-oj, bibliotekoj, ktp
+- **core/**: bazaj ŝablonoj kaj ĉio rilata al aŭtentigo kaj (rolbazita) rajtigado
+- **hosting/**: la ĉefa programo por gastiga servo
 
-Kaj en la diversaj *aplikaĵon* (ekz. `hosting`, `book`, `links`…):
+Kaj ene de la diversaj *Dĵango-aplikaĵoj* (ekz. `hosting`, `pages`, `links`…):
 
-- models.py: strukturo de la datumoj
+- models.py: strukturo de la datumoj, kaj bazaj operacioj por ĉiu modelo
+- forms.py: formularoj por enigi kaj modifi datumojn
 - urls.py: ligoj inter URL-oj kaj paĝo-vidoj
 - views.py: difino de vidoj, paĝoj por prezentado
 - templates/: pseŭdo-HTML dosieroj (ŝablonoj)
+- templatetags/: ebligas pli kompleksajn operaciojn en la ŝablonoj
 
 
 ### Lerni Dĵangon
@@ -136,6 +141,6 @@ Kaj en la diversaj *aplikaĵon* (ekz. `hosting`, `book`, `links`…):
 - https://docs.djangoproject.com/en/stable/
 
 
-## Licenco
+# Lɪᴄᴇɴᴄᴏ
 
 [GNU AGPLv3](LICENSE)
