@@ -9,6 +9,7 @@ class CoreContextProcessorTests(WebTest):
         for setting in ('MAPBOX_GL_CSS',
                         'MAPBOX_GL_JS',
                         'INVALID_PREFIX',
+                        'SUPPORT_EMAIL',
                         'REDIRECT_FIELD_NAME',
                         'ENVIRONMENT'):
             with self.subTest(setting=setting):

@@ -8,7 +8,6 @@
 
 {% block page %}
     <h1>Oftaj Demandoj</h1>
-    {% asvar contact_email %}saluton [cxe] pasportaservo.org{% endasvar %}
 
     <section aria-labelledby="faq-registration">
         <h3 id="faq-registration" name="pri-registrigho">Pri kaj post la registriĝo.</h3>
@@ -28,7 +27,7 @@
 
             {% asvar Question %}Mi forgesis mian salutnomon! Kion mi faru?{% endasvar %}
             {% asvar Answer %}
-                <a href="mailto:{{ contact_email }}">Skribu al ni</a>, kaj ni sendos al vi rememorigilon.
+                <a href="mailto:{{ SUPPORT_EMAIL }}">Skribu al ni</a>, kaj ni sendos al vi rememorigilon.
             {% endasvar %}
             {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 
@@ -47,7 +46,7 @@
                         Dum ankoraŭ vi ne klakis tiun ligilon, la retejo daŭre uzos la malnovan retadreson.
                     </li>
                     <li>
-                        Se vi ne ricevas la konfirman retleteron, <a href="mailto:{{ contact_email }}">skribu al ni</a>.
+                        Se vi ne ricevas la konfirman retleteron, <a href="mailto:{{ SUPPORT_EMAIL }}">skribu al ni</a>.
                     </li>
                 </ul>
             {% endasvar %}
@@ -207,7 +206,7 @@
                 apud “Printu en la PS-libreto”, se jes, forigu ĝin kaj konservu.
             {% endasvar %}
             {% asvar AnswerAlt %}
-                Se vi ne scias kiel ŝanĝi vian profilon, <a href="mailto:{{ contact_email }}">skribu al ni</a>.
+                Se vi ne scias kiel ŝanĝi vian profilon, <a href="mailto:{{ SUPPORT_EMAIL }}">skribu al ni</a>.
             {% endasvar %}
             {% include './snippets/faq_item.html' with Question=Question Answer=Answer Answer_Alt1=AnswerAlt only %}
 

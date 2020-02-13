@@ -200,6 +200,10 @@ except locale.Error:
 # Do not change the value without a data migration!
 INVALID_PREFIX = "INVALID_"
 
+# The email address appearing throughout the site which users can contact
+# for support or when things go wrong
+SUPPORT_EMAIL = "saluton [cxe] pasportaservo.org"
+
 
 from djangocodemirror.settings import *  # noqa isort:skip
 
