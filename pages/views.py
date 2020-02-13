@@ -17,6 +17,14 @@ from hosting.models import Place
 class AboutView(generic.TemplateView):
     template_name = 'pages/about.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        all_places = Place.available_objects.filter(visibility__visible_online_public=True)
+        context['num_of_hosts'] = all_places.values('owner').distinct().count()
+        context['num_of_countries'] = all_places.values('country').distinct().count()
+        context['num_of_cities'] = all_places.values('city').distinct().count()
+        return context
+
 
 class TermsAndConditionsView(generic.TemplateView):
     template_name = 'pages/terms_conditions.html'
