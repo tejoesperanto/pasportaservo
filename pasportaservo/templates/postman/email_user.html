@@ -4,7 +4,7 @@
 {% block heading %}
     {% asvar sender_url %}{{ object.sender.profile.get_absolute_url }}{% endasvar %}
     {% if sender_url %}
-        {% domain sender_url asvar='sender_url' %}
+        {% domain sender_url as sender_url %}
         {% blocktrans with url=sender_url sender=object.obfuscated_sender trimmed %}
             <a href="{{ url }}">{{ sender }}</a> wrote to you!
         {% endblocktrans %}
