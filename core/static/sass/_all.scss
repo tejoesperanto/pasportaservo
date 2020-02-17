@@ -1128,7 +1128,7 @@ footer {
         font-size: 24px;
     }
     form > .form-contents {
-        p {
+        p:not(.keep-margin) {
             margin-bottom: 0;
         }
     }
