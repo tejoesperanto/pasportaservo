@@ -236,6 +236,9 @@ header .navigator {
     [class^="nav-"] {
         display: table-cell;
         vertical-align: middle;
+        &:not(.nav-title) a {
+            letter-spacing: 0.25px;
+        }
     }
     [class^="nav-"] + [class^="nav-"] {
         padding-left: 15px;
@@ -327,7 +330,7 @@ header .navigator {
     }
 
     [class^="nav-"] .tooltip {
-        margin-top: 6px;
+        margin-top: 10px;
         padding-left: 4px;
         padding-right: 4px;
 
@@ -336,6 +339,9 @@ header .navigator {
             white-space: nowrap;
             text-overflow: ellipsis;
         }
+    }
+    .nav-profile.in .tooltip {
+        margin-top: 6px;
     }
 }
 
