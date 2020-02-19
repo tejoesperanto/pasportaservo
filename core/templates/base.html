@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load i18n statici18n static compress sass_tags utils %}
+{% load i18n statici18n static cdn compress sass_tags utils %}
 
 <html lang="eo" class="{% if ' MSIE ' in request.META.HTTP_USER_AGENT or 'Trident/' in request.META.HTTP_USER_AGENT %}msie-compat{% endif %}">
     <head>
@@ -31,14 +31,42 @@
         <link rel="alternate" type="application/atom+xml" title="Pasporta Servo: {% trans "News" %}" href="{% url 'blog:atom' %}">
         <link rel="search" title="{% trans "Search" %} {% trans "at" %} Pasporta Servo" href="{% url 'search' %}">
 
-        <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+        {% if 'cdn' in request.GET.accelerate %}
+            <link rel="preconnect" href="{% cdn %}" crossorigin>
+        {% endif %}
+        {% if 'bs-css' in request.GET.accelerate %}
+            <link rel="preload"    href="{% cdn 'bootstrap' '3.4.1' %}/css/bootstrap.min.css" as="style" crossorigin>
+            <link rel="stylesheet" href="{% cdn 'bootstrap' '3.4.1' %}/css/bootstrap.min.css" crossorigin="anonymous"
+                                   integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" referrerpolicy="origin-when-cross-origin">
+        {% else %}
+            <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+        {% endif %}
+        {% if 'localfonts' in request.GET.accelerate %}
+            <link rel="preload"    href="{% static 'bootstrap/fonts/fontawesome-webfont.woff2' %}?v=4.7.0" as="font" type="font/woff2" crossorigin>
+            <link rel="preload"    href="{% static 'fonts/PS-Signaro.woff' %}?v=1.0" as="font" type="font/woff" crossorigin>
+            <link rel="preload"    href="{% static 'fonts/Geotica_Three.woff2' %}" as="font" type="font/woff2" crossorigin>
+        {% endif %}
         <link rel="stylesheet" href="{% static 'bootstrap/css/font-awesome.min.css' %}">
+        {% if 'gfonts' in request.GET.accelerate %}
+            <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+        {% endif %}
         {% compress css %}
             <link rel="stylesheet" href="{% sass_src 'css/pasportaservo.scss' %}">
             {% block extra_css %}{% endblock %}
         {% endcompress %}
-        <script src="{% static 'js/jquery.min.js' %}"></script>
-        <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+
+        {% if 'jq' in request.GET.accelerate %}
+            <script src="{% cdn 'jquery' '3.4.1' %}/jquery.min.js" crossorigin="anonymous"
+                    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" referrerpolicy="origin-when-cross-origin" {% if 'defer' in request.GET.accelerate %}defer{% endif %}></script>
+        {% else %}
+            <script src="{% static 'js/jquery.min.js' %}" {% if 'defer' in request.GET.accelerate %}defer{% endif %}></script>
+        {% endif %}
+        {% if 'bs-js' in request.GET.accelerate %}
+            <script src="{% cdn 'bootstrap' '3.4.1' %}/js/bootstrap.min.js" crossorigin="anonymous"
+                    integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" referrerpolicy="origin-when-cross-origin" {% if 'defer' in request.GET.accelerate %}defer{% endif %}></script>
+        {% else %}
+            <script src="{% static 'bootstrap/js/bootstrap.min.js' %}" {% if 'defer' in request.GET.accelerate %}defer{% endif %}></script>
+        {% endif %}
         {% compress js %}
             <script src="{% statici18n 'eo' %}"></script>
             <script src="{% static 'js/cookies.min.js' %}"></script>

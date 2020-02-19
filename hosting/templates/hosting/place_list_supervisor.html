@@ -11,8 +11,8 @@
         <script src="{% static 'maps/region-map.js' %}"></script>
 {% endblock %}
 {% block extra_head %}
-        <link rel="stylesheet" href="{{ MAPBOX_GL_CSS }}">
-        <script src="{{ MAPBOX_GL_JS }}"></script>
+        <link rel="stylesheet" href="{{ MAPBOX_GL_CSS }}" crossorigin="anonymous" integrity="{{ MAPBOX_GL_CSS_INTEGRITY }}" referrerpolicy="origin-when-cross-origin">
+        <script src="{{ MAPBOX_GL_JS }}" crossorigin="anonymous" integrity="{{ MAPBOX_GL_JS_INTEGRITY }}" referrerpolicy="origin-when-cross-origin"></script>
         <script src="{% url 'gis_endpoints' %}?format=js&type=region&country={{ view.country.code }}{% if view.in_book_status is not None %}&in_book={{ view.in_book_status|yesno:"1,0" }}{% endif %}"></script>
 {% endblock %}
 

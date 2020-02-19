@@ -1,4 +1,4 @@
-{% load static compress bootstrap variable %}
+{% load static cdn compress bootstrap variable %}
 {% load trans blocktrans from i18n %}
 {% load next from utils %}
 
@@ -28,5 +28,5 @@
         <script src="{% static 'js/forms.js' %}"></script>
         <script src="{% static 'js/forms-validation.eo.js' %}"></script>
     {% endcompress %}
-    <script src="{% static 'pwstrength/js/zxcvbn.js' %}"></script>
+    <script src="{% cdn 'ps' %}/pasportaservo/static/pwstrength/js/zxcvbn.js" defer></script>
 </div>

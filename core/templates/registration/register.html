@@ -1,5 +1,5 @@
 {% extends 'core/base_form.html' %}
-{% load i18n bootstrap static %}
+{% load i18n cdn %}
 
 {% block head_title %}{% trans "Register" context "Imperative" %} &amp; {% trans "Find accommodation" %}{% endblock %}
 
@@ -10,5 +10,5 @@
 
 {% block body %}
     {{ block.super }}
-    <script src="{% static 'pwstrength/js/zxcvbn.js' %}"></script>
+    <script src="{% cdn 'ps' %}/pasportaservo/static/pwstrength/js/zxcvbn.js" defer></script>
 {% endblock %}
