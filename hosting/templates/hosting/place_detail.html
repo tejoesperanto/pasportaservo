@@ -36,8 +36,8 @@
         <script src="{% static 'maps/place-map.js' %}"></script>
 {% endblock extra_js %}
 {% block extra_head %}
-        <link rel="stylesheet" href="{{ MAPBOX_GL_CSS }}">
-        <script src="{{ MAPBOX_GL_JS }}"></script>
+        <link rel="stylesheet" href="{{ MAPBOX_GL_CSS }}" crossorigin="anonymous" integrity="{{ MAPBOX_GL_CSS_INTEGRITY }}" referrerpolicy="origin-when-cross-origin">
+        <script src="{{ MAPBOX_GL_JS }}" crossorigin="anonymous" integrity="{{ MAPBOX_GL_JS_INTEGRITY }}" referrerpolicy="origin-when-cross-origin" {% if 'defer' in request.GET.accelerate %}defer{% endif %}></script>
         <script src="{% url 'gis_endpoints' %}?format=js&type=place"></script>
 {% endblock %}
 

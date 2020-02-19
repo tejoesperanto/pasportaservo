@@ -8,6 +8,8 @@ class CoreContextProcessorTests(WebTest):
         response = self.app.get('/', status=200)
         for setting in ('MAPBOX_GL_CSS',
                         'MAPBOX_GL_JS',
+                        'MAPBOX_GL_CSS_INTEGRITY',
+                        'MAPBOX_GL_JS_INTEGRITY',
                         'INVALID_PREFIX',
                         'SUPPORT_EMAIL',
                         'REDIRECT_FIELD_NAME',

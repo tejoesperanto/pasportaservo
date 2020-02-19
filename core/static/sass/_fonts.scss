@@ -4,7 +4,7 @@
          url('../fonts/Geotica_Three.woff')  format('woff');
 }
 
-@import url('https://fonts.googleapis.com/css?family=Fira+Sans:200,200i,400,400i,700,700i|Fira+Mono:400|PT+Sans:400,400i,700,700i&subset=latin-ext,vietnamese');
+@import url('https://fonts.googleapis.com/css?family=Fira+Sans:200,200i,400,400i,700,700i|Fira+Mono:400|PT+Sans:400,400i,700,700i&subset=latin-ext');
 
 @font-face {
     font-family: "PS Signaro";
@@ -15,6 +15,7 @@
          url('../fonts/PS-Signaro.svg?v=1.0#PS-Signaro') format('svg');
     font-weight: normal;
     font-style: normal;
+    font-display: block;
 }
 
 $font-stack: "Fira Sans", "Trebuchet MS", Helvetica, Tahoma, sans-serif;
@@ -23,8 +24,8 @@ $font-stack-hint: "PT Sans", Helvetica, Arial, sans-serif;
 
 
 .fa {
-  /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: "PS Signaro", FontAwesome !important;
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: "PS Signaro", FontAwesome !important;
 }
 .ps {
     &-home:before {
