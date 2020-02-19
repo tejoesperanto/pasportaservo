@@ -1,4 +1,6 @@
-{% extends "email/base_email.html" %}{% load i18n domain %}
+{% extends 'email/base_email.html' %}
+{% load i18n domain %}
+{% load split from utils %}
 
 {% block heading %}{% trans "Email needs confirmation" %}{% endblock %}
 
@@ -13,7 +15,7 @@
         <br>
     {% block reset_link %}
         <a href="{% domain url %}">
-            {% domain url %}
+            {% domain %}{{ url_first }}<wbr>{{ url_second|split:'~45'|join:'<wbr>' }}
         </a>
     {% endblock %}
         <br>
@@ -29,6 +31,6 @@
 {% endblock body %}
 
 {% block call_to_action %}
-    {% blocktrans asvar text %}Confirm email{% endblocktrans %}
-    {% include "email/snippets/button.html" %}
+    {% trans "Confirm email" as text %}
+    {% include 'email/snippets/button.html' %}
 {% endblock %}

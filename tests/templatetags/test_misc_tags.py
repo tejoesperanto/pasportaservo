@@ -333,18 +333,21 @@ class CompactFilterTests(TestCase):
 class SplitFilterTests(TestCase):
     dummy_object = object()
     test_data = [
-        ("", [""]),
-        ("xyzq", ["xyzq"]),
-        ("1,2,3", ["1", "2", "3"]),
-        ("a,b,", ["a", "b", ""]),
-        ("a,,c", ["a", "", "c"]),
-        (",,,,", ["", "", "", "", ""]),
-        ("<a>,<b>,</c>", ["<a>", "<b>", "</c>"]),
-        (":'xs',:-&", [":'xs'", ":-&"]),
-        (123, [123]),
-        (False, [False]),
-        (None, [None]),
-        (dummy_object, [dummy_object]),
+        ("", {',': [""], None: []}),
+        (" \t  ", {',': [" \t  "], None: []}),
+        ("xyzqw", {',': ["xyzqw"], None: ["xyzqw"]}),
+        ("1,2,3", {',': ["1", "2", "3"], None: ["1,2,3"]}),
+        ("a,bb,", {',': ["a", "bb", ""], None: ["a,bb,"]}),
+        ("aa,,c", {',': ["aa", "", "c"], None: ["aa,,c"]}),
+        (",,,, ", {',': ["", "", "", "", " "], None: [",,,,"]}),
+        ("<a>,<b>,</c>", {',': ["<a>", "<b>", "</c>"], None: ["<a>,<b>,</c>"]}),
+        ("<a> <b> </c>", {',': ["<a> <b> </c>"], None: ["<a>", "<b>", "</c>"]}),
+        (":'xs',:-&,<>", {',': [":'xs'", ":-&", "<>"], None: [":'xs',:-&,<>"], ':': ["", "'xs',", "-&,<>"]}),
+        (" i\xA0t\\tq ", {'t': [" i\xA0", "\\", "q "], None: ["i", "t\\tq"], "\\\\": [" i\xA0t", "tq "]}),
+        (123, {',': [123], None: [123]}),
+        (False, {',': [False], None: [False]}),
+        (None, {',': [None], None: [None]}),
+        (dummy_object, {',': [dummy_object], ':': [dummy_object]}),
     ]
 
     def test_var_input(self, autoescape=True):
@@ -354,17 +357,20 @@ class SplitFilterTests(TestCase):
         template_string = string.Template("""
             {% load split from utils %}
             {% autoescape $SWITCH %}
-                {% for x in my_var|split:',' %}#{{ x }}#{% endfor %}
+                {% for x in my_var|split$SEP %}#{{ x }}#{% endfor %}
             {% endautoescape %}
         """)
-        for content, expected_value in self.test_data:
-            with self.subTest(value=content):
-                template = Template(template_string.substitute(SWITCH='on' if autoescape else 'off'))
-                page = template.render(Context({'my_var': content}))
-                self.assertEqual(
-                    page.strip(),
-                    "".join("#{}#".format(escape(part) if autoescape else part) for part in expected_value)
-                )
+        for content, expected_values in self.test_data:
+            for sep in expected_values:
+                with self.subTest(value=content, separator=sep):
+                    template = Template(template_string.substitute(
+                        SWITCH='on' if autoescape else 'off',
+                        SEP=':"{}"'.format(sep) if sep else ''))
+                    page = template.render(Context({'my_var': content}))
+                    self.assertEqual(
+                        page.strip(),
+                        "".join("#{}#".format(escape(part) if autoescape else part) for part in expected_values[sep])
+                    )
 
     def test_direct_input(self, autoescape=True):
         # Values of type 'SafeData' are expected to be split into a list of strings,
@@ -372,18 +378,107 @@ class SplitFilterTests(TestCase):
         template_string = string.Template("""
             {% load split from utils %}
             {% autoescape $SWITCH %}
-                {% for x in "$CONTENT"|split:',' %}#{{ x }}#{% endfor %}
+                {% for x in "$CONTENT"|split$SEP %}#{{ x }}#{% endfor %}
             {% endautoescape %}
         """)
-        for content, expected_value in self.test_data:
-            with self.subTest(value=content):
-                template = Template(template_string.substitute(SWITCH='on' if autoescape else 'off', CONTENT=content))
-                page = template.render(Context())
-                self.assertEqual(page.strip(), "".join("#{}#".format(part) for part in expected_value))
+        for content, expected_values in self.test_data:
+            for sep in expected_values:
+                with self.subTest(value=content, separator=sep):
+                    template = Template(template_string.substitute(
+                        SWITCH='on' if autoescape else 'off',
+                        CONTENT=content,
+                        SEP=':"{}"'.format(sep) if sep else ''))
+                    page = template.render(Context())
+                    self.assertEqual(page.strip(), "".join("#{}#".format(part) for part in expected_values[sep]))
 
-    def test_nonautoescaped_input(self):
+    def test_nonautoescaped_var_input(self):
         self.test_var_input(autoescape=False)
+
+    def test_nonautoescaped_direct_input(self):
         self.test_direct_input(autoescape=False)
+
+    def do_test_with_chunks(self, *, var, autoescape):
+        test_data = "This message;\t<strong>along with the apple</strong>; is sent on behalf of <span>Adam</span>;"
+        expected = {
+            # no separator, no chunk length
+            '~': [False, [test_data]],
+            # separator is tilda, no chunk length
+            '~~': [False, [test_data]],
+            # no separator, chunk length 14
+            '~14': [
+                True,
+                ["This message;\t", "<strong>along ", "with the apple", "</strong>; is ", "sent on behalf",
+                 " of <span>Adam", "</span>;"]],
+            # separator is space, chunk length 4
+            ' ~4': [
+                True,
+                ["This", "mess", "age;", "\t<st", "rong", ">alo", "ng", "with", "the", "appl", "e</s", "tron",
+                 "g>;", "is", "sent", "on", "beha", "lf", "of", "<spa", "n>Ad", "am</", "span", ">;"]],
+            # separator is semicolon, chunk length 9
+            ';~9': [
+                True,
+                ["This mess", "age", "\t<strong>", "along wit", "h the app", "le</stron", "g>", " is sent ",
+                 "on behalf", " of <span", ">Adam</sp", "an>", ""]],
+            # separator is angle bracket, no chunk length
+            '<~': [
+                False,
+                ["This message;\t", "strong>along with the apple", "/strong>; is sent on behalf of ",
+                 "span>Adam", "/span>;"]],
+            # separator is angle bracket, chunk length is invalid
+            '<~aab': [
+                False,
+                ["This message;\t", "strong>along with the apple", "/strong>; is sent on behalf of ",
+                 "span>Adam", "/span>;"]],
+            # separator is angle bracket, chunk length is invalid
+            '<~9.3': [
+                False,
+                ["This message;\t", "strong>along with the apple", "/strong>; is sent on behalf of ",
+                 "span>Adam", "/span>;"]],
+            # separator is angle bracket, chunk length 17
+            '<~-17': [
+                True,
+                ["This message;\t", "strong>along with", " the apple", "/strong>; is sent", " on behalf of ",
+                 "span>Adam", "/span>;"]],
+            # separator is tab-tilda-tab, chunk length 42
+            '\t~\t~42': [
+                True,
+                ["This message;\t<strong>along with the apple", "</strong>; is sent on behalf of <span>Adam",
+                 "</span>;"]],
+            # separator is tilda-tilda, chunk length 99
+            '~~~99': [True, [test_data]],
+        }
+
+        template_string = string.Template("""
+            {% load split from utils %}
+            {% autoescape $SWITCH %}
+                {% for x in $DATA|split:'$SEP' %}#{{ x }}#{% endfor %}
+            {% endautoescape %}
+        """)
+
+        for sep in expected:
+            with self.subTest(separator=sep):
+                template = Template(template_string.substitute(
+                    SWITCH='on' if autoescape else 'off',
+                    DATA='my_var' if var else '"{}"'.format(test_data),
+                    SEP=sep))
+                page = template.render(Context({'my_var': test_data}))
+                self.assertEqual(
+                    page.strip(),
+                    "".join("#{}#".format(escape(part) if autoescape and (var or expected[sep][0]) else part)
+                            for part in expected[sep][1])
+                )
+
+    def test_chunking_var_input_autoescaped(self):
+        self.do_test_with_chunks(var=True, autoescape=True)
+
+    def test_chunking_var_input_nonautoescaped(self):
+        self.do_test_with_chunks(var=True, autoescape=False)
+
+    def test_chunking_direct_input_autoescaped(self):
+        self.do_test_with_chunks(var=False, autoescape=True)
+
+    def test_chunking_direct_input_nonautoescaped(self):
+        self.do_test_with_chunks(var=False, autoescape=False)
 
 
 @tag('templatetags')

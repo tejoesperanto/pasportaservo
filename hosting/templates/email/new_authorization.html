@@ -1,4 +1,5 @@
-{% extends "email/base_email.html" %}{% load i18n domain %}
+{% extends 'email/base_email.html' %}
+{% load i18n domain %}
 
 {% block heading %}
     {% blocktrans with owner_name=place.owner.get_fullname_display trimmed %}

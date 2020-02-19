@@ -6,7 +6,7 @@ from unittest.mock import patch
 from django.conf import settings
 from django.contrib.gis.geos import Point as GeoPoint
 from django.core import mail
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
 
 from faker import Faker
 from geocoder.opencage import OpenCageQuery, OpenCageResult
@@ -21,6 +21,7 @@ from hosting.utils import (
     geocode, geocode_city, split, title_with_particule,
     value_without_invalid_marker,
 )
+from links.utils import create_unique_url
 from maps import data as geodata
 from maps.utils import bufferize_country_boundaries
 
@@ -168,6 +169,26 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
         self.assertEqual(len(result), 3)
         all_hashes = result[2] + ('\n' if not result[2].endswith('\n') else '')
         self.assertRegex(all_hashes, r'^([A-F0-9]{35}:\d+\r?\n)+$')
+
+    @override_settings(SECRET_KEY='JustASecret')
+    def test_create_unique_url(self):
+        test_data = [
+            ("{aaa}", 'InthYWF9Ig'),
+            ("/CCC/", 'Ii9DQ0MvIg'),
+            ("", 'IiI'),
+            ({'name': "A. User", 'profession': "Tester"}, 'eyJuYW1lIjoiQS4gVXNlciIsInByb2Zlc3Npb24iOiJUZXN0ZXIifQ'),
+            ({}, 'e30'),
+            # A large payload is gzipped and then base64-encoded.
+            ("[Quite a long content over here]"*3, '.eJxTig4szSxJVUhUyMnPS1dIzs8rSc0rUcgvSy1SyEgtSo2lVF4JAN38I6k'),
+        ]
+        for payload, token_prefix in test_data:
+            with self.subTest(payload=payload):
+                result = create_unique_url(payload=payload, salt="bbbb")
+                self.assertIs(type(result), tuple)
+                self.assertEqual(len(result), 2)
+                self.assertStartsWith(result[0], '/ligilo/{}.'.format(token_prefix))
+                self.assertStartsWith(result[1], '{}.'.format(token_prefix))
+                self.assertEqual(result[1].count('.'), 3 if token_prefix.startswith('.') else 2)
 
 
 @tag('utils')

@@ -88,4 +88,4 @@ class ContactExportView(AuthMixin, generic.ListView):
         return row
 
     def get_url(self, place, action):
-        return create_unique_url({'place': place.pk, 'action': action})
+        return create_unique_url({'place': place.pk, 'action': action})[0]

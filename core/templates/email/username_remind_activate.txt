@@ -1,4 +1,5 @@
-{% extends 'email/username_remind.txt' %}{% load i18n %}
+{% extends 'email/username_remind.txt' %}
+{% load i18n %}
 
 {% block additional_information %}
 {% blocktrans trimmed %}

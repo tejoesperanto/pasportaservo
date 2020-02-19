@@ -1,0 +1,9 @@
+{% load i18n %}
+
+{% if recipient.profile %}
+    {% blocktrans with user_first_name=recipient.profile.name|default:recipient.username trimmed %}
+        Dear {{ user_first_name }},
+    {% endblocktrans %}
+{% else %}
+    {% trans "Dear user," %}
+{% endif %}

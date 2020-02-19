@@ -112,6 +112,7 @@ class Agreement(TimeStampedModel):
         unique_together = ('user', 'policy_version', 'withdrawn')
 
     def __str__(self):
+        # xgettext:python-brace-format
         return str(_("User {user} agreed to '{policy}' on {date:%Y-%m-%d}")).format(
             user=self.user,
             policy=self.policy_version,

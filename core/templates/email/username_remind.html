@@ -1,4 +1,4 @@
-{% extends "email/base_email.html" %}
+{% extends 'email/base_email.html' %}
 {% load i18n domain %}
 
 {% block heading %}{% trans "Username" %}{% endblock %}
@@ -13,5 +13,5 @@
 
 {% block call_to_action %}
     {% url 'login' as url %}{% trans "Log in" as text %}
-    {% include "email/snippets/button.html" %}
+    {% include 'email/snippets/button.html' %}
 {% endblock %}

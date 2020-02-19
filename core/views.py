@@ -27,9 +27,7 @@ from django.utils.functional import cached_property
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
-from django.utils.translation import (
-    gettext as _t, pgettext_lazy, ugettext_lazy as _,
-)
+from django.utils.translation import gettext, pgettext_lazy, ugettext_lazy as _
 from django.views import generic
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters
@@ -157,7 +155,10 @@ class AccountRestoreRequestView(generic.TemplateView):
             return HttpResponseRedirect(reverse_lazy('login'))
         # Otherwise, send mail to admins.
         send_mail(
-            _t("Note to admin: User requests to reactivate their account; ref: {}.").format(request_id[0]),
+            gettext(
+                # xgettext:python-brace-format
+                "Note to admin: User requests to reactivate their account; ref: {}."
+            ).format(request_id[0]),
             "--",
             None,
             ['{} <{}>'.format(nick, addr) for nick, addr in settings.ADMINS],
@@ -370,7 +371,7 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
     def post(self, request, *args, **kwargs):
         config = SiteConfiguration.get_solo()
         email_to_verify = value_without_invalid_marker(request.user.email)
-        url = create_unique_url({
+        url, token = create_unique_url({
             'action': 'email_update',
             'v': True,
             'pk': request.user.pk,
@@ -379,13 +380,15 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
         context = {
             'site_name': config.site_name,
             'url': url,
+            'url_first': url[:url.rindex('/')+1],
+            'url_second': token,
             'user': request.user,
         }
-        subject = _("[Pasporta Servo] Is this your email address?")
+        email_template_subject = get_template('email/system-email_verify_subject.txt')
         email_template_text = get_template('email/system-email_verify.txt')
         email_template_html = get_template('email/system-email_verify.html')
         send_mail(
-            subject,
+            ''.join(email_template_subject.render(context).splitlines()),  # no newlines allowed in subject.
             email_template_text.render(context),
             settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email_to_verify],
