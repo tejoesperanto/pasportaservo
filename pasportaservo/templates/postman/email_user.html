@@ -1,4 +1,4 @@
-{% extends "email/base_email.html" %}
+{% extends 'email/base_email.html' %}
 {% load i18n domain variable %}
 
 {% block heading %}
@@ -25,4 +25,18 @@
     {% url 'postman:view' object.pk as url %}
     {% trans "Reply" as text %}
     {% include 'email/snippets/button.html' %}
+{% endblock %}
+{% block email_action %}
+    <script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "EmailMessage",
+        "potentialAction": {
+            "@type": "ViewAction",
+            "name": "{% trans "Reply" %} {% trans "at" %} PS",
+            "target": "{% domain url %}",
+            "url": "{% domain url %}"
+        "description": "{{ object.subject|escapejs }}"
+    }
+    </script>
 {% endblock %}

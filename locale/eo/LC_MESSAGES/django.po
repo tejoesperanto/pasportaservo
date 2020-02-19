@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2020-03-10 22:43+0000\n"
+"POT-Revision-Date: 2020-04-23 17:05+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -94,49 +94,6 @@ msgstr "Nur la landaj organizantoj de {this_country} povas aliri tiun ĉi paĝon
 msgid "Only administrators can access this page"
 msgstr "Nur administrantoj povas aliri tiun ĉi paĝon"
 
-msgid "A user with a similar username already exists."
-msgstr "Uzanto kun simila salutnomo jam ekzistas."
-
-msgid ""
-"Enter a username conforming to these rules:  This value may contain only "
-"letters, numbers, and the symbols <kbd>@</kbd> <kbd>.</kbd> <kbd>+</kbd> "
-"<kbd>-</kbd> <kbd>_</kbd>. Spaces are not allowed."
-msgstr ""
-"Enigu salutnomon laŭantan la jenajn regulojn:  Ĉi-tiu valoro povas enhavi "
-"nur literojn, ciferojn kaj la simbolojn <kbd>@</kbd> <kbd>.</kbd> <kbd>+</"
-"kbd> <kbd>-</kbd> <kbd>_</kbd>. Spacoj ne estas allasataj."
-
-#, python-format
-msgid ""
-"Ensure that this value has at most %(limit_value)d characters (it has now "
-"%(show_value)d)."
-msgstr ""
-"Certigu ke tiu ĉi valoro maksimume enhavu %(limit_value)d karaktrojn "
-"(nuntempe ĝi havas %(show_value)d)."
-
-msgid "Enter a valid email address."
-msgstr "Enigu retadreson en ĝusta formo."
-
-msgid "User address already in use."
-msgstr "Adreso de uzanto jam utiligita ĉe la retejo."
-
-msgid ""
-"The password selected by you is too insecure. Such combination of characters "
-"is very well-known to cyber-criminals."
-msgstr ""
-"La pasvorto elektita de vi estas tro nesekura. Tia kombino de karaktroj "
-"estas bone konata al ciber-krimuloj."
-
-msgid "Choose a less easily guessable password."
-msgstr "Bonvole elektu pli malfacile diveneblan pasvorton."
-
-msgid ""
-"The password selected by you is not very secure. Such combination of "
-"characters is known to cyber-criminals."
-msgstr ""
-"La pasvorto elektita de vi ne estas tre sekura. Tia kombino de karaktroj "
-"estas konata al ciber-krimuloj."
-
 msgid "Email address"
 msgstr "Retpoŝta adreso"
 
@@ -160,9 +117,6 @@ msgid ""
 "</a>"
 msgstr ""
 "Ĉu vi ŝatus ĝin reaktivigi? <a href=\"%(url)s\">Informi administranton.</a>"
-
-msgid "[Pasporta Servo] Change of email address"
-msgstr "[Pasporta Servo] Retpoŝtadreso ĉe retejo ŝanĝita"
 
 msgid "Heading"
 msgstr "Titolo"
@@ -230,6 +184,49 @@ msgid ""
 msgstr ""
 "Por havi la eblecon komuniki kun aliaj PS-anoj, vi devas krei kaj agordi "
 "vian profilon."
+
+msgid "A user with a similar username already exists."
+msgstr "Uzanto kun simila salutnomo jam ekzistas."
+
+msgid ""
+"Enter a username conforming to these rules:  This value may contain only "
+"letters, numbers, and the symbols <kbd>@</kbd> <kbd>.</kbd> <kbd>+</kbd> "
+"<kbd>-</kbd> <kbd>_</kbd>. Spaces are not allowed."
+msgstr ""
+"Enigu salutnomon laŭantan la jenajn regulojn:  Ĉi-tiu valoro povas enhavi "
+"nur literojn, ciferojn kaj la simbolojn <kbd>@</kbd> <kbd>.</kbd> <kbd>+</"
+"kbd> <kbd>-</kbd> <kbd>_</kbd>. Spacoj ne estas allasataj."
+
+#, python-format
+msgid ""
+"Ensure that this value has at most %(limit_value)d characters (it has now "
+"%(show_value)d)."
+msgstr ""
+"Certigu ke tiu ĉi valoro maksimume enhavu %(limit_value)d karaktrojn "
+"(nuntempe ĝi havas %(show_value)d)."
+
+msgid "Enter a valid email address."
+msgstr "Enigu retadreson en ĝusta formo."
+
+msgid "User address already in use."
+msgstr "Adreso de uzanto jam utiligita ĉe la retejo."
+
+msgid ""
+"The password selected by you is too insecure. Such combination of characters "
+"is very well-known to cyber-criminals."
+msgstr ""
+"La pasvorto elektita de vi estas tro nesekura. Tia kombino de karaktroj "
+"estas bone konata al ciber-krimuloj."
+
+msgid "Choose a less easily guessable password."
+msgstr "Bonvole elektu pli malfacile diveneblan pasvorton."
+
+msgid ""
+"The password selected by you is not very secure. Such combination of "
+"characters is known to cyber-criminals."
+msgstr ""
+"La pasvorto elektita de vi ne estas tre sekura. Tia kombino de karaktroj "
+"estas konata al ciber-krimuloj."
 
 msgid "site name"
 msgstr "reteja nomo"
@@ -555,8 +552,19 @@ msgstr "Agordoj"
 msgid "Change username"
 msgstr "Ŝanĝi salutnomon"
 
-msgid "Unsubscribe"
+msgid "Unsubscribe from this type of messages"
 msgstr "Malaboni tiajn mesaĝojn"
+
+#, python-format
+msgid "Dear %(user_first_name)s,"
+msgstr "Kara %(user_first_name)s,"
+
+msgid "Dear user,"
+msgstr "Kara uzanto,"
+
+msgctxt "Email subject"
+msgid "Change of email address"
+msgstr "Retpoŝtadreso ĉe retejo ŝanĝita"
 
 msgid "Email needs confirmation"
 msgstr "Adreso konfirmenda"
@@ -588,13 +596,6 @@ msgstr ""
 
 msgid "Confirm email"
 msgstr "Konfirmi retadreson"
-
-#, python-format
-msgid "Dear %(user_first_name)s,"
-msgstr "Kara %(user_first_name)s,"
-
-msgid "Dear user,"
-msgstr "Kara uzanto,"
 
 msgid "Thanks for using our site!"
 msgstr "Dankon por uzi nian servon!"
@@ -656,6 +657,10 @@ msgstr "Respondu al tiu ĉi retpoŝta mesaĝo se vi ŝatus re-aktivigi la konton
 msgid "An administrator will contact you soon."
 msgstr "Administranto baldaŭ kontaktiĝos kun vi."
 
+msgctxt "Email subject"
+msgid "Password reset"
+msgstr "Nova pasvorto"
+
 #, python-format
 msgid ""
 "You're receiving this email in order to verify your email address at "
@@ -667,12 +672,17 @@ msgstr ""
 msgid "Please go to the following page to complete the verification:"
 msgstr "Bonvole iru al la jena paĝo por finaranĝi la kontroladon:"
 
+msgctxt "Email subject"
+msgid "Is this your email address?"
+msgstr "Ĉu tiu estas via retadreso?"
+
 msgid "Username"
 msgstr "Salutnomo"
 
 msgid "Log in"
 msgstr "Ensaluti"
 
+msgctxt "Email subject"
 msgid "Username reminder"
 msgstr "Memorigo pri salutnomo"
 
@@ -801,6 +811,9 @@ msgctxt "Imperative"
 msgid "Register"
 msgstr "Registriĝu"
 
+msgid "Username reminder"
+msgstr "Memorigo pri salutnomo"
+
 msgid ""
 "We've emailed you a reminder of your username. If an account exists for the "
 "email address you provided, you should receive it shortly."
@@ -888,9 +901,6 @@ msgid ""
 msgstr ""
 "Konfirma mesaĝo estis sendita. Bonvole kontrolu vian retpoŝtkeston por "
 "kompletigi la procedon."
-
-msgid "[Pasporta Servo] Is this your email address?"
-msgstr "[Pasporta Servo] Ĉu tiu estas via retadreso?"
 
 #. Translators: must be identical to the <email> parameter value in staff_place_list url.
 msgctxt "URL"
@@ -1489,6 +1499,10 @@ msgstr "%(owner_name)s rajtigis vin vidi sian plenan adreson!"
 
 msgid "Follow this link to see this accommodation:"
 msgstr "Klaku la ligilon por vidi tiun ĉi loĝejon:"
+
+msgctxt "Email subject"
+msgid "You received an Authorization"
+msgstr "Vi ricevis permeson"
 
 msgid "Cancel operation"
 msgstr "Nuligi la agon"
@@ -2397,9 +2411,6 @@ msgstr ""
 
 msgid "Only the owner of the place can access this page"
 msgstr "Nur la posedanto de la loĝejo povas aliri tiun ĉi paĝon"
-
-msgid "[Pasporta Servo] You received an Authorization"
-msgstr "[Pasporta Servo] Vi ricevis permeson"
 
 msgid "Only the user themselves can access this page"
 msgstr "Nur la uzanto mem povas aliri tiun ĉi paĝon"

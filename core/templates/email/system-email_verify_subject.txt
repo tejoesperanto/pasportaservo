@@ -1,0 +1,5 @@
+{% load i18n %}{% autoescape off %}
+
+[Pasporta Servo] {% trans "Is this your email address?" context "Email subject" %}
+
+{% endautoescape %}

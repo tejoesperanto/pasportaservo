@@ -399,16 +399,18 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
 
     def send_email(self, user, place):
         config = SiteConfiguration.get_solo()
-        subject = _("[Pasporta Servo] You received an Authorization")
+        email_template_subject = get_template('email/new_authorization_subject.txt')
         email_template_text = get_template('email/new_authorization.txt')
         email_template_html = get_template('email/new_authorization.html')
+        # TODO : Unsubscribe link in the email
         email_context = {
             'site_name': config.site_name,
             'user': user,
             'place': place,
         }
+        # TODO : send mail only if the user chose to receive this type
         send_mail(
-            subject,
+            ''.join(email_template_subject.render(email_context).splitlines()),
             email_template_text.render(email_context),
             settings.DEFAULT_FROM_EMAIL,
             recipient_list=[user.email],

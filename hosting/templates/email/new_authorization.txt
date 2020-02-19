@@ -17,4 +17,11 @@
 {% blocktrans trimmed %}
     The {{ site_name }} team.
 {% endblocktrans %}
+
+{% if unsubscribe_url %}
+{% blocktrans trimmed %}
+    Unsubscribe from this type of messages
+{% endblocktrans %}:
+{% domain unsubscribe_url %}
+{% endif %}
 {% endautoescape %}

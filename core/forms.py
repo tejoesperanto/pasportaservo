@@ -144,7 +144,7 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
         if old_email == new_email:
             return self.instance
 
-        url = create_unique_url({
+        url, token = create_unique_url({
             'action': 'email_update',
             'v': False,
             'pk': self.instance.pk,
@@ -153,15 +153,17 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
         context = {
             'site_name': config.site_name,
             'url': url,
+            'url_first': url[:url.rindex('/')+1],
+            'url_second': token,
             'user': self.instance,
             'email': new_email,
         }
-        subject = _("[Pasporta Servo] Change of email address")
         for old_new in ['old', 'new']:
+            email_template_subject = get_template('email/{type}_email_subject.txt'.format(type=old_new))
             email_template_text = get_template('email/{type}_email_update.txt'.format(type=old_new))
             email_template_html = get_template('email/{type}_email_update.html'.format(type=old_new))
             send_mail(
-                subject,
+                ''.join(email_template_subject.render(context).splitlines()),  # no newlines allowed in subject.
                 email_template_text.render(context),
                 settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[{'old': old_email, 'new': new_email}[old_new]],

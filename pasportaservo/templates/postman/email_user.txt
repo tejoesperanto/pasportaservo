@@ -1,5 +1,7 @@
-{% load i18n domain %}{% autoescape off %}
-{% trans "Dear user," %}
+{% load i18n domain %}{% load compact split from utils %}{% autoescape off %}
+{% filter compact %}
+    {% include 'email/base_salutation.txt' with recipient=object.recipient only %}
+{% endfilter %}
 {% if action == 'rejection' %}
 {% blocktrans with object.sent_at|date:"DATETIME_FORMAT" as date and object.obfuscated_recipient as recipient trimmed %}
     On {{ date }}, you asked to send a message to the user '{{ recipient }}'.
@@ -9,23 +11,30 @@
     {{ object.moderation_reason }}{% else %}.{% endif %}
 
 {% else %}{# 'acceptance' #}
-{% if object.parent_id %}{% if object.parent.sender_id == object.recipient_id %}{% blocktrans with object.parent.sent_at|date:"DATETIME_FORMAT" as date and object.obfuscated_sender as sender trimmed %}
-    On {{ date }}, you sent a message to the user '{{ sender }}'.
-{% endblocktrans %}
-{% trans "Your correspondent has given you an answer." %}
-{% else %}{% blocktrans with object.obfuscated_sender as sender trimmed %}
-    You have received a copy of a response from the user '{{ sender }}'.
-{% endblocktrans %}
-{% endif %}
-{% else %}{% blocktrans with object.obfuscated_sender as sender trimmed %}
-    You have received a message from the user '{{ sender }}'.
-{% endblocktrans %}
-{% endif %}
--------------------------------------------------------------------------------
+{% filter compact %}
+    {% if object.parent_id %}
+        {% if object.parent.sender_id == object.recipient_id %}
+            {% blocktrans with object.parent.sent_at|date:"DATETIME_FORMAT" as date and object.obfuscated_sender as sender trimmed %}
+                On {{ date }}, you sent a message to the user '{{ sender }}'.
+            {% endblocktrans %}
+            {% trans "Your correspondent has given you an answer." %}
+        {% else %}
+            {% blocktrans with object.obfuscated_sender as sender trimmed %}
+                You have received a copy of a response from the user '{{ sender }}'.
+            {% endblocktrans %}
+        {% endif %}
+    {% else %}
+        {% blocktrans with object.obfuscated_sender as sender trimmed %}
+            You have received a message from the user '{{ sender }}'.
+        {% endblocktrans %}
+    {% endif %}
+{% endfilter %}
 
-{{ object.body }}
+---------------------------------------------------------------------------
+{% for sentence in object.body|split:'~75'%}
+{{ sentence }}{% endfor %}
 
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------
 
 {% blocktrans trimmed %}
     To answer this message, follow this link:
@@ -35,9 +44,17 @@
 {% if object.sender.profile %}{% blocktrans trimmed %}
     The sender's profile page:
 {% endblocktrans %}
-{% domain %}{{ object.sender.profile.get_absolute_url }}
+{% domain object.sender.profile.get_absolute_url %}
 {% endif %}
 {% endif %}{# 'acceptance' #}
 
 {% blocktrans %}Note: This message is issued by an automated system.
-Do not reply, this would not be taken into account.{% endblocktrans %}{% endautoescape %}
+Do not reply, this would not be taken into account.{% endblocktrans %}
+
+{% if unsubscribe_url %}
+{% blocktrans trimmed %}
+    Unsubscribe from this type of messages
+{% endblocktrans %}:
+{% domain unsubscribe_url %}
+{% endif %}
+{% endautoescape %}

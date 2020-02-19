@@ -1,4 +1,5 @@
-{% load i18n %}<!DOCTYPE html>
+{% load i18n cdn domain %}
+<!DOCTYPE html>
 <html>
 <head>
 <title></title>
@@ -16,13 +17,13 @@
     /* CLIENT-SPECIFIC STYLES */
     body, table, td, a {
         -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;
-    } /* Prevent WebKit and Windows mobile changing default text sizes */
+    } {# Prevent WebKit and Windows mobile changing default text sizes #}
     table, td {
         mso-table-lspace: 0pt; mso-table-rspace: 0pt;
-    } /* Remove spacing between tables in Outlook 2007 and up */
+    } {# Remove spacing between tables in Outlook 2007 and up #}
     img {
         -ms-interpolation-mode: bicubic;
-    } /* Allow smoother rendering of resized image in Internet Explorer */
+    } {# Allow smoother rendering of resized image in Internet Explorer #}
 
     /* RESET STYLES */
     img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
@@ -105,7 +106,7 @@
     {% block preheader %}{% endblock %}
 </div>
 
-<!-- HEADER -->
+<!-- CONTENT -->
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
     <tr>
         <td bgcolor="#ffffff" align="center">
@@ -116,9 +117,13 @@
             <![endif]-->
             <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 500px;" class="wrapper">
                 <tr>
-                    <td align="center" valign="top" style="padding: 15px 0;" class="logo">
-                        <a href="https://pasportaservo.org/" target="_blank" style="font-decoration: none;">
-                            <img alt="Pasporta Servo" src="{% include 'email/snippets/email_logo_base64.txt' %}" width="90%" max-width="400" height="69" style="display: block; font-family: Helvetica, Arial, sans-serif; color: #ff7711; font-size: 42px;" border="0" />
+                    <!-- HERO IMAGE -->
+                    <td align="center" valign="middle" bgcolor="#ff7711" style="padding: 15px 0;" class="logo">
+                        <a href="https://pasportaservo.org/" target="_blank" style="text-decoration: none;">
+                            {# https://blog.mailtrap.io/embedding-images-in-html-email-have-the-rules-changed/#Choosing_a_method_of_putting_an_image_in_an_HTML_message #}
+                            <img alt="Pasporta Servo" src="{% cdn 'ps' %}/core/static/img/email_logo.png" width="300" height="50"
+                                 style="display: block; font-family: Times, serif; color: #ffffff; font-size: 38px;" border="0"
+                                 decoding="async" crossorigin="anonymous" referrerpolicy="no-referrer" />
                         </a>
                     </td>
                 </tr>
@@ -131,7 +136,7 @@
         </td>
     </tr>
     <tr>
-        <td bgcolor="#ffffff" align="center" style="padding: 10px 15px 70px 15px;" class="section-padding">
+        <td bgcolor="#ffffff" align="center" style="padding: 10px 15px 50px 15px;" class="section-padding">
             <!--[if (gte mso 9)|(IE)]>
             <table align="center" border="0" cellspacing="0" cellpadding="0" width="500">
             <tr>
@@ -140,11 +145,9 @@
             <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 500px;" class="responsive-table">
                 <tr>
                     <td>
-                        <!-- HERO IMAGE -->
                         <table width="100%" border="0" cellspacing="0" cellpadding="0">
                             <tr>
                                 <td>
-                                    <!-- COPY -->
                                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                                         <tr>
                                             <td align="center" style="font-size: 25px; font-family: Helvetica, Arial, sans-serif; color: #333333; padding-top: 30px;" class="padding">
@@ -152,7 +155,7 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td align="center" style="padding: 20px 0 0 0; font-size: 16px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #666666;" class="padding">
+                                            <td align="center" style="font-size: 16px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #666666; padding: 20px 0 0 0;" class="padding">
                                                 {% block body %}<span id="preview_body"></span>{% endblock %}
                                             </td>
                                         </tr>
@@ -160,8 +163,8 @@
                                 </td>
                             </tr>
                             {% block call_to_action %}
-                                {# {% trans 'Action' as button_label %} #}
-                                {# {% include "email/snippets/button.html" with url='#' text=button_label %} #}
+                                {# {% trans "Action" as button_label %} #}
+                                {# {% include 'email/snippets/button.html' with url='#' text=button_label %} #}
                             {% endblock %}
                         </table>
                     </td>
@@ -172,6 +175,7 @@
             </tr>
             </table>
             <![endif]-->
+            {% block email_action %}{# <script type="application/ld+json">...</script> #}{% endblock %}
         </td>
     </tr>
     <tr>
@@ -181,15 +185,17 @@
             <tr>
             <td align="center" valign="top" width="500">
             <![endif]-->
-            <!-- UNSUBSCRIBE COPY -->
             <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" style="max-width: 500px;" class="responsive-table">
                 <tr>
-                    <td align="center" style="font-size: 12px; line-height: 18px; font-family: Helvetica, Arial, sans-serif; color:#666666;">
+                    <!-- COLOPHON -->
+                    <td align="center" style="font-size: 12px; line-height: 18px; font-family: Helvetica, Arial, sans-serif; color: #666666;">
                         Nieuwe Binnenweg 176 <br>
                         3015 BJ • Rotterdam – Nederlando <br>
                         <br>
-                        <a href="" target="_blank" style="color: #666666; text-decoration: none;">{% trans "Unsubscribe" %}</a>
-                        <span style="font-family: Arial, sans-serif; font-size: 12px; color: #444444;"></span>
+                        {% if unsubscribe_url %}
+                            <!-- UNSUBSCRIBE -->
+                            <a href="{% domain unsubscribe_url %}" target="_blank" style="color: #666666;">{% trans "Unsubscribe from this type of messages" %}</a>
+                        {% endif %}
                     </td>
                 </tr>
             </table>

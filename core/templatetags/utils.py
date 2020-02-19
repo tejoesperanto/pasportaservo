@@ -56,14 +56,33 @@ def are_all(iterable):
 
 
 @register.filter(is_safe=False)
-def split(value, by):
+def split(value, by=None):
+    """
+    A template filter to split objects (commonly, strings) by the given argument. A missing argument will split the
+    object by any whitespace; if the object cannot be split, it will be wrapped in a list. Strings marked as "safe"
+    by Django will still have their parts correctly marked in the resulting list.
+    If the argument is of the form 'separator~number', the resulting chunks will have a maximum length of `number`;
+    this means that to use a tilde as separator, it must be doubled: '~~'. The chunking will also un-mark the parts
+    as "safe" because it might cut HTML tags into several (not-safe-anymore) pieces; Use only for plain text.
+    """
     try:
+        length = None
+        if by and isinstance(by, str) and '~' in by:
+            by, length = by.rsplit('~', maxsplit=1)
+            try:
+                length = abs(int(length))
+            except ValueError:
+                length = None
         parts = value.split(by)
     except (ValueError, TypeError, AttributeError):
-        return [value]
+        parts = [value]
+
+    if isinstance(value, SafeData):
+        parts = [mark_safe(part) for part in parts]
+    if length:
+        parts = [[part[i:i+length] for i in range(0, len(part), length)] if part else [part] for part in parts]
+        return [chunk for part_chunks in parts for chunk in part_chunks]
     else:
-        if isinstance(value, SafeData):
-            parts = [mark_safe(part) for part in parts]
         return parts
 
 

@@ -1,12 +1,6 @@
 {% load i18n %}{% load compact from utils %}{% autoescape off %}
 {% filter compact %}
-    {% if user.profile %}
-        {% blocktrans with user_first_name=user.profile.name|default:user.username trimmed %}
-            Dear {{ user_first_name }},
-        {% endblocktrans %}
-    {% else %}
-        {% trans "Dear user," %}
-    {% endif %}
+    {% include './base_salutation.txt' with recipient=user only %}
 {% endfilter %}
 
 {% block information %}{% trans "Your username, in case you've forgotten:" %} {{ user.username }}{% endblock %}

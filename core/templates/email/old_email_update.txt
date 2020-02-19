@@ -1,7 +1,7 @@
-{% load i18n domain %}{% autoescape off %}
-{% if user.profile %}{% blocktrans with user_first_name=user.profile.name|default:user.username trimmed %}
-    Dear {{ user_first_name }},
-{% endblocktrans %}{% else %}{% trans "Dear user," %}{% endif %}
+{% load i18n %}{% load compact from utils %}{% autoescape off %}
+{% filter compact %}
+    {% include './base_salutation.txt' with recipient=user only %}
+{% endfilter %}
 {% blocktrans trimmed %}
     You're receiving this email because you (or someone on your behalf) requested a change
     of your email address at {{ site_name }}
