@@ -10,6 +10,7 @@
                 <img src="{{ user.profile.avatar_url }}"
                      {% if user.profile.avatar %}data-proper-url="{{ user.profile.avatar.url }}"{% endif %}
                      {{ user.profile|avatar_dimension }}
+                     data-fallback="{% static 'img/avatar-unknown.png' %}"
                      alt="{% trans "My profile"|lower %}" aria-label="{% trans "avatar" %} : {{ user.username }}" />
                 {% endfilter %}
             </a>

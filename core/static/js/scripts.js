@@ -210,6 +210,15 @@ $(document).ready(function() {
         });
     } // end magnifier setup
 
+    // Broken profile images
+    window.addEventListener('error', function(event) {
+        var culprit = event.target, $culprit = $(event.target);
+        if (culprit.tagName == 'IMG' && $culprit.parents('.avatar').length && !$culprit.data('erroring-url')) {
+            $culprit.attr('data-erroring-url', culprit.src);
+            culprit.src = $culprit.data('fallback') || '/static/img/image_not_available.png';
+        }
+    }, true);
+
     // AJAX Paginator
     if (typeof $().endlessPaginate !== "undefined") {
         $.endlessPaginate({
