@@ -1,6 +1,8 @@
 __pycache__/
+.mypy_cache/
 pasportaservo/settings/__init__.py
 pasportaservo/settings/local_settings.py
+core/static/css/*.css*
 htmlcov
 .coverage
 coverage.xml

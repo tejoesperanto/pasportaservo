@@ -1,31 +1,35 @@
-dist: xenial
-sudo: false
+dist: bionic
 language: python
 cache: pip
 services:
   - postgresql
 addons:
-  postgresql: 9.6
+  postgresql: "10"
   apt:
     packages:
-    - postgresql-9.6-postgis-2.4
+    - postgresql-10-postgis-2.4
     - libgdal-dev
     - language-pack-eo
 
 python:
   - 3.5
-  - 3.6
+  - 3.7
 env:
-  - DJANGO=1.11
-  - DJANGO=2.0
+  - DJANGO="1.11.28"
+  - DJANGO="2.0.13"
+  - DJANGO="2.1.15"
+  - DJANGO="2.2.10"
 
 matrix:
   allow_failures:
-    - env: DJANGO=2.0
+    - env: DJANGO="2.0.13"
+    - env: DJANGO="2.1.15"
+    - env: DJANGO="2.2.10"
   fast_finish: true
 
 install:
   - pip install -r requirements/dev.txt
+  - pip install -U Django~=$DJANGO
 
 before_script:
   - locale-gen eo
