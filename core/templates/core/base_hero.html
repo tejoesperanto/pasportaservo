@@ -73,17 +73,17 @@
         </div>
     </div>
 
-    <div class="container">
+    <div class="search-container">
         {% block hero_content %}
-        <form class="form-inline row search" id="searchform" role="search form" method="GET" action="{% url 'search' %}">
+        <form class="search row" id="searchform" role="search form" method="GET" action="{% url 'search' %}">
             <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="form-group" style="width: 100%">
+                <div class="form-group">
                     <label class="sr-only" for="searchinput">{% trans "Search for a country, a region, or a city…" %}</label>
-                    <div class="input-group" style="width: 100%">
+                    <div class="input-group">
                         <input class="form-control" type="search" id="searchinput" name="ps_q"
                                placeholder="{% trans "Search for a country, a region, or a city…" %}">
                         <span class="input-group-btn">
-                            <button class="btn btn-default" type="submit" id="search" style="min-width: 40px; width: 100%;">
+                            <button class="btn btn-default" type="submit" id="search">
                                 <span aria-label="{% trans "Search" %}" class="fa fa-search fa-lg"></span>
                             </button>
                         </span>
