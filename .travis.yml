@@ -10,6 +10,7 @@ addons:
     packages:
     - postgresql-9.6-postgis-2.4
     - libgdal-dev
+    - language-pack-eo
 
 python:
   - 3.5
@@ -27,6 +28,7 @@ install:
   - pip install -r requirements/dev.txt
 
 before_script:
+  - locale-gen eo
   - isort
   - flake8
 script:

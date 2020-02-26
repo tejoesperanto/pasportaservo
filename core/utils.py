@@ -1,6 +1,13 @@
+import locale
+from functools import reduce
+
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.utils.http import is_safe_url
+
+
+def getattr_(obj, path):
+    return reduce(getattr, path.split("."), obj)
 
 
 def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,
@@ -52,3 +59,11 @@ def sanitize_next(request, from_post=False):
         return redirect
     else:
         return ''
+
+
+def sort_by(paths, iterable):
+    """Sort by a translatable name, using system locale for a better result."""
+    locale.setlocale(locale.LC_ALL, settings.SYSTEM_LOCALE)
+    for path in paths:
+        iterable = sorted(iterable, key=lambda obj: locale.strxfrm(str(getattr_(obj, path))))
+    return iterable
