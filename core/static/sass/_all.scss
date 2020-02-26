@@ -626,6 +626,10 @@ p.tip {
 .map .leaflet-container {
     min-height: 300px;
 }
+html:not(.msie-compat) .mapboxgl-canvas[tabindex="0"]:focus {
+    outline-offset: -1px;
+    outline-color: #0096ff;
+}
 
 
 /* Profile */
