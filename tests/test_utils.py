@@ -1,7 +1,9 @@
+from typing import NamedTuple
+
 from django.conf import settings
 from django.test import TestCase, tag
 
-from core.utils import camel_case_split
+from core.utils import camel_case_split, sort_by
 from hosting.utils import (
     split, title_with_particule, value_without_invalid_marker,
 )
@@ -84,3 +86,24 @@ class UtilityFunctionsTests(TestCase):
         for original_value, expected_value in test_data:
             with self.subTest(value=original_value):
                 self.assertEqual(value_without_invalid_marker(original_value), expected_value)
+
+    def test_sort_by_simple(self):
+        Country = NamedTuple("Country", [("code", str), ("name", str)])
+        countries = zw, cn, ca = Country("ZW", "Zimbabvo"), Country("CN", "Ĉinio"), Country("CA", "Kanado")
+        expected = [cn, ca, zw]
+
+        self.assertEqual(sort_by(["name"], countries), expected)
+
+    def test_sort_by_nested(self):
+        Person = NamedTuple("Person", [("name", str)])
+        House = NamedTuple("House", [("city", str), ("country", str), ("owner", Person)])
+        houses = wta, ptb, pfa, pfb, pta = (
+            House("Pawnee", "Texas", Person("A")),
+            House("Paris", "Texas", Person("B")),
+            House("Paris", "France", Person("A")),
+            House("Paris", "France", Person("B")),
+            House("Paris", "Texas", Person("A")),
+        )
+        expected = [pfa, pfb, pta, ptb, wta]
+
+        self.assertEqual(sort_by(["owner.name", "city", "country"], houses), expected)

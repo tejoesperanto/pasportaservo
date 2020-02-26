@@ -8,13 +8,9 @@ from django.template.defaultfilters import yesno
 from django.utils.translation import ugettext_lazy as _
 from django.views import generic
 
-from pyuca import Collator
-
 from core.auth import ADMIN, AuthMixin
 from hosting.models import Place
 from links.utils import create_unique_url
-
-c = Collator()
 
 
 class ContactExportView(AuthMixin, generic.ListView):

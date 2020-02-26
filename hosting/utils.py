@@ -8,7 +8,6 @@ from django.contrib.gis.geos import Point
 from django.utils.deconstruct import deconstructible
 
 import geocoder
-from pyuca import Collator
 
 from core.models import SiteConfiguration
 from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
@@ -94,10 +93,3 @@ class UploadAndRenameAvatar(object):
             filename = 'x{}'.format(str(uuid4()))
         filename = 'picture-{}.{}'.format(filename, ext.lower())
         return os.path.join(self.sub_path, filename)
-
-
-def sort_by_name(iterable):
-    """Sort by a translatable name, using pyuca for a better result."""
-    c = Collator()
-    key = lambda obj: c.sort_key(str(obj.name))
-    return sorted(iterable, key=key)

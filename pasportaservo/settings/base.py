@@ -1,3 +1,4 @@
+import locale
 from os import environ, path
 
 from django.conf import global_settings
@@ -188,6 +189,12 @@ CSRF_COOKIE_HTTPONLY = True
 
 
 # Non-Django settings:
+
+SYSTEM_LOCALE = "{lang}.{encoding}".format(lang=LANGUAGE_CODE, encoding="UTF-8")
+try:
+    locale.setlocale(locale.LC_ALL, SYSTEM_LOCALE)
+except locale.Error:
+    raise locale.Error("Could not set locale {}: make sure that it is enabled on the system.".format(SYSTEM_LOCALE))
 
 
 # Prefix for marking values (such as email addresses) as no longer valid

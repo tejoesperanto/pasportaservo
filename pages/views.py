@@ -10,8 +10,8 @@ from django.views import generic
 from core.auth import PERM_SUPERVISOR
 from core.mixins import flatpages_as_templates
 from core.models import Policy
+from core.utils import sort_by
 from hosting.models import Place
-from hosting.utils import sort_by_name
 
 
 class AboutView(generic.TemplateView):
@@ -67,7 +67,7 @@ class SupervisorsView(generic.TemplateView):
             ((book_filter | online_filter) if filter_for_supervisor else online_filter)
         )
         groups = Group.objects.exclude(user=None)
-        countries = sort_by_name({p.country for p in places})
+        countries = sort_by(["name"], {p.country for p in places})
         for country in countries:
             try:
                 group = groups.get(name=country.code)

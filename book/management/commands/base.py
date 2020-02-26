@@ -5,17 +5,15 @@ from subprocess import call
 from tempfile import mkdtemp
 
 from django.conf import settings
+from django.core import sort_by
 from django.core.management.base import CommandError
 from django.template import Template
 from django.utils import translation
 
 from django_countries import countries
-from pyuca import Collator
 
 from hosting.models import Place
 from maps import COUNTRIES_WITH_REGIONS
-
-c = Collator()
 
 
 class LatexCommand(object):
@@ -87,10 +85,7 @@ class LatexCommand(object):
         if self.address_only:
             print('  for', self.country)
             places = places.filter(country=self.country)
-        city_key = lambda place: c.sort_key(str(place.closest_city))
-        region_key = lambda place: c.sort_key(str(place.state_province))
-        country_key = lambda place: c.sort_key(str(place.country.name))
-        return sorted(sorted(sorted(places, key=city_key), key=region_key), key=country_key)
+        return sort_by(["closest_city", "state_province", "country.name"], places)
 
     def get_context_data(self):
         return {
