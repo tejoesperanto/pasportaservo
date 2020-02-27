@@ -124,13 +124,16 @@ def avatar_dimension(profile, size_percent=100):
     if profile and profile.avatar_exists():
         if profile.avatar.width < profile.avatar.height:
             dimension = ["width"]
+            aspect = "tall"
         else:
             dimension = ["height"]
+            aspect = "wide"
     else:
         dimension = ["width", "height"]
+        aspect = "square"
     return mark_safe(" ".join(
-        "{attr}=\"{s:.2f}%\"".format(attr=attr, s=float(size_percent))
-        for attr in dimension
+        ["{attr}=\"{s:.2f}%\"".format(attr=attr, s=float(size_percent)) for attr in dimension]
+        + ["data-{aspect}".format(aspect=aspect)]
     ))
 
 

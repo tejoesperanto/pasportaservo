@@ -322,6 +322,12 @@ header .navigator {
         display: table-cell;
         width: 32px;
         height: 32px;
+        & > img[data-tall] {
+            width: 32px;
+        }
+        & > img[data-wide] {
+            height: 32px;
+        }
         @include avatar-chrome($right-aligned: true);
 
         &:hover, &:focus {
@@ -343,6 +349,12 @@ header .navigator {
     .nav-profile.in .tooltip {
         margin-top: 6px;
     }
+}
+html.msie-compat header .navigator .avatar > img {
+    top: auto;
+    left: auto;
+    -ms-transform: none;
+    transform: none;
 }
 
 header #title, .same-as-title {
@@ -1122,6 +1134,12 @@ footer {
         .avatar {
             width: 28px;
             height: 28px;
+            & > img[data-tall] {
+                width: 28px;
+            }
+            & > img[data-wide] {
+                height: 28px;
+            }
         }
     }
     .owner h1 {
