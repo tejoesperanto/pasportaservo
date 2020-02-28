@@ -71,7 +71,7 @@ def updatestrings(runlocal=True, _inside_env=False):
         else:
             with prefix("workon %s" % env.site):
                 run(command)
-            sudo("supervisorctl restart %s" % env.site)
+            site_ctl(command='restart')
     else:
         local(command)
 
@@ -104,4 +104,11 @@ def deploy(mode='full', remote='origin'):
             updatestatic()
             migrate()
     if mode != 'html':
-        sudo("supervisorctl restart %s" % env.site)
+        site_ctl(command='restart')
+
+
+@task
+def site_ctl(command):
+    require('site', provided_by=[staging, prod])
+
+    sudo("supervisorctl %s %s" % (command, env.site))
