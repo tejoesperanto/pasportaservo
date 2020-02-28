@@ -247,6 +247,10 @@ msgid "at"
 msgstr "ĉe"
 
 msgctxt "URL"
+msgid "top-most"
+msgstr "plejsupro"
+
+msgctxt "URL"
 msgid "content-start"
 msgstr "enhavo-komenco"
 

@@ -16,7 +16,7 @@ $(document).ready(function() {
     $('.lazy').addClass('loaded');
 
     // Navigation skipping
-    $('.navskip > a').click(function() {
+    $('.navskip > a, a.scrolltop').click(function() {
         var targetName = this.getAttribute('href').substring(1);
         var targetElem = document.getElementById(targetName) || document.getElementsByName(targetName)[0];
         if (targetElem) {
