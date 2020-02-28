@@ -3,6 +3,7 @@
 {% load next random_identifier from utils %}
 
 {% block body %}
+    <a name="{% trans "top-most" context "URL" %}" tabindex="-1"></a>
     <section class="messages" role="complementary">
         {% block messages %}
             {% for message in messages %}{% include 'core/message.html' %}{% endfor %}
@@ -132,7 +133,9 @@
                     </span>
                 </div>
             </div>
-            <a href="#top" class="pull-right sr-only sr-only-focusable">{% trans "Back to top of page" %} &#8613;</a>
+            <a href="#{% trans "top-most" context "URL" %}" class="scrolltop sr-only sr-only-focusable pull-right">
+                {% trans "Back to top of page" %} &#8613;
+            </a>
         {% endblock footer %}
     </footer>
 
