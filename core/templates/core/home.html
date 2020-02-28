@@ -1,13 +1,40 @@
 {% extends 'core/base_hero.html' %}
-{% load i18n static flatpages %}
+{% load i18n static domain flatpages %}
 
 {% block content-at %}{% if view.news or view.right_block %}{% trans "whats-new" context "URL" %}{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block nav-skip-label %}{% trans "Jump to content" %}{% endblock %}
 
+{% block extra_head %}
+        <meta name="google-site-verification" content="WNSszF-XPUhHkWDgi_ArbSCn-U-bo1SfaFlVvk8w4xY" />
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "url": "{% domain %}",
+                "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "{% domain %}{% url 'search' %}?ps_q={search_term_string}",
+                    "query-input": "required name=search_term_string"
+                }
+            }
+        </script>
+{% endblock %}
+
 {% block pre-page %}
+    <section id="promo-pitch" class="container" role="note">
+         <div class="row">
+             <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                <div class="help-block promo-contents">
+                    {% trans "Stay for free in homes, host interesting people of all ages, practice your Esperanto." %}
+                    {% trans "Since 1974, thousands of travellers have used and are still using Pasporta Servo." %}
+                </div>
+             </div>
+         </div>
+    </section>
+
     <section id="home-explain" class="container{% if view.news or view.right_block %} has-content{% endif %}" role="complementary">
         <a name="{% trans "whats-new" context "URL" %}" tabindex="-1"></a>
-        <div class="row">
+        <div class="row" data-nosnippet>
             <div class="col-xs-12 col-md-6">
                 {% if view.news %}
                     <h2 class="text-center">
@@ -35,7 +62,7 @@
 {% block page_role %}toolbar{% endblock %}
 
 {% block page %}
-    <div class="social-links social-networks sm-icons pull-left">
+    <div class="social-links social-networks sm-icons pull-left" data-nosnippet>
         {% spaceless %}
         <a href="https://www.facebook.com/pasportaservo" target="_blank" rel="external noreferrer" title="Pasporta Servo {% trans "at" %} Facebook" class="highlight-custom">
             <img src="{% static 'img/home/social_facebook-sm.png' %}" alt="[facebook]"/>
@@ -48,7 +75,7 @@
         </a>
         {% endspaceless %}
     </div>
-    <div class="social-links social-contact sm-icons pull-right">
+    <div class="social-links social-contact sm-icons pull-right" data-nosnippet>
         {% spaceless %}
         <!--
         <a href="skype:pasporta.servo?chat" title="{% trans "Contact us via Skype" %}" class="highlight-custom">

@@ -24,7 +24,7 @@
 {% block page %}
     <h1>{% trans "Supervisors" %}</h1>
 
-    <p class="well" id="supervisors-wanted" aria-label="{% trans "Call-to-action" %}" touch-action="none">
+    <div class="well" id="supervisors-wanted" aria-label="{% trans "Call-to-action" %}" touch-action="none" data-nosnippet>
         {% spaceless %}
             <button type="button" class="close requires-scripting"
                     title="{% trans "Hide" %}" aria-label="{% trans "Hide call-to-action" %}">
@@ -35,7 +35,7 @@
         kaj ni bezonas vin. <br class="visible-sm-block visible-md-block visible-lg-block" />
         Se vi volas iĝi LO, bonvole sendu mesaĝon al <a href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>.
         Dankon!
-    </p>
+    </div>
 
     <div class="panel-group" role="tablist">
         <div class="panel panel-info">
@@ -133,10 +133,10 @@
                             disabled
                        {% endif %}>
                         <strong>{{ country.name }}</strong>&nbsp;
-                        <span class="badge">{{ country.place_count }}</span>
+                        <span class="badge" data-nosnippet>{{ country.place_count }}</span>
                     </a>
                 </div>
-                <div role="cell" class="col-xxs-12 col-xs-4 col-sm-4 col-lg-5 pull-xs-right pull-sm-left">
+                <div role="cell" class="col-xxs-12 col-xs-4 col-sm-4 col-lg-5 pull-xs-right pull-sm-left" data-nosnippet>
                     {% widthratio country.checked_count country.place_count 100 as checked_progress %}
                     {% widthratio country.only_confirmed_count country.place_count 100 as confirmed_progress %}
                     <small><strong>{{ checked_progress }}%</strong></small>
