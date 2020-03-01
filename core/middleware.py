@@ -91,7 +91,7 @@ class AccountFlagsMiddleware(MiddlewareMixin):
         policy = (Policy.objects.order_by('-id').values('version', 'content'))[0:1]
         if trouble_view is not None:
             agreement = Agreement.objects.filter(
-                user=request.user, policy_version=policy.values_list('version'), withdrawn__isnull=True)
+                user=request.user, policy_version__in=policy.values_list('version'), withdrawn__isnull=True)
             if not agreement.exists():
                 # Policy will be needed to display the following page anyway,
                 # so it is immediately fetched from the database.
