@@ -6,5 +6,6 @@ export DJANGO_SETTINGS_MODULE=pasportaservo.settings.prod
 export SECRET_KEY="sekreto"
 export EMAIL_HOST_PASSWORD="pasvorto"
 export SENDGRID_API_KEY="SG.some.API.Key"
+export SENTRY_DSN="https://1234567890abcdef1234567890abcdef@sentry.io/8888888"
 
 cd /srv/prod/pasportaservo/

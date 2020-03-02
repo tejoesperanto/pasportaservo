@@ -27,5 +27,6 @@ itsdangerous==1.1.0
 libsass==0.17.0
 phonenumberslite==8.10.4
 sendgrid-django==2.0.0
+sentry-sdk==0.14.2
 
 wheel

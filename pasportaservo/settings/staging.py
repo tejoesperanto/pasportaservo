@@ -1,6 +1,8 @@
 from .base import *  # isort:skip
 from django.contrib.messages import constants as message_level
 
+from .sentry import sentry_init
+
 ENVIRONMENT = 'UAT'
 
 SECRET_KEY = get_env_setting('SECRET_KEY')
@@ -27,3 +29,5 @@ SECURE_SSL_REDIRECT = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+
+sentry_init(env=ENVIRONMENT)
