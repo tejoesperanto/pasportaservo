@@ -17,19 +17,19 @@
 
 **La projekto komenciĝis en 1974 kiel eta jarlibro, kaj ekde 2009 daŭras ankaŭ kiel retejo
   (unue surbaze de Drupalo kaj nuntempe sur [Dĵango](https://www.djangoproject.com)).
-  En tiu ĉi deponejo kolektiĝas la kodo kiu ruligas la retejon [pasportaservo.org](https://pasportaservo.org).**
+  En tiu ĉi deponejo kolektiĝas la kodo kiu ruligas la retejon [pasportaservo.org](https://www.pasportaservo.org).**
 
 - [Kontribui](#kontribui)
 - [Instali](#instali)
 - [Licenco](#licenco)
 
 
-# Kᴏɴᴛʀɪʙᴜɪ
+# Kontribui
 
 Ĉu vi trovis cimon? Ĉu vi havas ideon kiel plibonigi la retejon? Nepre kreu [novan atentindaĵon](https://github.com/tejo-esperanto/pasportaservo/issues/new).
 
 
-# Iɴꜱᴛᴀʟɪ
+# Instali
 
 Ubuntu 16.10 / Debian Stretch:
 
@@ -60,15 +60,21 @@ Por ĉiuj:
 #### Fontkodo
 
 Iru al la [GitHub-projektpaĝo](https://github.com/tejo-esperanto/pasportaservo)
-kaj forku la deponejon. Poste, vi povas kloni ĝin (ne forgesu tion fari ene de virtuala medio):
+kaj forku la deponejon. Poste, vi povas kloni ĝin:
 
     git clone https://github.com/{via-uzantnomo}/pasportaservo.git
+
+Instalu ĉiujn necesajn pakaĵojn kaj pretigu la datumbazon (ne forgesu tion fari ene de virtuala medio):
+
     cd pasportaservo
     pip install wheel
     pip install -r requirements/dev.txt
     echo 'from .dev import *' > pasportaservo/settings/__init__.py
     ./manage.py migrate
     ./manage.py createsuperuser  # Nur la uzantnomo kaj pasvorto estas deviga
+
+Fine, kurigu la lokan WSGI-servilon:
+
     ./manage.py runserver
 
 Ĉu bone? Vidu http://localhost:8000
@@ -117,6 +123,15 @@ Se la komando `sudo -u postgres createuser --interactive` malsukcesas
 
 Se vi vidas tabelon kiel ĉi-supre, ĉio glate paŝis.
 
+#### Lokaĵaro: `Could not set locale eo.UTF-8: make sure that it is enabled on the system`
+Tia eraro indikas ke la Esperanta lokaĵaro ne estas aktivigita. Uzu la jenajn komandojn:
+
+    sudo locale-gen eo.UTF-8
+    sudo update-locate
+    locale -a
+
+Se vi vidas `eo.utf8` en la listo, la ĝusta lokaĵaro estas nun aktiva.
+
 
 ### Komprenu la strukturon de la kodo
 
@@ -141,6 +156,6 @@ Kaj ene de la diversaj *Dĵango-aplikaĵoj* (ekz. `hosting`, `pages`, `links`…
 - https://docs.djangoproject.com/en/stable/
 
 
-# Lɪᴄᴇɴᴄᴏ
+# Licenco
 
 [GNU AGPLv3](LICENSE)
