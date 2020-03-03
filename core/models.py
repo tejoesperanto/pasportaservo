@@ -61,7 +61,7 @@ class SiteConfiguration(SingletonModel):
     openmaptiles_api_key = models.CharField(
         max_length=32, default='iQbjILhp2gs0dgNfTlIV', blank=True)
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return str(_("Site Configuration"))
 
     class Meta:
