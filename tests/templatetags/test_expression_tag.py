@@ -2,13 +2,11 @@ import logging
 import string
 
 from django.template import Context, Template, TemplateSyntaxError
-from django.test import tag
-
-from django_webtest import WebTest
+from django.test import TestCase, tag
 
 
 @tag('templatetags')
-class ExpressionTagTests(WebTest):
+class ExpressionTagTests(TestCase):
     _sentinel = {'T': 'F', 'r': 'R', 'u': 'A', 't': 'U', 'h': 'D'}
 
     @classmethod
@@ -41,6 +39,13 @@ class ExpressionTagTests(WebTest):
             'view': self,
         }
 
+    @property
+    def more_context(self):
+        return {
+            'WIZARD': 1.3,
+            'ELF': 0.8,
+        }
+
     def test_incorrect_syntax(self):
         with self.assertRaises(TemplateSyntaxError) as cm:
             Template("{% load expression %}{% expr %}")
@@ -58,6 +63,7 @@ class ExpressionTagTests(WebTest):
             with self.subTest(expr=expr):
                 template = Template(template_string.substitute(TESTEXPR=expr))
                 context = Context(self.base_context.copy())
+                context.update(self.more_context.copy())
                 if should_emit_log:
                     with self.assertLogs(self.logger, logging.WARNING):
                         page = template.render(context)

@@ -1,9 +1,13 @@
+import random
 from typing import NamedTuple
 
 from django.conf import settings
+from django.core import mail
 from django.test import TestCase, tag
 
-from core.utils import camel_case_split, sort_by
+from faker import Faker
+
+from core.utils import camel_case_split, send_mass_html_mail, sort_by
 from hosting.utils import (
     split, title_with_particule, value_without_invalid_marker,
 )
@@ -43,6 +47,8 @@ class UtilityFunctionsTests(TestCase):
             ("del artagnaN", "del Artagnan"),
             ("Af-arTagnan", "af-Artagnan"),
             ("d.arta.gnan", "D.Arta.Gnan"),
+            ("", ""),
+            (None, None),
         )
         for title, expected_value in test_data:
             with self.subTest(title=title):
@@ -83,20 +89,21 @@ class UtilityFunctionsTests(TestCase):
             ("{0}user{0}".format(settings.INVALID_PREFIX), "user{}".format(settings.INVALID_PREFIX)),
             ("{}user@not--mail".format(settings.INVALID_PREFIX), "user@not--mail"),
         )
+        self.assertNotEqual(settings.INVALID_PREFIX, "")
         for original_value, expected_value in test_data:
             with self.subTest(value=original_value):
                 self.assertEqual(value_without_invalid_marker(original_value), expected_value)
 
     def test_sort_by_simple(self):
-        Country = NamedTuple("Country", [("code", str), ("name", str)])
+        Country = NamedTuple('Country', [('code', str), ('name', str)])
         countries = zw, cn, ca = Country("ZW", "Zimbabvo"), Country("CN", "Ĉinio"), Country("CA", "Kanado")
         expected = [cn, ca, zw]
 
-        self.assertEqual(sort_by(["name"], countries), expected)
+        self.assertEqual(sort_by(['name'], countries), expected)
 
     def test_sort_by_nested(self):
-        Person = NamedTuple("Person", [("name", str)])
-        House = NamedTuple("House", [("city", str), ("country", str), ("owner", Person)])
+        Person = NamedTuple('Person', [('name', str)])
+        House = NamedTuple('House', [('city', str), ('country', str), ('owner', Person)])
         houses = wta, ptb, pfa, pfb, pta = (
             House("Pawnee", "Texas", Person("A")),
             House("Paris", "Texas", Person("B")),
@@ -106,4 +113,31 @@ class UtilityFunctionsTests(TestCase):
         )
         expected = [pfa, pfb, pta, ptb, wta]
 
-        self.assertEqual(sort_by(["owner.name", "city", "country"], houses), expected)
+        self.assertEqual(sort_by(['owner.name', 'city', 'country'], houses), expected)
+
+
+@tag('utils')
+class MassMailTests(TestCase):
+    def test_empty_list(self):
+        self.assertEqual(send_mass_html_mail(tuple()), 0)
+
+    def test_mass_html_mail(self):
+        test_data = list()
+        faker = Faker()
+        for i in range(random.randint(3, 7)):
+            test_data.append((
+                faker.sentence(),
+                faker.word(), "<strong>{}</strong>".format(faker.word()),
+                "test@ps", [],
+            ))
+            for j in range(random.randint(1, 3)):
+                test_data[i][4].append(faker.email())
+
+        result = send_mass_html_mail(test_data)
+        self.assertEqual(result, len(test_data))
+        self.assertEqual(len(mail.outbox), len(test_data))
+        for i in range(len(test_data)):
+            for j in range(len(test_data[i][4])):
+                self.assertEqual(mail.outbox[i].subject, test_data[i][0])
+                self.assertEqual(mail.outbox[i].from_email, settings.DEFAULT_FROM_EMAIL)
+                self.assertEqual(mail.outbox[i].to, test_data[i][4])

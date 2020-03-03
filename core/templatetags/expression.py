@@ -5,7 +5,7 @@ import re
 from collections import namedtuple
 
 from django import template
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy
 
 register = template.Library()
 
@@ -42,15 +42,8 @@ class ExprNode(template.Node):
 
     def render(self, context):
         try:
-            ctxlist = list(context)
-            ctxlist.reverse()
-            d = {}
-            d['_'] = _
-            for c in ctxlist:
-                for item in c:
-                    d[item] = c[item]
-                    if isinstance(item, dict):
-                        d.update(item)
+            d = context.flatten()
+            d['_'] = gettext_lazy
             result = eval(self.expr_string, d)
             expr_log.debug("Evaluated [ %s ] resulting in [ %r ]", self.expr_string, result)
             if self.variable:

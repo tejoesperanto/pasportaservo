@@ -1,12 +1,12 @@
 from django.conf import settings
 from django.template import Context, Template, TemplateSyntaxError
-from django.test import RequestFactory, tag
+from django.test import RequestFactory, TestCase, tag
 
-from django_webtest import WebTest
+from core.templatetags.utils import next_link
 
 
 @tag('templatetags')
-class NextTagTests(WebTest):
+class NextTagTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.request_factory = RequestFactory()
@@ -23,7 +23,7 @@ class NextTagTests(WebTest):
         for variant in ["{% next url_only=True %}", "{% next default=X %}", "{% next url_only=True as url %}"]:
             with self.subTest(faulty_tag=variant):
                 with self.assertRaises(TypeError) as cm:
-                    Template("{% load next from utils %}" + variant).render(Context({}))
+                    Template("{% load next from utils %}" + variant).render(Context())
                 self.assertIn("missing 1 required positional argument: 'proceed_to'", str(cm.exception))
 
     def test_provided_link(self):
@@ -31,15 +31,15 @@ class NextTagTests(WebTest):
 
         # A directly provided URL is expected to be used as-is.
         template = Template("{% load next from utils %}{% next '/xx/yy/zz#qq-32' %}")
-        page = template.render(Context({}))
+        page = template.render(Context())
         self.assertEqual(page, expected_value)
 
         template = Template("{% load next from utils %}{% next '/xx/yy/zz' '#qq-32' %}")
-        page = template.render(Context({}))
+        page = template.render(Context())
         self.assertEqual(page, expected_value)
 
         template = Template("{% load next from utils %}{% next '/xx/yy/zz' '#qq-' 32 %}")
-        page = template.render(Context({}))
+        page = template.render(Context())
         self.assertEqual(page, expected_value)
 
         template = Template("{% load next from utils %}{% next '/xx/yy/zz' '#qq-' obj_pk %}")
@@ -50,7 +50,7 @@ class NextTagTests(WebTest):
         # The token 'this page' is supposed to use the current request's URL, but if
         # the request object is missing from context, an empty result is expected.
         template = Template("{% load next from utils %}{% next 'this page' %}")
-        page = template.render(Context({}))
+        page = template.render(Context())
         self.assertEqual(page, "")
 
         request = self.request_factory.get('/trololo/lolo/lo-lo-lo?LoLoLo')
@@ -60,20 +60,26 @@ class NextTagTests(WebTest):
         template = Template("{% load next from utils %}{% next 'this page' %}")
         page = template.render(Context({'request': request}))
         self.assertEqual(page, expected_value)
+        value = next_link(request, 'this page')
+        self.assertEqual(value, expected_value)
 
         template = Template("{% load next from utils %}{% next 'this page' '#x' %}")
         page = template.render(Context({'request': request}))
         self.assertEqual(page, "{}%23x".format(expected_value))
+        value = next_link(request, 'this page', "#x")
+        self.assertEqual(value, "{}%23x".format(expected_value))
 
         template = Template("{% load next from utils %}{% next 'this page' '#x' 150 %}")
         page = template.render(Context({'request': request}))
         self.assertEqual(page, "{}%23x150".format(expected_value))
+        value = next_link(request, 'this page', "#x", 150)
+        self.assertEqual(value, "{}%23x150".format(expected_value))
 
     def test_thispage_shortcut_link(self):
         # When an anchor is used, the 'this page' token (using the current request's URL) is assumed, but if
         # the request object is missing from context, an empty result is expected.
         template = Template("{% load next from utils %}{% next '#y2' %}")
-        page = template.render(Context({}))
+        page = template.render(Context())
         self.assertEqual(page, "")
 
         request = self.request_factory.get('/tra/LA/la/la-la#aaaa')
@@ -83,19 +89,23 @@ class NextTagTests(WebTest):
         template = Template("{% load next from utils %}{% next '#y2' %}")
         page = template.render(Context({'request': request}))
         self.assertEqual(page, expected_value)
+        value = next_link(request, "#y2")
+        self.assertEqual(value, expected_value)
 
         template = Template("{% load next from utils %}{% next '#y' '2' %}")
         page = template.render(Context({'request': request}))
         self.assertEqual(page, expected_value)
+        value = next_link(request, "#y", 2)
+        self.assertEqual(value, expected_value)
 
     def test_nextpage_link(self):
         # The token 'next page' is supposed to use the value of the request parameter, but if
         # the request object is missing from context, an empty result is expected.
         template = Template("{% load next from utils %}{% next 'next page' %}")
-        page = template.render(Context({}))
+        page = template.render(Context())
         self.assertEqual(page, "")
         # The token 'next page' is supposed to use the value of the request parameter, but if
-        # the paramater is not present in the request, an empty result is expected.
+        # the parameter is not present in the request, an empty result is expected.
         page = template.render(Context({'request': self.request_factory.get('/ensaluti/')}))
         self.assertEqual(page, "")
 
@@ -107,14 +117,20 @@ class NextTagTests(WebTest):
         template = Template("{% load next from utils %}{% next 'next page' %}")
         page = template.render(Context({'request': request}))
         self.assertEqual(page, expected_value)
+        value = next_link(request, 'next page')
+        self.assertEqual(value, expected_value)
 
         template = Template("{% load next from utils %}{% next 'next page' '#2009' %}")
         page = template.render(Context({'request': request}))
         self.assertEqual(page, "{}%232009".format(expected_value))
+        value = next_link(request, 'next page', "#2009")
+        self.assertEqual(value, "{}%232009".format(expected_value))
 
         template = Template("{% load next from utils %}{% next 'next page' '#2009' '=3M' %}")
         page = template.render(Context({'request': request}))
         self.assertEqual(page, "{}%232009%3D3M".format(expected_value))
+        value = next_link(request, 'next page', "#2009", "=3M")
+        self.assertEqual(value, "{}%232009%3D3M".format(expected_value))
 
     def test_insecure_nextpage_link(self):
         # The token 'next page' is supposed to use the value of the request parameter. Whenever the value supplied
@@ -133,14 +149,14 @@ class NextTagTests(WebTest):
     def test_urlonly_value(self):
         # The 'url_only' flag together with a directly provided URL is expected to result in this URL.
         template = Template("{% load next from utils %}[{% next '/abc/def/ghij?klmn=op' url_only=True %}]")
-        page = template.render(Context({}))
+        page = template.render(Context())
         self.assertEqual(page, "[/abc/def/ghij?klmn=op]")
 
         # The 'url_only' flag together with a directly provided URL is expected to result in this URL.
         template = Template(
             "{% load next from utils %}"
             "[{% next '/<object>/' url_only=True as next_url %}][{{ next_url }}]")
-        page = template.render(Context({}))
+        page = template.render(Context())
         self.assertEqual(page, "[][/&lt;object&gt;/]")
 
         request = self.request_factory.get('/q/rs/tuv?w=W&{}=/xyz'.format(self.redirect_field_name))
@@ -150,23 +166,27 @@ class NextTagTests(WebTest):
         template = Template("{% load next from utils %}[{% next 'this page' url_only=True %}]")
         page = template.render(Context({'request': request}))
         self.assertEqual(page, "[/q/rs/tuv?w=W&amp;{}=/xyz]".format(self.redirect_field_name))
+        value = next_link(request, 'this page', url_only=True)
+        self.assertEqual(value, "/q/rs/tuv?w=W&{}=/xyz".format(self.redirect_field_name))
 
         # The 'url_only' flag together with 'next page' token
         # is expected to result in the value of the corresponding request parameter.
         template = Template("{% load next from utils %}[{% next 'next page' url_only=True %}]")
         page = template.render(Context({'request': request}))
         self.assertEqual(page, "[/xyz]")
+        value = next_link(request, 'next page', url_only=True)
+        self.assertEqual(value, "/xyz")
 
     def test_default_value(self):
         expected_value = "{}=Finally%20Returning%20Back%20Home".format(self.redirect_field_name)
 
         # A value provided as 'default' is expected to be used when the first argument evaluates to empty string.
         template = Template("{% load next from utils %}{% next '' default='Finally Returning Back Home' %}")
-        page = template.render(Context({}))
+        page = template.render(Context())
         self.assertEqual(page, expected_value)
 
         template = Template("{% load next from utils %}{% next next_url default=builtin_url %}")
-        page = template.render(Context({}))
+        page = template.render(Context())
         self.assertEqual(page, "")
         page = template.render(Context({'builtin_url': "Finally Returning Back Home"}))
         self.assertEqual(page, expected_value)
@@ -181,5 +201,9 @@ class NextTagTests(WebTest):
         request = self.request_factory.get('/IAm/Very-Glad/?nextt=')
         page = template.render(Context({'request': request, 'builtin_url': "Finally Returning Back Home"}))
         self.assertEqual(page, expected_value)
+        value = next_link(request, 'next page', default="Finally Returning Back Home")
+        self.assertEqual(value, expected_value)
         page = template.render(Context({'request': request, 'builtin_url': None}))
         self.assertEqual(page, "")
+        value = next_link(request, 'next page', default=None)
+        self.assertEqual(value, "")

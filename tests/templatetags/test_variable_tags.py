@@ -1,13 +1,11 @@
 import string
 
 from django.template import Context, Template, TemplateSyntaxError
-from django.test import tag
-
-from django_webtest import WebTest
+from django.test import TestCase, tag
 
 
 @tag('templatetags')
-class MakeVariableTagTests(WebTest):
+class MakeVariableTagTests(TestCase):
     class DummyView(object):
         @property
         def simulate_role(self):
@@ -207,7 +205,7 @@ class MakeVariableTagTests(WebTest):
 
 
 @tag('templatetags')
-class DeleteVariableTagTests(WebTest):
+class DeleteVariableTagTests(TestCase):
     test_value = "Praesent congue erat at massa."
 
     def test_incorrect_syntax(self):
