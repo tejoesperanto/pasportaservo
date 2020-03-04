@@ -80,7 +80,7 @@ def updatestrings(runlocal=True, _inside_env=False):
 def updatestatic():
     run("./manage.py compilejsi18n -l eo")
     run("./manage.py compilescss")
-    run("./manage.py collectstatic --noinput %s" %
+    run("./manage.py collectstatic -v0 --noinput %s" %
         ("--ignore=*.scss" if env.site == 'prod' else ""))
     run("./manage.py compress --force")
 
@@ -111,4 +111,4 @@ def deploy(mode='full', remote='origin'):
 def site_ctl(command):
     require('site', provided_by=[staging, prod])
 
-    sudo("supervisorctl %s %s" % (command, env.site))
+    sudo("systemctl %s pasportaservo.%s.service" % (command, env.site))
