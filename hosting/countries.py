@@ -1,5 +1,5 @@
 
-LANGUAGES = {
+LANGUAGES = {       # pragma: no cover
     "AD": ["ca"],
     "AE": ["ar"],
     "AF": ["fa", "ps"],
@@ -250,7 +250,7 @@ LANGUAGES = {
 }
 
 
-LOCAL_NAME = {
+LOCAL_NAME = {      # pragma: no cover
     "AD": "Andorra",
     "AE": "United Arab Emirates",
     "AF": "Afghanistan",
