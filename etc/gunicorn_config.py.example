@@ -9,4 +9,4 @@ pythonpath = '/srv/prod/pasportaservo'
 bind = ['127.0.0.1:8010', '[::1]:8010']
 workers = 3
 user = 'ps'
-errorlog = '../stderr.log'
+errorlog = '/srv/staging/stderr.log'
