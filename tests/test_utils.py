@@ -11,6 +11,8 @@ from core.utils import camel_case_split, send_mass_html_mail, sort_by
 from hosting.utils import (
     split, title_with_particule, value_without_invalid_marker,
 )
+from maps import data as geodata
+from maps.utils import bufferize_country_boundaries
 
 
 @tag('utils')
@@ -114,6 +116,19 @@ class UtilityFunctionsTests(TestCase):
         expected = [pfa, pfb, pta, ptb, wta]
 
         self.assertEqual(sort_by(['owner.name', 'city', 'country'], houses), expected)
+
+    def test_bufferize_country_boundaries_unknown(self):
+        self.assertIsNone(bufferize_country_boundaries('XYZ'))
+
+    def test_bufferize_country_boundaries(self):
+        country = random.choice(list(geodata.COUNTRIES_GEO))
+        with self.subTest(country=country):
+            res = bufferize_country_boundaries(country)
+            self.assertIn('northeast', res['bbox'])
+            self.assertEqual(len(res['bbox']['northeast']), 2)
+            self.assertIn('southwest', res['bbox'])
+            self.assertEqual(len(res['bbox']['southwest']), 2)
+            self.assertEqual(res['center'], geodata.COUNTRIES_GEO[country]['center'])
 
 
 @tag('utils')
