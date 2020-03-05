@@ -147,11 +147,11 @@ class ProfileModelTests(WebTest):
         self.assertEqual(profile.age, 0)
         profile = ProfileFactory.build(birth_date=Faker('date_this_year', before_today=False, after_today=True))
         self.assertEqual(profile.age, 0)
-        profile = ProfileFactory.build(birth_date=Faker('date_between', start_date='-725d', end_date='-1y'))
+        profile = ProfileFactory.build(birth_date=Faker('date_between', start_date='-725d', end_date='-365d'))
         self.assertEqual(profile.age, 1)
-        profile = ProfileFactory.build(birth_date=Faker('date_between', start_date='+1y', end_date='+725d'))
+        profile = ProfileFactory.build(birth_date=Faker('date_between', start_date='+365d', end_date='+725d'))
         self.assertEqual(profile.age, -1)
-        profile = ProfileFactory.build(birth_date=Faker('date_between', start_date='-6935d', end_date='-18y'))
+        profile = ProfileFactory.build(birth_date=Faker('date_between', start_date='-6935d', end_date='-6570d'))
         self.assertEqual(profile.age, 18)
 
     def test_avatar_url(self):
