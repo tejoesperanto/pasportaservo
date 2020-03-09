@@ -6,33 +6,32 @@
 #
 # Funkcias se vi havas la jenan sekcion en via .ssh/config:
 #     Host ps
-#     HostName 188.166.58.162
+#     HostName pasportaservo.org
 
 from fabric.api import env, local, prefix, require, run, sudo, task
 
-env.hosts = ['ps']
-env.user = 'ps'
+env.hosts = ["ps"]
+env.user = "ps"
 env.use_ssh_config = True
-env.directory = '/srv/%s/pasportaservo'
-env.site = 'staging'   # default
-env.branch = 'master'  # default
+env.site = "staging"  # default
+env.branch = "master"  # default
 
 
 @task
 def prod():
-    env.site = 'prod'
-    env.branch = 'prod'
+    env.site = "prod"
+    env.branch = "prod"
 
 
 @task
 def staging():
-    env.site = 'staging'
-    env.branch = 'master'
+    env.site = "staging"
+    env.branch = "master"
 
 
 @task
-def push(remote='origin', branch='master', runlocal=True):
-    command = "git push %s %s" % (remote, branch)
+def push(remote="origin", branch="master", runlocal=True):
+    command = f"git push {remote} {branch}"
     if runlocal:
         local(command)
     else:
@@ -40,17 +39,17 @@ def push(remote='origin', branch='master', runlocal=True):
 
 
 @task
-def pull(remote='origin', branch='master', runlocal=True):
+def pull(remote="origin", branch="master", runlocal=True):
     if runlocal:
-        local("git pull --rebase %s %s" % (remote, branch))
+        local(f"git pull --rebase {remote} {branch}")
     else:
         run("git checkout -- locale/*/django.mo")
-        run("git pull %s %s" % (remote, branch))
+        run(f"git pull {remote} {branch}")
 
 
 @task
-def checkout(remote='origin', branch='master', runlocal=True):
-    command = "git checkout %s/%s" % (remote, branch)
+def checkout(remote="origin", branch="master", runlocal=True):
+    command = f"git checkout {remote}/{branch}"
     if runlocal:
         local(command)
     else:
@@ -59,19 +58,19 @@ def checkout(remote='origin', branch='master', runlocal=True):
 
 @task
 def requirements():
-    run("pip install -Ur requirements.txt")
+    run("pip install -Ur requirements.txt | grep -v 'Requirement already satisfied'")
 
 
 @task
 def updatestrings(runlocal=True, _inside_env=False):
     command = "./manage.py compilemessages"
-    if not runlocal or runlocal == 'False':
+    if not runlocal or runlocal == "False":
         if _inside_env:
             run(command)
         else:
-            with prefix("workon %s" % env.site):
+            with prefix(f"workon {env.site}"):
                 run(command)
-            site_ctl(command='restart')
+            site_ctl(command="restart")
     else:
         local(command)
 
@@ -80,9 +79,9 @@ def updatestrings(runlocal=True, _inside_env=False):
 def updatestatic():
     run("./manage.py compilejsi18n -l eo")
     run("./manage.py compilescss")
-    run("./manage.py collectstatic -v0 --noinput %s" %
-        ("--ignore=*.scss" if env.site == 'prod' else ""))
-    run("./manage.py compress --force")
+    extra_args = "--ignore=*.scss" if env.site == "prod" else ""
+    run(f"./manage.py collectstatic --verbosity 0 --noinput {extra_args}")
+    run("./manage.py compress --verbosity 0 --force")
 
 
 @task
@@ -91,24 +90,24 @@ def migrate():
 
 
 @task
-def deploy(mode='full', remote='origin'):
-    require('site', provided_by=[staging, prod])
-    require('branch', provided_by=[staging, prod])
+def site_ctl(command):
+    require("site", provided_by=[staging, prod])
 
-    with prefix("workon %s" % env.site):
+    sudo(f"systemctl {command} pasportaservo.{env.site}.service")
+
+
+@task
+def deploy(mode="full", remote="origin"):
+    require("site", provided_by=[staging, prod])
+    require("branch", provided_by=[staging, prod])
+
+    with prefix(f"workon {env.site}"):
         checkout(remote, env.branch, False)
         pull(remote, env.branch, False)
-        if mode == 'full':
+        if mode == "full":
             requirements()
             updatestrings(False, _inside_env=True)
             updatestatic()
             migrate()
-    if mode != 'html':
-        site_ctl(command='restart')
-
-
-@task
-def site_ctl(command):
-    require('site', provided_by=[staging, prod])
-
-    sudo("systemctl %s pasportaservo.%s.service" % (command, env.site))
+    if mode != "html":
+        site_ctl(command="restart")
