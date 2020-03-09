@@ -58,7 +58,7 @@ class HomeView(generic.TemplateView):
 
     @cached_property
     def news(self):
-        return Post.objects.published(3).defer('content', 'body')
+        return Post.objects.published().defer('content', 'body')[:3]
 
     @cached_property
     def right_block(self):

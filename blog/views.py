@@ -28,7 +28,7 @@ class PostsFeed(Feed):
     description = _("The last news about Pasporta Servo")
 
     def items(self):
-        return Post.objects.published(10)
+        return Post.objects.published()[:10]
 
     def item_title(self, item):
         return item.title
