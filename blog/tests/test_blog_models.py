@@ -180,23 +180,17 @@ class PublishedManagerTests(WebTest):
 
     def test_published(self):
         Post.objects.bulk_create(
-            PostFactory.build_batch(10)
+            PostFactory.build_batch(2)
             + PostFactory.build_batch(3, is_published=False)
             + PostFactory.build_batch(3, will_be_published=True)
         )
         mgr = Post.objects
-
-        # The default paging is expected to be 50.
-        # self.assertEqual(len(mgr.published()), 50)
-        for n in (10, 6, 3):
-            with self.subTest(limit=n):
-                # Limiting the number of published posts is expected to return the requested number.
-                posts = mgr.published(limit=n)
-                this_day = timezone.now()
-                self.assertEqual(len(posts), n)
-                for i in range(1, n):
-                    with self.subTest(post_date=posts[i].pub_date):
-                        self.assertLessEqual(posts[i].pub_date, this_day)
+        posts = mgr.published()
+        this_day = timezone.now()
+        self.assertEqual(len(posts), 2)
+        for i in range(2):
+            with self.subTest(post_date=posts[i].pub_date):
+                self.assertLessEqual(posts[i].pub_date, this_day)
 
     def test_published_with_no_posts(self):
         mgr = Post.objects

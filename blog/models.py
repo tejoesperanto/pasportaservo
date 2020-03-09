@@ -13,8 +13,8 @@ from simplemde.fields import SimpleMDEField
 
 
 class PublishedQueryset(models.QuerySet):
-    def published(self, limit=50):
-        return self.filter(published=True)[:limit]
+    def published(self):
+        return self.filter(published=True)
 
 
 class PublishedManager(models.Manager):
@@ -33,8 +33,8 @@ class PublishedManager(models.Manager):
             ),
         )
 
-    def published(self, limit=50):
-        return self.get_queryset().published(limit)
+    def published(self):
+        return self.get_queryset().published()
 
 
 class Post(TimeStampedModel):
