@@ -34,13 +34,15 @@
             {% widthratio checked_count place_count 100 as checked_progress %}
             {% widthratio confirmed_count place_count 100 as confirmed_progress %}
             <div class="progress" title="{{ checked_title }}" data-toggle="tooltip">
+                <span class="sr-only">{{ checked_title }} :</span>
                 <div class="progress-bar progress-bar-success" role="progressbar"
                      aria-valuenow="{{ checked_progress }}" aria-valuemin="0" aria-valuemax="100"
                      style="min-width: 2em; width: {{ checked_progress }}%">
-                    {{ checked_count }}
+                    {{ checked_count }} &nbsp;({{ checked_progress }}%)
                 </div>
             </div>
             <div class="progress" title="{{ confirmed_title }}" data-toggle="tooltip">
+                <span class="sr-only">{{ confirmed_title }} :</span>
                 <div class="progress-bar progress-bar-info" role="progressbar"
                      aria-valuenow="{{ confirmed_progress }}" aria-valuemin="0" aria-valuemax="100"
                      style="min-width: 2em; width: {{ confirmed_progress }}%">
@@ -53,7 +55,7 @@
     <h1 class="text-center" style="padding: 10px;">
         {{ view.country.name }}
         {% if country_coordinates %}
-            <button class="btn btn-default collapsed requires-scripting" style="margin-left: 1em"
+            <button class="btn btn-default collapsed requires-scripting hidden-print" style="margin-left: 1em"
                     type="button" data-target="#map-container" data-toggle="collapse"
                     aria-controls="map-container" aria-expanded="false"
                     title="{% trans "Map of the country" %}">
@@ -72,24 +74,24 @@
 
     <br />
     <ul class="nav nav-pills" role="tablist">
-        <li role="presentation" {% if view.in_book_status is True %}aria-pressed="true" class="active {% else %}class="{% endif %}pull-sm-right btn-vert-space">
+        <li role="presentation" {% if view.in_book_status is True %}aria-pressed="true" class="active {% else %}class="hidden-print {% endif %}pull-sm-right btn-vert-space">
             <a href="{% url 'staff_place_list' country_code=view.country in_book=1 %}">
                 <span class="badge">{{ in_book_count }}</span>
                 {% trans "In the book" %}
             </a>
         </li>
-        <li role="presentation" {% if view.in_book_status is False %}aria-pressed="true" class="active {% else %}class="{% endif %}pull-sm-right btn-vert-space">
+        <li role="presentation" {% if view.in_book_status is False %}aria-pressed="true" class="active {% else %}class="hidden-print {% endif %}pull-sm-right btn-vert-space">
             <a href="{% url 'staff_place_list' country_code=view.country in_book=0 %}">
                 <span class="badge">{{ not_in_book_count }}</span>
                 {% trans "Not in the book" %}
             </a>
         </li>
-        <li role="presentation" {% if view.in_book_status is None %}aria-pressed="true" class="active {% else %}class="{% endif %}pull-sm-right btn-vert-space">
+        <li role="presentation" {% if view.in_book_status is None %}aria-pressed="true" class="active {% else %}class="hidden-print {% endif %}pull-sm-right btn-vert-space">
             <a href="{% url 'staff_place_list' country_code=view.country %}">
                 {% trans "All hosts" %}
             </a>
         </li>
-        <li role="presentation" {% if view.kwargs.email %}aria-pressed="true" class="active {% else %}class="{% endif %}btn-vert-space">
+        <li role="presentation" {% if view.kwargs.email %}aria-pressed="true" class="active {% else %}class="hidden-print {% endif %}btn-vert-space">
             {# Translators: must be identical to the <email> parameter value in staff_place_list url. #}
             {% trans "email-addr" context "URL" as email_url_part %}
             {% if view.in_book_status is not None %}
@@ -110,7 +112,7 @@
                 {% trans "invalid emails"|capfirst %}
             </a>
         </li>
-        <li role="presentation" class="btn-vert-space">
+        <li role="presentation" class="hidden-print btn-vert-space">
             <a href="#{% trans "not-confirmed" context "URL" %}">
                 <span class="badge">{{ not_confirmed_count }}</span>
                 {{ not_confirmed_title|capfirst }}
@@ -169,7 +171,7 @@
                                     </form>
                                 {% endif %}
                             </div>
-                            <div class="btn-group" role="group">
+                            <div class="btn-group hidden-print" role="group">
                                 <a class="btn btn-success" href="{% url 'place_update' place.pk %}" target="_blank">
                                     <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
                                     {% trans "Update" %}
@@ -211,7 +213,7 @@
                             </h4>
                         </a>
                         <a href="{% url 'profile_update' place.profile.pk place.profile.autoslug %}?{% next current_page_position %}"
-                           class="btn btn-default btn-sm btn-vert-space">
+                           class="control-buttons btn btn-default btn-sm btn-vert-space">
                             {% trans "Update profile" %}
                         </a>
 
@@ -314,7 +316,7 @@
                                   method="POST"
                                   class="unwrap-after-success" style="display: inline">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-default btn-xs btn-vert-space-even ajax"
+                                <button type="submit" class="control-buttons btn btn-default btn-xs btn-vert-space-even ajax"
                                         data-csrf="{{ csrf_token }}"
                                         data-hover-class="btn-danger"
                                         data-on-ajax-success="markInvalidEmailSuccess"
@@ -324,7 +326,7 @@
                             </form>
                         {% endif %}
                         <a href="{% url 'staff_email_update' place.profile.pk place.profile.autoslug %}?{% next current_page_position %}"
-                           class="btn btn-default btn-sm">
+                           class="control-buttons btn btn-default btn-sm">
                             {% trans "Update email" %}
                         </a>
                     </div>

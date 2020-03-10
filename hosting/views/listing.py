@@ -39,6 +39,7 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
     area of responsibility.
     """
     template_name = "hosting/place_list_supervisor.html"
+    display_fair_usage_condition = True
     minimum_role = SUPERVISOR
 
     def dispatch(self, request, *args, **kwargs):
@@ -100,6 +101,7 @@ class SearchView(PlacePaginatedListView):
     queryset = Place.available_objects.filter(visibility__visible_online_public=True)
     paginate_first_by = 25
     paginate_by = 25
+    display_fair_usage_condition = True
 
     def get(self, request, *args, **kwargs):
         def unwhitespace(val):

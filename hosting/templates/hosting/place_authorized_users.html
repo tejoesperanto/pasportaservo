@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block form_action %}{% url 'authorize_user' pk=place.pk %}{% if next_page_url %}?{{ next_page_param }}{% endif %}{% endblock %}
-{% block form_container_class %}col-xs-12 col-md-6 col-md-offset-3{% endblock %}
+{% block form_container_class %}col-xs-12 col-md-6 col-md-offset-3 hidden-print{% endblock %}
 {% block form_submit_button %}<span class="fa fa-plus" aria-hidden="true"></span> {% trans "Authorize" %}{% endblock %}
 
 {% block form_before %}
@@ -20,6 +20,9 @@
     <p class="col-xs-12 col-md-8 col-md-offset-2 text-center lead">
         {% trans "Authorized users can see your full address, family members and telephone numbers." %}
         {% trans "Your email still remains private." %}
+    </p>
+    <p class="col-xs-12 col-md-8 col-md-offset-2 text-center visible-print-block">
+        {{ place }}
     </p>
 {% endblock form_before %}
 
@@ -62,12 +65,19 @@
                     </span>
                     {% csrf_token %}
                     {{ auth_form }}
-                    <button type="submit" class="btn btn-sm btn-danger pull-right" title="{% trans "Remove user" %}" data-toggle="tooltip">
+                    <button type="submit" class="control-buttons btn btn-sm btn-danger pull-right"
+                            title="{% trans "Remove user" %}" data-toggle="tooltip">
                         <span class="fa fa-times fa-lg" aria-hidden="true"></span>
                         <span class="sr-only">{% trans "Remove user" %}</span>
                     </button>
                 </p>
             </form>
+        </div>
+    {% empty %}
+        <div class="col-xs-12 col-md-6 col-md-offset-3 text-center visible-print-block">
+            <em>{% trans "No users found" %}.</em>
+            <br />
+            <em>{% trans "Full details viewable by:" %} {% trans "only supervisors" %}.</em>
         </div>
     {% endfor %}
 {% endblock form_after %}

@@ -71,7 +71,7 @@
     }
 }
 
-.top-notice {
+.top-notice:not(.alert) {
     margin-bottom: 1em;
 
     p, form {

@@ -31,7 +31,7 @@
 {% block page_class %} search{% endblock %}
 
 {% block page %}
-    <div class="row">
+    <div class="row hidden-print">
         <div class="col-xs-12 col-md-offset-2 col-md-8">
             <form class="search" id="searchform" role="search" method="GET" action="{% url 'search' %}">
                 {% if not view.query or not view.result.point %}
@@ -70,7 +70,7 @@
             <p class="lead">
                 {{ result|format_geo_result }}
             </p>
-            <p class="maplink">
+            <p class="maplink hidden-print">
                 <a href="{% url 'world_map' %}{{ result|geo_url_hash }}">{% trans "Open map of the region" %}</a>
             </p>
         {% elif view.query %}

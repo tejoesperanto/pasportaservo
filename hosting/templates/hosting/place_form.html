@@ -10,13 +10,13 @@
         {# THIS IS A PLACE EDIT FORM, AND USER IS THE OWNER #}
         {% blocktrans with kin=_("my ") %}Update {{ kin }}place{% endblocktrans %}
         ({{ place }})
+    {% elif view.role >= roles.SUPERVISOR %}
+        {# THIS IS A PLACE CREATE FORM, AND USER IS A SUPERVISOR OR ADMIN #}
+        {% blocktrans with name=view.create_for.name|default:_("user") %}Place of {{ name }}{% endblocktrans %}
+        {% if not view.create_for.name %}#{{ view.create_for.id }}{% endif %}
     {% else %}
-        {# THIS IS A PLACE CREATE FORM #}
+        {# THIS IS A PLACE CREATE FORM, AND USER IS THE OWNER #}
         {% trans "place"|title %}
-        {% if view.role >= roles.SUPERVISOR %}
-            {% blocktrans with name=view.create_for.name|default:_("user") %}of {{ name }}{% endblocktrans %}
-            {% if not view.create_for.name %}#{{ view.create_for.id }}{% endif %}
-        {% endif %}
     {% endif %}
 {% endblock %}
 

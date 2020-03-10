@@ -37,7 +37,7 @@
             </dl>
             {% next 'next page' url_only=True as next_page_url %}
             {% next next_page_url as next_page_param %}
-            <div class="btn-group btn-vert-space pull-right">
+            <div class="btn-group control-buttons btn-vert-space pull-right">
                 <a href="{% url 'profile_update' place.owner.pk place.owner.autoslug %}{% if next_page_url %}?{{ next_page_param }}{% endif %}"
                    class="btn btn-success" tabindex="2">
                     <span class="hidden-xxs" aria-hidden="true">
@@ -54,7 +54,7 @@
                 </a>
             </div>
             <a href="{{ next_page_url|default:"javascript:history.go(-1)" }}"
-               class="btn btn-default btn-vert-space{% if not next_page_url %} requires-scripting{% endif %}" tabindex="1">
+               class="control-buttons btn btn-default btn-vert-space{% if not next_page_url %} requires-scripting{% endif %}" tabindex="1">
                 <span class="fa fa-arrow-left" aria-hidden="true"></span>&nbsp;
                 {% trans "Back to previous page" %}
             </a>

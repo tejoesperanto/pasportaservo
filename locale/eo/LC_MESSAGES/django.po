@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2020-01-31 15:45+0000\n"
+"POT-Revision-Date: 2020-03-10 22:43+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -260,6 +260,13 @@ msgstr "Pretersalti navigajn butonojn"
 msgid "Home page"
 msgstr "Hejma paĝo"
 
+#, python-format
+msgid "For personal use of %(name)s"
+msgstr "Por persona uzo de %(name)s"
+
+msgid "For personal use"
+msgstr "Por persona uzo"
+
 msgid "log in"
 msgstr "ensaluti"
 
@@ -280,6 +287,9 @@ msgstr "Privateco"
 
 msgid "Supervisors"
 msgstr "Landaj organizantoj"
+
+msgid "World Esperanto Youth Organisation"
+msgstr "Tutmonda Esperantista Junulara Organizo"
 
 msgid "Back to top of page"
 msgstr "Reen al paĝo-supro"
@@ -1379,6 +1389,15 @@ msgstr "Nuligita profilo"
 msgid "Remove user"
 msgstr "Forigi uzanton"
 
+msgid "No users found"
+msgstr "Neniuj uzantoj listigitaj"
+
+msgid "Full details viewable by:"
+msgstr "Plenaj detaloj videblas al:"
+
+msgid "only supervisors"
+msgstr "nur la landaj organizantoj"
+
 msgid "Indicate unavailability"
 msgstr "Indiki maldisponeblon"
 
@@ -1533,6 +1552,9 @@ msgstr "Uzi simplan mapon"
 msgid "Use a fully-capable map"
 msgstr "Uzi plene kapablan mapon"
 
+msgid "Print map"
+msgstr "Printi mapon"
+
 msgid "Show"
 msgstr "Montri"
 
@@ -1592,6 +1614,10 @@ msgstr "per <a href=\"%(url)s\">privateco-agordoj</a>"
 
 msgid "via privacy settings"
 msgstr "per privateco-agordoj"
+
+#, python-format
+msgid "Place of %(name)s"
+msgstr "Loĝejo de %(name)s"
 
 msgid "Confirm and edit location"
 msgstr "Konfirmi kaj redakti lokigon"
@@ -1719,6 +1745,16 @@ msgid ""
 msgstr ""
 "La priskribo aŭ la rimarkigo pri telefona numero ŝajne enhavas ne-normajn "
 "Esperanto-literojn (anstataŭ ĉapelitajn). Ĉu akcepti tian tekston?"
+
+msgid "Print"
+msgstr "Printi"
+
+#, python-format
+msgid "Habitat of %(name)s"
+msgstr "Loĝloko de %(name)s"
+
+msgid "The map requires JavaScript and the WebGL technology."
+msgstr "La mapo necesigas JavaSkripton kaj la teĥnologion WebGL."
 
 msgid "Change user's public email"
 msgstr "Modifi publikan adreson de uzanto"
@@ -1881,6 +1917,9 @@ msgstr "Rigardi publikan profilon"
 msgid "Update public email"
 msgstr "Ŝanĝi retadreson por publikigo"
 
+msgid "Remove"
+msgstr "Forigi"
+
 msgid "Add a place"
 msgstr "Aldoni loĝejon"
 
@@ -2014,12 +2053,6 @@ msgstr "Vi indikis neniujn loĝ- aŭ kontakt-informojn…"
 msgid "approver unknown"
 msgstr "aprobanto nekonata"
 
-msgid "Full details viewable by:"
-msgstr "Plenaj detaloj videblas al:"
-
-msgid "only supervisors"
-msgstr "nur la landaj organizantoj"
-
 msgid "available,unavailable"
 msgstr "disponebla,maldisponebla"
 
@@ -2117,6 +2150,9 @@ msgstr "^telefono/"
 
 msgid "^detailed/$"
 msgstr "^detale/$"
+
+msgid "^map/print/$"
+msgstr "^mapo/printi/$"
 
 msgid "^location/update/$"
 msgstr "^lokigo/redakti/$"
@@ -2256,9 +2292,6 @@ msgstr ""
 msgid "You've been automatically logged in. Happy editing!"
 msgstr "Vi estas aŭtomate ensalutita. Bonan redaktadon!"
 
-msgid "The map requires JavaScript and the WebGL technology."
-msgstr "La mapo necesigas JavaSkripton kaj la teĥnologion WebGL."
-
 msgid "Select manually the most suitable point on the map."
 msgstr "Elektu permane la plej taŭgan punkton sur la mapo."
 
@@ -2327,6 +2360,11 @@ msgstr "kodo"
 
 msgid "status"
 msgstr "stato"
+
+msgid "host"
+msgid_plural "hosts"
+msgstr[0] "gastiganto"
+msgstr[1] "gastigantoj"
 
 msgid "place checked"
 msgid_plural "places checked"

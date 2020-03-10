@@ -3,6 +3,7 @@
 
         <a href="{% url 'postman:inbox' %}" class="linkicon">
             {% trans "inbox" as title_inbox %}
+            <span class="sr-only">&#9993;</span>
             {% if not postman_unread_count %}
                 <span class="fa fa-envelope-o fa-lg" aria-hidden="true"
                       title="{{ title_inbox|capfirst }}"
@@ -29,6 +30,6 @@
                 <span class="{% filter compact %}
                                 {% include './viewport_visibility_class.html' with breakpoints=label_at|default:"lg" %}
                              {% endfilter %}">&#x200A;&#x2002;{{ title_inbox }}</span>
-                <span class="sr-only">{{ verbose_count_inbox }}</span>
+                <span class="sr-only">({{ verbose_count_inbox }})</span>
             {% endif %}
         </a>

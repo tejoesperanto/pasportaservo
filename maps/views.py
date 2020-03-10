@@ -64,6 +64,11 @@ class EndpointsView(generic.View):
             endpoints.update({
                 'place_map_style': reverse_lazy('map_style', kwargs={'style': 'klokantech'}),
             })
+        if type == 'place-printed':
+            endpoints.update({
+                'place_map_style': reverse_lazy('map_style', kwargs={'style': 'toner'}),
+                'place_map_attrib': 0,
+            })
         if type == 'widget':
             endpoints.update({
                 'widget_style': reverse_lazy('map_style', kwargs={'style': 'positron'}),

@@ -88,6 +88,8 @@ window.addEventListener("load", function() {
         map.addControl(loc, 'top-right');
         var scale = new mapboxgl.ScaleControl();
         map.addControl(scale, 'bottom-right');
+
+        document.getElementById('map').style.backgroundImage = "none";
     });
 
 });

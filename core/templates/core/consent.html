@@ -6,7 +6,7 @@
 
 {% block page %}
     <div class="row">
-        <div class="alert {% if consent_required %}alert-warning{% else %}alert-success{% endif %}">
+        <div class="alert {% if consent_required %}alert-warning{% else %}alert-success{% endif %} top-notice">
             {% if consent_required %}
                 <p>
                     <strong>
@@ -44,7 +44,7 @@
             <h1>{% trans "Policy of Privacy within Pasporta Servo" %}</h1><br />
             {{ view.agreement }}
         </div>
-        <div class="panel-footer text-center clearfix">
+        <div class="panel-footer text-center clearfix hidden-print">
             <form action="" method="POST" class="pull-right">
                 {% csrf_token %}
                 <button type="submit" id="id_approve" name="action" value="approve" class="btn btn-primary btn-vert-space">

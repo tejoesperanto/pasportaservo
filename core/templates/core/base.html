@@ -13,7 +13,8 @@
         {% block header %}
             <nav class="navigator">
                 <div class="navskip">
-                    <a href="#{% block content-at %}{% trans "content-start" context "URL" %}{% endblock %}" class="sr-only sr-only-focusable">
+                    <a href="#{% block content-at %}{% trans "content-start" context "URL" %}{% endblock %}"
+                       class="sr-only sr-only-focusable hidden-print">
                         {% block nav-skip-label %}{% trans "Skip navigation buttons" %}{% endblock %}
                     </a>
                 </div>
@@ -26,7 +27,7 @@
                         </a>
                         {% endspaceless %}
                     </div>
-                    <div class="nav-search hidden-nano">
+                    <div class="nav-search hidden-nano hidden-print">
                         <a href="{% url 'search' %}" class="linkicon">
                             <span class="fa fa-search" aria-hidden="true"
                                   title="{% trans "Search" %}"
@@ -39,15 +40,32 @@
                     </div>
                 </div>
                 <div class="pull-right">
+                    <div class="use-notice visible-print" aria-hidden="true" data-nosnippet>
+                        {% if view.display_fair_usage_condition %}
+                            <span class="notice_content">
+                                <i>
+                                {% block use_notice %}
+                                    {% if user.is_authenticated and user.profile %}
+                                        {% blocktrans with name=user.profile.get_fullname_always_display trimmed %}
+                                            For personal use of {{ name }}
+                                        {% endblocktrans %}
+                                    {% else %}
+                                        {% trans "For personal use" %}
+                                    {% endif %}
+                                {% endblock %}
+                                </i>
+                            </span>
+                        {% endif %}
+                    </div>
                     {% if user.is_authenticated %}
-                        <div class="nav-inbox in">
+                        <div class="nav-inbox in hidden-print">
                             {% include './snippets/header_icon_inbox.html' %}
                         </div>
-                        <div class="nav-settings in hidden-nano">
+                        <div class="nav-settings in hidden-nano hidden-print">
                             {% include './snippets/header_icon_settings.html' %}
                         </div>
                     {% endif %}
-                    <div class="nav-session{% if user.is_authenticated %} in{% endif %}">
+                    <div class="nav-session{% if user.is_authenticated %} in{% endif %} hidden-print">
                         {% if user.is_authenticated %}
                             {% include './snippets/header_icon_logout.html' %}
                         {% elif user %} {# 500/403-CSRF error pages don't have a user object #}
@@ -56,7 +74,7 @@
                             </a>
                         {% endif %}
                     </div>
-                    <div class="nav-profile{% if user.is_authenticated %} in{% endif %}">
+                    <div class="nav-profile{% if user.is_authenticated %} in{% else %} hidden-print{% endif %}">
                         {% if user.is_authenticated %}
                             {% include './snippets/header_icon_profile.html' %}
                         {% elif user %} {# 500/403-CSRF error pages don't have a user object #}
@@ -114,23 +132,26 @@
         {% block footer %}
             <div class="row">
                 <div class="col-md-12" role="navigation">
-                    <span class="text-nowrap"><a href="{% url 'about' %}">{% trans "About us" %}</a></span>
-                    |
-                    <span class="text-nowrap"><a href="{% url 'faq' %}">{% trans "FAQ" %}</a></span>
-                    |
-                    <span class="text-nowrap"><a href="{% url 'terms_conditions' %}">{% trans "Terms" %}</a></span>
-                    |
-                    <span class="text-nowrap"><a href="{% url 'privacy_policy' %}">{% trans "Privacy" %}</a></span>
-                    |
-                    <span class="text-nowrap"><a href="{% url 'supervisors' %}">{% trans "Supervisors" %}</a></span>
-                    <span class="hidden-xs">|</span><br class="visible-xs-inline" style="margin-bottom: 10px" />
+                    <span class="hidden-print">
+                        <span class="footer-page-link"><a href="{% url 'about' %}">{% trans "About us" %}</a></span>
+                        |
+                        <span class="footer-page-link"><a href="{% url 'faq' %}">{% trans "FAQ" %}</a></span>
+                        |
+                        <span class="footer-page-link"><a href="{% url 'terms_conditions' %}">{% trans "Terms" %}</a></span>
+                        |
+                        <span class="footer-page-link"><a href="{% url 'privacy_policy' %}">{% trans "Privacy" %}</a></span>
+                        |
+                        <span class="footer-page-link"><a href="{% url 'supervisors' %}">{% trans "Supervisors" %}</a></span>
+                        <span class="hidden-xs">|</span><br class="visible-xs-inline" style="margin-bottom: 10px" />
+                    </span>
                     <span class="text-nowrap">
-                        <a href="http://tejo.org" title="Tutmonda Esperantista Junulara Organizo" rel="external">
+                        <a href="http://tejo.org" title="{% trans "World Esperanto Youth Organisation" %}" rel="external">
                             <img src="{% static 'img/home/tejo.svg' %}"
                                  onerror="this.onerror = null; this.src = this.src.replace(/tejo\.svg$/, 'tejo-sm.png');"
                                  width="39" height="18" style="vertical-align:-15%" alt="TEJO" />
                         </a>
                     </span>
+                    <span class="visible-print-inline-block text-light">{% trans "World Esperanto Youth Organisation" %}</span>
                 </div>
             </div>
             <a href="#{% trans "top-most" context "URL" %}" class="scrolltop sr-only sr-only-focusable pull-right">

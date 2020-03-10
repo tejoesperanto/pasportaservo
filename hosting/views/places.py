@@ -20,7 +20,9 @@ from django.views import generic
 
 from braces.views import FormInvalidMessageMixin
 
-from core.auth import ANONYMOUS, OWNER, PERM_SUPERVISOR, SUPERVISOR, AuthMixin
+from core.auth import (
+    ANONYMOUS, OWNER, PERM_SUPERVISOR, SUPERVISOR, VISITOR, AuthMixin,
+)
 from core.forms import UserRegistrationForm
 from core.models import SiteConfiguration
 from core.templatetags.utils import next_link
@@ -59,6 +61,7 @@ class PlaceUpdateView(
         generic.UpdateView):
     form_class = PlaceForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
+    display_fair_usage_condition = True
 
 
 class PlaceLocationUpdateView(
@@ -66,6 +69,7 @@ class PlaceLocationUpdateView(
         generic.UpdateView):
     form_class = PlaceLocationForm
     update_partial = True
+    display_fair_usage_condition = True
 
     def get_success_url(self, *args, **kwargs):
         return reverse_lazy('place_detail_verbose', kwargs={'pk': self.object.pk})
@@ -82,6 +86,7 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
     Details about a place; allows also anonymous (unauthenticated) user access.
     For such users, the registration form will be displayed.
     """
+    display_fair_usage_condition = True
     minimum_role = ANONYMOUS
     verbose_view = False
 
@@ -260,6 +265,7 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
             # Automatically show the user the verbose view if permission granted (in authorized_users list).
             cases = [
                 barrier.is_authorized and not barrier.is_supervisor,
+                getattr(self, 'verbose_when_privileged', False) and self.role >= OWNER,
             ]
             if any(cases):
                 self.verbose_view = True
@@ -272,6 +278,7 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
                 not self.request.user.is_authenticated,
                 barrier.is_authorized,
                 barrier.is_family_member,
+                getattr(self, 'verbose_when_privileged', False) and self.role >= OWNER,
             ]
             if not any(cases):
                 return HttpResponseRedirect(reverse_lazy('place_detail', kwargs={'pk': self.kwargs['pk']}))
@@ -280,6 +287,23 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
 
     def get_debug_data(self):
         return self.debug
+
+
+class PlaceMapPrintView(PlaceDetailView):
+    template_name = 'hosting/place_map.html'
+    verbose_when_privileged = True
+    minimum_role = VISITOR
+
+    def get_queryset(self):
+        qs = super().get_queryset().select_related(None)
+        qs = qs.select_related('owner', 'owner__user', 'visibility')
+        return qs.only(
+            'address', 'city', 'closest_city', 'postcode', 'state_province', 'country',
+            'location', 'location_confidence',
+            'available', 'blocked_from', 'blocked_until', 'deleted_on',
+            'owner__first_name', 'owner__last_name', 'owner__names_inversed', 'owner__user__username',
+            'visibility__id', 'visibility__visible_online_public',
+        )
 
 
 class PlaceBlockView(AuthMixin, PlaceMixin, generic.UpdateView):
@@ -316,6 +340,7 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
     """
     template_name = 'hosting/place_authorized_users.html'
     form_class = UserAuthorizeForm
+    display_fair_usage_condition = True
     exact_role = OWNER
 
     def dispatch(self, request, *args, **kwargs):

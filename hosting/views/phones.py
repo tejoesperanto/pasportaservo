@@ -30,6 +30,7 @@ class PhoneUpdateView(
         UpdateMixin, AuthMixin, PhoneMixin, ProfileModifyMixin,
         generic.UpdateView):
     form_class = PhoneForm
+    display_fair_usage_condition = True
 
 
 class PhoneDeleteView(
