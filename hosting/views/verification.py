@@ -53,6 +53,7 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
     """
     http_method_names = ['post']
     template_names = {True: '200.html', False: 'hosting/place_check_detail.html'}
+    display_fair_usage_condition = True
     minimum_role = SUPERVISOR
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')

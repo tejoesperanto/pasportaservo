@@ -141,7 +141,7 @@
                                 </p>
                             {% endif %}
                             {% if view.role == roles.OWNER and not place.deleted %}
-                                <div class="place-blocking text-right pull-right"
+                                <div class="place-blocking control-buttons text-right pull-right"
                                      title="{% trans "Indicate unavailability" %}" data-toggle="tooltip">
                                     <button data-target="#set-blocking"
                                             class="btn btn-default btn-sm requires-scripting"
@@ -350,14 +350,19 @@
             {% if not simple_map %}
                 </noscript>
             {% endif %}
-            <form action="{% url 'map_type_setup' simple_map|yesno:'3,0' %}" method="POST" class="requires-scripting">
+            <form action="{% url 'map_type_setup' simple_map|yesno:'3,0' %}" method="POST"
+                  class="btn-toolbar pull-right requires-scripting hidden-print">
                 {% csrf_token %}
                 <input type="hidden" name="{{ REDIRECT_FIELD_NAME }}" value="{{ request.get_full_path }}" />
-                <button type="submit" class="btn btn-default btn-xs btn-vert-space-even pull-right ajax"
+                <button type="submit" class="btn btn-default btn-xs btn-vert-space-even ajax"
                         data-csrf="{{ csrf_token }}"
                         data-on-ajax-success="setupMapStyleSuccess">
                     {% if not simple_map %}{% trans "Use a simple map" %}{% else %}{% trans "Use a fully-capable map" %}{% endif %}
                 </button>
+                {% if user.is_authenticated %}
+                    <a class="btn btn-default btn-xs btn-vert-space-even"
+                       href="{% url 'place_map_print' place.pk %}">{% trans "Print map" %}</a>
+                {% endif %}
             </form>
         </section>
 
@@ -381,9 +386,8 @@
                         <span class="fa fa-bed fa-fw text-muted" aria-label="{% trans "Note " context 'Title' %}"></span>&nbsp;
                         {% trans "Other dwellers at this place." %}
                         {% if shall_display_family_members and not place.family_is_anonymous %}
-                            <button data-target="#family-panel-small"
-                                    class="switch requires-scripting btn btn-xs"
-                                    type="button" data-toggle="collapse"
+                            <button class="switch requires-scripting hidden-print btn btn-xs"
+                                    type="button" data-target="#family-panel-small" data-toggle="collapse"
                                     aria-controls="family-panel-small" aria-expanded="false">
                                 &nbsp;<span class="fa fa-caret-right fa-lg" aria-label="{% trans "Show" %}" data-aria-label-inactive="{% trans "Hide" %}"></span>&nbsp;
                             </button>
@@ -488,7 +492,7 @@
         {% endif %}
 
         {% if place_owner_or_supervisor or user.profile in place.family_members_cache %}
-            <section class="col-xs-12" aria-label="{% trans "Summary of place's settings of the owner" %}">
+            <section class="col-xs-12 place-settings-preview" aria-label="{% trans "Summary of place's settings of the owner" %}">
             {# PREVIEW OF PLACE SETTINGS. NOT FOR VISITORS. #}
                 <p class="help-block">
                     {% trans "Short description" %}:&nbsp;

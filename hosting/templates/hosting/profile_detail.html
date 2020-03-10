@@ -50,7 +50,7 @@
     {% if profile|is_supervisor and not profile.user.is_superuser %}
     {# PAGE-TOP INFORMATION ABOUT COUNTRIES SUPERVISED BY THIS USER #}
         <div class="row bg-warning top-notice">
-            <p class="col-xs-12 text-center" style="font-weight: 300">
+            <p class="col-xs-12 text-center text-light">
                 {% blocktrans with countries=profile|supervisor_of|join:", " trimmed %}
                     Supervisor of {{ countries }}
                 {% endblocktrans %}
@@ -67,7 +67,7 @@
         </div>
     {% endif %}
 
-        <div class="row">
+        <div class="row profile-control">
             <div id="pA" class="col-xs-12 col-md-5">
                 {% if profile.deleted %} {# VISITORs are barred from accessing deleted profiles, on View level #}
                     <div class="alert alert-small alert-danger">
@@ -79,7 +79,7 @@
                 {% endif %}
             </div>
             <div id="pR" class="col-xs-12 col-md-7">
-                <div class="btn-group edit-buttons">
+                <div class="btn-group control-buttons">
                     {% block profile_edit_buttons %}
                         {% if view.role != roles.OWNER and not profile.deleted_on %}
                             <a href="{% url 'postman:write' profile.user.username %}"
@@ -121,7 +121,7 @@
                         {% trans "Not confirmed"|lower as confirm_title %}
                         {% expr "text-warning" as confirm_color %}
                     {% endif %}
-                    <div class="edit-buttons btn history-link"
+                    <div class="control-buttons btn history-link"
                          title="{% trans "profile" %} {{ confirm_title }} {{ profile.confirmed_on|date:"DATE_FORMAT" }}"
                          data-title="{% trans "profile" %} {{ confirm_title }} <br /> {{ profile.confirmed_on|date:"DATE_FORMAT" }}"
                          data-toggle="tooltip" data-placement="left auto" data-html="true">
@@ -376,7 +376,7 @@
                         {% trans "not displayed to other users" as concealed_title %}
                         <span class="conceal-marker fa fa-eye-slash pull-left text-muted" aria-hidden="true"
                               title="{{ concealed_title }}" data-toggle="tooltip"></span>
-                        <span class="sr-only">{% trans "Note " context 'Title' %}: {{ concealed_title }}</span>
+                        <span class="sr-only">[{% trans "Note " context 'Title' %}: {{ concealed_title }}]</span>
                     {% endif %}
                     <div>
                         {% if perms.hosting.can_supervise %}
@@ -446,7 +446,7 @@
                         {% if concealed_title %}
                             <span class="conceal-marker fa fa-eye-slash" aria-hidden="true"
                                   title="{{ concealed_title }}" data-toggle="tooltip"></span>
-                            <span class="sr-only">{% trans "Note " context 'Title' %}: {{ concealed_title }}</span>
+                            <span class="sr-only">[{% trans "Note " context 'Title' %}: {{ concealed_title }}]</span>
                         {% endif %}
                         <br class="visible-xs-inline" />
                         <em class="comment">{{ phone.comments }}</em>
@@ -493,7 +493,7 @@
                         {% if concealed_title %}
                             <span class="conceal-marker fa fa-eye-slash" aria-hidden="true"
                                   title="{{ concealed_title }}{% if concealed_reason %} – {{ concealed_reason }}{% endif %}" data-toggle="tooltip"></span>
-                            <span class="sr-only">{% trans "Note " context 'Title' %}: {{ concealed_title }}{% if concealed_reason %} – {{ concealed_reason }}{% endif %}</span>
+                            <span class="sr-only">[{% trans "Note " context 'Title' %}: {{ concealed_title }}{% if concealed_reason %} – {{ concealed_reason }}{% endif %}]</span>
                         {% endif %}
                     </p>
                 </li>

@@ -1,0 +1,6 @@
+@import "_fonts.scss";
+@import "_colors.scss";
+
+@media print {
+    @import "_print.scss";
+}

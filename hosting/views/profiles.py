@@ -62,6 +62,7 @@ class ProfileUpdateView(
         generic.UpdateView):
     form_class = ProfileForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
+    display_fair_usage_condition = True
 
 
 class ProfileDeleteView(
@@ -69,6 +70,7 @@ class ProfileDeleteView(
         generic.DeleteView):
     form_class = ProfileForm
     success_url = reverse_lazy('logout')
+    display_fair_usage_condition = True
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -112,6 +114,7 @@ class ProfileRestoreView(
         AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin,
         generic.DetailView):
     template_name = 'hosting/profile_confirm_restore.html'
+    display_fair_usage_condition = True
     exact_role = ADMIN
 
     def get_permission_denied_message(self, *args, **kwargs):
@@ -182,6 +185,7 @@ class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
 class ProfileDetailView(
         AuthMixin, ProfileIsUserMixin, ProfileMixin,
         generic.DetailView):
+    display_fair_usage_condition = True
     public_view = True
     minimum_role = VISITOR
 
@@ -261,6 +265,7 @@ class ProfileEmailUpdateView(
         generic.UpdateView):
     template_name = 'hosting/profile-email_form.html'
     form_class = ProfileEmailUpdateForm
+    display_fair_usage_condition = True
     success_with_anchor = 'e'
     minimum_role = OWNER
 

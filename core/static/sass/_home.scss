@@ -220,20 +220,22 @@ header.hero form.search {
         height: 80px;
         line-height: 80px;
     }
-    .social-links.social-contact a img,
-    .social-links.social-networks a img {
-        margin-left: 9px;
-        margin-right: 9px;
-    }
-    .social-links.social-contact.lg-icons a img,
-    .social-links.social-networks.lg-icons a img {
-        margin-left: 12px;
-        margin-right: 12px;
-    }
-    .social-links.social-contact a.narrow img,
-    .social-links.social-networks a.narrow img {
-        margin-left: 3px;
-        margin-right: 3px;
+    .social-links.social-contact,
+    .social-links.social-networks {
+        a img {
+            margin-left: 9px;
+            margin-right: 9px;
+        }
+        &.lg-icons a img {
+            margin-left: 12px;
+            margin-right: 12px;
+        }
+        @media screen {
+            a.narrow img {
+                margin-left: 3px;
+                margin-right: 3px;
+            }
+        }
     }
     .social-links.social-contact a:last-child img {
         margin-right: 0;

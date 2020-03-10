@@ -1,0 +1,83 @@
+{% extends 'hosting/place_detail.html' %}
+{% load i18n static geojson_tags variable %}
+
+{% block extra_css %}{% endblock %}
+{% block extra_js %}
+        <script src="{% static 'maps/place-map.js' %}"></script>
+{% endblock %}
+{% block extra_head %}
+        <link rel="stylesheet" href="{{ MAPBOX_GL_CSS }}">
+        <script src="{{ MAPBOX_GL_JS }}"></script>
+        <script src="{% url 'gis_endpoints' %}?format=js&type=place-printed"></script>
+{% endblock %}
+
+{% block page_class %} place-print{% endblock %}
+
+{% block page %}
+    <div class="row">
+        <div class="col-xs-12">
+            {# OWNER'S DETAILS: NAME AND ADDRESS #}
+            {% if place.deleted %}
+                <div class="alert alert-small alert-danger">
+                    <span class="fa fa-exclamation-circle" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
+                    {% trans "The address is obsolete" %}
+                </div>
+            {% endif %}
+
+            <button class="btn btn-default pull-right requires-scripting hidden-print" onclick="window.print()" autofocus>
+                {% trans "Print" %}
+            </button>
+
+            {% asvar place_owner trimmed %}
+                <span class="name">{{ place.owner.get_fullname_display }}</span>
+            {% endasvar %}
+            <p>
+                {% if place.available %}
+                    {% blocktrans with name=place_owner %}Place of {{ name }}{% endblocktrans %}
+                {% else %}
+                    {% blocktrans with name=place_owner %}Habitat of {{ name }}{% endblocktrans %}
+                {% endif %}
+            </p>
+            <p class="address">
+                {% if view.verbose_view and place.address %}
+                    {{ place.address.strip|linebreaksbr }}
+                    <br />
+                {% endif %}
+                {% include './snippets/place_city_complete.html' with city=place.city closest_city=place.closest_city %}
+                <br />
+                {% if place.state_province %}
+                    {{ place.state_province }}
+                    <br />
+                {% endif %}
+                {% if view.verbose_view %}
+                    {{ place.postcode }}
+                {% endif %}
+                {{ place.get_country_display }}
+            </p>
+            {# END OF OWNER'S DETAILS #}
+
+            {# LOCATION ON WORLD MAP #}
+                <div class="embed-responsive embed-responsive-16by9" id="map"
+                     {% if place_location.coords %}
+                        data-marker="{{ place_location.coords|geojsonfeature }}"
+                     {% endif %}
+                     {% if place_location.bounds %}
+                        data-bounds="{{ place_location.bounds|geojsonfeature }}"
+                     {% endif %}
+                     data-marker-type="{{ place_location.type }}">
+                {% comment %} responsive map height with constant ratio to map width {% endcomment %}
+                </div>
+                <noscript>
+                    <style>#map { display: none; }</style>
+                    <br />
+                    <div class="alert alert-small alert-danger text-center">
+                        <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
+                        <span class="sr-only">{% trans "Warning " context "Title" %}:</span>
+                        {% trans "The map requires JavaScript and the WebGL technology." %}
+                    </div>
+                    <br />
+                </noscript>
+            {# END OF LOCATION'S MAP #}
+        </div>
+    </div>
+{% endblock page %}

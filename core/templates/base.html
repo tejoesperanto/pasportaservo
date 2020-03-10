@@ -52,6 +52,7 @@
         {% endif %}
         {% compress css %}
             <link rel="stylesheet" href="{% sass_src 'css/pasportaservo.scss' %}">
+            <link rel="stylesheet" href="{% sass_src 'css/pasportaservo-print.scss' %}" media="print">
             {% block extra_css %}{% endblock %}
         {% endcompress %}
 

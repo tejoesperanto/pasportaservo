@@ -21,6 +21,8 @@ window.addEventListener("load", function() {
         container: container.id,
         style: GIS_ENDPOINTS['region_map_style'],
         locale: (mapboxgl.localui || {})[document.documentElement.lang],
+        // http://fuzzytolerance.info/blog/2016/07/01/Printing-Mapbox-GL-JS-maps-in-Firefox
+        preserveDrawingBuffer: navigator.userAgent.toLowerCase().indexOf('firefox') > -1,
         pitchWithRotate: false,
         minZoom: 1.5,
         maxZoom: 15,
@@ -30,6 +32,8 @@ window.addEventListener("load", function() {
     var labels = [];
 
     map.on('load', function() {
+        container.style.backgroundImage = "none";
+
         var nav = new mapboxgl.NavigationControl();
         map.addControl(nav, 'top-left');
 

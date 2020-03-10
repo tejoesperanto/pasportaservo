@@ -16,6 +16,7 @@ window.addEventListener("load", function() {
     catch (e) {
         position = undefined;
     }
+    var attrib = GIS_ENDPOINTS['place_map_attrib'];
 
     mapboxgl.setRTLTextPlugin(GIS_ENDPOINTS['rtl_plugin'], undefined, true);
 
@@ -23,9 +24,12 @@ window.addEventListener("load", function() {
         container: 'map',
         style: GIS_ENDPOINTS['place_map_style'],
         locale: (mapboxgl.localui || {})[document.documentElement.lang],
+        // http://fuzzytolerance.info/blog/2016/07/01/Printing-Mapbox-GL-JS-maps-in-Firefox
+        preserveDrawingBuffer: navigator.userAgent.toLowerCase().indexOf('firefox') > -1,
+        attributionControl: attrib !== undefined ? Boolean(attrib) : true,
         pitchWithRotate: false,
         minZoom: 0.5,
-        maxZoom: 15,
+        maxZoom: positionType == 'P' ? 17 : 15,
         zoom: position ? 14 : 0.5,
         center: position && position.geometry.coordinates || [-175, 75]
     });
@@ -42,6 +46,11 @@ window.addEventListener("load", function() {
         catch (e) {
         }
     }
+
+    map.on('styledata', function() {
+        container.style.backgroundImage = "none";
+        container.style.backgroundColor = "transparent";
+    });
 
     map.on('load', function() {
         var nav = new mapboxgl.NavigationControl();

@@ -9,7 +9,7 @@
 {% block header_class %} hero{% endblock %}
 
 {% block header %}
-    <nav class="navigator" aria-flowto="title">
+    <nav class="navigator hidden-print" aria-flowto="title">
         {% block nav-skip %}
             <div class="navskip">
                 <a href="#{% block content-at %}{% trans "content-start" context "URL" %}{% endblock %}"
@@ -73,7 +73,7 @@
         </div>
     </div>
 
-    <div class="search-container">
+    <div class="search-container{% block hero_content_class %}{% endblock %}">
         {% block hero_content %}
         <form class="search row" id="searchform" role="search form" method="GET" action="{% url 'search' %}">
             <div class="col-xs-12 col-sm-8 col-sm-offset-2">

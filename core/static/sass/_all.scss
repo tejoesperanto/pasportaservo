@@ -56,17 +56,6 @@ body, .same-as-body {
     }
 }
 
-.edit-buttons {
-    float: right;
-    margin-bottom: 1em;
-}
-.history-link {
-    margin-right: 12px;
-    padding-right: 3px;
-    margin-left: 12px;
-    padding-left: 3px;
-    font-size: 16px;
-}
 .action-edit-inline {
     margin-left: 0.3ex;
     .fa {
@@ -110,6 +99,9 @@ code, kbd, pre, samp {
 }
 .text-label-danger, a.text-label-danger:hover {
     color: $color-danger;
+}
+.text-light {
+    font-weight: 300;
 }
 
 @mixin transition($params...) {
@@ -413,6 +405,9 @@ header:not(.hero) #subtitle {
 .place-list .name {
     white-space: nowrap;
 }
+#page.place-print .name {
+    @extend .person-full-name;
+}
 .place-detail .status,
 .place-list .status:not(.anchor-group) {
     text-align: right;
@@ -476,14 +471,23 @@ header:not(.hero) #subtitle {
     }
 }
 .status-drinking, .status-guiding {
-    color: darken($color-success, 20%);
+    &, & .fa:before {
+        color: darken($color-success, 20%) !important;
+    }
 }
 .status-hosting {
-    .place-marker {
-        color: $color-brand;
+    .place-marker, .place-marker:before {
+        @media (color) {
+            color: $color-brand !important;
+        }
     }
-    .place-availability {
-        color: lighten($color-text, 20%);
+    .place-availability, .place-availability:before {
+        @media (color) {
+            color: darken($color-brand-text, 60%) !important;
+        }
+        @media (color: 0) {
+            color: darken($color-brand-text, 27%) !important;
+        }
     }
     &.glyphicon-stack-normal > .place-availability {
         top: 0.1em;
@@ -642,6 +646,10 @@ html:not(.msie-compat) .mapboxgl-canvas[tabindex="0"]:focus {
     outline-offset: -1px;
     outline-color: #0096ff;
 }
+#page.place-print #map {
+    border: solid 1px $color-gray-light;
+    border-radius: 5px;
+}
 
 
 /* Profile */
@@ -748,6 +756,17 @@ a.contact-details:not(:hover) {
     -webkit-background-size: 40px 40px;
             background-size: 40px 40px;
 }
+.profile-control .control-buttons {
+    float: right;
+    margin-bottom: 1em;
+}
+.profile-control .history-link {
+    margin-right: 12px;
+    padding-right: 3px;
+    margin-left: 12px;
+    padding-left: 3px;
+    font-size: 16px;
+}
 
 #page.settings #privacy_form {
     .privacy-matrix-container {
@@ -822,7 +841,7 @@ a.contact-details:not(:hover) {
         position: absolute;
         left: 0px;
         z-index: 2;
-        text-shadow: 1px 3px 3px #eee;
+        text-shadow: 1px 3px 3px $color-gray-light;
     }
     .authorized-list.switch {
         position: absolute;
@@ -933,12 +952,19 @@ html.js-enabled #tasks-header[data-toggle="collapse"] {
 .country-code {
     width: 40px;
 }
+.countries-list .progress-bar {
+    &:not([data-progress="0"]) {
+        padding-left: 3px;
+        padding-right: 3px;
+        min-width: 14px;
+    }
+}
 .place-supervisor-detail {
     @include highlighter();
-    .control-buttons {
+    & > .control-buttons {
         margin-left: 20px;
     }
-    .control-buttons .timestamp {
+    & > .control-buttons .timestamp {
         white-space: pre;
         margin-bottom: 0px;
         margin-right: 1px;
@@ -984,6 +1010,12 @@ footer {
 
     &.world-map {
         display: none;
+    }
+
+    .footer-page-link {
+        white-space: nowrap;
+        font-size: 18px;
+        font-variant: small-caps;
     }
 }
 
@@ -1082,10 +1114,10 @@ footer {
     .place-supervisor-detail .name {
         clear: both;
     }
-    .place-supervisor-detail .control-buttons {
+    .place-supervisor-detail > .control-buttons {
         margin-bottom: 1em;
     }
-    .place-supervisor-detail .control-buttons .timestamp {
+    .place-supervisor-detail > .control-buttons .timestamp {
         font-size: 80%;
     }
     .place-supervisor-detail .phone-number:not(:last-child):after {

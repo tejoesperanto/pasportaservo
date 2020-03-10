@@ -91,7 +91,7 @@
         <img src="{% static 'img/loading_bars.gif' %}" alt="{% trans "working..." %}" />
         <span class="sr-only">{% trans "working..." %}</span>
     {% endasvar %}
-    {% show_more more_template loading_template "btn btn-xs btn-default" %}
+    {% show_more more_template loading_template "control-buttons btn btn-xs btn-default" %}
     {# TODO after loading the next page, (tab) focus should be set to its start #}
     {% if endless.page.has_previous and not endless.page.has_next %}
         <hr class="hidden" />

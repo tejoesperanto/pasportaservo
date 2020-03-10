@@ -45,6 +45,7 @@ class FamilyMemberUpdateView(
         UpdateMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin,
         generic.UpdateView):
     form_class = FamilyMemberForm
+    display_fair_usage_condition = True
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -59,6 +60,7 @@ class FamilyMemberRemoveView(
     Removes the family member for the Place.
     """
     template_name = 'hosting/family_member_confirm_delete.html'
+    display_fair_usage_condition = True
     minimum_role = OWNER
 
     def delete(self, request, *args, **kwargs):
@@ -78,6 +80,7 @@ class FamilyMemberDeleteView(
     """
     Removes the family member for the Place and deletes the profile.
     """
+    display_fair_usage_condition = True
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
