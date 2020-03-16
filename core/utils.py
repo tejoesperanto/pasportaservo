@@ -1,9 +1,12 @@
+import hashlib
 import locale
 from functools import reduce
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.utils.http import is_safe_url
+
+import requests
 
 
 def getattr_(obj, path):
@@ -62,8 +65,41 @@ def sanitize_next(request, from_post=False):
 
 
 def sort_by(paths, iterable):
-    """Sort by a translatable name, using system locale for a better result."""
+    """
+    Sorts by a translatable name, using system locale for a better result.
+    """
     locale.setlocale(locale.LC_ALL, settings.SYSTEM_LOCALE)
     for path in paths:
         iterable = sorted(iterable, key=lambda obj: locale.strxfrm(str(getattr_(obj, path))))
     return iterable
+
+
+def is_password_compromised(pwdvalue, full_list=False):
+    """
+    Uses the Pwned Passwords service of Have I Been Pwned to verify anonymously (using
+    k-anonymity) if a password value has been compromised in the past, meaning that the
+    value appears in a dump from a past breach elsewhere.
+    """
+    pwdhash = hashlib.sha1(pwdvalue.encode()).hexdigest().upper()
+    try:
+        result = requests.get(
+            'https://api.pwnedpasswords.com/range/{}'.format(pwdhash[:5]),
+            headers={
+                'Add-Padding': 'true',
+                'User-Agent': 'pasportaservo.org',
+            }
+        )
+    except requests.exceptions.ConnectionError:
+        return None, None
+    else:
+        if result.status_code != requests.codes.ok:
+            return None, None
+
+    for line in result.text.splitlines():
+        suffix, count = line.split(':')
+        count = int(count)
+        if pwdhash.endswith(suffix):
+            if count > 0:
+                return (True, count) if not full_list else (True, count, result.text)
+            break
+    return (False, 0) if not full_list else (False, 0, result.text)

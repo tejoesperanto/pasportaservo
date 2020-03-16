@@ -1,13 +1,18 @@
 import random
 from typing import NamedTuple
+from unittest import skipUnless
+from unittest.mock import patch
 
 from django.conf import settings
 from django.core import mail
 from django.test import TestCase, tag
 
 from faker import Faker
+from requests.exceptions import ConnectionError as HTTPConnectionError
 
-from core.utils import camel_case_split, send_mass_html_mail, sort_by
+from core.utils import (
+    camel_case_split, is_password_compromised, send_mass_html_mail, sort_by,
+)
 from hosting.utils import (
     split, title_with_particule, value_without_invalid_marker,
 )
@@ -116,6 +121,46 @@ class UtilityFunctionsTests(TestCase):
         expected = [pfa, pfb, pta, ptb, wta]
 
         self.assertEqual(sort_by(['owner.name', 'city', 'country'], houses), expected)
+
+    @patch('core.utils.requests.get')
+    def test_is_password_compromised(self, mock_get):
+        test_data = (
+            ("NoConnection", 500, (None, None), HTTPConnectionError),
+            ("ServerError!", 500, (None, None), None),
+            ("esperanto", 200, (True, 17000), None),
+            ("esperanto1234", 200, (True, 1), None),  # appears in the list with count 1
+            ("esperanto567", 200, (False, 0), None),  # appears in the list with count 0
+            ("Zamenhof1887", 200, (False, 0), None),  # does not appear in the list
+        )
+        hashes = (
+            "37A46DA96ED9243AA3C0F328E59F7230AC7:0\n"
+            "D5F41AA14D03396500BC4B71F442A458070:0\n"
+            "CCCE0D1821374F822B7B141C869F056D01E:0\n"
+            "455901A589F33D5EC929257DAC716133E29:17000\n"
+            "467E2DDDD648F54A9F1B20CA834697CF604:0\n"
+            "ABBECC310317257B8FBA5D05BFDC1CE5B0D:0\n"
+            "0C926B6A8B4850866E3E2257BA3D06DDBDA:0\n"
+            "5679F473CE6B5ED41A00166519D09808CD5:1\n"
+            "03EF97CD6A4919730DEA6F55579D86BAEEE:0\n"
+        )
+        mock_get.return_value.text = hashes
+
+        for password, status_code, expected_result, exc in test_data:
+            mock_get.return_value.status_code = status_code
+            mock_get.side_effect = exc
+            with self.subTest(pwd=password):
+                result = is_password_compromised(password)
+                self.assertIsInstance(result, tuple)
+                self.assertEqual(len(result), 2)
+                self.assertEqual(result, expected_result)
+
+    @tag('external')
+    @skipUnless(settings.TEST_EXTERNAL_SERVICES, 'External services are tested only explicitly')
+    def test_is_password_compromised_integration_contract(self):
+        result = is_password_compromised("esperanto", full_list=True)
+        self.assertEqual(len(result), 3)
+        all_hashes = result[2] + ('\n' if not result[2].endswith('\n') else '')
+        self.assertRegex(all_hashes, r'^([A-F0-9]{35}:\d+\r?\n)+$')
 
     def test_bufferize_country_boundaries_unknown(self):
         self.assertIsNone(bufferize_country_boundaries('XYZ'))
