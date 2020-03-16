@@ -45,7 +45,7 @@ from links.utils import create_unique_url
 from .auth import ADMIN, OWNER, SUPERVISOR, AuthMixin
 from .forms import (
     EmailStaffUpdateForm, EmailUpdateForm, MassMailForm,
-    UsernameUpdateForm, UserRegistrationForm,
+    SystemPasswordChangeForm, UsernameUpdateForm, UserRegistrationForm,
 )
 from .mixins import LoginRequiredMixin, UserModifyMixin, flatpages_as_templates
 from .models import Agreement, SiteConfiguration
@@ -223,7 +223,7 @@ class AgreementRejectView(LoginRequiredMixin, generic.TemplateView):
 class PasswordChangeView(LoginRequiredMixin, PasswordChangeBuiltinView):
     # Must use the custom LoginRequired mixin, otherwise redirection
     # after the authentication will not work as expected.
-    pass
+    form_class = SystemPasswordChangeForm
 
 
 class PasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneBuiltinView):

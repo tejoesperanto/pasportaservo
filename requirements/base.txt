@@ -26,6 +26,7 @@ geojson==2.4.0
 itsdangerous==1.1.0
 libsass==0.17.0
 phonenumberslite==8.10.4
+requests==2.23.0
 sendgrid-django==2.0.0
 sentry-sdk==0.14.2
 

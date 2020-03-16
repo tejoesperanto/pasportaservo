@@ -4,9 +4,10 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import (
-    PasswordResetForm, SetPasswordForm, UserCreationForm,
+    PasswordChangeForm, PasswordResetForm, SetPasswordForm, UserCreationForm,
 )
 from django.contrib.auth.hashers import UNUSABLE_PASSWORD_PREFIX
+from django.core.exceptions import NON_FIELD_ERRORS
 from django.core.mail import send_mail
 from django.db.models import Q, Value as V
 from django.db.models.functions import Concat, Lower
@@ -19,8 +20,12 @@ from hosting.utils import value_without_invalid_marker
 from links.utils import create_unique_url
 
 from .models import SiteConfiguration
+from .utils import is_password_compromised
 
 User = get_user_model()
+
+
+auth_log = logging.getLogger('PasportaServo.auth')
 
 
 class UsernameFormMixin(object):
@@ -81,7 +86,37 @@ class SystemEmailFormMixin(object):
         return email_value
 
 
-class UserRegistrationForm(UsernameFormMixin, SystemEmailFormMixin, UserCreationForm):
+class PasswordFormMixin(object):
+    def analyze_password(self, password_field_value):
+        insecure, howmuch = is_password_compromised(password_field_value)
+
+        if insecure and howmuch > 99:
+            self.add_error(NON_FIELD_ERRORS, forms.ValidationError(_(
+                "The password selected by you is too insecure. "
+                "Such combination of characters is very well-known to cyber-criminals."),
+                code='compromised_password'))
+            self.add_error(self.analyze_password_field, _("Choose a less easily guessable password."))
+        elif insecure and howmuch > 1:
+            self.add_error(NON_FIELD_ERRORS, forms.ValidationError(_(
+                "The password selected by you is not very secure. "
+                "Such combination of characters is known to cyber-criminals."),
+                code='compromised_password'))
+            self.add_error(self.analyze_password_field, _("Choose a less easily guessable password."))
+
+        if insecure:
+            auth_log.warning(
+                "Password with HIBP count {:d} selected in {}.".format(howmuch, self.__class__.__name__),
+                extra={'request': self.view_request} if hasattr(self, 'view_request') else None,
+            )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.analyze_password_field in cleaned_data:
+            self.analyze_password(cleaned_data[self.analyze_password_field])
+        return cleaned_data
+
+
+class UserRegistrationForm(UsernameFormMixin, PasswordFormMixin, SystemEmailFormMixin, UserCreationForm):
     email = forms.EmailField(
         label=_("Email address"), max_length=254)
     # Honeypot:
@@ -96,6 +131,7 @@ class UserRegistrationForm(UsernameFormMixin, SystemEmailFormMixin, UserCreation
             'email': SystemEmailFormMixin.email_error_messages,
             'username': UsernameFormMixin.username_error_messages,
         }
+    analyze_password_field = 'password1'
 
     def __init__(self, *args, **kwargs):
         self.view_request = kwargs.pop('view_request', None)
@@ -112,7 +148,7 @@ class UserRegistrationForm(UsernameFormMixin, SystemEmailFormMixin, UserCreation
         """
         flies = self.cleaned_data['realm']
         if flies:
-            logging.getLogger('PasportaServo.auth').error(
+            auth_log.error(
                 "Registration failed, flies found in honeypot.",
                 extra={'request': self.view_request},
             )
@@ -232,13 +268,19 @@ class SystemPasswordResetRequestForm(PasswordResetForm):
         ))
 
 
-class SystemPasswordResetForm(SetPasswordForm):
+class SystemPasswordResetForm(PasswordFormMixin, SetPasswordForm):
+    analyze_password_field = 'new_password1'
+
     def save(self, commit=True):
         super().save(commit)
         if commit:
             Profile.mark_valid_emails([self.user.email])
         return self.user
     save.alters_data = True
+
+
+class SystemPasswordChangeForm(PasswordFormMixin, PasswordChangeForm):
+    analyze_password_field = 'new_password1'
 
 
 class MassMailForm(forms.Form):

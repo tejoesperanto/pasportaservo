@@ -120,6 +120,23 @@ msgstr "Enigu retadreson en ĝusta formo."
 msgid "User address already in use."
 msgstr "Adreso de uzanto jam utiligita ĉe la retejo."
 
+msgid ""
+"The password selected by you is too insecure. Such combination of characters "
+"is very well-known to cyber-criminals."
+msgstr ""
+"La pasvorto elektita de vi estas tro nesekura. Tia kombino de karaktroj "
+"estas bone konata al ciber-krimuloj."
+
+msgid "Choose a less easily guessable password."
+msgstr "Bonvole elektu pli malfacile diveneblan pasvorton."
+
+msgid ""
+"The password selected by you is not very secure. Such combination of "
+"characters is known to cyber-criminals."
+msgstr ""
+"La pasvorto elektita de vi ne estas tre sekura. Tia kombino de karaktroj "
+"estas konata al ciber-krimuloj."
+
 msgid "Email address"
 msgstr "Retpoŝta adreso"
 
@@ -646,6 +663,9 @@ msgid ""
 "Please enter your old password, for security's sake, and then enter your new "
 "password twice so we can verify you typed it in correctly."
 msgstr ""
+
+msgid "How to choose a good password?"
+msgstr "Kiel elekti bonan pasvorton?"
 
 msgid "Change"
 msgstr "Ŝanĝi"

@@ -31,6 +31,55 @@
             {% endasvar %}
             {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 
+            {% asvar Question %}Kial vi opinias ke krimuloj scias la pasvorton kiun mi volus uzi?{% endasvar %}
+            {% asvar Answer %}
+                Tia mesaĝo povas aperi kiam vi registriĝas aŭ ŝanĝas vian pasvorton. Ni uzas servon
+                (<a href="https://haveibeenpwned.com/Passwords" rel="external noreferrer">Pwned Passwords</a>
+                de Troy Hunt) kiu kontrolas en tute anonima maniero ene de publika datumbazo ĉu la pasvorto
+                estis iam malkovrigita dum iu sekureca rompo ie ajn en la interreto.
+                Tio <em>ne signifas</em> ke via propra konto estis trapenetrita, sed ke vi elektis iom
+                komun-uzan pasvorton.
+                <ul>
+                    <li>
+                        Ekzemple, vi ŝatus uzi la vorton “Esperanto” kiel pasvorton; tamen iu alia jam uzis
+                        ĝin ĉe alia (nesufiĉe sekurigita) servo kiu estis trarompita. Tia literkombino nun
+                        estas konata al krimuloj kaj estas do registrita en la menciita datumbazo.
+                    </li>
+                </ul>
+                Agordante tian komun-uzan pasvorton por via propra konto ĉe Pasporta Servo igas la konton
+                malpli protektita.
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
+
+            {% asvar Question %}Kiel elekti bonan pasvorton?{% endasvar %}
+            {% asvar Answer %}
+                Bona pasvorto estas (sufiĉe longa) ĉeno de literoj, ciferoj, kaj simboloj kiun vi mem povas
+                bone memori sed aliaj malfacile diveni. Kiel pasvorton, provu uzi iun frazon kaj ne unuopan
+                vorton, ekzemple:
+                <ul>
+                    <li>Verson el kanto aŭ poemo</li>
+                    <li>Citaĵon el filmo aŭ parolado</li>
+                    <li>Memorindan frazon el de vi ŝatata libro</li>
+                </ul>
+                Uzu almenaŭ 8 karaktrojn (ju pli longa la pasvorto des pli sekurigita estos via konto), kaj
+                evitu uzi informojn kiujn aliaj scias pri vi aŭ povas facile eltrovi (ekzemple, per via
+                socireta profilo). Ne uzu sole:
+                <ul>
+                    <li>vian kromnomon</li>
+                    <li>nomon de via infano aŭ dorlotbesto</li>
+                    <li>naskiĝdaton aŭ -jaron vian aŭ de via partnero / infano</li>
+                    <li>vian stratnomon aŭ adreson</li>
+                    <li>vian hobion aŭ nomon de ŝatata ripozejo, ekzemple ‘esperanto’ aŭ ‘gufujo’</li>
+                    <li>oftajn / simplajn vortojn, ekzemple la memevidentajn ‘pasvorto’, ‘abcdef’, ‘1234’</li>
+                    <li>kombinojn sur klavaro kiel ‘zxcvbnm’, ‘3edc4rfv5tgb’</li>
+                </ul>
+                Estas rekomendinda la uzo de pasvort-administrilo kun bona reputacio, kiel
+                <a href="https://1password.com/sign-up/" rel="external noreferrer">1Password</a> (2.99$ monate)
+                aŭ <a href="https://www.lastpass.com/pricing" rel="external noreferrer">LastPass</a> (baza
+                versio senpaga), por konservi longajn kaj sekurajn pasvortojn sen la neceso enparkerigi ilin.
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
+
             {% asvar Question %}Mia retadreso ne plu aktualas / mi volas ŝanĝi mian registritan retadreson. Kion mi faru?{% endasvar %}
             {% asvar Answer %}
                 <ul>

@@ -169,6 +169,8 @@ LOGGING = {
     },
 }
 
+TEST_EXTERNAL_SERVICES = False
+
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 
