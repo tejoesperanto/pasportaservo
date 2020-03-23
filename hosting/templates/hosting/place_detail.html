@@ -362,7 +362,7 @@
                 </noscript>
             {% endif %}
             <form action="{% url 'map_type_setup' simple_map|yesno:'3,0' %}" method="POST"
-                  class="btn-toolbar pull-right requires-scripting hidden-print">
+                  class="btn-toolbar pull-right requires-scripting hidden-print" data-nosnippet>
                 {% csrf_token %}
                 <input type="hidden" name="{{ REDIRECT_FIELD_NAME }}" value="{{ request.get_full_path }}" />
                 <button type="submit" class="btn btn-default btn-xs btn-vert-space-even ajax"

@@ -19,7 +19,7 @@
 
 {% block pre-page %}
     <div id="map" role="main">
-        <div class="container hidden" id="webgl-warning">
+        <div class="container hidden" id="webgl-warning" data-nosnippet>
             <div class="row" style="margin-top: 52px;">
                 <div class="col-xs-12 col-sm-8 col-sm-push-2 text-center">
                     <div class="alert alert-small alert-danger">
@@ -54,7 +54,7 @@
         </div>
         <noscript>
             <br />
-            <div class="alert alert-small alert-danger text-center">
+            <div class="alert alert-small alert-danger text-center" data-nosnippet>
                 {% trans "The map requires JavaScript and the WebGL technology." %}
             </div>
             <br />
