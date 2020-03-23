@@ -4,6 +4,10 @@
 {% block head_title %}{% trans "Username" %}{% endblock %}
 {% block head_title_separator %}{% trans "at" %}{% endblock %}
 
+{% block extra_head %}
+        <meta name="robots" content="noindex">
+{% endblock %}
+
 {% block page %}
     <h1 class="text-center">{% trans "Username reminder" %}</h1>
     <h3 class="text-center">

@@ -14,7 +14,7 @@
             <nav class="navigator">
                 <div class="navskip">
                     <a href="#{% block content-at %}{% trans "content-start" context "URL" %}{% endblock %}"
-                       class="sr-only sr-only-focusable hidden-print">
+                       class="sr-only sr-only-focusable hidden-print" data-nosnippet>
                         {% block nav-skip-label %}{% trans "Skip navigation buttons" %}{% endblock %}
                     </a>
                 </div>
@@ -28,7 +28,7 @@
                         {% endspaceless %}
                     </div>
                     <div class="nav-search hidden-nano hidden-print">
-                        <a href="{% url 'search' %}" class="linkicon">
+                        <a href="{% url 'search' %}" class="linkicon" data-nosnippet>
                             <span class="fa fa-search" aria-hidden="true"
                                   title="{% trans "Search" %}"
                                   data-toggle="tooltip" data-placement="bottom"></span>
@@ -65,7 +65,7 @@
                             {% include './snippets/header_icon_settings.html' %}
                         </div>
                     {% endif %}
-                    <div class="nav-session{% if user.is_authenticated %} in{% endif %} hidden-print">
+                    <div class="nav-session{% if user.is_authenticated %} in{% endif %} hidden-print" data-nosnippet>
                         {% if user.is_authenticated %}
                             {% include './snippets/header_icon_logout.html' %}
                         {% elif user %} {# 500/403-CSRF error pages don't have a user object #}
@@ -74,7 +74,7 @@
                             </a>
                         {% endif %}
                     </div>
-                    <div class="nav-profile{% if user.is_authenticated %} in{% else %} hidden-print{% endif %}">
+                    <div class="nav-profile{% if user.is_authenticated %} in{% else %} hidden-print{% endif %}" data-nosnippet>
                         {% if user.is_authenticated %}
                             {% include './snippets/header_icon_profile.html' %}
                         {% elif user %} {# 500/403-CSRF error pages don't have a user object #}
@@ -154,7 +154,8 @@
                     <span class="visible-print-inline-block text-light">{% trans "World Esperanto Youth Organisation" %}</span>
                 </div>
             </div>
-            <a href="#{% trans "top-most" context "URL" %}" class="scrolltop sr-only sr-only-focusable pull-right">
+            <a href="#{% trans "top-most" context "URL" %}"
+               class="scrolltop sr-only sr-only-focusable pull-right" data-nosnippet>
                 {% trans "Back to top of page" %} &#8613;
             </a>
         {% endblock footer %}
