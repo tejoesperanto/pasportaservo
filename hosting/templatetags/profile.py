@@ -9,14 +9,12 @@ from django.template.defaultfilters import stringfilter
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from core.auth import PERM_SUPERVISOR
+from core.auth import PERM_SUPERVISOR, auth_log
 
 from ..models import Profile
 from ..utils import value_without_invalid_marker
 
 register = template.Library()
-
-auth_log = logging.getLogger('PasportaServo.auth')
 
 
 def _convert_profile_to_user(profile_obj):

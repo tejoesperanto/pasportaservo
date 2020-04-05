@@ -1,15 +1,27 @@
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import (
     LoginRequiredMixin as AuthenticatedUserRequiredMixin,
 )
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
+from django.db.models import Q
+from django.db.models.functions import Lower
 from django.urls import reverse_lazy
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
 from hosting.models import Profile
+from hosting.utils import value_without_invalid_marker
+
+from .auth import auth_log
+from .utils import is_password_compromised
+
+User = get_user_model()
 
 
 class LoginRequiredMixin(AuthenticatedUserRequiredMixin):
     """
-    An own mixin enabling the usage of a custom URL parameter name
+    An own view mixin enabling the usage of a custom URL parameter name
     for the redirection after successful authentication. Needed due to
     arbitrary limitations on the parameter name customization by Django.
     """
@@ -52,3 +64,106 @@ def flatpages_as_templates(cls):
     cls.render_flat_page._view_context = {}
 
     return cls
+
+
+class UsernameFormMixin(object):
+    """
+    A form mixin that performs a case-insensitive uniqueness validation of the
+    provided username value on form submit.
+    """
+    username_error_messages = {
+        # We do not want to disclose the exact usernames in the system through
+        # the error messages, and thus facilitate user enumeration attacks...
+        'unique': _("A user with a similar username already exists."),
+        # Clearly spell out to the potential new users what a valid username is.
+        'invalid': mark_safe(_(
+            "Enter a username conforming to these rules: "
+            " This value may contain only letters, numbers, and the symbols"
+            " <kbd>@</kbd> <kbd>.</kbd> <kbd>+</kbd> <kbd>-</kbd> <kbd>_</kbd>."
+            " Spaces are not allowed."
+        )),
+        # Indicate what are the limitations in terms of number of characters.
+        'max_length': _(
+            "Ensure that this value has at most %(limit_value)d characters "
+            "(it has now %(show_value)d)."
+        ),
+    }
+
+    def clean_username(self):
+        """
+        Ensure that the username provided is unique (in a case-insensitive manner).
+        This check replaces the Django's built-in uniqueness verification.
+        """
+        username = self.cleaned_data['username']
+        if User.objects.filter(username__iexact=username).exists():
+            raise ValidationError(self._meta.error_messages['username']['unique'])
+        return username
+
+
+class SystemEmailFormMixin(object):
+    """
+    A form mixin that performs a case-insensitive uniqueness validation of the
+    provided email address value on form submit. Both valid and invalid existing
+    emails in the database are taken into account.
+    """
+    email_error_messages = {
+        'max_length': _(
+            "Ensure that this value has at most %(limit_value)d characters "
+            "(it has now %(show_value)d)."
+        ),
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Stores the value before the change.
+        self.previous_email = value_without_invalid_marker(self.instance.email)
+
+    def clean_email(self):
+        """
+        Ensure that the email address provided is unique (in a case-insensitive manner).
+        """
+        email_value = self.cleaned_data['email']
+        if not email_value:
+            raise ValidationError(_("Enter a valid email address."))
+        invalid_email = '{}{}'.format(settings.INVALID_PREFIX, email_value)
+        emails_lookup = Q(email_lc=email_value.lower()) | Q(email_lc=invalid_email.lower())
+        if email_value and email_value.lower() != self.previous_email.lower() \
+                and User.objects.annotate(email_lc=Lower('email')).filter(emails_lookup).exists():
+            raise ValidationError(_("User address already in use."))
+        return email_value
+
+
+class PasswordFormMixin(object):
+    """
+    A form mixin adding a functionality of verifying (anonymously) whether
+    the submitted password value has not been compromised, via the HIBP's
+    Pwned Passwords service.
+    """
+
+    def analyze_password(self, password_field_value):
+        insecure, howmuch = is_password_compromised(password_field_value)
+
+        if insecure and howmuch > 99:
+            self.add_error(NON_FIELD_ERRORS, ValidationError(_(
+                "The password selected by you is too insecure. "
+                "Such combination of characters is very well-known to cyber-criminals."),
+                code='compromised_password'))
+            self.add_error(self.analyze_password_field, _("Choose a less easily guessable password."))
+        elif insecure and howmuch > 1:
+            self.add_error(NON_FIELD_ERRORS, ValidationError(_(
+                "The password selected by you is not very secure. "
+                "Such combination of characters is known to cyber-criminals."),
+                code='compromised_password'))
+            self.add_error(self.analyze_password_field, _("Choose a less easily guessable password."))
+
+        if insecure:
+            auth_log.warning(
+                "Password with HIBP count {:d} selected in {}.".format(howmuch, self.__class__.__name__),
+                extra={'request': self.view_request} if hasattr(self, 'view_request') else None,
+            )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.analyze_password_field in cleaned_data:
+            self.analyze_password(cleaned_data[self.analyze_password_field])
+        return cleaned_data
