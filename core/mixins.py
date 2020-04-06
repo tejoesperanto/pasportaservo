@@ -89,13 +89,21 @@ class UsernameFormMixin(object):
         ),
     }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Stores the value before the change.
+        self.previous_uname = self.instance.username
+
     def clean_username(self):
         """
         Ensure that the username provided is unique (in a case-insensitive manner).
         This check replaces the Django's built-in uniqueness verification.
         """
         username = self.cleaned_data['username']
-        if User.objects.filter(username__iexact=username).exists():
+        if username == self.previous_uname:
+            return username
+        threshold = 1 if username.lower() != self.previous_uname.lower() else 2
+        if User.objects.filter(username__iexact=username).count() >= threshold:
             raise ValidationError(self._meta.error_messages['username']['unique'])
         return username
 
