@@ -4,24 +4,31 @@ from unittest import skipUnless
 from unittest.mock import patch
 
 from django.conf import settings
+from django.contrib.gis.geos import Point as GeoPoint
 from django.core import mail
 from django.test import TestCase, tag
 
 from faker import Faker
-from requests.exceptions import ConnectionError as HTTPConnectionError
+from geocoder.opencage import OpenCageQuery, OpenCageResult
+from requests.exceptions import (
+    ConnectionError as HTTPConnectionError, HTTPError,
+)
 
 from core.utils import (
     camel_case_split, is_password_compromised, send_mass_html_mail, sort_by,
 )
 from hosting.utils import (
-    split, title_with_particule, value_without_invalid_marker,
+    geocode, geocode_city, split, title_with_particule,
+    value_without_invalid_marker,
 )
 from maps import data as geodata
 from maps.utils import bufferize_country_boundaries
 
+from .assertions import AdditionalAsserts
+
 
 @tag('utils')
-class UtilityFunctionsTests(TestCase):
+class UtilityFunctionsTests(AdditionalAsserts, TestCase):
     def test_camel_case_split(self):
         test_data = (
             ("title", ["title"]),
@@ -161,6 +168,437 @@ class UtilityFunctionsTests(TestCase):
         self.assertEqual(len(result), 3)
         all_hashes = result[2] + ('\n' if not result[2].endswith('\n') else '')
         self.assertRegex(all_hashes, r'^([A-F0-9]{35}:\d+\r?\n)+$')
+
+
+@tag('utils')
+class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
+    @patch('geocoder.base.requests.Session.get')
+    def test_geocode(self, mock_get):
+        # An empty query is expected to return None.
+        self.assertIsNone(geocode(""))
+
+        mock_get.side_effect = HTTPConnectionError("Failed to establish a new connection. Max retries exceeded.")
+        result = geocode("Roterdamo", annotations=True)
+        self.assertIs(type(result), OpenCageQuery)
+        self.assertSurrounding(result.status, 'ERROR')
+        self.assertEqual(len(result), 0)
+        self.assertIsNone(result.point)
+
+        mock_get.return_value.json.return_value = {
+            "rate": {"limit": 2500, "remaining": 2100, "reset": 1586908800},
+            "licenses": [{"name": "see attribution guide", "url": "https://opencagedata.com/credits"}],
+            "results": [{
+                "annotations": {
+                    "OSM": {
+                        "url": "https://www.openstreetmap.org/?mlat=51.92290&mlon=4.46317#map=17/51.92290/4.46317"
+                    },
+                    "callingcode": 31,
+                    "timezone": {"name": "Europe/Amsterdam", "short_name": "CEST"},
+                },
+                "bounds": {
+                    "northeast": {"lat": 51.9942816, "lng": 4.6018083},
+                    "southwest": {"lat": 51.8616672, "lng": 4.3793095},
+                },
+                "components": {
+                    "ISO_3166-1_alpha-2": "NL",
+                    "ISO_3166-1_alpha-3": "NLD",
+                    "_category": "place",
+                    "_type": "neighbourhood",
+                    "city": "Roterdamo",
+                    "continent": "Eŭropo",
+                    "country": "Nederlando",
+                    "country_code": "nl",
+                    "political_union": "Eŭropa Unio",
+                    "state": "Suda Holando",
+                },
+                "confidence": 5,
+                "formatted": "Roterdamo, Suda Holando, Nederlando",
+                "geometry": {"lat": 51.9228958, "lng": 4.4631727}
+            }],
+            "status": {"code": 200, "message": "OK"}, "total_results": 1
+        }
+        mock_get.return_value.status_code = 200
+        mock_get.side_effect = None
+        result = geocode("Roterdamo", annotations=True)
+        self.assertIs(type(result), OpenCageQuery)
+        self.assertEqual(result.status, 'OK')
+        self.assertEqual(len(result), 1)
+        self.assertIs(type(result.current_result), OpenCageResult)
+        self.assertGreater(len(result.current_result._annotations), 0)
+        self.assertIsNotNone(result.point)
+        self.assertIs(type(result.point), GeoPoint)
+
+        mock_get.return_value.json.return_value = {
+            "rate": {"limit": 2500, "remaining": 2100, "reset": 1586908800},
+            "licenses": [{"name": "see attribution guide", "url": "https://opencagedata.com/credits"}],
+            "results": [],
+            "status": {"code": 200, "message": "OK"}, "total_results": 0
+        }
+        mock_get.return_value.status_code = 200
+        mock_get.side_effect = None
+        result = geocode("Roterdamo", 'PL', annotations=True)
+        self.assertIs(type(result), OpenCageQuery)
+        self.assertEqual(result.status, 'ERROR - No results found')
+        self.assertEqual(len(result), 0)
+        self.assertIsNone(result.point)
+
+    @patch('geocoder.base.requests.Session.get')
+    def test_geocode_multiple(self, mock_get):
+        # An empty query is expected to return None.
+        self.assertIsNone(geocode("", multiple=True))
+
+        mock_get.return_value.json.return_value = {
+            "rate": {"limit": 2500, "remaining": 1900, "reset": 1586908800},
+            "licenses": [{"name": "see attribution guide", "url": "https://opencagedata.com/credits"}],
+            "results": [
+                {
+                    "components": {
+                        "ISO_3166-1_alpha-2": "FR",
+                        "ISO_3166-1_alpha-3": "FRA",
+                        "_category": "place",
+                        "_type": "city",
+                        "city": "Parizo",
+                        "continent": "Eŭropo",
+                        "country": "Francio",
+                        "country_code": "fr",
+                        "county": "Parizo",
+                        "political_union": "Eŭropa Unio",
+                        "state": "Francilio"
+                    },
+                    "confidence": 6,
+                    "formatted": "Parizo, Francio",
+                    "geometry": {"lat": 48.8566969, "lng": 2.3514616},
+                    "bounds": {
+                        "northeast": {"lat": 48.902156, "lng": 2.4697602},
+                        "southwest": {"lat": 48.8155755, "lng": 2.224122},
+                    },
+                }, {
+                    "components": {
+                        "ISO_3166-1_alpha-2": "US",
+                        "ISO_3166-1_alpha-3": "USA",
+                        "_category": "place",
+                        "_type": "city",
+                        "city": "Pariso",
+                        "continent": "Norda Ameriko",
+                        "country": "Usono",
+                        "country_code": "us",
+                        "county": "Lamar County",
+                        "postcode": "75460",
+                        "state": "Teksaso"
+                    },
+                    "confidence": 5,
+                    "formatted": "Pariso, Teksaso, Usono",
+                    "geometry": {"lat": 33.6617962, "lng": -95.555513},
+                    "bounds": {
+                        "northeast": {"lat": 33.7383866, "lng": -95.4354115},
+                        "southwest": {"lat": 33.6206345, "lng": -95.6279396},
+                    },
+                }, {
+                    "components": {
+                        "ISO_3166-1_alpha-2": "US",
+                        "ISO_3166-1_alpha-3": "USA",
+                        "_category": "place",
+                        "_type": "city",
+                        "city": "Pariso",
+                        "continent": "Norda Ameriko",
+                        "country": "Usono",
+                        "country_code": "us",
+                        "county": "Bourbon County",
+                        "state": "Kentukio"
+                    },
+                    "confidence": 7,
+                    "formatted": "Pariso, Kentukio, Usono",
+                    "geometry": {"lat": 38.2097987, "lng": -84.2529869},
+                    "bounds": {
+                        "northeast": {"lat": 38.238271, "lng": -84.232089},
+                        "southwest": {"lat": 38.164922, "lng": -84.307326},
+                    },
+                }, {
+                    "components": {
+                        "ISO_3166-1_alpha-2": "CA",
+                        "ISO_3166-1_alpha-3": "CAN",
+                        "_category": "place",
+                        "_type": "city",
+                        "continent": "Norda Ameriko",
+                        "country": "Kanado",
+                        "country_code": "ca",
+                        "county": "Brant County",
+                        "postcode": "N3L 2M3",
+                        "state": "Ontario",
+                        "state_code": "ON",
+                        "state_district": "Sudokcidenta Ontario",
+                        "town": "Pariso"
+                    },
+                    "confidence": 7,
+                    "formatted": "Pariso, ON N3L 2M3, Kanado",
+                    "geometry": {"lat": 43.193234, "lng": -80.384281},
+                    "bounds": {
+                        "northeast": {"lat": 43.233234, "lng": -80.344281},
+                        "southwest": {"lat": 43.153234, "lng": -80.424281},
+                    },
+                }, {
+                    "components": {
+                        "ISO_3166-1_alpha-2": "US",
+                        "ISO_3166-1_alpha-3": "USA",
+                        "_category": "place",
+                        "_type": "village",
+                        "city": "Hanover Township",
+                        "continent": "Norda Ameriko",
+                        "country": "Usono",
+                        "country_code": "us",
+                        "county": "Washington County",
+                        "hamlet": "Paris",
+                        "state": "Pensilvanio"
+                    },
+                    "confidence": 7,
+                    "formatted": "Hanover Township, Pensilvanio, Usono",
+                }
+            ],
+            "status": {"code": 200, "message": "OK"}, "total_results": 5
+        }
+        mock_get.return_value.status_code = 200
+        result = geocode("Paris", multiple=True, private=True)
+        self.assertIs(type(result), OpenCageQuery)
+        self.assertEqual(result.status, 'OK')
+        self.assertEqual(len(result), 5)
+        self.assertIs(type(result.current_result), OpenCageResult)
+        self.assertIsNotNone(result.point)
+        self.assertIs(type(result.point), GeoPoint)
+        for i, r in enumerate(result):
+            self.assertIs(type(r), OpenCageResult)
+            self.assertEqual(
+                len(r.xy),
+                2 if 'geometry' in mock_get.return_value.json.return_value['results'][i] else 0)
+            self.assertEqual(r._annotations, {})
+            self.assertEqual(
+                r.country_code,
+                mock_get.return_value.json.return_value['results'][i]['components']['country_code'])
+            self.assertNotEqual(r._components, {})
+
+    @patch('geocoder.base.requests.Session.get')
+    def test_geocode_invalid_api_key_or_limit_reached(self, mock_get):
+        test_data = (
+            (401, HTTPError("401 Client Error: Unauthorized"), {}, 'ERROR - 401 Client Error: Unauthorized'),
+            (
+                200, None,
+                {"results": [], "status": {"code": 401, "message": "unknown API key"}, "total_results": 0},
+                'unknown API key'
+            ),
+            (
+                200, None,
+                {"results": [], "status": {"code": 401, "message": "invalid API key"}, "total_results": 0},
+                'invalid API key'
+            ),
+            (
+                402, None,
+                {"results": [], "status": {"code": 402, "message": "quota exceeded"}, "total_results": 0},
+                'quota exceeded'
+            ),
+        )
+
+        for status_code, exc, json, expected_status in test_data:
+            with self.subTest(status=expected_status):
+                mock_get.return_value.json.return_value = json
+                mock_get.return_value.status_code = status_code
+                mock_get.return_value.raise_for_status.side_effect = exc
+                result = geocode("Varsovio")
+                self.assertIs(type(result), OpenCageQuery)
+                self.assertEqual(result.status, expected_status)
+                self.assertFalse(result.ok)
+                self.assertEqual(len(result), 0)
+                self.assertIsNone(result.point)
+
+    @tag('external')
+    @skipUnless(settings.TEST_EXTERNAL_SERVICES, 'External services are tested only explicitly')
+    def test_geocode_integration_contract(self):
+        result = geocode("Harlem", 'US', multiple=True, annotations=True)
+        self.assertEqual(result.status, 'OK')
+        self.assertGreater(len(result), 10)
+        for r in result:
+            self.assertEqual(r.country_code.upper(), 'US')
+            self.assertEqual(r.country, "Usono")
+            self.assertNotEqual(r._annotations, {})
+            self.assertEqual(r.callingcode, 1)
+            self.assertEqual(r.raw['annotations']['currency']['iso_code'], 'USD')
+            self.assertGreaterEqual(r.confidence, 7)
+            self.assertEqual(len(r.xy), 2)
+            self.assertIn('northeast', r.bbox)
+            self.assertIn('southwest', r.bbox)
+
+    @patch('geocoder.base.requests.Session.get')
+    def test_geocode_city(self, mock_get):
+        mock_get.return_value.json.return_value = {
+            "rate": {"limit": 2500, "remaining": 2399, "reset": 1586908800},
+            "licenses": [{"name": "see attribution guide", "url": "https://opencagedata.com/credits"}],
+            "results": [{
+                "components": {
+                    "ISO_3166-1_alpha-2": "US",
+                    "ISO_3166-1_alpha-3": "USA",
+                    "_category": "commerce",
+                    "_type": "restaurant",
+                    "city": "Providence",
+                    "continent": "Norda Ameriko",
+                    "country": "Usono",
+                    "country_code": "us",
+                    "county": "Providence County",
+                    "neighbourhood": "Fox Point",
+                    "postcode": "02903-2996",
+                    "restaurant": "Tel Aviv",
+                    "road": "Bridge Street",
+                    "state": "Rod-Insulo"
+                },
+                "confidence": 9,
+                "formatted": "Tel Aviv, Bridge Street, Providence, Rod-Insulo 02903-2996, Usono",
+                "geometry": {"lat": 41.8174523, "lng": -71.4018689},
+                "bounds": {
+                    "northeast": {"lat": 41.8175371, "lng": -71.4017684},
+                    "southwest": {"lat": 41.8173675, "lng": -71.4019694},
+                },
+            }],
+            "status": {"code": 200, "message": "OK"}, "total_results": 1
+        }
+        mock_get.return_value.status_code = 200
+        result = geocode_city("Tel aviv", state_province='Rhode Island', country='US')
+        self.assertIsNone(result)
+
+        mock_get.return_value.json.return_value = {
+            "rate": {"limit": 2500, "remaining": 2396, "reset": 1586908800},
+            "licenses": [{"name": "see attribution guide", "url": "https://opencagedata.com/credits"}],
+            "results": [],
+            "status": {"code": 200, "message": "OK"}, "total_results": 0
+        }
+        mock_get.return_value.status_code = 200
+        result = geocode_city("Varsovia", 'US')
+        self.assertIsNone(result)
+
+        mock_get.return_value.json.return_value = {
+            "rate": {"limit": 2500, "remaining": 2393, "reset": 1586908800},
+            "licenses": [{"name": "see attribution guide", "url": "https://opencagedata.com/credits"}],
+            "results": [
+                {
+                    "components": {
+                        "ISO_3166-1_alpha-2": "CO",
+                        "ISO_3166-1_alpha-3": "COL",
+                        "_category": "place",
+                        "_type": "village",
+                        "continent": "South America",
+                        "country": "Kolombio",
+                        "country_code": "co",
+                        "county": "Montelibano",
+                        "locality": "Varsovia",
+                        "state": "Cordoba",
+                        "state_code": "COR"
+                    },
+                    "confidence": 7,
+                    "formatted": "Varsovia, Montelibano, Kolombio",
+                    "geometry": {"lat": 7.965104, "lng": -75.3542833},
+                }, {
+                    "components": {
+                        "ISO_3166-1_alpha-2": "CO",
+                        "ISO_3166-1_alpha-3": "COL",
+                        "_category": "place",
+                        "_type": "neighbourhood",
+                        "continent": "South America",
+                        "country": "Kolombio",
+                        "country_code": "co",
+                        "county": "Calarca",
+                        "neighbourhood": "Varsovia",
+                        "postcode": "632001",
+                        "state": "Quindio",
+                        "state_code": "QUI",
+                        "town": "Calarca"
+                    },
+                    "confidence": 9,
+                    "formatted": "Varsovia, 632001 Calarca, QUI, Kolombio",
+                    "geometry": {"lat": 4.5172617, "lng": -75.6444335},
+                    "bounds": {
+                        "northeast": {"lat": 4.5173117, "lng": -75.6443835},
+                        "southwest": {"lat": 4.5172117, "lng": -75.6444835},
+                    },
+                }, {
+                    "components": {
+                        "ISO_3166-1_alpha-2": "CO",
+                        "ISO_3166-1_alpha-3": "COL",
+                        "_category": "road",
+                        "_type": "road",
+                        "continent": "South America",
+                        "country": "Kolombio",
+                        "country_code": "co",
+                        "county": "Santa Rosa de Cabal",
+                        "hamlet": "San Carlos",
+                        "road": "Varsovia",
+                        "road_type": "track",
+                        "state": "Risaralda",
+                        "state_code": "RIS"
+                    },
+                    "confidence": 9,
+                    "formatted": "Varsovia, San Carlos, RIS, Kolombio",
+                    "geometry": {"lat": 4.9212653, "lng": -75.6978718},
+                    "bounds": {
+                        "northeast": {"lat": 4.9254217, "lng": -75.6930418},
+                        "southwest": {"lat": 4.9180269, "lng": -75.7019525},
+                    },
+                }, {
+                    "components": {
+                        "ISO_3166-1_alpha-2": "CO",
+                        "ISO_3166-1_alpha-3": "COL",
+                        "_category": "place",
+                        "_type": "village",
+                        "city": "Monteria",
+                        "continent": "South America",
+                        "country": "Kolombio",
+                        "country_code": "co",
+                        "county": "Monteria",
+                        "locality": "Varsovia",
+                        "state": "Cordoba",
+                        "state_code": "COR"
+                    },
+                    "confidence": 7,
+                    "formatted": "Monteria, Kolombio",
+                    "geometry": {"lat": 8.3816971, "lng": -75.900398},
+                    "bounds": {
+                        "northeast": {"lat": 8.3916971, "lng": -75.890398},
+                        "southwest": {"lat": 8.3716971, "lng": -75.910398},
+                    },
+                }, {
+                    "components": {
+                        "ISO_3166-1_alpha-2": "CO",
+                        "ISO_3166-1_alpha-3": "COL",
+                        "_category": "commerce",
+                        "_type": "bakery",
+                        "bakery": "Varsovia",
+                        "city": "Puente Aranda",
+                        "continent": "South America",
+                        "country": "Kolombio",
+                        "country_code": "co",
+                        "county": "Bogota",
+                        "neighbourhood": "Ciudad Montes",
+                        "postcode": "111631",
+                        "road": "Avenida Calle 8 Sur",
+                        "state": "Distrito Capital",
+                        "suburb": "Puente Aranda"
+                    },
+                    "confidence": 9,
+                    "formatted": "Varsovia, Avenida Calle 8 Sur, 111631 Puente Aranda, Distrito Capital, Kolombio",
+                    "geometry": {"lat": 4.604711, "lng": -74.1135704},
+                    "bounds": {
+                        "northeast": {"lat": 4.6047782, "lng": -74.1135039},
+                        "southwest": {"lat": 4.6046437, "lng": -74.1136369},
+                    },
+                },
+            ],
+            "status": {"code": 200, "message": "OK"}, "total_results": 5
+        }
+        mock_get.return_value.status_code = 200
+        result = geocode_city("Varsovia", state_province='COR', country='CO')
+        self.assertIsNotNone(result)
+        self.assertEqual(result.remaining_api_calls, 2393)
+        self.assertEqual(result._components['_type'], 'village')
+        self.assertEqual(result.confidence, 7)
+        self.assertEqual(result.country_code.upper(), 'CO')
+        self.assertEqual(result.city, "Monteria")
+        self.assertEqual(result.village, "Varsovia")
+        self.assertEqual(result.xy, [-75.900398, 8.3816971])
 
     def test_bufferize_country_boundaries_unknown(self):
         self.assertIsNone(bufferize_country_boundaries('XYZ'))
