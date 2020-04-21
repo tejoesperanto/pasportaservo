@@ -180,7 +180,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
         mock_get.side_effect = HTTPConnectionError("Failed to establish a new connection. Max retries exceeded.")
         result = geocode("Roterdamo", annotations=True)
         self.assertIs(type(result), OpenCageQuery)
-        self.assertSurrounding(result.status, 'ERROR')
+        self.assertStartsWith(result.status, 'ERROR')
         self.assertEqual(len(result), 0)
         self.assertIsNone(result.point)
 
