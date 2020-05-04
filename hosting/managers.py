@@ -42,3 +42,15 @@ class NotDeletedManager(TrackingManager):
 class AvailableManager(NotDeletedManager):
     def get_queryset(self):
         return super().get_queryset().filter(available=True)
+
+
+class ActiveStatusManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().annotate(is_active=Case(
+            When(active_from__isnull=True, active_until__isnull=True, then=True),
+            When(active_until__isnull=True, active_from__lte=timezone.now(), then=True),
+            When(active_from__isnull=True, active_until__gte=timezone.now(), then=True),
+            When(active_from__lte=timezone.now(), active_until__gte=timezone.now(), then=True),
+            default=False,
+            output_field=BooleanField()
+        ))

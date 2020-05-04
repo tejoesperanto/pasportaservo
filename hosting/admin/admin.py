@@ -21,10 +21,11 @@ from maps.widgets import AdminMapboxGlWidget
 
 from ..models import (
     Condition, ContactPreference, Phone, Place, Preferences,
-    Profile, VisibilitySettings, Website, Whereabouts,
+    Profile, TravelAdvice, VisibilitySettings, Website, Whereabouts,
 )
 from .filters import (
-    CountryMentionedOnlyFilter, EmailValidityFilter, PlaceHasLocationFilter,
+    ActiveStatusFilter, CountryMentionedOnlyFilter,
+    EmailValidityFilter, PlaceHasLocationFilter,
     ProfileHasUserFilter, SupervisorFilter, VisibilityTargetFilter,
 )
 from .forms import WhereaboutsAdminForm
@@ -607,3 +608,36 @@ class WebsiteAdmin(TrackingModelAdmin, admin.ModelAdmin):
 @admin.register(ContactPreference)
 class ContactPreferenceAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(TravelAdvice)
+class TravelAdviceAdmin(admin.ModelAdmin):
+    list_display = ('advice', 'countries_list', 'active_status', 'active_from', 'active_until')
+    list_filter = (
+        ActiveStatusFilter,
+        CountryMentionedOnlyFilter,
+    )
+    date_hierarchy = 'active_until'
+    fields = (
+        ('active_from', 'active_until'),
+        'content', 'description', 'countries',
+    )
+    readonly_fields = ('description',)
+    save_as = True
+    save_as_continue = False
+
+    def advice(self, obj):
+        return obj.trimmed_content()
+    advice.short_description = _("travel advice")
+    advice.admin_order_field = 'content'
+
+    def countries_list(self, obj):
+        return obj.applicable_countries(code=False)
+    countries_list.short_description = _("countries")
+
+    def active_status(self, obj):
+        # The status is a calculated field (QuerySet annotation).
+        return obj.is_active
+    active_status.short_description = _("active")
+    active_status.admin_order_field = 'is_active'
+    active_status.boolean = True

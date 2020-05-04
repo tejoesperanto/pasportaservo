@@ -10,7 +10,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.db.models import LineStringField, PointField
 from django.db import models, transaction
-from django.db.models import F, Value as V
+from django.db.models import F, Q, Value as V
 from django.db.models.functions import Concat, Substr
 from django.urls import reverse
 from django.utils import timezone
@@ -21,9 +21,11 @@ from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 
+from commonmark import commonmark
 from django_countries.fields import CountryField
 from django_extensions.db.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
+from simplemde.fields import SimpleMDEField
 from slugify import Slugify
 
 from core.utils import camel_case_split
@@ -35,7 +37,9 @@ from .filters import (
     OkForBookFilter, OkForGuestsFilter,
 )
 from .gravatar import email_to_gravatar
-from .managers import AvailableManager, NotDeletedManager, TrackingManager
+from .managers import (
+    ActiveStatusManager, AvailableManager, NotDeletedManager, TrackingManager,
+)
 from .utils import UploadAndRenameAvatar, value_without_invalid_marker
 from .validators import (
     TooFarPastValidator, validate_image, validate_latin,
@@ -1072,3 +1076,76 @@ class Preferences(models.Model):
             self.__class__.__name__,
             self.profile_id
         )
+
+
+class TravelAdvice(TimeStampedModel):
+    content = SimpleMDEField(
+        _("Markdown content"),
+        simplemde_options={
+            'hideIcons': ['heading', 'quote', 'unordered-list', 'ordered-list', 'image'],
+            'spellChecker': False,
+        })
+    description = models.TextField(
+        _("HTML description"),
+        blank=False)
+    countries = CountryField(
+        multiple=True,
+        blank_label=_("- ALL COUNTRIES -"),
+        blank=True)
+    active_from = models.DateField(
+        _("advice valid from date"),
+        null=True, blank=True)
+    active_until = models.DateField(
+        _("advice valid until date"),
+        null=True, blank=True)
+
+    objects = ActiveStatusManager()
+
+    class Meta:
+        verbose_name = _("travel advice")
+        verbose_name_plural = _("travel advices")
+
+    def trimmed_content(self, cut_off=70):
+        return '{}...'.format(self.content[:cut_off-2]) if len(self.content) > cut_off else self.content
+
+    def applicable_countries(self, all_label=None, code=True):
+        if not self.countries:
+            return all_label or self._meta.get_field('countries').blank_label
+        else:
+            return ', '.join(c.code if code else c.name for c in self.countries)
+
+    @classmethod
+    def get_for_country(cls, country_code, is_active=True):
+        """
+        Extracts advices indicated for a specific country, i.e., those applicable to a
+        list of countries among which is the queried country, or those applicable to
+        any country. If `is_active` is True or None, also verifies whether the advice
+        is current or just applicable, correspondingly. However, if `is_active` is
+        False, only advices for this specific country which are not anymore or not yet
+        valid are returned.
+        """
+        lookups = Q(countries__regex=r'(^|,){}(,|$)'.format(country_code))
+        if is_active is False:
+            lookups = lookups & Q(is_active=False)
+        else:
+            lookups = lookups | Q(countries='')
+            if is_active is not None:
+                lookups = lookups & Q(is_active=True)
+        return cls.objects.filter(lookups).order_by('-active_until', '-id')
+
+    def __str__(self):
+        return ' '.join((
+            self.trimmed_content().replace('\n', ' '),
+            '({})'.format(self.applicable_countries())
+        ))
+
+    def __repr__(self):
+        return "<TravelAdvice for {}: {}>".format(
+            self.applicable_countries("ALL"),
+            self.trimmed_content(90).replace('\n', ' ')
+        )
+
+    def save(self, *args, **kwargs):
+        self.description = commonmark(self.content)
+        return super().save(*args, **kwargs)
+    save.alters_data = True
