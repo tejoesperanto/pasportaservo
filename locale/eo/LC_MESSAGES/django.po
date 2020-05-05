@@ -954,6 +954,15 @@ msgstr "landa kodo"
 msgid "image"
 msgstr "bildo"
 
+msgid "travel advice"
+msgstr "vojaĝ-averto"
+
+msgid "countries"
+msgstr "landoj"
+
+msgid "active"
+msgstr "aktiva"
+
 msgid "All"
 msgstr "Ĉio"
 
@@ -1461,6 +1470,18 @@ msgstr "Listigu mian profilon en serĉrezultoj videblaj al ne-pasportserv-anoj."
 
 msgid "preferences for profile"
 msgstr "profilaj preferoj"
+
+msgid "- ALL COUNTRIES -"
+msgstr "- ĈIUJ LANDOJ -"
+
+msgid "advice valid from date"
+msgstr "averto en efiko ekde dato"
+
+msgid "advice valid until date"
+msgstr "averto en efiko ĝis dato"
+
+msgid "travel advices"
+msgstr "vojaĝ-avertoj"
 
 #, python-format
 msgid "You've been authorized to see the complete address of %(owner_name)s!"
@@ -2241,6 +2262,13 @@ msgstr "trinkos ion kun vi"
 
 msgid "to have a drink together in the city"
 msgstr "trinkos ion kun vi en la urbo"
+
+#, python-format
+msgid "Travel advice for %(country)s"
+msgstr "Vojaĝ-averto por %(country)s"
+
+msgid "Travel advice"
+msgstr "Vojaĝ-averto"
 
 msgid "^profile/"
 msgstr "^profilo/"

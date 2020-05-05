@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n l10n static geojson_tags %}
+{% load i18n l10n static cache geojson_tags %}
 {% load profile privacy expression variable utils %}
 
 {% block head_title %}
@@ -45,6 +45,7 @@
     {% if view.role == roles.OWNER or user|is_supervisor_of:place %}
         {% expr True as place_owner_or_supervisor %}
     {% endif %}
+    {% list place.available place.owner_available as place_availability %}
 
     {% if view.verbose_view and debug %}
         <span class="label label-warning debug-only">{% trans "Full preview" %}</span>
@@ -60,6 +61,16 @@
                 {% endif %}
             </p>
         </div>
+    {% endif %}
+    {% endif %}
+    {% if user.is_authenticated and place_availability|are_any and not place.deleted %}
+    {% if view.role != roles.OWNER and user.profile not in place.family_members_cache %}
+    {# PAGE-TOP NOTIFICATIONS TO VISITORS ABOUT TRAVEL RESTRICTIONS TO THIS COUNTRY #}
+        {% cache 86400 travel-advisory place.country.code.upper True %}
+            {% for advisory in advisories %}
+                {% include './snippets/travel_advice.html' with advisory=advisory country=place.country.name only %}
+            {% endfor %}
+        {% endcache %}
     {% endif %}
     {% endif %}
 
@@ -275,7 +286,7 @@
                     {% endif %}
                     <p>
                         {% if place.sporadic_presence %}
-                        {% if place.available or place.owner_available or view.verbose_view %}
+                        {% if place_availability|are_any or view.verbose_view %}
                             <span class="fa fa-asterisk text-brand" aria-label="{% trans "Note " context 'Title' %}"></span>
                             {% trans "I'm not present at this address at all times; contact me in advance." %}
                         {% endif %}
@@ -374,7 +385,7 @@
                 {% include './snippets/place_description.html' with description=place.description place_available=place.available owner_available=place.owner_available contact_before=place.contact_before max_host=place.max_guest max_night=place.max_night only %}
 
                 {% if place.sporadic_presence %}
-                {% if place.available or place.owner_available or view.verbose_view %}
+                {% if place_availability|are_any or view.verbose_view %}
                     <p>
                         <span class="fa fa-calendar-times-o fa-fw text-muted" aria-label="{% trans "Note " context 'Title' %}"></span>&nbsp;
                         {% trans "I'm not present at this address at all times; contact me in advance." %}

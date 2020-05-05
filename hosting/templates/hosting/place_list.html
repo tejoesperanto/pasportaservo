@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n static geoformat %}
+{% load i18n static cache geoformat %}
 
 {% block head_title %}
     {% trans "Find accommodation" %}
@@ -94,6 +94,12 @@
         {% endif %}
     {% endwith %}
     </h4>
+
+    {% cache 86400 travel-advisory view.result.country_code.upper view.country_search|default:False %}
+        {% for advisory in country_advisories %}
+            {% include './snippets/travel_advice.html' with advisory=advisory country=view.result|geo_result_country only %}
+        {% endfor %}
+    {% endcache %}
 
     {% if place_list %}
         <div class="row place-list"><div class="col-xs-12">{# SEPARATOR #}</div></div>

@@ -27,6 +27,18 @@ def format_geo_result(result):
 
 
 @register.filter
+def geo_result_country(result):
+    """
+    Return the country from django_countries corresponding to the
+    one in the geocoding result.
+    """
+    try:
+        return Countries().name(result.country_code.upper()) or result.country
+    except (AttributeError, KeyError):
+        return result.country
+
+
+@register.filter
 def geo_url_hash(result):
     """
     A Mapbox Map.options.hash from geocoder response

@@ -34,7 +34,7 @@ from ..forms import (
     PlaceBlockForm, PlaceBlockQuickForm, PlaceCreateForm, PlaceForm,
     PlaceLocationForm, UserAuthorizedOnceForm, UserAuthorizeForm,
 )
-from ..models import LOCATION_CITY, Place, Profile, Whereabouts
+from ..models import LOCATION_CITY, Place, Profile, TravelAdvice, Whereabouts
 from .mixins import (
     CreateMixin, DeleteMixin, PlaceMixin, PlaceModifyMixin,
     ProfileIsUserMixin, ProfileModifyMixin, UpdateMixin,
@@ -104,6 +104,7 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
         context['place_location'] = self.calculate_position()
         context['blocking'] = self.calculate_blocking(self.object)
         context['simple_map'] = self.request.COOKIES.get('maptype') == '0'
+        context['advisories'] = TravelAdvice.get_for_country(self.object.country.code)
         return context
 
     def calculate_position(self):

@@ -1,0 +1,33 @@
+{% load split from utils %}
+{% load i18n variable %}
+
+<div class="row bg-danger top-notice" data-id="A{{ advisory.pk }}">
+    {% asvar advisory_title trimmed %}
+        {% if country %}
+            {% blocktrans %}Travel advice for {{ country }}{% endblocktrans %}
+        {% else %}
+            {% trans "Travel advice" %}
+        {% endif %}
+    {% endasvar %}
+    <em class="sr-only">{{ advisory_title|upper }} :</em>
+    <div class="top-notice-icon text-danger">
+        <span class="fa-stack" aria-hidden="true" title="{{ advisory_title }}">
+            <span class="fa fa-comment fa-stack-2x hidden-print"></span>
+            <span class="fa fa-circle-thin fa-stack-2x visible-print-inline"></span>
+            <span class="fa fa-exclamation fa-stack-1x fa-inverse"></span>
+        </span>
+        <button data-target=".top-notice[data-id='A{{ advisory.pk }}'] p"
+                class="close requires-scripting hidden-print"
+                title="{% trans "Hide" %}" aria-label="{% trans "Hide this message" %}"
+                type="button" data-toggle="collapse" aria-expanded="true">
+            <span class="fa fa-times" aria-hidden="true"></span>
+        </button>
+    </div>
+    {% for advice_desc_para in advisory.description|split:"<p>" %}
+        {% if advice_desc_para.strip|cut:"</p>" %}
+            <p class="col-xs-12 text-justify collapse in">
+                {{ advice_desc_para.strip|cut:"</p>"|safe }}
+            </p>
+        {% endif %}
+    {% endfor %}
+</div>

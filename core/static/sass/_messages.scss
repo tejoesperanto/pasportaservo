@@ -74,8 +74,48 @@
 .top-notice:not(.alert) {
     margin-bottom: 1em;
 
-    p, form {
-        margin-top: 1em;
-        margin-bottom: 1em;
+    &[tabindex]:focus {
+        outline-color: #0096ff;
     }
+    &:not([tabindex]) {
+        outline: 0;
+    }
+    p, form {
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+    p + p {
+        margin-top: 0;
+    }
+    .top-notice-icon {
+        width: 2em;
+        float: left;
+        position: relative;
+        left: 5px;
+        text-align: center;
+        opacity: 0.60;
+        &.content-collapsed {
+            font-size: 9px;
+        }
+        &:not(.initial) {
+            transition: font-size 0.35s ease;
+        }
+        & > .close {
+            float: none;
+            &:not(:first-child) {
+                position: relative;
+                top: 2px;
+            }
+            &:first-child {
+                margin-top: 15px;
+            }
+        }
+        & + .col-xs-12 {
+            width: 95.6%;
+            width: calc(100% - 2em);
+        }
+    }
+}
+html.js-enabled .top-notice:not(.alert)[data-id] {
+    display: none;
 }

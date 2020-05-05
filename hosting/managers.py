@@ -47,10 +47,8 @@ class AvailableManager(NotDeletedManager):
 class ActiveStatusManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().annotate(is_active=Case(
-            When(active_from__isnull=True, active_until__isnull=True, then=True),
-            When(active_until__isnull=True, active_from__lte=timezone.now(), then=True),
-            When(active_from__isnull=True, active_until__gte=timezone.now(), then=True),
-            When(active_from__lte=timezone.now(), active_until__gte=timezone.now(), then=True),
-            default=False,
+            When(active_from__gt=timezone.now(), then=False),
+            When(active_until__lt=timezone.now(), then=False),
+            default=True,
             output_field=BooleanField()
         ))
