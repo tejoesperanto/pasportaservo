@@ -21,7 +21,7 @@ from core.auth import SUPERVISOR, AuthMixin
 from maps import SRID
 from maps.utils import bufferize_country_boundaries
 
-from ..models import Place
+from ..models import Place, TravelAdvice
 from ..utils import geocode
 
 
@@ -173,3 +173,9 @@ class SearchView(PlacePaginatedListView):
             | Q(closest_city__icontains=self.query)
         )
         return self.queryset.filter(lookup).select_related('owner__user')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if getattr(self, 'country_search', False) and hasattr(self, 'result') and self.result.country_code:
+            context['country_advisories'] = TravelAdvice.get_for_country(self.result.country_code.upper())
+        return context

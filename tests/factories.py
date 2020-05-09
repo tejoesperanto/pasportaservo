@@ -1,4 +1,5 @@
 # https://faker.readthedocs.io/en/latest/providers/faker.providers.person.html
+from datetime import timedelta
 from random import choice, randint, random, uniform as uniform_random
 
 from django.contrib.gis.geos import LineString, Point
@@ -196,3 +197,46 @@ class WhereaboutsFactory(DjangoModelFactory):
         return Point(
             [uniform_random(a, b) for a, b in zip(*COUNTRIES_GEO[self.country]['bbox'].values())],
             srid=SRID)
+
+
+class TravelAdviceFactory(DjangoModelFactory):
+    class Meta:
+        model = 'hosting.TravelAdvice'
+
+    class Params:
+        in_past, in_present, in_future = None, None, None
+
+    content = Faker('paragraph')
+    description = factory.LazyAttribute(lambda obj: '<p>{}</p>'.format(obj.content))
+
+    @factory.lazy_attribute
+    def countries(self):
+        return Faker('random_elements', elements=COUNTRIES.keys(), unique=True, length=randint(1, 4)).generate({})
+
+    @factory.lazy_attribute
+    def active_from(self):
+        if self.in_past:
+            faked_date = Faker('date_between', start_date='-365d', end_date='-200d') if random() < 0.85 else None
+        elif self.in_future:
+            faked_date = Faker('date_between', start_date='+2d', end_date='+199d')
+        elif self.in_present:
+            faked_date = Faker('date_between', start_date='-200d', end_date='-2d') if random() < 0.85 else None
+        else:
+            faked_date = Faker('date_object', end_datetime='+5y') if random() < 0.85 else None
+        return faked_date.generate({}) if faked_date else None
+
+    @factory.lazy_attribute
+    def active_until(self):
+        if self.in_past:
+            faked_date = Faker('date_between', start_date='-199d', end_date='-2d')
+        elif self.in_future:
+            faked_date = Faker('date_between', start_date='+200d', end_date='+365d') if random() < 0.85 else None
+        elif self.in_present:
+            faked_date = Faker('date_between', start_date='+2d', end_date='+200d') if random() < 0.85 else None
+        else:
+            if self.active_from:
+                start, end = self.active_from, self.active_from + timedelta(days=365)
+                faked_date = Faker('date_between_dates', date_start=start, date_end=end) if random() < 0.85 else None
+            else:
+                faked_date = Faker('date_object', end_datetime='+5y') if random() < 0.85 else None
+        return faked_date.generate({}) if faked_date else None

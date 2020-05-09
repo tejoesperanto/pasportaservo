@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib import admin
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from core.utils import camel_case_split
@@ -12,7 +13,12 @@ class CountryMentionedOnlyFilter(admin.SimpleListFilter):
     parameter_name = 'country__in'
 
     def lookups(self, request, model_admin):
-        countries = [(obj.country.code, obj.country.name) for obj in model_admin.get_queryset(request)]
+        self.multicountry = hasattr(model_admin.model, 'countries')
+        countries = [
+            (country.code, country.name)
+            for obj in model_admin.get_queryset(request)
+            for country in (obj.countries if self.multicountry else [obj.country])
+        ]
         return sorted(set(countries), key=lambda country: country[1])
 
     def values(self):
@@ -41,8 +47,13 @@ class CountryMentionedOnlyFilter(admin.SimpleListFilter):
             yield {'selected': item_selected, 'query_string': query_string, 'display': title}
 
     def queryset(self, request, queryset):
-        value_list = set([v.strip() for v in self.values() if len(v.strip()) == 2])
-        return queryset.filter(country__in=value_list) if value_list else queryset
+        value_list = set([v.strip() for v in self.values() if len(v.strip()) == 2 and v.strip().isalpha()])
+        if not self.multicountry:
+            lookup = Q(country__in=value_list)
+        else:
+            # No risk of injection because values are restricted to be 2 letters.
+            lookup = Q(countries__regex=r'(^|,)({})(,|$)'.format('|'.join(value_list)))
+        return queryset.filter(lookup) if value_list else (queryset.none() if self.value() else queryset)
 
 
 class VisibilityTargetFilter(admin.SimpleListFilter):
@@ -120,3 +131,11 @@ class PlaceHasLocationFilter(SimpleBooleanListFilter):
 
     def perform_filter(self, queryset):
         return queryset.filter(location__isnull=self.is_no())
+
+
+class ActiveStatusFilter(SimpleBooleanListFilter):
+    title = _("active")
+    parameter_name = 'is_active'
+
+    def perform_filter(self, queryset):
+        return queryset.filter(is_active=not self.is_no())

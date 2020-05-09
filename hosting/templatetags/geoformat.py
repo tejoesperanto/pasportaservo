@@ -1,6 +1,6 @@
 from django import template
 
-from django_countries.data import COUNTRIES
+from django_countries import Countries
 
 register = template.Library()
 
@@ -13,14 +13,29 @@ def format_geo_result(result):
     if not result.country:
         return result.address or ''
     try:
-        country = str(COUNTRIES[result.country_code.upper()])
-    except KeyError:
+        country = Countries().name(result.country_code.upper())
+    except Exception:
         return result.address
+    else:
+        if not country:
+            return result.address
     # The name of the country is not necessarily the last-most component of
     # the address.  For example, in some countries the postal code would be
     # located at the very end of the address string.
     components = [part for part in result.address.split(", ") if part != result.country]
     return ", ".join(components + [country])
+
+
+@register.filter
+def geo_result_country(result):
+    """
+    Return the country from django_countries corresponding to the
+    one in the geocoding result.
+    """
+    try:
+        return Countries().name(result.country_code.upper()) or result.country
+    except (AttributeError, KeyError):
+        return result.country
 
 
 @register.filter

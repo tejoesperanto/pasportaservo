@@ -232,6 +232,46 @@ $(document).ready(function() {
     }
 
     // Collapsing elements
+    $('.top-notice:has(p.collapse)').each(function() {
+        var $container = $(this);
+        var noticeKey = 'advisory.ID.collapsed'.replace('ID', $container.data('id'));
+        var $noticeContent = $container.children('p.collapse').first(),
+            $noticeSwitch = $container.find('[data-toggle="collapse"]'),
+            $noticeImage = $container.children('.top-notice-icon');
+        var unfolder = function(event) {
+            if (event.which == 13 || event.which == 32) {
+                // Only the enter and space keys should be treated as action.
+                event.preventDefault();
+                $(this).click();
+            }
+        };
+        var toggler = function(state) {
+            $noticeSwitch.attr('aria-expanded', state);
+            $noticeImage.toggleClass('content-collapsed', !state);
+            $container.attr('tabindex', state ? null : 0)
+                      .attr('data-toggle', state ? null : 'collapse')
+                      .attr('data-target', state ? null : $noticeSwitch.attr('data-target'))
+                      .attr('aria-expanded', state)
+                      .css('cursor', state ? 'default' : 'pointer');
+            if (state) {
+                $noticeSwitch.show();
+                $container.off('keypress', unfolder);
+            }
+            else {
+                $noticeSwitch.hide();
+                $container.on('keypress', unfolder);
+            }
+            window.setTimeout(function() { $noticeImage.removeClass('initial'); }, 100);
+            window.localStorage && localStorage.setItem(noticeKey, !state);
+        };
+        $noticeContent.on('show.bs.collapse hide.bs.collapse',
+                          function(event) { toggler(event.type == 'show') });
+        if (window.localStorage && localStorage.getItem(noticeKey) == 'true') {
+            $noticeImage.addClass('initial');
+            $noticeContent.add($noticeContent.siblings('p.collapse')).collapse();
+        }
+        window.setTimeout(function() { $container.show(); }, 1750);
+    });
     $('#family-panel-small').each(function() {
         var familyKey = 'place.ID.family-members.expanded';
         familyKey = familyKey.replace('ID', $('.place-detail').data('id'));
@@ -251,8 +291,8 @@ $(document).ready(function() {
             });
             window.localStorage && localStorage.setItem(familyKey, state);
         };
-        $familyPanel.on('hide.bs.collapse', function() { toggler(false); })
-                    .on('show.bs.collapse', function() { toggler(true); });
+        $familyPanel.on('show.bs.collapse hide.bs.collapse',
+                        function(event) { toggler(event.type == 'show') });
         if (window.localStorage && localStorage.getItem(familyKey) == 'true') {
             $familyPanel.addClass('in');
             $familySwitch.addClass('initial');
