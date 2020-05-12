@@ -235,6 +235,7 @@
                                     {{ desc }}
                                     {% if description_length_warning %}
                                         <span class="text-danger text-nowrap">
+                                            <span class="sr-only">&#9888;</span>
                                             <span class="fa fa-exclamation-triangle" data-toggle="tooltip" data-html="true"
                                                   title="{{ description_text_warning }} {{ description_length_warning }} "
                                                   data-title="{{ description_text_warning }}
@@ -242,11 +243,16 @@
                                                               {{ description_length_warning }}"
                                                   aria-label="{% trans "Warning " context 'Title' %}"></span>
                                             {{ desc|length }}&#8202;/&#8202;135
+                                            {% if description_text_warning %}
+                                                <span class="visible-print-inline">&#9001;<i>{{ description_text_warning }}</i>&#9002;</span>
+                                            {% endif %}
                                         </span>
                                     {% elif description_text_warning %}
+                                        <span class="sr-only">&#9888;</span>
                                         <span class="fa fa-exclamation-triangle" data-toggle="tooltip"
                                               title="{{ description_text_warning }}"
                                               aria-label="{% trans "Warning " context 'Title' %}: {{ description_text_warning }}"></span>
+                                        <span class="visible-print-inline">&#9001;<i>{{ description_text_warning }}</i>&#9002;</span>
                                     {% endif %}
                                 </small>
                             {% endwith %}
@@ -281,10 +287,13 @@
                                             {% if phone_dimmed_reason %}style="opacity: 0.55"{% endif %}>
                                             {{ phone.comments }}
                                             {% if phone.comments|is_esperanto_surrogate %}
+                                                {% trans "Esperanto letters?" as phone_comment_text_warning %}
+                                                <span class="sr-only">&#9888;</span>
                                                 <span class="fa fa-exclamation-triangle text-warning"
                                                       data-toggle="tooltip" data-container="#p-{{ place.pk }} address"
-                                                      title="{% trans "Esperanto letters?" %}"
-                                                      aria-label="{% trans "Warning " context 'Title' %}: {% trans "Esperanto letters?" %}"></span>
+                                                      title="{{ phone_comment_text_warning }}"
+                                                      aria-label="{% trans "Warning " context 'Title' %}: {{ phone_comment_text_warning }}"></span>
+                                                <small class="visible-print-inline"><i>{{ phone_comment_text_warning }}</i></small>
                                             {% endif %}
                                         </em>
                                         {% spaceless %}

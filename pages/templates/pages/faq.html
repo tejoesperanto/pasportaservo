@@ -111,7 +111,8 @@
 
             {% asvar Question %}Kie estas la mapo de gastigantoj?{% endasvar %}
             {% asvar Answer %}
-                La mapo estas esplorebla <a href="{% url 'world_map' %}">ĉi tie</a>.
+                {% url 'world_map' as world_map_url %}
+                La mapo estas esplorebla ĉi tie: <a href="{{ world_map_url }}">pasportaservo.org<wbr>{{ world_map_url }}</a>.
                 Ĉiun fojon kiam vi serĉas gastigantojn, vi vidos ankaŭ ligilon al la mapo de la petata regiono.
             {% endasvar %}
             {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
