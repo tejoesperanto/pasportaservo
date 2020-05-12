@@ -654,7 +654,7 @@ html:not(.msie-compat) .mapboxgl-canvas[tabindex="0"]:focus {
         @include avatar-chrome;
     }
 }
-@media (max-width: 540px) {
+@media screen and (max-width: 540px) {
     .profile-detail .owner .avatar {
         display: inline-block;
         position: relative;

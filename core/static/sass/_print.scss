@@ -18,6 +18,9 @@ header .navigator .use-notice {
     display: table-cell !important;
     vertical-align: middle;
 }
+header #title .also-visible-print {
+    display: inline !important;
+}
 
 section.messages, .control-buttons, .action-edit-inline, .place-settings-preview {
     display: none;
@@ -62,8 +65,14 @@ blockquote {
 }
 
 .top-notice {
-    font-style: italic;
+    &:not([data-id]) {
+        font-style: italic;
+    }
     background-color: #f9f9f9 !important;
+    &[data-id] {
+        border-top: solid 1px #e0e0e0;
+        border-bottom: solid 1px #e0e0e0;
+    }
 }
 
 .text-muted,
