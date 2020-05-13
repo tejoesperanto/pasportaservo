@@ -16,6 +16,7 @@ window.addEventListener("load", function() {
     catch (e) {
         position = undefined;
     }
+    var mediaPrint = container.hasAttribute('data-for-print');
     var attrib = GIS_ENDPOINTS['place_map_attrib'];
 
     mapboxgl.setRTLTextPlugin(GIS_ENDPOINTS['rtl_plugin'], undefined, true);
@@ -68,7 +69,7 @@ window.addEventListener("load", function() {
                     source: "thisplace",
                     paint: {
                         "circle-color": "#1bf",
-                        "circle-opacity": 0.7,
+                        "circle-opacity": !mediaPrint ? 0.70 : 0.05,
                         "circle-radius": [
                             "interpolate", ["linear"], ["zoom"],
                             1, 3,
@@ -80,8 +81,9 @@ window.addEventListener("load", function() {
                             14, 110,
                             15, 220,
                         ],
-                        "circle-stroke-width": 1,
-                        "circle-stroke-color": "#eee"
+                        "circle-stroke-width": !mediaPrint ? 1 : 2,
+                        "circle-stroke-opacity": !mediaPrint ? 1.00 : 0.10,
+                        "circle-stroke-color": !mediaPrint ? "#eee" : "#000"
                     }
                 });
             }
