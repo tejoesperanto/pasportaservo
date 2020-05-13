@@ -36,6 +36,11 @@
     "openmaptiles": {
       "type": "vector",
       "url": "https://tiles.stadiamaps.com/data/openmaptiles.json"
+    },
+    "maptilertiles": {
+      "type": "vector",
+      "minzoom": 16,
+      "url": "https://api.maptiler.com/tiles/v3/tiles.json?key={{ key }}"
     }
   },
   "sprite": "https://api.maptiler.com/maps/positron/sprite",
@@ -331,7 +336,7 @@
     {
       "id": "housenumber",
       "type": "symbol",
-      "source": "openmaptiles",
+      "source": "maptilertiles",
       "source-layer": "housenumber",
       "minzoom": 16,
       "filter": [
