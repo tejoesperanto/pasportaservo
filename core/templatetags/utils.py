@@ -67,6 +67,8 @@ def split(value, by=None):
     """
     try:
         length = None
+        if by == 'NEWLINE':
+            by = '\n'
         if by and isinstance(by, str) and '~' in by:
             by, length = by.rsplit('~', maxsplit=1)
             try:

@@ -1,8 +1,9 @@
 {% extends 'hosting/place_detail.html' %}
-{% load i18n static geojson_tags variable %}
+{% load i18n static geojson_tags variable utils %}
 
 {% block extra_css %}{% endblock %}
 {% block extra_js %}
+        <script src="{% static 'maps/mapbox-gl.eo.js' %}"></script>
         <script src="{% static 'maps/place-map.js' %}"></script>
 {% endblock %}
 {% block extra_head %}
@@ -40,24 +41,35 @@
             </p>
             <p class="address">
                 {% if view.verbose_view and place.address %}
-                    {{ place.address.strip|linebreaksbr }}
+                    {% filter compact %}
+                        {% for address_line in place.address.strip|split:'NEWLINE' %}
+                            {% if address_line.strip %}
+                                {{ address_line.strip }} {% if not forloop.last %}&mdash;{% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endfilter %}
                     <br />
                 {% endif %}
-                {% include './snippets/place_city_complete.html' with city=place.city closest_city=place.closest_city %}
-                <br />
-                {% if place.state_province %}
-                    {{ place.state_province }}
-                    <br />
-                {% endif %}
-                {% if view.verbose_view %}
-                    {{ place.postcode }}
-                {% endif %}
-                {{ place.get_country_display }}
+                {% filter cut:"<span>"|cut:"</span>"|capfirst %}{% spaceless %}
+                    {% asvar address_city trimmed %}
+                        {% include './snippets/place_city_complete.html' with city=place.city closest_city=place.closest_city %}
+                    {% endasvar %}
+                    {% if address_city %}
+                        <span>{{ address_city }},&ensp;</span>
+                    {% endif %}
+                    {% if place.state_province %}
+                        <span>{{ place.state_province }},&ensp;</span>
+                    {% endif %}
+                    {% if view.verbose_view and place.postcode %}
+                        <span>{{ place.postcode }}&ensp;</span>
+                    {% endif %}
+                    <span>{{ place.get_country_display }}</span>
+                {% endspaceless %}{% endfilter %}
             </p>
             {# END OF OWNER'S DETAILS #}
 
             {# LOCATION ON WORLD MAP #}
-                <div class="embed-responsive embed-responsive-16by9" id="map"
+                <div class="embed-responsive embed-responsive-16by9" id="map" data-for-print
                      {% if place_location.coords %}
                         data-marker="{{ place_location.coords|geojsonfeature }}"
                      {% endif %}

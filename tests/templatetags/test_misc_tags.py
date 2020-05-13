@@ -350,7 +350,7 @@ class SplitFilterTests(TestCase):
         (dummy_object, {',': [dummy_object], ':': [dummy_object]}),
     ]
 
-    def test_var_input(self, autoescape=True):
+    def test_var_input(self, autoescape=True, test_data=None):
         # Values of type 'str' are expected to be split into a list of strings,
         # and HTML-encoded on output if autoescape is "on" (output as-is otherwise).
         # Values of other types are expected to be wrapped in a list as-is.
@@ -360,7 +360,7 @@ class SplitFilterTests(TestCase):
                 {% for x in my_var|split$SEP %}#{{ x }}#{% endfor %}
             {% endautoescape %}
         """)
-        for content, expected_values in self.test_data:
+        for content, expected_values in (test_data or self.test_data):
             for sep in expected_values:
                 with self.subTest(value=content, separator=sep):
                     template = Template(template_string.substitute(
@@ -372,7 +372,7 @@ class SplitFilterTests(TestCase):
                         "".join("#{}#".format(escape(part) if autoescape else part) for part in expected_values[sep])
                     )
 
-    def test_direct_input(self, autoescape=True):
+    def test_direct_input(self, autoescape=True, test_data=None):
         # Values of type 'SafeData' are expected to be split into a list of strings,
         # and output as-is.
         template_string = string.Template("""
@@ -381,7 +381,7 @@ class SplitFilterTests(TestCase):
                 {% for x in "$CONTENT"|split$SEP %}#{{ x }}#{% endfor %}
             {% endautoescape %}
         """)
-        for content, expected_values in self.test_data:
+        for content, expected_values in (test_data or self.test_data):
             for sep in expected_values:
                 with self.subTest(value=content, separator=sep):
                     template = Template(template_string.substitute(
@@ -396,6 +396,17 @@ class SplitFilterTests(TestCase):
 
     def test_nonautoescaped_direct_input(self):
         self.test_direct_input(autoescape=False)
+
+    def test_newline_var_input(self):
+        test_data = [
+            ("<a>\n\n<b>\n", {
+                '>': ["<a", "\n\n<b", "\n"],
+                '<a>': ["", "\n\n<b>\n"],
+                'NEWLINE': ["<a>", "", "<b>", ""]
+            }),
+        ]
+        self.test_var_input(test_data=test_data, autoescape=True)
+        self.test_var_input(test_data=test_data, autoescape=False)
 
     def do_test_with_chunks(self, *, var, autoescape):
         test_data = "This message;\t<strong>along with the apple</strong>; is sent on behalf of <span>Adam</span>;"
