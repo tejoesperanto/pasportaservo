@@ -34,8 +34,8 @@ window.addEventListener("load", function() {
     map.on('load', function() {
         container.style.backgroundImage = "none";
 
-        var nav = new mapboxgl.NavigationControl();
-        map.addControl(nav, 'top-left');
+        map.addControl(new mapboxgl.NavigationControl(), 'top-left');
+        map.addControl(new mapboxgl.FullscreenControl(), 'top-right');
 
         map.addSource("region_hosts", {
             type: "geojson",

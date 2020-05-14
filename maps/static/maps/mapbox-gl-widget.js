@@ -77,6 +77,8 @@ window.addEventListener("load", function() {
 
         var nav = new mapboxgl.NavigationControl();
         map.addControl(nav, 'top-left');
+        var scr = new mapboxgl.FullscreenControl();
+        map.addControl(scr, 'top-right');
         var loc = new mapboxgl.GeolocateControl({
             positionOptions: {
                 enableHighAccuracy: true
