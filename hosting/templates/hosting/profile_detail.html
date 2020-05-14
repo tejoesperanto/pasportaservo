@@ -287,7 +287,7 @@
                             {% if perms.hosting.can_supervise and place.checked %}text-success{% endif %}
                             {% if not place.visibility.online_public %}concealed{% endif %}
                        {% endfilter %}"
-                id="p{{ place.pk }}">
+                id="p{{ place.pk }}" aria-label="{% trans "place"|capfirst %}: {{ place }}">
                 <div class="sr-only">&#8962;&nbsp; <em>{% trans "place"|upper %} {{ forloop.counter }}</em></div>
                 <div class="btn-group control-buttons pull-right">
                     {% block place_edit_buttons %}{% endblock %}
@@ -390,7 +390,7 @@
                         <h4>{{ place.postcode }} {{ place.country.name }}</h4>
                     </div>
 
-                    <ul class="list-group">
+                    <ul class="list-group" aria-label="{% trans "Family members" %}">
                         {% for member in place.family_members_cache %}
                             <li class="list-group-item list-vertical-align">
                                 {% block family_member_edit_buttons %}{% endblock %}
@@ -426,7 +426,7 @@
         <hr />
 
         <h2 class="owner">{% trans "Phones" %}</h2>
-        <ul class="list-group phone-list">
+        <ul class="list-group phone-list" aria-label="% trans "Phones" %}">
             {% for phone in phones %}
                 {% delvar concealed_class concealed_title %}
                 {% if not phone.visibility.online_public %}
@@ -474,7 +474,8 @@
                     {% endif %}
                 {% endif %}
 
-                <li class="list-group-item owned-email list-vertical-align {{ concealed_class }}" id="e{{ profile.pk }}">
+                <li class="list-group-item owned-email list-vertical-align {{ concealed_class }}"
+                    id="e{{ profile.pk }}" aria-label="{% trans "Public email address" %}">
                     {% block email_edit_buttons %}{% endblock %}
 
                     <p class="public-email text-nowrap">
