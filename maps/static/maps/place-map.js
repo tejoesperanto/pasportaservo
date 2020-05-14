@@ -54,8 +54,8 @@ window.addEventListener("load", function() {
     });
 
     map.on('load', function() {
-        var nav = new mapboxgl.NavigationControl();
-        map.addControl(nav, 'top-left');
+        map.addControl(new mapboxgl.NavigationControl(), 'top-left');
+        map.addControl(new mapboxgl.FullscreenControl(), 'top-right');
 
         if (position) {
             map.addSource("thisplace", {
