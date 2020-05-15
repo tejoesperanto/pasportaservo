@@ -192,7 +192,7 @@ except KeyError:
 else:
     cleanup = lambda name, address: (name.lstrip('§').strip(), address)
     ADMINS += tuple(cleanup(*('§ ' + admin).rsplit(maxsplit=1))
-                    for admin in admins.strip().split(';') if admin)
+                    for admin in admins.strip('" \t').split(';') if admin)
 
 AUTH_PROFILE_MODULE = 'hosting.Profile'
 
