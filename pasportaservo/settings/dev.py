@@ -62,3 +62,4 @@ if DEBUG:
     INTERNAL_IPS = ('127.0.0.1',)
 
 EMAIL_SUBJECT_PREFIX = '[PS test] '
+EMAIL_SUBJECT_PREFIX_FULL = '[Pasporta Servo][{}] '.format(ENVIRONMENT)

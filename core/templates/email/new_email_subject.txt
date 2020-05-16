@@ -1,5 +1,5 @@
 {% load i18n %}{% autoescape off %}
 
-[Pasporta Servo] {% trans "Change of email address" context "Email subject" %}
+{{ subject_prefix }}{% trans "Change of email address" context "Email subject" %}
 
 {% endautoescape %}

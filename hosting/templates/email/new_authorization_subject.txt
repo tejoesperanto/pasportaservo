@@ -1,5 +1,5 @@
 {% load i18n %}{% autoescape off %}
 
-[Pasporta Servo] {% trans "You received an Authorization" context "Email subject" %}
+{{ subject_prefix }}{% trans "You received an Authorization" context "Email subject" %}
 
 {% endautoescape %}

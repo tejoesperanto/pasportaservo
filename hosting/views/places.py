@@ -405,6 +405,8 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
         # TODO : Unsubscribe link in the email
         email_context = {
             'site_name': config.site_name,
+            'ENV': settings.ENVIRONMENT,
+            'subject_prefix': settings.EMAIL_SUBJECT_PREFIX_FULL,
             'user': user,
             'place': place,
         }

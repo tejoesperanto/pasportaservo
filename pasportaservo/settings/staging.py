@@ -18,6 +18,7 @@ DATABASES = {
 EMAIL_BACKEND = "sgbackend.SendGridBackend"
 SENDGRID_API_KEY = get_env_setting('SENDGRID_API_KEY')
 EMAIL_SUBJECT_PREFIX = '[PS ido] '
+EMAIL_SUBJECT_PREFIX_FULL = '[Pasporta Servo][{}] '.format(ENVIRONMENT)
 
 ALLOWED_HOSTS = [
     'ido.pasportaservo.org',
