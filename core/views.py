@@ -155,10 +155,12 @@ class AccountRestoreRequestView(generic.TemplateView):
             return HttpResponseRedirect(reverse_lazy('login'))
         # Otherwise, send mail to admins.
         send_mail(
-            gettext(
-                # xgettext:python-brace-format
-                "Note to admin: User requests to reactivate their account; ref: {}."
-            ).format(request_id[0]),
+            '{prefix}{subject}'.format(
+                prefix=settings.EMAIL_SUBJECT_PREFIX,
+                subject=gettext(
+                    # xgettext:python-brace-format
+                    "Note to admin: User requests to reactivate their account; ref: {}."
+                ).format(request_id[0])),
             "--",
             None,
             ['{} <{}>'.format(nick, addr) for nick, addr in settings.ADMINS],
@@ -379,6 +381,8 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
         })
         context = {
             'site_name': config.site_name,
+            'ENV': settings.ENVIRONMENT,
+            'subject_prefix': settings.EMAIL_SUBJECT_PREFIX_FULL,
             'url': url,
             'url_first': url[:url.rindex('/')+1],
             'url_second': token,

@@ -152,6 +152,8 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
         })
         context = {
             'site_name': config.site_name,
+            'ENV': settings.ENVIRONMENT,
+            'subject_prefix': settings.EMAIL_SUBJECT_PREFIX_FULL,
             'url': url,
             'url_first': url[:url.rindex('/')+1],
             'url_second': token,
@@ -231,6 +233,7 @@ class SystemPasswordResetRequestForm(PasswordResetForm):
 
         args = [subject_template_name, email_template_name, context, *args]
         kwargs.update(html_email_template_name=html_email_template_name)
+        context.update({'ENV': settings.ENVIRONMENT, 'subject_prefix': settings.EMAIL_SUBJECT_PREFIX_FULL})
         super().send_mail(*args, **kwargs)
 
 
