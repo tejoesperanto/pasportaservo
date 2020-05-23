@@ -1103,6 +1103,13 @@ msgstr ""
 "Vi estas gastiganto en {count_as_host} lokoj, el kiuj {count_for_book} estu "
 "en la printita eldonaĵo."
 
+#, python-brace-format
+msgid ""
+"The indicated date of birth is in conflict with the date of death ({:%Y-%m-"
+"%d})."
+msgstr ""
+"La indikita dato de naskiĝo konfliktas kun la dato de forpaso ({:%Y-%m-%d})."
+
 msgid "family members"
 msgstr "kunloĝantoj"
 
@@ -1226,13 +1233,16 @@ msgid "personal pronoun"
 msgstr "persona pronomo"
 
 msgid "birth date"
-msgstr "naskiĝtago"
+msgstr "naskiĝdato"
 
 # atentu, la traduka ĉeno enhavas nerompeblajn spacojn!
 msgid "In the format year(4 digits)-month(2 digits)-day(2 digits)."
 msgstr ""
 "En la formato <nobr>jaro (4 ciferoj)−</nobr>​<wbr><nobr>monato (2 ciferoj)−</"
 "nobr>​<wbr><nobr>tago (2 ciferoj).</nobr>"
+
+msgid "death date"
+msgstr "forpaso-dato"
 
 msgid ""
 "This email address will be used for the book. Leave blank if you don't want "

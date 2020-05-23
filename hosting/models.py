@@ -366,6 +366,11 @@ class Profile(TrackingModel, TimeStampedModel):
         null=True, blank=True,
         validators=[TooFarPastValidator(200), validate_not_in_future],
         help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))
+    death_date = models.DateField(
+        _("death date"),
+        null=True, blank=True,
+        validators=[validate_not_in_future],
+        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))
     email = StyledEmailField(
         _("public email"),
         blank=True,
@@ -416,7 +421,8 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @property
     def age(self):
-        return int((date.today() - self.birth_date).days / 365.24)
+        break_date = self.death_date if self.death_date else date.today()
+        return int((break_date - self.birth_date).days / 365.24)
 
     @property
     def avatar_url(self):

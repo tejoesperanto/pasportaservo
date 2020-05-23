@@ -349,13 +349,15 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         'id', 'first_name', 'last_name', 'user__email', 'user__username',
     ]
     list_filter = (
-        'confirmed_on', 'checked_on', 'deleted_on', EmailValidityFilter, ProfileHasUserFilter,
+        'confirmed_on', 'checked_on', 'deleted_on',
+        EmailValidityFilter, ProfileHasUserFilter, 'death_date',
     )
     date_hierarchy = 'birth_date'
 
     fieldsets = (
         (None, {'fields': (
-            'user', 'title', 'first_name', 'last_name', 'names_inversed', 'birth_date',
+            'user', 'title', 'first_name', 'last_name', 'names_inversed',
+            'birth_date', 'death_date',
             ('gender', 'pronoun'),
             'description', 'avatar', 'email',
         )}),
@@ -407,6 +409,21 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         else:
             return self.get_empty_value_display()
     supervisor.short_description = _("supervisor status")
+
+    def get_list_display(self, request):
+        death_date_filter = lambda param: (
+            param == 'death_date'
+            or (param.startswith('death_date')
+                and not (param == 'death_date__isnull' and request.GET[param] == 'True'))
+        )
+        if any(filter(death_date_filter, request.GET.keys())):
+            birth_date_field_index = self.list_display.index('birth_date')
+            return (
+                self.list_display[:birth_date_field_index + 1]
+                + ('death_date',)
+                + self.list_display[birth_date_field_index + 1:]
+            )
+        return self.list_display
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('user', 'checked_by')
