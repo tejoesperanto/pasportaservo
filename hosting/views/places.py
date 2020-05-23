@@ -213,12 +213,19 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
         # Require the unauthenticated user to login in the following cases:
         #   - the place was deleted
         #   - place owner blocked unauth'd viewing
-        #   - place is not visible to the public.
+        #   - place is not visible to the public
+        #   - place owner has passed away.
         if not user.is_authenticated:
-            cases = [place.deleted, not place.owner.pref.public_listing, not place.visibility.visible_online_public]
+            cases = [
+                place.deleted,
+                bool(place.owner.death_date),
+                not place.owner.pref.public_listing,
+                not place.visibility.visible_online_public
+            ]
             if any(cases):
                 auth_log.debug("One of the conditions satisfied: "
-                               "[deleted = %s, not accessible by visitors = %s, not accessible by users = %s]",
+                               "[deleted = %s, owner's death = %s,"
+                               " not accessible by visitors = %s, not accessible by users = %s]",
                                *cases)
                 self._access_validated = result(self.handle_no_permission(), None, None, None)
                 return self._access_validated
