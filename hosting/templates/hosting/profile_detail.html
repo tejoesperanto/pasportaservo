@@ -81,7 +81,7 @@
             <div id="pR" class="col-xs-12 col-md-7">
                 <div class="btn-group control-buttons">
                     {% block profile_edit_buttons %}
-                        {% if view.role != roles.OWNER and not profile.deleted_on %}
+                        {% if view.role != roles.OWNER and not profile.deleted_on and not profile.death_date %}
                             <a href="{% url 'postman:write' profile.user.username %}"
                                class="btn btn-primary"
                                 {% if profile.user.email|is_invalid %}
@@ -132,19 +132,22 @@
             </div>
         </div>
 
-    <section class="row owner">
+    <section class="row owner{% if profile.death_date %} deceased{% endif %}">
         <div class="col-xs-3 col-md-2">
-            <span class="avatar" data-content-provider="fa" data-content="&#xf002;">
+            {% if profile.avatar_exists and profile.avatar.width > profile.avatar.height|mult:1.5 %}
+                {% expr True as narrow_avatar %}
+            {% endif %}
+            <span class="avatar"{% if narrow_avatar %} data-narrow{% endif %} data-content-provider="fa" data-content="&#xf002;">
                 <img src="{{ profile.avatar_url }}"
                      data-mfp-src="{{ profile.avatar_url }}"
                      {% if profile.avatar %}data-proper-url="{{ profile.avatar.url }}"{% endif %}
                      alt="[{% trans "avatar" %}]" />
             </span>
-            {% if profile.avatar_exists and profile.avatar.width > profile.avatar.height|mult:1.5 %}
-                {% expr True as narrow_avatar %}
-            {% endif %}
         </div>
         <div class="col-xs-9 col-md-10">
+            {% if profile.death_date %}
+                <p class="sr-only">{% trans "Deceased member" %} :</p>
+            {% endif %}
             <h1 class="name{% if narrow_avatar %} align-top{% endif %}">
                 <small>{{ profile.get_title_display }}</small>
                 {% if view.role >= roles.SUPERVISOR and not profile.first_name and not profile.last_name %}
@@ -208,6 +211,15 @@
 
     <section>
         <h2 class="owner">{% trans "About me" %}</h2>
+        {% if profile.death_date %}
+            <p class="text-danger">
+                <em>
+                {% blocktrans with name=profile.name|default:_("this member") month_of_year=profile.death_date|date:"F Y" trimmed %}
+                    It is with great regret that we inform that {{ name }} has passed away in {{ month_of_year }}.
+                {% endblocktrans %}
+                </em>
+            </p>
+        {% endif %}
         {{ profile.description|linebreaks }}
         {% if profile.gender or profile.pronoun %}
             <p>
@@ -230,14 +242,14 @@
             </p>
         {% endif %}
         <p>
-            {% if phones_public %}
+            {% if phones_public and not profile.death_date %}
                 <span class="contact-details text-nowrap">
                     <span class="text-muted">{{ phones_public.0.icon }}</span>
                     {{ phones_public.0.number.as_international }}
                     {% block public_phone_edit_buttons %}{% endblock %}
                 </span>&ensp;
             {% endif %}
-            {% if profile.email and not profile.email|is_invalid %}
+            {% if profile.email and not profile.email|is_invalid and not profile.death_date %}
             {% if-visible profile [email] %}
                 <span class="contact-details text-nowrap">
                     {% spaceless %}
@@ -301,8 +313,8 @@
                 </div>
                 {% if view.public_view %}
                     <p class="pull-right" style="margin-right: 10px">{% include './snippets/checked.html' with object=place %}</p>
-                    <div class="place-overview">
-                        {% if place.available %}
+                    <div class="place-overview{% if profile.death_date %} deceased-owner{% endif %}">
+                        {% if place.available and not profile.death_date %}
                             <span class="label label-info status">&nbsp;{% trans "I'm hosting in:" %}&nbsp;</span>
                         {% endif %}
 

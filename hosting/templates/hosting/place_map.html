@@ -38,6 +38,9 @@
                 {% else %}
                     {% blocktrans with name=place_owner %}Habitat of {{ name }}{% endblocktrans %}
                 {% endif %}
+                {% if place.owner.death_date %}
+                    &nbsp;<small>({% trans "Deceased member" %})</small>
+                {% endif %}
             </p>
             <p class="address">
                 {% if view.verbose_view and place.address %}

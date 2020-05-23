@@ -1670,6 +1670,16 @@ msgstr "ekde %(date)s"
 msgid "until %(date)s"
 msgstr "ĝis %(date)s"
 
+msgid "this member"
+msgstr "tiu ĉi PS-membro"
+
+#, python-format
+msgid ""
+"It is with great regret that we inform that %(name)s has passed away in "
+"%(month_of_year)s."
+msgstr ""
+"Kun aflikto ni informas ke %(name)s forpasis en %(month_of_year)s."
+
 msgid "Address and availability"
 msgstr "Adreso kaj disponebleco"
 
@@ -1681,6 +1691,9 @@ msgstr "mi emas trinkejumi"
 
 msgid "unavailable"
 msgstr "maldisponebla"
+
+msgid "Deceased member"
+msgstr "Forpasinta PS-membro"
 
 msgid "by a supervisor"
 msgstr "fare de landa organizanto"
@@ -1798,6 +1811,9 @@ msgstr "per <a href=\"%(url)s\">privateco-agordoj</a>"
 
 msgid "via privacy settings"
 msgstr "per privateco-agordoj"
+
+msgid "the owner passed away"
+msgstr "la posedanto forpasis"
 
 #, python-format
 msgid "Place of %(name)s"

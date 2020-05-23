@@ -55,6 +55,15 @@ body, .same-as-body {
         border-radius: 25% 7.5%;
     }
 }
+@mixin deceased-bar($length, $width, $color: #000) {
+    content: "";
+    width: $length;
+    border-bottom: solid $width $color;
+    border-left: solid $width transparent;
+    border-right: solid $width transparent;
+    transform: rotate(-45deg);
+    display: block;
+}
 
 .action-edit-inline {
     margin-left: 0.3ex;
@@ -396,6 +405,14 @@ header:not(.hero) #subtitle {
     margin-bottom: 0.5em;
     border-bottom: 1px solid darken($color-gray-light, 6%);
 }
+.place-detail.deceased-owner {
+    .owner-detail, .description-largevp, .description-smallvp {
+        opacity: 0.75;
+    }
+}
+.place-overview.deceased-owner {
+    opacity: 0.75;
+}
 .place-detail .owner .name,
 .place-list .name {
     font-weight: bold;
@@ -653,6 +670,25 @@ html:not(.msie-compat) .mapboxgl-canvas[tabindex="0"]:focus {
     .avatar > img {
         @include avatar-chrome;
     }
+    &.deceased .avatar {
+        & > img {
+            border: solid 1px #f6f6f6;
+        }
+        &:before {
+            @include deceased-bar(80px, 10px);
+            z-index: 100;
+            position: absolute;
+        }
+        &:not([data-narrow]):before {
+            top: 21px;
+            left: 1px;
+        }
+        &[data-narrow]:before {
+            width: 50px;
+            top: 11px;
+            left: 6px;
+        }
+    }
 }
 @media screen and (max-width: 540px) {
     .profile-detail .owner .avatar {
@@ -668,6 +704,14 @@ html:not(.msie-compat) .mapboxgl-canvas[tabindex="0"]:focus {
             right: -1px;
             color: $color-gray-light;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+        }
+    }
+    .profile-detail .owner.deceased .avatar {
+        &:not([data-narrow]):before {
+            left: -14px;
+        }
+        &[data-narrow]:before {
+            left: -9px;
         }
     }
     .mfp-wrap {
@@ -951,6 +995,12 @@ html.js-enabled #tasks-header[data-toggle="collapse"] {
 }
 .place-supervisor-detail {
     @include highlighter();
+    &.deceased-owner:before {
+        @include deceased-bar(48px, 6px, #333);
+        position: relative;
+        left: -28px;
+        top: -7px;
+    }
     & > .control-buttons {
         margin-left: 20px;
     }
@@ -1112,6 +1162,9 @@ p.tip {
 
 /* XXS */
 @media (max-width: #{$BOOTSTRAP-XS - 1}) {
+    .profile-detail .owner.deceased .avatar:before {
+        display: none;
+    }
     .list-vertical-align .family-member .member {
         margin-right: 0.5em;
     }
