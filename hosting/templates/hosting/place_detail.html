@@ -74,7 +74,7 @@
     {% endif %}
     {% endif %}
 
-    <div class="row place-detail" data-id="{{ place.pk }}">
+    <div class="row place-detail{% if place.owner.death_date and user.is_authenticated %} deceased-owner{% endif %}" data-id="{{ place.pk }}">
         <div class="col-xs-12 col-md-6 owner">
             <section class="row" aria-label="{% trans "Important information" %}">
                 <div class="col-xs-12 warning" style="min-height: 0px">
@@ -101,7 +101,7 @@
                 </div>
                 <div class="col-xs-12 warning">
                 {# ALERT ABOUT NON-AVAILABILITY OF A PLACE #}
-                    {% if blocking.enabled and not place.deleted and user.is_authenticated %}
+                    {% if blocking.enabled and not place.deleted and not place.owner.death_date and user.is_authenticated %}
                         <div class="alert alert-small alert-warning">
                             {% if place.owner.is_hosting or place.owner.is_meeting %}
                                 {% trans "The host is not available" %}
@@ -116,11 +116,20 @@
                             {% endif %}
                         </div>
                     {% endif %}
+                    {% if place.owner.death_date and user.is_authenticated %}
+                        <div class="alert alert-small alert-danger">
+                            <em>
+                            {% blocktrans with name=place.owner.name|default:_("this member") month_of_year=place.owner.death_date|date:"F Y" trimmed %}
+                                It is with great regret that we inform that {{ name }} has passed away in {{ month_of_year }}.
+                            {% endblocktrans %}
+                            </em>
+                        </div>
+                    {% endif %}
                 </div>
             {# END OF PLACE AND OWNER WARNINGS #}
             </section>
 
-            <div class="row">
+            <div class="row owner-detail">
             {# OWNER'S DETAILS: NAME, ADDRESS, PHONE NUMBERS (IN VERBOSE VIEW) #}
                 <div class="col-xs-3 avatar" aria-hidden="true">
                     <a href="{{ place.owner.get_absolute_url }}" tabindex="-1">
@@ -175,6 +184,9 @@
                             {% endif %}
 
                             <p class="name">
+                                {% if place.owner.death_date and user.is_authenticated %}
+                                    <span class="sr-only">{% trans "Deceased member" %} :</span>
+                                {% endif %}
                                 <a href="{{ place.owner.get_absolute_url }}">
                                     {% if user.is_authenticated %}
                                         {{ place.owner.get_fullname_display }}
@@ -207,6 +219,7 @@
                         </div>
 
                         {% for phone in owner_phones %}
+                            {% if not place.owner.death_date or view.role == roles.ADMIN %}
                             {% if-visible phone privileged=view.verbose_view %}
                                 <p class="col-xs-12 phone-number">
                                     {{ phone.icon }}
@@ -222,8 +235,9 @@
                                     <em class="comment"><small>{{ phone.comments }}</small></em>
                                 </p>
                             {% endif %}
+                            {% endif %}
                         {% endfor %}
-                        {% if place.owner.email and not place.owner.email|is_invalid %}
+                        {% if place.owner.email and not place.owner.email|is_invalid and not place.owner.death_date %}
                         {% if-visible place.owner [email] privileged=view.verbose_view %}
                             <p class="col-xs-12 public-email text-nowrap">
                             {% spaceless %}
@@ -418,7 +432,7 @@
 
             <p class="col-xs-12 place-control control-buttons">
             {# CONTACT AND CONTROL BUTTONS #}
-                {% if view.role != roles.OWNER and not place.owner.deleted_on %}
+                {% if view.role != roles.OWNER and not place.owner.deleted_on and not place.owner.death_date %}
                     <a href="{% url 'postman:write' place.owner.user.username %}"
                        class="btn btn-primary btn-vert-space"
                        {% if place.owner.user.email|is_invalid %}
@@ -522,22 +536,26 @@
                 {% if place.in_book %}
                 <p class="help-block">
                     {% trans "Print in book" %}:&nbsp;
-                    {% expr (place.in_book and place.visibility.visible_in_book) as place_printable %}
+                    {% expr (place.in_book and place.visibility.visible_in_book and not place.owner.death_date) as place_printable %}
                     <span class="fa fa-{{ place_printable|yesno:'check,times' }}"></span>
                     {{ place_printable|yesno }}
                     {% url 'profile_settings_shortcut' as settings_link %}{% trans "privacy" context "URL" as privacy_shortcut %}
                     {% list settings_link '#' privacy_shortcut as privacy_settings_link %}
                     &nbsp;
-                    <span class="text-nowrap">({% spaceless %}
-                        {{ place_printable|yesno:_("enabled,disabled") }}
-                        {% if view.role == roles.OWNER %}
-                            {% blocktrans with url=privacy_settings_link|join:"" trimmed %}
-                                via <a href="{{ url }}">privacy settings</a>
-                            {% endblocktrans %}
-                        {% else %}
-                            {% trans "via privacy settings" %}
-                        {% endif %}
-                    {% endspaceless %})</span>
+                    {% if not place.owner.death_date %}
+                        <span class="text-nowrap">({% spaceless %}
+                            {{ place_printable|yesno:_("enabled,disabled") }}
+                            {% if view.role == roles.OWNER %}
+                                {% blocktrans with url=privacy_settings_link|join:"" trimmed %}
+                                    via <a href="{{ url }}">privacy settings</a>
+                                {% endblocktrans %}
+                            {% else %}
+                                {% trans "via privacy settings" %}
+                            {% endif %}
+                        {% endspaceless %})</span>
+                    {% else %}
+                        <span class="text-nowrap">({% trans "the owner passed away" %})</span>
+                    {% endif %}
                 </p>
                 {% endif %}
             </section>
