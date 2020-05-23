@@ -134,7 +134,7 @@ class SearchView(PlacePaginatedListView):
 
         self.result = geocode(self.query)
         if self.query and self.result.point:
-            if any([self.result.state, self.result.city]):
+            if any([self.result.country and not self.result.country_code, self.result.state, self.result.city]):
                 return (qs
                         .annotate(distance=Distance('location', self.result.point))
                         .order_by('distance'))
