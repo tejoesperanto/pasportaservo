@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.test import tag
 from django.utils.html import format_html
 
 from django_webtest import WebTest
@@ -10,6 +11,7 @@ from hosting.utils import value_without_invalid_marker
 from ..factories import ProfileFactory, ProfileSansAccountFactory, UserFactory
 
 
+@tag('models')
 class ProfileModelTests(WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -143,6 +145,8 @@ class ProfileModelTests(WebTest):
         ))
 
     def test_age(self):
+        profile = ProfileFactory.build(birth_date=None)
+        self.assertRaises(TypeError, lambda: profile.age)
         profile = ProfileFactory.build(birth_date=Faker('date_this_year', before_today=True, after_today=False))
         self.assertEqual(profile.age, 0)
         profile = ProfileFactory.build(birth_date=Faker('date_this_year', before_today=False, after_today=True))
@@ -151,8 +155,19 @@ class ProfileModelTests(WebTest):
         self.assertEqual(profile.age, 1)
         profile = ProfileFactory.build(birth_date=Faker('date_between', start_date='+365d', end_date='+725d'))
         self.assertEqual(profile.age, -1)
-        profile = ProfileFactory.build(birth_date=Faker('date_between', start_date='-6935d', end_date='-6570d'))
+        profile = ProfileFactory.build(birth_date=Faker('date_between', start_date='-6935d', end_date='-6575d'))
         self.assertEqual(profile.age, 18)
+
+        profile = ProfileFactory.build(birth_date=None, death_date=Faker('date_this_year'))
+        self.assertRaises(TypeError, lambda: profile.age)
+        profile = ProfileFactory.build(
+            birth_date=Faker('date_between', start_date='-2000d', end_date='-1825d'),
+            death_date=Faker('date_between', start_date='-360d', end_date='-185d'))
+        self.assertEqual(profile.age, 4)
+        profile = ProfileFactory.build(
+            birth_date=Faker('date_between', start_date='-2000d', end_date='-1825d'),
+            death_date=Faker('date_between', start_date='+370d', end_date='+545d'))
+        self.assertEqual(profile.age, 6)
 
     def test_avatar_url(self):
         # A normal profile is expected to be gravatar url for email.

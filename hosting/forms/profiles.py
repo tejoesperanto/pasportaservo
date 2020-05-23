@@ -78,7 +78,10 @@ class ProfileForm(forms.ModelForm):
         if hasattr(self, 'instance'):
             profile = self.instance
             for_book = profile.has_places_for_in_book
-            all_filled = all([cleaned_data.get(field, False) for field in self._validation_meta.book_required_fields])
+            all_filled = all([
+                cleaned_data.get(field, False)
+                for field in self._validation_meta.book_required_fields
+            ])
             message = _("You want to be in the printed edition of Pasporta Servo. "
                         "In order to have a quality product, some fields are required. "
                         "If you think there is a problem, please contact us.")
@@ -92,6 +95,15 @@ class ProfileForm(forms.ModelForm):
                     raise forms.ValidationError([message, clarify_message])
                 else:
                     raise forms.ValidationError(message)
+            if profile.death_date and 'birth_date' in cleaned_data:
+                if cleaned_data['birth_date'] > profile.death_date:
+                    # Sanity check for life dates congruence.
+                    # xgettext:python-brace-format
+                    field_bd_message = _("The indicated date of birth is in conflict "
+                                         "with the date of death ({:%Y-%m-%d}).")
+                    self.add_error(
+                        'birth_date', format_lazy(field_bd_message, profile.death_date)
+                    )
         return cleaned_data
 
 
