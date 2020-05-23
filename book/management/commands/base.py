@@ -81,7 +81,12 @@ class LatexCommand(object):
 
     def get_objects(self):
         print('Grabbing data...')
-        places = Place.objects.filter(in_book=True, visibility__visible_in_book=True, checked=True).order_by('city')
+        conditions = dict(
+            in_book=True, visibility__visible_in_book=True,
+            owner__death_date__isnull=True,
+            checked=True,
+        )
+        places = Place.objects.filter(**conditions).order_by('city')
         if self.address_only:
             print('  for', self.country)
             places = places.filter(country=self.country)

@@ -153,8 +153,10 @@ class PublicDataView(GeoJSONLayerView):
         return (
             PlottablePlace.available_objects
             .exclude(location__isnull=True)
+            .exclude(owner__death_date__isnull=False)
             .filter(by_visibility)
             .prefetch_related('owner')
+            .defer('description', 'short_description', 'owner__description')
         )
 
 
