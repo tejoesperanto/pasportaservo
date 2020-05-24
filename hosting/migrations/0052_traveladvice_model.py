@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
                 ('content', simplemde.fields.SimpleMDEField(verbose_name='Markdown content')),
                 ('description', models.TextField(verbose_name='HTML description')),
-                ('countries', django_countries.fields.CountryField(blank=True, max_length=746, multiple=True)),
+                ('countries', django_countries.fields.CountryField(blank=True, max_length=746, multiple=True, verbose_name='countries')),
                 ('active_from', models.DateField(blank=True, null=True, verbose_name='advice valid from date')),
                 ('active_until', models.DateField(blank=True, null=True, verbose_name='advice valid until date')),
             ],

@@ -1089,6 +1089,7 @@ class TravelAdvice(TimeStampedModel):
         _("HTML description"),
         blank=False)
     countries = CountryField(
+        _("countries"),
         multiple=True,
         blank_label=_("- ALL COUNTRIES -"),
         blank=True)

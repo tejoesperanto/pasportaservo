@@ -426,7 +426,7 @@
         <hr />
 
         <h2 class="owner">{% trans "Phones" %}</h2>
-        <ul class="list-group phone-list" aria-label="% trans "Phones" %}">
+        <ul class="list-group phone-list" aria-label="{% trans "Phones" %}">
             {% for phone in phones %}
                 {% delvar concealed_class concealed_title %}
                 {% if not phone.visibility.online_public %}
