@@ -111,20 +111,24 @@ class PlaceFactory(DjangoModelFactory):
 
     owner = factory.SubFactory('tests.factories.ProfileFactory')
     country = factory.LazyFunction(lambda: Country(choice(list(COUNTRIES))))
+
     @factory.lazy_attribute
     def state_province(self):
         if self.country in COUNTRIES_WITH_MANDATORY_REGION or random() > 0.85:
             return Faker('state').generate({})
         else:
             return ""
+
     city = Faker('city')
     address = Faker('address')
+
     @factory.lazy_attribute
     def location(self):
         # Cannot use the 'local_latlng' Faker, they don't have all countries in the database!
         return Point(
             [uniform_random(a, b) for a, b in zip(*COUNTRIES_GEO[self.country]['bbox'].values())],
             srid=SRID)
+
     description = Faker('paragraph', nb_sentences=4)
     short_description = Faker('text', max_nb_chars=140)
     in_book = False
@@ -136,6 +140,7 @@ class PhoneFactory(DjangoModelFactory):
         django_get_or_create = ('profile',)
 
     profile = factory.SubFactory('tests.factories.ProfileFactory')
+
     @factory.lazy_attribute
     def number(self):
         # the Faker's phone-number provider is a mess.
@@ -143,6 +148,7 @@ class PhoneFactory(DjangoModelFactory):
         while not phone.is_valid():
             phone = PhoneNumber(country_code=randint(1, 999), national_number=randint(10000000, 9999999990))
         return phone
+
     country = factory.LazyFunction(lambda: Country(choice(list(COUNTRIES))))
     comments = Faker('text', max_nb_chars=20)
     type = Faker('random_element', elements=[ch[0] for ch in PHONE_TYPE_CHOICES])
@@ -178,12 +184,14 @@ class WhereaboutsFactory(DjangoModelFactory):
 
     type = Faker('random_element', elements=[ch[0] for ch in WHEREABOUTS_TYPE_CHOICES])
     name = Faker('city')
+
     @factory.lazy_attribute
     def state(self):
         if self.country in COUNTRIES_WITH_MANDATORY_REGION or random() > 0.85:
             return Faker('state').generate({})
         else:
             return ""
+
     country = factory.LazyFunction(lambda: Country(choice(list(COUNTRIES))))
 
     @factory.lazy_attribute
