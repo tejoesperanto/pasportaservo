@@ -358,17 +358,20 @@ function enableTooltips() {
 
 // Host preferences popover
 function displayAnchorsNotification() {
-    var blockSmallDescription = $('.description-smallvp');
-    $('html, body').animate({ scrollTop: blockSmallDescription.offset().top - 10 }, 500);
+    var $header = $('header'),
+        $blockSmallDesc = $('.description-smallvp'),
+        verticalOffset =
+            $blockSmallDesc.offset().top - ($header.offset().top + $header.outerHeight(true));
+    $('html, body').animate({ scrollTop: verticalOffset }, 500);
 
-    var origin = $('.anchor-notify');
-    origin.popover("show");
-    var notify = origin.next('.popover');
-    origin.filter('.status').next('.popover').addClass('hidden-xs hidden-sm');
+    var $origin = $('.anchor-notify');
+    $origin.popover("show");
+    var $notify = $origin.next('.popover');
+    $origin.filter('.status').next('.popover').addClass('hidden-xs hidden-sm');
 
-    notify.animate({ opacity: 0.95 }, 600);
+    $notify.animate({ opacity: 0.95 }, 600);
     window.setTimeout(function() {
-        notify.animate({ opacity: 0 }, 600, function() { origin.popover("hide") });
+        $notify.animate({ opacity: 0 }, 600, function() { $origin.popover("hide") });
     }, 5000);
 }
 
