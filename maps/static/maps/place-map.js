@@ -69,7 +69,11 @@ window.addEventListener("load", function() {
                     source: "thisplace",
                     paint: {
                         "circle-color": "#1bf",
-                        "circle-opacity": !mediaPrint ? 0.70 : 0.05,
+                        "circle-opacity": [
+                            "interpolate", ["linear"], ["zoom"],
+                            12, !mediaPrint ? 0.70 : 0.30,
+                            15, !mediaPrint ? 0.07 : 0.03,
+                        ],
                         "circle-radius": [
                             "interpolate", ["linear"], ["zoom"],
                             1, 3,
