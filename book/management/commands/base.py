@@ -47,7 +47,7 @@ class LatexCommand(object):
                 self.make()
             return
         if self.country not in countries:
-            raise CommandError("Unknown country: {country}".format(self.country))
+            raise CommandError("Unknown country: {}".format(self.country))
         self.make()
 
     def make(self):
