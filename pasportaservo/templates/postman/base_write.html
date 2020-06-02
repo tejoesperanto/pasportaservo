@@ -1,5 +1,5 @@
 {% extends 'postman/base.html' %}
-{% load i18n static expression profile privacy %}
+{% load i18n static bootstrap expression profile privacy %}
 
 {% block extra_head %}
     {{ block.super }}
@@ -17,7 +17,7 @@
     <div id="postman">
         <h1>{% block pm_write_title %}{% endblock %}</h1>
 
-        {% if target_user.email|is_invalid %}
+        {% if target_user.email|is_invalid and not target_user.profile.death_date %}
             <div class="alert alert-danger">
                 <strong>{% trans "Warning " context "Title" %}</strong>&ensp;
                 {% trans "The user's email address seems invalid" %};
@@ -54,25 +54,18 @@
                     {% endif %}
                 {% endif %}
             </div>
+        {% elif target_user.profile.death_date %}
+            <div class="alert alert-danger">
+                {% blocktrans trimmed %}
+                    This user has passed away. It is not possible to send further messages.
+                {% endblocktrans %}
+            </div>
         {% endif %}
 
-        <form action="{% if next_url %}?next={{ next_url|urlencode }}{% endif %}" method="post">{% csrf_token %}
+        <form action="{% if next_url %}?next={{ next_url|urlencode }}{% endif %}" method="post">
+            {% csrf_token %}
             {% block pm_write_recipient %}{% endblock %}
-            <div class="form-group">
-                <p class="required">
-                    <label class="required" for="id_recipients">{% trans "recipient"|capfirst %}</label>
-                    <input id="id_recipients" class="form-control" name="recipients" required type="text"
-                           value="{{ view.kwargs.recipients|default:'' }}">
-                </p>
-                <p class="required">
-                    <label class="required" for="id_subject">{% trans "subject"|capfirst %}</label>
-                    <input id="id_subject" class="form-control" maxlength="120" name="subject" required type="text">
-                </p>
-                <p>
-                    <label class="required" for="id_body">{% trans "message"|capfirst %}</label>
-                    <textarea id="id_body" class="form-control" name="body" rows="12" cols="55"></textarea>
-                </p>
-            </div>
+            {{ form|bootstrap }}
             <button type="submit" class="btn btn-primary">
                 <span class="fa fa-share" aria-hidden="true"></span>&nbsp;
                 {% trans "Send" context "postman:action" %}

@@ -1677,8 +1677,7 @@ msgstr "tiu ĉi PS-membro"
 msgid ""
 "It is with great regret that we inform that %(name)s has passed away in "
 "%(month_of_year)s."
-msgstr ""
-"Kun aflikto ni informas ke %(name)s forpasis en %(month_of_year)s."
+msgstr "Kun aflikto ni informas ke %(name)s forpasis en %(month_of_year)s."
 
 msgid "Address and availability"
 msgstr "Adreso kaj disponebleco"
@@ -2589,6 +2588,12 @@ msgstr "^oftaj-demandoj/$"
 msgid "^supervisors/$"
 msgstr "^landaj-organizantoj/$"
 
+msgid "Message"
+msgstr "Mesaĝo"
+
+msgid "Cannot send the message: This user has passed away."
+msgstr "Ne eblas sendi la mesaĝon: Tiu ĉi uzanto forpasis."
+
 msgid "OK"
 msgstr "Enordas"
 
@@ -2739,14 +2744,8 @@ msgstr "supozeble %(name)s povas ne ekscii pri via mesaĝo."
 msgid "Consider contacting the user by"
 msgstr "Prefere kontaktu la uzanton per"
 
-msgid "recipient"
-msgstr ""
-
-msgid "subject"
-msgstr ""
-
-msgid "message"
-msgstr ""
+msgid "This user has passed away. It is not possible to send further messages."
+msgstr "Tiu ĉi uzanto forpasis. Pliajn mesaĝojn ne plu eblas sendi."
 
 msgctxt "postman:action"
 msgid "Send"

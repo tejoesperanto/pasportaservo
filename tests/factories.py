@@ -58,6 +58,7 @@ class UserFactory(DjangoModelFactory):
 
     class Params:
         invalid_email = False
+        deceased_user = False
 
     username = Faker('user_name')
     password = factory.PostGenerationMethodCall('set_password', "adm1n")
@@ -68,7 +69,8 @@ class UserFactory(DjangoModelFactory):
     is_active = True
     is_staff = False
 
-    profile = factory.RelatedFactory('tests.factories.ProfileFactory', 'user')
+    profile = factory.RelatedFactory(
+        'tests.factories.ProfileFactory', 'user', deceased=factory.SelfAttribute('..deceased_user'))
     agreement = factory.RelatedFactory(AgreementFactory, 'user')
 
 
@@ -85,6 +87,9 @@ class ProfileFactory(DjangoModelFactory):
         model = 'hosting.Profile'
         django_get_or_create = ('user',)
 
+    class Params:
+        deceased = False
+
     user = factory.SubFactory('tests.factories.UserFactory', profile=None)
     title = Faker('random_element', elements=["", MRS, MR])
     first_name = LocaleFaker('first_name')
@@ -94,6 +99,8 @@ class ProfileFactory(DjangoModelFactory):
         'random_element', elements=[ch[0] for ch in PRONOUN_CHOICES if ch[0]]
     )
     birth_date = Faker('date_between', start_date='-100y', end_date='-18y')
+    death_date = factory.LazyAttribute(
+        lambda obj: Faker('date_this_decade').generate({}) if obj.deceased else None)
     description = Faker('paragraph', nb_sentences=4)
 
 
