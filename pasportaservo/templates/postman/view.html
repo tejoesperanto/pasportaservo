@@ -1,16 +1,24 @@
 {% extends "postman/base.html" %}
-{% load i18n %}{% load postman_tags %}
+{% load i18n postman_tags bootstrap %}
+{% load compact from utils %}
 
 {% block content %}
     <div id="postman">
         <h1>{% if pm_messages|length > 1 %}{% trans "Conversation" context "postman:title" %}{% else %}{% trans "Message" context "postman:title" %}{% endif %}</h1>
 
         {% for message in pm_messages %}
-            <div class="pm_message{% if message.is_pending %} pm_pending{% endif %}{% if message.is_rejected %} pm_rejected{% endif %}{% if message.sender == user and message.sender_archived or message.recipient == user and message.recipient_archived %} pm_archived{% endif %}{% if message.sender == user and message.sender_deleted_at or message.recipient == user and message.recipient_deleted_at %} pm_deleted{% endif %}{% if message.recipient == user and not message.read_at %} pm_unread{% endif %}">
+            <div class="{% filter compact %}
+                            pm_message
+                            {% if message.is_pending %} pm_pending{% endif %}
+                            {% if message.is_rejected %} pm_rejected{% endif %}
+                            {% if message.sender == user and message.sender_archived or message.recipient == user and message.recipient_archived %} pm_archived{% endif %}
+                            {% if message.sender == user and message.sender_deleted_at or message.recipient == user and message.recipient_deleted_at %} pm_deleted{% endif %}
+                            {% if message.recipient == user and not message.read_at %} pm_unread{% endif %}
+                        {% endfilter %}">
                 <div class="pm_header">
                     <span class="pm_sender">
-                      {% firstof message.sender.profile.get_absolute_url '#' as serder_url %}
-                      <a href="{{ serder_url }}">{{ message.obfuscated_sender|or_me:user }}</a>:
+                        {% firstof message.sender.profile.get_absolute_url '#' as sender_url %}
+                        <a href="{{ sender_url }}">{{ message.obfuscated_sender|or_me:user }}</a>:
                     </span>
                     <strong class="pm_subject">{{ message.subject }}</strong>
                     <small class="pm_date"><em>{{ message.sent_at|date:"DATETIME_FORMAT"}}</em></small>
@@ -25,7 +33,8 @@
             </div>
 
             {% if forloop.last %}
-                <form action="" method="post">{% csrf_token %}
+                <form action="" method="post">
+                    {% csrf_token %}
                     <input type="hidden"
                         {% if pm_messages|length > 1 and message.thread_id %}
                             name="tpks"
@@ -35,39 +44,39 @@
                             value="{{ message.pk }}"
                         {% endif %} />
 
-                    <a class="btn btn-default" href="{{ next_url }}">
+                    <a class="btn btn-default btn-vert-space-even" href="{{ next_url }}">
                         <span class="fa fa-arrow-left" aria-hidden="true"></span>&nbsp;
                         {% trans "Back" %}
                     </a>
                     <span id="pm_buttons">
                         {% if not archived %}
-                            <button class="btn btn-info" type="submit" onclick="this.form.action='{% url 'postman:archive' %}?next={{ next_url|urlencode }}'">
+                            <button class="btn btn-info btn-vert-space-even" type="submit" onclick="this.form.action='{% url 'postman:archive' %}?next={{ next_url|urlencode }}'">
                                 <span class="fa fa-folder-open-o" aria-hidden="true"></span>&nbsp;
                                 {% trans "Archive" context "postman:action" %}
                             </button>
                         {% endif %}
-                        <button class="btn btn-danger" type="submit" onclick="this.form.action='{% url 'postman:delete' %}?next={{ next_url|urlencode }}'">
+                        <button class="btn btn-danger btn-vert-space-even" type="submit" onclick="this.form.action='{% url 'postman:delete' %}?next={{ next_url|urlencode }}'">
                             <span class="fa fa-trash-o" aria-hidden="true"></span>&nbsp;
                             {% trans "Delete" context "postman:action" %}
                         </button>
                     </span>
-                    {% if reply_to_pk %}
-                        <a class="btn btn-success" href="{% url 'postman:reply' reply_to_pk %}?next={{ next_url|urlencode }}">
+                    {% if reply_to_pk and not counterparty.profile.death_date %}
+                        <a class="btn btn-success btn-vert-space-even" href="{% url 'postman:reply' reply_to_pk %}?next={{ next_url|urlencode }}">
                             <span class="fa fa-share-square-o" aria-hidden="true"></span>&nbsp;
                             {% trans "Reply" context "postman:action" %}
+                            ({% trans "in new window" %})
                         </a>
                     {% endif %}
                 </form>
 
-                {% if reply_to_pk %}<hr />
+                {% if reply_to_pk and not counterparty.profile.death_date %}
+                    <hr />
                     <h2>{% trans "Reply" context "postman:title" %}</h2>
 
                     <form action="{% url 'postman:reply' reply_to_pk %}?next={{ next_url|urlencode }}" method="post">
                         {% csrf_token %}
                         <div id="pm_reply">
-                            <div class="form-group">
-                              <textarea id="id_body" name="body" class="form-control" rows="12"></textarea>
-                            </div>
+                            {{ form|bootstrap }}
                         </div>
                         <button class="btn btn-primary" type="submit">
                             <span class="fa fa-share" aria-hidden="true"></span>&nbsp;
@@ -75,6 +84,15 @@
                         </button>
                     </form>
                 {% endif %}
+                {% if counterparty.profile.death_date %}
+                    <hr />
+                    <p class="help-block">
+                        {% blocktrans trimmed %}
+                            This user has passed away. It is not possible to send further messages.
+                        {% endblocktrans %}
+                    </p>
+                {% endif %}
+
             {% endif %}
         {% endfor %}
     </div>

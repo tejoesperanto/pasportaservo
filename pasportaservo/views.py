@@ -3,9 +3,18 @@ from django.db.models import Q
 from django.utils.functional import SimpleLazyObject, cached_property
 from django.views.defaults import ERROR_403_TEMPLATE_NAME, permission_denied
 
-from postman.views import WriteView
+from postman.views import (
+    ConversationView as PostmanConversationView,
+    MessageView as PostmanMessageView,
+    ReplyView as PostmanReplyView, WriteView as PostmanWriteView,
+)
 
 from hosting.models import Phone, Place, Profile
+
+from .forms import (
+    CustomAnonymousWriteForm, CustomQuickReplyForm,
+    CustomReplyForm, CustomWriteForm,
+)
 
 User = get_user_model()
 
@@ -28,7 +37,9 @@ def custom_permission_denied_view(request, exception, template_name=ERROR_403_TE
     return response
 
 
-class ExtendedWriteView(WriteView):
+class ExtendedWriteView(PostmanWriteView):
+    form_classes = (CustomWriteForm, CustomAnonymousWriteForm)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         recipients = context['form'].initial.get('recipients')
@@ -67,3 +78,26 @@ class ExtendedWriteView(WriteView):
         except (AttributeError, Profile.DoesNotExist):
             phones = None
         return phones
+
+
+class ExtendedReplyView(PostmanReplyView):
+    form_class = CustomReplyForm
+
+
+class ChatMixin(object):
+    form_class = CustomQuickReplyForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        m = self.msgs[0]
+        context['counterparty'] = m.sender if m.sender != user else m.recipient if m.recipient != user else None
+        return context
+
+
+class ExtendedMessageView(ChatMixin, PostmanMessageView):
+    pass
+
+
+class ExtendedConversationView(ChatMixin, PostmanConversationView):
+    pass

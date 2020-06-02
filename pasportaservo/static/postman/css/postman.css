@@ -28,10 +28,13 @@
 #pm_messages .pm_row_even {
     background-color: #f0f0f0;
 }
+.pm_message {
+    margin-bottom: 10px;
+}
 .pm_message.pm_deleted {
     text-decoration: line-through;
 }
-.pm_message.pm_deleted .pm_body{
+.pm_message.pm_deleted .pm_body {
     display: none;
 }
 .pm_message.pm_archived {
@@ -48,6 +51,10 @@
     background-color: #FDD;
 }
 
+#pm_reply .control-label {
+    display: none;
+}
+
 #postman_menu {
     list-style: none;
     font-size: 1.2em;
@@ -60,7 +67,7 @@
     display: block;
     color: white;
     background: #f71;
-    padding: .3em 1em;
+    padding: 0.3em 1em;
 }
 #postman_menu a:focus,
 #postman_menu a:active,
@@ -73,7 +80,7 @@
 }
 #postman_menu .glyphicon,
 #postman_menu .fa {
-    margin-right: .5ex;
+    margin-right: 0.5ex;
 }
 
 #postman input,
