@@ -1,5 +1,7 @@
 from datetime import date
 
+from django.test import tag
+
 from django_countries.fields import Country
 from django_webtest import WebTest
 from factory import Faker
@@ -7,6 +9,7 @@ from factory import Faker
 from ..factories import PlaceFactory
 
 
+@tag('models', 'place')
 class PlaceModelTests(WebTest):
     @classmethod
     def setUpTestData(cls):

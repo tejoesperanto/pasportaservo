@@ -188,12 +188,15 @@ class WhereaboutsFactory(DjangoModelFactory):
         model = 'hosting.Whereabouts'
 
     type = Faker('random_element', elements=[ch[0] for ch in WHEREABOUTS_TYPE_CHOICES])
-    name = Faker('city')
+
+    @factory.lazy_attribute
+    def name(self):
+        return Faker('city').generate({}).upper()
 
     @factory.lazy_attribute
     def state(self):
-        if self.country in COUNTRIES_WITH_MANDATORY_REGION or random() > 0.85:
-            return Faker('state').generate({})
+        if self.country in COUNTRIES_WITH_MANDATORY_REGION:
+            return Faker('state').generate({}).upper()
         else:
             return ""
 

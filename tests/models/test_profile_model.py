@@ -11,7 +11,7 @@ from hosting.utils import value_without_invalid_marker
 from ..factories import ProfileFactory, ProfileSansAccountFactory, UserFactory
 
 
-@tag('models')
+@tag('models', 'profile')
 class ProfileModelTests(WebTest):
     @classmethod
     def setUpTestData(cls):
