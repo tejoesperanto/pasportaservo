@@ -16,7 +16,7 @@ from hosting.models import MR, MRS, PRONOUN_CHOICES
 from ..factories import PlaceFactory, ProfileFactory
 
 
-@tag('forms')
+@tag('forms', 'forms-profile', 'profile')
 @override_settings(LANGUAGE_CODE='en')
 class ProfileFormTests(WebTest):
     @classmethod
@@ -147,7 +147,11 @@ class ProfileFormTests(WebTest):
                             ["This field is required to be printed in the book."]
                         )
                 assert_content = "You want to be in the printed edition"
-                assert_message = "Form error does not include clarification about book requirements."
+                assert_message = (
+                    "Form error does not include clarification about book requirements.\n"
+                    f"\n\tExpected to see: {assert_content}"
+                    f"\n\tBut saw instead: {form.errors[NON_FIELD_ERRORS]!r}"
+                )
                 self.assertTrue(
                     any(assert_content in error for error in form.errors[NON_FIELD_ERRORS]), msg=assert_message
                 )
