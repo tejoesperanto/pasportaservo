@@ -1,8 +1,11 @@
+from django.test import tag
+
 from django_webtest import WebTest
 
 from ..factories import GenderFactory
 
 
+@tag('models')
 class GenderModelTests(WebTest):
     def test_field_max_lengths(self):
         gender = GenderFactory.build()
