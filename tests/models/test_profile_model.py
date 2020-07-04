@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.test import tag
+from django.test import override_settings, tag
 from django.utils.html import format_html
 
 from django_webtest import WebTest
@@ -8,11 +8,12 @@ from factory import Faker
 from hosting.gravatar import email_to_gravatar
 from hosting.utils import value_without_invalid_marker
 
+from ..assertions import AdditionalAsserts
 from ..factories import ProfileFactory, ProfileSansAccountFactory, UserFactory
 
 
 @tag('models', 'profile')
-class ProfileModelTests(WebTest):
+class ProfileModelTests(AdditionalAsserts, WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.template_first_name = '<span class="first-name">{name}</span>'
@@ -191,6 +192,11 @@ class ProfileModelTests(WebTest):
             email_to_gravatar("family.member@pasportaservo.org", settings.DEFAULT_AVATAR_URL)
         )
 
+    def test_icon(self):
+        profile = ProfileFactory.build()
+        self.assertSurrounding(profile.icon, "<span ", "></span>")
+        self.assertIn(" title=", profile.icon)
+
     def test_str(self):
         # Normal profile with both names is expected to be "Aa Bb".
         profile = ProfileFactory()
@@ -206,6 +212,27 @@ class ProfileModelTests(WebTest):
         # A profile with no user account and no names provided is expected to have output of a dash.
         profile = ProfileSansAccountFactory(first_name="", last_name="")
         self.assertEqual(str(profile), "--")
+
+    def test_repr(self):
+        profile = ProfileFactory()
+        self.assertSurrounding(repr(profile), f"<Profile #{profile.pk}:", ">")
+
+    def test_rawdisplay(self):
+        # Raw string for profile with a birth date is expected to include the birth year.
+        profile = ProfileFactory()
+        self.assertEqual(profile.rawdisplay(), f"{str(profile)} ({profile.birth_date.year})")
+        profile = ProfileFactory(first_name="", last_name="")
+        self.assertEqual(profile.rawdisplay(), f"{str(profile)} ({profile.birth_date.year})")
+        profile = ProfileSansAccountFactory()
+        self.assertEqual(profile.rawdisplay(), f"{str(profile)} ({profile.birth_date.year})")
+
+        # Raw string for profile without a birth date is expected to include a question mark.
+        profile = ProfileFactory(birth_date=None)
+        self.assertEqual(profile.rawdisplay(), f"{str(profile)} (?)")
+        profile = ProfileFactory(first_name="", last_name="", birth_date=None)
+        self.assertEqual(profile.rawdisplay(), f"{str(profile)} (?)")
+        profile = ProfileSansAccountFactory(birth_date=None)
+        self.assertEqual(profile.rawdisplay(), f"{str(profile)} (?)")
 
     def test_lt(self):
         p1 = ProfileFactory(first_name="Aa", last_name="Yy")
@@ -237,4 +264,12 @@ class ProfileModelTests(WebTest):
         self.assertEquals(
             profile.get_edit_url(),
             '/profilo/{}/{}/aktualigi/'.format(profile.pk, profile.first_name.lower())
+        )
+
+    @override_settings(LANGUAGE_CODE='en')
+    def test_admin_url(self):
+        profile = self.basic_profile
+        self.assertEquals(
+            profile.get_admin_url(),
+            '/management/hosting/profile/{}/change/'.format(profile.pk)
         )

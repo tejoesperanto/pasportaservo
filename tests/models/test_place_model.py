@@ -6,11 +6,12 @@ from django_countries.fields import Country
 from django_webtest import WebTest
 from factory import Faker
 
+from ..assertions import AdditionalAsserts
 from ..factories import PlaceFactory
 
 
 @tag('models', 'place')
-class PlaceModelTests(WebTest):
+class PlaceModelTests(AdditionalAsserts, WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.basic_place = PlaceFactory()
@@ -22,6 +23,11 @@ class PlaceModelTests(WebTest):
         self.assertEquals(place._meta.get_field('postcode').max_length, 11)
         self.assertEquals(place._meta.get_field('state_province').max_length, 70)
         self.assertEquals(place._meta.get_field('short_description').max_length, 140)
+
+    def test_icon(self):
+        place = PlaceFactory.build()
+        self.assertSurrounding(place.icon, "<span ", "></span>")
+        self.assertIn(" title=", place.icon)
 
     def test_owner_available(self):
         # A place's owner who does not meet and does not guide is expected to be marked as unavailable.
@@ -109,6 +115,10 @@ class PlaceModelTests(WebTest):
         # A place in a known city is expected to be "City-name, Country-name".
         place = PlaceFactory.build(city=Faker('city'), country=Country('CL'))
         self.assertEqual(str(place), '{}, {}'.format(place.city, place.country.name))
+
+    def test_repr(self):
+        place = PlaceFactory()
+        self.assertSurrounding(repr(place), f"<Place #{place.pk}:", ">")
 
     def test_absolute_url(self):
         place = self.basic_place
