@@ -17,6 +17,7 @@ from requests.exceptions import (
 from core.utils import (
     camel_case_split, is_password_compromised, send_mass_html_mail, sort_by,
 )
+from hosting.gravatar import email_to_gravatar
 from hosting.utils import (
     geocode, geocode_city, split, title_with_particule,
     value_without_invalid_marker,
@@ -129,6 +130,22 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
         expected = [pfa, pfb, pta, ptb, wta]
 
         self.assertEqual(sort_by(['owner.name', 'city', 'country'], houses), expected)
+
+    def test_email_to_gravatar(self):
+        test_data = (
+            {'fallback': None, 'size': 250},
+            {'fallback': '', 'size': None},
+            {'fallback': '', 'size': 5000},
+            {'fallback': '404', 'size': None},
+            {'fallback': '404', 'size': 7500},
+        )
+        for params in test_data:
+            with self.subTest(extra_params=params):
+                url = email_to_gravatar("ehxo.sxangxo@cxiu.jxauxde.org", **params)
+                self.assertStartsWith(url, "https://")
+                self.assertIn("gravatar.com", url)
+                self.assertIn("dcfd20df1a72567cbe06c4bce058f513", url)
+                self.assertNotIn("None", url)
 
     @patch('core.utils.requests.get')
     def test_is_password_compromised(self, mock_get):
