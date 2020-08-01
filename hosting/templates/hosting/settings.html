@@ -20,6 +20,9 @@
             .row.setting {
                 margin-top: 25px;
             }
+            .help-block .text-danger {
+                color: #b6615f;
+            }
         </style>
 {% endblock %}
 
@@ -75,7 +78,7 @@
     {% endif %}
 
     <section class="callout callout-primary">
-        <h4 id="{% trans "email-addr" context "URL" %}">{% trans "Email" context "Title" %}</h4>
+        <h4 id="{% trans "email-addr" context 'URL' %}">{% trans "Email" context 'Title' %}</h4>
         <samp><small>
             {% if profile.user.email|is_invalid %}
                 <span class="person-email-address text-danger" data-toggle="tooltip"
@@ -120,7 +123,12 @@
                 {% trans "Update account email" %}
             </a>
         {% endif %}
-        <p class="help-block">{% trans "We send e-mails to this address. It will never be public." %}</p>
+        <p class="help-block">
+            {% trans "We send e-mails to this address. It will never be public." %}
+            {% if profile.user.email|is_invalid and view.role == roles.OWNER %}
+                <span class="text-danger">{% trans "When we tried to mail it, the response was an error." %}</span>
+            {% endif %}
+        </p>
 
         <section class="well well-sm" aria-label="{% trans "Public email address" %}">
             <button type="button" data-target="#set-public-email" class="btn btn-primary btn-vert-space btn-xs" data-toggle="collapse">
@@ -143,17 +151,17 @@
                    class="btn btn-default btn-sm btn-vert-space-even">
                     {% trans "Update public email" %}
                 </a>
-                <p class="help-block">{{ view.profile_email_help_text|linebreaksbr }}</p>
+                <p class="help-block text-justify">{{ view.profile_email_help_text|linebreaksbr }}</p>
             </div>
         </section>
     </section>
 
     {% if view.role >= roles.OWNER %}
     <section class="callout callout-warning">
-        <h4 id="{% trans "privacy" context "URL" %}">
+        <h4 id="{% trans "privacy" context 'URL' %}">
             {% trans "Privacy" %}
             {% if privacy_matrix.read_only %}
-                &nbsp;<small><span class="label label-info" style="vertical-align: text-top">{% trans "Preview" context "Title" %}</span></small>
+                &nbsp;<small><span class="label label-info" style="vertical-align: text-top">{% trans "Preview" context 'Title' %}</span></small>
             {% endif %}
         </h4>
         <form id="privacy_form" action="{% url 'profile_privacy_update' profile.pk profile.autoslug %}" method="POST" data-csrf="{{ csrf_token }}">
@@ -201,7 +209,7 @@
                                     {% endblocktrans %}
                                 {% endcomment %}
                                 &nbsp;
-                                <a href="{% url 'privacy_policy' %}#{% trans "measurement" context "URL" %}"
+                                <a href="{% url 'privacy_policy' %}#{% trans "measurement" context 'URL' %}"
                                    role="button" class="btn btn-xs btn-warning">
                                     {% trans "See our privacy policy." %}
                                 </a>
