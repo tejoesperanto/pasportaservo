@@ -162,6 +162,18 @@
                 {% endif %}
                 {% include './snippets/checked.html' with object=profile %}
             </p>
+            {% if profile.user.email|is_invalid and view.role == roles.OWNER %}
+                <p class="alert alert-small alert-danger" style="margin-bottom: 0">
+                    <span class="sr-only">{% trans "Warning " context 'Title' %}:</span>
+                    <span class="small">
+                        {% trans "The email address associated with your account seems invalid; PS will not be able to send you updates." %}
+                    </span>
+                    <a href="{% url 'profile_settings' profile.pk profile.autoslug %}#{% trans "email-addr" context 'URL' %}"
+                       class="small hidden-print">
+                        {% trans "Check the settings" %} &rarr;
+                    </a>
+                </p>
+            {% endif %}
         </div>
         {% if view.role >= roles.SUPERVISOR %}
             <div class="col-xxs-12 col-xs-8 col-sm-9">
