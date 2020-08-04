@@ -341,18 +341,7 @@
                             </span>
                         {% else %}
                             <span class="person-email-address">{{ place.profile.user.email|urlize }}</span>
-                            <form action="{% url 'staff_email_mark_invalid' place.profile.pk place.profile.autoslug %}?{% next current_page_position %}"
-                                  method="POST"
-                                  class="unwrap-after-success" style="display: inline">
-                                {% csrf_token %}
-                                <button type="submit" class="control-buttons btn btn-default btn-xs btn-vert-space-even ajax"
-                                        data-csrf="{{ csrf_token }}"
-                                        data-hover-class="btn-danger"
-                                        data-on-ajax-success="markInvalidEmailSuccess"
-                                        autocomplete="off">
-                                    {% trans "Mark invalid" %}
-                                </button>
-                            </form>
+                            {% include './snippets/email_mark_invalid.html' with profile=place.profile return_url=current_page_position extra_class="control-buttons" %}
                         {% endif %}
                         <a href="{% url 'staff_email_update' place.profile.pk place.profile.autoslug %}?{% next current_page_position %}"
                            class="control-buttons btn btn-default btn-sm">

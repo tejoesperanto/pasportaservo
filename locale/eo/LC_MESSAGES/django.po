@@ -1935,9 +1935,6 @@ msgstr "nevidebla al aliaj pasportservanoj"
 msgid "Update a phone number"
 msgstr "Redakti telefonan numeron"
 
-msgid "Mark invalid"
-msgstr "Marki kiel nefunkcianta"
-
 msgid "Update email"
 msgstr "Redakti retadreson"
 
@@ -2264,6 +2261,9 @@ msgstr "Vi indikis neniujn loĝ- aŭ kontakt-informojn…"
 
 msgid "approver unknown"
 msgstr "aprobanto nekonata"
+
+msgid "Mark invalid"
+msgstr "Marki kiel nefunkcianta"
 
 msgid "available,unavailable"
 msgstr "disponebla,maldisponebla"

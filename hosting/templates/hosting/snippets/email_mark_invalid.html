@@ -1,0 +1,15 @@
+{% load i18n %}
+{% load next from utils %}
+
+        <form action="{% url 'staff_email_mark_invalid' profile.pk profile.autoslug %}?{% next return_url %}"
+              method="POST"
+              class="unwrap-after-success" style="display: inline">
+            {% csrf_token %}
+            <button type="submit" class="{{ extra_class }} btn btn-default btn-xs btn-vert-space-even ajax"
+                    data-csrf="{{ csrf_token }}"
+                    data-hover-class="btn-danger"
+                    data-on-ajax-success="markInvalidEmailSuccess"
+                    autocomplete="off">
+                {% trans "Mark invalid" %}
+            </button>
+        </form>
