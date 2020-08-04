@@ -182,12 +182,19 @@
                     <br class="visible-xxs-inline" />
                     <span class="person-username">{{ profile.user.username }}</span>
                 </h4>
-                <h4 class="person-email-address">
-                    {{ profile.user.email|clear_invalid }}&nbsp;
-                    {% if profile.user.email|is_invalid %}
-                        <small class="text-danger fa fa-exclamation-triangle"
-                               aria-label="{% trans "Warning " context 'Title' %}: {% trans "invalid email" %}"
-                               title="{% trans "invalid email" %}" data-toggle="tooltip"></small>
+                <h4>
+                    <span class="email person-email-address">
+                        {{ profile.user.email|clear_invalid }}&nbsp;
+                        {% if profile.user.email|is_invalid %}
+                            <small class="text-danger fa fa-exclamation-triangle"
+                                   aria-label="{% trans "Warning " context 'Title' %}: {% trans "invalid email" %}"
+                                   title="{% trans "invalid email" %}" data-toggle="tooltip"></small>
+                        {% endif %}
+                    </span>
+                    {% if not profile.user.email|is_invalid %}
+                        {% if not view.public_view %}
+                            {% include './snippets/email_mark_invalid.html' with return_url='this page' extra_class="control-buttons" %}
+                        {% endif %}
                     {% endif %}
                 </h4>
                 <h4>

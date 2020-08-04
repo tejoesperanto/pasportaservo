@@ -119,6 +119,9 @@
                 </form>
             {% endif %}
         {% else %}
+            {% if not profile.user.email|is_invalid %}
+                {% include './snippets/email_mark_invalid.html' with return_url='this page' %}
+            {% endif %}
             <a href="{% url 'staff_email_update' profile.pk profile.autoslug %}" class="btn btn-default btn-sm btn-vert-space-even">
                 {% trans "Update account email" %}
             </a>
