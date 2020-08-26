@@ -1,0 +1,33 @@
+{% extends 'core/base.html' %}
+{% load i18n %}
+
+{% block head_title %}
+    &#9872; {% trans "Close account" %}
+{% endblock %}
+{% block head_title_separator %}{% trans "at" %}{% endblock %}
+
+{% block page %}
+    <h3 class="text-center">
+        {% trans "Press the button here below to confirm closing your account." %}
+    </h3>
+    <form action="" method="POST" class="text-center" style="margin-top: 30px">
+        {% csrf_token %}
+        <button id="id_form_submit" type="submit"
+                class="btn btn-danger"
+                title="{% trans "Close account" %}">
+            <span class="fa fa-trash-o" aria-hidden="true"></span>&nbsp; {% trans "Close the account" %}
+        </button>
+    </form>
+    <div class="text-center" style="margin-top: 30px">
+        {% comment %}
+            maybe TODO:
+            {% url 'account_settings' as account_settings_url %}
+            href="{{ request.META.HTTP_REFERER|safe_url|default=account_settings_url }}"
+        {% endcomment %}
+        <a id="id_form_cancel" href="{% url 'account_settings' %}"
+           class="btn btn-default"
+           title="{% trans "Cancel operation" %}">
+            <span class="fa fa-arrow-left" aria-hidden="true"></span>&nbsp; {% trans "Cancel operation" %}
+        </a>
+    </div>
+{% endblock page %}

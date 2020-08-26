@@ -276,6 +276,25 @@ class AgreementRejectView(LoginRequiredMixin, generic.TemplateView):
         return HttpResponseRedirect(reverse_lazy('home'))
 
 
+class AccountSettingsView(LoginRequiredMixin, generic.TemplateView):
+    template_name = 'core/settings.html'
+    display_fair_usage_condition = True
+
+    def get(self, request, *args, **kwargs):
+        try:
+            profile = request.user.profile
+            return HttpResponseRedirect(
+                reverse_lazy('profile_settings', kwargs={'pk': profile.pk, 'slug': profile.autoslug})
+            )
+        except Profile.DoesNotExist:
+            return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['account'] = self.request.user
+        return context
+
+
 class PasswordResetView(PasswordResetBuiltinView):
     """
     This extension of Django's built-in view allows to send a different
@@ -497,6 +516,46 @@ class EmailValidityMarkView(AuthMixin, ProfileIsUserMixin, ProfileMixin, generic
             return JsonResponse({'success': success_value})
         else:
             return TemplateResponse(request, self.template_name, context={'view': self})
+
+
+class AccountDeleteView(LoginRequiredMixin, generic.DeleteView):
+    """
+    Allows the current user (only) to delete -- that is, disable -- their
+    account.  When the user has a profile, they will be redirected to the
+    more feature-rich ProfileDeleteView.
+    """
+    model = User
+    template_name = 'core/user_confirm_delete.html'
+    success_url = reverse_lazy('logout')
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not request.user.is_active:
+            return HttpResponseRedirect(self.get_success_url())
+        else:
+            try:
+                profile = request.user.profile
+            except Profile.DoesNotExist:
+                return super().get(request, *args, **kwargs)
+            else:
+                return HttpResponseRedirect(
+                    reverse_lazy('profile_delete', kwargs={'pk': profile.pk, 'slug': profile.autoslug})
+                )
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Deactivates the logged-in user and redirects to the logout URL.
+        If called directly for a user with a profile, the profile (and all associated objects,
+        such as places) will stay intact, dissimilar to the ProfileDeleteView's delete logic.
+        """
+        self.object = self.get_object()
+        request.user.is_active = False
+        request.user.save()
+        messages.success(request, _("Farewell !"))
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class MassMailView(AuthMixin, generic.FormView):

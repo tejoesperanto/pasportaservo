@@ -241,6 +241,7 @@ class ProfileSettingsView(ProfileDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['account'] = self.object.user
         context['privacy_matrix'] = ProfilePrivacyUpdateView.VisibilityFormSet(
             profile=self.object,
             read_only=(self.role > OWNER and self.role < ADMIN),

@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2020-07-16 00:39+0000\n"
+"POT-Revision-Date: 2020-08-26 17:05+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -497,6 +497,59 @@ msgstr "Kaŝi"
 msgid "Hide this message"
 msgstr "Kaŝi tiun ĉi mesaĝon"
 
+msgid "Settings"
+msgstr "Agordoj"
+
+msgid "password"
+msgstr "pasvorto"
+
+msgid "Change password"
+msgstr "Ŝanĝi pasvorton"
+
+msgid "username"
+msgstr "salutnomo"
+
+msgid "Change username"
+msgstr "Ŝanĝi salutnomon"
+
+#. Translators: must be identical to the <email> parameter value in staff_place_list url.
+msgctxt "URL"
+msgid "email-addr"
+msgstr "retadreso"
+
+msgctxt "Title"
+msgid "Email"
+msgstr "Retadreso"
+
+msgid "invalid email"
+msgstr "nefunkcianta adreso"
+
+msgctxt "Title"
+msgid "Warning "
+msgstr "Averto "
+
+msgid "Update account email"
+msgstr "Ŝanĝi retadreson por konto"
+
+msgid "We send e-mails to this address. It will never be public."
+msgstr ""
+"Ni sendas retmesaĝojn al tiu ĉi retpoŝta adreso. Ĝi neniam estos publika."
+
+msgid "When we tried to mail it, the response was an error."
+msgstr "Kiam ni provis komuniki al ĝi, la respondo estis eraro."
+
+msgid "Agreement"
+msgstr "Interkonsento"
+
+msgid "Pasporta Servo Account"
+msgstr "Konto ĉe Pasporta Servo"
+
+msgid "Create profile"
+msgstr "Krei profilon"
+
+msgid "Close account"
+msgstr "Fermi konton"
+
 msgid "inbox"
 msgstr "poŝtkesto"
 
@@ -546,11 +599,14 @@ msgstr ""
 "Ni sendis kontrolmesaĝon al via retpoŝtadreso. Bonvole sekvu la instrukciojn "
 "en tiu mesaĝo por kompletigi tiun ĉi paŝon."
 
-msgid "Settings"
-msgstr "Agordoj"
+msgid "Press the button here below to confirm closing your account."
+msgstr "Premu la butonon ĉi-sube por konfirmi la malaktivigon de via konto."
 
-msgid "Change username"
-msgstr "Ŝanĝi salutnomon"
+msgid "Close the account"
+msgstr "Fermi la konton"
+
+msgid "Cancel operation"
+msgstr "Nuligi la agon"
 
 msgid "Unsubscribe from this type of messages"
 msgstr "Malaboni tiajn mesaĝojn"
@@ -705,9 +761,6 @@ msgstr ""
 "Mi forgesis <a href=\"%(pwd_url)s\">mian pasvorton</a> aŭ <a href="
 "\"%(usr_url)s\">mian salutnomon</a>"
 
-msgid "Change password"
-msgstr "Ŝanĝi pasvorton"
-
 msgid "Your password was changed."
 msgstr "La pasvorto estis ŝanĝita."
 
@@ -775,9 +828,6 @@ msgstr ""
 "Ĉe la okazo ke la instrukciaj mesaĝoj ŝajne tute ne atingas vin, bonvolu <a "
 "href=\"mailto:%(SUPPORT_EMAIL)s\">kontakti nin</a>."
 
-msgid "password"
-msgstr "pasvorto"
-
 #, python-format
 msgid ""
 "Keep in mind that the field '%(field)s' distinguishes between upper-case "
@@ -804,9 +854,6 @@ msgid ""
 "first."
 msgstr "Por uzi tiun ĉi parton de la retejo, vi antaŭe devas agordi profilon."
 
-msgid "Create profile"
-msgstr "Krei profilon"
-
 msgctxt "Imperative"
 msgid "Register"
 msgstr "Registriĝu"
@@ -820,9 +867,6 @@ msgid ""
 msgstr ""
 "Ni retpoŝtis al vi memorigon pri via ensalutnomo. Se la konto koncerna al la "
 "retpoŝta adreso kiun vi indikis ekzistas, vi baldaŭ devus ĝin ricevi."
-
-msgid "username"
-msgstr "salutnomo"
 
 msgid ""
 "Have you forgotten your username? Enter below your email address with which "
@@ -849,6 +893,9 @@ msgstr "^kontrakto/"
 msgid "^reject/$"
 msgstr "^rifuzi/$"
 
+msgid "^account/settings/$"
+msgstr "^konto/agordoj/$"
+
 msgid "^password/"
 msgstr "^pasvorto/"
 
@@ -872,6 +919,9 @@ msgstr "^retadreso/"
 
 msgid "^verify/$"
 msgstr "^kontroli/$"
+
+msgid "^account/delete/$"
+msgstr "^konto/forigi/$"
 
 msgid "^admin/"
 msgstr "^admin/"
@@ -901,11 +951,6 @@ msgid ""
 msgstr ""
 "Konfirma mesaĝo estis sendita. Bonvole kontrolu vian retpoŝtkeston por "
 "kompletigi la procedon."
-
-#. Translators: must be identical to the <email> parameter value in staff_place_list url.
-msgctxt "URL"
-msgid "email-addr"
-msgstr "retadreso"
 
 msgid "Your email address has been successfully verified!"
 msgstr "Vi sukcese konfirmis vian retpoŝtan adreson!"
@@ -984,9 +1029,6 @@ msgstr "Jes"
 
 msgid "No"
 msgstr "Ne"
-
-msgid "invalid email"
-msgstr "nefunkcianta adreso"
 
 msgid "user is defined"
 msgstr "uzanto havebla"
@@ -1517,9 +1559,6 @@ msgctxt "Email subject"
 msgid "You received an Authorization"
 msgstr "Vi ricevis permeson"
 
-msgid "Cancel operation"
-msgstr "Nuligi la agon"
-
 msgid "Cancel"
 msgstr "Ne, nuligu"
 
@@ -1642,10 +1681,6 @@ msgstr "Permesitaj uzantoj povos vidi ĉiujn tiujn detalojn."
 
 msgid "Important information"
 msgstr "Gravaj informoj"
-
-msgctxt "Title"
-msgid "Warning "
-msgstr "Averto "
 
 msgid "The address is obsolete"
 msgstr "La adreso estas neaktuala"
@@ -2141,25 +2176,11 @@ msgstr "Aldoni kunloĝanton"
 msgid "Add a phone"
 msgstr "Aldoni telefon-numeron"
 
-msgctxt "Title"
-msgid "Email"
-msgstr "Retadreso"
-
-msgid "Update account email"
-msgstr "Ŝanĝi retadreson por konto"
-
 msgid "Awaiting verification..."
 msgstr "Konfirmo atendata..."
 
 msgid "Re-verify address"
 msgstr "Re-kontroli retadreson"
-
-msgid "We send e-mails to this address. It will never be public."
-msgstr ""
-"Ni sendas retmesaĝojn al tiu ĉi retpoŝta adreso. Ĝi neniam estos publika."
-
-msgid "When we tried to mail it, the response was an error."
-msgstr "Kiam ni provis komuniki al ĝi, la respondo estis eraro."
 
 msgid "Public email?"
 msgstr "Publika retadreso?"
@@ -2211,23 +2232,21 @@ msgstr "Vidu nian politikon pri privateco."
 msgid "Save"
 msgstr "Konservi"
 
-msgid "Agreement"
-msgstr "Interkonsento"
-
 msgid "End my membership"
 msgstr "Malpasportservaniĝi"
 
 msgid "End membership"
 msgstr "Malpasportservanigi"
 
-msgid "Delete account"
-msgstr "Forigi konton"
-
 msgid "Restore membership"
 msgstr "Repasportservanigi"
 
 msgid "Restore account"
 msgstr "Restarigi konton"
+
+#, python-format
+msgid "Forward to %(fwd_to)s"
+msgstr "Pluiri al %(fwd_to)s"
 
 msgid "where the following data should be visible?"
 msgstr "kie la jenaj informoj estu videblaj?"

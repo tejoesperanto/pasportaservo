@@ -1,0 +1,118 @@
+{% extends 'core/base.html' %}
+{% load i18n %}
+{% load is_invalid clear_invalid from profile %}
+
+{% block head_title %}
+    {% trans "Settings" %}
+{% endblock %}
+
+{% block extra_css %}
+        <style type="text/css">
+            .row + .callout, [class|="col"] > .callout {
+                margin-top: -5px;
+            }
+            .row.setting {
+                margin-top: 25px;
+            }
+            .help-block .text-danger {
+                color: #b6615f;
+            }
+        </style>
+{% endblock %}
+
+{% block page_class %} settings{% endblock %}
+
+{% block page %}
+    <h2>
+        {% block page_title %}{% trans "Settings" %}{% endblock %}
+    </h2>
+
+    {% block account_alerts %}{% endblock %}
+
+    {% block account_access %}
+        {% if view.role == roles.OWNER %}
+        <div class="row setting">
+            <div class="col-xxs-12 col-xs-6">
+                <section class="callout callout-primary">
+                    <h4 id="{% trans "password" %}">{% trans "password"|capfirst %}</h4>
+                    <a href="{% url 'password_change' %}" class="btn btn-default btn-sm">
+                        {% trans "Change password" %}
+                    </a>
+                </section>
+            </div>
+            <div class="col-xxs-12 col-xs-6">
+                <section class="callout callout-primary">
+                    <h4 id="{% trans "username" %}">{% trans "username"|capfirst %}</h4>
+                    <samp><small class="person-username">{{ account.username }}</small></samp> &nbsp;
+                    <a href="{% url 'username_change' %}" class="btn btn-default btn-sm">
+                        {% trans "Change username" %}
+                    </a>
+                </section>
+            </div>
+        </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block account_email %}
+        <section class="callout callout-primary">
+            <h4 id="{% trans "email-addr" context 'URL' %}">{% trans "Email" context 'Title' %}</h4>
+            <samp><small>
+                {% if account.email|is_invalid %}
+                    <span class="person-email-address text-danger" data-toggle="tooltip"
+                          title="{% trans "invalid email" %}" aria-label="{% trans "Warning " context 'Title' %}: {% trans "invalid email" %}">
+                        {{ account.email|clear_invalid }}
+                        <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
+                    </span>
+                {% else %}
+                    <span class="person-email-address">{{ account.email }}</span>
+                {% endif %}
+            </small></samp> &nbsp;
+            {% block account_email_actions %}
+                {% if view.role == roles.OWNER %}
+                <a href="{% url 'email_update' %}" class="btn btn-default btn-sm">
+                    {% trans "Update account email" %}
+                </a>
+                {% endif %}
+            {% endblock %}
+            <p class="help-block">
+                {% trans "We send e-mails to this address. It will never be public." %}
+                {% if account.email|is_invalid and view.role == roles.OWNER %}
+                    <span class="text-danger">{% trans "When we tried to mail it, the response was an error." %}</span>
+                {% endif %}
+            </p>
+
+            {% block profile_email %}{% endblock %}
+        </section>
+    {% endblock %}
+
+    {% block profile_settings %}{% endblock %}
+
+    {% block agreement %}
+        {% if view.role == roles.OWNER %}
+        <section class="callout callout-warning">
+            <h4>{% trans "Agreement" %}</h4>
+            <span class="fa fa-arrow-circle-right text-muted" aria-hidden="true"></span>&nbsp;
+            <a href="{% url 'agreement' %}">{% trans "Agreement between You and"|lower %} Pasporta Servo.</a>
+        </section>
+        {% endif %}
+    {% endblock %}
+
+    {% block membership %}
+        {% if view.role == roles.OWNER %}
+        <section class="callout callout-warning">
+            <h4>{% trans "Pasporta Servo Account" %}</h4>
+            <a href="{% url 'profile_create' %}" class="btn btn-success btn-vert-space">
+                <span class="fa fa-user fa-lg" aria-hidden="true"></span>&nbsp;
+                {% trans "Create profile" %}
+            </a>
+            &nbsp;
+            <a href="{% url 'account_delete' %}" class="btn btn-danger btn-vert-space">
+                <span class="fa fa-trash fa-lg" aria-hidden="true"></span>&nbsp;
+                {% trans "Close account" %}
+            </a>
+        </section>
+        {% endif %}
+    {% endblock %}
+
+    {% block navigation %}{% endblock %}
+{% endblock page %}
