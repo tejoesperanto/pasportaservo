@@ -584,6 +584,15 @@ class Profile(TrackingModel, TimeStampedModel):
             self.save()
     confirm_all_info.alters_data = True
 
+    @classonlymethod
+    def get_basic_data(cls, **kwargs):
+        """
+        Returns only the strictly necessary data for determining if a profile exists and for
+        building the profile's URLs. This avoids overly complicated DB queries.
+        """
+        qs = cls.all_objects.select_related(None).only('first_name', 'last_name', 'user_id')
+        return qs.get(**kwargs)
+
     @classmethod
     def mark_invalid_emails(cls, emails=None):
         """

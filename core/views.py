@@ -112,7 +112,8 @@ class RegisterView(generic.CreateView):
             return redirect_to
         try:
             # When user is already authenticated, redirect to profile edit page.
-            return self.request.user.profile.get_edit_url()
+            profile = Profile.get_basic_data(user=self.request.user)
+            return profile.get_edit_url()
         except Profile.DoesNotExist:
             # If profile does not exist yet, redirect to profile creation page.
             return self.success_url
@@ -174,7 +175,8 @@ class AccountRestoreRequestView(generic.TemplateView):
             return redirect_to
         try:
             # When user is already authenticated, redirect to profile's page.
-            return self.request.user.profile.get_absolute_url()
+            profile = Profile.get_basic_data(user=self.request.user)
+            return profile.get_absolute_url()
         except Profile.DoesNotExist:
             # If profile does not exist yet, redirect to home.
             return reverse_lazy('home')
@@ -282,11 +284,13 @@ class AccountSettingsView(LoginRequiredMixin, generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         try:
-            profile = request.user.profile
+            profile = Profile.get_basic_data(user=request.user)
             return HttpResponseRedirect(
                 reverse_lazy('profile_settings', kwargs={'pk': profile.pk, 'slug': profile.autoslug})
             )
         except Profile.DoesNotExist:
+            # Cache the result for the reverse related descriptor, to spare further DB queries.
+            setattr(request.user, request.user._meta.fields_map['profile'].get_cache_name(), None)
             return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -425,14 +429,17 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
 
     def get(self, request, *args, **kwargs):
         try:
-            return HttpResponseRedirect(format_lazy(
-                "{settings_url}#{section_email}",
-                settings_url=reverse_lazy('profile_settings', kwargs={
-                    'pk': request.user.profile.pk, 'slug': request.user.profile.autoslug}),
-                section_email=pgettext_lazy("URL", "email-addr"),
-            ))
+            profile = Profile.get_basic_data(user=request.user)
+            settings_url = reverse_lazy('profile_settings', kwargs={
+                'pk': profile.pk, 'slug': profile.autoslug})
         except Profile.DoesNotExist:
-            return HttpResponseRedirect(reverse_lazy('email_update'))
+            settings_url = reverse_lazy('account_settings')
+
+        return HttpResponseRedirect(format_lazy(
+            '{settings_url}#{section_email}',
+            settings_url=settings_url,
+            section_email=pgettext_lazy("URL", "email-addr"),
+        ))
 
 
 class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
@@ -537,7 +544,7 @@ class AccountDeleteView(LoginRequiredMixin, generic.DeleteView):
             return HttpResponseRedirect(self.get_success_url())
         else:
             try:
-                profile = request.user.profile
+                profile = Profile.get_basic_data(user=request.user)
             except Profile.DoesNotExist:
                 return super().get(request, *args, **kwargs)
             else:
@@ -570,7 +577,7 @@ class MassMailView(AuthMixin, generic.FormView):
 
     def get_success_url(self):
         return format_lazy(
-            "{success_url}?nb={sent}",
+            '{success_url}?nb={sent}',
             success_url=reverse_lazy('mass_mail_sent'),
             sent=self.nb_sent,
         )
