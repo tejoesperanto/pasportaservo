@@ -8,7 +8,6 @@ from django.db.models import Prefetch
 from django.db.models.functions import Trunc
 from django.forms import modelformset_factory
 from django.http import Http404, HttpResponseRedirect, JsonResponse, QueryDict
-from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -46,10 +45,14 @@ class ProfileCreateView(
     def dispatch(self, request, *args, **kwargs):
         try:
             # Redirect to profile edit page if user is logged in & profile already exists.
-            return HttpResponseRedirect(self.request.user.profile.get_edit_url(), status=301)
+            assert not request.user.is_anonymous
+            profile = Profile.get_basic_data(user=request.user)
+            return HttpResponseRedirect(profile.get_edit_url(), status=301)
         except Profile.DoesNotExist:
+            # Cache the result for the reverse related descriptor, to spare further DB queries.
+            setattr(request.user, request.user._meta.fields_map['profile'].get_cache_name(), None)
             return super().dispatch(request, *args, **kwargs)
-        except AttributeError:
+        except AssertionError:
             # Redirect to registration page when user is not authenticated.
             return HttpResponseRedirect(reverse_lazy('register'), status=303)
 
@@ -171,15 +174,21 @@ class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         if kwargs.get('pk'):
-            profile = get_object_or_404(Profile, pk=kwargs['pk'])
+            try:
+                profile = Profile.get_basic_data(pk=kwargs['pk'])
+            except Profile.DoesNotExist:
+                raise Http404("No profile with the given id exists.")
             if profile.user_id:
                 return profile.get_absolute_url()
             else:
                 raise Http404("Detached profile (probably a family member).")
+
         try:
-            return self.request.user.profile.get_edit_url()
+            profile = Profile.get_basic_data(user=self.request.user)
         except Profile.DoesNotExist:
             return reverse_lazy('profile_create')
+        else:
+            return profile.get_edit_url()
 
 
 class ProfileDetailView(
@@ -255,10 +264,12 @@ class ProfileSettingsRedirectView(LoginRequiredMixin, generic.RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         try:
-            return reverse_lazy('profile_settings', kwargs={
-                'pk': self.request.user.profile.pk, 'slug': self.request.user.profile.autoslug})
+            profile = Profile.get_basic_data(user=self.request.user)
         except Profile.DoesNotExist:
             return reverse_lazy('profile_create')
+        else:
+            return reverse_lazy('profile_settings', kwargs={
+                'pk': profile.pk, 'slug': profile.autoslug})
 
 
 class ProfileEmailUpdateView(

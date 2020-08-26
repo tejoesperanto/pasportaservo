@@ -252,6 +252,29 @@ class ProfileModelTests(AdditionalAsserts, WebTest):
         self.assertFalse(p4 < p2)
         self.assertFalse(p4 < p3)
 
+    def test_get_basic_data(self):
+        # The get_basic_data function is expected to be a class (only) method.
+        self.assertRaises(AttributeError, lambda: self.basic_profile.get_basic_data(pk=1))
+
+        # The database query is expected to return sufficient data to generate URLs.
+        with self.assertNumQueries(1):
+            p = self.basic_profile.__class__.get_basic_data(user=self.basic_profile.user)
+            p.autoslug
+            p.get_absolute_url()
+            p.get_edit_url()
+            p.get_admin_url()
+        with self.assertNumQueries(1):
+            p = self.basic_profile.__class__.get_basic_data(pk=self.basic_profile.pk)
+            p.autoslug
+            p.get_absolute_url()
+            p.get_edit_url()
+            p.get_admin_url()
+        # Additional database queries are expected when further data of profile is used.
+        with self.assertNumQueries(5):
+            p = self.basic_profile.__class__.get_basic_data(email=self.basic_profile.email)
+            p.age
+            p.email_visibility
+
     def test_absolute_url(self):
         profile = self.basic_profile
         self.assertEquals(
