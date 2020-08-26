@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load compact from utils %}
 
-        <a href="{% if user.profile %}{% url 'profile_settings_shortcut' %}{% else %}{% url 'profile_create' %}{% endif %}" class="linkicon">
+        <a href="{% if user.profile %}{% url 'profile_settings_shortcut' %}{% else %}{% url 'account_settings' %}{% endif %}" class="linkicon">
             <span class="fa fa-cogs" aria-hidden="true"
                   title="{% trans "settings"|capfirst %}"
                   data-toggle="tooltip" data-placement="bottom"></span>

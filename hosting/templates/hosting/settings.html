@@ -1,5 +1,5 @@
-{% extends 'core/base.html' %}
-{% load i18n static bootstrap %}
+{% extends 'core/settings.html' %}
+{% load i18n static bootstrap domain %}
 {% load next from utils %}
 {% load is_invalid clear_invalid from profile %}
 
@@ -12,30 +12,19 @@
 {% endblock %}
 
 {% block extra_css %}
+        {{ block.super }}
         <link rel="stylesheet" href="{% static 'toggle/bootstrap-toggle.min.css' %}">
-        <style type="text/css">
-            .row + .callout, [class|="col"] > .callout {
-                margin-top: -5px;
-            }
-            .row.setting {
-                margin-top: 25px;
-            }
-            .help-block .text-danger {
-                color: #b6615f;
-            }
-        </style>
 {% endblock %}
 
 {% block extra_js %}
+        {{ block.super }}
         <script src="{% static 'toggle/bootstrap-toggle.min.js' %}"></script>
         <script src="{% static 'js/settings.js' %}"></script>
         <script src="{% static 'js/ajax.js' %}"></script>
 {% endblock %}
 
-{% block page_class %} settings{% endblock %}
 
-{% block page %}
-    <h2>
+{% block page_title %}
         {% if view.role >= roles.SUPERVISOR %}
             <span class="person-full-name">
                 {% if profile.first_name or profile.last_name %}
@@ -46,119 +35,85 @@
             </span>
         {% endif %}
         {% trans "Settings" %}
-    </h2>
+{% endblock %}
 
+{% block account_alerts %}
     {% if profile.deleted %}
-    <div class="alert alert-small alert-danger">
-        <span class="fa fa-exclamation-circle" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
-        {% trans "Deleted profile" %}
-    </div>
+        <div class="alert alert-small alert-danger">
+            <span class="fa fa-exclamation-circle" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
+            {% trans "Deleted profile" %}
+        </div>
     {% endif %}
+{% endblock %}
 
+
+{% block account_email_actions %}
     {% if view.role == roles.OWNER %}
-    <div class="row setting">
-        <div class="col-xxs-12 col-xs-6">
-            <section class="callout callout-primary">
-                <h4 id="{% trans "password" %}">{% trans "password"|capfirst %}</h4>
-                <a href="{% url 'password_change' %}" class="btn btn-default btn-sm">
-                    {% trans "Change password" %}
-                </a>
-            </section>
-        </div>
-        <div class="col-xxs-12 col-xs-6">
-            <section class="callout callout-primary">
-                <h4 id="{% trans "username" %}">{% trans "username"|capfirst %}</h4>
-                <samp><small class="person-username">{{ profile.user.username }}</small></samp> &nbsp;
-                <a href="{% url 'username_change' %}" class="btn btn-default btn-sm">
-                    {% trans "Change username" %}
-                </a>
-            </section>
-        </div>
-    </div>
-    {% endif %}
-
-    <section class="callout callout-primary">
-        <h4 id="{% trans "email-addr" context 'URL' %}">{% trans "Email" context 'Title' %}</h4>
-        <samp><small>
-            {% if profile.user.email|is_invalid %}
-                <span class="person-email-address text-danger" data-toggle="tooltip"
-                      title="{% trans "invalid email" %}" aria-label="{% trans "Warning " context 'Title' %}: {% trans "invalid email" %}">
-                    {{ profile.user.email|clear_invalid }}
-                    <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
-                </span>
-            {% else %}
-                <span class="person-email-address">{{ profile.user.email }}</span>
-            {% endif %}
-        </small></samp> &nbsp;
-        {% if view.role == roles.OWNER %}
-            <a href="{% url 'email_update' %}" class="btn btn-default btn-sm btn-vert-space-even">
-                {% trans "Update account email" %}
-            </a>
-            {% if profile.user.email|is_invalid %}
-                <form action="{% url 'email_verify' %}" method="POST"
-                      class="unwrap-after-success" style="display: inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-default btn-sm btn-vert-space-even ajax"
-                            data-csrf="{{ csrf_token }}"
-                            data-success-text="{% trans "Awaiting verification..." %}"
-                            data-success-message="email-verification_notification"
-                            data-on-ajax-success="verifyEmailSuccess">
-                        {% trans "Re-verify address" %}
-                    </button>
-                    <div class="modal fade" id="email-verification_notification" tabindex="-1" role="dialog">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-body help-block">
-                                    <span class="">
-                                        {% trans "We've sent a verification message to your email address. Please follow the instructions in the message to complete this step." %}
-                                    </span>
-                                </div>
+        <a href="{% url 'email_update' %}" class="btn btn-default btn-sm btn-vert-space-even">
+            {% trans "Update account email" %}
+        </a>
+        {% if account.email|is_invalid %}
+            <form action="{% url 'email_verify' %}" method="POST"
+                  class="unwrap-after-success" style="display: inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-default btn-sm btn-vert-space-even ajax"
+                        data-csrf="{{ csrf_token }}"
+                        data-success-text="{% trans "Awaiting verification..." %}"
+                        data-success-message="email-verification_notification"
+                        data-on-ajax-success="verifyEmailSuccess">
+                    {% trans "Re-verify address" %}
+                </button>
+                <div class="modal fade" id="email-verification_notification" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-body help-block">
+                                <span class="">
+                                    {% trans "We've sent a verification message to your email address. Please follow the instructions in the message to complete this step." %}
+                                </span>
                             </div>
                         </div>
                     </div>
-                </form>
-            {% endif %}
-        {% else %}
-            {% if not profile.user.email|is_invalid %}
-                {% include './snippets/email_mark_invalid.html' with return_url='this page' %}
-            {% endif %}
-            <a href="{% url 'staff_email_update' profile.pk profile.autoslug %}" class="btn btn-default btn-sm btn-vert-space-even">
-                {% trans "Update account email" %}
-            </a>
+                </div>
+            </form>
         {% endif %}
-        <p class="help-block">
-            {% trans "We send e-mails to this address. It will never be public." %}
-            {% if profile.user.email|is_invalid and view.role == roles.OWNER %}
-                <span class="text-danger">{% trans "When we tried to mail it, the response was an error." %}</span>
-            {% endif %}
-        </p>
+    {% else %}
+        {% if not account.email|is_invalid %}
+            {% include './snippets/email_mark_invalid.html' with return_url='this page' %}
+        {% endif %}
+        <a href="{% url 'staff_email_update' profile.pk profile.autoslug %}" class="btn btn-default btn-sm btn-vert-space-even">
+            {% trans "Update account email" %}
+        </a>
+    {% endif %}
+{% endblock account_email_actions %}
 
-        <section class="well well-sm" aria-label="{% trans "Public email address" %}">
-            <button type="button" data-target="#set-public-email" class="btn btn-primary btn-vert-space btn-xs" data-toggle="collapse">
-                {% trans "Public email?" %}
-            </button>
-            <div id="set-public-email" class="collapse when-scripting {% if profile.email %} in{% endif %}">
-                {% trans "[no email address]" as no_email %}
-                <samp><small>
-                    {% if profile.email|is_invalid %}
-                        <span class="person-email-address text-danger" data-toggle="tooltip"
-                              title="{% trans "invalid email" %}" aria-label="{% trans "Warning " context 'Title' %}: {% trans "invalid email" %}">
-                            {{ profile.email|clear_invalid }}
-                            <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
-                        </span>
-                    {% else %}
-                        <span class="person-email-address">{% firstof profile.email no_email %}</span>
-                    {% endif %}
-                </small></samp> &nbsp;
-                <a href="{% url 'profile_email_update' profile.pk profile.autoslug %}?{% next 'this page' %}"
-                   class="btn btn-default btn-sm btn-vert-space-even">
-                    {% trans "Update public email" %}
-                </a>
-                <p class="help-block text-justify">{{ view.profile_email_help_text|linebreaksbr }}</p>
-            </div>
-        </section>
+{% block profile_email %}
+    <section class="well well-sm" aria-label="{% trans "Public email address" %}">
+        <button type="button" data-target="#set-public-email" class="btn btn-primary btn-vert-space btn-xs" data-toggle="collapse">
+            {% trans "Public email?" %}
+        </button>
+        <div id="set-public-email" class="collapse when-scripting {% if profile.email %} in{% endif %}">
+            {% trans "[no email address]" as no_email %}
+            <samp><small>
+                {% if profile.email|is_invalid %}
+                    <span class="person-email-address text-danger" data-toggle="tooltip"
+                          title="{% trans "invalid email" %}" aria-label="{% trans "Warning " context 'Title' %}: {% trans "invalid email" %}">
+                        {{ profile.email|clear_invalid }}
+                        <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
+                    </span>
+                {% else %}
+                    <span class="person-email-address">{% firstof profile.email no_email %}</span>
+                {% endif %}
+            </small></samp> &nbsp;
+            <a href="{% url 'profile_email_update' profile.pk profile.autoslug %}?{% next 'this page' %}"
+               class="btn btn-default btn-sm btn-vert-space-even">
+                {% trans "Update public email" %}
+            </a>
+            <p class="help-block text-justify">{{ view.profile_email_help_text|linebreaksbr }}</p>
+        </div>
     </section>
+{% endblock profile_email %}
 
+{% block profile_settings %}
     {% if view.role >= roles.OWNER %}
     <section class="callout callout-warning">
         <h4 id="{% trans "privacy" context 'URL' %}">
@@ -232,39 +187,44 @@
         </form>
     </section>
     {% endif %}
+{% endblock profile_settings %}
 
-    {% if view.role == roles.OWNER %}
-    <section class="callout callout-warning">
-        <h4>{% trans "Agreement" %}</h4>
-        <span class="fa fa-arrow-circle-right text-muted" aria-hidden="true"></span>&nbsp;
-        <a href="{% url 'agreement' %}">{% trans "Agreement between You and"|lower %} Pasporta Servo.</a>
-    </section>
-    {% endif %}
-
+{% block membership %}
     {% if not profile.deleted %}
-    <section class="callout callout-danger">
-        <h4>{% if view.role == roles.OWNER %}{% trans "End my membership" %}{% else %}{% trans "End membership" %}{% endif %}</h4>
-        <a href="{% url 'profile_delete' profile.pk profile.autoslug %}"
-           class="btn btn-danger">
-            <span class="fa fa-trash fa-lg" aria-hidden="true"></span>&nbsp;
-            {% trans "Delete account" %}
-        </a>
-    </section>
+        <section class="callout callout-danger">
+            <h4>{% if view.role == roles.OWNER %}{% trans "End my membership" %}{% else %}{% trans "End membership" %}{% endif %}</h4>
+            <a href="{% url 'profile_delete' profile.pk profile.autoslug %}"
+               class="btn btn-danger">
+                <span class="fa fa-trash fa-lg" aria-hidden="true"></span>&nbsp;
+                {% trans "Close account" %}
+            </a>
+        </section>
     {% elif view.role >= roles.SUPERVISOR %}
-    <section class="callout callout-success">
-        <h4>{% trans "Restore membership" %}</h4>
-        <a href="{% url 'profile_restore' profile.pk profile.autoslug %}"
-           class="btn btn-default">
-            <span class="fa fa-repeat" aria-hidden="true"></span>&nbsp;
-            {% trans "Restore account" %}
-        </a>
-    </section>
+        <section class="callout callout-success">
+            <h4>{% trans "Restore membership" %}</h4>
+            <a href="{% url 'profile_restore' profile.pk profile.autoslug %}"
+               class="btn btn-default">
+                <span class="fa fa-repeat" aria-hidden="true"></span>&nbsp;
+                {% trans "Restore account" %}
+            </a>
+        </section>
     {% endif %}
+{% endblock membership %}
 
+
+{% block navigation %}
     <div class="pull-left">
-        <a href="{% url 'profile_edit' profile.pk profile.autoslug %}" class="btn btn-default" title="{% trans "Back" %}">
-            <span class="fa fa-arrow-left" aria-hidden="true"></span>
-            <span>{% blocktrans with back_to=_("profile") %}Back to {{ back_to }}{% endblocktrans %}</span>
+        <a href="{% url 'profile_edit' profile.pk profile.autoslug %}" class="btn btn-default">
+            {% url 'profile_detail' profile.pk profile.autoslug as profile_url %}
+            {% domain profile_url as profile_absolute_url %}
+            {% if profile_absolute_url in request.META.HTTP_REFERER %}
+                <span class="fa fa-arrow-left" aria-hidden="true"></span>
+                <span>{% blocktrans with back_to=_("profile") %}Back to {{ back_to }}{% endblocktrans %}</span>
+            {% else %}
+                <span class="fa fa-arrow-right" aria-hidden="true"></span>
+                <span class="fa fa-user" aria-hidden="true"></span>
+                <span>{% blocktrans with fwd_to=_("profile") %}Forward to {{ fwd_to }}{% endblocktrans %}</span>
+            {% endif %}
         </a>
     </div>
-{% endblock page %}
+{% endblock %}

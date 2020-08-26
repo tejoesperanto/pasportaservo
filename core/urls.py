@@ -12,8 +12,10 @@ from .views import (  # isort:skip
     HomeView, RegisterView, LoginView, AccountRestoreRequestView,
     PasswordResetView, UsernameRemindView, UsernameRemindDoneView,
     AgreementView, AgreementRejectView,
+    AccountSettingsView,
     PasswordChangeView, PasswordChangeDoneView, UsernameChangeView,
     EmailUpdateView, EmailVerifyView,
+    AccountDeleteView,
     MassMailView, MassMailSentView,
 )
 
@@ -29,6 +31,8 @@ urlpatterns = [
         url(r'^$', view=AgreementView.as_view(), name='agreement'),
         url(_(r'^reject/$'), view=AgreementRejectView.as_view(), name='agreement_reject'),
     ])),
+
+    url(_(r'^account/settings/$'), AccountSettingsView.as_view(), name='account_settings'),
 
     url(_(r'^password/'), include([
         url(r'^$', view=PasswordChangeView.as_view(), name='password_change'),
@@ -59,6 +63,8 @@ urlpatterns = [
         url(r'^$', EmailUpdateView.as_view(), name='email_update'),
         url(_(r'^verify/$'), EmailVerifyView.as_view(), name='email_verify'),
     ])),
+
+    url(_(r'^account/delete/$'), AccountDeleteView.as_view(), name='account_delete'),
 
     url(_(r'^admin/'), include([
         url(_(r'^mass-mail/'), include([
