@@ -288,80 +288,20 @@ msgstr "interkonsentoj"
 msgid "User {user} agreed to '{policy}' on {date:%Y-%m-%d}"
 msgstr "Uzanto {user} akceptis '{policy}' je {date:%Y-%m-%d}"
 
-msgid "Find accommodation"
-msgstr "Trovu loĝejon"
-
-msgid "Esperanto-hosts around the world"
-msgstr "Esperantaj gastigantoj tra la mondo"
-
-msgid "My profile"
-msgstr "Mia profilo"
-
-msgid "Search"
-msgstr "Serĉi"
+msgid "Close account"
+msgstr "Fermi konton"
 
 msgid "at"
 msgstr "ĉe"
 
-msgctxt "URL"
-msgid "top-most"
-msgstr "plejsupro"
+msgid "Press the button here below to confirm closing your account."
+msgstr "Premu la butonon ĉi-sube por konfirmi la malaktivigon de via konto."
 
-msgctxt "URL"
-msgid "content-start"
-msgstr "enhavo-komenco"
+msgid "Close the account"
+msgstr "Fermi la konton"
 
-msgid "Skip navigation buttons"
-msgstr "Pretersalti navigajn butonojn"
-
-msgid "Home page"
-msgstr "Hejma paĝo"
-
-#, python-format
-msgid "For personal use of %(name)s"
-msgstr "Por persona uzo de %(name)s"
-
-msgid "For personal use"
-msgstr "Por persona uzo"
-
-msgid "log in"
-msgstr "ensaluti"
-
-msgid "register"
-msgstr "registriĝi"
-
-msgid "About us"
-msgstr "Pri ni"
-
-msgid "FAQ"
-msgstr "Oftaj demandoj"
-
-msgid "Terms"
-msgstr "Kondiĉoj"
-
-msgid "Privacy"
-msgstr "Privateco"
-
-msgid "Supervisors"
-msgstr "Landaj organizantoj"
-
-msgid "World Esperanto Youth Organisation"
-msgstr "Tutmonda Esperantista Junulara Organizo"
-
-msgid "Back to top of page"
-msgstr "Reen al paĝo-supro"
-
-msgid "Confirm"
-msgstr "Konfirmi"
-
-msgid "admin site"
-msgstr "administrilo"
-
-msgid "The famous hosting service for Esperanto-speakers"
-msgstr "La fama gastiga servo por esperantistoj"
-
-msgid "Search for a country, a region, or a city…"
-msgstr "Serĉu per lando, regiono aŭ urbo…"
+msgid "Cancel operation"
+msgstr "Nuligi la agon"
 
 msgid "Agreement between You and"
 msgstr "Kontrakto inter Vi kaj"
@@ -442,6 +382,158 @@ msgstr "Reen"
 msgid "Back to %(back_to)s"
 msgstr "Reen al %(back_to)s"
 
+msgid "Settings"
+msgstr "Agordoj"
+
+msgid "Change password"
+msgstr "Ŝanĝi pasvorton"
+
+msgid "Your password was changed."
+msgstr "La pasvorto estis ŝanĝita."
+
+msgid ""
+"Please enter your old password, for security's sake, and then enter your new "
+"password twice so we can verify you typed it in correctly."
+msgstr ""
+
+msgid "How to choose a good password?"
+msgstr "Kiel elekti bonan pasvorton?"
+
+msgid "Change"
+msgstr "Ŝanĝi"
+
+msgid "password"
+msgstr "pasvorto"
+
+msgid "username"
+msgstr "salutnomo"
+
+msgid "Change username"
+msgstr "Ŝanĝi salutnomon"
+
+#. Translators: must be identical to the <email> parameter value in staff_place_list url.
+msgctxt "URL"
+msgid "email-addr"
+msgstr "retadreso"
+
+msgctxt "Title"
+msgid "Email"
+msgstr "Retadreso"
+
+msgid "invalid email"
+msgstr "nefunkcianta adreso"
+
+msgctxt "Title"
+msgid "Warning "
+msgstr "Averto "
+
+msgid "Update account email"
+msgstr "Ŝanĝi retadreson por konto"
+
+msgid "We send e-mails to this address. It will never be public."
+msgstr ""
+"Ni sendas retmesaĝojn al tiu ĉi retpoŝta adreso. Ĝi neniam estos publika."
+
+msgid "When we tried to mail it, the response was an error."
+msgstr "Kiam ni provis komuniki al ĝi, la respondo estis eraro."
+
+msgid "Agreement"
+msgstr "Interkonsento"
+
+msgid "Pasporta Servo Account"
+msgstr "Konto ĉe Pasporta Servo"
+
+msgid "Create profile"
+msgstr "Krei profilon"
+
+msgid "Change user's account email"
+msgstr "Modifi retadreson de uzanto"
+
+msgid "My email address"
+msgstr "Mia retpoŝta adreso"
+
+msgid "Email address verification"
+msgstr "Kontrolo de retpoŝta adreso"
+
+msgid ""
+"We've sent a verification message to your email address. Please follow the "
+"instructions in the message to complete this step."
+msgstr ""
+"Ni sendis kontrolmesaĝon al via retpoŝtadreso. Bonvole sekvu la instrukciojn "
+"en tiu mesaĝo por kompletigi tiun ĉi paŝon."
+
+msgid "Find accommodation"
+msgstr "Trovu loĝejon"
+
+msgid "Esperanto-hosts around the world"
+msgstr "Esperantaj gastigantoj tra la mondo"
+
+msgid "My profile"
+msgstr "Mia profilo"
+
+msgid "Search"
+msgstr "Serĉi"
+
+msgctxt "URL"
+msgid "top-most"
+msgstr "plejsupro"
+
+msgctxt "URL"
+msgid "content-start"
+msgstr "enhavo-komenco"
+
+msgid "Skip navigation buttons"
+msgstr "Pretersalti navigajn butonojn"
+
+msgid "Home page"
+msgstr "Hejma paĝo"
+
+#, python-format
+msgid "For personal use of %(name)s"
+msgstr "Por persona uzo de %(name)s"
+
+msgid "For personal use"
+msgstr "Por persona uzo"
+
+msgid "log in"
+msgstr "ensaluti"
+
+msgid "register"
+msgstr "registriĝi"
+
+msgid "About us"
+msgstr "Pri ni"
+
+msgid "FAQ"
+msgstr "Oftaj demandoj"
+
+msgid "Terms"
+msgstr "Kondiĉoj"
+
+msgid "Privacy"
+msgstr "Privateco"
+
+msgid "Supervisors"
+msgstr "Landaj organizantoj"
+
+msgid "World Esperanto Youth Organisation"
+msgstr "Tutmonda Esperantista Junulara Organizo"
+
+msgid "Back to top of page"
+msgstr "Reen al paĝo-supro"
+
+msgid "Confirm"
+msgstr "Konfirmi"
+
+msgid "admin site"
+msgstr "administrilo"
+
+msgid "The famous hosting service for Esperanto-speakers"
+msgstr "La fama gastiga servo por esperantistoj"
+
+msgid "Search for a country, a region, or a city…"
+msgstr "Serĉu per lando, regiono aŭ urbo…"
+
 #, python-format
 msgid ""
 "Unfortunately, information about this %(object)s is not available anymore."
@@ -502,59 +594,6 @@ msgstr "Kaŝi"
 msgid "Hide this message"
 msgstr "Kaŝi tiun ĉi mesaĝon"
 
-msgid "Settings"
-msgstr "Agordoj"
-
-msgid "password"
-msgstr "pasvorto"
-
-msgid "Change password"
-msgstr "Ŝanĝi pasvorton"
-
-msgid "username"
-msgstr "salutnomo"
-
-msgid "Change username"
-msgstr "Ŝanĝi salutnomon"
-
-#. Translators: must be identical to the <email> parameter value in staff_place_list url.
-msgctxt "URL"
-msgid "email-addr"
-msgstr "retadreso"
-
-msgctxt "Title"
-msgid "Email"
-msgstr "Retadreso"
-
-msgid "invalid email"
-msgstr "nefunkcianta adreso"
-
-msgctxt "Title"
-msgid "Warning "
-msgstr "Averto "
-
-msgid "Update account email"
-msgstr "Ŝanĝi retadreson por konto"
-
-msgid "We send e-mails to this address. It will never be public."
-msgstr ""
-"Ni sendas retmesaĝojn al tiu ĉi retpoŝta adreso. Ĝi neniam estos publika."
-
-msgid "When we tried to mail it, the response was an error."
-msgstr "Kiam ni provis komuniki al ĝi, la respondo estis eraro."
-
-msgid "Agreement"
-msgstr "Interkonsento"
-
-msgid "Pasporta Servo Account"
-msgstr "Konto ĉe Pasporta Servo"
-
-msgid "Create profile"
-msgstr "Krei profilon"
-
-msgid "Close account"
-msgstr "Fermi konton"
-
 msgid "inbox"
 msgstr "poŝtkesto"
 
@@ -587,31 +626,6 @@ msgstr ""
 
 msgid "Register"
 msgstr "Registriĝi"
-
-msgid "Change user's account email"
-msgstr "Modifi retadreson de uzanto"
-
-msgid "My email address"
-msgstr "Mia retpoŝta adreso"
-
-msgid "Email address verification"
-msgstr "Kontrolo de retpoŝta adreso"
-
-msgid ""
-"We've sent a verification message to your email address. Please follow the "
-"instructions in the message to complete this step."
-msgstr ""
-"Ni sendis kontrolmesaĝon al via retpoŝtadreso. Bonvole sekvu la instrukciojn "
-"en tiu mesaĝo por kompletigi tiun ĉi paŝon."
-
-msgid "Press the button here below to confirm closing your account."
-msgstr "Premu la butonon ĉi-sube por konfirmi la malaktivigon de via konto."
-
-msgid "Close the account"
-msgstr "Fermi la konton"
-
-msgid "Cancel operation"
-msgstr "Nuligi la agon"
 
 msgid "Unsubscribe from this type of messages"
 msgstr "Malaboni tiajn mesaĝojn"
@@ -765,20 +779,6 @@ msgid ""
 msgstr ""
 "Mi forgesis <a href=\"%(pwd_url)s\">mian pasvorton</a> aŭ <a href="
 "\"%(usr_url)s\">mian salutnomon</a>"
-
-msgid "Your password was changed."
-msgstr "La pasvorto estis ŝanĝita."
-
-msgid ""
-"Please enter your old password, for security's sake, and then enter your new "
-"password twice so we can verify you typed it in correctly."
-msgstr ""
-
-msgid "How to choose a good password?"
-msgstr "Kiel elekti bonan pasvorton?"
-
-msgid "Change"
-msgstr "Ŝanĝi"
 
 msgid "Password reset complete"
 msgstr "Nova pasvorto agordita"
