@@ -1,4 +1,4 @@
-{% extends 'core/settings.html' %}
+{% extends 'account/settings.html' %}
 {% load i18n static bootstrap domain %}
 {% load next from utils %}
 {% load is_invalid clear_invalid from profile %}
@@ -196,7 +196,7 @@
             <a href="{% url 'profile_delete' profile.pk profile.autoslug %}"
                class="btn btn-danger">
                 <span class="fa fa-trash fa-lg" aria-hidden="true"></span>&nbsp;
-                {% trans "Close account" %}
+                {% if view.role == roles.OWNER %}{% trans "Close account" %}{% else %}{% trans "Delete profile" %}{% endif %}
             </a>
         </section>
     {% elif view.role >= roles.SUPERVISOR %}

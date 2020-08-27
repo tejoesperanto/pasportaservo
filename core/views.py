@@ -190,7 +190,7 @@ class AccountRestoreRequestView(generic.TemplateView):
 @flatpages_as_templates
 class AgreementView(LoginRequiredMixin, generic.TemplateView):
     http_method_names = ['get', 'post']
-    template_name = 'core/consent.html'
+    template_name = 'account/consent.html'
     standalone_policy_view = False
 
     def get_context_data(self, **kwargs):
@@ -231,7 +231,7 @@ class AgreementView(LoginRequiredMixin, generic.TemplateView):
 
 class AgreementRejectView(LoginRequiredMixin, generic.TemplateView):
     http_method_names = ['get', 'post']
-    template_name = 'core/consent_rejected.html'
+    template_name = 'account/consent_rejected.html'
 
     def get(self, request, *args, **kwargs):
         """
@@ -279,7 +279,7 @@ class AgreementRejectView(LoginRequiredMixin, generic.TemplateView):
 
 
 class AccountSettingsView(LoginRequiredMixin, generic.TemplateView):
-    template_name = 'core/settings.html'
+    template_name = 'account/settings.html'
     display_fair_usage_condition = True
 
     def get(self, request, *args, **kwargs):
@@ -313,13 +313,14 @@ class PasswordResetView(PasswordResetBuiltinView):
 class PasswordChangeView(LoginRequiredMixin, PasswordChangeBuiltinView):
     # Must use the custom LoginRequired mixin, otherwise redirection
     # after the authentication will not work as expected.
+    template_name = 'account/password_change_form.html'
     form_class = SystemPasswordChangeForm
 
 
 class PasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneBuiltinView):
     # Must use the custom LoginRequired mixin, otherwise redirection
     # after the authentication will not work as expected.
-    pass
+    template_name = 'account/password_change_done.html'
 
 
 class UsernameRemindView(PasswordResetView):
@@ -337,7 +338,7 @@ class UsernameRemindDoneView(generic.TemplateView):
 
 class UsernameChangeView(LoginRequiredMixin, UserModifyMixin, generic.UpdateView):
     model = User
-    template_name = 'core/username_change_form.html'
+    template_name = 'account/username_change_form.html'
     form_class = UsernameUpdateForm
 
     def get_object(self, queryset=None):
@@ -353,7 +354,7 @@ class UsernameChangeView(LoginRequiredMixin, UserModifyMixin, generic.UpdateView
 
 class EmailUpdateView(AuthMixin, UserModifyMixin, generic.UpdateView):
     model = User
-    template_name = 'core/system-email_form.html'
+    template_name = 'account/system-email_form.html'
     form_class = EmailUpdateForm
     exact_role = OWNER
 
@@ -390,7 +391,7 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
     address.
     """
     http_method_names = ['post', 'get']
-    template_name = 'core/system-email_verify_done.html'
+    template_name = 'account/system-email_verify_done.html'
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
@@ -477,7 +478,7 @@ class EmailStaffUpdateView(AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileM
     """
     Allows supervisors to modify the email address for a user account.
     """
-    template_name = 'core/system-email_form.html'
+    template_name = 'account/system-email_form.html'
     form_class = EmailStaffUpdateForm
     minimum_role = SUPERVISOR
 
@@ -532,7 +533,7 @@ class AccountDeleteView(LoginRequiredMixin, generic.DeleteView):
     more feature-rich ProfileDeleteView.
     """
     model = User
-    template_name = 'core/user_confirm_delete.html'
+    template_name = 'account/account_confirm_delete.html'
     success_url = reverse_lazy('logout')
 
     def get_object(self, queryset=None):
