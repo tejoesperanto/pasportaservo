@@ -311,8 +311,24 @@
                     </p>
                 </section>
             {% else %}
-                {# UNAUTHENTICATED USERS ARE INVITED TO REGISTER #}
-                {% include 'core/snippets/registration.html' with form=register_form %}
+                {# UNAUTHENTICATED USERS ARE INVITED TO LOGIN OR REGISTER #}
+                <div class="col-xs-12">
+                    <div class="well">
+                        {% asvar login_action %}
+                            <a href="{% url 'login' %}?{% next 'this page' %}" class="btn btn-primary btn-sm">
+                                {% trans "log in" %}
+                            </a>
+                        {% endasvar %}
+                        {% asvar register_action %}
+                            <a href="{% url 'register' %}?{% next 'this page' %}" class="btn btn-primary btn-sm">
+                                {% trans "register" %}
+                            </a>
+                        {% endasvar %}
+                        {% blocktrans trimmed %}
+                            You must &nbsp;{{ login_action }}&nbsp; or &nbsp;{{ register_action }}&nbsp; to see this accommodation.
+                        {% endblocktrans %}
+                    </div>
+                </div>
             {% endif %}
             {# END OF PLACE DETAILS #}
             </div>

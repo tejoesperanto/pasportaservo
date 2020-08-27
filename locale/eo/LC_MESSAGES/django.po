@@ -612,21 +612,6 @@ msgstr "profilbildo"
 msgid "settings"
 msgstr "agordoj"
 
-msgctxt "Title"
-msgid "Registration"
-msgstr "Registrado"
-
-#, python-format
-msgid ""
-"You must <a href=\"%(link)s\">log in</a> or register to see this "
-"accommodation."
-msgstr ""
-"Vi devas <a href=\"%(link)s\">ensaluti</a> aŭ registriĝi por vidi tiun ĉi "
-"loĝejon."
-
-msgid "Register"
-msgstr "Registriĝi"
-
 msgid "Unsubscribe from this type of messages"
 msgstr "Malaboni tiajn mesaĝojn"
 
@@ -862,6 +847,13 @@ msgstr "Por uzi tiun ĉi parton de la retejo, vi antaŭe devas agordi profilon."
 msgctxt "Imperative"
 msgid "Register"
 msgstr "Registriĝu"
+
+msgctxt "Title"
+msgid "Registration"
+msgstr "Registrado"
+
+msgid "Register"
+msgstr "Registriĝi"
 
 msgid "Username reminder"
 msgstr "Memorigo pri salutnomo"
@@ -1761,6 +1753,14 @@ msgstr "Mi ne troviĝas konstante ĉe tiu ĉi adreso; kontaktiĝu anticipe."
 
 msgid "Other dwellers at this place."
 msgstr "Mi havas kunloĝantojn."
+
+#, python-format
+msgid ""
+"You must &nbsp;%(login_action)s&nbsp; or &nbsp;%(register_action)s&nbsp; to "
+"see this accommodation."
+msgstr ""
+"Vi devas &nbsp;%(login_action)s&nbsp; aŭ &nbsp;%(register_action)s&nbsp; por "
+"vidi tiun ĉi loĝejon."
 
 msgid "Location on map"
 msgstr "Pozicio sur la mapo"
