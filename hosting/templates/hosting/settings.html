@@ -67,8 +67,12 @@
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-body help-block">
-                                <span class="">
-                                    {% trans "We've sent a verification message to your email address. Please follow the instructions in the message to complete this step." %}
+                                <span class=""
+                                      data-notification="{% blocktrans trimmed %}
+                                                            We've sent a verification message to your email address.
+                                                            Please follow the instructions in the message to complete
+                                                            this step.
+                                                         {% endblocktrans %}">
                                 </span>
                             </div>
                         </div>

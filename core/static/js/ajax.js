@@ -138,7 +138,11 @@ $(document).ready(function() {
             $this.addClass('btn-warning');
         }
         if ($this.data('success-message')) {
-            $('#'+$this.data('success-message')).data('relatedSource', $this).modal();
+            var $op_notify = $('#'+$this.data('success-message'));
+            var $op_content = $op_notify.find('[data-notification]');
+            $op_content.text($op_content.data('notification'));
+            $op_notify.data('relatedSource', $this);
+            $op_notify.modal();
         }
     };
 
