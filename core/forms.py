@@ -133,7 +133,7 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
         # Displays the clean value of the address in the form.
         self.initial['email'] = self.previous_email
 
-    def save(self):
+    def save(self, commit=True):
         """
         Saves nothing but sends a warning email to old email address,
         and sends a confirmation link to the new email address.
@@ -161,9 +161,9 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
             'email': new_email,
         }
         for old_new in ['old', 'new']:
-            email_template_subject = get_template('email/{type}_email_subject.txt'.format(type=old_new))
-            email_template_text = get_template('email/{type}_email_update.txt'.format(type=old_new))
-            email_template_html = get_template('email/{type}_email_update.html'.format(type=old_new))
+            email_template_subject = get_template(f'email/{old_new}_email_subject.txt')
+            email_template_text = get_template(f'email/{old_new}_email_update.txt')
+            email_template_html = get_template(f'email/{old_new}_email_update.html')
             send_mail(
                 ''.join(email_template_subject.render(context).splitlines()),  # no newlines allowed in subject.
                 email_template_text.render(context),
@@ -180,6 +180,7 @@ class EmailStaffUpdateForm(SystemEmailFormMixin, forms.ModelForm):
     class Meta:
         model = User
         fields = ['email']
+        error_messages = {'email': SystemEmailFormMixin.email_error_messages}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

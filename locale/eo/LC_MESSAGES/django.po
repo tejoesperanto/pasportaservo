@@ -208,6 +208,11 @@ msgstr ""
 msgid "Enter a valid email address."
 msgstr "Enigu retadreson en ĝusta formo."
 
+#, python-brace-format
+msgid "Email address cannot start with {PREFIX} (in all-capital letters)."
+msgstr ""
+"Retpoŝta adreso ne povas komenciĝi per {PREFIX} (per ĉiuj majusklaj literoj)."
+
 msgid "User address already in use."
 msgstr "Adreso de uzanto jam utiligita ĉe la retejo."
 
