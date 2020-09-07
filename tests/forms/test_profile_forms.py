@@ -111,6 +111,12 @@ class ProfileFormTests(WebTest):
                 with self.subTest(condition=profile_tag, field=field):
                     self.assertTrue(form.fields[field].required)
 
+        # Verify that the form's save method is protected in templates.
+        self.assertTrue(
+            hasattr(form_empty.save, 'alters_data')
+            or hasattr(form_empty.save, 'do_not_call_in_templates')
+        )
+
     def test_blank_data(self):
         # Empty form is expected to be valid.
         form = ProfileForm({})

@@ -61,6 +61,11 @@ class PhoneFormTests(WebTest):
         for field in ('country', 'type', 'number'):
             with self.subTest(field=field):
                 self.assertTrue(form.fields[field].required)
+        # Verify that the form's save method is protected in templates.
+        self.assertTrue(
+            hasattr(form.save, 'alters_data')
+            or hasattr(form.save, 'do_not_call_in_templates')
+        )
 
     def test_invalid_init(self):
         # Form without a phone instance is expected to be invalid.
