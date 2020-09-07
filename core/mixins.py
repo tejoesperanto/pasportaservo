@@ -138,6 +138,10 @@ class SystemEmailFormMixin(object):
         email_value = self.cleaned_data['email']
         if not email_value:
             raise ValidationError(_("Enter a valid email address."))
+        if email_value.startswith(settings.INVALID_PREFIX):
+            message = _("Email address cannot start with {PREFIX} "
+                        "(in all-capital letters).").format(PREFIX=settings.INVALID_PREFIX)
+            raise ValidationError(message)
         invalid_email = '{}{}'.format(settings.INVALID_PREFIX, email_value)
         emails_lookup = Q(email_lc=email_value.lower()) | Q(email_lc=invalid_email.lower())
         if email_value and email_value.lower() != self.previous_email.lower() \
