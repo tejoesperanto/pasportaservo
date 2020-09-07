@@ -7,6 +7,7 @@ from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.db.models import Q
 from django.db.models.functions import Lower
 from django.urls import reverse_lazy
+from django.utils.functional import lazy
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
@@ -31,7 +32,11 @@ class LoginRequiredMixin(AuthenticatedUserRequiredMixin):
 class UserModifyMixin(object):
     def get_success_url(self, *args, **kwargs):
         try:
-            return self.object.profile.get_edit_url()
+            if hasattr(self.object, self.object._meta.get_field('profile').get_cache_name()):
+                profile = self.object.profile
+            else:
+                profile = Profile.get_basic_data(user=self.object)
+            return profile.get_edit_url()
         except Profile.DoesNotExist:
             return reverse_lazy('profile_create')
 
@@ -76,7 +81,7 @@ class UsernameFormMixin(object):
         # the error messages, and thus facilitate user enumeration attacks...
         'unique': _("A user with a similar username already exists."),
         # Clearly spell out to the potential new users what a valid username is.
-        'invalid': mark_safe(_(
+        'invalid': lazy(mark_safe, str)(_(
             "Enter a username conforming to these rules: "
             " This value may contain only letters, numbers, and the symbols"
             " <kbd>@</kbd> <kbd>.</kbd> <kbd>+</kbd> <kbd>-</kbd> <kbd>_</kbd>."
