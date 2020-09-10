@@ -1,3 +1,5 @@
+import re
+
 from django.conf import settings
 from django.contrib.sessions.backends.cache import SessionStore
 from django.core import mail
@@ -7,10 +9,12 @@ from django.urls import reverse
 
 from django_webtest import WebTest
 
+from core.auth import auth_log
 from core.forms import (
-    EmailStaffUpdateForm, EmailUpdateForm,
-    UserAuthenticationForm, UsernameUpdateForm,
+    EmailStaffUpdateForm, EmailUpdateForm, SystemPasswordResetRequestForm,
+    UserAuthenticationForm, UsernameRemindRequestForm, UsernameUpdateForm,
 )
+from core.views import PasswordResetView, UsernameRemindView
 
 from ..assertions import AdditionalAsserts
 from ..factories import UserFactory
@@ -251,7 +255,7 @@ class UsernameUpdateFormTests(AdditionalAsserts, WebTest):
 
     def test_view_page(self):
         page = self.app.get(reverse('username_change'), user=self.user)
-        self.assertEqual(page.status_int, 200)
+        self.assertEqual(page.status_code, 200)
         self.assertEqual(len(page.forms), 1)
         self.assertIsInstance(page.context['form'], UsernameUpdateForm)
 
@@ -450,7 +454,7 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
 
     def test_view_page(self):
         page = self.app.get(reverse('email_update'), user=self.user)
-        self.assertEqual(page.status_int, 200)
+        self.assertEqual(page.status_code, 200)
         self.assertEqual(len(page.forms), 1)
         self.assertIsInstance(page.context['form'], EmailUpdateForm)
 
@@ -508,7 +512,7 @@ class EmailStaffUpdateFormTests(EmailUpdateFormTests):
             reverse('staff_email_update', kwargs={
                 'pk': self.user.profile.pk, 'slug': self.user.profile.autoslug}),
             user=self.supervisor)
-        self.assertEqual(page.status_int, 200)
+        self.assertEqual(page.status_code, 200)
         self.assertEqual(len(page.forms), 1)
         self.assertIsInstance(page.context['form'], EmailStaffUpdateForm)
 
@@ -529,3 +533,239 @@ class EmailStaffUpdateFormTests(EmailUpdateFormTests):
         )
         self.assertEqual(obj.email, new_email)
         self.assertEqual(len(mail.outbox), 0)
+
+
+@tag('forms', 'forms-auth')
+@override_settings(LANGUAGE_CODE='en')
+class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.active_user = UserFactory()
+        cls.inactive_user = UserFactory(is_active=False)
+        cls.active_invalid_email_user = UserFactory(invalid_email=True)
+        cls.inactive_invalid_email_user = UserFactory(invalid_email=True, is_active=False)
+        cls.view_page_url = reverse('password_reset')
+        cls.view_page_success_url = reverse('password_reset_done')
+
+    def _init_form(self, data=None):
+        return SystemPasswordResetRequestForm(data=data)
+
+    @property
+    def _related_view(self):
+        return PasswordResetView
+
+    def test_init(self):
+        form = self._init_form()
+        # Verify that the expected fields are part of the form.
+        self.assertEqual(['email'], list(form.fields))
+        # Verify that the form's save method is protected in templates.
+        self.assertTrue(
+            hasattr(form.save, 'alters_data')
+            or hasattr(form.save, 'do_not_call_in_templates')
+        )
+
+    def test_blank_data(self):
+        # Empty form is expected to be invalid.
+        form = self._init_form(data={})
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors, {'email': ["This field is required."]})
+
+    def test_get_users(self):
+        with self.settings(PASSWORD_HASHERS=[
+                'django.contrib.auth.hashers.MD5PasswordHasher']):
+            active_md5_user1 = UserFactory()
+        with self.settings(PASSWORD_HASHERS=[
+                'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher']):
+            active_md5_user2 = UserFactory(invalid_email=True)
+        form = self._init_form()
+
+        # All types of users with useable passwords are expected to be returned.
+        for user, expected_empty in [(self.active_user, True),
+                                     (self.inactive_user, True),
+                                     (self.active_invalid_email_user, False),
+                                     (self.inactive_invalid_email_user, False),
+                                     (active_md5_user1, True),
+                                     (active_md5_user2, False)]:
+            with self.subTest(email=user.email, active=user.is_active):
+                got_users = list(form.get_users(user._clean_email))
+                self.assertEqual(got_users, [user])
+                self.assertEqual(got_users[0].email, user._clean_email)
+                got_users = list(
+                    form.get_users(f'{settings.INVALID_PREFIX}{user._clean_email}')
+                )
+                self.assertEqual(got_users, [] if expected_empty else [user])
+                if not expected_empty:
+                    self.assertEqual(got_users[0].email, user._clean_email)
+
+        # Users with unuseable passwords are expected to be not returned.
+        active_nonepwd_user = UserFactory()
+        active_nonepwd_user.set_unusable_password()
+        active_nonepwd_user.save()
+        inactive_nonepwd_user = UserFactory(is_active=False)
+        inactive_nonepwd_user.set_unusable_password()
+        inactive_nonepwd_user.save()
+        for user in [active_nonepwd_user, inactive_nonepwd_user]:
+            with self.subTest(email=user.email, pwd=None, active=user.is_active):
+                got_users = list(form.get_users(user._clean_email))
+                self.assertEqual(got_users, [])
+
+    def _get_admin_message(self, user):
+        return (
+            f"User '{user.username}' tried to reset the login password,"
+            " but the account is deactivated"
+        )
+
+    def _get_email_content(self, active):
+        test_data = {}
+        test_data[True] = (
+            "TEST Password reset",
+            [
+                "You're receiving this email because you requested "
+                "a password reset for your user account",
+                "Please go to the following page and choose a new password:",
+            ],
+            [
+                "you deactivated your account previously",
+            ]
+        )
+        test_data[False] = (
+            "TEST Password reset",
+            [
+                "You're receiving this email because you requested "
+                "a password reset for your user account",
+                "Unfortunately, you deactivated your account previously, "
+                "and first it needs to be re-activated",
+            ],
+            [
+                "Please go to the following page and choose a new password:",
+            ]
+        )
+        return test_data[active]
+
+    @override_settings(EMAIL_SUBJECT_PREFIX_FULL="TEST ")
+    def test_active_user_request(self):
+        # Active users are expected to receive an email with password reset link.
+        for user_tag, user in [("normal email", self.active_user),
+                               ("invalid email", self.active_invalid_email_user)]:
+            with self.subTest(tag=user_tag):
+                # No warnings are expected on the auth log.
+                with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
+                    form = self._init_form({'email': user._clean_email})
+                    self.assertTrue(form.is_valid())
+                    form.save(
+                        subject_template_name=self._related_view.subject_template_name,
+                        email_template_name=self._related_view.email_template_name,
+                        html_email_template_name=self._related_view.html_email_template_name,
+                    )
+                    # Workaround for lack of assertNotLogs.
+                    auth_log.warning("No warning emitted.")
+                self.assertEqual(len(log.records), 1)
+                self.assertEqual(log.records[0].message, "No warning emitted.")
+                # The email message is expected to describe the password reset procedure.
+                title, expected_content, not_expected_content = self._get_email_content(True)
+                self.assertEqual(len(mail.outbox), 1)
+                self.assertEqual(mail.outbox[0].subject, title)
+                self.assertEqual(mail.outbox[0].from_email, settings.DEFAULT_FROM_EMAIL)
+                self.assertEqual(mail.outbox[0].to, [user._clean_email])
+                for content in expected_content:
+                    self.assertIn(content, mail.outbox[0].body)
+                for content in not_expected_content:
+                    self.assertNotIn(content, mail.outbox[0].body)
+            mail.outbox = []
+
+    @override_settings(EMAIL_SUBJECT_PREFIX_FULL="TEST ")
+    def test_inactive_user_request(self):
+        # Inactive users are expected to receive an email with instructions
+        # for activating their account and not password reset link.
+        for user_tag, user in [("normal email", self.inactive_user),
+                               ("invalid email", self.inactive_invalid_email_user)]:
+            with self.subTest(tag=user_tag):
+                # A warning about a deactivated account is expected on the auth log.
+                with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
+                    form = self._init_form({'email': user._clean_email})
+                    self.assertTrue(form.is_valid())
+                    form.save(
+                        subject_template_name=self._related_view.subject_template_name,
+                        email_template_name=self._related_view.email_template_name,
+                        html_email_template_name=self._related_view.html_email_template_name,
+                    )
+                self.assertEqual(len(log.records), 1)
+                self.assertStartsWith(log.records[0].message, self._get_admin_message(user))
+                # The warning is expected to include a reference number.
+                code = re.search(r'\[([A-F0-9-]+)\]', log.records[0].message)
+                self.assertIsNotNone(code)
+                code = code.group(1)
+                # The email message is expected to describe the account reactivation procedure.
+                title, expected_content, not_expected_content = self._get_email_content(False)
+                self.assertEqual(len(mail.outbox), 1)
+                self.assertEqual(mail.outbox[0].subject, title)
+                self.assertEqual(mail.outbox[0].from_email, settings.DEFAULT_FROM_EMAIL)
+                self.assertEqual(mail.outbox[0].to, [user._clean_email])
+                for content in expected_content:
+                    self.assertIn(content, mail.outbox[0].body)
+                for content in not_expected_content:
+                    self.assertNotIn(content, mail.outbox[0].body)
+                # The email message is expected to include the reference number.
+                self.assertIn(code, mail.outbox[0].body)
+            mail.outbox = []
+
+    def test_view_page(self):
+        page = self.app.get(self.view_page_url)
+        self.assertEqual(page.status_code, 200)
+        self.assertEqual(len(page.forms), 1)
+        self.assertIsInstance(page.context['form'], self._init_form().__class__)
+
+    def test_form_submit(self):
+        for user in [self.active_user,
+                     self.active_invalid_email_user,
+                     self.inactive_user,
+                     self.inactive_invalid_email_user]:
+            with self.subTest(email=user.email, active=user.is_active):
+                page = self.app.get(self.view_page_url)
+                page.form['email'] = user.email
+                page = page.form.submit()
+                self.assertEqual(page.status_code, 302)
+                self.assertRedirects(page, self.view_page_success_url)
+
+
+class UsernameRemindRequestFormTests(SystemPasswordResetRequestFormTests):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.view_page_url = reverse('username_remind')
+        cls.view_page_success_url = reverse('username_remind_done')
+
+    def _init_form(self, data=None):
+        return UsernameRemindRequestForm(data=data)
+
+    @property
+    def _related_view(self):
+        return UsernameRemindView
+
+    def _get_admin_message(self, user):
+        return (
+            f"User '{user.username}' requested a reminder of the username,"
+            " but the account is deactivated"
+        )
+
+    def _get_email_content(self, active):
+        test_data = {}
+        test_data[True] = (
+            "TEST Username reminder",
+            [
+                "Your username, in case you've forgotten:",
+            ],
+            [
+                "you deactivated your account previously",
+            ]
+        )
+        test_data[False] = (
+            "TEST Username reminder",
+            [
+                "Your username, in case you've forgotten:",
+                "Unfortunately, you deactivated your account previously, "
+                "and first it needs to be re-activated",
+            ],
+            []
+        )
+        return test_data[active]
