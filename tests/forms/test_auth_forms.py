@@ -1,4 +1,5 @@
 import re
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.sessions.backends.cache import SessionStore
@@ -8,11 +9,13 @@ from django.test import override_settings, tag
 from django.urls import reverse
 
 from django_webtest import WebTest
+from faker import Faker
 
 from core.auth import auth_log
 from core.forms import (
-    EmailStaffUpdateForm, EmailUpdateForm, SystemPasswordResetRequestForm,
-    UserAuthenticationForm, UsernameRemindRequestForm, UsernameUpdateForm,
+    EmailStaffUpdateForm, EmailUpdateForm,
+    SystemPasswordResetRequestForm, UserAuthenticationForm,
+    UsernameRemindRequestForm, UsernameUpdateForm, UserRegistrationForm,
 )
 from core.views import PasswordResetView, UsernameRemindView
 
@@ -22,6 +25,210 @@ from ..factories import UserFactory
 
 def _snake_str(string):
     return ''.join([c if i % 2 else c.upper() for i, c in enumerate(string)])
+
+
+@tag('forms', 'forms-auth')
+@override_settings(LANGUAGE_CODE='en')
+class UserRegistrationFormTests(AdditionalAsserts, WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.expected_fields = [
+            'email',
+            'password1',
+            'password2',
+            'username',
+            'realm',
+        ]
+        cls.honeypot_field = 'realm'
+        cls.user_one = UserFactory(invalid_email=True)
+        cls.user_two = UserFactory(is_active=False)
+        cls.test_transforms = [
+            lambda v: v,
+            lambda v: v.upper(),
+            lambda v: _snake_str(v),
+        ]
+        cls.faker = Faker()
+
+    def test_init(self):
+        form_empty = UserRegistrationForm()
+
+        # Verify that the expected fields are part of the form.
+        self.assertEqual(set(self.expected_fields), set(form_empty.fields))
+
+        # Verify that 'previous' values are empty.
+        self.assertEqual(form_empty.previous_uname, "")
+        self.assertEqual(form_empty.previous_email, "")
+
+        # Verify that only neccesary fields are marked 'required'.
+        for field in self.expected_fields:
+            with self.subTest(field=field):
+                if field != self.honeypot_field:
+                    self.assertTrue(form_empty.fields[field].required)
+                else:
+                    self.assertFalse(form_empty.fields[field].required)
+
+        # Verify that the form's save method is protected in templates.
+        self.assertTrue(hasattr(form_empty.save, 'alters_data'))
+
+    @patch('core.mixins.is_password_compromised')
+    def test_blank_data(self, mock_pwd_check):
+        # Empty form is expected to be invalid.
+        form = UserRegistrationForm(data={})
+        mock_pwd_check.side_effect = AssertionError("password check API was unexpectedly called")
+        self.assertFalse(form.is_valid())
+        for field in set(self.expected_fields) - set([self.honeypot_field]):
+            with self.subTest(field=field):
+                self.assertIn(field, form.errors)
+
+    @patch('core.mixins.is_password_compromised')
+    def test_nonunique_username(self, mock_pwd_check):
+        mock_pwd_check.return_value = (False, 0)
+        for transform in self.test_transforms:
+            transformed_uname = transform(self.user_two.username)
+            with self.subTest(value=transformed_uname):
+                pwd = self.faker.password()
+                form = UserRegistrationForm(data={
+                    'username': transformed_uname,
+                    'password1': pwd,
+                    'password2': pwd,
+                    'email': self.faker.email(),
+                })
+                self.assertFalse(form.is_valid())
+                self.assertIn('username', form.errors)
+                self.assertEqual(
+                    form.errors['username'],
+                    ["A user with a similar username already exists."]
+                )
+                self.assertNotIn('password1', form.errors)
+
+    @patch('core.mixins.is_password_compromised')
+    def test_nonunique_email(self, mock_pwd_check):
+        mock_pwd_check.return_value = (False, 0)
+        for transform in self.test_transforms:
+            transformed_email = transform(self.user_one._clean_email)
+            with self.subTest(value=transformed_email):
+                pwd = self.faker.password()
+                form = UserRegistrationForm(data={
+                    'username': self.faker.user_name(),
+                    'password1': pwd,
+                    'password2': pwd,
+                    'email': transformed_email,
+                })
+                self.assertFalse(form.is_valid())
+                self.assertIn('email', form.errors)
+                self.assertEqual(
+                    form.errors['email'],
+                    ["User address already in use."]
+                )
+                self.assertNotIn('password1', form.errors)
+
+    def test_weak_password(self):
+        self.weak_password_tests(
+            'core.mixins.is_password_compromised',
+            UserRegistrationForm,
+            {
+                'username': self.faker.user_name(),
+                'password1': "not very strong",
+                'password2': "not very strong",
+                'email': self.faker.email(),
+            },
+            'password1'
+        )
+
+    def weak_password_tests(self, where_to_patch, form_class, form_data, inspect_field):
+        test_data = [
+            (1, True, ""),
+            (2, False,
+             "The password selected by you is not very secure. "
+             "Such combination of characters is known to cyber-criminals."),
+            (100, False,
+             "The password selected by you is too insecure. "
+             "Such combination of characters is very well-known to cyber-criminals."),
+        ]
+        for number_seen, expected_result, expected_error in test_data:
+            # Mock the response of the Pwned Pwds API to indicate a compromised password,
+            # seen a specific number of times.
+            with patch(where_to_patch) as mock_pwd_check:
+                mock_pwd_check.return_value = (True, number_seen)
+                form = form_class(data=form_data)
+                with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
+                    self.assertIs(form.is_valid(), expected_result)
+                mock_pwd_check.assert_called_once_with(form_data[inspect_field])
+            if expected_result is False:
+                self.assertIn(inspect_field, form.errors)
+                self.assertEqual(
+                    form.errors[inspect_field],
+                    ["Choose a less easily guessable password."])
+                self.assertEqual(form.non_field_errors(), [expected_error])
+            self.assertEqual(
+                log.records[0].message,
+                f"Password with HIBP count {number_seen} selected in {form_class.__name__}."
+            )
+
+    @patch('core.mixins.is_password_compromised')
+    def test_strong_password(self, mock_pwd_check):
+        # Mock the response of the Pwned Pwds API to indicate non-compromised password.
+        mock_pwd_check.return_value = (False, 0)
+        registration_data = {
+            'username': self.faker.user_name(),
+            'password1': "very strong indeed",
+            'password2': "very strong indeed",
+            'email': self.faker.email(),
+        }
+        form = UserRegistrationForm(data=registration_data)
+        self.assertTrue(form.is_valid())
+        mock_pwd_check.assert_called_once()
+        user = form.save(commit=False)
+        self.assertEqual(user.username, registration_data['username'])
+        self.assertEqual(user.email, registration_data['email'])
+
+    @patch('core.mixins.is_password_compromised')
+    def test_honeypot(self, mock_pwd_check):
+        mock_pwd_check.return_value = (False, 0)
+        for expected_result, injected_value in ((True, "  \n \f  "),
+                                                (False, self.faker.word())):
+            pwd = self.faker.password()
+            form = UserRegistrationForm(data={
+                'username': self.faker.user_name(),
+                'password1': pwd,
+                'password2': pwd,
+                'email': self.faker.email(),
+                self.honeypot_field: injected_value,
+            })
+            if expected_result is True:
+                self.assertTrue(form.is_valid())
+            if expected_result is False:
+                with self.assertLogs('PasportaServo.auth', level='ERROR') as log:
+                    self.assertFalse(form.is_valid())
+                self.assertIn(self.honeypot_field, form.errors)
+                self.assertEqual(form.errors[self.honeypot_field], [""])
+                self.assertEqual(len(log.records), 1)
+                self.assertEqual(
+                    log.records[0].message,
+                    "Registration failed, flies found in honeypot."
+                )
+
+    def test_view_page(self):
+        page = self.app.get(reverse('register'))
+        self.assertEqual(page.status_code, 200)
+        self.assertEqual(len(page.forms), 1)
+        self.assertIsInstance(page.context['form'], UserRegistrationForm)
+
+    @patch('core.mixins.is_password_compromised')
+    def test_form_submit(self, mock_pwd_check):
+        page = self.app.get(reverse('register'))
+        page.form['username'] = uname = self.faker.user_name()
+        page.form['email'] = email = self.faker.email()
+        page.form['password1'] = page.form['password2'] = self.faker.password()
+        mock_pwd_check.return_value = (False, 0)
+        page = page.form.submit()
+        mock_pwd_check.assert_called_once()
+        self.assertEqual(page.status_code, 302)
+        self.assertRedirects(page, reverse('profile_create'), fetch_redirect_response=False)
+        while page.status_code == 302:
+            page = page.follow()
+        self.assertEqual(page.context['user'].username, uname)
+        self.assertEqual(page.context['user'].email, email)
 
 
 @tag('forms', 'forms-auth')
@@ -128,7 +335,7 @@ class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
 
     def test_view_page(self):
         page = self.app.get(reverse('login'))
-        self.assertEqual(page.status_int, 200)
+        self.assertEqual(page.status_code, 200)
         self.assertEqual(len(page.forms), 1)
         self.assertIsInstance(page.context['form'], UserAuthenticationForm)
 
@@ -137,7 +344,7 @@ class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
         page.form['username'] = "SomeUser"
         page.form['password'] = ".incorrect."
         page = page.form.submit()
-        self.assertEqual(page.status_int, 200)
+        self.assertEqual(page.status_code, 200)
         self.assertEqual(len(page.forms), 1)
         self.assertGreaterEqual(len(page.context['form'].errors), 1)
 
@@ -146,7 +353,7 @@ class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
         page.form['username'] = self.user.username
         page.form['password'] = "adm1n"
         page = page.form.submit()
-        self.assertEqual(page.status_int, 302)
+        self.assertEqual(page.status_code, 302)
         self.assertRedirects(page, '/')
 
 
