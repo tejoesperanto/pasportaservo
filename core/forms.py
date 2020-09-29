@@ -256,6 +256,10 @@ class SystemPasswordResetForm(PasswordFormMixin, SetPasswordForm):
 class SystemPasswordChangeForm(PasswordFormMixin, PasswordChangeForm):
     analyze_password_field = 'new_password1'
 
+    def save(self, commit=True):
+        return super().save(commit)
+    save.alters_data = True
+
 
 class UsernameRemindRequestForm(SystemPasswordResetRequestForm):
     admin_inactive_user_notification = "User '{u.username}' requested a reminder of the username"

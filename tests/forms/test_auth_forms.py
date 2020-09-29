@@ -2,20 +2,26 @@ import re
 from unittest.mock import patch
 
 from django.conf import settings
+from django.contrib.auth.views import (
+    INTERNAL_RESET_SESSION_TOKEN, INTERNAL_RESET_URL_TOKEN,
+)
 from django.contrib.sessions.backends.cache import SessionStore
 from django.core import mail
 from django.http import HttpRequest
 from django.test import override_settings, tag
 from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 from django_webtest import WebTest
 from faker import Faker
 
 from core.auth import auth_log
 from core.forms import (
-    EmailStaffUpdateForm, EmailUpdateForm,
-    SystemPasswordResetRequestForm, UserAuthenticationForm,
-    UsernameRemindRequestForm, UsernameUpdateForm, UserRegistrationForm,
+    EmailStaffUpdateForm, EmailUpdateForm, SystemPasswordChangeForm,
+    SystemPasswordResetForm, SystemPasswordResetRequestForm,
+    UserAuthenticationForm, UsernameRemindRequestForm,
+    UsernameUpdateForm, UserRegistrationForm,
 )
 from core.views import PasswordResetView, UsernameRemindView
 
@@ -123,9 +129,11 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
                 self.assertNotIn('password1', form.errors)
 
     def test_weak_password(self):
-        self.weak_password_tests(
+        weak_password_tests(
+            self,
             'core.mixins.is_password_compromised',
             UserRegistrationForm,
+            (),
             {
                 'username': self.faker.user_name(),
                 'password1': "not very strong",
@@ -135,50 +143,19 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
             'password1'
         )
 
-    def weak_password_tests(self, where_to_patch, form_class, form_data, inspect_field):
-        test_data = [
-            (1, True, ""),
-            (2, False,
-             "The password selected by you is not very secure. "
-             "Such combination of characters is known to cyber-criminals."),
-            (100, False,
-             "The password selected by you is too insecure. "
-             "Such combination of characters is very well-known to cyber-criminals."),
-        ]
-        for number_seen, expected_result, expected_error in test_data:
-            # Mock the response of the Pwned Pwds API to indicate a compromised password,
-            # seen a specific number of times.
-            with patch(where_to_patch) as mock_pwd_check:
-                mock_pwd_check.return_value = (True, number_seen)
-                form = form_class(data=form_data)
-                with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
-                    self.assertIs(form.is_valid(), expected_result)
-                mock_pwd_check.assert_called_once_with(form_data[inspect_field])
-            if expected_result is False:
-                self.assertIn(inspect_field, form.errors)
-                self.assertEqual(
-                    form.errors[inspect_field],
-                    ["Choose a less easily guessable password."])
-                self.assertEqual(form.non_field_errors(), [expected_error])
-            self.assertEqual(
-                log.records[0].message,
-                f"Password with HIBP count {number_seen} selected in {form_class.__name__}."
-            )
-
-    @patch('core.mixins.is_password_compromised')
-    def test_strong_password(self, mock_pwd_check):
-        # Mock the response of the Pwned Pwds API to indicate non-compromised password.
-        mock_pwd_check.return_value = (False, 0)
+    def test_strong_password(self):
         registration_data = {
             'username': self.faker.user_name(),
             'password1': "very strong indeed",
             'password2': "very strong indeed",
             'email': self.faker.email(),
         }
-        form = UserRegistrationForm(data=registration_data)
-        self.assertTrue(form.is_valid())
-        mock_pwd_check.assert_called_once()
-        user = form.save(commit=False)
+        user = strong_password_tests(
+            self,
+            'core.mixins.is_password_compromised',
+            UserRegistrationForm,
+            (),
+            registration_data)
         self.assertEqual(user.username, registration_data['username'])
         self.assertEqual(user.email, registration_data['email'])
 
@@ -976,3 +953,166 @@ class UsernameRemindRequestFormTests(SystemPasswordResetRequestFormTests):
             []
         )
         return test_data[active]
+
+
+@tag('forms', 'forms-auth', 'forms-pwd')
+@override_settings(LANGUAGE_CODE='en')
+class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserFactory(invalid_email=True)
+        cls.user.profile.email = cls.user.email
+        cls.user.profile.save(update_fields=['email'])
+        cls.form_class = SystemPasswordResetForm
+        cls.expected_fields = [
+            'new_password1',
+            'new_password2',
+        ]
+
+    def test_init(self):
+        form_empty = self.form_class(self.user)
+        # Verify that the expected fields are part of the form.
+        self.assertEqual(set(self.expected_fields), set(form_empty.fields))
+        # Verify that the form's save method is protected in templates.
+        self.assertTrue(hasattr(form_empty.save, 'alters_data'))
+
+    @patch('core.mixins.is_password_compromised')
+    def test_blank_data(self, mock_pwd_check):
+        # Empty form is expected to be invalid.
+        form = self.form_class(self.user, data={})
+        mock_pwd_check.side_effect = AssertionError("password check API was unexpectedly called")
+        self.assertFalse(form.is_valid())
+        for field in self.expected_fields:
+            with self.subTest(field=field):
+                self.assertIn(field, form.errors)
+
+    def test_weak_password(self):
+        weak_password_tests(
+            self,
+            'core.mixins.is_password_compromised',
+            self.form_class,
+            (self.user, ),
+            {field_name: "adm1n" for field_name in self.expected_fields},
+            'new_password1'
+        )
+
+    def test_strong_password(self):
+        user = strong_password_tests(
+            self,
+            'core.mixins.is_password_compromised',
+            self.form_class,
+            (self.user, ),
+            {field_name: "adm1n" for field_name in self.expected_fields})
+        self.assertEqual(user.pk, self.user.pk)
+
+    @patch('django.contrib.auth.views.default_token_generator.check_token')
+    def test_view_page(self, mock_check_token):
+        mock_check_token.return_value = True
+        user_id = urlsafe_base64_encode(force_bytes(self.user.pk))
+        page = self.app.get(
+            reverse('password_reset_confirm', kwargs={
+                'uidb64': user_id if isinstance(user_id, str) else user_id.decode(),
+                'token': INTERNAL_RESET_URL_TOKEN})
+        )
+        self.assertEqual(page.status_code, 200, msg=repr(page))
+        self.assertEqual(len(page.forms), 1)
+        self.assertIsInstance(page.context['form'], SystemPasswordResetForm)
+
+    @patch('core.mixins.is_password_compromised')
+    @patch('django.contrib.auth.views.default_token_generator.check_token')
+    def test_form_submit(self, mock_check_token, mock_pwd_check):
+        mock_check_token.return_value = True  # Bypass Django's token verification.
+        user_id = urlsafe_base64_encode(force_bytes(self.user.pk))
+        page = self.app.get(
+            reverse('password_reset_confirm', kwargs={
+                'uidb64': user_id if isinstance(user_id, str) else user_id.decode(),
+                'token': INTERNAL_RESET_URL_TOKEN}),
+            user=self.user)
+        page.form['new_password1'] = page.form['new_password2'] = Faker().password()
+        session = self.app.session
+        session[INTERNAL_RESET_SESSION_TOKEN] = None
+        session.save()
+        mock_pwd_check.return_value = (False, 0)  # Treat password as a strong one.
+        self.assertEqual(self.user.email, self.user.profile.email)
+        self.assertStartsWith(self.user.email, settings.INVALID_PREFIX)
+        page = page.form.submit()
+        mock_pwd_check.assert_called_once()
+        self.assertEqual(page.status_code, 302, msg=repr(page))
+        self.assertRedirects(page, reverse('password_reset_complete'))
+        # The marked invalid email address is expected to be marked valid
+        # after submission of the form.
+        self.user.refresh_from_db()
+        self.user.profile.refresh_from_db()
+        self.assertEqual(self.user.email, self.user.profile.email)
+        self.assertFalse(self.user.email.startswith(settings.INVALID_PREFIX))
+
+
+class SystemPasswordChangeFormTests(SystemPasswordResetFormTests):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.form_class = SystemPasswordChangeForm
+        cls.expected_fields = [
+            'new_password1',
+            'new_password2',
+            'old_password',
+        ]
+
+    def test_view_page(self):
+        page = self.app.get(reverse('password_change'), user=self.user)
+        self.assertEqual(page.status_code, 200, msg=repr(page))
+        self.assertEqual(len(page.forms), 1)
+        self.assertIsInstance(page.context['form'], SystemPasswordChangeForm)
+
+    @patch('core.mixins.is_password_compromised')
+    def test_form_submit(self, mock_pwd_check):
+        page = self.app.get(reverse('password_change'), user=self.user)
+        page.form['old_password'] = "adm1n"
+        page.form['new_password1'] = "Strong & Courageous"
+        page.form['new_password2'] = "Strong & Courageous"
+        mock_pwd_check.return_value = (False, 0)  # Treat password as a strong one.
+        page = page.form.submit()
+        mock_pwd_check.assert_called_once()
+        self.assertEqual(page.status_code, 302, msg=repr(page))
+        self.assertRedirects(page, reverse('password_change_done'))
+
+
+def weak_password_tests(test_inst, where_to_patch, form_class, form_args, form_data, inspect_field):
+    test_data = [
+        (1, True, ""),
+        (2, False,
+         "The password selected by you is not very secure. "
+         "Such combination of characters is known to cyber-criminals."),
+        (100, False,
+         "The password selected by you is too insecure. "
+         "Such combination of characters is very well-known to cyber-criminals."),
+    ]
+    for number_seen, expected_result, expected_error in test_data:
+        # Mock the response of the Pwned Pwds API to indicate a compromised password,
+        # seen a specific number of times.
+        with patch(where_to_patch) as mock_pwd_check:
+            mock_pwd_check.return_value = (True, number_seen)
+            form = form_class(*form_args, data=form_data)
+            with test_inst.assertLogs('PasportaServo.auth', level='WARNING') as log:
+                test_inst.assertIs(form.is_valid(), expected_result, msg=repr(form.errors))
+            mock_pwd_check.assert_called_once_with(form_data[inspect_field])
+        if expected_result is False:
+            test_inst.assertIn(inspect_field, form.errors)
+            test_inst.assertEqual(
+                form.errors[inspect_field],
+                ["Choose a less easily guessable password."])
+            test_inst.assertEqual(form.non_field_errors(), [expected_error])
+        test_inst.assertEqual(
+            log.records[0].message,
+            f"Password with HIBP count {number_seen} selected in {form_class.__name__}."
+        )
+
+
+def strong_password_tests(test_inst, where_to_patch, form_class, form_args, form_data):
+    # Mock the response of the Pwned Pwds API to indicate non-compromised password.
+    with patch(where_to_patch) as mock_pwd_check:
+        mock_pwd_check.return_value = (False, 0)
+        form = form_class(*form_args, data=form_data)
+        test_inst.assertTrue(form.is_valid(), msg=repr(form.errors))
+        mock_pwd_check.assert_called_once()
+    return form.save(commit=False)
