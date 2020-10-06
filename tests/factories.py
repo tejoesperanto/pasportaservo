@@ -93,6 +93,7 @@ class ProfileFactory(DjangoModelFactory):
 
     class Params:
         deceased = False
+        with_email = False
 
     user = factory.SubFactory('tests.factories.UserFactory', profile=None)
     title = Faker('random_element', elements=["", MRS, MR])
@@ -103,9 +104,21 @@ class ProfileFactory(DjangoModelFactory):
         'random_element', elements=[ch[0] for ch in PRONOUN_CHOICES if ch[0]]
     )
     birth_date = Faker('date_between', start_date='-100y', end_date='-18y')
-    death_date = factory.LazyAttribute(
-        lambda obj: Faker('date_this_decade').generate({}) if obj.deceased else None)
+    death_date = factory.Maybe(
+        'deceased',
+        yes_declaration=Faker('date_this_decade'),
+        no_declaration=None)
     description = Faker('paragraph', nb_sentences=4)
+    email = factory.Maybe(
+        'with_email',
+        yes_declaration=Faker('email'),
+        no_declaration="")
+
+    @factory.post_generation
+    def invalid_email(instance, create, value, **kwargs):
+        instance._clean_email = instance.email
+        if value and instance.email:
+            instance.email = f'INVALID_{instance.email}'
 
 
 class ProfileSansAccountFactory(ProfileFactory):
