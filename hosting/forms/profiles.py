@@ -45,8 +45,7 @@ class ProfileForm(forms.ModelForm):
         self.fields['names_inversed'].label = _("Names ordering")
 
         field_bd = self.fields['birth_date']
-        if hasattr(self, 'instance') and \
-                (self.instance.has_places_for_hosting or self.instance.has_places_for_meeting):
+        if self.instance.has_places_for_hosting or self.instance.has_places_for_meeting:
             if self.instance.has_places_for_hosting:
                 message = _("The minimum age to be allowed hosting is {age:d}.")
                 allowed_age = config.host_min_age
@@ -64,7 +63,7 @@ class ProfileForm(forms.ModelForm):
         field_bd.widget.attrs['data-date-end-date'] = '0d'
         field_bd.widget.attrs['pattern'] = '[1-2][0-9]{3}-((0[1-9])|(1[0-2]))-((0[1-9])|([12][0-9])|(3[0-1]))'
 
-        if hasattr(self, 'instance') and self.instance.has_places_for_in_book:
+        if self.instance.has_places_for_in_book:
             message = _("This field is required to be printed in the book.")
             for field in self._validation_meta.book_required_fields:
                 req_field = self.fields[field]
@@ -83,45 +82,43 @@ class ProfileForm(forms.ModelForm):
         printed in the paper edition.
         """
         cleaned_data = super().clean()
+        profile = self.instance
 
-        if hasattr(self, 'instance'):
-            profile = self.instance
+        has_offer = profile.has_places_for_accepting_guests
+        names_filled = any([cleaned_data.get(field, False) for field in ('first_name', 'last_name')])
+        for_book = profile.has_places_for_in_book
+        all_filled = all([
+            cleaned_data.get(field, False)
+            for field in self._validation_meta.book_required_fields
+        ])
 
-            has_offer = profile.has_places_for_accepting_guests
-            names_filled = any([cleaned_data.get(field, False) for field in ('first_name', 'last_name')])
-            for_book = profile.has_places_for_in_book
-            all_filled = all([
-                cleaned_data.get(field, False)
-                for field in self._validation_meta.book_required_fields
-            ])
+        if has_offer and not for_book and not names_filled:
+            message = _("Please indicate how guests should name you")
+            raise forms.ValidationError(message)
 
-            if has_offer and not for_book and not names_filled:
-                message = _("Please indicate how guests should name you")
+        if for_book and not all_filled:
+            message = _("You want to be in the printed edition of Pasporta Servo. "
+                        "In order to have a quality product, some fields are required. "
+                        "If you think there is a problem, please contact us.")
+            if profile.has_places_for_hosting != profile.has_places_for_in_book:
+                clarify_message = format_lazy(
+                    _("You are a host in {count_as_host} places, "
+                      "of which {count_for_book} should be in the printed edition."),
+                    count_as_host=profile.has_places_for_accepting_guests,
+                    count_for_book=profile.has_places_for_in_book)
+                raise forms.ValidationError([message, clarify_message])
+            else:
                 raise forms.ValidationError(message)
 
-            if for_book and not all_filled:
-                message = _("You want to be in the printed edition of Pasporta Servo. "
-                            "In order to have a quality product, some fields are required. "
-                            "If you think there is a problem, please contact us.")
-                if profile.has_places_for_hosting != profile.has_places_for_in_book:
-                    clarify_message = format_lazy(
-                        _("You are a host in {count_as_host} places, "
-                          "of which {count_for_book} should be in the printed edition."),
-                        count_as_host=profile.has_places_for_accepting_guests,
-                        count_for_book=profile.has_places_for_in_book)
-                    raise forms.ValidationError([message, clarify_message])
-                else:
-                    raise forms.ValidationError(message)
-
-            if profile.death_date and 'birth_date' in cleaned_data:
-                if cleaned_data['birth_date'] > profile.death_date:
-                    # Sanity check for life dates congruence.
-                    # xgettext:python-brace-format
-                    field_bd_message = _("The indicated date of birth is in conflict "
-                                         "with the date of death ({:%Y-%m-%d}).")
-                    self.add_error(
-                        'birth_date', format_lazy(field_bd_message, profile.death_date)
-                    )
+        if profile.death_date and 'birth_date' in cleaned_data:
+            if cleaned_data['birth_date'] > profile.death_date:
+                # Sanity check for life dates congruence.
+                # xgettext:python-brace-format
+                field_bd_message = _("The indicated date of birth is in conflict "
+                                     "with the date of death ({:%Y-%m-%d}).")
+                self.add_error(
+                    'birth_date', format_lazy(field_bd_message, profile.death_date)
+                )
 
         return cleaned_data
 
@@ -145,6 +142,14 @@ class ProfileEmailUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['email']
+        error_messages = {
+            'email': {
+                'max_length': _(
+                    "Ensure that this value has at most %(limit_value)d characters "
+                    "(it has now %(show_value)d)."
+                ),
+            }
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -156,6 +161,7 @@ class ProfileEmailUpdateForm(forms.ModelForm):
         if commit:
             profile.save(update_fields=['email', 'modified'])
         return profile
+    save.alters_data = True
 
 
 class PreferenceOptinsForm(forms.ModelForm):

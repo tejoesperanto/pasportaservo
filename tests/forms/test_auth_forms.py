@@ -460,6 +460,8 @@ class UsernameUpdateFormTests(AdditionalAsserts, WebTest):
 @tag('forms', 'forms-auth')
 @override_settings(LANGUAGE_CODE='en')
 class EmailUpdateFormTests(AdditionalAsserts, WebTest):
+    empty_is_invalid = True
+
     @classmethod
     def setUpTestData(cls):
         cls.user = UserFactory()
@@ -494,10 +496,13 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
         )
 
     def test_blank_data(self):
-        # Empty form is expected to be invalid.
-        form = self._init_form(data={})
-        self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {'email': ["Enter a valid email address."]})
+        # Empty form is expected to follow the 'empty_is_invalid' setting.
+        form = self._init_form(data={}, instance=self.user)
+        if self.empty_is_invalid:
+            self.assertFalse(form.is_valid())
+            self.assertEqual(form.errors, {'email': ["Enter a valid email address."]})
+        else:
+            self.assertTrue(form.is_valid(), msg=repr(form.errors))
 
     def test_invalid_email(self):
         test_data = [
@@ -507,14 +512,17 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
                 f"Ensure that this value has at most "
                 f"{self.user._meta.get_field('email').max_length} characters"
             ),
-            # Email address consisting of only whitespace is expected to be rejected.
-            (" \t \r \f ", "Enter a valid email address."),
             # Email address containing invalid characters is expected to be rejected.
             ("abc[def]gh@localhost", "Enter a valid email address."),
             ("abc def gh@localhost", "Enter a valid email address."),
             # Email address containing more than one 'at' sign is expected to be rejected.
             ("abc@def@gh@localhost", "Enter a valid email address."),
         ]
+        if self.empty_is_invalid:
+            test_data.append(
+                # Email address consisting of only whitespace is expected to be rejected.
+                (" \t \r \f ", "Enter a valid email address.")
+            )
         for new_email, expected_error in test_data:
             with self.subTest(value=new_email):
                 form = self._init_form(data={'email': new_email}, instance=self.user)
