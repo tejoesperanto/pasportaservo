@@ -52,6 +52,13 @@ window.addEventListener("load", function() {
     map.on('load', function() {
         var nav = new mapboxgl.NavigationControl();
         map.addControl(nav, 'top-left');
+        var loc = new mapboxgl.GeolocateControl({
+            showUserLocation: false,
+            fitBoundsOptions: {
+                maxZoom: 12
+            }
+        });
+        map.addControl(loc, 'top-left');
 
         map.addSource("lokoj", {
             type: "geojson",
