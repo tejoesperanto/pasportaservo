@@ -56,6 +56,17 @@ window.addEventListener("load", function() {
     map.on('load', function() {
         map.addControl(new mapboxgl.NavigationControl(), 'top-left');
         map.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+        if (positionType == 'P' || positionType == 'C') {
+            var loc = new mapboxgl.GeolocateControl({
+                positionOptions: {
+                    enableHighAccuracy: true
+                },
+                fitBoundsOptions: {
+                    maxZoom: 17
+                }
+            });
+            map.addControl(loc, 'top-left');
+        }
 
         if (position) {
             map.addSource("thisplace", {
