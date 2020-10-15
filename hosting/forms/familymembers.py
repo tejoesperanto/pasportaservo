@@ -46,7 +46,7 @@ class FamilyMemberCreateForm(FamilyMemberForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def save(self):
+    def save(self, **kwargs):
         family_member = super().save()
         self.place.family_members.add(family_member)
         return family_member
