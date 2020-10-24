@@ -147,11 +147,28 @@
     </div>
 {% endblock %}
 
+{% block phone_priority_buttons %}
+    {% if phones|length > 1 %}
+        <span class="priority-buttons" id="phone-priority-buttons-{{ forloop.counter }}">
+            <span class="fa fa-sort-desc set-priority-button hidden-print" tabindex="0"></span>
+        </span>
+    {% endif %}
+{% endblock %}
+
 {% block phone_add_buttons %}
-    <a class="control-buttons btn btn-info" href="{% url 'phone_create' profile.pk %}">
+    <a class="control-buttons btn btn-info btn-vert-space" href="{% url 'phone_create' profile.pk %}">
         <span class="fa fa-plus" aria-hidden="true"></span>
         <strong>{% trans "Add a phone" %}</strong>
     </a>
+    {% if phones|length > 1 %}
+        <button class="control-buttons btn btn-info btn-vert-space adjust-prio-switch requires-scripting"
+                type="button" data-list-selector=".phone-list"
+                aria-controls="{% for phone in phones %}phone-priority-buttons-{{ forloop.counter }} {% endfor %}"
+                aria-expanded="false">
+            <span class="fa fa-random" aria-hidden="true"></span>
+            <strong>{% trans "Set priorities" %}</strong>
+        </button>
+    {% endif %}
 {% endblock %}
 
 {% block email_edit_buttons %}

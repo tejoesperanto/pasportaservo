@@ -14,6 +14,7 @@
 {% endblock %}
 {% block extra_js %}
         <script src="{% static 'popup/magnific-popup.min.js' %}"></script>
+        <script src="{% static 'sortable/Sortable.min.js' %}"></script>
         <script src="{% static 'js/ajax.js' %}"></script>
 {% endblock %}
 
@@ -457,7 +458,9 @@
         <hr />
 
         <h2 class="owner">{% trans "Phones" %}</h2>
-        <ul class="list-group phone-list" aria-label="{% trans "Phones" %}">
+        <ul class="list-group phone-list" aria-label="{% trans "Phones" %}"
+            data-ajax-action="{% url 'profile_phone_order_change' profile.pk profile.autoslug %}"
+            data-csrf="{{ csrf_token }}">
             {% for phone in phones %}
                 {% delvar concealed_class concealed_title %}
                 {% if not phone.visibility.online_public %}
@@ -468,7 +471,14 @@
                     {% asvar concealed_class %}concealed-partially{% endasvar %}
                     {% asvar concealed_title %}{% trans "displayed to guests and hosts only" %}{% endasvar %}
                 {% endif %}
-                <li class="list-group-item owned-phone list-vertical-align {{ concealed_class }}" id="t{{ phone.pk }}">
+                <li class="{% filter compact %}
+                               list-group-item owned-phone list-vertical-align
+                               {% if phones|length > 1 %} draggable {% endif %}
+                               {{ concealed_class }}
+                           {% endfilter %}"
+                    id="t{{ phone.pk }}">
+                    {% block phone_priority_buttons %}{% endblock %}
+                    {% if phones|length > 1 %}<span class="grabzone"></span>{% endif %}
                     {% block phone_edit_buttons %}{% endblock %}
 
                     <p class="phone-number">

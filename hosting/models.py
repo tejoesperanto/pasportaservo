@@ -902,6 +902,7 @@ class Phone(TrackingModel, TimeStampedModel):
         verbose_name = _("phone")
         verbose_name_plural = _("phones")
         unique_together = ('profile', 'number')
+        order_with_respect_to = 'profile'
 
     @property
     def owner(self):

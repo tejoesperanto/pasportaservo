@@ -184,6 +184,21 @@ ul.dropdown-menu-lg li {
 .list-group-item:hover .linking-grip {
     display: inline-block;
 }
+.draggable:hover .grabzone {
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg) no-repeat 2px 50%;
+}
+.grabzone {
+    position: absolute;
+    left: 0px;
+    top: 1px;
+    width: 14px;
+    height: 96%;
+    height: calc(100% - 2px);
+    cursor: row-resize;
+}
+.sortable-ghost {
+    opacity: 0.3;
+}
 
 .debug-only {
     position: absolute;
@@ -770,6 +785,27 @@ a.contact-details:not(:hover) {
 }
 .phone-number .number {
     white-space: nowrap;
+}
+.phone-list {
+    transition: margin-left 0.5s;
+    &.prioritized-list {
+        margin-left: 20px;
+    }
+
+    .priority-buttons {
+        display: none;
+        position: absolute;
+        left: -20px;
+
+        .set-priority-button {
+            cursor: pointer;
+            padding: 0px 2px 8px 2px;
+        }
+    }
+    .owned-phone:last-child .priority-buttons .set-priority-button {
+        color: lighten($color-gray, 21%);
+        cursor: default;
+    }
 }
 .list-group-item.concealed {
     background-color: $color-default-bg;
