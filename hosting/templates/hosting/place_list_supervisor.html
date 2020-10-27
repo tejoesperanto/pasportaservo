@@ -239,7 +239,7 @@
 
                         <div class="address">
                             {{ place.address }}<br />
-                            {{ place.postcode}} <span class="fa fa-dot-circle-o" aria-hidden="true"></span> <strong>{{ place.city }}</strong><br />
+                            {{ place.postcode}} <span class="fa fa-dot-circle-o" aria-hidden="true"></span> <b>{{ place.city }}</b><br />
                             {{ place.state_province }}
                         </div>
                         <div class="description-short {% if place.short_description.strip %}has-content{% endif %}">
@@ -303,8 +303,8 @@
                                             {{ phone.icon }}
                                             {{ phone.number.as_international }}
                                         </b>
-                                        <em class="comment{% if phone.comments|is_esperanto_surrogate %} text-surrogate text-warning{% endif %}"
-                                            {% if phone_dimmed_reason %}style="opacity: 0.55"{% endif %}>
+                                        <i class="comment{% if phone.comments|is_esperanto_surrogate %} text-surrogate text-warning{% endif %}"
+                                           {% if phone_dimmed_reason %}style="opacity: 0.55"{% endif %}>
                                             {{ phone.comments }}
                                             {% if phone.comments|is_esperanto_surrogate %}
                                                 {% trans "Esperanto letters?" as phone_comment_text_warning %}
@@ -315,7 +315,7 @@
                                                       aria-label="{% trans "Warning " context 'Title' %}: {{ phone_comment_text_warning }}"></span>
                                                 <small class="visible-print-inline"><i>{{ phone_comment_text_warning }}</i></small>
                                             {% endif %}
-                                        </em>
+                                        </i>
                                         {% spaceless %}
                                         <a href="{% url 'phone_update' place.profile.pk phone.pk %}?{% next current_page_position %}"
                                            class="action-edit-inline text-label-success"

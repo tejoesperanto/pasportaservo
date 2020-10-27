@@ -40,7 +40,7 @@
                 <a href="{{ place.get_absolute_url }}">
                     {% if user.is_authenticated %}
                         {% if place.city %}
-                            {% if offered %}<strong>{% endif %}{{ place.city }}{% if offered %}</strong>{% endif %}
+                            {% if offered %}<b>{% endif %}{{ place.city }}{% if offered %}</b>{% endif %}
                         {% endif %}
                         {% if place.distance %}<small>{{ place.distance.km|floatformat:0 }}&nbsp;km</small>{% endif %}
                         {% if user.is_superuser and place.internal_distance %}

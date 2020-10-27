@@ -153,14 +153,14 @@
                             opacity: 0.70
                         {% endif %}
                     {% endasvar %}
-                    <small style="{{ dimmed }}"><strong>{{ checked_progress }}%</strong></small>
+                    <small style="{{ dimmed }}"><b>{{ checked_progress }}%</b></small>
                     <div class="progress">
                         <div class="progress-bar progress-bar-success"
                              data-progress="{{ checked_progress }}"
                              style="width: {{ checked_progress }}%; {{ dimmed }}"
                              data-toggle="tooltip"
                              title="{{ country.checked_count }} {{ checked_title }}">
-                            <strong>{{ country.checked_count }}</strong>
+                            <b>{{ country.checked_count }}</b>
                             <span class="sr-only also-visible-print">{{ checked_title }}</span>
                         </div>
                         <div class="progress-bar progress-bar-info progress-bar-striped"

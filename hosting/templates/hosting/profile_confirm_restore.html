@@ -41,11 +41,11 @@
                         </li>
                     {% empty %}
                         <li class="list-group-item place-list-compact">
-                            <em>
+                            <i>
                             {% blocktrans with deleted_date=profile.deleted_on|date:"DATE_FORMAT" trimmed %}
                                 No additional objects deleted on {{ deleted_date }} were found.
                             {% endblocktrans %}
-                            </em>
+                            </i>
                         </li>
                     {% endfor %}
                 </ul>

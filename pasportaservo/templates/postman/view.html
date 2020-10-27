@@ -21,7 +21,7 @@
                         <a href="{{ sender_url }}">{{ message.obfuscated_sender|or_me:user }}</a>:
                     </span>
                     <strong class="pm_subject">{{ message.subject }}</strong>
-                    <small class="pm_date"><em>{{ message.sent_at|date:"DATETIME_FORMAT"}}</em></small>
+                    <small class="pm_date"><i>{{ message.sent_at|date:"DATETIME_FORMAT"}}</i></small>
                     {% if message.is_rejected %}
                         <div class="pm_status">
                             {% trans "Rejected" %}{% if message.moderation_reason %}{% trans ":" %} {{ message.moderation_reason }}{% endif %}
