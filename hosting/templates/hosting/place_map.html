@@ -25,7 +25,9 @@
                 </div>
             {% endif %}
 
-            <button class="btn btn-default pull-right requires-scripting hidden-print" onclick="window.print()" autofocus>
+            <button class="btn btn-default pull-right requires-scripting hidden-print"
+                    style="margin-left: 0.5em"
+                    onclick="window.print()" autofocus>
                 {% trans "Print" %}
             </button>
 
@@ -39,7 +41,7 @@
                     {% blocktrans with name=place_owner %}Habitat of {{ name }}{% endblocktrans %}
                 {% endif %}
                 {% if place.owner.death_date %}
-                    &nbsp;<small>({% trans "Deceased member" %})</small>
+                    &nbsp;<small class="text-nowrap">({% trans "Deceased member" %})</small>
                 {% endif %}
             </p>
             <p class="address">

@@ -142,7 +142,7 @@
                         <span class="footer-page-link"><a href="{% url 'privacy_policy' %}">{% trans "Privacy" %}</a></span>
                         |
                         <span class="footer-page-link"><a href="{% url 'supervisors' %}">{% trans "Supervisors" %}</a></span>
-                        <span class="hidden-xs">|</span><br class="visible-xs-inline" style="margin-bottom: 10px" />
+                        <span class="hidden-xs">|</span><span class="visible-xs-block" style="margin-bottom: 10px"></span>
                     </span>
                     <span class="text-nowrap">
                         <a href="http://tejo.org" title="{% trans "World Esperanto Youth Organisation" %}" rel="external">
@@ -154,10 +154,12 @@
                     <span class="visible-print-inline-block text-light">{% trans "World Esperanto Youth Organisation" %}</span>
                 </div>
             </div>
-            <a href="#{% trans "top-most" context "URL" %}"
-               class="scrolltop sr-only sr-only-focusable pull-right" data-nosnippet>
-                {% trans "Back to top of page" %} &#8613;
-            </a>
+            <span class="pull-right" data-nosnippet>
+                <a href="#{% trans "top-most" context "URL" %}"
+                   class="scrolltop sr-only sr-only-focusable">
+                    {% trans "Back to top of page" %} &#8613;
+                </a>
+            </span>
         {% endblock footer %}
     </footer>
 
