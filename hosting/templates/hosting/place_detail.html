@@ -232,7 +232,7 @@
                                         {% if phone.type != phone.FAX %}</a>{% endif %}
                                         &nbsp;<br class="visible-xxs-inline" />
                                     {% endspaceless %}
-                                    <em class="comment"><small>{{ phone.comments }}</small></em>
+                                    <i class="comment"><small>{{ phone.comments }}</small></i>
                                 </p>
                             {% endif %}
                             {% endif %}
@@ -537,7 +537,7 @@
             {# PREVIEW OF PLACE SETTINGS. NOT FOR VISITORS. #}
                 <p class="help-block">
                     {% trans "Short description" %}:&nbsp;
-                    <em class="same-as-body"><small>{{ place.short_description|default:"&ndash;" }}</small></em>
+                    <i class="same-as-body"><small>{{ place.short_description|default:"&ndash;" }}</small></i>
                 </p>
                 <p class="help-block">
                     {% trans "Available" %}:&nbsp;

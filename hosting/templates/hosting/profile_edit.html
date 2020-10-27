@@ -78,7 +78,7 @@
 {% block place_add_buttons %}
     <a class="control-buttons btn btn-info" href="{% url 'place_create' profile.pk %}">
         <span class="fa fa-plus" aria-hidden="true"></span>
-        <strong>{% trans "Add a place" %}</strong>
+        <b>{% trans "Add a place" %}</b>
     </a>
 {% endblock %}
 
@@ -121,7 +121,7 @@
             {% if place_owner_or_supervisor %}
                 <a class="btn btn-info" href="{% url 'family_member_create' place.pk %}?{% next '#p' place.pk %}">
                     <span class="fa fa-user-plus" aria-hidden="true"></span>
-                    <strong>{% trans "Add a family member" %}</strong>
+                    <b>{% trans "Add a family member" %}</b>
                 </a>
             {% endif %}
         </div>
@@ -158,7 +158,7 @@
 {% block phone_add_buttons %}
     <a class="control-buttons btn btn-info btn-vert-space" href="{% url 'phone_create' profile.pk %}">
         <span class="fa fa-plus" aria-hidden="true"></span>
-        <strong>{% trans "Add a phone" %}</strong>
+        <b>{% trans "Add a phone" %}</b>
     </a>
     {% if phones|length > 1 %}
         <button class="control-buttons btn btn-info btn-vert-space adjust-prio-switch requires-scripting"

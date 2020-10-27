@@ -6,7 +6,7 @@
 {% if place.family_is_anonymous %}
     {% if show_anonymously %}
         <li>
-            <em>{% trans "Other dwellers at this place." %}</em>
+            <i>{% trans "Other dwellers at this place." %}</i>
         </li>
     {% endif %}
 {% else %}
@@ -66,7 +66,7 @@
     {% endfor %}
     {% if not any_family_members_displayed %}
         <li>
-            <em>{% trans "Please ask me privately." %}</em>
+            <i>{% trans "Please ask me privately." %}</i>
         </li>
     {% endif %}
 {% endif %}

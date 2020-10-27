@@ -440,7 +440,7 @@
                                         {% endif %}
                                     </b>
                                     {% endspaceless %}
-                                    {% if member.birth_date %}<em class="comment">&lrm;({{ member.age }})</em>{% endif %}
+                                    {% if member.birth_date %}<i class="comment">&lrm;({{ member.age }})</i>{% endif %}
                                 </p>
                             </li>
                         {% endfor %}
@@ -490,7 +490,7 @@
                             <span class="sr-only">[{% trans "Note " context 'Title' %}: {{ concealed_title }}]</span>
                         {% endif %}
                         <br class="visible-xs-inline" />
-                        <em class="comment">{{ phone.comments }}</em>
+                        <i class="comment">{{ phone.comments }}</i>
                     </p>
                 </li>
             {% endfor %}

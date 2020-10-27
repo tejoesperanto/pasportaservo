@@ -9,31 +9,31 @@
 
 {% if place.owner_available %}
     {% if place.available %}
-        <em>{% trans "&nbsp; and will be glad " %}</em>
+        <i>{% trans "&nbsp; and will be glad " %}</i>
     {% else %}
-        <em>{% trans ", but will be glad " %}</em>
+        <i>{% trans ", but will be glad " %}</i>
     {% endif %}
 
     {% if place.tour_guide %}
         {% with my_city=place.city|default:_("city") %}
-            <em>{% blocktrans trimmed %}
+            <i>{% blocktrans trimmed %}
                 to guide you around {{ my_city }}
-            {% endblocktrans %}</em>
+            {% endblocktrans %}</i>
         {% endwith %}
         {% if place.have_a_drink %}
-            <em>{% trans " or " %}</em>
+            <i>{% trans " or " %}</i>
         {% endif %}
     {% endif %}
-    
+
     {% if place.have_a_drink %}
         {% if place.tour_guide %}
-            <em>{% trans "to have a drink together" %}</em>
+            <i>{% trans "to have a drink together" %}</i>
         {% else %}
-            <em>{% trans "to have a drink together in the city" %}</em>
+            <i>{% trans "to have a drink together in the city" %}</i>
         {% endif %}
     {% endif %}
-    
-    <em>.</em>
+
+    <i>.</i>
 {% endif %}
 
 {% endspaceless %}

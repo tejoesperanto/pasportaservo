@@ -1884,8 +1884,8 @@ msgid "Details..."
 msgstr "Detale…"
 
 #, python-format
-msgid "No results found for <em>%(query)s</em>. Here are some active hosts!"
-msgstr "Neniu rezulto por <em>%(query)s</em>. Jen kelkaj aktivaj gastigantoj!"
+msgid "No results found for <i>%(query)s</i>. Here are some active hosts!"
+msgstr "Neniu rezulto por <i>%(query)s</i>. Jen kelkaj aktivaj gastigantoj!"
 
 msgid "Sorry, no kind hosts found…"
 msgstr "Bedaŭrinde ni ne trovis gastigemulojn…"
