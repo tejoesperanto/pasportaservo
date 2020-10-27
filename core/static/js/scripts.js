@@ -25,6 +25,7 @@ $(document).ready(function() {
         }
         return false;
     });
+    $('a.scrolltop').on('focus', function() { this.scrollIntoView(); });
 
     // Checkboxes with undefined value
     $('input[type="checkbox"][data-initial="None"]').prop('indeterminate', true);
