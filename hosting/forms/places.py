@@ -52,7 +52,6 @@ class PlaceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['address'].widget.attrs['rows'] = 2
-        self.fields['conditions'].help_text = ""
         self.fields['conditions'].widget.attrs['data-placeholder'] = _("Choose your conditions...")
 
     def clean(self):

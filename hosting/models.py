@@ -356,7 +356,8 @@ class Profile(TrackingModel, TimeStampedModel):
         blank=True,
         choices='hosting.Gender', to_field='name',
         db_column='gender_value',
-        help_text=_("Type your preference or select one from the suggestions."))
+        help_text=_("Also known as \"social sex identity\". Type your "
+                    "own preference or select one of the suggestions."))
     pronoun = models.CharField(
         _("personal pronoun"),
         blank=True,
@@ -642,7 +643,7 @@ class Place(TrackingModel, TimeStampedModel):
         blank=True,
         max_length=255,
         validators=[validate_not_all_caps, validate_not_too_many_caps],
-        help_text=_("Name in the official language, not in Esperanto (e.g.: Rotterdam)"))
+        help_text=_("Name in the official language, not in Esperanto (e.g.: Rotterdam)."))
     closest_city = models.CharField(
         _("closest big city"),
         blank=True,
@@ -685,7 +686,10 @@ class Place(TrackingModel, TimeStampedModel):
     description = models.TextField(
         _("description"),
         blank=True,
-        help_text=_("Description or remarks about your place."))
+        help_text=_("Description or remarks about your place and its surroundings. "
+                    "Consider that your guests, for example, might have an allergy "
+                    "for animal fur or an arachnophobia, or have trouble scaling "
+                    "multiple flights of stairs."))
     short_description = models.CharField(
         _("short description"),
         blank=True,
@@ -713,7 +717,9 @@ class Place(TrackingModel, TimeStampedModel):
         help_text=_("If you are not often at this address and need an advance notification."))
     conditions = models.ManyToManyField(
         'hosting.Condition', verbose_name=_("conditions"),
-        blank=True)
+        blank=True,
+        help_text=_("You are welcome to expand on the conditions "
+                    "in your home in the description."))
     family_members = models.ManyToManyField(
         'hosting.Profile', verbose_name=_("family members"),
         blank=True)
@@ -1000,7 +1006,7 @@ class Whereabouts(models.Model):
         _("name"),
         blank=False,
         max_length=255,
-        help_text=_("Name in the official language, not in Esperanto (e.g.: Rotterdam)"))
+        help_text=_("Name in the official language, not in Esperanto (e.g.: Rotterdam)."))
     state = models.CharField(
         _("State / Province"),
         blank=True,
