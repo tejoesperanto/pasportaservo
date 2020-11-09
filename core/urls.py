@@ -17,6 +17,7 @@ from .views import (  # isort:skip
     EmailUpdateView, EmailVerifyView,
     AccountDeleteView,
     MassMailView, MassMailSentView,
+    HtmlFragmentRetrieveView,
 )
 
 urlpatterns = [
@@ -73,5 +74,6 @@ urlpatterns = [
         ])),
     ])),
 
+    url(r'^fragment/(?P<fragment_id>\w+)/$', HtmlFragmentRetrieveView.as_view(), name='get_fragment'),
     url(_(r'^ok$'), TemplateView.as_view(template_name='200.html')),
 ]

@@ -269,6 +269,67 @@ $(function() {
         updatePersonNamesExample();
     }();
 
+    /* fallback support for datalist */
+    if (!('list' in document.createElement('input') &&
+          Boolean(document.createElement('datalist') && window.HTMLDataListElement))) {
+        var searchText = gettext("select one of the suggestions");
+        $('p.help-block:contains("' + searchText + '")').each(function() {
+            // for each help block, find the corresponding <input> if any.
+            var pNode = this,
+                inputId = (pNode.parentNode.getElementsByTagName('input')[0] || "").id;
+            if (!inputId)
+                return;
+            // fetch the datalist fallback template and inject it after the form.
+            var pageNode = document.querySelector('div[role="main"]');
+            pageNode.appendChild(document.createElement('div'));
+            $(pageNode.lastChild).load('/fragment/datalist_fallback', function(response, status) {
+                if (status == "error") {
+                    pageNode.removeChild(pageNode.lastChild);
+                    return;
+                }
+                var $replacementModal = $(pageNode.lastChild.firstElementChild);
+                // find the Text nodes that contain the magic string.
+                var textNodes =
+                    Array.prototype.filter.call(pNode.childNodes, function(node) {
+                        return node.nodeType == 3  // text node
+                               && node.data.indexOf(searchText) >= 0;
+                    });
+                // convert each Text node into an <a> element that pops a modal.
+                textNodes.forEach(function(node) {
+                    var linkTextNode = node.splitText(node.data.indexOf(searchText));
+                    linkTextNode.splitText(searchText.length);
+                    var linkNode =  document.createElement('a');
+                    linkNode.setAttribute('href', "#retro");
+                    linkNode.appendChild(linkTextNode.cloneNode());
+                    linkTextNode.parentNode.replaceChild(linkNode, linkTextNode);
+                    $(linkNode).click(function() {
+                        $replacementModal.data('relatedSource', $(this));
+                        $replacementModal.modal();
+                    });
+                });
+                // prepare the contents of the modal.
+                $replacementModal.attr(
+                    'id',
+                    $replacementModal.attr('id').replace("[[field_id]]", inputId));
+                var dataitemTemplateNode =
+                        $replacementModal[0].querySelector('.datalist-list').firstElementChild;
+                Array.prototype.forEach.call(
+                    document.querySelector('#'+inputId).nextElementSibling.children,
+                    function(option) {
+                        var dataitemNode = dataitemTemplateNode.cloneNode(true);
+                        dataitemNode.querySelector('.datalist-item').innerText = option.value;
+                        dataitemTemplateNode.parentNode.append(dataitemNode);
+                    });
+                dataitemTemplateNode.parentNode.removeChild(dataitemTemplateNode);
+                $replacementModal.on('click', '.datalist-item', function() {
+                    document.getElementById(inputId).value = this.innerText;
+                    $replacementModal.modal("hide");
+                    $('#'+inputId).trigger('input');
+                });
+            });
+        });
+    }
+
     /* for mass mail form */
     $('#id_body').keyup(function() {
         $('#preview_body').html(marked($(this).val()));

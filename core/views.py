@@ -665,3 +665,18 @@ class MassMailSentView(AuthMixin, generic.TemplateView):
         context = super().get_context_data(**kwargs)
         context['nb'] = int(self.request.GET['nb']) if self.request.GET.get('nb', '').isdigit() else '??'
         return context
+
+
+class HtmlFragmentRetrieveView(generic.TemplateView):
+    template_names = {
+        'datalist_fallback': 'hosting/snippets/fragment-datalist_fallback.html',
+    }
+
+    def get(self, request, *args, **kwargs):
+        self.fragment_id = kwargs['fragment_id']
+        if self.fragment_id not in self.template_names:
+            raise Http404("Unknown HTML Fragment")
+        return super().get(request, *args, **kwargs)
+
+    def get_template_names(self):
+        return [self.template_names[self.fragment_id]]

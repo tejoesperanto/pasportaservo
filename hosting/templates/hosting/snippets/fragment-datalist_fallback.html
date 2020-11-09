@@ -1,0 +1,24 @@
+{% load i18n %}
+    <div class="modal hidden-print" id="[[field_id]]-datalist-replacement" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn btn-warning btn-xs pull-right" data-dismiss="modal">
+                        &nbsp;{% trans "Hide" %}&nbsp;
+                    </button>
+                </div>
+                <div class="modal-body datalist-list text-center">
+                    <p>
+                        <button type="button" class="btn btn-default btn-xs datalist-item">
+                            [[dataitem]]
+                        </button>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning btn-xs" data-dismiss="modal">
+                        &nbsp;{% trans "Hide" %}&nbsp;
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
