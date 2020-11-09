@@ -24,7 +24,7 @@ $(document).ready(function() {
         };
     }
 
-    function ajaxPerform($this, target, requestType, requestData) {
+    function ajaxPerform($this, target, requestType, requestData, popoverTrigger) {
         $this.addClass('disabled');
         $this.attr('aria-busy', "true");
         $.ajax({
@@ -51,7 +51,7 @@ $(document).ready(function() {
                 if ($this.is(':hidden'))
                     return;
                 $this.popover({
-                    trigger: "focus",
+                    trigger: popoverTrigger || "focus",
                     container: 'body',
                     placement: "bottom",
                     html: true,
@@ -65,6 +65,7 @@ $(document).ready(function() {
             }
         });
     }
+    $.ajaxManualCall = ajaxPerform
 
     // allow interaction for any element and on any event
     $('[class*=ajax]').each(function() {

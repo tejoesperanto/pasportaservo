@@ -15,7 +15,7 @@ from .views import (                                                            
     UserAuthorizeView,
     FamilyMemberCreateView, FamilyMemberUpdateView,
     FamilyMemberRemoveView, FamilyMemberDeleteView,
-    PhoneCreateView, PhoneUpdateView, PhoneDeleteView,
+    PhoneCreateView, PhoneUpdateView, PhoneDeleteView, PhonePriorityChangeView,
     PlaceStaffListView, InfoConfirmView, PlaceCheckView,
     SearchView,
 )
@@ -31,7 +31,13 @@ urlpatterns = [
             url(_(r'^email/$'), ProfileEmailUpdateView.as_view(), name='profile_email_update'),
             url(_(r'^delete/$'), ProfileDeleteView.as_view(), name='profile_delete'),
             url(_(r'^restore/$'), ProfileRestoreView.as_view(), name='profile_restore'),
-            url(_(r'^settings/$'), ProfileSettingsView.as_view(), name='profile_settings'),
+            url(_(r'^settings/'), include([
+                url(r'^$', ProfileSettingsView.as_view(), name='profile_settings'),
+                url(_(r'^privacy/$'),
+                    ProfilePrivacyUpdateView.as_view(), name='profile_privacy_update'),
+                url(_(r'^priority/phones/$'),
+                    PhonePriorityChangeView.as_view(), name='profile_phone_order_change'),
+            ])),
             url(_(r'^staff/'), include([
                 url(_(r'^email/'), include([
                     url(_(r'^update/$'), EmailStaffUpdateView.as_view(), name='staff_email_update'),
@@ -41,7 +47,6 @@ urlpatterns = [
                         EmailValidityMarkView.as_view(valid=True), name='staff_email_mark_valid'),
                 ])),
             ])),
-            url(_(r'^privacy/$'), ProfilePrivacyUpdateView.as_view(), name='profile_privacy_update'),
         ])),
         url(_(r'^settings/$'), ProfileSettingsRedirectView.as_view(), name='profile_settings_shortcut'),
         url(r'(?P<profile_pk>\d+)/', include([

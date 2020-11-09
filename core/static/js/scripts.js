@@ -305,6 +305,118 @@ $(document).ready(function() {
         $('[data-target="#map-container"]').toggleClass('active');
     });
 
+    // Sortable lists (via drag-and-drop)
+    if (typeof Sortable !== "undefined") {
+        $('.phone-list').each(function() {
+            var parentList = this, $parentList = $(parentList);
+            Sortable.create(
+                parentList,  // the raw DOM element.
+                {
+                    dataIdAttr: 'id',
+                    handle: '.grabzone',
+                    animation: 250,
+                    setData: function(dataTransfer, el) {
+                        dataTransfer.setDragImage($(el).find('.phone-number > .fa').get(0), 25, 25);
+                        dataTransfer.setData('text/plain', $(el).find('.number').text());
+                    },
+                    onEnd: function(e) {
+                        var priorities =
+                                this.toArray()
+                                .map(function(value) { return "onr=" + value; }).join("&");
+                        $parentList.popover("destroy");
+                        setTimeout(function() {
+                            $.ajaxManualCall(
+                                $parentList, $parentList.data('ajaxAction'), "POST",
+                                priorities, "manual"
+                            );
+                            // timeout is required for the previous popover to finish
+                            // destroying itself.
+                        }, 250);
+                    }
+                }
+            );
+        }).click(function(event) {
+            if (/\bset-priority-button\b/gi.test(event.target.className))
+                return;
+            $(this).popover("destroy");
+        });
+    }
+
+    // Sortable lists (via manual buttons)
+    $('.adjust-prio-switch')
+    .click(function(event) {
+        var $switch = $(this);
+        $(this.dataset.listSelector + ' .priority-buttons').toggle();
+        $(this.dataset.listSelector).toggleClass('prioritized-list');
+        $switch.toggleClass('active')
+               .attr('aria-pressed', function(_, attr) { return (attr == "true") ? false : true; })
+               .attr('aria-expanded', function() { return this.getAttribute('aria-pressed'); });
+        if ($switch.hasClass('set-kbd-focus')) {
+            $(this.dataset.listSelector + ' .priority-buttons .set-priority-button')
+                .first()
+                .focus();
+            $switch.removeClass('set-kbd-focus');
+        }
+    })
+    .on('keypress', function(event) {
+        if (event.which == 13 || event.which == 32) {
+            $(this).toggleClass('set-kbd-focus');
+        }
+    });
+
+    $('.set-priority-button')
+    .click(function(event) {
+        var $button = $(this),
+            $row = $button.parents('.list-group-item'),
+            $next = $row.next();
+        if ($next.length == 0)
+            return;
+        var yDifference = Math.round($row.offset().top - $next.offset().top);
+        $.each(
+            [{row: $row, position: yDifference}, {row: $next, position: -yDifference}],
+            function(_, relation) {
+                relation.row.css({
+                    "transition": "none",
+                    "transform": "translate3d(0, " + relation.position + "px, 0)"
+                });
+            }
+        );
+        $row.children('.priority-buttons').toggle();
+        $row.insertAfter($next);
+        setTimeout(function() {
+            $.each(
+                [{row: $row, duration: 500}, {row: $next, duration: 250}],
+                function(_, relation) {
+                    relation.row.css({
+                        "transition": "all " + relation.duration + "ms",
+                        "transform": "translate3d(0, 0, 0)"
+                    });
+                }
+            );
+            setTimeout(function() {
+                $row.children('.priority-buttons').toggle();
+                if ($button.hasClass('set-kbd-focus')) {
+                    $button.focus();
+                }
+            }, 250);
+        }, 100);
+        var priorities =
+                $row.siblings().addBack()
+                .map(function() { return "onr=" + this.id; }).get().join("&"),
+            $parentList = $row.parents('.list-group');
+        $parentList.popover("destroy");
+        setTimeout(function() {
+            $.ajaxManualCall($parentList, $parentList.data('ajaxAction'), "POST", priorities, "manual");
+        }, 250);  // timeout is required for the previous popover to finish destroying itself.
+    })
+    .on('keypress', function(event) {
+        if (event.which == 13) {
+            // Only the enter key should be treated as action.
+            event.preventDefault();
+            $(this).addClass('set-kbd-focus').click();
+        }
+    });
+
     // Modal focus handling
     $(document).on('show.bs.modal', '.modal', function(event) {
         var $target = $(event.target);

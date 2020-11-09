@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2020-08-26 17:05+0000\n"
+"POT-Revision-Date: 2020-10-24 22:28+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -2181,6 +2181,9 @@ msgstr "Aldoni kunloĝanton"
 msgid "Add a phone"
 msgstr "Aldoni telefon-numeron"
 
+msgid "Set priorities"
+msgstr "Prioritatigi"
+
 msgid "Awaiting verification..."
 msgstr "Konfirmo atendata..."
 
@@ -2370,8 +2373,14 @@ msgstr "^forigi/$"
 msgid "^restore/$"
 msgstr "^restarigi/$"
 
-msgid "^settings/$"
-msgstr "^agordoj/$"
+msgid "^settings/"
+msgstr "^agordoj/"
+
+msgid "^privacy/$"
+msgstr "^privateco/$"
+
+msgid "^priority/phones/$"
+msgstr "^prefero-ordo/telefonoj/$"
 
 msgid "^staff/"
 msgstr "^reviziado/"
@@ -2382,8 +2391,8 @@ msgstr "^funkcianta:0/$"
 msgid "^mark-valid/$"
 msgstr "^funkcianta:1/$"
 
-msgid "^privacy/$"
-msgstr "^privateco/$"
+msgid "^settings/$"
+msgstr "^agordoj/$"
 
 msgid "^place/"
 msgstr "^ejo/"

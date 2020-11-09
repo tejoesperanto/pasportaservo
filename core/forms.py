@@ -237,6 +237,10 @@ class SystemPasswordResetRequestForm(PasswordResetForm):
         context.update({'ENV': settings.ENVIRONMENT, 'subject_prefix': settings.EMAIL_SUBJECT_PREFIX_FULL})
         super().send_mail(*args, **kwargs)
 
+    def save(self, **kwargs):
+        return super().save(**kwargs)
+    save.do_not_call_in_templates = True
+
 
 class SystemPasswordResetForm(PasswordFormMixin, SetPasswordForm):
     analyze_password_field = 'new_password1'
@@ -251,6 +255,10 @@ class SystemPasswordResetForm(PasswordFormMixin, SetPasswordForm):
 
 class SystemPasswordChangeForm(PasswordFormMixin, PasswordChangeForm):
     analyze_password_field = 'new_password1'
+
+    def save(self, commit=True):
+        return super().save(commit)
+    save.alters_data = True
 
 
 class UsernameRemindRequestForm(SystemPasswordResetRequestForm):

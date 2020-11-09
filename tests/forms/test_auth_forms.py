@@ -1,16 +1,29 @@
+import re
+from unittest.mock import patch
+
 from django.conf import settings
+from django.contrib.auth.views import (
+    INTERNAL_RESET_SESSION_TOKEN, INTERNAL_RESET_URL_TOKEN,
+)
 from django.contrib.sessions.backends.cache import SessionStore
 from django.core import mail
 from django.http import HttpRequest
 from django.test import override_settings, tag
 from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 from django_webtest import WebTest
+from faker import Faker
 
+from core.auth import auth_log
 from core.forms import (
-    EmailStaffUpdateForm, EmailUpdateForm,
-    UserAuthenticationForm, UsernameUpdateForm,
+    EmailStaffUpdateForm, EmailUpdateForm, SystemPasswordChangeForm,
+    SystemPasswordResetForm, SystemPasswordResetRequestForm,
+    UserAuthenticationForm, UsernameRemindRequestForm,
+    UsernameUpdateForm, UserRegistrationForm,
 )
+from core.views import PasswordResetView, UsernameRemindView
 
 from ..assertions import AdditionalAsserts
 from ..factories import UserFactory
@@ -18,6 +31,181 @@ from ..factories import UserFactory
 
 def _snake_str(string):
     return ''.join([c if i % 2 else c.upper() for i, c in enumerate(string)])
+
+
+@tag('forms', 'forms-auth')
+@override_settings(LANGUAGE_CODE='en')
+class UserRegistrationFormTests(AdditionalAsserts, WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.expected_fields = [
+            'email',
+            'password1',
+            'password2',
+            'username',
+            'realm',
+        ]
+        cls.honeypot_field = 'realm'
+        cls.user_one = UserFactory(invalid_email=True)
+        cls.user_two = UserFactory(is_active=False)
+        cls.test_transforms = [
+            lambda v: v,
+            lambda v: v.upper(),
+            lambda v: _snake_str(v),
+        ]
+        cls.faker = Faker()
+
+    def test_init(self):
+        form_empty = UserRegistrationForm()
+
+        # Verify that the expected fields are part of the form.
+        self.assertEqual(set(self.expected_fields), set(form_empty.fields))
+
+        # Verify that 'previous' values are empty.
+        self.assertEqual(form_empty.previous_uname, "")
+        self.assertEqual(form_empty.previous_email, "")
+
+        # Verify that only neccesary fields are marked 'required'.
+        for field in self.expected_fields:
+            with self.subTest(field=field):
+                if field != self.honeypot_field:
+                    self.assertTrue(form_empty.fields[field].required)
+                else:
+                    self.assertFalse(form_empty.fields[field].required)
+
+        # Verify that the form's save method is protected in templates.
+        self.assertTrue(hasattr(form_empty.save, 'alters_data'))
+
+    @patch('core.mixins.is_password_compromised')
+    def test_blank_data(self, mock_pwd_check):
+        # Empty form is expected to be invalid.
+        form = UserRegistrationForm(data={})
+        mock_pwd_check.side_effect = AssertionError("password check API was unexpectedly called")
+        self.assertFalse(form.is_valid())
+        for field in set(self.expected_fields) - set([self.honeypot_field]):
+            with self.subTest(field=field):
+                self.assertIn(field, form.errors)
+
+    @patch('core.mixins.is_password_compromised')
+    def test_nonunique_username(self, mock_pwd_check):
+        mock_pwd_check.return_value = (False, 0)
+        for transform in self.test_transforms:
+            transformed_uname = transform(self.user_two.username)
+            with self.subTest(value=transformed_uname):
+                pwd = self.faker.password()
+                form = UserRegistrationForm(data={
+                    'username': transformed_uname,
+                    'password1': pwd,
+                    'password2': pwd,
+                    'email': self.faker.email(),
+                })
+                self.assertFalse(form.is_valid())
+                self.assertIn('username', form.errors)
+                self.assertEqual(
+                    form.errors['username'],
+                    ["A user with a similar username already exists."]
+                )
+                self.assertNotIn('password1', form.errors)
+
+    @patch('core.mixins.is_password_compromised')
+    def test_nonunique_email(self, mock_pwd_check):
+        mock_pwd_check.return_value = (False, 0)
+        for transform in self.test_transforms:
+            transformed_email = transform(self.user_one._clean_email)
+            with self.subTest(value=transformed_email):
+                pwd = self.faker.password()
+                form = UserRegistrationForm(data={
+                    'username': self.faker.user_name(),
+                    'password1': pwd,
+                    'password2': pwd,
+                    'email': transformed_email,
+                })
+                self.assertFalse(form.is_valid())
+                self.assertIn('email', form.errors)
+                self.assertEqual(
+                    form.errors['email'],
+                    ["User address already in use."]
+                )
+                self.assertNotIn('password1', form.errors)
+
+    def test_weak_password(self):
+        weak_password_tests(
+            self,
+            'core.mixins.is_password_compromised',
+            UserRegistrationForm,
+            (),
+            {
+                'username': self.faker.user_name(),
+                'password1': "not very strong",
+                'password2': "not very strong",
+                'email': self.faker.email(),
+            },
+            'password1'
+        )
+
+    def test_strong_password(self):
+        registration_data = {
+            'username': self.faker.user_name(),
+            'password1': "very strong indeed",
+            'password2': "very strong indeed",
+            'email': self.faker.email(),
+        }
+        user = strong_password_tests(
+            self,
+            'core.mixins.is_password_compromised',
+            UserRegistrationForm,
+            (),
+            registration_data)
+        self.assertEqual(user.username, registration_data['username'])
+        self.assertEqual(user.email, registration_data['email'])
+
+    @patch('core.mixins.is_password_compromised')
+    def test_honeypot(self, mock_pwd_check):
+        mock_pwd_check.return_value = (False, 0)
+        for expected_result, injected_value in ((True, "  \n \f  "),
+                                                (False, self.faker.word())):
+            pwd = self.faker.password()
+            form = UserRegistrationForm(data={
+                'username': self.faker.user_name(),
+                'password1': pwd,
+                'password2': pwd,
+                'email': self.faker.email(),
+                self.honeypot_field: injected_value,
+            })
+            if expected_result is True:
+                self.assertTrue(form.is_valid())
+            if expected_result is False:
+                with self.assertLogs('PasportaServo.auth', level='ERROR') as log:
+                    self.assertFalse(form.is_valid())
+                self.assertIn(self.honeypot_field, form.errors)
+                self.assertEqual(form.errors[self.honeypot_field], [""])
+                self.assertEqual(len(log.records), 1)
+                self.assertEqual(
+                    log.records[0].message,
+                    "Registration failed, flies found in honeypot."
+                )
+
+    def test_view_page(self):
+        page = self.app.get(reverse('register'))
+        self.assertEqual(page.status_code, 200)
+        self.assertEqual(len(page.forms), 1)
+        self.assertIsInstance(page.context['form'], UserRegistrationForm)
+
+    @patch('core.mixins.is_password_compromised')
+    def test_form_submit(self, mock_pwd_check):
+        page = self.app.get(reverse('register'))
+        page.form['username'] = uname = self.faker.user_name()
+        page.form['email'] = email = self.faker.email()
+        page.form['password1'] = page.form['password2'] = self.faker.password()
+        mock_pwd_check.return_value = (False, 0)
+        page = page.form.submit()
+        mock_pwd_check.assert_called_once()
+        self.assertEqual(page.status_code, 302)
+        self.assertRedirects(page, reverse('profile_create'), fetch_redirect_response=False)
+        while page.status_code == 302:
+            page = page.follow()
+        self.assertEqual(page.context['user'].username, uname)
+        self.assertEqual(page.context['user'].email, email)
 
 
 @tag('forms', 'forms-auth')
@@ -124,7 +312,7 @@ class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
 
     def test_view_page(self):
         page = self.app.get(reverse('login'))
-        self.assertEqual(page.status_int, 200)
+        self.assertEqual(page.status_code, 200)
         self.assertEqual(len(page.forms), 1)
         self.assertIsInstance(page.context['form'], UserAuthenticationForm)
 
@@ -133,7 +321,7 @@ class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
         page.form['username'] = "SomeUser"
         page.form['password'] = ".incorrect."
         page = page.form.submit()
-        self.assertEqual(page.status_int, 200)
+        self.assertEqual(page.status_code, 200)
         self.assertEqual(len(page.forms), 1)
         self.assertGreaterEqual(len(page.context['form'].errors), 1)
 
@@ -142,7 +330,7 @@ class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
         page.form['username'] = self.user.username
         page.form['password'] = "adm1n"
         page = page.form.submit()
-        self.assertEqual(page.status_int, 302)
+        self.assertEqual(page.status_code, 302)
         self.assertRedirects(page, '/')
 
 
@@ -251,7 +439,7 @@ class UsernameUpdateFormTests(AdditionalAsserts, WebTest):
 
     def test_view_page(self):
         page = self.app.get(reverse('username_change'), user=self.user)
-        self.assertEqual(page.status_int, 200)
+        self.assertEqual(page.status_code, 200)
         self.assertEqual(len(page.forms), 1)
         self.assertIsInstance(page.context['form'], UsernameUpdateForm)
 
@@ -450,7 +638,7 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
 
     def test_view_page(self):
         page = self.app.get(reverse('email_update'), user=self.user)
-        self.assertEqual(page.status_int, 200)
+        self.assertEqual(page.status_code, 200)
         self.assertEqual(len(page.forms), 1)
         self.assertIsInstance(page.context['form'], EmailUpdateForm)
 
@@ -508,7 +696,7 @@ class EmailStaffUpdateFormTests(EmailUpdateFormTests):
             reverse('staff_email_update', kwargs={
                 'pk': self.user.profile.pk, 'slug': self.user.profile.autoslug}),
             user=self.supervisor)
-        self.assertEqual(page.status_int, 200)
+        self.assertEqual(page.status_code, 200)
         self.assertEqual(len(page.forms), 1)
         self.assertIsInstance(page.context['form'], EmailStaffUpdateForm)
 
@@ -529,3 +717,402 @@ class EmailStaffUpdateFormTests(EmailUpdateFormTests):
         )
         self.assertEqual(obj.email, new_email)
         self.assertEqual(len(mail.outbox), 0)
+
+
+@tag('forms', 'forms-auth')
+@override_settings(LANGUAGE_CODE='en')
+class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.active_user = UserFactory()
+        cls.inactive_user = UserFactory(is_active=False)
+        cls.active_invalid_email_user = UserFactory(invalid_email=True)
+        cls.inactive_invalid_email_user = UserFactory(invalid_email=True, is_active=False)
+        cls.view_page_url = reverse('password_reset')
+        cls.view_page_success_url = reverse('password_reset_done')
+
+    def _init_form(self, data=None):
+        return SystemPasswordResetRequestForm(data=data)
+
+    @property
+    def _related_view(self):
+        return PasswordResetView
+
+    def test_init(self):
+        form = self._init_form()
+        # Verify that the expected fields are part of the form.
+        self.assertEqual(['email'], list(form.fields))
+        # Verify that the form's save method is protected in templates.
+        self.assertTrue(
+            hasattr(form.save, 'alters_data')
+            or hasattr(form.save, 'do_not_call_in_templates')
+        )
+
+    def test_blank_data(self):
+        # Empty form is expected to be invalid.
+        form = self._init_form(data={})
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors, {'email': ["This field is required."]})
+
+    def test_get_users(self):
+        with self.settings(PASSWORD_HASHERS=[
+                'django.contrib.auth.hashers.MD5PasswordHasher']):
+            active_md5_user1 = UserFactory()
+        with self.settings(PASSWORD_HASHERS=[
+                'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher']):
+            active_md5_user2 = UserFactory(invalid_email=True)
+        form = self._init_form()
+
+        # All types of users with useable passwords are expected to be returned.
+        for user, expected_empty in [(self.active_user, True),
+                                     (self.inactive_user, True),
+                                     (self.active_invalid_email_user, False),
+                                     (self.inactive_invalid_email_user, False),
+                                     (active_md5_user1, True),
+                                     (active_md5_user2, False)]:
+            with self.subTest(email=user.email, active=user.is_active):
+                got_users = list(form.get_users(user._clean_email))
+                self.assertEqual(got_users, [user])
+                self.assertEqual(got_users[0].email, user._clean_email)
+                got_users = list(
+                    form.get_users(f'{settings.INVALID_PREFIX}{user._clean_email}')
+                )
+                self.assertEqual(got_users, [] if expected_empty else [user])
+                if not expected_empty:
+                    self.assertEqual(got_users[0].email, user._clean_email)
+
+        # Users with unuseable passwords are expected to be not returned.
+        active_nonepwd_user = UserFactory()
+        active_nonepwd_user.set_unusable_password()
+        active_nonepwd_user.save()
+        inactive_nonepwd_user = UserFactory(is_active=False)
+        inactive_nonepwd_user.set_unusable_password()
+        inactive_nonepwd_user.save()
+        for user in [active_nonepwd_user, inactive_nonepwd_user]:
+            with self.subTest(email=user.email, pwd=None, active=user.is_active):
+                got_users = list(form.get_users(user._clean_email))
+                self.assertEqual(got_users, [])
+
+    def _get_admin_message(self, user):
+        return (
+            f"User '{user.username}' tried to reset the login password,"
+            " but the account is deactivated"
+        )
+
+    def _get_email_content(self, active):
+        test_data = {}
+        test_data[True] = (
+            "TEST Password reset",
+            [
+                "You're receiving this email because you requested "
+                "a password reset for your user account",
+                "Please go to the following page and choose a new password:",
+            ],
+            [
+                "you deactivated your account previously",
+            ]
+        )
+        test_data[False] = (
+            "TEST Password reset",
+            [
+                "You're receiving this email because you requested "
+                "a password reset for your user account",
+                "Unfortunately, you deactivated your account previously, "
+                "and first it needs to be re-activated",
+            ],
+            [
+                "Please go to the following page and choose a new password:",
+            ]
+        )
+        return test_data[active]
+
+    @override_settings(EMAIL_SUBJECT_PREFIX_FULL="TEST ")
+    def test_active_user_request(self):
+        # Active users are expected to receive an email with password reset link.
+        for user_tag, user in [("normal email", self.active_user),
+                               ("invalid email", self.active_invalid_email_user)]:
+            with self.subTest(tag=user_tag):
+                # No warnings are expected on the auth log.
+                with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
+                    form = self._init_form({'email': user._clean_email})
+                    self.assertTrue(form.is_valid())
+                    form.save(
+                        subject_template_name=self._related_view.subject_template_name,
+                        email_template_name=self._related_view.email_template_name,
+                        html_email_template_name=self._related_view.html_email_template_name,
+                    )
+                    # Workaround for lack of assertNotLogs.
+                    auth_log.warning("No warning emitted.")
+                self.assertEqual(len(log.records), 1)
+                self.assertEqual(log.records[0].message, "No warning emitted.")
+                # The email message is expected to describe the password reset procedure.
+                title, expected_content, not_expected_content = self._get_email_content(True)
+                self.assertEqual(len(mail.outbox), 1)
+                self.assertEqual(mail.outbox[0].subject, title)
+                self.assertEqual(mail.outbox[0].from_email, settings.DEFAULT_FROM_EMAIL)
+                self.assertEqual(mail.outbox[0].to, [user._clean_email])
+                for content in expected_content:
+                    self.assertIn(content, mail.outbox[0].body)
+                for content in not_expected_content:
+                    self.assertNotIn(content, mail.outbox[0].body)
+            mail.outbox = []
+
+    @override_settings(EMAIL_SUBJECT_PREFIX_FULL="TEST ")
+    def test_inactive_user_request(self):
+        # Inactive users are expected to receive an email with instructions
+        # for activating their account and not password reset link.
+        for user_tag, user in [("normal email", self.inactive_user),
+                               ("invalid email", self.inactive_invalid_email_user)]:
+            with self.subTest(tag=user_tag):
+                # A warning about a deactivated account is expected on the auth log.
+                with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
+                    form = self._init_form({'email': user._clean_email})
+                    self.assertTrue(form.is_valid())
+                    form.save(
+                        subject_template_name=self._related_view.subject_template_name,
+                        email_template_name=self._related_view.email_template_name,
+                        html_email_template_name=self._related_view.html_email_template_name,
+                    )
+                self.assertEqual(len(log.records), 1)
+                self.assertStartsWith(log.records[0].message, self._get_admin_message(user))
+                # The warning is expected to include a reference number.
+                code = re.search(r'\[([A-F0-9-]+)\]', log.records[0].message)
+                self.assertIsNotNone(code)
+                code = code.group(1)
+                # The email message is expected to describe the account reactivation procedure.
+                title, expected_content, not_expected_content = self._get_email_content(False)
+                self.assertEqual(len(mail.outbox), 1)
+                self.assertEqual(mail.outbox[0].subject, title)
+                self.assertEqual(mail.outbox[0].from_email, settings.DEFAULT_FROM_EMAIL)
+                self.assertEqual(mail.outbox[0].to, [user._clean_email])
+                for content in expected_content:
+                    self.assertIn(content, mail.outbox[0].body)
+                for content in not_expected_content:
+                    self.assertNotIn(content, mail.outbox[0].body)
+                # The email message is expected to include the reference number.
+                self.assertIn(code, mail.outbox[0].body)
+            mail.outbox = []
+
+    def test_view_page(self):
+        page = self.app.get(self.view_page_url)
+        self.assertEqual(page.status_code, 200)
+        self.assertEqual(len(page.forms), 1)
+        self.assertIsInstance(page.context['form'], self._init_form().__class__)
+
+    def test_form_submit(self):
+        for user in [self.active_user,
+                     self.active_invalid_email_user,
+                     self.inactive_user,
+                     self.inactive_invalid_email_user]:
+            with self.subTest(email=user.email, active=user.is_active):
+                page = self.app.get(self.view_page_url)
+                page.form['email'] = user.email
+                page = page.form.submit()
+                self.assertEqual(page.status_code, 302)
+                self.assertRedirects(page, self.view_page_success_url)
+
+
+class UsernameRemindRequestFormTests(SystemPasswordResetRequestFormTests):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.view_page_url = reverse('username_remind')
+        cls.view_page_success_url = reverse('username_remind_done')
+
+    def _init_form(self, data=None):
+        return UsernameRemindRequestForm(data=data)
+
+    @property
+    def _related_view(self):
+        return UsernameRemindView
+
+    def _get_admin_message(self, user):
+        return (
+            f"User '{user.username}' requested a reminder of the username,"
+            " but the account is deactivated"
+        )
+
+    def _get_email_content(self, active):
+        test_data = {}
+        test_data[True] = (
+            "TEST Username reminder",
+            [
+                "Your username, in case you've forgotten:",
+            ],
+            [
+                "you deactivated your account previously",
+            ]
+        )
+        test_data[False] = (
+            "TEST Username reminder",
+            [
+                "Your username, in case you've forgotten:",
+                "Unfortunately, you deactivated your account previously, "
+                "and first it needs to be re-activated",
+            ],
+            []
+        )
+        return test_data[active]
+
+
+@tag('forms', 'forms-auth', 'forms-pwd')
+@override_settings(LANGUAGE_CODE='en')
+class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserFactory(invalid_email=True)
+        cls.user.profile.email = cls.user.email
+        cls.user.profile.save(update_fields=['email'])
+        cls.form_class = SystemPasswordResetForm
+        cls.expected_fields = [
+            'new_password1',
+            'new_password2',
+        ]
+
+    def test_init(self):
+        form_empty = self.form_class(self.user)
+        # Verify that the expected fields are part of the form.
+        self.assertEqual(set(self.expected_fields), set(form_empty.fields))
+        # Verify that the form's save method is protected in templates.
+        self.assertTrue(hasattr(form_empty.save, 'alters_data'))
+
+    @patch('core.mixins.is_password_compromised')
+    def test_blank_data(self, mock_pwd_check):
+        # Empty form is expected to be invalid.
+        form = self.form_class(self.user, data={})
+        mock_pwd_check.side_effect = AssertionError("password check API was unexpectedly called")
+        self.assertFalse(form.is_valid())
+        for field in self.expected_fields:
+            with self.subTest(field=field):
+                self.assertIn(field, form.errors)
+
+    def test_weak_password(self):
+        weak_password_tests(
+            self,
+            'core.mixins.is_password_compromised',
+            self.form_class,
+            (self.user, ),
+            {field_name: "adm1n" for field_name in self.expected_fields},
+            'new_password1'
+        )
+
+    def test_strong_password(self):
+        user = strong_password_tests(
+            self,
+            'core.mixins.is_password_compromised',
+            self.form_class,
+            (self.user, ),
+            {field_name: "adm1n" for field_name in self.expected_fields})
+        self.assertEqual(user.pk, self.user.pk)
+
+    @patch('django.contrib.auth.views.default_token_generator.check_token')
+    def test_view_page(self, mock_check_token):
+        mock_check_token.return_value = True
+        user_id = urlsafe_base64_encode(force_bytes(self.user.pk))
+        page = self.app.get(
+            reverse('password_reset_confirm', kwargs={
+                'uidb64': user_id if isinstance(user_id, str) else user_id.decode(),
+                'token': INTERNAL_RESET_URL_TOKEN})
+        )
+        self.assertEqual(page.status_code, 200, msg=repr(page))
+        self.assertEqual(len(page.forms), 1)
+        self.assertIsInstance(page.context['form'], SystemPasswordResetForm)
+
+    @patch('core.mixins.is_password_compromised')
+    @patch('django.contrib.auth.views.default_token_generator.check_token')
+    def test_form_submit(self, mock_check_token, mock_pwd_check):
+        mock_check_token.return_value = True  # Bypass Django's token verification.
+        user_id = urlsafe_base64_encode(force_bytes(self.user.pk))
+        page = self.app.get(
+            reverse('password_reset_confirm', kwargs={
+                'uidb64': user_id if isinstance(user_id, str) else user_id.decode(),
+                'token': INTERNAL_RESET_URL_TOKEN}),
+            user=self.user)
+        page.form['new_password1'] = page.form['new_password2'] = Faker().password()
+        session = self.app.session
+        session[INTERNAL_RESET_SESSION_TOKEN] = None
+        session.save()
+        mock_pwd_check.return_value = (False, 0)  # Treat password as a strong one.
+        self.assertEqual(self.user.email, self.user.profile.email)
+        self.assertStartsWith(self.user.email, settings.INVALID_PREFIX)
+        page = page.form.submit()
+        mock_pwd_check.assert_called_once()
+        self.assertEqual(page.status_code, 302, msg=repr(page))
+        self.assertRedirects(page, reverse('password_reset_complete'))
+        # The marked invalid email address is expected to be marked valid
+        # after submission of the form.
+        self.user.refresh_from_db()
+        self.user.profile.refresh_from_db()
+        self.assertEqual(self.user.email, self.user.profile.email)
+        self.assertFalse(self.user.email.startswith(settings.INVALID_PREFIX))
+
+
+class SystemPasswordChangeFormTests(SystemPasswordResetFormTests):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.form_class = SystemPasswordChangeForm
+        cls.expected_fields = [
+            'new_password1',
+            'new_password2',
+            'old_password',
+        ]
+
+    def test_view_page(self):
+        page = self.app.get(reverse('password_change'), user=self.user)
+        self.assertEqual(page.status_code, 200, msg=repr(page))
+        self.assertEqual(len(page.forms), 1)
+        self.assertIsInstance(page.context['form'], SystemPasswordChangeForm)
+
+    @patch('core.mixins.is_password_compromised')
+    def test_form_submit(self, mock_pwd_check):
+        page = self.app.get(reverse('password_change'), user=self.user)
+        page.form['old_password'] = "adm1n"
+        page.form['new_password1'] = "Strong & Courageous"
+        page.form['new_password2'] = "Strong & Courageous"
+        mock_pwd_check.return_value = (False, 0)  # Treat password as a strong one.
+        page = page.form.submit()
+        mock_pwd_check.assert_called_once()
+        self.assertEqual(page.status_code, 302, msg=repr(page))
+        self.assertRedirects(page, reverse('password_change_done'))
+
+
+def weak_password_tests(test_inst, where_to_patch, form_class, form_args, form_data, inspect_field):
+    test_data = [
+        (1, True, ""),
+        (2, False,
+         "The password selected by you is not very secure. "
+         "Such combination of characters is known to cyber-criminals."),
+        (100, False,
+         "The password selected by you is too insecure. "
+         "Such combination of characters is very well-known to cyber-criminals."),
+    ]
+    for number_seen, expected_result, expected_error in test_data:
+        # Mock the response of the Pwned Pwds API to indicate a compromised password,
+        # seen a specific number of times.
+        with patch(where_to_patch) as mock_pwd_check:
+            mock_pwd_check.return_value = (True, number_seen)
+            form = form_class(*form_args, data=form_data)
+            with test_inst.assertLogs('PasportaServo.auth', level='WARNING') as log:
+                test_inst.assertIs(form.is_valid(), expected_result, msg=repr(form.errors))
+            mock_pwd_check.assert_called_once_with(form_data[inspect_field])
+        if expected_result is False:
+            test_inst.assertIn(inspect_field, form.errors)
+            test_inst.assertEqual(
+                form.errors[inspect_field],
+                ["Choose a less easily guessable password."])
+            test_inst.assertEqual(form.non_field_errors(), [expected_error])
+        test_inst.assertEqual(
+            log.records[0].message,
+            f"Password with HIBP count {number_seen} selected in {form_class.__name__}."
+        )
+
+
+def strong_password_tests(test_inst, where_to_patch, form_class, form_args, form_data):
+    # Mock the response of the Pwned Pwds API to indicate non-compromised password.
+    with patch(where_to_patch) as mock_pwd_check:
+        mock_pwd_check.return_value = (False, 0)
+        form = form_class(*form_args, data=form_data)
+        test_inst.assertTrue(form.is_valid(), msg=repr(form.errors))
+        mock_pwd_check.assert_called_once()
+    return form.save(commit=False)
