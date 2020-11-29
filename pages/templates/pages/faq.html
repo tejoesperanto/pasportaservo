@@ -93,7 +93,8 @@
                 <ul>
                     <li>
                         {% url 'email_update' as email_update_url %}
-                        Provizu vian novan retpoŝtan adreson ĉi tie: <a href="{{ email_update_url }}">pasportaservo.org<wbr>{{ email_update_url }}</a>.
+                        Provizu vian novan retpoŝtan adreson ĉi tie:
+                        <a href="{{ email_update_url }}">pasportaservo.org<wbr>{{ email_update_url }}</a>.
                     </li>
                     <li>
                         Atentu ke vi devas klaki la ligilon en konfirma retletero kiun ni sendos al la nova adreso,
@@ -103,7 +104,8 @@
                         Dum ankoraŭ vi ne klakis tiun ligilon, la retejo daŭre uzos la malnovan retadreson.
                     </li>
                     <li>
-                        Se vi ne ricevas la konfirman retleteron, <a href="mailto:{{ SUPPORT_EMAIL }}">skribu al ni</a>.
+                        Se vi ne ricevas la konfirman retleteron,
+                        <a href="mailto:{{ SUPPORT_EMAIL }}">skribu al ni</a>.
                     </li>
                 </ul>
             {% endasvar %}
@@ -198,9 +200,11 @@
 
             {% asvar Question %}Ĉu mi vere, ĉiam devas antaŭe kontakti la gastigantojn?{% endasvar %}
             {% asvar Answer %}
-                Kelkaj gastigantoj pretas akcepti gastojn sen antaŭa anonco, sed nur por malmultaj tio estas tute akceptebla.
+                Kelkaj gastigantoj pretas akcepti gastojn sen antaŭa anonco, sed nur por malmultaj tio estas
+                tute akceptebla.
                 <br />
-                En la paĝo de loĝloko (kaj en la libreto, apud la adreso) vi ĉiam vidas la kondiĉojn indikitajn de la gastiganto.
+                En la paĝo de loĝloko (kaj en la libreto, apud la adreso) vi ĉiam vidas la kondiĉojn indikitajn
+                de la gastiganto.
                 Se oni petas interkonsenton kontakti pli frue telefone, do faru tion; se retletere, tion.
                 <br />
                 Bonvolu ĉiam respekti la petitajn limigojn de la gastiganto.
@@ -210,8 +214,8 @@
             {% asvar Question %}Kiom da tempo mi rajtas resti ĉe la gastiganto?{% endasvar %}
             {% asvar Answer %}
                 Same kiel pri kontaktado, ankaŭ la resto-daŭro estas indikita.
-                Kelkaj akceptas nur por unu nokto; okazas, ke tute ne gravas por la gastiganto kiom longe vi restas.
-                Vi antaŭanoncu kiom da noktoj vi deziras resti, kaj nepre interkonsentu.
+                Kelkaj akceptas nur por unu nokto; okazas, ke tute ne gravas por la gastiganto kiom longe vi
+                restas. Vi antaŭanoncu kiom da noktoj vi deziras resti, kaj nepre interkonsentu.
             {% endasvar %}
             {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 
@@ -232,8 +236,9 @@
             {% asvar Question %}Ĉu mia gastiganto helpos min akiri vizon aŭ restadpermeson?{% endasvar %}
             {% asvar Answer %}
                 Ne. La ideo de Pasporta Servo estas, ke oni helpas pri la tranoktado, en neformala maniero.
-                Gastigantoj ne povas (kaj foje eĉ ne rajtas) respondeci pri vi antaŭ la instancoj de sia lando.
-                Ĉiujn oficialajn paperojn necesajn por laŭleĝa restado en la lando, vi devas aranĝi formale, mem.
+                Gastigantoj ne povas (kaj foje eĉ ne rajtas) respondeci pri vi antaŭ la instancoj de sia
+                lando. Ĉiujn oficialajn paperojn necesajn por laŭleĝa restado en la lando, vi devas aranĝi
+                formale, mem.
             {% endasvar %}
             {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
         </dl>
@@ -250,6 +255,30 @@
                 <br />
                 Krome, se vi estis ĝis nun en la libreto, kaj vi denove volas aperi en ĝi,
                 vi konfirmu per la retletero, kiun ni sendos al vi.
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
+
+            {% asvar Question %}Kial la retejo postulas de mi indiki mian genron?{% endasvar %}
+            {% asvar Answer %}
+                La PS-libreto, malsame al ĝia retejo, estas senŝanĝa kaj ne ebligas interagon kun la
+                gastiganto antaŭ ol peti pri tranokto. Tial ĝi dekomence prezentas certajn informojn
+                pri gastigantoj, kiuj povus esti gravaj por la gastoj.
+                <br />
+                Iuj preferas gasti nur ĉe personoj de specifa genro; ekzemple, pro religiaj aŭ personecaj
+                kialoj. Ĉar tiu ĉi kondiĉo estas atentinda, gastigantoj estas petataj indiki la informon.
+                La retejo proponas kelkajn (plej oftajn) variantojn sed elekti el inter ili ne estas devige;
+                oni ĉiam povas tajpi sian propran preferon por sia genra identeco.
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
+
+            {% asvar Question %}Kial Pasporta Servo uzas la nocion <i>genro</i> anstataŭ <i>sekso</i>?{% endasvar %}
+            {% asvar Answer %}
+                Genro ne estas la sama kiel biologia sekso, kaj pli intime rilatas al onia identeco;
+                kiamaniere oni sindifinas. Kvankam multaj homoj havas genran identecon konkordan kun
+                iliaj fizikaj seksaj markoj, pluraj aliaj tian kongruon ne sekvas (tuttempe aŭ parttempe,
+                kiel ekzemple homoj kun ne-fiksa aŭ ambigua genro).
+                Por lerni pli pri la temo,
+                <a href="https://eo.wikipedia.org/wiki/Socia_sekso" rel="external noreferrer">legu en Vikipedio</a>.
             {% endasvar %}
             {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 
