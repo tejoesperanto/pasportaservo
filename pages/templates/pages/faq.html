@@ -42,7 +42,7 @@
             {% asvar Question %}Kial vi opinias ke krimuloj scias la pasvorton kiun mi volus uzi?{% endasvar %}
             {% asvar Answer %}
                 Tia mesaĝo povas aperi kiam vi registriĝas aŭ ŝanĝas vian pasvorton. Ni uzas servon
-                (<a href="https://haveibeenpwned.com/Passwords" rel="external noreferrer">Pwned Passwords</a>
+                ({% include './_xa.html' with URL="https://haveibeenpwned.com/Passwords" T="Pwned Passwords" %}
                 de Troy Hunt) kiu kontrolas en tute anonima maniero ene de publika datumbazo ĉu la pasvorto
                 estis iam malkovrigita dum iu sekureca rompo ie ajn en la interreto.
                 Tio <em>ne signifas</em> ke via propra konto estis trapenetrita, sed ke vi elektis iom
@@ -82,8 +82,8 @@
                     <li>kombinojn sur klavaro kiel ‘zxcvbnm’, ‘3edc4rfv5tgb’</li>
                 </ul>
                 Estas rekomendinda la uzo de pasvort-administrilo kun bona reputacio, kiel
-                <a href="https://1password.com/sign-up/" rel="external noreferrer">1Password</a> (2.99$ monate)
-                aŭ <a href="https://www.lastpass.com/pricing" rel="external noreferrer">LastPass</a> (baza
+                {% include './_xa.html' with URL="https://1password.com/sign-up/" T="1Password" %} (2.99$ monate)
+                aŭ {% include './_xa.html' with URL="https://www.lastpass.com/pricing" T="LastPass" %} (baza
                 versio senpaga), por konservi longajn kaj sekurajn pasvortojn sen la neceso enparkerigi ilin.
             {% endasvar %}
             {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
@@ -278,7 +278,7 @@
                 iliaj fizikaj seksaj markoj, pluraj aliaj tian kongruon ne sekvas (tuttempe aŭ parttempe,
                 kiel ekzemple homoj kun ne-fiksa aŭ ambigua genro).
                 Por lerni pli pri la temo,
-                <a href="https://eo.wikipedia.org/wiki/Socia_sekso" rel="external noreferrer">legu en Vikipedio</a>.
+                {% include './_xa.html' with URL="https://eo.wikipedia.org/wiki/Socia_sekso" T="legu en Vikipedio" %}.
             {% endasvar %}
             {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
 
