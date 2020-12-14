@@ -75,12 +75,20 @@ class Command(BaseCommand):
             # Finally load as JSON data into a Python dictionary.
             json_data = json.loads(f'{{ {json_data} }}')
         replacement_format = {
+            'AI': "AI-2640",
+            'CX': "",  # Infer from regex.
             'EC': "",  # Infer from regex.
             'GG': "GY# #@@|GY## #@@",
             'HN': "",  # Infer from regex.
             'IM': "IM# #@@|IM## #@@",
             'JE': "JE# #@@|JE## #@@",
+            'MU': "#####|###@@###",
+            'NF': "",  # Infer from regex.
             'NI': "",  # Infer from regex.
+            'PE': "0####|1####|2####",
+            'PW': "96939|96939-####|96940|96940-####",
+            'TZ': "####|#####",
+            'VA': "",  # Infer from regex.
         }
 
         for i, country in [(i, k) for i, k in enumerate(csv_data, start=1) if k['#ISO'] in COUNTRIES_DATA]:
@@ -97,7 +105,7 @@ class Command(BaseCommand):
                 country_list[code]['postcode_regex'] = country['Postal Code Regex'].lstrip('^').rstrip('$')
             country_list[code]['postcode_format'] = country['Postal Code Format']
             if code in replacement_format:
-                # For these countries, the format provided by GeoNames is incorrect.
+                # For these countries, the format provided by GeoNames is incorrect or missing.
                 country_list[code]['postcode_format'] = replacement_format[code]
             if not country_list[code]['postcode_format'] and country_list[code]['postcode_regex']:
                 # In case the format is not provided by GeoNames, attempt to convert

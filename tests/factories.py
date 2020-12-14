@@ -1,16 +1,19 @@
 # https://faker.readthedocs.io/en/latest/providers/faker.providers.person.html
+import re
 from datetime import timedelta
 from random import choice, randint, random, uniform as uniform_random
 
 from django.contrib.gis.geos import LineString, Point
 
 import factory
+import rstr
 from django_countries.data import COUNTRIES
 from django_countries.fields import Country
 from factory import DjangoModelFactory, Faker
 from phonenumber_field.phonenumber import PhoneNumber
 from slugify import slugify
 
+from hosting.countries import COUNTRIES_DATA
 from hosting.models import (
     MR, MRS, PHONE_TYPE_CHOICES, PRONOUN_CHOICES, WHEREABOUTS_TYPE_CHOICES,
 )
@@ -155,6 +158,30 @@ class PlaceFactory(DjangoModelFactory):
     description = Faker('paragraph', nb_sentences=4)
     short_description = Faker('text', max_nb_chars=140)
     in_book = False
+
+    @classmethod
+    def generate_postcode(cls, country):
+        regex = COUNTRIES_DATA[country]['postcode_regex'] or r'\d{5}'
+        # The * repetition qualifier makes the generator go wild, strictly limit to 1 copy.
+        regex = regex.replace('*', '{1}')
+        # Articially limit the length of overly permissive chunks.
+        regex = re.sub(r'{0,\d\d}', '{0,2}', regex)
+        # Generate a random value according to the constrained regular expression.
+        # All whitespaces are condensed to single space and the value is uppercased.
+        value = ""
+        while value in ("", "GIR0AA", "GIR 0AA"):
+            # The generator has a strong preference to this UK postal code...
+            value = ' '.join(rstr.xeger(regex).upper().strip().split())
+        return value
+
+    @factory.post_generation
+    def postcode(instance, create, value, **kwargs):
+        if not value:
+            return
+        if value is True:
+            instance.postcode = PlaceFactory.generate_postcode(instance.country)
+        else:
+            instance.postcode = value
 
 
 class PhoneFactory(DjangoModelFactory):

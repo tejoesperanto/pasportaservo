@@ -4,13 +4,23 @@ from functools import reduce
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, get_connection
+from django.utils.functional import keep_lazy_text, lazy
 from django.utils.http import is_safe_url
+from django.utils.safestring import mark_safe
 
 import requests
 
 
 def getattr_(obj, path):
     return reduce(getattr, path.split("."), obj)
+
+
+def _lazy_joiner(sep, items, item_to_string=str):
+    return str(sep).join(map(item_to_string, items))
+
+join_lazy = lazy(_lazy_joiner, str)  # noqa:E305
+
+mark_safe_lazy = keep_lazy_text(mark_safe)
 
 
 def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,

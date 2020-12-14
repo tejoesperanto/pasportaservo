@@ -1,3 +1,4 @@
+import re
 from collections import namedtuple
 from datetime import date
 
@@ -10,6 +11,8 @@ from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import Country
 
 from core.models import SiteConfiguration
+from core.utils import join_lazy, mark_safe_lazy
+from hosting.countries import COUNTRIES_DATA
 from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
 from maps.widgets import MapboxGlWidget
 
@@ -53,6 +56,29 @@ class PlaceForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['address'].widget.attrs['rows'] = 2
         self.fields['conditions'].widget.attrs['data-placeholder'] = _("Choose your conditions...")
+
+    def clean_postcode(self):
+        postcode, country = self.cleaned_data['postcode'], self.cleaned_data.get('country')
+        if not country or not postcode:
+            return postcode
+
+        postcode_re = COUNTRIES_DATA[country]['postcode_regex']
+        if postcode_re and COUNTRIES_DATA[country].get('postal_code_prefix'):
+            prefix_re = re.escape(COUNTRIES_DATA[country]['postal_code_prefix'])
+            postcode_re = r'(?:{})?'.format(prefix_re) + postcode_re
+
+        if postcode_re and not re.fullmatch(postcode_re, postcode.upper()):
+            accepted_patterns = COUNTRIES_DATA[country]['postcode_format'].split('|')
+            raise forms.ValidationError(mark_safe_lazy(
+                format_lazy(
+                    _("Postal code should follow the pattern {} (# is digit, @ is a letter)."),
+                    join_lazy(_(" or "), map(lambda pn: f"<kbd>{pn}</kbd>", accepted_patterns))
+                )
+            ))
+        # Removing non-alphanumeric characters (except for the allowed separators 'space'
+        # and 'dash'), is mainly for freeform postal codes in countries for which no regex
+        # is defined.
+        return re.sub(r'[^A-Z0-9 -]', '', ' '.join(postcode.split()).upper(), re.ASCII)
 
     def clean(self):
         cleaned_data = super().clean()
