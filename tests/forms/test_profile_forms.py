@@ -5,6 +5,7 @@ from django.core.exceptions import NON_FIELD_ERRORS
 from django.test import override_settings, tag
 from django.urls import reverse
 
+import rstr
 from django_webtest import WebTest
 from factory import Faker as FakerFactory
 from faker import Faker
@@ -181,15 +182,20 @@ class ProfileFormTestingBase:
              FakerFactory('name', locale='zh'),
              "provide this data in Latin characters"),
             ("symbols",
-             FakerFactory('password', upper_case=False, lower_case=False, digits=False, special_chars=True),
+             lambda: rstr.punctuation(2) + rstr.punctuation(4, 10, include=rstr.lowercase(4)),
              "provide this data in Latin characters"),
             ("digits",
-             FakerFactory('password', upper_case=False, lower_case=True, digits=True, special_chars=False),
+             lambda: rstr.lowercase(6, 12, include=rstr.digits()),
              "Digits are not allowed"),
             ("all caps",
-             FakerFactory('password', upper_case=True, lower_case=False, digits=False, special_chars=False),
+             lambda: rstr.uppercase(6, 12),
              "Today is not CapsLock day"),
-            ("many caps", "AaAaAaAaA", "there are too many uppercase letters"),
+            ("many caps",
+             lambda: rstr.uppercase(6, 12, include=rstr.lowercase(5)),
+             "there are too many uppercase letters"),
+            ("many caps w/prefix",
+             lambda: "Mac" + rstr.uppercase(2) + rstr.lowercase(5),
+             "there are too many uppercase letters"),
         )
 
         for field_violation, field_value, assert_content in test_data:
@@ -208,7 +214,9 @@ class ProfileFormTestingBase:
                             'gender': self.faker.word(),
                         }
                         data[wrong_field] = (
-                            field_value.generate({}) if isinstance(field_value, FakerFactory) else field_value
+                            field_value.generate({}) if isinstance(field_value, FakerFactory) else
+                            field_value() if callable(field_value) else
+                            field_value
                         )
                         with self.subTest(value=data[wrong_field]):
                             form = self._init_form(data, instance=profile)

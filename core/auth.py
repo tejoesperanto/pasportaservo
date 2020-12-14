@@ -9,7 +9,6 @@ from django.contrib.auth.mixins import AccessMixin
 from django.contrib.auth.models import Group
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import Http404, HttpResponseNotAllowed
-from django.utils.functional import keep_lazy_text
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.views import generic
@@ -18,7 +17,7 @@ from django_countries.fields import Country
 
 from hosting.models import Place, Profile
 
-from .utils import camel_case_split
+from .utils import camel_case_split, join_lazy
 
 PERM_SUPERVISOR = 'hosting.can_supervise'
 ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR, ANONYMOUS = 50, 40, 30, 20, 10, 0
@@ -273,9 +272,10 @@ class AuthMixin(AccessMixin):
             countries = None
         if not countries:
             return _("Only administrators can access this page")
-        to_string = lambda item: str(Country(item).name)
-        join_lazy = keep_lazy_text(lambda items: ", ".join(map(to_string, items)))
-        return format_lazy(self.permission_denied_message, this_country=join_lazy(countries))
+        return format_lazy(
+            self.permission_denied_message,
+            this_country=join_lazy(", ", countries, lambda item: str(Country(item).name))
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

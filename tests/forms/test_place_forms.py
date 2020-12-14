@@ -13,6 +13,7 @@ from django_webtest import WebTest
 from faker import Faker
 
 from core.models import SiteConfiguration
+from hosting.countries import COUNTRIES_DATA
 from hosting.forms.places import PlaceForm
 from hosting.models import LOCATION_CITY, Condition, Whereabouts
 from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
@@ -31,7 +32,22 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
         cls.config = SiteConfiguration.get_solo()
         cls.faker = Faker(locale='en-GB')
         cls.all_countries = Countries().countries.keys()
-        cls.countries_no_mandatory_region = set(cls.all_countries) - set(COUNTRIES_WITH_MANDATORY_REGION)
+        cls.countries_no_mandatory_region = (
+            set(cls.all_countries) - set(COUNTRIES_WITH_MANDATORY_REGION)
+            # Avoid countries with a single postcode: tests that depend
+            # on changing the postcode value will fail for such countries.
+            - set(
+                c for c in cls.all_countries
+                if COUNTRIES_DATA[c]['postcode_regex']
+                and all(x.isalnum() or x.isspace() for x in COUNTRIES_DATA[c]['postcode_regex'])
+            )
+            - set(
+                c for c in cls.all_countries
+                if COUNTRIES_DATA[c]['postcode_format']
+                and all(x.isalnum() or x.isspace() or x == '-'
+                        for x in COUNTRIES_DATA[c]['postcode_format'])
+            )
+        )
 
         Condition.objects.all().delete()
         ConditionFactory.create_batch(20)
@@ -74,7 +90,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
         cls.complete_place = PlaceFactory(
             country=cls.faker.random_element(elements=cls.countries_no_mandatory_region),
             available=False, tour_guide=False, have_a_drink=False,
-            state_province=cls.faker.county(), postcode=cls.faker.postcode(),
+            state_province=cls.faker.county(), postcode=True,
             location_confidence=10,
             max_guest=123, max_night=456, contact_before=789,
         )
@@ -148,7 +164,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
         form = PlaceForm({
             'country': self.faker.random_element(elements=self.countries_no_mandatory_region),
         })
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), msg=repr(form.errors))
         # Form data of country with provinces and of empty province is expected to be invalid.
         form = PlaceForm({
             'country': self.faker.random_element(elements=COUNTRIES_WITH_MANDATORY_REGION),
@@ -164,7 +180,81 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
             'country': self.faker.random_element(elements=COUNTRIES_WITH_MANDATORY_REGION),
             'state_province': self.faker.word(),  # No restrictions are implemnted yet...
         })
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), msg=repr(form.errors))
+
+    def test_invalid_postcode(self):
+        # Form data with postcode not following the country's
+        # postal code format is expected to be invalid.
+        test_data = [
+            ('VA', self.faker.pyint(10000, 99999)),
+            ('BT', self.faker.pyint(1000, 9999)),
+            ('BT', self.faker.pyint(100000, 9999999)),
+            ('IL', self.faker.pyint(100001, 999998)),  # Six digits are not allowed (only 5 or 7).
+            ('AZ', "AZ {}".format(self.faker.pyint(10000, 999999))),  # Too long (only 4 digits).
+            ('AZ', "AZ{}".format(self.faker.pyint(1000, 9999))),  # Invalid prefix separator.
+            ('AZ', "AZ-{}".format(self.faker.pyint(1000, 9999))),  # Invalid prefix separator.
+            ('LV', self.faker.pyint(1000, 9999)),  # Prefix is obligatory.
+            ('LT', "LT {}".format(self.faker.pyint(10000, 99999))),  # Invalid prefix separator.
+            ('GB', self.faker.pyint(100000, 999999)),
+            ('GB', self.faker.pystr_format('??? ???')),
+            ('GB', self.faker.pystr_format('### ###')),
+            ('GG', self.faker.pystr_format('???????')),
+            ('CA', self.faker.pystr_format('K# S# P#')),  # Correct items, incorrect groups split.
+        ]
+        for country, code in test_data:
+            with self.subTest(country=country, code=code):
+                form = PlaceForm({'country': country, 'postcode': code})
+                self.assertFalse(form.is_valid())
+                self.assertIn('postcode', form.errors)
+                self.assertStartsWith(
+                    form.errors['postcode'][0],
+                    "Postal code should follow the pattern")
+        # Form data with postcode exceeding the limit is expected to be invalid.
+        test_data = {'country': 'AM', 'postcode': str(self.faker.pyint(100000000001, 2000000000002))}
+        with self.subTest(**test_data, length=len(test_data['postcode'])):
+            form = PlaceForm(test_data)
+            self.assertFalse(form.is_valid())
+            self.assertIn('postcode', form.errors)
+            self.assertEqual(
+                form.errors['postcode'],
+                ["Ensure this value has at most {} characters (it has {})."
+                 .format(form.fields['postcode'].max_length, len(test_data['postcode']))]
+            )
+
+    def test_valid_postcode(self):
+        # Form data with postcode according to country's postal code format is expected to be valid.
+        test_data = [
+            # Just one single postcode in Vatican.
+            ('VA', "00120"),
+            # Either 5 digits,
+            ('IL', self.faker.pyint(10000, 99999)),
+            # ... or 7 digits
+            ('IL', self.faker.pyint(1000001, 9999999)),
+            # AZ prefix is optional.
+            ('AZ', self.faker.pyint(1000, 9999)),
+            # If AZ prefix is present, it must be separated by a space.
+            ('AZ', "AZ {}".format(self.faker.pyint(1000, 9999))),
+            # We allow lowercase.
+            ('AZ', "az {}".format(self.faker.pyint(1000, 9999))),
+            # LV prefix is not optional, and must be separated by a dash.
+            ('LV', "LV-{}".format(self.faker.pyint(1000, 9999))),
+            ('IM', "IM6 1ET"),
+            ('IM', "IM61ET"),
+            ('GB', "IM6 1ET"),
+            # We allow lowercase.
+            ('GB', "dh1 2ds"),
+            # No limitation in Kiribati.
+            ('KI', self.faker.pystr_format('???? ###')),
+        ]
+        for country, code in test_data:
+            with self.subTest(country=country, code=code):
+                form = PlaceForm({'country': country, 'postcode': code})
+                self.assertTrue(form.is_valid(), msg=repr(form.errors))
+        # If country is not provided, any postcode shall be accepted
+        # but the form is expected to be invalid.
+        form = PlaceForm({'postcode': self.faker.pystr_format('????##????')})
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors, {'country': ["This field is required."]})
 
     def test_invalid_city_when_hosting_meeting(self):
         test_combinations = [
@@ -255,7 +345,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
         form = PlaceForm(instance=self.simple_place)  # = GET
         form = PlaceForm(data=form.initial.copy(), instance=self.simple_place)  # = POST
         # No change in data means that the form is expected to be valid.
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), msg=repr(form.errors))
         # The geocoding utility is not expected to be called, because place already has a location.
         mock_geocode.side_effect = AssertionError("geocode was unexpectedly called")
         mock_geocode_city.side_effect = AssertionError("geocode-city was unexpectedly called")
@@ -323,14 +413,22 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
                     # Ensure that the value of the country field is indeed changed.
                     remaining_countries = self.countries_no_mandatory_region - set([data['country']])
                     data[field_name] = self.faker.random_element(elements=remaining_countries)
+                    # The postcode field is dependent on the country and will fail if not changed.
+                    data['postcode'] = ''
+                elif field_name == 'postcode':
+                    if not field_empty:
+                        data[field_name] = PlaceFactory.generate_postcode(data['country'])
+                    else:
+                        data[field_name] = None
                 else:
                     data[field_name] = self._fake_value(field_name) if not field_empty else None
-                for i, (side_effect, expected_loc, expected_loc_confidence) in enumerate(test_config):
+                for i, (side_effect, expected_loc, expected_loc_confidence) in enumerate(test_config, start=1):
                     with self.subTest(
                             field=field_name,
                             has_value='✓ ' if not field_empty else '✗ ',
                             value=data[field_name],
                             prev_value=form_data[field_name],
+                            country=data['country'],
                             test_case=i):
                         self.complete_place.refresh_from_db()
                         form = PlaceForm(data=data, instance=self.complete_place)
@@ -384,15 +482,23 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
                     # Ensure that the value of the country field is indeed changed.
                     remaining_countries = self.countries_no_mandatory_region - set([data['country']])
                     data[field_name] = self.faker.random_element(elements=remaining_countries)
+                    # The postcode field is dependent on the country and will fail if not changed.
+                    data['postcode'] = ''
+                elif field_name == 'postcode':
+                    if not field_empty:
+                        data[field_name] = PlaceFactory.generate_postcode(data['country'])
+                    else:
+                        data[field_name] = None
                 else:
                     data[field_name] = self._fake_value(field_name) if not field_empty else None
                 data['address'] = getattr(self.faker, self.expected_fields['address'][0])()
-                for i, (side_effect, expected_loc, expected_loc_confidence) in enumerate(test_config):
+                for i, (side_effect, expected_loc, expected_loc_confidence) in enumerate(test_config, start=1):
                     with self.subTest(
                             field=field_name,
                             has_value='✓ ' if not field_empty else '✗ ',
                             value=data[field_name],
                             prev_value=form_data[field_name],
+                            country=data['country'],
                             test_case=i):
                         self.complete_place.refresh_from_db()
                         form = PlaceForm(data=data, instance=self.complete_place)
@@ -502,10 +608,11 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
                     field: self._fake_value(field, faker)
                     for field in test_dataset[dataset_type]
                 }
+                data['postcode'] = PlaceFactory.generate_postcode(data['country'])
                 if data.get('in_book'):
                     data['available'] = True
                 form = PlaceForm(data, instance=self.simple_place)
-                self.assertTrue(form.is_valid())
+                self.assertTrue(form.is_valid(), msg="{}\nDATA : {}".format(repr(form.errors), data))
 
     def test_view_page(self):
         page = self.app.get(
@@ -518,7 +625,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
 
     @patch('hosting.forms.places.geocode')
     @patch('hosting.forms.places.geocode_city')
-    def test_form_submit(self, mock_geocode_city, mock_geocode):
+    def test_form_submit_non_location_data(self, mock_geocode_city, mock_geocode):
         mock_geocode.return_value = None
         mock_geocode_city.return_value = None
 
@@ -545,7 +652,16 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
         )
         self.assertEqual(self.complete_place.short_description, data['short_description'])
         self.assertEqual(self.complete_place.sporadic_presence, data['sporadic_presence'])
-        self.assertEqual(set(self.complete_place.conditions.values_list('id', flat=True)), set(data['conditions']))
+        self.assertEqual(
+            set(self.complete_place.conditions.values_list('id', flat=True)),
+            set(data['conditions'])
+        )
+
+    @patch('hosting.forms.places.geocode')
+    @patch('hosting.forms.places.geocode_city')
+    def test_form_submit_location_data(self, mock_geocode_city, mock_geocode):
+        mock_geocode.return_value = None
+        mock_geocode_city.return_value = None
 
         # Submission of a form with modified location-related fields is expected
         # to be successful and result in redirection to the location update form page.
@@ -553,6 +669,8 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
             reverse('place_update', kwargs={'pk': self.complete_place.pk}),
             user=self.complete_place.owner.user,
         )
+        faker = Faker(locale='zh')
+        data = {}
         for field_name in ('address', 'state_province'):
             page.form[field_name] = data[field_name] = self._fake_value(field_name, faker)
         page = page.form.submit()
@@ -563,5 +681,31 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
         )
         self.assertEqual(self.complete_place.address, data['address'])
         self.assertEqual(self.complete_place.state_province, data['state_province'])
+        self.assertEqual(self.complete_place.location, None)
+        self.assertEqual(self.complete_place.location_confidence, 0)
+
+    @patch('hosting.forms.places.geocode')
+    @patch('hosting.forms.places.geocode_city')
+    def test_form_submit_postcode(self, mock_geocode_city, mock_geocode):
+        mock_geocode.return_value = None
+        mock_geocode_city.return_value = None
+
+        # Submission of a form with modified postcode and country fields is expected
+        # to be successful and result in redirection to the location update form page.
+        page = self.app.get(
+            reverse('place_update', kwargs={'pk': self.complete_place.pk}),
+            user=self.complete_place.owner.user,
+        )
+        page.form['country'] = 'GM'
+        page.form['postcode'] = "\tk  5487 - n\n"
+        page = page.form.submit()
+        self.complete_place.refresh_from_db()
+        self.assertRedirects(
+            page,
+            reverse('place_location_update', kwargs={'pk': self.complete_place.pk})
+        )
+        # The saved postcode is expected to be formatted
+        # (uppercase and extra whitespace removed).
+        self.assertEqual(self.complete_place.postcode, "K 5487 - N")
         self.assertEqual(self.complete_place.location, None)
         self.assertEqual(self.complete_place.location_confidence, 0)

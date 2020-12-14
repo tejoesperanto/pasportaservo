@@ -1070,6 +1070,12 @@ msgstr "Vi jam indikis tian telefonnumeron."
 msgid "Choose your conditions..."
 msgstr "Elektu viajn kondiĉojn…"
 
+msgid "Postal code should follow the pattern {} (# is digit, @ is a letter)."
+msgstr "Poŝtkodo devas laŭi la skemon {} (# estas cifero, @ estas litero)."
+
+msgid " or "
+msgstr " aŭ "
+
 # TODO: update for supervisors (you -> the user)
 #, python-brace-format
 msgid "The minimum age to be allowed hosting is {age:d}."
@@ -2349,9 +2355,6 @@ msgstr ", sed volonte "
 #, python-format
 msgid "to guide you around %(my_city)s"
 msgstr "ĉiĉeronos vin en %(my_city)s"
-
-msgid " or "
-msgstr " aŭ "
 
 msgid "to have a drink together"
 msgstr "trinkos ion kun vi"

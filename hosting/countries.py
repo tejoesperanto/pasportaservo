@@ -73,7 +73,7 @@ COUNTRIES_DATA = {
         "population": 13254,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%locality\\n%postalCode",
         "postcode_regex": "(?:AI-)?2640",
-        "postcode_format": ""
+        "postcode_format": "AI-2640"
     },
     "AL": {
         "local_name": "Shqipëria",
@@ -768,7 +768,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "postcode_regex": "6798",
-        "postcode_format": "####"
+        "postcode_format": "6798"
     },
     "CY": {
         "local_name": "Κύπρος",
@@ -2367,7 +2367,7 @@ COUNTRIES_DATA = {
             "postalCode"
         ],
         "postcode_regex": "\\d{3}(?:\\d{2}|[A-Z]{2}\\d{3})",
-        "postcode_format": ""
+        "postcode_format": "#####|###@@###"
     },
     "MV": {
         "local_name": "Maldives",
@@ -2518,7 +2518,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "postcode_regex": "2899",
-        "postcode_format": "####"
+        "postcode_format": "2899"
     },
     "NG": {
         "local_name": "Nigeria",
@@ -2687,7 +2687,7 @@ COUNTRIES_DATA = {
         "locality_type": "district",
         "subdivision_depth": 1,
         "postcode_regex": "(?:LIMA \\d{1,2}|CALLAO 0?\\d)|[0-2]\\d{4}",
-        "postcode_format": ""
+        "postcode_format": "0####|1####|2####"
     },
     "PF": {
         "local_name": "Polynésie française",
@@ -2917,7 +2917,7 @@ COUNTRIES_DATA = {
         "administrative_area_type": "state",
         "postal_code_type": "zip",
         "postcode_regex": "(969(?:39|40))(?:[ \\-](\\d{4}))?",
-        "postcode_format": "96940"
+        "postcode_format": "96939|96939-####|96940|96940-####"
     },
     "PY": {
         "local_name": "Paraguay",
@@ -3601,7 +3601,7 @@ COUNTRIES_DATA = {
         "population": 56318348,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
         "postcode_regex": "\\d{4,5}",
-        "postcode_format": ""
+        "postcode_format": "####|#####"
     },
     "UA": {
         "local_name": "Україна",
@@ -3730,7 +3730,7 @@ COUNTRIES_DATA = {
         "population": 921,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
         "postcode_regex": "00120",
-        "postcode_format": "#####"
+        "postcode_format": "00120"
     },
     "VC": {
         "local_name": "Saint Vincent and the Grenadines",

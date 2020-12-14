@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.gis.geos import Point as GeoPoint
 from django.core import mail
 from django.test import TestCase, override_settings, tag
+from django.utils.functional import lazy, lazystr
 
 from faker import Faker
 from geocoder.opencage import OpenCageQuery, OpenCageResult
@@ -15,7 +16,8 @@ from requests.exceptions import (
 )
 
 from core.utils import (
-    camel_case_split, is_password_compromised, send_mass_html_mail, sort_by,
+    camel_case_split, is_password_compromised,
+    join_lazy, send_mass_html_mail, sort_by,
 )
 from hosting.gravatar import email_to_gravatar
 from hosting.utils import (
@@ -39,7 +41,8 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
             ("TITLE", ["TITLE"]),
             ("TItLe", ["T", "It", "Le"]),
             ("TItLE", ["T", "It", "LE"]),
-            ("ACamelCaseIsOftenUsedForVariables", ["A", "Camel", "Case", "Is", "Often", "Used", "For", "Variables"]),
+            ("ACamelCaseIsOftenUsedForVariables",
+             ["A", "Camel", "Case", "Is", "Often", "Used", "For", "Variables"]),
             ("an tAlbanach", ["an t", "Albanach"]),
         )
         for camel_case_value, expected_value in test_data:
@@ -99,11 +102,11 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
     def test_value_without_invalid_marker(self):
         test_data = (
             ("user@mail.com", "user@mail.com"),
-            ("user_{}@mail.com".format(settings.INVALID_PREFIX), "user_{}@mail.com".format(settings.INVALID_PREFIX)),
-            ("user@mail.com_{}".format(settings.INVALID_PREFIX), "user@mail.com_{}".format(settings.INVALID_PREFIX)),
-            ("{0}{0}user".format(settings.INVALID_PREFIX), "{}user".format(settings.INVALID_PREFIX)),
-            ("{0}user{0}".format(settings.INVALID_PREFIX), "user{}".format(settings.INVALID_PREFIX)),
-            ("{}user@not--mail".format(settings.INVALID_PREFIX), "user@not--mail"),
+            (f"user_{settings.INVALID_PREFIX}@mail.com", f"user_{settings.INVALID_PREFIX}@mail.com"),
+            (f"user@mail.com_{settings.INVALID_PREFIX}", f"user@mail.com_{settings.INVALID_PREFIX}"),
+            ("{0}{0}user".format(settings.INVALID_PREFIX), f"{settings.INVALID_PREFIX}user"),
+            ("{0}user{0}".format(settings.INVALID_PREFIX), f"user{settings.INVALID_PREFIX}"),
+            (f"{settings.INVALID_PREFIX}user@not--mail", "user@not--mail"),
         )
         self.assertNotEqual(settings.INVALID_PREFIX, "")
         for original_value, expected_value in test_data:
@@ -130,6 +133,23 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
         expected = [pfa, pfb, pta, ptb, wta]
 
         self.assertEqual(sort_by(['owner.name', 'city', 'country'], houses), expected)
+
+    def test_join_lazy(self):
+        test_data = {
+            'sep': (", ", lazystr(", ")),
+            'items': (
+                lambda: ["aa", "bb", "cc"],
+                lambda: [lazystr("aa"), "bb", lazystr("cc")],
+                lazy(lambda: ["aa", lazystr("bb"), "cc"], list),
+            ),
+        }
+        for sep, i_sep, items, j_items in [(s, i, l, j)
+                                           for i, s in enumerate(test_data['sep'], start=1)
+                                           for j, l in enumerate(test_data['items'], start=1)]:
+            with self.subTest(sep=i_sep, list=j_items):
+                joined = join_lazy(sep, items())
+                self.assertIn('_proxy____cast', dir(joined))
+                self.assertEqual(str(joined), "aa, bb, cc")
 
     def test_email_to_gravatar(self):
         test_data = (
