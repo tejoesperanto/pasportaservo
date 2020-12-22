@@ -227,6 +227,42 @@ class GenderFactory(DjangoModelFactory):
         lambda: ' '.join(Faker('words', locale='la', nb=2).generate({})))
 
 
+class CountryRegionFactory(DjangoModelFactory):
+    class Meta:
+        model = 'hosting.CountryRegion'
+
+    class Params:
+        short_code = factory.LazyFunction(lambda: random() < 0.20)
+
+    country = factory.LazyFunction(lambda: Country(choice(list(COUNTRIES))))
+    iso_code = Faker('pystr_format', string_format='??#', letters='ABCDEFGHJKLMNPQRSTUVWXYZ')
+    latin_code = factory.Maybe(
+        'short_code',
+        yes_declaration=Faker('pystr_format', string_format='??', letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+        no_declaration=Faker('sentence', nb_words=3))
+    latin_name = factory.Maybe(
+        'short_code',
+        yes_declaration=Faker('sentence', nb_words=3),
+        no_declaration="")
+
+    @factory.lazy_attribute
+    def esperanto_name(self):
+        latin_region = self.latin_name or self.latin_code
+        replacements = [
+            ('Q', 'Kv'), ('q', 'kv'),
+            ('W', 'V'), ('w', 'v'),
+            ('X', 'Ks'), ('x', 'ks'),
+            ('Y', 'J'), ('y ', 'i '), ('y.', 'i.'), ('y', 'j'),
+            ('Ph', 'F'), ('ph', 'f'),
+            ('Th', 'Z'), ('th', 'z'),
+            ('cc', 'k'), ('ee', 'i'), ('ll', 'l'), ('tt', 't'),
+            (' ', '-'), ('.', 'o'),
+        ]
+        for lat_letter, esp_letter in replacements:
+            latin_region = latin_region.replace(lat_letter, esp_letter)
+        return latin_region
+
+
 class WhereaboutsFactory(DjangoModelFactory):
     class Meta:
         model = 'hosting.Whereabouts'

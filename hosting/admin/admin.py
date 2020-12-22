@@ -20,7 +20,7 @@ from core.models import Agreement
 from maps.widgets import AdminMapboxGlWidget
 
 from ..models import (
-    Condition, ContactPreference, Phone, Place, Preferences,
+    Condition, ContactPreference, CountryRegion, Phone, Place, Preferences,
     Profile, TravelAdvice, VisibilitySettings, Website, Whereabouts,
 )
 from .filters import (
@@ -572,6 +572,20 @@ class PhoneAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
     def country_code(self, obj):
         return obj.number.country_code
     country_code.short_description = _("country code")
+
+
+@admin.register(CountryRegion)
+class CountryRegionAdmin(ShowCountryMixin, admin.ModelAdmin):
+    list_display = (
+        'display_country', 'iso_code',
+        'latin_code', 'latin_name', 'local_code', 'local_name', 'esperanto_name',
+    )
+    list_display_links = ('display_country', 'iso_code')
+    list_filter = (
+        CountryMentionedOnlyFilter,
+    )
+    list_editable = ('esperanto_name',)
+    ordering = ['country', 'iso_code', 'id']
 
 
 @admin.register(Whereabouts)

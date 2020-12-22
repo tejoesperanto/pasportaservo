@@ -1487,6 +1487,30 @@ msgstr "nomo"
 msgid "genders"
 msgstr "genroj"
 
+msgid "ISO code"
+msgstr "ISO-kodo"
+
+msgid "Normative code in latin letters"
+msgstr "Normigita kodo latinlitere"
+
+msgid "Full name in latin letters"
+msgstr "Plena nomo latinlitere"
+
+msgid "Normative code in local language"
+msgstr "Normigita kodo lokalingve"
+
+msgid "Full name in local language"
+msgstr "Plena nomo lokalingve"
+
+msgid "Name in Esperanto"
+msgstr "Esperanta nomo"
+
+msgid "subregion"
+msgstr "subregiono"
+
+msgid "subregions"
+msgstr "subregionoj"
+
 msgid "location type"
 msgstr "tipo de lokigo"
 

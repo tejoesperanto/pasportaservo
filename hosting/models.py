@@ -997,6 +997,48 @@ class Gender(models.Model):
         return self.name
 
 
+class CountryRegion(models.Model):
+    country = CountryField(
+        _("country"))
+    iso_code = models.CharField(
+        _("ISO code"),
+        max_length=4)
+    latin_code = models.CharField(
+        _("Normative code in latin letters"),
+        blank=False,
+        max_length=70)
+    latin_name = models.CharField(
+        _("Full name in latin letters"),
+        blank=True,
+        max_length=70)
+    local_code = models.CharField(
+        _("Normative code in local language"),
+        blank=True,
+        max_length=70)
+    local_name = models.CharField(
+        _("Full name in local language"),
+        blank=True,
+        max_length=70)
+    esperanto_name = models.CharField(
+        _("Name in Esperanto"),
+        blank=True,
+        max_length=70)
+
+    class Meta:
+        verbose_name = _("subregion")
+        verbose_name_plural = _("subregions")
+        unique_together = ('country', 'iso_code')
+        indexes = [
+            models.Index(['country', 'iso_code', 'id'], name='countryregion_isocode_pk_idx'),
+        ]
+
+    def __str__(self):
+        return "{}: {}".format(
+            self.country.code,
+            f"{self.latin_name} ({self.latin_code})" if self.latin_name else self.latin_code
+        )
+
+
 class Whereabouts(models.Model):
     type = models.CharField(
         _("location type"),
