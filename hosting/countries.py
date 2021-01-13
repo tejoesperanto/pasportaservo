@@ -16,6 +16,7 @@ COUNTRIES_DATA = {
         ],
         "population": 77006,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "AD[1-7]0\\d",
         "postcode_format": "AD###"
@@ -36,6 +37,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "emirate",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "",
         "postcode_format": ""
@@ -93,6 +95,7 @@ COUNTRIES_DATA = {
         ],
         "population": 2951776,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode\\n%locality\\n%administrativeArea",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "(?:37)?\\d{4}",
         "postcode_format": "######"
@@ -133,6 +136,7 @@ COUNTRIES_DATA = {
             "locality",
             "postalCode"
         ],
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "((?:[A-HJ-NP-Z])?\\d{4})([A-Z]{3})?",
         "postcode_format": "@####@@@"
@@ -163,6 +167,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "state",
+        "administrative_area_code": "ADM1",
         "postal_code_type": "zip",
         "postcode_regex": "(96799)(?:[ \\-](\\d{4}))?",
         "postcode_format": "#####-####"
@@ -182,6 +187,8 @@ COUNTRIES_DATA = {
             "locality",
             "postalCode"
         ],
+        "administrative_area_type": "federal state",
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{4}",
         "postcode_format": "####"
     },
@@ -203,6 +210,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "state",
+        "administrative_area_code": "ADM1",
         "locality_type": "suburb",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{4}",
@@ -245,6 +253,7 @@ COUNTRIES_DATA = {
         ],
         "population": 9942334,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
+        "administrative_area_code": "ADM2",
         "postal_code_prefix": "AZ ",
         "postcode_regex": "\\d{4}",
         "postcode_format": "AZ ####"
@@ -256,8 +265,15 @@ COUNTRIES_DATA = {
             "hr-BA",
             "sr-BA"
         ],
+        "region_language": {
+            "BIH": "bs",
+            "SRP": "sr-BA"
+        },
+        "toponym_locale": "bs",
         "population": 3323929,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
+        "administrative_area_type": "entity",
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
     },
@@ -290,6 +306,11 @@ COUNTRIES_DATA = {
             "fr-BE",
             "de-BE"
         ],
+        "region_language": {
+            "VLG": "nl-BE",
+            "WAL": "fr-BE",
+            "BRU": ""
+        },
         "population": 11422068,
         "format": "%organization\\n%givenName %familyName\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
         "required_fields": [
@@ -297,6 +318,7 @@ COUNTRIES_DATA = {
             "locality",
             "postalCode"
         ],
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{4}",
         "postcode_format": "####"
     },
@@ -333,6 +355,7 @@ COUNTRIES_DATA = {
         ],
         "population": 1569439,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%locality %postalCode",
+        "administrative_area_type": "governorate",
         "postcode_regex": "(?:\\d|1[0-2])\\d{2}",
         "postcode_format": "####|###"
     },
@@ -416,6 +439,7 @@ COUNTRIES_DATA = {
             "addressLine2",
             "locality"
         ],
+        "administrative_area_code": "ADM1",
         "postcode_regex": "",
         "postcode_format": ""
     },
@@ -450,6 +474,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "state",
+        "administrative_area_code": "ADM1",
         "dependent_locality_type": "neighborhood",
         "subdivision_depth": 2,
         "postcode_regex": "\\d{5}-?\\d{3}",
@@ -463,6 +488,7 @@ COUNTRIES_DATA = {
         "population": 385640,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%locality, %administrativeArea",
         "administrative_area_type": "island",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "",
         "postcode_format": ""
@@ -543,6 +569,7 @@ COUNTRIES_DATA = {
             "administrativeArea",
             "postalCode"
         ],
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "[ABCEGHJKLMNPRSTVXY]\\d[ABCEGHJ-NPRSTV-Z] ?\\d[ABCEGHJ-NPRSTV-Z]\\d",
         "postcode_format": "@#@ #@#"
@@ -615,6 +642,7 @@ COUNTRIES_DATA = {
             "postalCode"
         ],
         "uppercase_fields": [],
+        "administrative_area_code": "ADM1",
         "postal_code_prefix": "CH-",
         "postcode_regex": "\\d{4}",
         "postcode_format": "####"
@@ -646,6 +674,7 @@ COUNTRIES_DATA = {
         ],
         "population": 18729160,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality\\n%administrativeArea",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 2,
         "postcode_regex": "\\d{7}",
         "postcode_format": "#######"
@@ -683,6 +712,7 @@ COUNTRIES_DATA = {
         "uppercase_fields": [
             "administrativeArea"
         ],
+        "administrative_area_code": "ADM1",
         "dependent_locality_type": "district",
         "subdivision_depth": 3,
         "postcode_regex": "\\d{6}",
@@ -700,6 +730,7 @@ COUNTRIES_DATA = {
             "locality",
             "administrativeArea"
         ],
+        "administrative_area_code": "ADM1",
         "administrative_area_type": "department",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{6}",
@@ -718,6 +749,7 @@ COUNTRIES_DATA = {
             "locality",
             "administrativeArea"
         ],
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{4,5}|\\d{3}-\\d{4}",
         "postcode_format": "#####"
     },
@@ -729,6 +761,7 @@ COUNTRIES_DATA = {
         ],
         "population": 11338138,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%locality %administrativeArea\\n%postalCode",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{5}",
         "postcode_format": "CP #####"
@@ -741,6 +774,7 @@ COUNTRIES_DATA = {
         "population": 543767,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality\\n%administrativeArea",
         "administrative_area_type": "island",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{4}",
         "postcode_format": "####"
@@ -803,6 +837,7 @@ COUNTRIES_DATA = {
         "languages": [
             "de"
         ],
+        "toponym_locale": "de",
         "population": 82927922,
         "format": "%organization\\n%givenName %familyName\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
         "required_fields": [
@@ -810,6 +845,8 @@ COUNTRIES_DATA = {
             "locality",
             "postalCode"
         ],
+        "administrative_area_type": "federal state",
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
     },
@@ -912,6 +949,8 @@ COUNTRIES_DATA = {
         ],
         "population": 98423595,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%locality\\n%administrativeArea\\n%postalCode",
+        "administrative_area_type": "governorate",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
@@ -961,6 +1000,7 @@ COUNTRIES_DATA = {
             "locality",
             "administrativeArea"
         ],
+        "administrative_area_code": "ADM2",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
@@ -975,8 +1015,10 @@ COUNTRIES_DATA = {
             "so-ET",
             "sid"
         ],
+        "toponym_locale": "am",
         "population": 109224559,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{4}",
         "postcode_format": "####"
     },
@@ -987,6 +1029,7 @@ COUNTRIES_DATA = {
             "sv-FI",
             "smn"
         ],
+        "toponym_locale": "fi",
         "population": 5518050,
         "format": "%organization\\n%givenName %familyName\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
         "required_fields": [
@@ -994,6 +1037,7 @@ COUNTRIES_DATA = {
             "locality",
             "postalCode"
         ],
+        "administrative_area_code": "ADM1",
         "postal_code_prefix": "FI-",
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
@@ -1059,6 +1103,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "state",
+        "administrative_area_code": "ADM1",
         "postal_code_type": "zip",
         "postcode_regex": "(9694[1-4])(?:[ \\-](\\d{4}))?",
         "postcode_format": "#####"
@@ -1086,6 +1131,17 @@ COUNTRIES_DATA = {
             "eu",
             "oc"
         ],
+        "region_language": {
+            "ARA": "oc",
+            "BFC": "frp",
+            "BRE": "br",
+            "20R": "co",
+            "NOR": "nrf",
+            "NAQ": "oc",
+            "OCC": "oc",
+            "PDL": "br",
+            "PAC": "oc"
+        },
         "population": 66987244,
         "format": "%organization\\n%givenName %familyName\\n%addressLine1\\n%addressLine2\\n%postalCode %locality %sortingCode",
         "required_fields": [
@@ -1097,6 +1153,8 @@ COUNTRIES_DATA = {
             "locality",
             "sortingCode"
         ],
+        "administrative_area_type": "region",
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{2} ?\\d{3}",
         "postcode_format": "#####"
     },
@@ -1127,6 +1185,8 @@ COUNTRIES_DATA = {
             "locality",
             "postalCode"
         ],
+        "administrative_area_type": "country",
+        "administrative_area_code": "ADM1",
         "locality_type": "post_town",
         "postcode_regex": "GIR ?0AA|(?:(?:AB|AL|B|BA|BB|BD|BF|BH|BL|BN|BR|BS|BT|BX|CA|CB|CF|CH|CM|CO|CR|CT|CV|CW|DA|DD|DE|DG|DH|DL|DN|DT|DY|E|EC|EH|EN|EX|FK|FY|G|GL|GY|GU|HA|HD|HG|HP|HR|HS|HU|HX|IG|IM|IP|IV|JE|KA|KT|KW|KY|L|LA|LD|LE|LL|LN|LS|LU|M|ME|MK|ML|N|NE|NG|NN|NP|NR|NW|OL|OX|PA|PE|PH|PL|PO|PR|RG|RH|RM|S|SA|SE|SG|SK|SL|SM|SN|SO|SP|SR|SS|ST|SW|SY|TA|TD|TF|TN|TQ|TR|TS|TW|UB|W|WA|WC|WD|WF|WN|WR|WS|WV|YO|ZE)(?:\\d[\\dA-Z]? ?\\d[ABD-HJLN-UW-Z]{2}))|BFPO ?\\d{1,4}",
         "postcode_format": "@# #@@|@## #@@|@@# #@@|@@## #@@|@#@ #@@|@@#@ #@@|GIR0AA"
@@ -1148,8 +1208,12 @@ COUNTRIES_DATA = {
             "hy",
             "az"
         ],
+        "region_language": {
+            "AB": "ab"
+        },
         "population": 3731000,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{4}",
         "postcode_format": "####"
     },
@@ -1300,6 +1364,7 @@ COUNTRIES_DATA = {
             "en",
             "fr"
         ],
+        "toponym_locale": "DECODE",
         "population": 10727668,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
         "required_fields": [
@@ -1307,6 +1372,7 @@ COUNTRIES_DATA = {
             "locality",
             "postalCode"
         ],
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{3} ?\\d{2}",
         "postcode_format": "### ##"
     },
@@ -1439,6 +1505,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "department",
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
     },
@@ -1504,6 +1571,7 @@ COUNTRIES_DATA = {
             "addressLine1",
             "administrativeArea"
         ],
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
@@ -1517,9 +1585,10 @@ COUNTRIES_DATA = {
         "population": 4853506,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%dependentLocality\\n%locality\\n%administrativeArea\\n%postalCode",
         "administrative_area_type": "county",
+        "administrative_area_code": "ADM1",
         "dependent_locality_type": "townland",
-        "postal_code_type": "eircode",
         "subdivision_depth": 1,
+        "postal_code_type": "eircode",
         "postcode_regex": "[\\dA-Z]{3} ?[\\dA-Z]{4}",
         "postcode_format": "@@@ @@@@"
     },
@@ -1594,8 +1663,9 @@ COUNTRIES_DATA = {
             "postalCode"
         ],
         "administrative_area_type": "state",
-        "postal_code_type": "pin",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
+        "postal_code_type": "pin",
         "postcode_regex": "\\d{6}",
         "postcode_format": "######"
     },
@@ -1636,6 +1706,8 @@ COUNTRIES_DATA = {
             "locality",
             "administrativeArea"
         ],
+        "administrative_area_type": "governorate",
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
     },
@@ -1645,8 +1717,10 @@ COUNTRIES_DATA = {
             "fa-IR",
             "ku"
         ],
+        "toponym_locale": "phon",
         "population": 81800269,
         "format": "%organization\\n%givenName %familyName\\n%administrativeArea\\n%locality, %dependentLocality\\n%addressLine1\\n%addressLine2\\n%postalCode",
+        "administrative_area_code": "ADM1",
         "dependent_locality_type": "neighborhood",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{5}-?\\d{5}",
@@ -1690,6 +1764,7 @@ COUNTRIES_DATA = {
             "locality",
             "administrativeArea"
         ],
+        "administrative_area_code": "ADM2",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
@@ -1727,6 +1802,7 @@ COUNTRIES_DATA = {
             "locality",
             "administrativeArea"
         ],
+        "administrative_area_code": "ADM1",
         "administrative_area_type": "parish",
         "subdivision_depth": 1,
         "postcode_regex": "",
@@ -1740,6 +1816,7 @@ COUNTRIES_DATA = {
         ],
         "population": 9956011,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%locality %postalCode",
+        "administrative_area_type": "governorate",
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
     },
@@ -1760,6 +1837,7 @@ COUNTRIES_DATA = {
         "uppercase_fields": [
             "administrativeArea"
         ],
+        "administrative_area_code": "ADM1",
         "administrative_area_type": "prefecture",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{3}-?\\d{4}",
@@ -1773,6 +1851,7 @@ COUNTRIES_DATA = {
         ],
         "population": 51393010,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%locality\\n%postalCode",
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
     },
@@ -1834,6 +1913,8 @@ COUNTRIES_DATA = {
             "addressLine2",
             "locality"
         ],
+        "administrative_area_type": "island",
+        "administrative_area_code": "ADM1",
         "postcode_regex": "",
         "postcode_format": ""
     },
@@ -1850,6 +1931,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "island",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "",
         "postcode_format": ""
@@ -1863,6 +1945,7 @@ COUNTRIES_DATA = {
         "locale": "ko",
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%locality\\n%administrativeArea, %postalCode",
         "local_format": "%postalCode\\n%administrativeArea\\n%locality\\n%addressLine1\\n%addressLine2\\n%organization\\n%givenName %familyName",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "(\\d{6})",
         "postcode_format": "###-###"
@@ -1887,6 +1970,7 @@ COUNTRIES_DATA = {
             "postalCode"
         ],
         "administrative_area_type": "do_si",
+        "administrative_area_code": "ADM1",
         "dependent_locality_type": "district",
         "subdivision_depth": 3,
         "postcode_regex": "\\d{5}",
@@ -1900,6 +1984,7 @@ COUNTRIES_DATA = {
         ],
         "population": 4137309,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
+        "administrative_area_type": "governorate",
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
     },
@@ -1952,6 +2037,7 @@ COUNTRIES_DATA = {
         ],
         "population": 6848925,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%locality %postalCode",
+        "administrative_area_type": "governorate",
         "postcode_regex": "(?:\\d{4})(?: ?(?:\\d{4}))?",
         "postcode_format": "#### ####|####"
     },
@@ -1987,8 +2073,10 @@ COUNTRIES_DATA = {
             "ta",
             "en"
         ],
+        "toponym_locale": "phon",
         "population": 21670000,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%locality\\n%postalCode",
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
     },
@@ -2115,6 +2203,7 @@ COUNTRIES_DATA = {
         ],
         "population": 3545883,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
+        "administrative_area_code": "ADM1",
         "postal_code_prefix": "MD-",
         "postcode_regex": "\\d{4}",
         "postcode_format": "MD-####"
@@ -2191,6 +2280,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "state",
+        "administrative_area_code": "ADM1",
         "postal_code_type": "zip",
         "postcode_regex": "(969[67]\\d)(?:[ \\-](\\d{4}))?",
         "postcode_format": "#####-####"
@@ -2284,7 +2374,8 @@ COUNTRIES_DATA = {
             "organization",
             "administrativeArea"
         ],
-        "administrative_area_type": "state",
+        "administrative_area_type": "island",
+        "administrative_area_code": "ADM1",
         "postal_code_type": "zip",
         "postcode_regex": "(9695[012])(?:[ \\-](\\d{4}))?",
         "postcode_format": "#####"
@@ -2412,6 +2503,7 @@ COUNTRIES_DATA = {
             "postalCode"
         ],
         "administrative_area_type": "state",
+        "administrative_area_code": "ADM1",
         "dependent_locality_type": "neighborhood",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{5}",
@@ -2441,6 +2533,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "state",
+        "administrative_area_code": "ADM1",
         "dependent_locality_type": "village_township",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{5}",
@@ -2454,6 +2547,7 @@ COUNTRIES_DATA = {
         ],
         "population": 29495962,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality%administrativeArea",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{4}",
         "postcode_format": "####"
@@ -2536,6 +2630,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "state",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{6}",
         "postcode_format": "######"
@@ -2553,6 +2648,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "department",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
@@ -2570,6 +2666,7 @@ COUNTRIES_DATA = {
             "locality",
             "postalCode"
         ],
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{4} ?[A-Z]{2}",
         "postcode_format": "#### @@"
     },
@@ -2617,6 +2714,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "district",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "",
         "postcode_format": ""
@@ -2644,6 +2742,7 @@ COUNTRIES_DATA = {
             "locality",
             "postalCode"
         ],
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{4}",
         "postcode_format": "####"
     },
@@ -2684,6 +2783,7 @@ COUNTRIES_DATA = {
         ],
         "population": 31989256,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%locality %postalCode\\n%administrativeArea",
+        "administrative_area_code": "ADM1",
         "locality_type": "district",
         "subdivision_depth": 1,
         "postcode_regex": "(?:LIMA \\d{1,2}|CALLAO 0?\\d)|[0-2]\\d{4}",
@@ -2695,6 +2795,13 @@ COUNTRIES_DATA = {
             "fr-PF",
             "ty"
         ],
+        "region_language": {
+            "I": "ty",
+            "M": "ty",
+            "S": "ty",
+            "T": "ty",
+            "V": "ty"
+        },
         "population": 277679,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality %administrativeArea",
         "required_fields": [
@@ -2708,6 +2815,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "island",
+        "administrative_area_code": "ADM1",
         "postcode_regex": "987\\d{2}",
         "postcode_format": "#####"
     },
@@ -2726,6 +2834,7 @@ COUNTRIES_DATA = {
             "locality",
             "administrativeArea"
         ],
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{3}",
         "postcode_format": "###"
     },
@@ -2759,6 +2868,7 @@ COUNTRIES_DATA = {
         ],
         "population": 106651922,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%dependentLocality, %locality\\n%postalCode %administrativeArea",
+        "administrative_area_code": "ADM2",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{4}",
         "postcode_format": "####"
@@ -2773,8 +2883,10 @@ COUNTRIES_DATA = {
             "ps",
             "brh"
         ],
+        "toponym_locale": "en",
         "population": 212215030,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%locality-%postalCode",
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
     },
@@ -2783,6 +2895,7 @@ COUNTRIES_DATA = {
         "languages": [
             "pl"
         ],
+        "toponym_locale": "pl",
         "population": 37978548,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
         "required_fields": [
@@ -2790,6 +2903,7 @@ COUNTRIES_DATA = {
             "locality",
             "postalCode"
         ],
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{2}-\\d{3}",
         "postcode_format": "##-###"
     },
@@ -2882,6 +2996,7 @@ COUNTRIES_DATA = {
             "locality",
             "postalCode"
         ],
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{4}-\\d{3}",
         "postcode_format": "####-###"
     },
@@ -2915,6 +3030,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "state",
+        "administrative_area_code": "ADM1",
         "postal_code_type": "zip",
         "postcode_regex": "(969(?:39|40))(?:[ \\-](\\d{4}))?",
         "postcode_format": "96939|96939-####|96940|96940-####"
@@ -3043,6 +3159,7 @@ COUNTRIES_DATA = {
             "locality"
         ],
         "administrative_area_type": "oblast",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{6}",
         "postcode_format": "######"
@@ -3081,6 +3198,7 @@ COUNTRIES_DATA = {
             "tpi"
         ],
         "population": 652858,
+        "administrative_area_code": "ADM1",
         "postcode_regex": "",
         "postcode_format": ""
     },
@@ -3166,6 +3284,7 @@ COUNTRIES_DATA = {
             "locality",
             "postalCode"
         ],
+        "administrative_area_code": "ADM1",
         "postcode_regex": "(?:ASCN|STHL) 1ZZ",
         "postcode_format": "STHL 1ZZ"
     },
@@ -3273,6 +3392,7 @@ COUNTRIES_DATA = {
             "locality",
             "administrativeArea"
         ],
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "[A-Z]{2} ?\\d{5}",
         "postcode_format": "@@  #####"
@@ -3293,6 +3413,8 @@ COUNTRIES_DATA = {
             "addressLine2",
             "administrativeArea"
         ],
+        "administrative_area_type": "district",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "",
         "postcode_format": ""
@@ -3332,6 +3454,7 @@ COUNTRIES_DATA = {
             "administrativeArea",
             "postalCode"
         ],
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "CP [1-3][1-7][0-2]\\d",
         "postcode_format": "CP ####"
@@ -3356,6 +3479,7 @@ COUNTRIES_DATA = {
             "en"
         ],
         "population": 16906283,
+        "administrative_area_type": "governorate",
         "locality_type": "district",
         "postcode_regex": "",
         "postcode_format": ""
@@ -3443,6 +3567,7 @@ COUNTRIES_DATA = {
         "uppercase_fields": [
             "administrativeArea"
         ],
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
@@ -3453,8 +3578,10 @@ COUNTRIES_DATA = {
             "tg",
             "ru"
         ],
+        "toponym_locale": "phon",
         "population": 9100837,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{6}",
         "postcode_format": "######"
     },
@@ -3500,6 +3627,7 @@ COUNTRIES_DATA = {
         ],
         "population": 11565204,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
+        "administrative_area_type": "governorate",
         "postcode_regex": "\\d{4}",
         "postcode_format": "####"
     },
@@ -3529,6 +3657,7 @@ COUNTRIES_DATA = {
             "locality",
             "postalCode"
         ],
+        "administrative_area_code": "ADM1",
         "locality_type": "district",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{5}",
@@ -3544,6 +3673,7 @@ COUNTRIES_DATA = {
             "zh"
         ],
         "population": 1389858,
+        "administrative_area_code": "ADM1",
         "postcode_regex": "",
         "postcode_format": ""
     },
@@ -3564,6 +3694,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "island",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "",
         "postcode_format": ""
@@ -3587,6 +3718,7 @@ COUNTRIES_DATA = {
             "postalCode"
         ],
         "administrative_area_type": "county",
+        "administrative_area_code": "ADM2",
         "subdivision_depth": 2,
         "postcode_regex": "\\d{3}(?:\\d{2,3})?",
         "postcode_format": "#####"
@@ -3600,6 +3732,7 @@ COUNTRIES_DATA = {
         ],
         "population": 56318348,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{4,5}",
         "postcode_format": "####|#####"
     },
@@ -3620,6 +3753,7 @@ COUNTRIES_DATA = {
             "postalCode"
         ],
         "administrative_area_type": "oblast",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
@@ -3659,6 +3793,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "state",
+        "administrative_area_code": "ADM1",
         "postal_code_type": "zip",
         "postcode_regex": "96898",
         "postcode_format": "96898"
@@ -3684,8 +3819,9 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "state",
-        "postal_code_type": "zip",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
+        "postal_code_type": "zip",
         "postcode_regex": "(\\d{5})(?:[ \\-](\\d{4}))?",
         "postcode_format": "#####-####"
     },
@@ -3700,6 +3836,7 @@ COUNTRIES_DATA = {
             "locality",
             "administrativeArea"
         ],
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{5}",
         "postcode_format": "#####"
@@ -3711,12 +3848,17 @@ COUNTRIES_DATA = {
             "ru",
             "tg"
         ],
+        "region_language": {
+            "QR": "kaa"
+        },
+        "toponym_locale": "uz",
         "population": 32955400,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality\\n%administrativeArea",
         "uppercase_fields": [
             "locality",
             "administrativeArea"
         ],
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{6}",
         "postcode_format": "######"
     },
@@ -3760,6 +3902,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "state",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{4}",
         "postcode_format": "####"
@@ -3801,6 +3944,7 @@ COUNTRIES_DATA = {
             "administrativeArea"
         ],
         "administrative_area_type": "state",
+        "administrative_area_code": "ADM1",
         "postal_code_type": "zip",
         "postcode_regex": "(008(?:(?:[0-4]\\d)|(?:5[01])))(?:[ \\-](\\d{4}))?",
         "postcode_format": "#####-####"
@@ -3816,6 +3960,7 @@ COUNTRIES_DATA = {
         ],
         "population": 95540395,
         "format": "%familyName %givenName\\n%organization\\n%addressLine1\\n%addressLine2\\n%locality\\n%administrativeArea %postalCode",
+        "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{5}\\d?",
         "postcode_format": "######"
@@ -3870,6 +4015,7 @@ COUNTRIES_DATA = {
             "ar-YE"
         ],
         "population": 28498687,
+        "administrative_area_type": "governorate",
         "postcode_regex": "",
         "postcode_format": ""
     },
@@ -3916,6 +4062,7 @@ COUNTRIES_DATA = {
             "locality",
             "postalCode"
         ],
+        "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{4}",
         "postcode_format": "####"
     },

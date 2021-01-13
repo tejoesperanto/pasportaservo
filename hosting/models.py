@@ -76,10 +76,10 @@ PHONE_TYPE_CHOICES = (
     (FAX, _("fax")),
 )
 
-LOCATION_CITY, LOCATION_PROVINCE = 'C', 'P'
+LOCATION_CITY, LOCATION_REGION = 'C', 'R'
 WHEREABOUTS_TYPE_CHOICES = (
     (LOCATION_CITY, _("City")),
-    (LOCATION_PROVINCE, _("State / Province")),
+    (LOCATION_REGION, _("State / Province")),
 )
 
 
