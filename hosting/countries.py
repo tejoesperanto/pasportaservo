@@ -22,7 +22,7 @@ COUNTRIES_DATA = {
         "postcode_format": "AD###"
     },
     "AE": {
-        "local_name": "United Arab Emirates",
+        "local_name": "al-ʾImārāt al-ʿArabīyah al-Muttaḥidah / الإمارات العربية المتحدة",
         "languages": [
             "ar-AE",
             "fa",
@@ -43,7 +43,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "AF": {
-        "local_name": "Afghanistan",
+        "local_name": "Afġānistān / افغانستان",
         "languages": [
             "fa-AF",
             "ps",
@@ -89,7 +89,7 @@ COUNTRIES_DATA = {
         "postcode_format": "####"
     },
     "AM": {
-        "local_name": "Armenia",
+        "local_name": "Hayastan / Հայաստան",
         "languages": [
             "hy"
         ],
@@ -229,7 +229,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "AX": {
-        "local_name": "Aland Islands",
+        "local_name": "Åland",
         "languages": [
             "sv-AX"
         ],
@@ -245,7 +245,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "AZ": {
-        "local_name": "Azerbaijan",
+        "local_name": "Azərbaycan",
         "languages": [
             "az",
             "ru",
@@ -259,7 +259,7 @@ COUNTRIES_DATA = {
         "postcode_format": "AZ ####"
     },
     "BA": {
-        "local_name": "Bosna i Hercegovina",
+        "local_name": "Bosna i Hercegovina – Босна и Херцеговина",
         "languages": [
             "bs",
             "hr-BA",
@@ -289,7 +289,7 @@ COUNTRIES_DATA = {
         "postcode_format": "BB#####"
     },
     "BD": {
-        "local_name": "Bangladesh",
+        "local_name": "Bangladesh / বাংলাদেশ",
         "languages": [
             "bn-BD",
             "en"
@@ -300,7 +300,7 @@ COUNTRIES_DATA = {
         "postcode_format": "####"
     },
     "BE": {
-        "local_name": "België - Belgique - Belgien",
+        "local_name": "België – Belgique – Belgien",
         "languages": [
             "nl-BE",
             "fr-BE",
@@ -334,7 +334,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "BG": {
-        "local_name": "България",
+        "local_name": "Balgariya / България",
         "languages": [
             "bg",
             "tr-BG",
@@ -346,7 +346,7 @@ COUNTRIES_DATA = {
         "postcode_format": "####"
     },
     "BH": {
-        "local_name": "البحرين",
+        "local_name": "al-Baḥrayn / البحرين",
         "languages": [
             "ar-BH",
             "en",
@@ -416,7 +416,7 @@ COUNTRIES_DATA = {
         "postcode_format": "@@ ##"
     },
     "BN": {
-        "local_name": "Brunei Darussalam",
+        "local_name": "Brunei Darussalam – بروني دارالسلام",
         "languages": [
             "ms-BN",
             "en-BN"
@@ -494,7 +494,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "BT": {
-        "local_name": "Bhutan",
+        "local_name": "Druk Yul / འབྲུག་ཡུལ་",
         "languages": [
             "dz"
         ],
@@ -504,7 +504,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "BV": {
-        "local_name": "Bouvet Island",
+        "local_name": "Bouvet-øya",
         "languages": [
             "no"
         ],
@@ -523,7 +523,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "BY": {
-        "local_name": "Беларусь",
+        "local_name": "Belarus / Беларусь",
         "languages": [
             "be",
             "ru"
@@ -575,7 +575,7 @@ COUNTRIES_DATA = {
         "postcode_format": "@#@ #@#"
     },
     "CC": {
-        "local_name": "Cocos (Keeling) Islands",
+        "local_name": "Pulu Kokos (Keeling)",
         "languages": [
             "ms-CC",
             "en"
@@ -627,7 +627,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "CH": {
-        "local_name": "Switzerland",
+        "local_name": "Schweiz – Suisse – Svizzera – Svizra",
         "languages": [
             "de-CH",
             "fr-CH",
@@ -680,7 +680,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#######"
     },
     "CM": {
-        "local_name": "Cameroon;Cameroun",
+        "local_name": "Cameroon – Cameroun",
         "languages": [
             "en-CM",
             "fr-CM"
@@ -690,7 +690,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "CN": {
-        "local_name": "China 中国",
+        "local_name": "Zhōngguó / 中国",
         "languages": [
             "zh-CN",
             "yue",
@@ -805,7 +805,7 @@ COUNTRIES_DATA = {
         "postcode_format": "6798"
     },
     "CY": {
-        "local_name": "Κύπρος",
+        "local_name": "Kipros / Κύπρος – Kıbrıs",
         "languages": [
             "el-CY",
             "tr-CY",
@@ -851,7 +851,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "DJ": {
-        "local_name": "جيبوتي;Djibouti",
+        "local_name": "Djibouti / جيبوتي",
         "languages": [
             "fr-DJ",
             "ar",
@@ -900,7 +900,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "DZ": {
-        "local_name": "الجزائر",
+        "local_name": "al-Jazā'ir / الجزائر",
         "languages": [
             "ar-DZ"
         ],
@@ -941,7 +941,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "EG": {
-        "local_name": "Egypt / مصر",
+        "local_name": "Miṣr / مصر",
         "languages": [
             "ar-EG",
             "en",
@@ -956,7 +956,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "EH": {
-        "local_name": "Western Sahara",
+        "local_name": "aṣ-Ṣaḥrā' al-Gharbiyyah / الصحراء الغربية",
         "languages": [
             "ar",
             "mey"
@@ -1006,7 +1006,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "ET": {
-        "local_name": "Ethiopia",
+        "local_name": "Itiyoophiyaa / ኢትዮጵያ",
         "languages": [
             "am",
             "en-ET",
@@ -1109,7 +1109,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "FO": {
-        "local_name": "Føroyar/Færøerne",
+        "local_name": "Føroyar – Færøerne",
         "languages": [
             "fo",
             "da-FO"
@@ -1201,7 +1201,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "GE": {
-        "local_name": "Georgia / საქართველო",
+        "local_name": "Sakartvelo / საქართველო",
         "languages": [
             "ka",
             "ru",
@@ -1287,7 +1287,7 @@ COUNTRIES_DATA = {
         "postcode_format": "GX11 1AA"
     },
     "GL": {
-        "local_name": "Kalaallit Nunaat",
+        "local_name": "Kalaallit Nunaat – Grønland",
         "languages": [
             "kl",
             "da-GL",
@@ -1358,7 +1358,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "GR": {
-        "local_name": "Ελλάδα",
+        "local_name": "Ellada / Ελλάδα",
         "languages": [
             "el-GR",
             "en",
@@ -1452,7 +1452,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "HK": {
-        "local_name": "Hong Kong",
+        "local_name": "Hong Kong / 香港",
         "languages": [
             "zh-HK",
             "yue",
@@ -1577,7 +1577,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "IE": {
-        "local_name": "Ireland",
+        "local_name": "Ireland – Éire",
         "languages": [
             "en-IE",
             "ga-IE"
@@ -1593,7 +1593,7 @@ COUNTRIES_DATA = {
         "postcode_format": "@@@ @@@@"
     },
     "IL": {
-        "local_name": "ישראל",
+        "local_name": "Israel / ישראל",
         "languages": [
             "he",
             "ar-IL",
@@ -1605,7 +1605,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#######"
     },
     "IM": {
-        "local_name": "Isle of Man",
+        "local_name": "Isle of Man – Ellan Vannin",
         "languages": [
             "en",
             "gv"
@@ -1625,7 +1625,7 @@ COUNTRIES_DATA = {
         "postcode_format": "IM# #@@|IM## #@@"
     },
     "IN": {
-        "local_name": "India",
+        "local_name": "Bhārat / भारत",
         "languages": [
             "en-IN",
             "hi",
@@ -1689,7 +1689,7 @@ COUNTRIES_DATA = {
         "postcode_format": "BBND 1ZZ"
     },
     "IQ": {
-        "local_name": "Iraq",
+        "local_name": "Iraq / ٱلْعِرَاق‎ – عێراق‎",
         "languages": [
             "ar-IQ",
             "ku",
@@ -1712,7 +1712,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "IR": {
-        "local_name": "ایران",
+        "local_name": "Iran / ایران‎",
         "languages": [
             "fa-IR",
             "ku"
@@ -1809,7 +1809,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "JO": {
-        "local_name": "Jordan / الأُرْدُن",
+        "local_name": "al-ʾUrdunn / الأُرْدُن",
         "languages": [
             "ar-JO",
             "en"
@@ -1821,7 +1821,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "JP": {
-        "local_name": "日本 (Japan)",
+        "local_name": "Nippon / 日本",
         "languages": [
             "ja"
         ],
@@ -1856,7 +1856,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "KG": {
-        "local_name": "Kyrgyzstan",
+        "local_name": "Qırğızstan / Кыргызстан",
         "languages": [
             "ky",
             "uz",
@@ -1868,7 +1868,7 @@ COUNTRIES_DATA = {
         "postcode_format": "######"
     },
     "KH": {
-        "local_name": "Cambodia",
+        "local_name": "Kampuchea / កម្ពុជា",
         "languages": [
             "km",
             "fr",
@@ -1902,7 +1902,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "KM": {
-        "local_name": "Comores;ﺍﻟﻘﻤﺮي;Komori",
+        "local_name": "Comores – ﺍﻟﻘﻤﺮي – Komori",
         "languages": [
             "ar",
             "fr-KM"
@@ -1937,7 +1937,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "KP": {
-        "local_name": "북조선",
+        "local_name": "Pukchosŏn / 북조선",
         "languages": [
             "ko-KP"
         ],
@@ -1951,7 +1951,7 @@ COUNTRIES_DATA = {
         "postcode_format": "###-###"
     },
     "KR": {
-        "local_name": "대한민국",
+        "local_name": "Hanguk / 한국",
         "languages": [
             "ko-KR",
             "en"
@@ -2005,7 +2005,7 @@ COUNTRIES_DATA = {
         "postcode_format": "KY#-####"
     },
     "KZ": {
-        "local_name": "Kazakhstan",
+        "local_name": "Qazaqstan / Қазақстан",
         "languages": [
             "kk",
             "ru"
@@ -2016,7 +2016,7 @@ COUNTRIES_DATA = {
         "postcode_format": "######"
     },
     "LA": {
-        "local_name": "Laos",
+        "local_name": "Lāo / ລາວ",
         "languages": [
             "lo",
             "fr",
@@ -2028,7 +2028,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "LB": {
-        "local_name": "لبنان Lebanon",
+        "local_name": "Lubnān / لبنان‎",
         "languages": [
             "ar-LB",
             "fr-LB",
@@ -2067,7 +2067,7 @@ COUNTRIES_DATA = {
         "postcode_format": "####"
     },
     "LK": {
-        "local_name": "Sri Lanka",
+        "local_name": "Śrī Laṅkā / ශ්‍රී ලංකා – Ilaṅkai / இலங்கை",
         "languages": [
             "si",
             "ta",
@@ -2123,7 +2123,7 @@ COUNTRIES_DATA = {
         "postcode_format": "LT-#####"
     },
     "LU": {
-        "local_name": "Luxembourg",
+        "local_name": "Lëtzebuerg – Luxemburg – Luxembourg",
         "languages": [
             "lb",
             "de-LU",
@@ -2158,7 +2158,7 @@ COUNTRIES_DATA = {
         "postcode_format": "LV-####"
     },
     "LY": {
-        "local_name": "Libya / ليبيا",
+        "local_name": "Lībiyā / ليبيا",
         "languages": [
             "ar-LY",
             "it",
@@ -2169,7 +2169,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "MA": {
-        "local_name": "Maroc",
+        "local_name": "al-Maḡrib / المغرب‎",
         "languages": [
             "ar-MA",
             "ber",
@@ -2209,7 +2209,7 @@ COUNTRIES_DATA = {
         "postcode_format": "MD-####"
     },
     "ME": {
-        "local_name": "Crna Gora",
+        "local_name": "Crna Gora / Црна Гора",
         "languages": [
             "sr",
             "hu",
@@ -2245,7 +2245,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "MG": {
-        "local_name": "Madagascar",
+        "local_name": "Madagasikara",
         "languages": [
             "fr-MG",
             "mg"
@@ -2286,7 +2286,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####-####"
     },
     "MK": {
-        "local_name": "Македонија",
+        "local_name": "Severna Makedonija / Северна Македонија – Maqedonia e Veriut",
         "languages": [
             "mk",
             "sq",
@@ -2310,7 +2310,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "MM": {
-        "local_name": "Myanmar",
+        "local_name": "Myanmar / မြန်မာ",
         "languages": [
             "my"
         ],
@@ -2320,7 +2320,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "MN": {
-        "local_name": "Монгол Улс",
+        "local_name": "Mongol Uls / Монгол Улс",
         "languages": [
             "mn",
             "ru"
@@ -2402,7 +2402,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "MR": {
-        "local_name": "موريتانيا",
+        "local_name": "Mūrītānyā / موريتانيا",
         "languages": [
             "ar-MR",
             "fuc",
@@ -2461,7 +2461,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####|###@@###"
     },
     "MV": {
-        "local_name": "Maldives",
+        "local_name": "Dhivehi Raajje / ދިވެހިރާއްޖެ",
         "languages": [
             "dv",
             "en"
@@ -2472,7 +2472,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "MW": {
-        "local_name": "Malawi",
+        "local_name": "Malaŵi",
         "languages": [
             "ny",
             "yao",
@@ -2510,7 +2510,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "MY": {
-        "local_name": "Malaysia",
+        "local_name": "Malaysia – مليسيا",
         "languages": [
             "ms-MY",
             "en",
@@ -2691,7 +2691,7 @@ COUNTRIES_DATA = {
         "postcode_format": "####"
     },
     "NP": {
-        "local_name": "Nepal",
+        "local_name": "Nepal / नेपाल",
         "languages": [
             "ne",
             "en"
@@ -2747,7 +2747,7 @@ COUNTRIES_DATA = {
         "postcode_format": "####"
     },
     "OM": {
-        "local_name": "سلطنة عُمان Oman",
+        "local_name": "ʿUmān / عُمَان‎",
         "languages": [
             "ar-OM",
             "en",
@@ -2839,7 +2839,7 @@ COUNTRIES_DATA = {
         "postcode_format": "###"
     },
     "PH": {
-        "local_name": "Philippines",
+        "local_name": "Pilipinas",
         "languages": [
             "tl",
             "en-PH",
@@ -2874,7 +2874,7 @@ COUNTRIES_DATA = {
         "postcode_format": "####"
     },
     "PK": {
-        "local_name": "پاکستان",
+        "local_name": "Pakistan / پاکستان",
         "languages": [
             "ur-PK",
             "en-PK",
@@ -2975,7 +2975,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####-####"
     },
     "PS": {
-        "local_name": "Palestinian Territory",
+        "local_name": "Filasṭīn / فلسطين‎",
         "languages": [
             "ar-PS"
         ],
@@ -3047,7 +3047,7 @@ COUNTRIES_DATA = {
         "postcode_format": "####"
     },
     "QA": {
-        "local_name": "قطر Qatar",
+        "local_name": "Qaṭar / قطر‎",
         "languages": [
             "ar-QA",
             "es"
@@ -3105,7 +3105,7 @@ COUNTRIES_DATA = {
         "postcode_format": "######"
     },
     "RS": {
-        "local_name": "Србија (Serbia)",
+        "local_name": "Srbija / Србија",
         "languages": [
             "sr",
             "hu",
@@ -3118,7 +3118,7 @@ COUNTRIES_DATA = {
         "postcode_format": "######"
     },
     "RU": {
-        "local_name": "Россия",
+        "local_name": "Rossiya / Россия",
         "languages": [
             "ru",
             "tt",
@@ -3182,7 +3182,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "SA": {
-        "local_name": "Saudi Arabia / السعودية",
+        "local_name": "as-Saʿūdīyah / ٱلسَّعُوْدِيَّة‎",
         "languages": [
             "ar-SA"
         ],
@@ -3218,7 +3218,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "SD": {
-        "local_name": "السودان ‎al-Sūdān",
+        "local_name": "as-Sūdān / السودان",
         "languages": [
             "ar-SD",
             "en",
@@ -3251,7 +3251,7 @@ COUNTRIES_DATA = {
         "postcode_format": "### ##"
     },
     "SG": {
-        "local_name": "Singapore",
+        "local_name": "Singapura",
         "languages": [
             "cmn",
             "en-SG",
@@ -3301,7 +3301,7 @@ COUNTRIES_DATA = {
         "postcode_format": "####"
     },
     "SJ": {
-        "local_name": "Svalbard and Jan Mayen",
+        "local_name": "Svalbard og Jan Mayen",
         "languages": [
             "no",
             "ru"
@@ -3372,7 +3372,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "SO": {
-        "local_name": "Somalia / الصومال",
+        "local_name": "Soomaaliya – aṣ-Ṣūmāl / الصومال‎",
         "languages": [
             "so-SO",
             "ar-SO",
@@ -3420,7 +3420,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "SS": {
-        "local_name": "South Sudan",
+        "local_name": "Sudan Kusini",
         "languages": [
             "en"
         ],
@@ -3469,7 +3469,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "SY": {
-        "local_name": "Sūriyya سوريا",
+        "local_name": "Sūriyā / سوريا",
         "languages": [
             "ar-SY",
             "ku",
@@ -3521,7 +3521,7 @@ COUNTRIES_DATA = {
         "postcode_format": "TKCA 1ZZ"
     },
     "TD": {
-        "local_name": "Tchad / تشاد",
+        "local_name": "Tchad – Tishād / تشاد",
         "languages": [
             "fr-TD",
             "ar-TD",
@@ -3555,7 +3555,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "TH": {
-        "local_name": "ประเทศไทย",
+        "local_name": "Tyland / ประเทศไทย",
         "languages": [
             "th",
             "en"
@@ -3573,7 +3573,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "TJ": {
-        "local_name": "Tajikistan",
+        "local_name": "Tadzhikistan / Тоҷикистон",
         "languages": [
             "tg",
             "ru"
@@ -3596,7 +3596,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "TL": {
-        "local_name": "Timor-Leste; Timor Lorosa'e",
+        "local_name": "Timor-Leste – Timor Lorosa'e",
         "languages": [
             "tet",
             "pt-TL",
@@ -3620,7 +3620,7 @@ COUNTRIES_DATA = {
         "postcode_format": "######"
     },
     "TN": {
-        "local_name": "تونس",
+        "local_name": "Tūnis / تونس‎",
         "languages": [
             "ar-TN",
             "fr"
@@ -3700,7 +3700,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "TW": {
-        "local_name": "Taiwan",
+        "local_name": "Táiwān / 台湾",
         "languages": [
             "zh-TW",
             "zh",
@@ -3737,7 +3737,7 @@ COUNTRIES_DATA = {
         "postcode_format": "####|#####"
     },
     "UA": {
-        "local_name": "Україна",
+        "local_name": "Ukrayina / Україна",
         "languages": [
             "uk",
             "ru-UA",
@@ -3842,7 +3842,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "UZ": {
-        "local_name": "Uzbekistan",
+        "local_name": "Oʻzbekiston",
         "languages": [
             "uz",
             "ru",
@@ -3863,7 +3863,7 @@ COUNTRIES_DATA = {
         "postcode_format": "######"
     },
     "VA": {
-        "local_name": "Città del Vaticano",
+        "local_name": "Civitas Vaticana – Città del Vaticano",
         "languages": [
             "la",
             "it",
@@ -4000,7 +4000,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "WS": {
-        "local_name": "Samoa",
+        "local_name": "Sāmoa",
         "languages": [
             "sm",
             "en-WS"
@@ -4010,7 +4010,7 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     },
     "YE": {
-        "local_name": "اليَمَن al-Yaman",
+        "local_name": "al-Yaman / ٱلْيَمَن‎",
         "languages": [
             "ar-YE"
         ],
@@ -4041,7 +4041,7 @@ COUNTRIES_DATA = {
         "postcode_format": "#####"
     },
     "ZA": {
-        "local_name": "South Africa",
+        "local_name": "iNingizimu Afrika – uMzantsi Afrika – Suid-Afrika",
         "languages": [
             "zu",
             "xh",
