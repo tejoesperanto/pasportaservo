@@ -5,7 +5,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from django_countries.fields import Country
 
-from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
+from maps import SRID
+
+from ..countries import countries_with_mandatory_region
 
 
 class WhereaboutsAdminForm(ModelForm):
@@ -30,7 +32,7 @@ class WhereaboutsAdminForm(ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data.get('country') in COUNTRIES_WITH_MANDATORY_REGION and not cleaned_data.get('state'):
+        if cleaned_data.get('country') in countries_with_mandatory_region() and not cleaned_data.get('state'):
             # Verifies that the region is indeed indicated when it is mandatory.
             message = _("For an address in {country}, the name of the state or province must be indicated.")
             self.add_error('state', format_lazy(message, country=Country(cleaned_data['country']).name))

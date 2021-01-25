@@ -13,11 +13,11 @@ from factory import DjangoModelFactory, Faker
 from phonenumber_field.phonenumber import PhoneNumber
 from slugify import slugify
 
-from hosting.countries import COUNTRIES_DATA
+from hosting.countries import COUNTRIES_DATA, countries_with_mandatory_region
 from hosting.models import (
     MR, MRS, PHONE_TYPE_CHOICES, PRONOUN_CHOICES, WHEREABOUTS_TYPE_CHOICES,
 )
-from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
+from maps import SRID
 from maps.data import COUNTRIES_GEO
 
 from .constants import PERSON_LOCALES
@@ -140,8 +140,9 @@ class PlaceFactory(DjangoModelFactory):
 
     @factory.lazy_attribute
     def state_province(self):
-        if self.country in COUNTRIES_WITH_MANDATORY_REGION or random() > 0.85:
-            return Faker('state').generate({})
+        if self.country in countries_with_mandatory_region() or random() > 0.85:
+            region = CountryRegionFactory(country=self.country)
+            return region.iso_code
         else:
             return ""
 
@@ -275,8 +276,8 @@ class WhereaboutsFactory(DjangoModelFactory):
 
     @factory.lazy_attribute
     def state(self):
-        if self.country in COUNTRIES_WITH_MANDATORY_REGION:
-            return Faker('state').generate({}).upper()
+        if self.country in countries_with_mandatory_region():
+            return CountryRegionFactory(country=self.country).iso_code
         else:
             return ""
 

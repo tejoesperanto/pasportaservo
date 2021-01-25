@@ -13,7 +13,8 @@ from django.utils import translation
 from django_countries import countries
 
 from hosting.models import Place
-from maps import COUNTRIES_WITH_REGIONS
+
+COUNTRIES_WITH_REGIONS = ('BE', 'BR', 'CA', 'DE', 'FR', 'GB', 'US')
 
 
 class LatexCommand(object):

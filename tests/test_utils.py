@@ -19,6 +19,7 @@ from core.utils import (
     camel_case_split, is_password_compromised,
     join_lazy, send_mass_html_mail, sort_by,
 )
+from hosting.countries import countries_with_mandatory_region
 from hosting.gravatar import email_to_gravatar
 from hosting.utils import (
     geocode, geocode_city, split, title_with_particule,
@@ -657,6 +658,23 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
         self.assertEqual(result.city, "Monteria")
         self.assertEqual(result.village, "Varsovia")
         self.assertEqual(result.xy, [-75.900398, 8.3816971])
+
+    def test_countries_with_mandatory_region(self):
+        with self.assertRaises(UserWarning, msg="Result is not iterable."):
+            try:
+                iter(countries_with_mandatory_region())
+            except TypeError:
+                pass
+            else:
+                raise UserWarning
+        with patch('hosting.countries.frozenset') as mock_set_object:
+            countries = countries_with_mandatory_region()
+            # Validate that the cache is only populated once.
+            mock_set_object.assert_not_called()
+            # Validate that the contents are 2-character country codes.
+            self.assertTrue(
+                all(isinstance(c, str) and len(c) == 2 and c.isalpha() for c in countries)
+            )
 
     def test_bufferize_country_boundaries_unknown(self):
         self.assertIsNone(bufferize_country_boundaries('XYZ'))
