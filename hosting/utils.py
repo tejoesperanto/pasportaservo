@@ -10,7 +10,9 @@ from django.utils.deconstruct import deconstructible
 import geocoder
 
 from core.models import SiteConfiguration
-from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
+from maps import SRID
+
+from .countries import countries_with_mandatory_region
 
 
 def geocode(query, country='', private=False, annotations=False, multiple=False):
@@ -35,7 +37,7 @@ def geocode(query, country='', private=False, annotations=False, multiple=False)
 def geocode_city(cityname, country, state_province=None):
     if state_province:
         attempts = (', '.join([cityname, state_province]), )
-        if country not in COUNTRIES_WITH_MANDATORY_REGION:
+        if country not in countries_with_mandatory_region():
             attempts += (cityname, )
     else:
         attempts = (cityname, )

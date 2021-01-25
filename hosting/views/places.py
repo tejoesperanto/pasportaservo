@@ -27,9 +27,10 @@ from core.forms import UserRegistrationForm
 from core.models import SiteConfiguration
 from core.templatetags.utils import next_link
 from core.utils import sanitize_next
-from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
+from maps import SRID
 from maps.utils import bufferize_country_boundaries
 
+from ..countries import countries_with_mandatory_region
 from ..forms import (
     PlaceBlockForm, PlaceBlockQuickForm, PlaceCreateForm, PlaceForm,
     PlaceLocationForm, UserAuthorizedOnceForm, UserAuthorizeForm,
@@ -157,7 +158,7 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
             location_type = 'R'  # = Region.
             geocities = Whereabouts.objects.filter(
                 type=LOCATION_CITY, name=place.city.upper(), country=place.country)
-            if place.country in COUNTRIES_WITH_MANDATORY_REGION:
+            if place.country in countries_with_mandatory_region():
                 geocities = geocities.filter(state=place.state_province.upper())
             try:
                 city_location = geocities.get()

@@ -3,11 +3,13 @@ from django.core.management.base import BaseCommand
 from django.db.models import (
     Case, CharField, Value as V, When, functions as dbf,
 )
+from django.utils.termcolors import make_style
 
+from hosting.countries import countries_with_mandatory_region
 from hosting.models import LOCATION_CITY, Place, Whereabouts
 from hosting.utils import geocode_city
 
-from ... import COUNTRIES_WITH_MANDATORY_REGION, SRID
+from ... import SRID
 
 
 class Command(BaseCommand):
@@ -23,7 +25,9 @@ class Command(BaseCommand):
 
         mapped_cities = (
             Whereabouts.objects
-            .annotate(lookup=dbf.Concat('name', V('###'), 'state', V('###'), 'country', output_field=CharField()))
+            .annotate(lookup=dbf.Concat(
+                'name', V('###'), 'state', V('###'), 'country',
+                output_field=CharField()))
             .filter(type=LOCATION_CITY)
             .values_list('lookup', flat=True)
         )
@@ -33,7 +37,7 @@ class Command(BaseCommand):
                 dbf.Upper('city'),
                 V('###'),
                 Case(
-                    When(country__in=COUNTRIES_WITH_MANDATORY_REGION, then=dbf.Upper('state_province')),
+                    When(country__in=countries_with_mandatory_region(), then=dbf.Upper('state_province')),
                     default=V('')
                 ),
                 V('###'),
@@ -53,26 +57,29 @@ class Command(BaseCommand):
                     whereabouts = Whereabouts.objects.create(
                         type=LOCATION_CITY,
                         name=place.city.upper(),
-                        state=place.state_province.upper() if place.country in COUNTRIES_WITH_MANDATORY_REGION else '',
+                        state=(
+                            place.state_province.upper()
+                            if place.country in countries_with_mandatory_region()
+                            else ''),
                         country=place.country,
-                        bbox=LineString(city_location.bbox['southwest'], city_location.bbox['northeast'], srid=SRID),
+                        bbox=LineString(
+                            city_location.bbox['southwest'], city_location.bbox['northeast'],
+                            srid=SRID),
                         center=Point(city_location.xy, srid=SRID),
                     )
                     if self.verbosity >= 2:
-                        self.stdout.write("+ Mapped {!r}".format(whereabouts))
+                        self.stdout.write(make_style(fg='green')(f"+ Mapped {whereabouts!r}"))
                     success_counter += 1
                 else:
                     if self.verbosity >= 2:
-                        self.stdout.write("- {city} ({country}) could not be mapped".format(
-                            city=place.city, country=place.country
-                        ))
+                        self.stdout.write(f"- {place.city} ({place.country}) could not be mapped")
                 mapped_set.add(place.city_lookup)
             else:
                 city_location = None
                 if self.verbosity >= 3:
-                    self.stdout.write("* {city} ({country}) skipped (already processed in this session)".format(
-                        city=place.city, country=place.country
-                    ))
+                    self.stdout.write(
+                        f"* {place.city} ({place.country}) skipped (already processed in this session)"
+                    )
 
             if city_location is not None and city_location.remaining_api_calls < 500:
                 self.stdout.write(self.style.ERROR(
@@ -81,4 +88,6 @@ class Command(BaseCommand):
                 break
 
         if self.verbosity >= 1:
-            self.stdout.write(self.style.HTTP_INFO("[MAPPED {} CITIES]".format(success_counter)))
+            self.stdout.write(make_style(opts=('bold',), fg='white')(
+                f"[MAPPED {success_counter} CITIES]"
+            ))

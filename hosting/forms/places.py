@@ -12,10 +12,10 @@ from django_countries.fields import Country
 
 from core.models import SiteConfiguration
 from core.utils import join_lazy, mark_safe_lazy
-from hosting.countries import COUNTRIES_DATA
-from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
+from maps import SRID
 from maps.widgets import MapboxGlWidget
 
+from ..countries import COUNTRIES_DATA, countries_with_mandatory_region
 from ..models import LOCATION_CITY, Place, Profile, Whereabouts
 from ..utils import geocode, geocode_city
 from ..validators import TooNearPastValidator
@@ -84,10 +84,15 @@ class PlaceForm(forms.ModelForm):
         cleaned_data = super().clean()
         config = SiteConfiguration.get_solo()
 
-        if cleaned_data.get('country') in COUNTRIES_WITH_MANDATORY_REGION and not cleaned_data.get('state_province'):
+        if (cleaned_data.get('country') in countries_with_mandatory_region()
+                and not cleaned_data.get('state_province')):
             # Verifies that the region is indeed indicated when it is mandatory.
-            message = _("For an address in {country}, the name of the state or province must be indicated.")
-            self.add_error('state_province', format_lazy(message, country=Country(cleaned_data['country']).name))
+            message = _("For an address in {country}, the name of the "
+                        "state or province must be indicated.")
+            self.add_error(
+                'state_province',
+                format_lazy(message, country=Country(cleaned_data['country']).name)
+            )
 
         for_hosting = cleaned_data['available']
         for_meeting = cleaned_data['tour_guide'] or cleaned_data['have_a_drink']
@@ -184,7 +189,7 @@ class PlaceForm(forms.ModelForm):
                     name=self.cleaned_data['city'].upper(),
                     country=self.cleaned_data['country'],
                 )
-                if self.cleaned_data['country'] in COUNTRIES_WITH_MANDATORY_REGION:
+                if self.cleaned_data['country'] in countries_with_mandatory_region():
                     region = self.cleaned_data['state_province'].upper()
                     geocities = geocities.filter(state=region)
                 else:

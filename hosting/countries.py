@@ -4095,3 +4095,12 @@ COUNTRIES_DATA = {
         "postcode_format": ""
     }
 }
+
+
+def countries_with_mandatory_region():
+    if not hasattr(countries_with_mandatory_region, '_result_cache'):
+        countries_with_mandatory_region._result_cache = frozenset(
+            country_code for (country_code, data) in COUNTRIES_DATA.items()
+            if 'administrativeArea' in data.get('required_fields', [])
+        )
+    return countries_with_mandatory_region._result_cache

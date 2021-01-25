@@ -13,14 +13,15 @@ from django_webtest import WebTest
 from faker import Faker
 
 from core.models import SiteConfiguration
-from hosting.countries import COUNTRIES_DATA
+from hosting.countries import COUNTRIES_DATA, countries_with_mandatory_region
 from hosting.forms.places import PlaceForm
 from hosting.models import LOCATION_CITY, Condition, Whereabouts
-from maps import COUNTRIES_WITH_MANDATORY_REGION, SRID
+from maps import SRID
 
 from ..assertions import AdditionalAsserts
 from ..factories import (
-    ConditionFactory, PlaceFactory, ProfileFactory, WhereaboutsFactory,
+    ConditionFactory, CountryRegionFactory,
+    PlaceFactory, ProfileFactory, WhereaboutsFactory,
 )
 
 
@@ -33,7 +34,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
         cls.faker = Faker(locale='en-GB')
         cls.all_countries = Countries().countries.keys()
         cls.countries_no_mandatory_region = (
-            set(cls.all_countries) - set(COUNTRIES_WITH_MANDATORY_REGION)
+            set(cls.all_countries) - set(countries_with_mandatory_region())
             # Avoid countries with a single postcode: tests that depend
             # on changing the postcode value will fail for such countries.
             - set(
@@ -102,7 +103,14 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
         self.simple_place.refresh_from_db()
         self.complete_place.refresh_from_db()
 
-    def _fake_value(self, field_name, faker=None):
+    def _fake_value(self, field_name, country=None, *, faker=None):
+        if field_name == 'state_province':
+            return self.faker.random_element(elements=[
+                r.iso_code
+                for r in CountryRegionFactory.create_batch(5, country=country)
+            ])
+        if field_name == 'postcode':
+            return PlaceFactory.generate_postcode(country)
         generator_name, generator_params = islice(chain(self.expected_fields[field_name], [{}]), 2)
         return getattr(faker or self.faker, generator_name)(**generator_params)
 
@@ -157,7 +165,10 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
 
         form = PlaceForm({'country': "ZZ"})
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {'country': ["Select a valid choice. ZZ is not one of the available choices."]})
+        self.assertEqual(
+            form.errors,
+            {'country': ["Select a valid choice. ZZ is not one of the available choices."]}
+        )
 
     def test_invalid_province(self):
         # Form data of country without provinces and of empty province is expected to be valid.
@@ -167,7 +178,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
         self.assertTrue(form.is_valid(), msg=repr(form.errors))
         # Form data of country with provinces and of empty province is expected to be invalid.
         form = PlaceForm({
-            'country': self.faker.random_element(elements=COUNTRIES_WITH_MANDATORY_REGION),
+            'country': self.faker.random_element(elements=countries_with_mandatory_region()),
         })
         self.assertFalse(form.is_valid())
         self.assertIn('state_province', form.errors)
@@ -177,7 +188,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
     def test_valid_province(self):
         # Form data of country with provinces and of indicated province is expected to be valid.
         form = PlaceForm({
-            'country': self.faker.random_element(elements=COUNTRIES_WITH_MANDATORY_REGION),
+            'country': self.faker.random_element(elements=countries_with_mandatory_region()),
             'state_province': self.faker.word(),  # No restrictions are implemnted yet...
         })
         self.assertTrue(form.is_valid(), msg=repr(form.errors))
@@ -415,13 +426,11 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
                     data[field_name] = self.faker.random_element(elements=remaining_countries)
                     # The postcode field is dependent on the country and will fail if not changed.
                     data['postcode'] = ''
-                elif field_name == 'postcode':
-                    if not field_empty:
-                        data[field_name] = PlaceFactory.generate_postcode(data['country'])
-                    else:
-                        data[field_name] = None
                 else:
-                    data[field_name] = self._fake_value(field_name) if not field_empty else None
+                    data[field_name] = (
+                        self._fake_value(field_name, data['country'])
+                        if not field_empty else None
+                    )
                 for i, (side_effect, expected_loc, expected_loc_confidence) in enumerate(test_config, start=1):
                     with self.subTest(
                             field=field_name,
@@ -484,13 +493,11 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
                     data[field_name] = self.faker.random_element(elements=remaining_countries)
                     # The postcode field is dependent on the country and will fail if not changed.
                     data['postcode'] = ''
-                elif field_name == 'postcode':
-                    if not field_empty:
-                        data[field_name] = PlaceFactory.generate_postcode(data['country'])
-                    else:
-                        data[field_name] = None
                 else:
-                    data[field_name] = self._fake_value(field_name) if not field_empty else None
+                    data[field_name] = (
+                        self._fake_value(field_name, data['country'])
+                        if not field_empty else None
+                    )
                 data['address'] = getattr(self.faker, self.expected_fields['address'][0])()
                 for i, (side_effect, expected_loc, expected_loc_confidence) in enumerate(test_config, start=1):
                     with self.subTest(
@@ -525,7 +532,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
 
         for province in ("mandatory", "not mandatory"):
             if province == "mandatory":
-                countries = set(COUNTRIES_WITH_MANDATORY_REGION)
+                countries = set(countries_with_mandatory_region())
             else:
                 countries = self.countries_no_mandatory_region
             country = self.faker.random_element(elements=countries)
@@ -537,7 +544,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
             if province == "mandatory":
                 form_data['state_province'] = whereabouts.state.lower()
             else:
-                form_data['state_province'] = self._fake_value('state_province')
+                form_data['state_province'] = self.faker.word()
 
             for field_empty in (False, True):
                 form_data['city'] = whereabouts.name.lower() if not field_empty else ""
@@ -562,11 +569,11 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
                 self.simple_place.refresh_from_db()
                 form_data = PlaceForm(instance=self.simple_place).initial.copy()
                 if province == "mandatory":
-                    form_data['country'] = self.faker.random_element(elements=COUNTRIES_WITH_MANDATORY_REGION)
-                    form_data['state_province'] = self._fake_value('state_province')
+                    form_data['country'] = self.faker.random_element(elements=countries_with_mandatory_region())
+                    form_data['state_province'] = self._fake_value('state_province', form_data['country'])
                 else:
                     form_data['country'] = self.faker.random_element(elements=self.countries_no_mandatory_region)
-                    form_data['state_province'] = self._fake_value('state_province') if not field_empty else ""
+                    form_data['state_province'] = self.faker.word() if not field_empty else ""
                 if not field_empty:
                     # Make sure the value is unique.
                     form_data['city'] = "{}_{}".format(self._fake_value('city'), datetime.now().timestamp())
@@ -604,11 +611,9 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
 
         for dataset_type in test_dataset:
             with self.subTest(dataset=dataset_type):
-                data = {
-                    field: self._fake_value(field, faker)
-                    for field in test_dataset[dataset_type]
-                }
-                data['postcode'] = PlaceFactory.generate_postcode(data['country'])
+                data = {'country': self._fake_value('country', faker=faker)}
+                for field in set(test_dataset[dataset_type]) - set(['country']):
+                    data[field] = self._fake_value(field, data['country'], faker=faker)
                 if data.get('in_book'):
                     data['available'] = True
                 form = PlaceForm(data, instance=self.simple_place)
@@ -638,7 +643,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
         faker = Faker(locale='zh')
         data = {}
         for field_name in ('short_description', 'sporadic_presence', 'conditions'):
-            page.form[field_name] = data[field_name] = self._fake_value(field_name, faker)
+            page.form[field_name] = data[field_name] = self._fake_value(field_name, faker=faker)
         page = page.form.submit()
         self.complete_place.refresh_from_db()
         self.assertRedirects(
@@ -672,7 +677,8 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
         faker = Faker(locale='zh')
         data = {}
         for field_name in ('address', 'state_province'):
-            page.form[field_name] = data[field_name] = self._fake_value(field_name, faker)
+            page.form[field_name] = data[field_name] = self._fake_value(
+                field_name, self.complete_place.country, faker=faker)
         page = page.form.submit()
         self.complete_place.refresh_from_db()
         self.assertRedirects(

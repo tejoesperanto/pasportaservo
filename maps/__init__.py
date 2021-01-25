@@ -1,5 +1,2 @@
-from .data import (  # noqa:F401
-    COUNTRIES_WITH_MANDATORY_REGION, COUNTRIES_WITH_REGIONS,
-)
 
 SRID = 4326
