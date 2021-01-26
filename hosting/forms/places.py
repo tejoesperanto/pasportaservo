@@ -15,7 +15,9 @@ from core.utils import join_lazy, mark_safe_lazy
 from maps import SRID
 from maps.widgets import MapboxGlWidget
 
-from ..countries import COUNTRIES_DATA, countries_with_mandatory_region
+from ..countries import (
+    COUNTRIES_DATA, SUBREGION_TYPES, countries_with_mandatory_region,
+)
 from ..models import LOCATION_CITY, Place, Profile, Whereabouts
 from ..utils import geocode, geocode_city
 from ..validators import TooNearPastValidator
@@ -54,6 +56,15 @@ class PlaceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        place_country = self.data.get('country') or self.instance.country
+        if place_country and place_country in COUNTRIES_DATA:
+            country_data = COUNTRIES_DATA[place_country]
+            region_type = country_data.get('administrative_area_type')
+            if region_type in SUBREGION_TYPES:
+                self.fields['state_province'].label = SUBREGION_TYPES[region_type].capitalize()
+                self.fields['state_province'].localised_label = True
+
         self.fields['address'].widget.attrs['rows'] = 2
         self.fields['conditions'].widget.attrs['data-placeholder'] = _("Choose your conditions...")
 
