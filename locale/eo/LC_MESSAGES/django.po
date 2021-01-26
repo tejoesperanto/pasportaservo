@@ -1035,10 +1035,15 @@ msgstr "lokigo havebla"
 
 #, python-brace-format
 msgid ""
-"For an address in {country}, the name of the state or province must be "
+"For a city in {country}, the ISO code of the state or province must be "
 "indicated."
 msgstr ""
-"Adreso en {country} devas inkluzivi la nomon de la ŝtato aŭ de la provinco."
+"Por urbo en {country}, la ISO-kodo de la ŝtato aŭ de la provinco devas esti "
+"indikita."
+
+msgid ""
+"The 'state / province' field should indicate the ISO code of the region."
+msgstr "La kampo ‘ŝtato / provinco’ devas indiki la ISO-kodon de la regiono."
 
 msgid "confirmed on"
 msgstr "konfirmita je"
@@ -1139,8 +1144,23 @@ msgstr ""
 msgid "You already have this telephone number."
 msgstr "Vi jam indikis tian telefonnumeron."
 
+msgid "Choose from the list. The name provided by you is not known."
+msgstr "Elektu el la listo. La provizita de vi nomo ne estas inter la konataj."
+
 msgid "Choose your conditions..."
 msgstr "Elektu viajn kondiĉojn…"
+
+#, python-brace-format
+msgid ""
+"For an address in {country}, the name of the {region_type} must be indicated."
+msgstr "Adreso en {country} devas inkluzivi la nomon de la {region_type}."
+
+#, python-brace-format
+msgid ""
+"For an address in {country}, the name of the state or province must be "
+"indicated."
+msgstr ""
+"Adreso en {country} devas inkluzivi la nomon de la ŝtato aŭ de la provinco."
 
 msgid "Postal code should follow the pattern {} (# is digit, @ is a letter)."
 msgstr "Poŝtkodo devas laŭi la skemon {} (# estas cifero, @ estas litero)."

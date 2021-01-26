@@ -236,7 +236,7 @@ class CountryRegionFactory(DjangoModelFactory):
         short_code = factory.LazyFunction(lambda: random() < 0.20)
 
     country = factory.LazyFunction(lambda: Country(choice(list(COUNTRIES))))
-    iso_code = Faker('pystr_format', string_format='??#', letters='ABCDEFGHJKLMNPQRSTUVWXYZ')
+    iso_code = Faker('pystr_format', string_format='???#', letters='ABCDEFGHJKLMNPQRSTUVWXYZ')
     latin_code = factory.Maybe(
         'short_code',
         yes_declaration=Faker('pystr_format', string_format='??', letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ'),

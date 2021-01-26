@@ -659,6 +659,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
         self.assertEqual(result.village, "Varsovia")
         self.assertEqual(result.xy, [-75.900398, 8.3816971])
 
+    @tag('subregions')
     def test_countries_with_mandatory_region(self):
         with self.assertRaises(UserWarning, msg="Result is not iterable."):
             try:

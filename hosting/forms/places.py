@@ -1,3 +1,4 @@
+import logging
 import re
 from collections import namedtuple
 from datetime import date
@@ -5,6 +6,7 @@ from datetime import date
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.gis.geos import LineString, Point
+from django.db.models.fields import BLANK_CHOICE_DASH
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
@@ -18,7 +20,7 @@ from maps.widgets import MapboxGlWidget
 from ..countries import (
     COUNTRIES_DATA, SUBREGION_TYPES, countries_with_mandatory_region,
 )
-from ..models import LOCATION_CITY, Place, Profile, Whereabouts
+from ..models import LOCATION_CITY, CountryRegion, Place, Profile, Whereabouts
 from ..utils import geocode, geocode_city
 from ..validators import TooNearPastValidator
 
@@ -60,6 +62,38 @@ class PlaceForm(forms.ModelForm):
         place_country = self.data.get('country') or self.instance.country
         if place_country and place_country in COUNTRIES_DATA:
             country_data = COUNTRIES_DATA[place_country]
+            regions = [
+                (r.iso_code, r.get_display_value())
+                for r in CountryRegion.objects.filter(country=place_country)
+            ] + BLANK_CHOICE_DASH
+            if len(regions) > 1:
+                # Replacing a form field must happen before the `_bound_fields_cache` is populated.
+                # Note: the 'chosen' JS addon interferes with normal HTML form functioning (including
+                #       showing form validation errors), that is why we keep the field not required.
+                # Using a ModelChoiceField here, while more natural, is also more cumbersome, since
+                # both the field itself (for labels) and the ModelChoiceIterator (for sorting) must
+                # be subclassed.
+                self.fields['state_province'] = forms.ChoiceField(
+                    choices=sorted(regions, key=lambda r: r[1]),
+                    initial=self.fields['state_province'].initial,
+                    required=False,
+                    label=self.fields['state_province'].label,
+                    help_text=self.fields['state_province'].help_text,
+                    error_messages={
+                        'invalid_choice': _(
+                            "Choose from the list. The name provided by you is not known."
+                        ),
+                    },
+                )
+            elif place_country in countries_with_mandatory_region():
+                # We don't want to raise an error, preventing the user from using the form,
+                # but we do want to log it and notify the administrators.
+                logging.getLogger('PasportaServo.address').error(
+                    "Service misconfigured: Mandatory regions for %s are not defined!"
+                    "  (noted when %s)",
+                    place_country,
+                    f"editing place #{self.instance.pk}" if self.instance.id else "adding new place",
+                )
             region_type = country_data.get('administrative_area_type')
             if region_type in SUBREGION_TYPES:
                 self.fields['state_province'].label = SUBREGION_TYPES[region_type].capitalize()
@@ -67,6 +101,26 @@ class PlaceForm(forms.ModelForm):
 
         self.fields['address'].widget.attrs['rows'] = 2
         self.fields['conditions'].widget.attrs['data-placeholder'] = _("Choose your conditions...")
+
+    def clean_state_province(self):
+        state_province, country = self.cleaned_data['state_province'], self.cleaned_data.get('country')
+        if not country:
+            return state_province
+
+        if country in countries_with_mandatory_region() and not state_province:
+            # Verifies that the region is indeed indicated when it is mandatory.
+            if hasattr(self.fields['state_province'], 'localised_label'):
+                message = _("For an address in {country}, the name of the "
+                            "{region_type} must be indicated.")
+            else:
+                message = _("For an address in {country}, the name of the "
+                            "state or province must be indicated.")
+            raise forms.ValidationError(format_lazy(
+                message,
+                country=Country(country).name.split(' (')[0],
+                region_type=self.fields['state_province'].label.lower()
+            ))
+        return state_province
 
     def clean_postcode(self):
         postcode, country = self.cleaned_data['postcode'], self.cleaned_data.get('country')
@@ -83,7 +137,7 @@ class PlaceForm(forms.ModelForm):
             raise forms.ValidationError(mark_safe_lazy(
                 format_lazy(
                     _("Postal code should follow the pattern {} (# is digit, @ is a letter)."),
-                    join_lazy(_(" or "), map(lambda pn: f"<kbd>{pn}</kbd>", accepted_patterns))
+                    join_lazy(_(" or "), list(map(lambda pn: f"<kbd>{pn}</kbd>", accepted_patterns)))
                 )
             ))
         # Removing non-alphanumeric characters (except for the allowed separators 'space'
@@ -94,16 +148,6 @@ class PlaceForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         config = SiteConfiguration.get_solo()
-
-        if (cleaned_data.get('country') in countries_with_mandatory_region()
-                and not cleaned_data.get('state_province')):
-            # Verifies that the region is indeed indicated when it is mandatory.
-            message = _("For an address in {country}, the name of the "
-                        "state or province must be indicated.")
-            self.add_error(
-                'state_province',
-                format_lazy(message, country=Country(cleaned_data['country']).name)
-            )
 
         for_hosting = cleaned_data['available']
         for_meeting = cleaned_data['tour_guide'] or cleaned_data['have_a_drink']
@@ -218,7 +262,8 @@ class PlaceForm(forms.ModelForm):
                             state=region,
                             country=self.cleaned_data['country'],
                             bbox=LineString(
-                                city_location.bbox['southwest'], city_location.bbox['northeast'], srid=SRID,
+                                city_location.bbox['southwest'], city_location.bbox['northeast'],
+                                srid=SRID,
                             ),
                             center=Point(city_location.xy, srid=SRID),
                         )

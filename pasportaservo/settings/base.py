@@ -157,14 +157,22 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'mail_admins': {
+        'mail_admins_important_bits': {
             'level': 'WARNING',
             'class': 'django.utils.log.AdminEmailHandler',
-        }
+        },
+        'mail_admins_severe_bits': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+        },
     },
     'loggers': {
+        'PasportaServo': {
+            'handlers': ['mail_admins_severe_bits'],
+        },
         'PasportaServo.auth': {
-            'handlers': ['mail_admins'],
+            'handlers': ['mail_admins_important_bits'],
+            'propagate': False,
         },
     },
 }

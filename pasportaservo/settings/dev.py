@@ -1,5 +1,6 @@
 from .base import *  # isort:skip
 import logging
+import socket
 
 from django.contrib.messages import constants as message_level
 
@@ -15,6 +16,12 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
 ]
+try:
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        s.connect(('10.0.0.10', 0))
+        ALLOWED_HOSTS.append(s.getsockname()[0])
+except (OSError, IndexError):
+    pass
 
 
 logging.getLogger('PasportaServo.auth').setLevel(logging.INFO)
