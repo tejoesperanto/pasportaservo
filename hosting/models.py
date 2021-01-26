@@ -27,6 +27,7 @@ from django_extensions.db.models import TimeStampedModel
 from phonenumber_field.modelfields import PhoneNumberField
 from simplemde.fields import SimpleMDEField
 from slugify import Slugify
+from unidecode import unidecode
 
 from core.utils import camel_case_split
 from maps import SRID
@@ -1031,6 +1032,47 @@ class CountryRegion(models.Model):
         indexes = [
             models.Index(['country', 'iso_code', 'id'], name='countryregion_isocode_pk_idx'),
         ]
+
+    def get_display_value(self):
+        """
+        Returns the name of the region in the format Esperanto name -- Latin name (Local name),
+        where only the latin name is mandated and the other parts are optional, included if
+        specified.
+        """
+        try:
+            return self._display_value_cache
+        except AttributeError:
+            pass
+
+        local_region = self.local_name or self.local_code
+        latin_region = self.latin_name or self.latin_code
+        if local_region:
+            try:
+                validate_latin(local_region)
+                if (local_region != latin_region
+                        and local_region not in latin_region
+                        and latin_region not in local_region
+                        and unidecode(local_region) != latin_region):
+                    # Sometimes the difference between the local and the main names is
+                    # only in the diacritical marks or the addition of "Province of".
+                    raise UnicodeError
+            except Exception:
+                # If the local name is not in latin letters or different from the
+                # main name, display both of them.
+                native_name = f'{latin_region} ({local_region})'
+            else:
+                # When the local name is mostly identical (except for the diacritical
+                # marks) to the main name, display only the local name.
+                native_name = local_region
+        else:
+            native_name = latin_region
+        if self.esperanto_name:
+            display_value = f'{self.esperanto_name}  –  {native_name}'
+        else:
+            display_value = native_name
+
+        self._display_value_cache = display_value
+        return display_value
 
     def __str__(self):
         return "{}: {}".format(
