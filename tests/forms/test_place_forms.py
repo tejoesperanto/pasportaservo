@@ -13,7 +13,9 @@ from django_webtest import WebTest
 from faker import Faker
 
 from core.models import SiteConfiguration
-from hosting.countries import COUNTRIES_DATA, countries_with_mandatory_region
+from hosting.countries import (
+    COUNTRIES_DATA, SUBREGION_TYPES, countries_with_mandatory_region,
+)
 from hosting.forms.places import PlaceForm
 from hosting.models import LOCATION_CITY, Condition, Whereabouts
 from maps import SRID
@@ -130,6 +132,27 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
             hasattr(form_empty.save, 'alters_data')
             or hasattr(form_empty.save, 'do_not_call_in_templates')
         )
+
+    def test_labels(self):
+        # The label for the province field for country without provinces is
+        # expected to read "state / province".
+        form = PlaceForm()
+        self.assertEqual(form.fields['state_province'].label, "State / Province")
+        self.assertFalse(hasattr(form.fields['state_province'], 'localised_label'))
+        form = PlaceForm({'country': 'MO'})
+        self.assertEqual(form.fields['state_province'].label, "State / Province")
+        self.assertFalse(hasattr(form.fields['state_province'], 'localised_label'))
+
+        # The label for the province field for country with provinces is
+        # expected to follow the administrative area type in country's data.
+        for country in ('US', 'RU', 'KR', 'PL', 'DE'):
+            form = PlaceForm({'country': country})
+            with self.subTest(country=country, label=form.fields['state_province'].label):
+                self.assertEqual(
+                    form.fields['state_province'].label,
+                    SUBREGION_TYPES[COUNTRIES_DATA[country]['administrative_area_type']].capitalize()
+                )
+                self.assertTrue(hasattr(form.fields['state_province'], 'localised_label'))
 
     def test_blank_data(self):
         # Empty form is expected to be invalid.

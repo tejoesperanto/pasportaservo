@@ -8,6 +8,8 @@ copyright (c) 2014-2019 Bojan Zivanovic and contributors. It is complemented by
 information from GeoNames under the CC BY 4.0 license.
 """
 
+from django.utils.translation import pgettext_lazy
+
 COUNTRIES_DATA = {
     "AD": {
         "local_name": "Andorra",
@@ -166,7 +168,7 @@ COUNTRIES_DATA = {
             "organization",
             "administrativeArea"
         ],
-        "administrative_area_type": "state",
+        "administrative_area_type": "district",
         "administrative_area_code": "ADM1",
         "postal_code_type": "zip",
         "postcode_regex": "(96799)(?:[ \\-](\\d{4}))?",
@@ -342,6 +344,7 @@ COUNTRIES_DATA = {
         ],
         "population": 7000039,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
+        "administrative_area_type": "oblast",
         "postcode_regex": "\\d{4}",
         "postcode_format": "####"
     },
@@ -530,6 +533,7 @@ COUNTRIES_DATA = {
         ],
         "population": 9485386,
         "format": "%administrativeArea\\n%postalCode %locality\\n%addressLine1\\n%addressLine2\\n%organization\\n%givenName %familyName",
+        "administrative_area_type": "oblast",
         "postcode_regex": "\\d{6}",
         "postcode_format": "######"
     },
@@ -1864,6 +1868,7 @@ COUNTRIES_DATA = {
         ],
         "population": 6315800,
         "format": "%givenName %familyName\\n%organization\\n%addressLine1\\n%addressLine2\\n%postalCode %locality",
+        "administrative_area_type": "oblast",
         "postcode_regex": "\\d{6}",
         "postcode_format": "######"
     },
@@ -2012,6 +2017,7 @@ COUNTRIES_DATA = {
         ],
         "population": 18276499,
         "format": "%postalCode\\n%administrativeArea\\n%locality\\n%addressLine1\\n%addressLine2\\n%organization\\n%givenName %familyName",
+        "administrative_area_type": "oblast",
         "postcode_regex": "\\d{6}",
         "postcode_format": "######"
     },
@@ -2279,7 +2285,7 @@ COUNTRIES_DATA = {
             "organization",
             "administrativeArea"
         ],
-        "administrative_area_type": "state",
+        "administrative_area_type": "island",
         "administrative_area_code": "ADM1",
         "postal_code_type": "zip",
         "postcode_regex": "(969[67]\\d)(?:[ \\-](\\d{4}))?",
@@ -2903,6 +2909,7 @@ COUNTRIES_DATA = {
             "locality",
             "postalCode"
         ],
+        "administrative_area_type": "voivodeship",
         "administrative_area_code": "ADM1",
         "postcode_regex": "\\d{2}-\\d{3}",
         "postcode_format": "##-###"
@@ -3158,7 +3165,7 @@ COUNTRIES_DATA = {
             "addressLine2",
             "locality"
         ],
-        "administrative_area_type": "oblast",
+        "administrative_area_type": "federal subject",
         "administrative_area_code": "ADM1",
         "subdivision_depth": 1,
         "postcode_regex": "\\d{6}",
@@ -3792,7 +3799,7 @@ COUNTRIES_DATA = {
             "organization",
             "administrativeArea"
         ],
-        "administrative_area_type": "state",
+        "administrative_area_type": "island",
         "administrative_area_code": "ADM1",
         "postal_code_type": "zip",
         "postcode_regex": "96898",
@@ -3943,7 +3950,7 @@ COUNTRIES_DATA = {
             "organization",
             "administrativeArea"
         ],
-        "administrative_area_type": "state",
+        "administrative_area_type": "island",
         "administrative_area_code": "ADM1",
         "postal_code_type": "zip",
         "postcode_regex": "(008(?:(?:[0-4]\\d)|(?:5[01])))(?:[ \\-](\\d{4}))?",
@@ -4094,6 +4101,38 @@ COUNTRIES_DATA = {
         "postcode_regex": "",
         "postcode_format": ""
     }
+}
+
+
+SUBREGION_TYPES = {
+    # Hong Kong
+    'area': pgettext_lazy("administrative area type", "area"),
+    # United Kingdom
+    'country': pgettext_lazy("administrative area type", "country"),
+    'county': pgettext_lazy("administrative area type", "county"),
+    'department': pgettext_lazy("administrative area type", "department"),
+    'district': pgettext_lazy("administrative area type", "district"),
+    # South Korea
+    'do_si': pgettext_lazy("administrative area type", "province / city"),
+    # United Arab Emirates
+    'emirate': pgettext_lazy("administrative area type", "emirate"),
+    # Bosnia and Herzegovina
+    'entity': pgettext_lazy("administrative area type", "entity"),
+    # Austria, Germany
+    'federal state': pgettext_lazy("administrative area type", "federal state"),
+    # Russia
+    'federal subject': pgettext_lazy("administrative area type", "federal subject"),
+    'governorate': pgettext_lazy("administrative area type", "governorate"),
+    'island': pgettext_lazy("administrative area type", "island"),
+    # Belorus, Bulgaria, Kazakhstan, Kyrgyzstan, Ukraine
+    'oblast': pgettext_lazy("administrative area type", "oblast"),
+    'parish': pgettext_lazy("administrative area type", "parish"),
+    # Japan
+    'prefecture': pgettext_lazy("administrative area type", "prefecture"),
+    'region': pgettext_lazy("administrative area type", "region"),
+    'state': pgettext_lazy("administrative area type", "state"),
+    # Poland
+    'voivodeship': pgettext_lazy("administrative area type", "voivodeship"),
 }
 
 

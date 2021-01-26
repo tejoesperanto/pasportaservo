@@ -1049,6 +1049,78 @@ msgstr "forigita"
 msgid "Hosting Service"
 msgstr "Gastiga Servo"
 
+msgctxt "administrative area type"
+msgid "area"
+msgstr "regiono"
+
+msgctxt "administrative area type"
+msgid "country"
+msgstr "graflando"
+
+msgctxt "administrative area type"
+msgid "county"
+msgstr "distrikto"
+
+msgctxt "administrative area type"
+msgid "department"
+msgstr "departemento"
+
+msgctxt "administrative area type"
+msgid "district"
+msgstr "distrikto"
+
+msgctxt "administrative area type"
+msgid "province / city"
+msgstr "provinco / urbo"
+
+msgctxt "administrative area type"
+msgid "emirate"
+msgstr "emirlando"
+
+msgctxt "administrative area type"
+msgid "entity"
+msgstr "landoparto"
+
+msgctxt "administrative area type"
+msgid "federal state"
+msgstr "federacia lando"
+
+msgctxt "administrative area type"
+msgid "federal subject"
+msgstr "federacia subjekto"
+
+msgctxt "administrative area type"
+msgid "governorate"
+msgstr "gubernio"
+
+msgctxt "administrative area type"
+msgid "island"
+msgstr "insulo"
+
+msgctxt "administrative area type"
+msgid "oblast"
+msgstr "provinco (oblasto)"
+
+msgctxt "administrative area type"
+msgid "parish"
+msgstr "distrikto"
+
+msgctxt "administrative area type"
+msgid "prefecture"
+msgstr "gubernio (prefektujo)"
+
+msgctxt "administrative area type"
+msgid "region"
+msgstr "regiono"
+
+msgctxt "administrative area type"
+msgid "state"
+msgstr "ŝtato"
+
+msgctxt "administrative area type"
+msgid "voivodeship"
+msgstr "provinco (vojevodio)"
+
 msgid "A family member cannot be future-born (even if planned)."
 msgstr "Kunloĝanto ne povas naskiĝi estontece, eĉ se planita."
 
