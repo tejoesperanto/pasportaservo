@@ -17,7 +17,7 @@ from hosting.countries import (
     COUNTRIES_DATA, SUBREGION_TYPES, countries_with_mandatory_region,
 )
 from hosting.forms.places import PlaceForm
-from hosting.models import LOCATION_CITY, Condition, CountryRegion, Whereabouts
+from hosting.models import Condition, CountryRegion, LocationType, Whereabouts
 from maps import SRID
 
 from ..assertions import AdditionalAsserts
@@ -651,7 +651,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
             else:
                 countries = self.countries_no_predefined_region
             country = self.faker.random_element(elements=countries)
-            whereabouts = WhereaboutsFactory(type=LOCATION_CITY, country=country)
+            whereabouts = WhereaboutsFactory(type=LocationType.CITY, country=country)
             number_coded_cities = Whereabouts.objects.count()
 
             form_data = PlaceForm(instance=self.simple_place).initial.copy()

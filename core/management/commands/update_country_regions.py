@@ -30,7 +30,7 @@ from django_countries.data import COUNTRIES
 from unidecode import unidecode
 
 from hosting.countries import COUNTRIES_DATA
-from hosting.models import LOCATION_REGION, CountryRegion, Whereabouts
+from hosting.models import CountryRegion, LocationType, Whereabouts
 from maps import SRID
 
 GEONAMES_SOURCE_URL = (
@@ -413,7 +413,7 @@ class Command(BaseCommand):
             # Update the geographical data for the region.
             if 'bbox' in region:
                 Whereabouts.objects.update_or_create(
-                    type=LOCATION_REGION,
+                    type=LocationType.REGION,
                     state=region_code,
                     country=country_code,
                     defaults=dict(

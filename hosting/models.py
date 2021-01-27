@@ -1,6 +1,7 @@
 import re
 from collections import namedtuple
 from datetime import date
+from enum import Enum
 from functools import partial, partialmethod
 
 from django.apps import apps
@@ -55,7 +56,7 @@ TITLE_CHOICES = (
     (MR, _("Mr")),
 )
 
-PRONOUN_CHOICES = (
+PRONOUN_CHOICES = (  # In Django 3.x: TextChoices enum.
     (None, ""),
     ('She', pgettext_lazy("Personal Pronoun", "she")),
     ('He', pgettext_lazy("Personal Pronoun", "he")),
@@ -77,11 +78,14 @@ PHONE_TYPE_CHOICES = (
     (FAX, _("fax")),
 )
 
-LOCATION_CITY, LOCATION_REGION = 'C', 'R'
-WHEREABOUTS_TYPE_CHOICES = (
-    (LOCATION_CITY, _("City")),
-    (LOCATION_REGION, _("State / Province")),
-)
+
+class LocationType(Enum):
+    CITY = 'C'
+    REGION = 'R'
+    UNKNOWN = 'U'
+
+    def __str__(member):
+        return member.value
 
 
 class TrackingModel(models.Model):
@@ -1082,6 +1086,11 @@ class CountryRegion(models.Model):
 
 
 class Whereabouts(models.Model):
+    WHEREABOUTS_TYPE_CHOICES = (
+        (LocationType.CITY.value, _("City")),
+        (LocationType.REGION.value, _("State / Province")),
+    )
+
     type = models.CharField(
         _("location type"),
         max_length=1,

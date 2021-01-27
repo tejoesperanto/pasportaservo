@@ -20,7 +20,7 @@ from maps.widgets import MapboxGlWidget
 from ..countries import (
     COUNTRIES_DATA, SUBREGION_TYPES, countries_with_mandatory_region,
 )
-from ..models import LOCATION_CITY, CountryRegion, Place, Profile, Whereabouts
+from ..models import CountryRegion, LocationType, Place, Profile, Whereabouts
 from ..utils import geocode, geocode_city
 from ..validators import TooNearPastValidator
 
@@ -240,7 +240,7 @@ class PlaceForm(forms.ModelForm):
             if self.cleaned_data.get('city') != '':
                 # Create a new geocoding of the user's city if we don't have it in the database yet.
                 geocities = Whereabouts.objects.filter(
-                    type=LOCATION_CITY,
+                    type=LocationType.CITY,
                     name=self.cleaned_data['city'].upper(),
                     country=self.cleaned_data['country'],
                 )
@@ -257,7 +257,7 @@ class PlaceForm(forms.ModelForm):
                     )
                     if city_location:
                         Whereabouts.objects.create(
-                            type=LOCATION_CITY,
+                            type=LocationType.CITY,
                             name=self.cleaned_data['city'].upper(),
                             state=region,
                             country=self.cleaned_data['country'],

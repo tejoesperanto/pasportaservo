@@ -8,7 +8,7 @@ from django_countries.fields import Country
 from maps import SRID
 
 from ..countries import countries_with_mandatory_region
-from ..models import LOCATION_CITY, LOCATION_REGION
+from ..models import LocationType
 
 
 class WhereaboutsAdminForm(ModelForm):
@@ -33,7 +33,8 @@ class WhereaboutsAdminForm(ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if (cleaned_data.get('type') == LOCATION_CITY
+        whereabouts_type = LocationType(cleaned_data.get('type', LocationType.UNKNOWN))
+        if (whereabouts_type is LocationType.CITY
                 and cleaned_data.get('country') in countries_with_mandatory_region()
                 and not cleaned_data.get('state')):
             # Verifies that the region is indeed indicated when it is mandatory.
@@ -43,7 +44,8 @@ class WhereaboutsAdminForm(ModelForm):
                 'state',
                 format_lazy(message, country=Country(cleaned_data['country']).name)
             )
-        if (cleaned_data.get('type') == LOCATION_REGION and not cleaned_data.get('state')):
+        if (whereabouts_type is LocationType.REGION
+                and not cleaned_data.get('state')):
             # Verifies that a region has both name and code indicated.
             message = _("The 'state / province' field should indicate "
                         "the ISO code of the region.")
