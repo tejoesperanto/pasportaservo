@@ -6,7 +6,7 @@ from django.db.models import (
 from django.utils.termcolors import make_style
 
 from hosting.countries import countries_with_mandatory_region
-from hosting.models import LOCATION_CITY, Place, Whereabouts
+from hosting.models import LocationType, Place, Whereabouts
 from hosting.utils import geocode_city
 
 from ... import SRID
@@ -28,7 +28,7 @@ class Command(BaseCommand):
             .annotate(lookup=dbf.Concat(
                 'name', V('###'), 'state', V('###'), 'country',
                 output_field=CharField()))
-            .filter(type=LOCATION_CITY)
+            .filter(type=LocationType.CITY)
             .values_list('lookup', flat=True)
         )
         city_list = (
@@ -55,7 +55,7 @@ class Command(BaseCommand):
                     place.city, state_province=place.state_province, country=place.country.code)
                 if city_location:
                     whereabouts = Whereabouts.objects.create(
-                        type=LOCATION_CITY,
+                        type=LocationType.CITY,
                         name=place.city.upper(),
                         state=(
                             place.state_province.upper()

@@ -35,7 +35,7 @@ from ..forms import (
     PlaceBlockForm, PlaceBlockQuickForm, PlaceCreateForm, PlaceForm,
     PlaceLocationForm, UserAuthorizedOnceForm, UserAuthorizeForm,
 )
-from ..models import LOCATION_CITY, Place, Profile, TravelAdvice, Whereabouts
+from ..models import LocationType, Place, Profile, TravelAdvice, Whereabouts
 from .mixins import (
     CreateMixin, DeleteMixin, PlaceMixin, PlaceModifyMixin,
     ProfileIsUserMixin, ProfileModifyMixin, UpdateMixin,
@@ -157,7 +157,7 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
         if (location is None or location.empty) and is_authenticated:
             location_type = 'R'  # = Region.
             geocities = Whereabouts.objects.filter(
-                type=LOCATION_CITY, name=place.city.upper(), country=place.country)
+                type=LocationType.CITY, name=place.city.upper(), country=place.country)
             if place.country in countries_with_mandatory_region():
                 geocities = geocities.filter(state=place.state_province.upper())
             try:

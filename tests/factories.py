@@ -15,7 +15,7 @@ from slugify import slugify
 
 from hosting.countries import COUNTRIES_DATA, countries_with_mandatory_region
 from hosting.models import (
-    MR, MRS, PHONE_TYPE_CHOICES, PRONOUN_CHOICES, WHEREABOUTS_TYPE_CHOICES,
+    MR, MRS, PHONE_TYPE_CHOICES, PRONOUN_CHOICES, LocationType,
 )
 from maps import SRID
 from maps.data import COUNTRIES_GEO
@@ -268,7 +268,7 @@ class WhereaboutsFactory(DjangoModelFactory):
     class Meta:
         model = 'hosting.Whereabouts'
 
-    type = Faker('random_element', elements=[ch[0] for ch in WHEREABOUTS_TYPE_CHOICES])
+    type = Faker('random_element', elements=[ch.value for ch in LocationType])
 
     @factory.lazy_attribute
     def name(self):
