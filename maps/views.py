@@ -53,6 +53,8 @@ class EndpointsView(generic.View):
                 'world_map_data': reverse_lazy('world_map_public_data'),
             })
         if type == 'region':
+            # This usage of GET params is safe, because the values are restricted by the URL
+            # regex: country_code can only be 2 capital letters; in_book either 0 or 1 only.
             region_kwargs = {'country_code': request.GET['country']}
             if 'in_book' in request.GET:
                 region_kwargs.update({'in_book': request.GET['in_book']})
