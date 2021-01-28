@@ -141,7 +141,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
 
     @tag('subregions')
     def test_labels(self):
-        # The label for the province field for country without provinces is
+        # The label for the region field for country without regions is
         # expected to read "state / province".
         form = PlaceForm()
         self.assertEqual(form.fields['state_province'].label, "State / Province")
@@ -150,7 +150,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
         self.assertEqual(form.fields['state_province'].label, "State / Province")
         self.assertFalse(hasattr(form.fields['state_province'], 'localised_label'))
 
-        # The label for the province field for country with provinces is
+        # The label for the region field for country with regions is
         # expected to follow the administrative area type in country's data.
         for country in ('US', 'RU', 'KR', 'PL', 'DE'):
             CountryRegionFactory(country=country)
@@ -214,8 +214,8 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
         )
 
     @tag('subregions')
-    def test_invalid_province(self):
-        # Form data of country with provinces and of empty or unknown province
+    def test_invalid_region(self):
+        # Form data of country with regions and of empty or unknown region code
         # is expected to be invalid.
         test_data = {
             self.faker.random_element(elements=countries_with_mandatory_region()):
@@ -248,20 +248,21 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
                                             for error in form.errors['state_province']))
 
     @tag('subregions')
-    def test_valid_province(self):
-        # Form data of country without provinces and of empty province is expected to be valid.
+    def test_valid_region(self):
+        # Form data of country without regions and of empty region name
+        # is expected to be valid.
         form = PlaceForm({
             'country': self.faker.random_element(elements=self.countries_no_predefined_region),
         })
         self.assertTrue(form.is_valid(), msg=repr(form.errors))
-        # Form data of country without provinces and of any indicated province
+        # Form data of country without regions and of any indicated region name
         # is expected to be valid.
         form = PlaceForm({
             'country': self.faker.random_element(elements=self.countries_no_predefined_region),
             'state_province': self.faker.word(),
         })
         self.assertTrue(form.is_valid(), msg=repr(form.errors))
-        # Form data of country with provinces and of (a known) indicated province
+        # Form data of country with regions and of (a known) indicated region
         # is expected to be valid.
         for country in (
                 self.faker.random_element(elements=countries_with_mandatory_region()),
@@ -643,10 +644,10 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
         # But we do care whether the geocoding of the city is done or not.
         mock_geocode_city.side_effect = AssertionError("geocode-city was unexpectedly called")
 
-        for province in ("mandatory", "optional", "unrestricted"):
-            if province == "mandatory":
+        for region in ("mandatory", "optional", "unrestricted"):
+            if region == "mandatory":
                 countries = set(countries_with_mandatory_region())
-            elif province == "optional":
+            elif region == "optional":
                 countries = self.countries_with_optional_region
             else:
                 countries = self.countries_no_predefined_region
@@ -656,14 +657,14 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
 
             form_data = PlaceForm(instance=self.simple_place).initial.copy()
             form_data['country'] = whereabouts.country
-            if province == "mandatory":
+            if region == "mandatory":
                 form_data['state_province'] = whereabouts.state
             else:
                 form_data['state_province'] = self._fake_value('state_province', form_data['country'])
 
             for field_empty in (False, True):
                 form_data['city'] = whereabouts.name.lower() if not field_empty else ""
-                with self.subTest(state_province=province, city_has_value='✓ ' if not field_empty else '✗ '):
+                with self.subTest(state_province=region, city_has_value='✓ ' if not field_empty else '✗ '):
                     self.simple_place.refresh_from_db()
                     form = PlaceForm(data=form_data, instance=self.simple_place)
                     self.assertTrue(form.is_valid(), msg=repr(form.errors))
@@ -680,13 +681,13 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
         number_coded_cities = Whereabouts.objects.count()
         GeoResult = namedtuple('GeoResult', 'xy, bbox')
 
-        for province in ("mandatory", "optional", "unrestricted"):
+        for region in ("mandatory", "optional", "unrestricted"):
             for field_empty in (False, True):
                 self.simple_place.refresh_from_db()
                 form_data = PlaceForm(instance=self.simple_place).initial.copy()
-                if province == "mandatory":
+                if region == "mandatory":
                     form_data['country'] = self.faker.random_element(elements=countries_with_mandatory_region())
-                elif province == "optional":
+                elif region == "optional":
                     form_data['country'] = self.faker.random_element(elements=self.countries_with_optional_region)
                 else:
                     form_data['country'] = self.faker.random_element(elements=self.countries_no_predefined_region)
@@ -703,7 +704,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
                     mock_geocode_city.return_value = None
                     mock_geocode_city.side_effect = AssertionError("geocode-city was unexpectedly called")
 
-                with self.subTest(state_province=province, city_has_value='✓ ' if not field_empty else '✗ '):
+                with self.subTest(state_province=region, city_has_value='✓ ' if not field_empty else '✗ '):
                     form = PlaceForm(data=form_data, instance=self.simple_place)
                     self.assertTrue(form.is_valid(), msg=repr(form.errors))
                     form.save(commit=False)
@@ -717,7 +718,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
                         whereabouts = Whereabouts.objects.order_by('-id')[0]
                         self.assertEqual(whereabouts.country, form_data['country'])
                         self.assertEqual(whereabouts.name, form_data['city'].upper())
-                        if province == "mandatory":
+                        if region == "mandatory":
                             self.assertEqual(whereabouts.state, form_data['state_province'])
                         else:
                             self.assertEqual(whereabouts.state, "")
