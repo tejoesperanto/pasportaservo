@@ -232,7 +232,7 @@ class PhoneFormTests(WebTest):
                 self.phone4_valid.pk,
             )
         )
-        self.assertEqual(self.phone4_valid.comments, comment)
+        self.assertEqual(self.phone4_valid.comments, comment.rstrip())
 
 
 class PhoneCreateFormTests(PhoneFormTests):
@@ -291,4 +291,4 @@ class PhoneCreateFormTests(PhoneFormTests):
             )
         )
         self.assertEqual(new_phone.number, number)
-        self.assertEqual(new_phone.comments, comment)
+        self.assertEqual(new_phone.comments, comment.rstrip())
