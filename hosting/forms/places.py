@@ -13,7 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import Country
 
 from core.models import SiteConfiguration
-from core.utils import join_lazy, mark_safe_lazy
+from core.utils import join_lazy, mark_safe_lazy, sort_by
 from maps import SRID
 from maps.widgets import MapboxGlWidget
 
@@ -62,10 +62,11 @@ class PlaceForm(forms.ModelForm):
         place_country = self.data.get('country') or self.instance.country
         if place_country and place_country in COUNTRIES_DATA:
             country_data = COUNTRIES_DATA[place_country]
+            RegionChoice = namedtuple('Choice', 'code, label')
             regions = [
-                (r.iso_code, r.get_display_value())
+                RegionChoice(r.iso_code, r.get_display_value())
                 for r in CountryRegion.objects.filter(country=place_country)
-            ] + BLANK_CHOICE_DASH
+            ] + [RegionChoice(*BLANK_CHOICE_DASH[0])]
             if len(regions) > 1:
                 # Replacing a form field must happen before the `_bound_fields_cache` is populated.
                 # Note: the 'chosen' JS addon interferes with normal HTML form functioning (including
@@ -74,7 +75,7 @@ class PlaceForm(forms.ModelForm):
                 # both the field itself (for labels) and the ModelChoiceIterator (for sorting) must
                 # be subclassed.
                 self.fields['state_province'] = forms.ChoiceField(
-                    choices=sorted(regions, key=lambda r: r[1]),
+                    choices=sort_by(['label'], regions),
                     initial=self.fields['state_province'].initial,
                     required=False,
                     label=self.fields['state_province'].label,
