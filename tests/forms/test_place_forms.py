@@ -111,16 +111,25 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
         self.simple_place.refresh_from_db()
         self.complete_place.refresh_from_db()
 
-    def _fake_value(self, field_name, country=None, *, faker=None):
+    def _fake_value(self, field_name, country=None, *, prev_value=None, faker=None):
+        function, args, kwargs = lambda *args, **kwargs: None, tuple(), {}
         if field_name == 'state_province' and country not in self.countries_no_predefined_region:
-            return self.faker.random_element(elements=[
+            function = self.faker.random_element
+            kwargs = {'elements': [
                 r.iso_code
                 for r in CountryRegionFactory.create_batch(5, country=country)
-            ])
-        if field_name == 'postcode':
-            return PlaceFactory.generate_postcode(country)
-        generator_name, generator_params = islice(chain(self.expected_fields[field_name], [{}]), 2)
-        return getattr(faker or self.faker, generator_name)(**generator_params)
+            ]}
+        elif field_name == 'postcode':
+            function = PlaceFactory.generate_postcode
+            args = (country, )
+        else:
+            generator_name, generator_params = islice(chain(self.expected_fields[field_name], [{}]), 2)
+            function = getattr(faker or self.faker, generator_name)
+            kwargs = generator_params
+        generated_value = None
+        while generated_value == prev_value or generated_value is None:
+            generated_value = function(*args, **kwargs)
+        return generated_value
 
     def test_init(self):
         form_empty = PlaceForm()
@@ -494,7 +503,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
             for field_empty in (False, True):
                 data = form_data.copy()
                 if not field_empty:
-                    data[field_name] = self._fake_value(field_name)
+                    data[field_name] = self._fake_value(field_name, prev_value=data[field_name])
                 else:
                     data[field_name] = None
                 with self.subTest(field=field_name, has_value='✓ ' if not field_empty else '✗ '):
@@ -540,7 +549,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
                     data['postcode'] = ''
                 else:
                     data[field_name] = (
-                        self._fake_value(field_name, data['country'])
+                        self._fake_value(field_name, data['country'], prev_value=data[field_name])
                         if not field_empty else None
                     )
                 for i, (side_effect, expected_loc, expected_loc_confidence) in enumerate(test_config, start=1):
@@ -608,7 +617,7 @@ class PlaceFormTests(AdditionalAsserts, WebTest):
                     data['postcode'] = ''
                 else:
                     data[field_name] = (
-                        self._fake_value(field_name, data['country'])
+                        self._fake_value(field_name, data['country'], prev_value=data[field_name])
                         if not field_empty else None
                     )
                 data['address'] = getattr(self.faker, self.expected_fields['address'][0])()
