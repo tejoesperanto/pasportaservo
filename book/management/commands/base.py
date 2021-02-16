@@ -91,7 +91,7 @@ class LatexCommand(object):
         if self.address_only:
             print('  for', self.country)
             places = places.filter(country=self.country)
-        return sort_by(["closest_city", "state_province", "country.name"], places)
+        return sort_by(["closest_city", "subregion.translated_or_latin_name", "country.name"], places)
 
     def get_context_data(self):
         return {

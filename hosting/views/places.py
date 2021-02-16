@@ -23,7 +23,6 @@ from braces.views import FormInvalidMessageMixin
 from core.auth import (
     ANONYMOUS, OWNER, PERM_SUPERVISOR, SUPERVISOR, VISITOR, AuthMixin,
 )
-from core.forms import UserRegistrationForm
 from core.models import SiteConfiguration
 from core.templatetags.utils import next_link
 from core.utils import sanitize_next
@@ -101,7 +100,6 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['owner_phones'] = self.object.owner.phones.filter(deleted=False).select_related('visibility')
-        context['register_form'] = UserRegistrationForm
         context['place_location'] = self.calculate_position()
         context['blocking'] = self.calculate_blocking(self.object)
         context['simple_map'] = self.request.COOKIES.get('maptype') == '0'
@@ -160,12 +158,20 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
                 type=LocationType.CITY, name=place.city.upper(), country=place.country)
             if place.country in countries_with_mandatory_region():
                 geocities = geocities.filter(state=place.state_province.upper())
+            area_location = None
             try:
-                city_location = geocities.get()
+                # Attempt to use the place city's geocoding.
+                area_location = geocities.get()
             except Whereabouts.DoesNotExist:
-                pass
-            else:
-                bounds = [{'geom': city_location.center}, {'geom': city_location.bbox}]
+                georegions = Whereabouts.objects.filter(
+                    type=LocationType.REGION, state=place.state_province.upper(), country=place.country)
+                try:
+                    # Attempt to use the place region's geocoding.
+                    area_location = georegions.get()
+                except Whereabouts.DoesNotExist:
+                    pass
+            if area_location:
+                bounds = [{'geom': area_location.center}, {'geom': area_location.bbox}]
 
         if location is None and bounds is None:
             location_type = 'R'  # = Region.

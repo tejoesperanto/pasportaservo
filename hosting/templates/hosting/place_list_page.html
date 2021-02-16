@@ -47,9 +47,10 @@
                             <small>({{ place.internal_distance.km|floatformat:2 }}&nbsp;km)</small>
                         {% endif %}
                         <br />
-                        {% if place.state_province %}{{ place.state_province }}, {% endif %}{{ place.country.name }}
+                        {% if place.state_province %}{{ place.subregion.translated_or_latin_name }}, {% endif %}
+                        {{ place.get_country_display }}
                     {% else %}
-                        {{ place.country.name }}
+                        {{ place.get_country_display }}
                     {% endif %}
                 </a>
                 <div class="status anchor-group">

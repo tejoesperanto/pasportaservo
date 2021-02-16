@@ -348,9 +348,9 @@
                             </h4>
                         {% endif %}
                         {% if place.state_province %}
-                            <h4>{{ place.state_province }}</h4>
+                            <h4>{{ place.subregion.translated_or_latin_name }}</h4>
                         {% endif %}
-                        <h4>{{ place.country.name }}</h4>
+                        <h4>{{ place.get_country_display }}</h4>
 
                         <div class="anchor-group">
                             {% if place.available %}
@@ -417,9 +417,9 @@
                         <h3>{{ place.address.strip }}</h3>
                         <h4>{% include './snippets/place_city_complete.html' with city=place.city closest_city=place.closest_city %}</h4>
                         {% if place.state_province %}
-                            <h4>{{ place.state_province }}</h4>
+                            <h4>{{ place.subregion.translated_or_latin_name }}</h4>
                         {% endif %}
-                        <h4>{{ place.postcode }} {{ place.country.name }}</h4>
+                        <h4>{{ place.get_postcode_display }} {{ place.get_country_display }}</h4>
                     </div>
 
                     <ul class="list-group" aria-label="{% trans "Family members" %}">

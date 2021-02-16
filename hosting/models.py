@@ -20,7 +20,9 @@ from django.utils.functional import cached_property
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
-from django.utils.translation import pgettext_lazy, ugettext_lazy as _
+from django.utils.translation import (
+    get_language, pgettext_lazy, ugettext_lazy as _,
+)
 
 from commonmark import commonmark
 from django_countries.fields import CountryField
@@ -33,6 +35,7 @@ from unidecode import unidecode
 from core.utils import camel_case_split
 from maps import SRID
 
+from .countries import COUNTRIES_DATA
 from .fields import StyledEmailField, SuggestiveField
 from .filters import (
     HostingFilter, InBookFilter, MeetingFilter,
@@ -784,6 +787,15 @@ class Place(TrackingModel, TimeStampedModel):
         else:
             return ""
 
+    @cached_property
+    def subregion(self):
+        try:
+            region = CountryRegion.objects.get(country=self.country, iso_code=self.state_province)
+        except CountryRegion.DoesNotExist:
+            region = CountryRegion(country=self.country, iso_code='X-00', latin_code=self.state_province)
+        region.save = lambda self, **kwargs: None  # Read-only instance.
+        return region
+
     @property
     def icon(self):
         template = ('<span class="fa ps-home-fh" title="{title}" '
@@ -866,6 +878,36 @@ class Place(TrackingModel, TimeStampedModel):
             return format_lazy("{city} ({state})", city=self.city, state=self.country.name)
         else:
             return self.country.name
+
+    def get_postcode_display(self):
+        try:
+            return self._postcode_display_cache
+        except AttributeError:
+            pass
+
+        if self.postcode:
+            postcode_prefix = COUNTRIES_DATA.get(self.country.code, {}).get('postal_code_prefix')
+            if postcode_prefix and not self.postcode.startswith(postcode_prefix):
+                display_value = f'{postcode_prefix}{self.postcode}'
+            else:
+                display_value = self.postcode
+        else:
+            display_value = ""
+        self._postcode_display_cache = display_value
+        return display_value
+
+    def __setattr__(self, name, value):
+        if name == 'postcode':
+            try:
+                del self._postcode_display_cache
+            except AttributeError:
+                pass
+        if name == 'state_province':
+            try:
+                del self.subregion
+            except AttributeError:
+                pass
+        super().__setattr__(name, value)
 
     def __str__(self):
         return ", ".join([self.city, str(self.country.name)]) if self.city else str(self.country.name)
@@ -1037,15 +1079,25 @@ class CountryRegion(models.Model):
             models.Index(['country', 'iso_code', 'id'], name='countryregion_isocode_pk_idx'),
         ]
 
-    def get_display_value(self):
+    @property
+    def translated_name(self):
+        return self.esperanto_name if (get_language() or 'xx')[:2] == 'eo' else ""
+
+    @property
+    def translated_or_latin_name(self):
+        return self.translated_name or self.latin_name or self.latin_code
+
+    def get_display_value(self, with_esperanto=False):
         """
         Returns the name of the region in the format Esperanto name -- Latin name (Local name),
         where only the latin name is mandated and the other parts are optional, included if
         specified.
         """
         try:
-            return self._display_value_cache
+            return self._display_value_cache[with_esperanto]
         except AttributeError:
+            self._display_value_cache = {}
+        except KeyError:
             pass
 
         local_region = self.local_name or self.local_code
@@ -1070,13 +1122,15 @@ class CountryRegion(models.Model):
                 native_name = local_region
         else:
             native_name = latin_region
-        if self.esperanto_name:
+        if self.esperanto_name and with_esperanto:
             display_value = f'{self.esperanto_name}  –  {native_name}'
         else:
             display_value = native_name
 
-        self._display_value_cache = display_value
+        self._display_value_cache[with_esperanto] = display_value
         return display_value
+
+    get_display_value_with_esperanto = partialmethod(get_display_value, with_esperanto=True)
 
     def __str__(self):
         return "{}: {}".format(

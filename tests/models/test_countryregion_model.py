@@ -1,6 +1,7 @@
+from itertools import product
 from unittest.mock import PropertyMock, patch
 
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
 
 from ..factories import CountryRegionFactory
 
@@ -15,6 +16,54 @@ class CountryRegionModelTests(TestCase):
         self.assertEquals(region._meta.get_field('local_code').max_length, 70)
         self.assertEquals(region._meta.get_field('local_name').max_length, 70)
         self.assertEquals(region._meta.get_field('esperanto_name').max_length, 70)
+
+    def test_translated_name(self):
+        # For region with no Esperanto name, value is expected to be empty string.
+        region = CountryRegionFactory.build(esperanto_name="")
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(region.translated_name, "")
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(region.translated_name, "")
+
+        # For region with an Esperanto name, value is expected to be that name when
+        # locale is Esperanto and an empty string for any other locale.
+        region = CountryRegionFactory.build()
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(region.translated_name, region.esperanto_name)
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(region.translated_name, "")
+
+    def test_translated_or_latin_name(self):
+        region_with_eo_and_code = CountryRegionFactory.build(short_code=True)
+        region_with_eo_and_name = CountryRegionFactory.build(short_code=False)
+        region_without_eo_with_code = CountryRegionFactory.build(short_code=True, esperanto_name="")
+        region_without_eo_with_name = CountryRegionFactory.build(short_code=False, esperanto_name="")
+
+        with override_settings(LANGUAGE_CODE='eo'):
+            # For region with an Esperanto name, value is expected to be that name for Esperanto locale.
+            self.assertEqual(
+                region_with_eo_and_code.translated_or_latin_name, region_with_eo_and_code.esperanto_name)
+            self.assertEqual(
+                region_with_eo_and_name.translated_or_latin_name, region_with_eo_and_name.esperanto_name)
+            # For region with no Esperanto name,
+            # value is expected to be the latin name or code for Esperanto locale.
+            self.assertEqual(
+                region_without_eo_with_code.translated_or_latin_name, region_without_eo_with_code.latin_name)
+            self.assertEqual(
+                region_without_eo_with_name.translated_or_latin_name, region_without_eo_with_name.latin_code)
+        with override_settings(LANGUAGE_CODE='en'):
+            # For region with an Esperanto name,
+            # value is expected to be the latin name or code for non-Esperanto locale.
+            self.assertEqual(
+                region_with_eo_and_code.translated_or_latin_name, region_with_eo_and_code.latin_name)
+            self.assertEqual(
+                region_with_eo_and_name.translated_or_latin_name, region_with_eo_and_name.latin_code)
+            # For region with no Esperanto name,
+            # value is expected to be the latin name or code for non-Esperanto locale.
+            self.assertEqual(
+                region_without_eo_with_code.translated_or_latin_name, region_without_eo_with_code.latin_name)
+            self.assertEqual(
+                region_without_eo_with_name.translated_or_latin_name, region_without_eo_with_name.latin_code)
 
     def test_display_value(self):
         test_data = [
@@ -50,8 +99,8 @@ class CountryRegionModelTests(TestCase):
             ), (
                 # For region with latin code equal to local code minus a prefix or a suffix,
                 # value is expected to be only the local code.
-                dict(latin_code="Bavdhan", latin_name="", local_code="Bavdhan Localilty"),
-                "Bavdhan Localilty"
+                dict(latin_code="Bavdhan", latin_name="", local_code="Bavdhan Locality"),
+                "Bavdhan Locality"
             ), (
                 # For region with latin code similar to local code and with addition of prefix or suffix,
                 # value is expected to be both latin code with the local code.
@@ -70,16 +119,14 @@ class CountryRegionModelTests(TestCase):
             )
         ]
         for kwargs, expected_value in test_data:
-            for esperanto_name in ("", "Najbarejo"):
-                with self.subTest(**kwargs, esperanto=esperanto_name):
+            for esperanto_on, esperanto_name in product((False, True), ("", "Najbarejo", "Bavdhan")):
+                with self.subTest(**kwargs, esperanto=esperanto_name, include_esperanto=esperanto_on):
                     region = CountryRegionFactory.build(**kwargs, esperanto_name=esperanto_name)
-                    if esperanto_name:
-                        self.assertEqual(
-                            region.get_display_value(),
-                            f"{esperanto_name} \xa0\u2013\xa0 {expected_value}"
-                        )
-                    else:
-                        self.assertEqual(region.get_display_value(), expected_value)
+                    self.assertEqual(
+                        region.get_display_value(with_esperanto=esperanto_on),
+                        f"{esperanto_name} \xa0\u2013\xa0 {expected_value}" if esperanto_on and esperanto_name
+                        else expected_value
+                    )
 
         # The value is expected to be calculated only once and memoized.
         region = CountryRegionFactory.build(short_code=False)
@@ -88,10 +135,15 @@ class CountryRegionModelTests(TestCase):
             result2 = region.get_display_value()
             mock_name.assert_called_once()
             self.assertEqual(id(result1), id(result2))
-            region.latin_name = "Charholi Budruk"
+            region.latin_code = "Charholi Budruk"
+            mock_name.reset_mock()
             result3 = region.get_display_value()
-            mock_name.assert_called_once()
+            mock_name.assert_not_called()
             self.assertEqual(id(result1), id(result3))
+
+            result4 = region.get_display_value(with_esperanto=True)
+            mock_name.assert_called_once()
+            self.assertNotEqual(id(result1), id(result4))
 
     def test_str(self):
         region = CountryRegionFactory.build(short_code=False)

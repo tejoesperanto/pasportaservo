@@ -1316,12 +1316,6 @@ msgstr "laboreja"
 msgid "fax"
 msgstr "fakso"
 
-msgid "City"
-msgstr "Urbo"
-
-msgid "State / Province"
-msgstr "Ŝtato / Provinco"
-
 msgid "deleted on"
 msgstr "forigita je"
 
@@ -1441,6 +1435,9 @@ msgstr ""
 
 msgid "postcode"
 msgstr "poŝtkodo"
+
+msgid "State / Province"
+msgstr "Ŝtato / Provinco"
 
 msgid "confidence"
 msgstr "certeco"
@@ -1602,6 +1599,9 @@ msgstr "subregiono"
 
 msgid "subregions"
 msgstr "subregionoj"
+
+msgid "City"
+msgstr "Urbo"
 
 msgid "location type"
 msgstr "tipo de lokigo"

@@ -63,10 +63,10 @@
                         <span>{{ address_city }},&ensp;</span>
                     {% endif %}
                     {% if place.state_province %}
-                        <span>{{ place.state_province }},&ensp;</span>
+                        <span>{{ place.subregion.get_display_value }},&ensp;</span>
                     {% endif %}
                     {% if view.verbose_view and place.postcode %}
-                        <span>{{ place.postcode }}&ensp;</span>
+                        <span>{{ place.get_postcode_display }}&ensp;</span>
                     {% endif %}
                     <span>{{ place.get_country_display }}</span>
                 {% endspaceless %}{% endfilter %}

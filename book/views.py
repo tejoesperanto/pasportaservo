@@ -3,6 +3,7 @@ import tempfile
 from os.path import join
 
 from django.conf import settings
+from django.db.models import Q
 from django.http.response import HttpResponse
 from django.template.defaultfilters import yesno
 from django.utils.translation import ugettext_lazy as _
@@ -22,9 +23,10 @@ class ContactExportView(AuthMixin, generic.ListView):
     place_fields = [
         'in_book', 'checked', 'city', 'closest_city', 'address',
         'postcode', 'state_province', 'country', 'short_description',
-        'tour_guide', 'have_a_drink', 'max_guest', 'max_night', 'contact_before', 'confirmed_on',
+        'tour_guide', 'have_a_drink', 'max_guest', 'max_night', 'contact_before',
+        'confirmed_on',
     ]
-    owner_fields = ['title', 'first_name', 'last_name', 'birth_date']
+    owner_fields = ['title', 'first_name', 'last_name', 'gender', 'birth_date']
     user_fields = ['email', 'username', 'last_login', 'date_joined']
     other_fields = ['phones', 'family_members', 'conditions', 'update_url', 'confirm_url']
 
@@ -35,7 +37,8 @@ class ContactExportView(AuthMixin, generic.ListView):
     def get_queryset(self):
         places = Place.objects.prefetch_related('owner__user')
         places = places.filter(available=True).exclude(
-            owner__user__email__startswith=settings.INVALID_PREFIX
+            Q(owner__user__email__startswith=settings.INVALID_PREFIX)
+            | Q(owner__death_date__isnull=False)
         )
         return places
 
@@ -82,9 +85,13 @@ class ContactExportView(AuthMixin, generic.ListView):
                     value = yesno(value, _("yes,no"))
                 if f == 'title':
                     value = _(obj.title)
+                if f == 'postcode':
+                    value = obj.get_postcode_display()
+                if f == 'state_province':
+                    value = obj.subregion.latin_code
                 if f == 'confirmed_on':
-                    value = '01/01/1970'
-                row.append(value)
+                    value = "01/01/1970"
+                row.append(value.strip() if isinstance(value, str) else value)
         return row
 
     def get_url(self, place, action):
