@@ -1041,7 +1041,10 @@ class Gender(models.Model):
             return NotImplemented
 
     def __str__(self):
-        return self.name
+        return (
+            self.name if (get_language() or 'xx')[:2] == 'eo'
+            else (self.name_en or self.name)
+        )
 
 
 class CountryRegion(models.Model):

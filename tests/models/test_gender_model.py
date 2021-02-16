@@ -1,4 +1,4 @@
-from django.test import tag
+from django.test import override_settings, tag
 
 from django_webtest import WebTest
 
@@ -32,5 +32,11 @@ class GenderModelTests(WebTest):
         self.assertFalse(gender == (term for term in ["forrest"]))
 
     def test_str(self):
-        gender = GenderFactory.build()
-        self.assertEquals(str(gender), gender.name)
+        gender_known = GenderFactory.build()
+        gender_novel = GenderFactory.build(id=None, name_en="")
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEquals(str(gender_known), gender_known.name)
+            self.assertEquals(str(gender_novel), gender_novel.name)
+        with override_settings(LANGUAGE_CODE='fr'):
+            self.assertEquals(str(gender_known), gender_known.name_en)
+            self.assertEquals(str(gender_novel), gender_novel.name)

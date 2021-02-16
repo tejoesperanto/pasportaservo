@@ -246,7 +246,14 @@
                 <span class="fa fa-transgender-alt text-muted"></span>
                 {% filter cut:"<span>"|cut:"</span>" %}{% spaceless %}
                     {% if profile.gender %}
-                        <span>{% blocktrans with of_gender=profile.gender %}I am {{ of_gender }}{% endblocktrans %}</span>
+                        {% asvar of_gender trimmed %}
+                            {% if profile.gender.name_en or LANGUAGE_CODE == 'eo' %}
+                                {{ profile.gender }}
+                            {% else %}
+                                <i lang="eo">{{ profile.gender.name }}</i>
+                            {% endif %}
+                        {% endasvar %}
+                        <span>{% blocktrans %}I am {{ of_gender }}{% endblocktrans %}</span>
                         <span>{% if profile.pronoun %}; {% else %}. {% endif %}</span>
                     {% endif %}
                     {% if profile.pronoun %}
