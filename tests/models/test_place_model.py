@@ -1,4 +1,5 @@
 from datetime import date
+from unittest.mock import PropertyMock, patch
 
 from django.test import tag
 
@@ -102,6 +103,41 @@ class PlaceModelTests(AdditionalAsserts, WebTest):
         # A place in a known city is expected to be "City-name (Country-name)".
         place = PlaceFactory.build(city=Faker('city'), country=Country('NL'))
         self.assertEqual(place.get_locality_display(), '{} ({})'.format(place.city, place.country.name))
+
+    def test_postcode_display(self):
+        # For a place with no postcode, the result is expected to be an empty string.
+        place = PlaceFactory.build(postcode="", country=Country('AZ'))
+        self.assertEqual(place.get_postcode_display(), "")
+        place = PlaceFactory.build(postcode="", country=Country('KY'))
+        self.assertEqual(place.get_postcode_display(), "")
+
+        # For a place with postcode in country with no postcode prefix,
+        # the result is expected to be the indicated postcode.
+        place = PlaceFactory.build(postcode="AB 8734/X", country=Country('CK'))
+        self.assertEqual(place.get_postcode_display(), "AB 8734/X")
+
+        # For a place with postcode in country with optional postcode prefix,
+        # the result is expected to start with the prefix.
+        place = PlaceFactory.build(postcode="56129", country=Country('LT'))
+        self.assertEqual(place.get_postcode_display(), "LT-56129")
+        place.postcode = "LT-45238"
+        self.assertEqual(place.get_postcode_display(), "LT-45238")
+
+        # For a place with postcode in country with mandatory postcode prefix,
+        # the result is expected to include the prefix only once.
+        place = PlaceFactory.build(postcode="LV-8520", country=Country('LV'))
+        self.assertEqual(place.get_postcode_display(), "LV-8520")
+
+        # The result is expected to be calculated only once and memoized until the postcode is modified.
+        place = PlaceFactory.build(postcode=True, country=Country('HT'))
+        with patch('hosting.models.Place.postcode', new_callable=PropertyMock) as mock_postcode:
+            place.get_postcode_display()
+            place.get_postcode_display()
+            self.assertEqual(mock_postcode.call_count, 3)  # Postcode is accessed thrice during calculation.
+
+            place.postcode = PlaceFactory.generate_postcode(place.country)
+            place.get_postcode_display()
+            self.assertEqual(mock_postcode.call_count, 7)  # Postcode is accessed thrice during calculation.
 
     def test_str(self):
         # A place in a known city is expected to be "City-name, Country-name".

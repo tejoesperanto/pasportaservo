@@ -62,11 +62,11 @@ class PlaceForm(forms.ModelForm):
         place_country = self.data.get('country') or self.instance.country
         if place_country and place_country in COUNTRIES_DATA:
             country_data = COUNTRIES_DATA[place_country]
-            RegionChoice = namedtuple('Choice', 'code, label')
+            self.country_regions = CountryRegion.objects.filter(country=place_country)
             regions = [
-                RegionChoice(r.iso_code, r.get_display_value())
-                for r in CountryRegion.objects.filter(country=place_country)
-            ] + [RegionChoice(*BLANK_CHOICE_DASH[0])]
+                (r.iso_code, r.get_display_value_with_esperanto())
+                for r in self.country_regions
+            ] + BLANK_CHOICE_DASH
             if len(regions) > 1:
                 # Replacing a form field must happen before the `_bound_fields_cache` is populated.
                 # Note: the 'chosen' JS addon interferes with normal HTML form functioning (including
@@ -74,8 +74,9 @@ class PlaceForm(forms.ModelForm):
                 # Using a ModelChoiceField here, while more natural, is also more cumbersome, since
                 # both the field itself (for labels) and the ModelChoiceIterator (for sorting) must
                 # be subclassed.
+                RegionChoice = namedtuple('Choice', 'code, label')
                 self.fields['state_province'] = forms.ChoiceField(
-                    choices=sort_by(['label'], regions),
+                    choices=sort_by(['label'], (RegionChoice(*r) for r in regions)),
                     initial=self.fields['state_province'].initial,
                     required=False,
                     label=self.fields['state_province'].label,
@@ -206,12 +207,45 @@ class PlaceForm(forms.ModelForm):
 
     def _format_address(self, with_street=True):
         address = {
-            'street': self.cleaned_data.get('address').replace('\r\n', ',') if with_street else '',
-            'zip': self.cleaned_data.get('postcode').replace(' ', ''),
-            'city': self.cleaned_data.get('city'),
-            'state': self.cleaned_data.get('state_province'),
+            'street': self.cleaned_data['address'].replace('\r\n', ', ') if with_street else '',
+            'zip': self.cleaned_data['postcode'].replace(' ', ''),
+            'city': self.cleaned_data['city'],
+            'state': getattr(self.cleaned_region, 'latin_code', '') or self.cleaned_data['state_province'],
         }
         return '{street}, {zip} {city}, {state}'.format(**address).lstrip(', ')
+
+    def _geocode_new_city(self):
+        geocities = Whereabouts.objects.filter(
+            type=LocationType.CITY,
+            name=self.cleaned_data['city'].upper(),
+            country=self.cleaned_data['country'],
+        )
+        if self.cleaned_data['country'] in countries_with_mandatory_region():
+            region = self.cleaned_data['state_province'].upper()
+            geocities = geocities.filter(state=region)
+        else:
+            region = ''
+        if not geocities.exists():
+            city_location = geocode_city(
+                self.cleaned_data['city'],
+                state_province=(
+                    getattr(self.cleaned_region, 'latin_code', '')
+                    or self.cleaned_data['state_province']
+                ),
+                country=self.cleaned_data['country'],
+            )
+            if city_location:
+                Whereabouts.objects.create(
+                    type=LocationType.CITY,
+                    name=self.cleaned_data['city'].upper(),
+                    state=region,
+                    country=self.cleaned_data['country'],
+                    bbox=LineString(
+                        city_location.bbox['southwest'], city_location.bbox['northeast'],
+                        srid=SRID,
+                    ),
+                    center=Point(city_location.xy, srid=SRID),
+                )
 
     def save(self, commit=True):
         place = super().save(commit=False)
@@ -225,6 +259,10 @@ class PlaceForm(forms.ModelForm):
 
         if place.location is None or place.location.empty:
             # Only recalculate the location if it was not already geocoded before.
+            try:
+                self.cleaned_region = self.country_regions.get(iso_code=self.cleaned_data['state_province'])
+            except CountryRegion.DoesNotExist:
+                self.cleaned_region = None
             location = geocode(self._format_address(), country=self.cleaned_data['country'], private=True)
             if location and not location.point and 'address' in self.changed_data:
                 # Try again without the address block when location cannot be determined.
@@ -238,36 +276,9 @@ class PlaceForm(forms.ModelForm):
                 place.location = location.point
             place.location_confidence = (getattr(location, 'confidence', None) or 0) if place.location else 0
 
-            if self.cleaned_data.get('city') != '':
+            if self.cleaned_data['city'] != '':
                 # Create a new geocoding of the user's city if we don't have it in the database yet.
-                geocities = Whereabouts.objects.filter(
-                    type=LocationType.CITY,
-                    name=self.cleaned_data['city'].upper(),
-                    country=self.cleaned_data['country'],
-                )
-                if self.cleaned_data['country'] in countries_with_mandatory_region():
-                    region = self.cleaned_data['state_province'].upper()
-                    geocities = geocities.filter(state=region)
-                else:
-                    region = ''
-                if not geocities.exists():
-                    city_location = geocode_city(
-                        self.cleaned_data['city'],
-                        state_province=self.cleaned_data['state_province'],
-                        country=self.cleaned_data['country'],
-                    )
-                    if city_location:
-                        Whereabouts.objects.create(
-                            type=LocationType.CITY,
-                            name=self.cleaned_data['city'].upper(),
-                            state=region,
-                            country=self.cleaned_data['country'],
-                            bbox=LineString(
-                                city_location.bbox['southwest'], city_location.bbox['northeast'],
-                                srid=SRID,
-                            ),
-                            center=Point(city_location.xy, srid=SRID),
-                        )
+                self._geocode_new_city()
 
         if commit:
             place.save()

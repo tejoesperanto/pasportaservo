@@ -52,7 +52,9 @@ class Command(BaseCommand):
         for place in city_list:
             if place.city_lookup not in mapped_set:
                 city_location = geocode_city(
-                    place.city, state_province=place.state_province, country=place.country.code)
+                    place.city,
+                    state_province=place.subregion.latin_name or place.subregion.latin_code,
+                    country=place.country.code)
                 if city_location:
                     whereabouts = Whereabouts.objects.create(
                         type=LocationType.CITY,
@@ -72,7 +74,8 @@ class Command(BaseCommand):
                     success_counter += 1
                 else:
                     if self.verbosity >= 2:
-                        self.stdout.write(f"- {place.city} ({place.country}) could not be mapped")
+                        region = f"R:{place.subregion.iso_code}, " if place.subregion.pk else ""
+                        self.stdout.write(f"- {place.city} ({region}{place.country}) could not be mapped")
                 mapped_set.add(place.city_lookup)
             else:
                 city_location = None

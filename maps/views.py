@@ -154,8 +154,7 @@ class PublicDataView(GeoJSONLayerView):
             by_visibility &= Q(owner__pref__public_listing=True)
         return (
             PlottablePlace.available_objects
-            .exclude(location__isnull=True)
-            .exclude(owner__death_date__isnull=False)
+            .exclude(Q(location__isnull=True) | Q(owner__death_date__isnull=False))
             .filter(by_visibility)
             .prefetch_related('owner')
             .defer('description', 'short_description', 'owner__description')
