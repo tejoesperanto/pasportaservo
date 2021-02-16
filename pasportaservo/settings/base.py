@@ -225,6 +225,17 @@ try:
 except locale.Error:
     raise locale.Error(f"Could not set locale {SYSTEM_LOCALE}: make sure that it is enabled on the system.")
 
+def get_current_commit():
+    import subprocess
+    p = subprocess.run(
+        ('git', 'show', '-s', '--no-color', '--format=%h %D'),
+        capture_output=True, universal_newlines=True,
+    )
+    commit_hash, refnames = p.stdout.split(' ', maxsplit=1)
+    branch = refnames.strip().replace('HEAD -> ', '').replace('HEAD, ', '').split(',')[0]
+    return (commit_hash, branch)
+
+CURRENT_COMMIT = get_current_commit()
 
 # Prefix for marking values (such as email addresses) as no longer valid
 # Do not change the value without a data migration!

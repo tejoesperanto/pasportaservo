@@ -562,6 +562,9 @@ msgid ""
 msgstr ""
 "Ekde 1974, miloj da vojaĝ&shy;emuloj uzis kaj daŭre uzas Pasportan Servon."
 
+msgid "Explore the map of the hosts"
+msgstr "Esploru la mapon de la gastigantoj"
+
 msgctxt "URL"
 msgid "how-to-use"
 msgstr "kiel-uzi"

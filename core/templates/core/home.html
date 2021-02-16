@@ -24,9 +24,18 @@
     <section id="promo-pitch" class="container" role="note">
          <div class="row">
              <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-                <div class="help-block promo-contents">
+                <div class="promo-contents help-block">
                     {% trans "Stay for free in homes, host interesting people of all ages, practice your Esperanto." %}
                     {% trans "Since 1974, thousands of travellers have used and are still using Pasporta Servo." %}
+                </div>
+             </div>
+         </div>
+    </section>
+    <section id="home-explore" class="container">
+         <div class="row">
+             <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+                <div class="explore-action text-center small">
+                    <a href="{% url 'world_map' %}"><b>{% trans "Explore the map of the hosts" %}</b></a>
                 </div>
              </div>
          </div>
@@ -64,13 +73,16 @@
 {% block page %}
     <div class="social-links social-networks sm-icons pull-left" data-nosnippet>
         {% spaceless %}
-        <a href="https://www.facebook.com/pasportaservo" target="_blank" rel="external noreferrer" title="Pasporta Servo {% trans "at" %} Facebook" class="highlight-custom">
+        <a href="https://www.facebook.com/pasportaservo" target="_blank" rel="external noreferrer"
+           title="Pasporta Servo {% trans "at" %} Facebook" class="highlight-custom">
             <img src="{% static 'img/home/social_facebook-sm.png' %}" alt="[facebook]"/>
         </a>
-        <a href="https://twitter.com/pasportaservo" target="_blank" rel="external noreferrer" title="Pasporta Servo {% trans "at" %} Twitter" class="highlight-custom">
+        <a href="https://twitter.com/pasportaservo" target="_blank" rel="external noreferrer"
+           title="Pasporta Servo {% trans "at" %} Twitter" class="highlight-custom">
             <img src="{% static 'img/home/social_twitter-sm.png' %}" alt="[twitter]"/>
         </a>
-        <a href="https://youtu.be/hkQZUI5f_ck" target="_blank" rel="external noreferrer" title="{% trans "About us" %}, {% trans "at" %} YouTube" class="highlight-custom">
+        <a href="https://youtu.be/hkQZUI5f_ck" target="_blank" rel="external noreferrer"
+           title="{% trans "About us" %}, {% trans "at" %} YouTube" class="highlight-custom">
             <img src="{% static 'img/home/social_youtube-sm.png' %}" alt="[youtube]"/>
         </a>
         {% endspaceless %}
@@ -85,11 +97,13 @@
         <a href="mailto:{{ SUPPORT_EMAIL }}" title="{% trans "Contact us via email" %}" class="highlight-custom">
             <img src="{% static 'img/home/social_email-sm.png' %}" alt="[email]"/>
         </a>
-        <a href="https://trello.com/b/kerCH0sk/pasporta-servo-novaj-funkcioj" target="_blank" rel="external noreferrer" title="{% trans "Your ideas and suggestions" %}: Trello" class="highlight-custom narrow">
-            <img src="{% static 'img/home/social_trello-sm.png' %}" alt="[trello]"/>
+        <a href="https://github.com/tejoesperanto/pasportaservo/discussions/categories/ideas" target="_blank" rel="external noreferrer"
+           title="{% trans "Your ideas and suggestions" %}" class="highlight-custom narrow">
+            <img src="{% static 'img/home/social_trello-sm.png' %}" alt="[github-ideas]"/>
         </a>
-        <a href="https://github.com/tejo-esperanto/pasportaservo" target="_blank" rel="external noreferrer" title="{% trans "Pasporta Servo's source code" %}: GitHub" class="highlight-custom">
-            <img src="{% static 'img/home/social_github-sm.png' %}" alt="[github]"/>
+        <a href="https://github.com/tejoesperanto/pasportaservo" target="_blank" rel="external noreferrer"
+           title="{% trans "Pasporta Servo's source code" %} {% trans "at" %} GitHub" class="highlight-custom">
+            <img src="{% static 'img/home/social_github-sm.png' %}" alt="[github-code]"/>
         </a>
         {% endspaceless %}
     </div>
