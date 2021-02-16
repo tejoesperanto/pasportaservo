@@ -1,6 +1,6 @@
 # ![Pasporta Servo 3](https://cdn.rawgit.com/tejo-esperanto/pasportaservo/master/logos/pasportaservo_logo.svg)
 
-[![TEJO](https://img.shields.io/badge/Projekto_de-TEJO-orange.svg)](http://tejo.org)
+[![TEJO](https://img.shields.io/badge/Projekto_de-TEJO-orange.svg)](https://tejo.org)
 [![Esperanto](https://img.shields.io/badge/Esperanto-jes-green.svg)](https://eo.wikipedia.org/wiki/Esperanto)
 [![Python 3.7](https://img.shields.io/badge/Python-3.7-blue.svg)](https://docs.python.org/3.7/)
 [![Django 2.2](https://img.shields.io/badge/Django-2.2-0C4B33.svg)](https://docs.djangoproject.com/en/2.2/)
@@ -9,7 +9,7 @@
 [![GNU AGPLv3](https://img.shields.io/badge/licenco-GNU_AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0.html)
 [![Kontaktu nin en Telegramo https://t.me/joinchat/Bg10skEz3jFXpBk-nZAuiw](https://img.shields.io/badge/babili%20en-Telegramo-179CDE.svg)](https://t.me/joinchat/Bg10skEz3jFXpBk-nZAuiw)
 
-[![Travis CI](https://img.shields.io/travis/tejoesperanto/pasportaservo.svg)](https://travis-ci.org/tejoesperanto/pasportaservo)
+[![Travis CI](https://img.shields.io/travis/tejoesperanto/pasportaservo.svg)](https://travis-ci.com/tejoesperanto/pasportaservo)
 [![Codecov](https://img.shields.io/codecov/c/github/tejoesperanto/pasportaservo.svg)](https://codecov.io/gh/tejoesperanto/pasportaservo)
 
 
@@ -21,12 +21,18 @@
 
 - [Kontribui](#kontribui)
 - [Instali](#instali)
+- [Kunlabori](#kunlabori)
 - [Licenco](#licenco)
 
 
 # Kontribui
 
-Ĉu vi trovis cimon? Ĉu vi havas ideon kiel plibonigi la retejon? Nepre kreu [novan atentindaĵon](https://github.com/tejo-esperanto/pasportaservo/issues/new).
+Ĉu vi trovis cimon? Nepre kreu [novan atentindaĵon](https://github.com/tejoesperanto/pasportaservo/issues/new).
+
+Ĉu vi havas ideon kiel plibonigi la retejon?
+Kontrolu ĉe [Diskutoj](https://github.com/tejoesperanto/pasportaservo/discussions) ĉu iu jam eble proponis ion
+similan – se jes, voĉdonu por tiu ideo;
+se ne, komencu [novan fadenon](https://github.com/tejoesperanto/pasportaservo/discussions/new?category=ideas).
 
 
 # Instali
@@ -34,7 +40,7 @@
 Ubuntu 16.10 / Debian Stretch:
 
     sudo apt install git python3-dev python3-pip python3-venv libjpeg-dev zlib1g-dev \
-      postgresql-contrib postgresql-server-dev-all postgresql-9.6-postgis libgdal-dev
+      postgresql-contrib postgresql-server-dev-all postgresql-10-postgis libgdal-dev
 
 Fedora 27:
 
@@ -59,7 +65,7 @@ Por ĉiuj:
 
 #### Fontkodo
 
-Iru al la [GitHub-projektpaĝo](https://github.com/tejo-esperanto/pasportaservo)
+Iru al la [projektpaĝo ĉe GitHub](https://github.com/tejoesperanto/pasportaservo)
 kaj forku la deponejon. Poste, vi povas kloni ĝin:
 
     git clone https://github.com/{via-uzantnomo}/pasportaservo.git
@@ -77,7 +83,7 @@ Fine, kurigu la lokan WSGI-servilon:
 
     ./manage.py runserver
 
-Ĉu bone? Vidu http://localhost:8000
+Ĉu bone? Vidu http://localhost:8000.
 
 
 #### Retmesaĝoj
@@ -87,6 +93,8 @@ Ekster la *env* virtuala medio, kun Pitono:
 
     pip install --user maildump
     maildump
+
+La mesaĝoj estos kolektataj en ĉion-kaptan poŝtkeston videblan ĉe http://localhost:1080.
 
 
 ----
@@ -127,11 +135,13 @@ Se vi vidas tabelon kiel ĉi-supre, ĉio glate paŝis.
 Tia eraro indikas ke la Esperanta lokaĵaro ne estas aktivigita. Uzu la jenajn komandojn:
 
     sudo locale-gen eo.UTF-8
-    sudo update-locate
+    sudo update-locale
     locale -a
 
 Se vi vidas `eo.utf8` en la listo, la ĝusta lokaĵaro estas nun aktiva.
 
+
+# Kunlabori
 
 ### Komprenu la strukturon de la kodo
 
@@ -149,7 +159,51 @@ Kaj ene de la diversaj *Dĵango-aplikaĵoj* (ekz. `hosting`, `pages`, `links`…
 - templatetags/: ebligas pli kompleksajn operaciojn en la ŝablonoj
 
 
-### Lerni Dĵangon
+### Disvolvigu
+
+*Laboru en branĉoj:*
+
+Efektivigu viajn ŝanĝojn en tiucelaj, laŭtemaj branĉoj:
+
+    git checkout master
+    git checkout -b {nomo-de-nova-branĉo}
+
+Ĉefa risurco por lerni ***git*** (la versiadministra sistemo): https://git-scm.com/docs/git.
+
+*Utiligu helpilojn por kod-kvalito:*
+
+* *isort* aŭtomate ordigas ĉiujn importojn en la Pitonaj dosieroj, por ke vi ne devu pensi pri tio
+  (`isort -rc .`)
+* *flake8* certigas ke la kodo estas bonkvalite strukturita kaj ne ĉeestas “mortaj” sekcioj
+  (`python -m flake8`)
+
+*Verku testojn:*
+
+Testoj estas gravaj por certigi ke partoj de la retejo funkcias tiele kiel oni planis, kaj kapti cimojn
+antaŭ ol ili trafos uzantojn. Testoj ankaŭ helpas certiĝi ke novenkondukitaj ŝanĝoj ne rompas ekzistantajn
+funkciojn. La testoj kolektiĝas sub **tests/**. Risurcoj:
+- https://docs.djangoproject.com/en/stable/topics/testing/overview
+- https://docs.python.org/3/library/unittest.html
+- https://docs.pylonsproject.org/projects/webtest/en/latest
+- https://test-driven-django-development.readthedocs.io/en/latest
+
+*Testu sur realaj aparatoj:*
+
+Laŭdefaŭlte, la disvolviga WSGI-servilo estas kurigita izolite sur via maŝino kaj atingeblas nur per la
+loka inverscikla adreso 127.0.0.1 (aŭ ĝia sinonimo http://localhost). Tiam vi povas uzi la retumilojn
+haveblajn sur via maŝino por testadi la retejon. Tamen, Dĵango efektive subtenas kurigon sur ajna reta
+interfaco; uzante la komandon
+
+    python ./manage.py runserver {IP-adreso-en-loka-reto}:8000
+
+vi povas videbligi la retejon ene de via loka reto (LAN / Wifi) kaj aliri ĝin per ajna aparato konektita
+al la sama reto. Tiamaniere vi povas testi la ĝustan funkciadon de la retejo sur pli diversaj aparatoj
+(ekz., ankaŭ per poŝtelefonoj).
+Tion ebligas agordo *settings/dev.py/*`ALLOWED_HOSTS` – dum lanĉo, la servilo provas eltrovi la lokaretan
+IP-adreson de la maŝino kaj permesi ties uzon.
+
+
+### Lernu Dĵangon
 
 - https://tutorial.djangogirls.org/
 - https://docs.djangoproject.com/en/stable/intro/tutorial01/
