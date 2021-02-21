@@ -1716,6 +1716,9 @@ msgstr "Nur forpreni"
 msgid "Remove from list of family members"
 msgstr "Forpreni el listo de kunloĝantoj"
 
+msgid "Save without confirming"
+msgstr "Konservi sen konfirmi"
+
 msgid "Remove a phone number"
 msgstr "Forigi telefonan numeron"
 
