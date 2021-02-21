@@ -374,6 +374,9 @@
         </div>
     </div>
     <script>
-        window.checkPlaceTextSurrogateWarning = "{% trans "The description or phone note seems to contain Esperanto written in a surrogate manner. Accept such text?" %}";
+        window.checkPlaceTextSurrogateWarning = "{% blocktrans trimmed %}
+                                                     The description of the place or phone note seem to contain
+                                                     Esperanto written in a surrogate manner. Accept such text?
+                                                 {% endblocktrans %}";
     </script>
 {% endblock page %}
