@@ -14,7 +14,7 @@ from django.views.decorators.vary import vary_on_headers
 from core.auth import SUPERVISOR, AuthMixin
 from core.mixins import LoginRequiredMixin
 
-from ..forms import PlaceForm, ProfileForm
+from ..forms import PhoneForm, PlaceForm, ProfileForm
 from ..models import Profile
 from .mixins import PlaceMixin
 
@@ -59,22 +59,26 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
         place = self.get_object()
-        place_data = serializers.serialize('json', [place], fields=PlaceForm._meta.fields)
-        place_data = json.loads(place_data)[0]['fields']
-        owner_data = serializers.serialize('json', [place.owner], fields=ProfileForm._meta.fields)
-        owner_data = json.loads(owner_data)[0]['fields']
+        data = [
+            (ProfileForm, [place.owner]),
+            (PlaceForm, [place]),
+            (PhoneForm, place.owner.phones.filter(deleted_on__isnull=True)),
+        ]
+        all_forms = []
+        for form_class, objects in data:
+            for object_model in objects:
+                object_data = serializers.serialize('json', [object_model], fields=form_class._meta.fields)
+                object_data = json.loads(object_data)[0]['fields']
+                all_forms.append(form_class(data=object_data, instance=object_model))
 
-        owner_form = ProfileForm(data=owner_data, instance=place.owner)
-        place_form = PlaceForm(data=place_data, instance=place)
-
-        data_correct = all([owner_form.is_valid(), place_form.is_valid()])  # We want both validations.
+        data_correct = all([form.is_valid() for form in all_forms])  # We want all validations.
         viewresponse = {'result': data_correct}
         if not data_correct:
             viewresponse['err'] = OrderedDict()
             data_problems = set()
-            for form in [owner_form, place_form]:
+            for form in all_forms:
                 viewresponse['err'].update({
-                    str(form.fields[field_name].label) : list(field_errs)       # noqa: E203
+                    self._get_field_label(form, field_name) : list(field_errs)  # noqa: E203
                     for field_name, field_errs
                     in [(k, set(err for err in v if err)) for k, v in form.errors.items()]
                     if field_name != NON_FIELD_ERRORS and len(field_errs)
@@ -92,4 +96,13 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
                 request,
                 self.template_names[data_correct],
                 context={'view': self, 'place': place, 'result': viewresponse}
+            )
+
+    def _get_field_label(self, form, field_name):
+        if not isinstance(form, PhoneForm):
+            return str(form.fields[field_name].label)
+        else:
+            return (
+                f"{form.fields[field_name].label} {form.data['number']}"
+                f" ({form.initial['country'].name or form.initial['country'].code})"
             )
