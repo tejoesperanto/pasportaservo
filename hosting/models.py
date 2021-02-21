@@ -1042,7 +1042,7 @@ class Gender(models.Model):
 
     def __str__(self):
         return (
-            self.name if (get_language() or 'xx')[:2] == 'eo'
+            self.name if str(get_language()).startswith('eo')
             else (self.name_en or self.name)
         )
 
@@ -1084,7 +1084,7 @@ class CountryRegion(models.Model):
 
     @property
     def translated_name(self):
-        return self.esperanto_name if (get_language() or 'xx')[:2] == 'eo' else ""
+        return self.esperanto_name if str(get_language()).startswith('eo') else ""
 
     @property
     def translated_or_latin_name(self):
