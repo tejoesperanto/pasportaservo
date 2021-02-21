@@ -1,5 +1,5 @@
-{% extends 'core/base_form.html' %}
-{% load i18n %}
+{% extends './model_form.html' %}
+{% load i18n variable %}
 
 {% block head_title %}
     {% trans "Phone number" %}
@@ -10,4 +10,9 @@
         {% blocktrans with name=form.profile.name|default:_("user") %}of {{ name }}{% endblocktrans %}
         {% if not form.profile.name %}#{{ form.profile.id }}{% endif %}
     {% endif %}
+{% endblock %}
+
+{% block form_submit %}
+    {% asvar admin_submit_condition %}{% if view.role == roles.ADMIN %}True{% endif %}{% endasvar %}
+    {{ block.super }}
 {% endblock %}

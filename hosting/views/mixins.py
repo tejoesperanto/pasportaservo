@@ -198,7 +198,7 @@ class UpdateMixin(object):
     def form_valid(self, form):
         self.object.set_check_status(
             self.request.user,
-            clear_only=getattr(self, 'update_partial', False),
+            clear_only=getattr(self, 'update_partial', False) or ('_save-only' in self.request.POST),
             commit=False)
         return super().form_valid(form)
 
