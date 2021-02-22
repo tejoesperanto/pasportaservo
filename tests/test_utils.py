@@ -520,7 +520,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
         result = geocode_city("Tel aviv", state_province='Rhode Island', country='US')
         self.assertIsNone(result)
 
-        mock_get.return_value.json.return_value = {
+        mock_get.return_value.json.return_value = empty_result_set = {
             "rate": {"limit": 2500, "remaining": 2396, "reset": 1586908800},
             "licenses": [{"name": "see attribution guide", "url": "https://opencagedata.com/credits"}],
             "results": [],
@@ -530,36 +530,36 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
         result = geocode_city("Varsovia", 'US')
         self.assertIsNone(result)
 
-        mock_get.return_value.json.return_value = {
+        mock_get.return_value.json.return_value = full_result_set = {
             "rate": {"limit": 2500, "remaining": 2393, "reset": 1586908800},
             "licenses": [{"name": "see attribution guide", "url": "https://opencagedata.com/credits"}],
             "results": [
                 {
                     "components": {
-                        "ISO_3166-1_alpha-2": "CO",
-                        "ISO_3166-1_alpha-3": "COL",
+                        "ISO_3166-1_alpha-2": "EC",
+                        "ISO_3166-1_alpha-3": "ECU",
                         "_category": "place",
                         "_type": "village",
                         "continent": "South America",
-                        "country": "Kolombio",
-                        "country_code": "co",
+                        "country": "Ekvadoro",
+                        "country_code": "ec",
                         "county": "Montelibano",
                         "locality": "Varsovia",
                         "state": "Cordoba",
                         "state_code": "COR"
                     },
                     "confidence": 7,
-                    "formatted": "Varsovia, Montelibano, Kolombio",
+                    "formatted": "Varsovia, Montelibano, Ekvadoro",
                     "geometry": {"lat": 7.965104, "lng": -75.3542833},
                 }, {
                     "components": {
-                        "ISO_3166-1_alpha-2": "CO",
-                        "ISO_3166-1_alpha-3": "COL",
+                        "ISO_3166-1_alpha-2": "EC",
+                        "ISO_3166-1_alpha-3": "ECU",
                         "_category": "place",
                         "_type": "neighbourhood",
                         "continent": "South America",
-                        "country": "Kolombio",
-                        "country_code": "co",
+                        "country": "Ekvadoro",
+                        "country_code": "ec",
                         "county": "Calarca",
                         "neighbourhood": "Varsovia",
                         "postcode": "632001",
@@ -568,7 +568,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "town": "Calarca"
                     },
                     "confidence": 9,
-                    "formatted": "Varsovia, 632001 Calarca, QUI, Kolombio",
+                    "formatted": "Varsovia, 632001 Calarca, QUI, Ekvadoro",
                     "geometry": {"lat": 4.5172617, "lng": -75.6444335},
                     "bounds": {
                         "northeast": {"lat": 4.5173117, "lng": -75.6443835},
@@ -576,13 +576,13 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                     },
                 }, {
                     "components": {
-                        "ISO_3166-1_alpha-2": "CO",
-                        "ISO_3166-1_alpha-3": "COL",
+                        "ISO_3166-1_alpha-2": "EC",
+                        "ISO_3166-1_alpha-3": "ECU",
                         "_category": "road",
                         "_type": "road",
                         "continent": "South America",
-                        "country": "Kolombio",
-                        "country_code": "co",
+                        "country": "Ekvadoro",
+                        "country_code": "ec",
                         "county": "Santa Rosa de Cabal",
                         "hamlet": "San Carlos",
                         "road": "Varsovia",
@@ -591,7 +591,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "state_code": "RIS"
                     },
                     "confidence": 9,
-                    "formatted": "Varsovia, San Carlos, RIS, Kolombio",
+                    "formatted": "Varsovia, San Carlos, RIS, Ekvadoro",
                     "geometry": {"lat": 4.9212653, "lng": -75.6978718},
                     "bounds": {
                         "northeast": {"lat": 4.9254217, "lng": -75.6930418},
@@ -599,21 +599,21 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                     },
                 }, {
                     "components": {
-                        "ISO_3166-1_alpha-2": "CO",
-                        "ISO_3166-1_alpha-3": "COL",
+                        "ISO_3166-1_alpha-2": "EC",
+                        "ISO_3166-1_alpha-3": "ECU",
                         "_category": "place",
                         "_type": "village",
                         "city": "Monteria",
                         "continent": "South America",
-                        "country": "Kolombio",
-                        "country_code": "co",
+                        "country": "Ekvadoro",
+                        "country_code": "ec",
                         "county": "Monteria",
                         "locality": "Varsovia",
                         "state": "Cordoba",
                         "state_code": "COR"
                     },
                     "confidence": 7,
-                    "formatted": "Monteria, Kolombio",
+                    "formatted": "Monteria, Ekvadoro",
                     "geometry": {"lat": 8.3816971, "lng": -75.900398},
                     "bounds": {
                         "northeast": {"lat": 8.3916971, "lng": -75.890398},
@@ -621,15 +621,15 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                     },
                 }, {
                     "components": {
-                        "ISO_3166-1_alpha-2": "CO",
-                        "ISO_3166-1_alpha-3": "COL",
+                        "ISO_3166-1_alpha-2": "EC",
+                        "ISO_3166-1_alpha-3": "ECU",
                         "_category": "commerce",
                         "_type": "bakery",
                         "bakery": "Varsovia",
                         "city": "Puente Aranda",
                         "continent": "South America",
-                        "country": "Kolombio",
-                        "country_code": "co",
+                        "country": "Ekvadoro",
+                        "country_code": "ec",
                         "county": "Bogota",
                         "neighbourhood": "Ciudad Montes",
                         "postcode": "111631",
@@ -638,7 +638,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "suburb": "Puente Aranda"
                     },
                     "confidence": 9,
-                    "formatted": "Varsovia, Avenida Calle 8 Sur, 111631 Puente Aranda, Distrito Capital, Kolombio",
+                    "formatted": "Varsovia, Avenida Calle 8 Sur, 111631 Puente Aranda, Distrito Capital, Ekvadoro",
                     "geometry": {"lat": 4.604711, "lng": -74.1135704},
                     "bounds": {
                         "northeast": {"lat": 4.6047782, "lng": -74.1135039},
@@ -649,15 +649,23 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
             "status": {"code": 200, "message": "OK"}, "total_results": 5
         }
         mock_get.return_value.status_code = 200
-        result = geocode_city("Varsovia", state_province='COR', country='CO')
+        # Originally the test was built with data for Colombia, but apparently
+        # it is a federal state, so I had to switch the mock to Ecuador...
+        result = geocode_city("Varsovia", state_province='COR', country='EC')
         self.assertIsNotNone(result)
         self.assertEqual(result.remaining_api_calls, 2393)
         self.assertEqual(result._components['_type'], 'village')
         self.assertEqual(result.confidence, 7)
-        self.assertEqual(result.country_code.upper(), 'CO')
+        self.assertEqual(result.country_code.upper(), 'EC')
         self.assertEqual(result.city, "Monteria")
         self.assertEqual(result.village, "Varsovia")
         self.assertEqual(result.xy, [-75.900398, 8.3816971])
+
+        mock_get.return_value.json.side_effect = [empty_result_set, full_result_set]
+        mock_get.reset_mock()
+        result = geocode_city("Varsovia", state_province='GUA', country='EC')
+        self.assertEqual(mock_get.call_count, 2)
+        self.assertEqual([result.state, result.city, result.village], ["Cordoba", "Monteria", "Varsovia"])
 
     @tag('subregions')
     def test_countries_with_mandatory_region(self):
