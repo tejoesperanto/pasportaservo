@@ -1079,7 +1079,7 @@ class CountryRegion(models.Model):
         verbose_name_plural = _("subregions")
         unique_together = ('country', 'iso_code')
         indexes = [
-            models.Index(['country', 'iso_code', 'id'], name='countryregion_isocode_pk_idx'),
+            models.Index(fields=['country', 'iso_code', 'id'], name='countryregion_isocode_pk_idx'),
         ]
 
     @property

@@ -3,7 +3,7 @@
 [![TEJO](https://img.shields.io/badge/Projekto_de-TEJO-orange.svg)](http://tejo.org)
 [![Esperanto](https://img.shields.io/badge/Esperanto-jes-green.svg)](https://eo.wikipedia.org/wiki/Esperanto)
 [![Python 3.7](https://img.shields.io/badge/Python-3.7-blue.svg)](https://docs.python.org/3.7/)
-[![Django 1.11](https://img.shields.io/badge/Django-1.11-0C4B33.svg)](https://docs.djangoproject.com/en/1.11/)
+[![Django 2.2](https://img.shields.io/badge/Django-2.2-0C4B33.svg)](https://docs.djangoproject.com/en/2.2/)
 [![HTTP](https://img.shields.io/badge/HTTP-2-blue.svg)](https://http2.github.io/)
 [![HTTPS](https://img.shields.io/badge/HTTPS-jes-green.svg)](https://www.ssllabs.com/ssltest/analyze.html?d=pasportaservo.org)
 [![GNU AGPLv3](https://img.shields.io/badge/licenco-GNU_AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0.html)
