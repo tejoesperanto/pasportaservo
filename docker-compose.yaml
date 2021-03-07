@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+    app:
+        build: .
+        command: python manage.py runserver 0.0.0.0:8000
+        ports:
+            - "8000:8000"
+        depends_on:
+            - db
+        environment:
+            DJANGO_SETTINGS_MODULE: pasportaservo.settings.dev
+        env_file:
+            - .env
+        volumes:
+            - .:/app:z
+
+    db:
+        image: postgis/postgis:11-2.5-alpine
+        volumes:
+            - $HOME/.local/lib/postgresql/pasportaservo:/var/lib/postgresql:z
+        ports:
+            - "5432:5432"
+        env_file:
+            - .env

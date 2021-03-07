@@ -1,5 +1,6 @@
 from .base import *  # isort:skip
 import logging
+import os
 import socket
 
 from django.contrib.messages import constants as message_level
@@ -23,6 +24,16 @@ try:
 except (OSError, IndexError):
     pass
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get("POSTGRES_DB", "pasportaservo"),
+        'USER': os.environ.get("POSTGRES_USERNAME", "pasportaservo"),
+        'PASSWORD': os.environ.get("POSTGRES_PASSWORD", "pasportaservo"),
+        'HOST': os.environ.get("POSTGRES_HOST", '127.0.0.1'),
+        'PORT': os.environ.get("POSTGRES_PORT", '5432'),
+    }
+}
 
 logging.getLogger('PasportaServo.auth').setLevel(logging.INFO)
 logging.getLogger('PasportaServo.geo').setLevel(logging.DEBUG)

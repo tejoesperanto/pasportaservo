@@ -1,0 +1,11 @@
+.env
+.venv
+.git
+.github
+.mypy_cache
+.tox
+*.cfg
+*.egg
+*.egg-info
+*.nix
+*.pyc
