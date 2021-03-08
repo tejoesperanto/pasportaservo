@@ -1,7 +1,7 @@
 import re
 from collections import namedtuple
 from datetime import date
-from enum import Enum
+from enum import Enum, IntEnum
 from functools import partial, partialmethod
 
 from django.apps import apps
@@ -89,6 +89,18 @@ class LocationType(Enum):
 
     def __str__(member):
         return member.value
+
+
+class LocationConfidence(IntEnum):
+    # https://opencagedata.com/api#confidence
+    UNDETERMINED = 0    # Geocoder was unable to determine a position or bounding box.
+    GT_25KM = 1         # 25 km or greater distance.
+    LT_25KM = 2         # < 25 km
+    LT_1KM = 8          # < 1 km
+    LT_0_25KM = 10      # < 0.25 km
+    ACCEPTABLE = 8      # The minimum confidence accepted as good.
+    EXACT = 100         # The user selected the position manually on the map.
+    CONFIRMED = 101     # A supervisor selected the position manually on the map.
 
 
 class TrackingModel(models.Model):

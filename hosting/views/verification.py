@@ -3,11 +3,13 @@ from collections import OrderedDict
 
 from django.core import serializers
 from django.core.exceptions import NON_FIELD_ERRORS
+from django.forms import ModelForm
 from django.http import (
     HttpResponseBadRequest, HttpResponseRedirect, JsonResponse,
 )
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
+from django.utils.translation import ugettext_lazy as _
 from django.views import generic
 from django.views.decorators.vary import vary_on_headers
 
@@ -15,7 +17,7 @@ from core.auth import SUPERVISOR, AuthMixin
 from core.mixins import LoginRequiredMixin
 
 from ..forms import PhoneForm, PlaceForm, ProfileForm
-from ..models import Profile
+from ..models import LocationConfidence, Place, Profile
 from .mixins import PlaceMixin
 
 
@@ -56,12 +58,26 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
     display_fair_usage_condition = True
     minimum_role = SUPERVISOR
 
+    class LocationDummyForm(ModelForm):
+        class Meta:
+            model = Place
+            fields = ['location', 'location_confidence']
+
+        def clean(self):
+            if not self.initial['location'] or self.initial['location'].empty:
+                self.add_error('location', _("The geographical location on map is unknown."))
+            elif self.initial['location_confidence'] < LocationConfidence.ACCEPTABLE:
+                self.add_error('location', _("The geographical location on map is imprecise."))
+            else:
+                self.cleaned_data = {'location': self.data['location']}
+
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
         place = self.get_object()
         data = [
             (ProfileForm, [place.owner]),
             (PlaceForm, [place]),
+            (self.LocationDummyForm, [place]),
             (PhoneForm, place.owner.phones.filter(deleted_on__isnull=True)),
         ]
         all_forms = []

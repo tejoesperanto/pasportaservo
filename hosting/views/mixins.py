@@ -9,9 +9,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import never_cache
 
 from core.auth import OWNER
+from core.templatetags.utils import next_link
 from core.utils import sanitize_next
 
-from ..models import Phone, Place, Profile
+from ..models import LocationConfidence, Phone, Place, Profile
 
 
 class ProfileMixin(object):
@@ -130,9 +131,12 @@ class PlaceMixin(object):
 class PlaceModifyMixin(object):
     def form_valid(self, form):
         response = super().form_valid(form)
-        if '_gotomap' in self.request.POST or form.confidence < 8:
+        if '_gotomap' in self.request.POST or form.confidence < LocationConfidence.ACCEPTABLE:
             map_url = reverse('place_location_update', kwargs={'pk': self.object.pk})
-            return HttpResponseRedirect(map_url)
+            redirect_to = sanitize_next(self.request)
+            return HttpResponseRedirect(('{}' if not redirect_to else '{}?{}').format(
+                map_url, next_link(self.request, redirect_to)
+            ))
         return response
 
 
