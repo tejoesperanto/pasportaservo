@@ -12,6 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from django_countries.fields import Country
 
+from core.auth import SUPERVISOR
 from core.models import SiteConfiguration
 from core.utils import join_lazy, mark_safe_lazy, sort_by
 from maps import SRID
@@ -20,7 +21,10 @@ from maps.widgets import MapboxGlWidget
 from ..countries import (
     COUNTRIES_DATA, SUBREGION_TYPES, countries_with_mandatory_region,
 )
-from ..models import CountryRegion, LocationType, Place, Profile, Whereabouts
+from ..models import (
+    CountryRegion, LocationConfidence,
+    LocationType, Place, Profile, Whereabouts,
+)
 from ..utils import geocode, geocode_city
 from ..validators import TooNearPastValidator
 
@@ -271,10 +275,14 @@ class PlaceForm(forms.ModelForm):
                 location = geocode(
                     self._format_address(with_street=False),
                     country=self.cleaned_data['country'], private=True)
-            if location and location.point and location.confidence > 1:
+            if location and location.point and location.confidence > LocationConfidence.GT_25KM:
                 # https://geocoder.opencagedata.com/api#confidence
                 place.location = location.point
-            place.location_confidence = (getattr(location, 'confidence', None) or 0) if place.location else 0
+            place.location_confidence = (
+                (getattr(location, 'confidence', None) or LocationConfidence.UNDETERMINED)
+                if place.location
+                else LocationConfidence.UNDETERMINED
+            )
 
             if self.cleaned_data['city'] != '':
                 # Create a new geocoding of the user's city if we don't have it in the database yet.
@@ -312,15 +320,19 @@ class PlaceLocationForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        self.view_role = kwargs.pop('view_role')
         super().__init__(*args, **kwargs)
         self.fields['location'].widget.attrs['data-selectable-zoom'] = 11.5
 
     def save(self, commit=True):
         place = super().save(commit=False)
         if self.cleaned_data.get('location'):
-            place.location_confidence = 100
+            if self.view_role >= SUPERVISOR:
+                place.location_confidence = LocationConfidence.CONFIRMED
+            else:
+                place.location_confidence = LocationConfidence.EXACT
         else:
-            place.location_confidence = 0
+            place.location_confidence = LocationConfidence.UNDETERMINED
         if commit:
             place.save(update_fields=['location', 'location_confidence'])
         return place

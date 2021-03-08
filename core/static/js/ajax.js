@@ -199,7 +199,7 @@ $(document).ready(function() {
                 $op_errors.append($(document.createElement('li')).text(general_errors.join(" ⁕ ")));
             }
             for (var field in response.err) {
-                $op_errors.append($(document.createElement('li')).text(
+                $op_errors.append($(document.createElement('li')).html(
                     field + ": " + response.err[field].map(function(e) { return e.replace(/[.!]+$/g, "") }).join("; ")
                 ));
             }
