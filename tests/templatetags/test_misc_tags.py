@@ -47,14 +47,14 @@ class PublicIdFilterTests(TestCase):
                     namedtuple('ObjectWithDate', 'date_joined')(date_joined="2011-02-03")):
             with self.subTest(obj=obj):
                 page = Template(self.template_string).render(Context({'my_obj': obj}))
-                self.assertEquals(page, "")
+                self.assertEqual(page, "")
 
     def test_valid_object(self):
         Cls = namedtuple('ObjectWithFields', 'pk, name, date_joined, date_deleted')
         obj = Cls(pk=1023, name="John", date_joined="2011-02-03", date_deleted="2018-07-06")
         with self.subTest(obj=obj):
             page = Template(self.template_string).render(Context({'my_obj': obj}))
-            self.assertEquals(page, "d64d289bce1a4d5a355bf948a58af770842a008d74bd375f57d182375838994c")
+            self.assertEqual(page, "d64d289bce1a4d5a355bf948a58af770842a008d74bd375f57d182375838994c")
 
         faker = Faker()
         first_obj = Cls(

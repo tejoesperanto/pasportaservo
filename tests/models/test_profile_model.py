@@ -25,10 +25,10 @@ class ProfileModelTests(AdditionalAsserts, WebTest):
 
     def test_field_max_lengths(self):
         profile = self.basic_profile
-        self.assertEquals(profile._meta.get_field('title').max_length, 5)
-        self.assertEquals(profile._meta.get_field('first_name').max_length, 255)
-        self.assertEquals(profile._meta.get_field('last_name').max_length, 255)
-        self.assertEquals(profile._meta.get_field('pronoun').max_length, 10)
+        self.assertEqual(profile._meta.get_field('title').max_length, 5)
+        self.assertEqual(profile._meta.get_field('first_name').max_length, 255)
+        self.assertEqual(profile._meta.get_field('last_name').max_length, 255)
+        self.assertEqual(profile._meta.get_field('pronoun').max_length, 10)
 
     def test_name(self):
         # A profile with name "Aa" is expected to be "Aa".
@@ -277,14 +277,14 @@ class ProfileModelTests(AdditionalAsserts, WebTest):
 
     def test_absolute_url(self):
         profile = self.basic_profile
-        self.assertEquals(
+        self.assertEqual(
             profile.get_absolute_url(),
             '/profilo/{}/{}/'.format(profile.pk, profile.first_name.lower())
         )
 
     def test_edit_url(self):
         profile = self.basic_profile
-        self.assertEquals(
+        self.assertEqual(
             profile.get_edit_url(),
             '/profilo/{}/{}/aktualigi/'.format(profile.pk, profile.first_name.lower())
         )
@@ -292,7 +292,7 @@ class ProfileModelTests(AdditionalAsserts, WebTest):
     @override_settings(LANGUAGE_CODE='en')
     def test_admin_url(self):
         profile = self.basic_profile
-        self.assertEquals(
+        self.assertEqual(
             profile.get_admin_url(),
             '/management/hosting/profile/{}/change/'.format(profile.pk)
         )

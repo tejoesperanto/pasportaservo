@@ -12,8 +12,8 @@ from ..factories import PhoneFactory
 class PhoneModelTests(AdditionalAsserts, WebTest):
     def test_field_max_lengths(self):
         phone = PhoneFactory()
-        self.assertEquals(phone._meta.get_field('comments').max_length, 255)
-        self.assertEquals(phone._meta.get_field('type').max_length, 3)
+        self.assertEqual(phone._meta.get_field('comments').max_length, 255)
+        self.assertEqual(phone._meta.get_field('type').max_length, 3)
 
     def test_owner(self):
         phone = PhoneFactory()
@@ -32,7 +32,7 @@ class PhoneModelTests(AdditionalAsserts, WebTest):
 
     def test_str(self):
         phone = PhoneFactory()
-        self.assertEquals(str(phone), phone.number.as_international)
+        self.assertEqual(str(phone), phone.number.as_international)
 
     def test_repr(self):
         phone = PhoneFactory()

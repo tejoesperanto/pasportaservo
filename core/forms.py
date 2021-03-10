@@ -27,8 +27,6 @@ User = get_user_model()
 
 
 class UserRegistrationForm(UsernameFormMixin, PasswordFormMixin, SystemEmailFormMixin, UserCreationForm):
-    email = forms.EmailField(
-        label=_("Email address"), max_length=254)
     # Honeypot:
     realm = forms.CharField(
         widget=forms.TextInput(attrs={'autocomplete': 'off'}),
@@ -37,17 +35,19 @@ class UserRegistrationForm(UsernameFormMixin, PasswordFormMixin, SystemEmailForm
                     "Make sure that this field is kept completely blank."))
 
     class Meta(UserCreationForm.Meta):
+        fields = ['username', 'email']
         error_messages = {
             'email': SystemEmailFormMixin.email_error_messages,
             'username': UsernameFormMixin.username_error_messages,
         }
+    field_order = ['username', 'password1', 'password2', 'email']
     analyze_password_field = 'password1'
 
     def __init__(self, *args, **kwargs):
         self.view_request = kwargs.pop('view_request', None)
         super().__init__(*args, **kwargs)
 
-        User._meta.get_field('email')._unique = True
+        self.fields['email'].required = True
         for fieldname in ['username', 'password1', 'password2', 'email']:
             self.fields[fieldname].help_text = None
             self.fields[fieldname].widget.attrs['placeholder'] = self.fields[fieldname].label
@@ -65,16 +65,14 @@ class UserRegistrationForm(UsernameFormMixin, PasswordFormMixin, SystemEmailForm
             raise forms.ValidationError("")
         return flies
 
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.email = self.cleaned_data['email']
-        if commit:
-            user.save()
-        return user
+    def save(self, **kwargs):
+        return super().save(**kwargs)
     save.alters_data = True
 
 
 class UserAuthenticationForm(AuthenticationForm):
+    admin_inactive_user_notification = "User '{u.username}' tried to log in"
+
     def __init__(self, request=None, *args, **kwargs):
         super().__init__(request, *args, **kwargs)
         self.error_messages['invalid_login'] = _(
@@ -91,7 +89,7 @@ class UserAuthenticationForm(AuthenticationForm):
         if not user.is_active:
             case_id = str(uuid4()).upper()
             auth_log.warning(
-                "User '{u.username}' tried to log in, but the account is deactivated [{cid}]."
+                (self.admin_inactive_user_notification + ", but the account is deactivated [{cid}].")
                 .format(u=user, cid=case_id)
             )
             self.request.session['restore_request_id'] = (case_id, datetime.now().timestamp())
@@ -114,11 +112,8 @@ class UsernameUpdateForm(UsernameFormMixin, forms.ModelForm):
         fields = ['username']
         error_messages = {'username': UsernameFormMixin.username_error_messages}
 
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        if commit:
-            user.save(update_fields=['username'])
-        return user
+    def save(self, **kwargs):
+        return super().save(**kwargs)
     save.alters_data = True
 
 
@@ -187,11 +182,8 @@ class EmailStaffUpdateForm(SystemEmailFormMixin, forms.ModelForm):
         # Displays the clean value of the address in the form.
         self.initial['email'] = self.previous_email
 
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        if commit:
-            user.save(update_fields=['email'])
-        return user
+    def save(self, **kwargs):
+        return super().save(**kwargs)
     save.alters_data = True
 
 
@@ -204,7 +196,7 @@ class SystemPasswordResetRequestForm(PasswordResetForm):
         a reset message.
         """
         users = User._default_manager.filter()
-        invalid_email = '{}{}'.format(settings.INVALID_PREFIX, email)
+        invalid_email = f'{settings.INVALID_PREFIX}{email}'
         lookup_users = users.filter(Q(email__iexact=email) | Q(email__iexact=invalid_email))
 
         def remove_invalid_prefix(user):
@@ -256,8 +248,8 @@ class SystemPasswordResetForm(PasswordFormMixin, SetPasswordForm):
 class SystemPasswordChangeForm(PasswordFormMixin, PasswordChangeForm):
     analyze_password_field = 'new_password1'
 
-    def save(self, commit=True):
-        return super().save(commit)
+    def save(self, **kwargs):
+        return super().save(**kwargs)
     save.alters_data = True
 
 

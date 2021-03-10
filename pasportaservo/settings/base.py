@@ -141,7 +141,7 @@ STATICI18N_PACKAGES = ('core', 'hosting', 'pages')
 STATICI18N_OUTPUT_DIR = 'js/i18n'
 
 # Database
-# https://docs.djangoproject.com/en/dev/ref/settings/#databases
+# https://docs.djangoproject.com/en/stable/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -180,7 +180,7 @@ LOGGING = {
 TEST_EXTERNAL_SERVICES = False
 
 # Internationalization
-# https://docs.djangoproject.com/en/dev/topics/i18n/
+# https://docs.djangoproject.com/en/stable/topics/i18n/
 
 LANGUAGE_CODE = 'eo'
 TIME_ZONE = 'UTC'

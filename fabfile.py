@@ -58,7 +58,10 @@ def checkout(remote="origin", branch="master", runlocal=True):
 
 @task
 def requirements():
-    run("pip install -Ur requirements.txt | grep -v 'Requirement already satisfied'")
+    run(
+        "pip install -Ur requirements.txt"
+        " | grep -v -e 'Requirement already satisfied' -e 'Requirement already up-to-date'"
+    )
 
 
 @task

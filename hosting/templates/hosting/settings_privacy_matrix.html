@@ -3,7 +3,6 @@
     {{ privacy_matrix.management_form }}
     <table class="table table-hover{% if privacy_matrix.read_only %} preview{% endif %}">
     <thead>
-        {# TODO: cutoff at 600px. at smaller screens the table becomes unusable. #}
         <tr>
             <th rowspan="2"><small>{% trans "where the following data should be visible?" %}</small></th>
             <th colspan="2" class="header-online">{% trans "on site" %}</th>

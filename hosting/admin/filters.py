@@ -14,9 +14,12 @@ class CountryMentionedOnlyFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         self.multicountry = hasattr(model_admin.model, 'countries')
+        country_field = 'countries' if self.multicountry else 'country'
+        qs = model_admin.get_queryset(request).only(country_field).select_related(None)
+        qs.query.annotations.clear()
         countries = [
             (country.code, country.name)
-            for obj in model_admin.get_queryset(request)
+            for obj in qs
             for country in (obj.countries if self.multicountry else [obj.country])
         ]
         return sorted(set(countries), key=lambda country: country[1])

@@ -11,7 +11,7 @@ from ..factories import AgreementFactory
 class AgreementModelTests(WebTest):
     def test_field_max_lengths(self):
         accord = AgreementFactory.build()
-        self.assertEquals(accord._meta.get_field('policy_version').max_length, 50)
+        self.assertEqual(accord._meta.get_field('policy_version').max_length, 50)
 
     def test_field_blanks(self):
         accord = AgreementFactory.build()

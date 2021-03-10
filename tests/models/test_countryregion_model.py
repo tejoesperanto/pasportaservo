@@ -10,12 +10,12 @@ from ..factories import CountryRegionFactory
 class CountryRegionModelTests(TestCase):
     def test_field_max_lengths(self):
         region = CountryRegionFactory.build()
-        self.assertEquals(region._meta.get_field('iso_code').max_length, 4)
-        self.assertEquals(region._meta.get_field('latin_code').max_length, 70)
-        self.assertEquals(region._meta.get_field('latin_name').max_length, 70)
-        self.assertEquals(region._meta.get_field('local_code').max_length, 70)
-        self.assertEquals(region._meta.get_field('local_name').max_length, 70)
-        self.assertEquals(region._meta.get_field('esperanto_name').max_length, 70)
+        self.assertEqual(region._meta.get_field('iso_code').max_length, 4)
+        self.assertEqual(region._meta.get_field('latin_code').max_length, 70)
+        self.assertEqual(region._meta.get_field('latin_name').max_length, 70)
+        self.assertEqual(region._meta.get_field('local_code').max_length, 70)
+        self.assertEqual(region._meta.get_field('local_name').max_length, 70)
+        self.assertEqual(region._meta.get_field('esperanto_name').max_length, 70)
 
     def test_translated_name(self):
         # For region with no Esperanto name, value is expected to be empty string.
