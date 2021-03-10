@@ -14,8 +14,8 @@ class PolicyModelTests(WebTest):
 
         # A valid header is expected to result in a valid date object.
         policy = PolicyFactory(from_date="2019-06-01")
-        self.assertEquals(policy.effective_date, date(2019, 6, 1))
-        self.assertEquals(policy.__class__.get_effective_date_for_policy(policy.content), date(2019, 6, 1))
+        self.assertEqual(policy.effective_date, date(2019, 6, 1))
+        self.assertEqual(policy.__class__.get_effective_date_for_policy(policy.content), date(2019, 6, 1))
 
         # An empty header is expected to result in a warning and None.
         policy = PolicyFactory(from_date="")

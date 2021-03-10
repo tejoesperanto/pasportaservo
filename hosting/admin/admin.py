@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.utils import display_for_value
@@ -8,8 +10,8 @@ from django.contrib.flatpages.models import FlatPage
 # from django.contrib.gis import admin as gis_admin
 from django.contrib.gis.db.models import LineStringField, PointField
 from django.contrib.gis.forms import OSMWidget
-from django.core.cache import cache
 from django.db import models
+from django.db.models import Q, Value as V, functions as dbf
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
@@ -51,7 +53,7 @@ class PlaceInLine(ShowConfirmedMixin, ShowDeletedMixin, admin.StackedInline):
         'available', 'in_book', ('tour_guide', 'have_a_drink'), 'sporadic_presence',
         'display_confirmed', 'is_deleted',
     )
-    raw_id_fields = ('owner', 'family_members', 'authorized_users',)  # 'checked_by')
+    raw_id_fields = ('owner', 'family_members', 'authorized_users',)
     readonly_fields = ('display_confirmed', 'is_deleted',)
     fk_name = 'owner'
     classes = ('collapse',)
@@ -77,7 +79,7 @@ class VisibilityInLine(GenericTabularInline):
     def get_readonly_fields(self, request, obj=None):
         return self.fields
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj):
         return False
 
     def has_delete_permission(self, request, obj=None):
@@ -89,7 +91,7 @@ class PreferencesInLine(admin.StackedInline):
     extra = 0
     can_delete = False
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj):
         return False
 
     def has_delete_permission(self, request, obj=None):
@@ -201,8 +203,8 @@ class AgreementAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'policy_link', 'user_link', 'created', 'modified', 'withdrawn',
     )
-    ordering = ['-policy_version', 'user']
-    search_fields = ['user__username']
+    ordering = ('-policy_version', '-modified', 'user__username')
+    search_fields = ('user__username',)
     list_filter = ('policy_version',)
     date_hierarchy = 'created'
     fields = (
@@ -214,7 +216,7 @@ class AgreementAdmin(admin.ModelAdmin):
     def user_link(self, obj):
         try:
             link = reverse('admin:auth_user_change', args=[obj.user.pk])
-            account_link = '<a href="{url}">{username}</a>'.format(url=link, username=obj.user)
+            account_link = f'<a href="{link}">{obj.user}</a>'
             try:
                 profile_link = '&nbsp;(<a href="{url}">{name}</a>)</sup>'.format(
                     url=obj.user.profile.get_admin_url(), name=_("profile"))
@@ -281,7 +283,6 @@ class TrackingModelAdmin(ShowConfirmedMixin):
 
     def get_field_queryset(self, db, db_field, request):
         if db_field.name == 'checked_by':
-            from django.db.models import Q
             return (self.InstanceApprover.objects
                     .filter(Q(is_superuser=True) | Q(groups__name__regex=r'[A-Z]{2}'))
                     .distinct()
@@ -300,9 +301,7 @@ class VisibilityAdmin(admin.ModelAdmin):
         'id', '__str__', 'content_object_link',
     ) + visibility_fields
     list_display_links = ('id', '__str__')
-    search_fields = [
-        'id', 'model_id',
-    ]
+    search_fields = ('id', 'model_id')
     list_filter = (
         VisibilityTargetFilter,
         'visible_in_book', 'visible_online_authed', 'visible_online_public',
@@ -340,14 +339,14 @@ class VisibilityAdmin(admin.ModelAdmin):
 class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     list_display = (
         'id', '__str__', 'title', 'first_name', 'last_name',
-        'birth_date',  # 'avatar', 'description',
+        'birth_date',
         'user__email', 'user_link',
         'confirmed_on', 'checked_by__name', 'is_deleted', 'modified',
     )
     list_display_links = ('id', '__str__')
-    search_fields = [
+    search_fields = (
         'id', 'first_name', 'last_name', 'user__email', 'user__username',
-    ]
+    )
     list_filter = (
         'confirmed_on', 'checked_on', 'deleted_on',
         EmailValidityFilter, ProfileHasUserFilter, 'death_date',
@@ -365,15 +364,14 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
         (_('Important dates'), {'fields': TrackingModelAdmin.fields}),
     )
     fields = None
-    raw_id_fields = ('user',)  # 'checked_by')
+    raw_id_fields = ('user',)
     radio_fields = {'title': admin.HORIZONTAL}
     readonly_fields = ('supervisor',) + TrackingModelAdmin.readonly_fields
     formfield_overrides = {
         models.ImageField: {'widget': AdminImageWithPreviewWidget},
     }
 
-    inlines = [VisibilityInLine, PreferencesInLine, PlaceInLine, ]
-    # PhoneInLine]  # https://code.djangoproject.com/ticket/26819
+    inlines = [VisibilityInLine, PreferencesInLine, PlaceInLine, PhoneInLine]
 
     def user__email(self, obj):
         try:
@@ -442,10 +440,10 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
     list_display_links = (
         'id', 'city', 'state_province', 'display_country',
     )
-    search_fields = [
+    search_fields = (
         'address', 'city', 'postcode', 'country', 'state_province',
         'owner__first_name', 'owner__last_name', 'owner__user__email',
-    ]
+    )
     list_filter = (
         'confirmed_on', 'checked_on', 'in_book', 'available', PlaceHasLocationFilter, 'deleted_on',
         CountryMentionedOnlyFilter,
@@ -470,7 +468,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
     formfield_overrides = {
         PointField: {'widget': AdminMapboxGlWidget},
     }
-    raw_id_fields = ('owner', 'authorized_users',)  # 'checked_by',)
+    raw_id_fields = ('owner', 'authorized_users',)
     filter_horizontal = ('family_members',)
 
     inlines = [VisibilityInLine, ]
@@ -480,7 +478,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
             ' '.join([
                 '{point.y:.4f} {point.x:.4f}'.format(point=obj.location),
                 '{symbol}{precision}'.format(
-                    symbol=chr(8982), precision=obj.location_confidence if obj.location_confidence else 0)
+                    symbol=chr(8982), precision=obj.location_confidence or 0)
             ]) if obj.location
             else None
         )
@@ -489,7 +487,9 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
     def owner_link(self, obj):
         return format_html('<a href="{url}">{name}</a>', url=obj.owner.get_admin_url(), name=obj.owner)
     owner_link.short_description = _("owner")
-    owner_link.admin_order_field = 'owner__first_name'  # Expressions are available only in Django>=2.1
+    owner_link.admin_order_field = dbf.Concat(
+        'owner__first_name', V(","), 'owner__last_name', V(","), 'owner__user__username'
+    )
 
     def checked_by__name(self, obj):
         try:
@@ -509,10 +509,8 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
                                             self.user_id if self.user_id else 0,
                                             super().__str__())
 
+    @lru_cache(maxsize=None)
     def get_queryset(self, request):
-        cached_qs = cache.get('PlaceQS:Req:'+request.path)
-        if cached_qs:
-            return cached_qs
         qs = super().get_queryset(request).select_related('owner__user', 'checked_by')
         qs = qs.defer('owner__description')
         try:
@@ -520,12 +518,11 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
                 qs = qs.defer('description', 'short_description')
         except Exception:
             pass
-        cache.set('PlaceQS:Req:'+request.path, qs, 5)
         return qs
 
     def get_field_queryset(self, db, db_field, request):
         if db_field.name == 'family_members':
-            return PlaceAdmin.FamilyMember.objects.defer('description').select_related('user')
+            return PlaceAdmin.FamilyMember.objects.select_related('user')
         return super().get_field_queryset(db, db_field, request)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
@@ -547,7 +544,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
 class PhoneAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.ModelAdmin):
     list_display = ('number_intl', 'profile_link', 'country_code', 'display_country', 'type', 'is_deleted')
     list_select_related = ('profile__user',)
-    search_fields = ['number', 'country', 'profile__first_name', 'profile__last_name']
+    search_fields = ('number', 'country', 'profile__first_name', 'profile__last_name')
     list_filter = ('type', 'deleted_on', CountryMentionedOnlyFilter)
 
     fieldsets = (
@@ -567,7 +564,9 @@ class PhoneAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
     def profile_link(self, obj):
         return format_html('<a href="{url}">{name}</a>', url=obj.profile.get_admin_url(), name=obj.profile)
     profile_link.short_description = _("profile")
-    profile_link.admin_order_field = 'profile__first_name'  # Expressions are available only in Django>=2.1
+    profile_link.admin_order_field = dbf.Concat(
+        'profile__first_name', V(","), 'profile__last_name', V(","), 'profile__user__username'
+    )
 
     def country_code(self, obj):
         return obj.number.country_code
@@ -585,13 +584,13 @@ class CountryRegionAdmin(ShowCountryMixin, admin.ModelAdmin):
         CountryMentionedOnlyFilter,
     )
     list_editable = ('esperanto_name',)
-    ordering = ['country', 'iso_code', 'id']
+    ordering = ('country', 'iso_code', 'id')
 
 
 @admin.register(Whereabouts)
 class WhereaboutsAdmin(ShowCountryMixin, admin.ModelAdmin):
     list_display = ('name', 'state', 'display_country', 'type')
-    search_fields = ['name', 'state']
+    search_fields = ('name', 'state')
     list_filter = (
         'type', CountryMentionedOnlyFilter,
     )
@@ -628,10 +627,10 @@ class ConditionAdmin(admin.ModelAdmin):
 @admin.register(Website)
 class WebsiteAdmin(TrackingModelAdmin, admin.ModelAdmin):
     list_display = ('url', 'profile')
-    search_fields = [
+    search_fields = (
         'url',
         'profile__first_name', 'profile__last_name', 'profile__user__email', 'profile__user__username',
-    ]
+    )
     fields = ('profile', 'url') + TrackingModelAdmin.fields
     raw_id_fields = ('profile',)
 

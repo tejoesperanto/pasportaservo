@@ -85,7 +85,7 @@ class ProfileFormTestingBase:
             'avatar',
         ]
         # Verify that the expected fields are part of the form.
-        self.assertEquals(set(expected_fields), set(form_empty.fields))
+        self.assertEqual(set(expected_fields), set(form_empty.fields))
 
         # Verify that fields are not unnecessarily marked 'required'.
         for form in (form_empty, self._init_form(instance=self.profile_with_no_places.obj)):

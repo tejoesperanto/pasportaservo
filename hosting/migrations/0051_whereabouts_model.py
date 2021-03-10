@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             name='Whereabouts',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type', models.CharField(choices=[('C', 'City'), ('P', 'State / Province')], max_length=1, verbose_name='location type')),
+                ('type', models.CharField(choices=[('C', 'City'), ('R', 'State / Province')], max_length=1, verbose_name='location type')),
                 ('name', models.CharField(help_text='Name in the official language, not in Esperanto (e.g.: Rotterdam)', max_length=255, verbose_name='name')),
                 ('state', models.CharField(blank=True, max_length=70, verbose_name='State / Province')),
                 ('country', django_countries.fields.CountryField(max_length=2, verbose_name='country')),

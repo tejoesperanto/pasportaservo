@@ -1,5 +1,5 @@
 [run]
-command_line = ./manage.py test -k
+command_line = ./manage.py test --keepdb
 source = .
 branch = True
 omit =

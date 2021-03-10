@@ -72,7 +72,7 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
         )
         for title, expected_value in test_data:
             with self.subTest(title=title):
-                self.assertEquals(title_with_particule(title), expected_value)
+                self.assertEqual(title_with_particule(title), expected_value)
 
     def test_title_with_particule_and_provided_list(self):
         test_data = (
@@ -85,7 +85,7 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
         )
         for title, expected_value in test_data:
             with self.subTest(title=title):
-                self.assertEquals(title_with_particule(title, ["ibn", "al"]), expected_value)
+                self.assertEqual(title_with_particule(title, ["ibn", "al"]), expected_value)
 
     def test_split_util(self):
         test_data = (
@@ -98,7 +98,7 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
         )
         for original_value, expected_value in test_data:
             with self.subTest(value=original_value):
-                self.assertEquals(split(original_value), expected_value)
+                self.assertEqual(split(original_value), expected_value)
 
     def test_value_without_invalid_marker(self):
         test_data = (

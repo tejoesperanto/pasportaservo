@@ -19,11 +19,11 @@ class PlaceModelTests(AdditionalAsserts, WebTest):
 
     def test_field_max_lengths(self):
         place = self.basic_place
-        self.assertEquals(place._meta.get_field('city').max_length, 255)
-        self.assertEquals(place._meta.get_field('closest_city').max_length, 255)
-        self.assertEquals(place._meta.get_field('postcode').max_length, 11)
-        self.assertEquals(place._meta.get_field('state_province').max_length, 70)
-        self.assertEquals(place._meta.get_field('short_description').max_length, 140)
+        self.assertEqual(place._meta.get_field('city').max_length, 255)
+        self.assertEqual(place._meta.get_field('closest_city').max_length, 255)
+        self.assertEqual(place._meta.get_field('postcode').max_length, 11)
+        self.assertEqual(place._meta.get_field('state_province').max_length, 70)
+        self.assertEqual(place._meta.get_field('short_description').max_length, 140)
 
     def test_icon(self):
         place = PlaceFactory.build()
@@ -158,7 +158,7 @@ class PlaceModelTests(AdditionalAsserts, WebTest):
 
     def test_absolute_url(self):
         place = self.basic_place
-        self.assertEquals(
+        self.assertEqual(
             place.get_absolute_url(),
             '/ejo/{}/'.format(place.pk)
         )

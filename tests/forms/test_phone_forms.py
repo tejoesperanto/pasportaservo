@@ -56,7 +56,7 @@ class PhoneFormTests(WebTest):
     def test_init(self):
         form = self._init_form(instance=self.phone1_valid, owner=self.profile_one)
         # Verify that the expected fields are part of the form.
-        self.assertEquals(set(self.expected_fields), set(form.fields))
+        self.assertEqual(set(self.expected_fields), set(form.fields))
         # Verify that fields are marked 'required'.
         for field in ('country', 'type', 'number'):
             with self.subTest(field=field):
