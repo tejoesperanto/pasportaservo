@@ -1,4 +1,4 @@
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from django_webtest import WebTest
 
@@ -6,6 +6,7 @@ from ..forms import PostForm
 from .factories import PostFactory
 
 
+@tag('forms', 'forms-blog', 'blog')
 class PostFormTests(WebTest):
     def test_init(self):
         form = PostForm()

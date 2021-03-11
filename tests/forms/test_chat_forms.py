@@ -18,7 +18,7 @@ from ..assertions import AdditionalAsserts
 from ..factories import UserFactory
 
 
-@tag('forms')
+@tag('forms', 'forms-chat')
 @override_settings(LANGUAGE_CODE='en')
 class WriteFormTests(AdditionalAsserts, WebTest):
     @classmethod
@@ -97,7 +97,7 @@ class WriteFormTests(AdditionalAsserts, WebTest):
         self.do_test_form_submit(deceased=True)
 
 
-@tag('forms')
+@tag('forms', 'forms-chat')
 @override_settings(LANGUAGE_CODE='en')
 class AnonymousWriteFormTests(AdditionalAsserts, WebTest):
     @classmethod
@@ -166,7 +166,7 @@ class AnonymousWriteFormTests(AdditionalAsserts, WebTest):
         raise NotImplementedError
 
 
-@tag('forms')
+@tag('forms', 'forms-chat')
 @override_settings(LANGUAGE_CODE='en')
 class ReplyFormTests(AdditionalAsserts, WebTest):
     @classmethod

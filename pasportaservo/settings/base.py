@@ -40,9 +40,9 @@ SASS_PROCESSOR_INCLUDE_DIRS = [
 
 COMPRESS_OUTPUT_DIR = ''
 COMPRESS_REBUILD_TIMEOUT = 31536000
-COMPRESS_CSS_FILTERS = [
-    'compressor.filters.cssmin.CSSCompressorFilter',
-]
+COMPRESS_FILTERS = {
+    'css': ['compressor.filters.cssmin.CSSCompressorFilter'],
+}
 COMPRESS_OFFLINE = True
 COMPRESS_OFFLINE_MANIFEST = 'static_cache.json'
 

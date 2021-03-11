@@ -1,6 +1,6 @@
 import re
 
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.utils import timezone
 
 from django_webtest import WebTest
@@ -8,6 +8,7 @@ from django_webtest import WebTest
 from ..factories import AgreementFactory
 
 
+@tag('models')
 class AgreementModelTests(WebTest):
     def test_field_max_lengths(self):
         accord = AgreementFactory.build()

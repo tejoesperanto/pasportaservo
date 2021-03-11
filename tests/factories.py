@@ -9,7 +9,9 @@ import factory
 import rstr
 from django_countries.data import COUNTRIES
 from django_countries.fields import Country
-from factory import DjangoModelFactory, Faker
+from factory import Faker
+from factory.django import DjangoModelFactory
+from faker import Faker as InstantFaker
 from phonenumber_field.phonenumber import PhoneNumber
 from slugify import slugify
 
@@ -38,11 +40,13 @@ class PolicyFactory(DjangoModelFactory):
 
     url = factory.Sequence(lambda n: "/policy-{:08d}/".format(n))
     title = Faker('sentence')
-    content = factory.LazyAttributeSequence(
-        lambda obj, n: "{{# {1} #}}<p>Policy {0:03d}</p>\n{2}".format(
-            n,
-            Faker('date', pattern='%Y-%m-%d').generate({}) if obj.from_date is None else obj.from_date,
-            Faker('text').generate({})))
+
+    @factory.lazy_attribute_sequence
+    def content(obj, n):
+        faker = InstantFaker(locale='la')
+        policy_date = faker.date(pattern='%Y-%m-%d') if obj.from_date is None else obj.from_date
+        policy_text = faker.text()
+        return f"{{# {policy_date} #}}<p>Policy {n:03d}</p>\n{policy_text}"
 
 
 class AgreementFactory(DjangoModelFactory):
@@ -93,6 +97,7 @@ class ProfileFactory(DjangoModelFactory):
     class Meta:
         model = 'hosting.Profile'
         django_get_or_create = ('user',)
+        exclude = ('generated_name',)
 
     class Params:
         deceased = False
@@ -100,8 +105,9 @@ class ProfileFactory(DjangoModelFactory):
 
     user = factory.SubFactory('tests.factories.UserFactory', profile=None)
     title = Faker('random_element', elements=["", MRS, MR])
-    first_name = LocaleFaker('first_name')
-    last_name = LocaleFaker('last_name')
+    generated_name = LocaleFaker('pystr_format', string_format='{{first_name}}//{{last_name}}')
+    first_name = factory.LazyAttribute(lambda obj: obj.generated_name.split('//')[0])
+    last_name = factory.LazyAttribute(lambda obj: obj.generated_name.split('//')[1])
     names_inversed = False
     pronoun = Faker(
         'random_element', elements=[ch[0] for ch in PRONOUN_CHOICES if ch[0]]
@@ -224,8 +230,7 @@ class GenderFactory(DjangoModelFactory):
     id = factory.Sequence(
         lambda n: GenderFactory._meta.get_model_class().objects.values('id').last()['id'] + n + 1)
     name_en = Faker('word')
-    name = factory.LazyFunction(
-        lambda: ' '.join(Faker('words', locale='la', nb=2).generate({})))
+    name = Faker('pystr_format', string_format='{{word}} {{word}}', locale='la')
 
 
 class CountryRegionFactory(DjangoModelFactory):
@@ -272,7 +277,7 @@ class WhereaboutsFactory(DjangoModelFactory):
 
     @factory.lazy_attribute
     def name(self):
-        return Faker('city').generate({}).upper()
+        return InstantFaker().city().upper()
 
     @factory.lazy_attribute
     def state(self):
@@ -305,35 +310,37 @@ class TravelAdviceFactory(DjangoModelFactory):
 
     content = Faker('paragraph')
     description = factory.LazyAttribute(lambda obj: '<p>{}</p>'.format(obj.content))
-
-    @factory.lazy_attribute
-    def countries(self):
-        return Faker('random_elements', elements=COUNTRIES.keys(), unique=True, length=randint(1, 4)).generate({})
+    countries = Faker(
+        'random_elements',
+        elements=COUNTRIES.keys(),
+        unique=True, length=factory.LazyFunction(lambda: randint(1, 4)))
 
     @factory.lazy_attribute
     def active_from(self):
+        faker = InstantFaker()
         if self.in_past:
-            faked_date = Faker('date_between', start_date='-365d', end_date='-200d') if random() < 0.85 else None
+            faked_date = faker.date_between(start_date='-365d', end_date='-200d') if random() < 0.85 else None
         elif self.in_future:
-            faked_date = Faker('date_between', start_date='+2d', end_date='+199d')
+            faked_date = faker.date_between(start_date='+2d', end_date='+199d')
         elif self.in_present:
-            faked_date = Faker('date_between', start_date='-200d', end_date='-2d') if random() < 0.85 else None
+            faked_date = faker.date_between(start_date='-200d', end_date='-2d') if random() < 0.85 else None
         else:
-            faked_date = Faker('date_object', end_datetime='+5y') if random() < 0.85 else None
-        return faked_date.generate({}) if faked_date else None
+            faked_date = faker.date_object(end_datetime='+5y') if random() < 0.85 else None
+        return faked_date
 
     @factory.lazy_attribute
     def active_until(self):
+        faker = InstantFaker()
         if self.in_past:
-            faked_date = Faker('date_between', start_date='-199d', end_date='-2d')
+            faked_date = faker.date_between(start_date='-199d', end_date='-2d')
         elif self.in_future:
-            faked_date = Faker('date_between', start_date='+200d', end_date='+365d') if random() < 0.85 else None
+            faked_date = faker.date_between(start_date='+200d', end_date='+365d') if random() < 0.85 else None
         elif self.in_present:
-            faked_date = Faker('date_between', start_date='+2d', end_date='+200d') if random() < 0.85 else None
+            faked_date = faker.date_between(start_date='+2d', end_date='+200d') if random() < 0.85 else None
         else:
             if self.active_from:
                 start, end = self.active_from, self.active_from + timedelta(days=365)
-                faked_date = Faker('date_between_dates', date_start=start, date_end=end) if random() < 0.85 else None
+                faked_date = faker.date_between_dates(date_start=start, date_end=end) if random() < 0.85 else None
             else:
-                faked_date = Faker('date_object', end_datetime='+5y') if random() < 0.85 else None
-        return faked_date.generate({}) if faked_date else None
+                faked_date = faker.date_object(end_datetime='+5y') if random() < 0.85 else None
+        return faked_date

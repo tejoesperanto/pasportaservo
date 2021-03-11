@@ -1,14 +1,14 @@
 -r base.txt
 
-bpython==0.16
+bpython==0.21
 django-debug-toolbar==2.2
 sqlparse>=0.2.4
 fabric3<2
 django-webtest==1.9.7
-codecov==2.1.3
-coverage==5.1.0
-flake8==3.8.1
-isort==4.3.21
-factory-boy==2.12.0
-pyquery==1.4.1
+codecov==2.1.11
+coverage==5.5.0
+flake8==3.8.4
+isort==5.7.0
+factory-boy==3.2.0
+pyquery==1.4.3
 rstr==2.2.6
