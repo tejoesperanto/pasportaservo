@@ -7,7 +7,6 @@ from django.urls import reverse
 
 import rstr
 from django_webtest import WebTest
-from factory import Faker as FakerFactory
 from faker import Faker
 
 from core.models import SiteConfiguration
@@ -179,7 +178,7 @@ class ProfileFormTestingBase:
         # A profile with names containing non-latin characters or digits is expected to be invalid.
         test_data = (
             ("latin name",
-             FakerFactory('name', locale='zh'),
+             lambda: Faker(locale='zh').name(),
              "provide this data in Latin characters"),
             ("symbols",
              lambda: rstr.punctuation(2) + rstr.punctuation(4, 10, include=rstr.lowercase(4)),
@@ -213,11 +212,7 @@ class ProfileFormTestingBase:
                             'birth_date': self.faker.date_between(start_date='-100y', end_date='-18y'),
                             'gender': self.faker.word(),
                         }
-                        data[wrong_field] = (
-                            field_value.generate({}) if isinstance(field_value, FakerFactory) else
-                            field_value() if callable(field_value) else
-                            field_value
-                        )
+                        data[wrong_field] = field_value()
                         with self.subTest(value=data[wrong_field]):
                             form = self._init_form(data, instance=profile)
                             self.assertFalse(form.is_valid())

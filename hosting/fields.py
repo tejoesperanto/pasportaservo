@@ -9,6 +9,10 @@ from django.utils.html import format_html
 from django.utils.itercompat import is_iterable
 from django.utils.translation import ugettext_lazy as _
 
+from phonenumber_field.modelfields import (
+    PhoneNumberField as DjangoPhoneNumberField,
+)
+
 from .widgets import TextWithDatalistInput
 
 
@@ -18,6 +22,10 @@ class StyledEmailField(models.EmailField):
         template = ('<span class="fa fa-envelope" title="{title}" '
                     '      data-toggle="tooltip" data-placement="bottom"></span>')
         return format_html(template, title=_("email address").capitalize())
+
+
+class PhoneNumberField(DjangoPhoneNumberField):
+    default_error_messages = {'invalid': _("Enter a valid phone number.")}
 
 
 def SuggestiveField(verbose_name=None, choices=None, to_field=None, **kwargs):

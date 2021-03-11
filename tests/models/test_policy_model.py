@@ -1,10 +1,13 @@
 from datetime import date
 
+from django.test import tag
+
 from django_webtest import WebTest
 
 from ..factories import PolicyFactory
 
 
+@tag('models')
 class PolicyModelTests(WebTest):
     def test_effective_date(self):
         # The return value is expected to be a date object.

@@ -27,7 +27,6 @@ from django.utils.translation import (
 from commonmark import commonmark
 from django_countries.fields import CountryField
 from django_extensions.db.models import TimeStampedModel
-from phonenumber_field.modelfields import PhoneNumberField
 from simplemde.fields import SimpleMDEField
 from slugify import Slugify
 from unidecode import unidecode
@@ -36,7 +35,7 @@ from core.utils import camel_case_split
 from maps import SRID
 
 from .countries import COUNTRIES_DATA
-from .fields import StyledEmailField, SuggestiveField
+from .fields import PhoneNumberField, StyledEmailField, SuggestiveField
 from .filters import (
     HostingFilter, InBookFilter, MeetingFilter,
     OkForBookFilter, OkForGuestsFilter,
