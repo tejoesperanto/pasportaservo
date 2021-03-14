@@ -69,9 +69,9 @@ class WriteFormTests(AdditionalAsserts, WebTest):
         self.assertEqual(len(page.forms), 1)
         self.assertIsInstance(page.context['form'], CustomWriteForm)
 
-    def do_test_form_submit(self, deceased):
+    def do_test_form_submit(self, recipient, deceased, invalid_email=False):
         page = self.app.get(reverse('postman:write'), user=self.sender, headers={'Referer': '/origin'})
-        page.form['recipients'] = self.recipient.username if deceased else self.sender.username
+        page.form['recipients'] = recipient.username
         page.form['body'] = self.faker.paragraphs()
         page.form['subject'] = self.faker.sentence(nb_words=10)
         page_result = page.form.submit()
@@ -86,15 +86,23 @@ class WriteFormTests(AdditionalAsserts, WebTest):
         else:
             self.assertEqual(page_result.status_int, 302)
             self.assertRedirects(page_result, '/origin', fetch_redirect_response=False)
-            self.assertEqual(len(mail.outbox), 1)
-            self.assertEqual(mail.outbox[0].to, [self.sender.email])
-            self.assertEndsWith(mail.outbox[0].subject, page.form['subject'].value)
+            if invalid_email:
+                self.assertEqual(len(mail.outbox), 0)
+            else:
+                self.assertEqual(len(mail.outbox), 1)
+                self.assertEqual(mail.outbox[0].to, [self.sender.email])
+                self.assertEndsWith(mail.outbox[0].subject, page.form['subject'].value)
 
     def test_form_submit_living(self):
-        self.do_test_form_submit(deceased=False)
+        self.do_test_form_submit(recipient=self.sender, deceased=False)
 
     def test_form_submit_deceased(self):
-        self.do_test_form_submit(deceased=True)
+        self.do_test_form_submit(recipient=self.recipient, deceased=True)
+
+    def test_form_submit_for_invalid_email(self):
+        self.do_test_form_submit(
+            recipient=UserFactory(invalid_email=True, profile=None),
+            deceased=False, invalid_email=True)
 
 
 @tag('forms', 'forms-chat')
@@ -242,14 +250,14 @@ class ReplyFormTests(AdditionalAsserts, WebTest):
             self.assertEqual(len(page.forms), 1)
             self.assertIsInstance(page.context['form'], form_class)
 
-    def do_test_form_submit(self, deceased):
+    def do_test_form_submit(self, orig_message, deceased, invalid_email=False):
         test_views = [
             ('postman:view', CustomQuickReplyForm),
             ('postman:reply', CustomReplyForm),
         ]
         for i, (view_name, form_class) in enumerate(test_views, start=1):
             with self.subTest(form_class=form_class.__name__):
-                reply_to_message_id = self.message.pk if deceased else self.message_other.pk
+                reply_to_message_id = orig_message.pk
                 page = self.app.get(
                     reverse('postman:reply', kwargs={'message_id': reply_to_message_id}),
                     user=self.sender,
@@ -267,12 +275,20 @@ class ReplyFormTests(AdditionalAsserts, WebTest):
                 else:
                     self.assertEqual(page_result.status_int, 302)
                     self.assertRedirects(page_result, '/origin', fetch_redirect_response=False)
-                    self.assertEqual(len(mail.outbox), i)
-                    self.assertEqual(mail.outbox[0].to, [self.message_other.sender.email])
-                    self.assertEndsWith(mail.outbox[0].subject, page.form['subject'].value)
+                    if invalid_email:
+                        self.assertEqual(len(mail.outbox), 0)
+                    else:
+                        self.assertEqual(len(mail.outbox), i)
+                        self.assertEqual(mail.outbox[0].to, [orig_message.sender.email])
+                        self.assertEndsWith(mail.outbox[0].subject, page.form['subject'].value)
 
     def test_form_submit_living(self):
-        self.do_test_form_submit(deceased=False)
+        self.do_test_form_submit(orig_message=self.message_other, deceased=False)
 
     def test_form_submit_deceased(self):
-        self.do_test_form_submit(deceased=True)
+        self.do_test_form_submit(orig_message=self.message, deceased=True)
+
+    def test_form_submit_for_invalid_email(self):
+        self.do_test_form_submit(
+            orig_message=self._setup_test_message(UserFactory(invalid_email=True, profile=None)),
+            deceased=False, invalid_email=True)

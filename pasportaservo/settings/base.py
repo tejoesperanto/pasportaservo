@@ -266,9 +266,10 @@ def user_first_name(user):
         name = user.profile.name
         if not name:
             raise ValueError
-        return name
     except (ObjectDoesNotExist, ValueError):
         return user.username
+    else:
+        return name
 
 POSTMAN_I18N_URLS = True
 POSTMAN_AUTO_MODERATE_AS = True
@@ -277,6 +278,7 @@ POSTMAN_SHOW_USER_AS = user_first_name
 POSTMAN_DISALLOW_ANONYMOUS = True
 POSTMAN_DISALLOW_MULTIRECIPIENTS = True
 POSTMAN_DISALLOW_COPIES_ON_REPLY = True
+POSTMAN_NOTIFICATION_APPROVAL = lambda user, *args: not user.email.startswith(INVALID_PREFIX)
 POSTMAN_NOTIFIER_APP = None
 
 MAPBOX_GL_BASE_STATIC = 'https://api.tiles.mapbox.com/mapbox-gl-js/v1.6.1/mapbox-gl.{ext}'
