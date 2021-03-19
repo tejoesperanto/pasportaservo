@@ -145,7 +145,7 @@
                         <span class="hidden-xs">|</span><span class="visible-xs-block" style="margin-bottom: 10px"></span>
                     </span>
                     <span class="text-nowrap">
-                        <a href="http://tejo.org" title="{% trans "World Esperanto Youth Organisation" %}" rel="external">
+                        <a href="https://tejo.org" title="{% trans "World Esperanto Youth Organisation" %}" rel="external">
                             <img src="{% static 'img/home/tejo.svg' %}"
                                  onerror="this.onerror = null; this.src = this.src.replace(/tejo\.svg$/, 'tejo-sm.png');"
                                  width="39" height="18" style="vertical-align:-15%" alt="TEJO" />
@@ -153,6 +153,11 @@
                     </span>
                     <span class="visible-print-inline-block text-light">{% trans "World Esperanto Youth Organisation" %}</span>
                 </div>
+                {% if ENVIRONMENT != 'PROD' %}
+                    <div class="col-md-12 small text-muted hidden-print" style="margin-top: 10px" aria-hidden="true">
+                        {{ ENVIRONMENT }} &bull; {{ CURRENT_COMMIT|join:': '|default:"?" }}
+                    </div>
+                {% endif %}
             </div>
             <span class="pull-right" data-nosnippet>
                 <a href="#{% trans "top-most" context "URL" %}"

@@ -55,9 +55,15 @@ header.hero form.search {
     text-align: justify;
     text-align-last: center;
 }
+#home-explore .explore-action {
+    margin-top: 5px;
+    margin-bottom: 30px;
+}
 #home-explain.has-content {
-    padding-top: 4em;
+    padding-top: 3em;
     padding-bottom: 3em;
+    border-top: solid 3px $color-brand;
+    border-radius: 20px 20px 0 0;
 }
 .blog-post .post-title .post-published {
     position: relative;
