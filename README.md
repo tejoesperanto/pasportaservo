@@ -40,12 +40,12 @@ se ne, komencu [novan fadenon](https://github.com/tejoesperanto/pasportaservo/di
 Ubuntu 16.10 / Debian Stretch:
 
     sudo apt install git python3-dev python3-pip python3-venv libjpeg-dev zlib1g-dev \
-      postgresql-contrib postgresql-server-dev-all postgresql-10-postgis libgdal-dev gcc-c++
+      postgresql-contrib postgresql-server-dev-all postgresql-10-postgis libgdal-dev gcc-c++ gdal
 
 Fedora 27:
 
     sudo dnf install git python3-devel python3-crypto redhat-rpm-config zlib-devel libjpeg-devel libzip-devel \
-      postgresql-server postgresql-contrib postgresql-devel gcc-c++
+      postgresql-server postgresql-contrib postgresql-devel gcc-c++ gdal
 
 
 #### PostgreSQL
