@@ -176,7 +176,7 @@ $(function() {
         // initialize localized error messages for this field
         if (typeof this.checkValidity === 'function')
             this.checkValidity();
-        $('#id_form_submit, #id_form_submit_alt').click(function() {
+        $('#id_form_submit, #id_form_submit_alt, #id_form_submit_ext').click(function() {
             // mark the field as visited on form submit
             $this.triggerHandler('blur', true);
         });
@@ -347,19 +347,24 @@ $(function() {
     }).change();
 
     /* form submit/cancel keyboard shortcut key implementation */
-    if ($('#id_form_submit, #id_form_cancel').is(function() { return $(this).data('kbdshortcut') })) {
-        var shortcutY = ($('#id_form_submit').data('kbdshortcut') || "\0").charAt(0).toLowerCase();
-        var shortcutN = ($('#id_form_cancel').data('kbdshortcut') || "\0").charAt(0).toLowerCase();
+    var actionButtonShortcuts = {length: 0};
+    ['id_form_submit', 'id_form_submit_alt', 'id_form_cancel'].forEach(function(elementId) {
+        var btnNode = document.getElementById(elementId);
+        if (!btnNode)
+            return;
+        var shortcut = btnNode.getAttribute('data-kbdshortcut');
+        if (!shortcut)
+            return;
+        actionButtonShortcuts[shortcut.charAt(0).toLowerCase()] = $('#'+elementId);
+        actionButtonShortcuts.length++;
+    });
+    if (actionButtonShortcuts.length) {
         $(window).bind('keydown', function(event) {
             if (event.isCommandKey()) {
-                var pressedKey = String.fromCharCode(event.which).toLowerCase()
-                if (pressedKey === shortcutY) {
+                var pressedKey = String.fromCharCode(event.which).toLowerCase();
+                if (actionButtonShortcuts[pressedKey] !== undefined) {
                     event.preventDefault();
-                    $('#id_form_submit').click();
-                }
-                if (pressedKey === shortcutN) {
-                    event.preventDefault();
-                    $('#id_form_cancel').click();
+                    actionButtonShortcuts[pressedKey].click();
                 }
             };
         });

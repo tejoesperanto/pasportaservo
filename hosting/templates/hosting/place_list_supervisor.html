@@ -2,6 +2,7 @@
 {% load i18n static expression variable %}
 {% load next compact from utils %}
 {% load is_invalid clear_invalid is_esperanto_surrogate from profile %}
+{% load format_dms is_location_in_country from geoformat %}
 
 {% block head_title %}{{ view.country.name }}{% endblock %}
 
@@ -177,29 +178,51 @@
                                 {% endif %}
                             </div>
                             <div class="btn-group hidden-print" role="group">
-                                <a class="btn btn-success" href="{% url 'place_update' place.pk %}" target="_blank">
+                                <a class="btn btn-success" href="{% url 'place_update' place.pk %}?{% next current_page_position %}">
                                     <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
                                     {% trans "Update" %}
                                 </a>
+                                <button type="button" class="btn btn-success dropdown-toggle hidden-nano"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="caret"></span>
+                                    <span class="sr-only">{% trans "more options" %}</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li>
+                                        <a href="{% url 'place_update' place.pk %}?{% next current_page_position %}">
+                                            {% blocktrans with kin="" %}Update {{ kin }}place{% endblocktrans %}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'place_location_update' place.pk %}?{% next current_page_position %}">
+                                            {% trans "Update location on map" %}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'profile_update' place.profile.pk place.profile.autoslug %}?{% next current_page_position %}">
+                                            {% trans "Update profile" %}
+                                        </a>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
 
                         {% spaceless %}
-                        <p class="timestamp text-right text-muted"
+                        <p class="timestamp text-center text-muted"
                            title="{% trans "last login" %}{% if not place.owner.user.last_login %} ({% trans "never" %}){% endif %}"
                            data-title="{% trans "last login" %}<br />{{ place.owner.user.last_login|default:_("never") }}"
                            data-toggle="tooltip" data-html="true" data-placement="bottom">
-                            <small class="fa fa-sign-in" aria-hidden="true" style="position: relative; left: -2px"></small>
+                            <small class="fa fa-fw fa-sign-in" aria-hidden="true" style="position: relative; left: -1px"></small>
                             <span class="sr-only">{% trans "last login" %}</span>
                             <small><samp> {{ place.owner.user.last_login|date:"Y-m-d H:i"|default:"—"|stringformat:"-16s" }} UTC</samp></small>
                         </p>
                         {% endspaceless %}
                         {% spaceless %}
-                        <p class="timestamp text-right text-muted"
+                        <p class="timestamp text-center text-muted"
                            title="{% trans "last modification" %}{% if not place.modified %} ({% trans "never" %}){% endif %}"
                            data-title="{% trans "last modification" %}<br />{{ place.modified|default:_("never") }}"
                            data-toggle="tooltip" data-html="true" data-placement="bottom">
-                            <small class="fa fa-pencil-square-o" aria-hidden="true"></small>
+                            <small class="fa fa-fw fa-pencil-square-o" aria-hidden="true"></small>
                             <span class="sr-only">{% trans "last modification" %}</span>
                             <small><samp> {{ place.modified|date:"Y-m-d H:i"|default:"—"|stringformat:"-16s" }} UTC</samp></small>
                         </p>
@@ -208,6 +231,7 @@
                     </div>
 
                     <address>
+                        {# DETAILS OF THE OWNER: FULL NAME, BIRTH DATE, DEATH DATE, AGE #}
                         <a href="{{ place.profile.get_edit_url }}" target="_blank">
                             <h4 class="name">
                                 {% if place.profile.death_date %}
@@ -238,13 +262,49 @@
                         </a>
 
                         <div class="address">
+                        {# FULL ADDRESS OF THE PLACE #}
                             {{ place.address }}<br />
                             {{ place.get_postcode_display }}
-                            <span class="fa fa-dot-circle-o" aria-hidden="true"></span>
+                            <span class="fa fa-fw fa-dot-circle-o" aria-hidden="true"></span>
                             <b>{{ place.city }}</b><br />
-                            {% expr place.subregion.latin_name or place.subregion.latin_code %}
+                            {% filter force_escape %}
+                                {% expr place.subregion.latin_name or place.subregion.latin_code %}
+                            {% endfilter %}
+                        {# GEOGRAPHICAL LOCATION OF THE PLACE #}
+                            <span style="display: inline-block">
+                                <span class="fa fa-fw fa-globe" aria-hidden="true"></span>
+                                {{ place.location|format_dms:place.location_confidence }}
+                                {% if view.role == roles.ADMIN %}<sup><small>(&#8982;{{ place.location_confidence }})</small></sup>{% endif %}
+                                {% if place.location_inaccurate %}
+                                    <small class="text-warning">
+                                        <span class="sr-only">&#9888;</span>
+                                        {% trans "the location is imprecise" as location_warning %}
+                                        <span class="fa fa-exclamation-triangle" data-toggle="tooltip"
+                                              title="{{ location_warning|capfirst }}"
+                                              aria-label="{% trans "Warning " context 'Title' %}: {{ location_warning }}"></span>
+                                        <span class="visible-print-inline">&#9001;<i>{{ location_warning|capfirst }}</i>&#9002;</span>
+                                    </small>
+                                {% endif %}
+                                {% spaceless %}
+                                <a href="{% url 'place_location_update' place.pk %}?{% next current_page_position %}"
+                                   class="action-edit-inline text-label-success"
+                                   title="{% trans "Edit location" %}" data-toggle="tooltip">
+                                    <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+                                    <span class="sr-only">{% trans "Edit location" %}</span>
+                                </a>
+                                {% endspaceless %}
+                                {% if place.location_accurate and not place|is_location_in_country %}
+                                    <a href="{% url 'place_location_update' place.pk %}?{% next current_page_position %}"
+                                       class="btn btn-warning btn-xs"
+                                       data-hover-text="{% trans "Confirm?" %}">
+                                        {% trans "Location seems off" %}
+                                        <span class="sr-only">({% trans "Confirm?" %})</span>
+                                    </a>
+                                {% endif %}
+                            </span>
                         </div>
-                        <div class="description-short {% if place.short_description.strip %}has-content{% endif %}">
+                        <div class="description-short text-justify {% if place.short_description.strip %}has-content{% endif %}">
+                        {# DESCRIPTION OF THE PLACE SUPPLIED BY THE OWNER #}
                             {% with desc=place.short_description %}
                                 {% if desc|is_esperanto_surrogate %}
                                     {% asvar description_color %}text-surrogate text-warning{% endasvar %}
@@ -279,7 +339,8 @@
                                 </small>
                             {% endwith %}
                         </div>
-                        <div>
+                        <div class="phone-number-list">
+                        {# LIST OF PHONE NUMBERS VIA WHICH THE OWNER IS REACHABLE #}
                             {# TODO: Phones are re-fetched even though they are in a prefetch... #}
                             {% for phone in place.profile.phones.all %}
                                 {% if not phone.deleted %}
@@ -332,6 +393,7 @@
                         </div>
                     </address>
                     <div class="host">
+                    {# PLACE OWNER'S ACCOUNT INFORMATION #}
                         <h5>
                             <small>{% trans "username"|capfirst %}</small>
                             <span class="person-username">{{ place.profile.user.username }}</span>
@@ -374,6 +436,9 @@
         </div>
     </div>
     <script>
-        window.checkPlaceTextSurrogateWarning = "{% trans "The description or phone note seems to contain Esperanto written in a surrogate manner. Accept such text?" %}";
+        window.checkPlaceTextSurrogateWarning = "{% blocktrans trimmed %}
+                                                     The description of the place or phone note seem to contain
+                                                     Esperanto written in a surrogate manner. Accept such text?
+                                                 {% endblocktrans %}";
     </script>
 {% endblock page %}

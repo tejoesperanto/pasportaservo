@@ -34,7 +34,10 @@ from ..forms import (
     PlaceBlockForm, PlaceBlockQuickForm, PlaceCreateForm, PlaceForm,
     PlaceLocationForm, UserAuthorizedOnceForm, UserAuthorizeForm,
 )
-from ..models import LocationType, Place, Profile, TravelAdvice, Whereabouts
+from ..models import (
+    LocationConfidence, LocationType, Place,
+    Profile, TravelAdvice, Whereabouts,
+)
 from .mixins import (
     CreateMixin, DeleteMixin, PlaceMixin, PlaceModifyMixin,
     ProfileIsUserMixin, ProfileModifyMixin, UpdateMixin,
@@ -71,8 +74,15 @@ class PlaceLocationUpdateView(
     update_partial = True
     display_fair_usage_condition = True
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['view_role'] = self.role
+        return kwargs
+
     def get_success_url(self, *args, **kwargs):
-        return reverse_lazy('place_detail_verbose', kwargs={'pk': self.object.pk})
+        success_url = reverse_lazy('place_detail_verbose', kwargs={'pk': self.object.pk})
+        redirect_to = sanitize_next(self.request)
+        return redirect_to or success_url
 
 
 class PlaceDeleteView(
@@ -142,13 +152,14 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
                 location_box = location_enclose(location)
                 location_type = 'C'  # = Circle.
         elif place.owner_available and is_authenticated:
-            if self.verbose_view and place.location and place.location_confidence >= 8:
+            if self.verbose_view and place.location and \
+                    place.location_confidence >= LocationConfidence.ACCEPTABLE:
                 location = location_truncate(place.location)
                 location_box = location_enclose(location)
                 location_type = 'C'  # = Circle.
         if place.available or place.owner_available:
             not_specified = place.location is None or place.location.empty
-            not_accurate = not not_specified and place.location_confidence < 8
+            not_accurate = not not_specified and place.location_confidence < LocationConfidence.ACCEPTABLE
         else:
             not_specified, not_accurate = None, None
 

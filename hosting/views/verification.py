@@ -3,19 +3,21 @@ from collections import OrderedDict
 
 from django.core import serializers
 from django.core.exceptions import NON_FIELD_ERRORS
+from django.forms import ModelForm
 from django.http import (
     HttpResponseBadRequest, HttpResponseRedirect, JsonResponse,
 )
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
+from django.utils.translation import ugettext_lazy as _
 from django.views import generic
 from django.views.decorators.vary import vary_on_headers
 
 from core.auth import SUPERVISOR, AuthMixin
 from core.mixins import LoginRequiredMixin
 
-from ..forms import PlaceForm, ProfileForm
-from ..models import Profile
+from ..forms import PhoneForm, PlaceForm, ProfileForm
+from ..models import LocationConfidence, Place, Profile
 from .mixins import PlaceMixin
 
 
@@ -56,25 +58,43 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
     display_fair_usage_condition = True
     minimum_role = SUPERVISOR
 
+    class LocationDummyForm(ModelForm):
+        class Meta:
+            model = Place
+            fields = ['location', 'location_confidence']
+
+        def clean(self):
+            if not self.initial['location'] or self.initial['location'].empty:
+                self.add_error('location', _("The geographical location on map is unknown."))
+            elif self.initial['location_confidence'] < LocationConfidence.ACCEPTABLE:
+                self.add_error('location', _("The geographical location on map is imprecise."))
+            else:
+                self.cleaned_data = {'location': self.data['location']}
+
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
         place = self.get_object()
-        place_data = serializers.serialize('json', [place], fields=PlaceForm._meta.fields)
-        place_data = json.loads(place_data)[0]['fields']
-        owner_data = serializers.serialize('json', [place.owner], fields=ProfileForm._meta.fields)
-        owner_data = json.loads(owner_data)[0]['fields']
+        data = [
+            (ProfileForm, [place.owner]),
+            (PlaceForm, [place]),
+            (self.LocationDummyForm, [place]),
+            (PhoneForm, place.owner.phones.filter(deleted_on__isnull=True)),
+        ]
+        all_forms = []
+        for form_class, objects in data:
+            for object_model in objects:
+                object_data = serializers.serialize('json', [object_model], fields=form_class._meta.fields)
+                object_data = json.loads(object_data)[0]['fields']
+                all_forms.append(form_class(data=object_data, instance=object_model))
 
-        owner_form = ProfileForm(data=owner_data, instance=place.owner)
-        place_form = PlaceForm(data=place_data, instance=place)
-
-        data_correct = all([owner_form.is_valid(), place_form.is_valid()])  # We want both validations.
+        data_correct = all([form.is_valid() for form in all_forms])  # We want all validations.
         viewresponse = {'result': data_correct}
         if not data_correct:
             viewresponse['err'] = OrderedDict()
             data_problems = set()
-            for form in [owner_form, place_form]:
+            for form in all_forms:
                 viewresponse['err'].update({
-                    str(form.fields[field_name].label) : list(field_errs)       # noqa: E203
+                    self._get_field_label(form, field_name) : list(field_errs)  # noqa: E203
                     for field_name, field_errs
                     in [(k, set(err for err in v if err)) for k, v in form.errors.items()]
                     if field_name != NON_FIELD_ERRORS and len(field_errs)
@@ -92,4 +112,13 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
                 request,
                 self.template_names[data_correct],
                 context={'view': self, 'place': place, 'result': viewresponse}
+            )
+
+    def _get_field_label(self, form, field_name):
+        if not isinstance(form, PhoneForm):
+            return str(form.fields[field_name].label)
+        else:
+            return (
+                f"{form.fields[field_name].label} {form.data['number']}"
+                f" ({form.initial['country'].name or form.initial['country'].code})"
             )

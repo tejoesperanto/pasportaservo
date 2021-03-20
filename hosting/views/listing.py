@@ -4,7 +4,7 @@ import logging
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
-from django.db.models import Q
+from django.db.models import BooleanField, Case, Q, When
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils.encoding import uri_to_iri
@@ -21,7 +21,7 @@ from core.auth import SUPERVISOR, AuthMixin
 from maps import SRID
 from maps.utils import bufferize_country_boundaries
 
-from ..models import Place, TravelAdvice
+from ..models import LocationConfidence, Place, TravelAdvice
 from ..utils import geocode
 
 
@@ -59,6 +59,20 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
         self.base_qs = self.model.available_objects.filter(country=self.country.code).filter(
             Q(visibility__visible_online_public=True) | Q(in_book=True, visibility__visible_in_book=True)
         )
+        self.base_qs = self.base_qs.annotate(
+            location_valid=Case(
+                When(Q(location__isnull=False) & ~Q(location=Point([])), then=True),
+                default=False, output_field=BooleanField()
+            ),
+            location_inaccurate=Case(
+                When(Q(location_valid=True) & Q(location_confidence__lt=LocationConfidence.ACCEPTABLE), then=True),
+                default=False, output_field=BooleanField()
+            ),
+            location_accurate=Case(
+                When(Q(location_valid=True) & Q(location_confidence__gte=LocationConfidence.ACCEPTABLE), then=True),
+                default=False, output_field=BooleanField()
+            ),
+        )
         if self.in_book_status is not None:
             narrowing_func = getattr(self.base_qs, 'filter' if self.in_book_status else 'exclude')
             qs = narrowing_func(in_book=True, visibility__visible_in_book=True)
@@ -87,8 +101,9 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
         context['checked_count'] = self.base_qs.filter(book_filter, checked=True).count()
         context['confirmed_count'] = self.base_qs.filter(book_filter, confirmed=True).count()
         context['not_confirmed_count'] = context['place_count'] - context['confirmed_count']
-        context['invalid_emails_count'] = self.base_qs.filter(
-            owner__user__email__startswith=settings.INVALID_PREFIX).count()
+        context['invalid_emails_count'] = (
+            self.base_qs.filter(owner__user__email__startswith=settings.INVALID_PREFIX).count()
+        )
 
         coords = bufferize_country_boundaries(self.country.code)
         if coords:

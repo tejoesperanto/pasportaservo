@@ -140,7 +140,7 @@ class PlaceFactory(DjangoModelFactory):
 
     @factory.lazy_attribute
     def state_province(self):
-        if self.country in countries_with_mandatory_region() or random() > 0.85:
+        if self.country in countries_with_mandatory_region():
             region = CountryRegionFactory(country=self.country)
             return region.iso_code
         else:

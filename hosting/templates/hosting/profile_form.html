@@ -1,5 +1,5 @@
-{% extends 'core/base_form.html' %}
-{% load i18n static %}
+{% extends './model_form.html' %}
+{% load i18n static variable %}
 {% load next from utils %}
 
 {% block head_title %}
@@ -65,4 +65,7 @@
     {% endif %}
 {% endblock %}
 
-{% block form_keyboard_shortcut %}Save{% endblock %}
+{% block form_submit %}
+    {% asvar admin_submit_condition %}{% if view.role == roles.ADMIN and not view.place %}True{% endif %}{% endasvar %}
+    {{ block.super }}
+{% endblock %}

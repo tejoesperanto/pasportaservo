@@ -808,7 +808,7 @@ a.contact-details:not(:hover) {
         }
     }
     .owned-phone:last-child .priority-buttons .set-priority-button {
-        color: lighten($color-gray, 21%);
+        color: lighten($color-gray, 25%);
         cursor: default;
     }
 }
@@ -1043,14 +1043,19 @@ html.js-enabled #tasks-header[data-toggle="collapse"] {
         top: -7px;
     }
     & > .control-buttons {
-        margin-left: 20px;
+        margin-left: 1em;
     }
     & > .control-buttons .timestamp {
         white-space: pre;
         margin-bottom: 0px;
         margin-right: 1px;
+        background-color: lighten($color-gray, 50%);
         &:first-of-type {
             margin-top: 1em;
+            border-radius: 4px 4px 0 0;
+        }
+        &:last-of-type {
+            border-radius: 0 0 4px 4px;
         }
     }
     .name {
@@ -1058,6 +1063,9 @@ html.js-enabled #tasks-header[data-toggle="collapse"] {
     }
     .description-short.has-content {
         margin: 10px 0px;
+    }
+    .phone-number-list {
+        margin-top: 10px;
     }
 }
 #check-place-check-errors .modal-dialog {
@@ -1222,18 +1230,18 @@ p.tip {
         max-width: 4.25em;
     }
 
-    .place-supervisor-detail .name {
-        clear: both;
-    }
-    .place-supervisor-detail > .control-buttons {
-        margin-bottom: 1em;
-    }
-    .place-supervisor-detail > .control-buttons .timestamp {
-        font-size: 80%;
-    }
-    .place-supervisor-detail .phone-number:not(:last-child):after {
-        content: "\a";
-        white-space: pre;
+    .place-supervisor-detail {
+        .name {
+            clear: both;
+        }
+        & > .control-buttons {
+            margin-bottom: 1em;
+            margin-left: 0;
+        }
+        .phone-number:not(:last-child):after {
+            content: "\a";
+            white-space: pre;
+        }
     }
 
     #page.settings #privacy_form {
@@ -1301,6 +1309,9 @@ p.tip {
         .maplink {
             font-size: 14px;
         }
+    }
+    .place-supervisor-detail > .control-buttons .timestamp {
+        font-size: 80%;
     }
     #page.settings #privacy_form {
         th.header-public, th.header-authed {

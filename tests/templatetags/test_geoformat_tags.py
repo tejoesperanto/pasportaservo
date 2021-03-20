@@ -1,7 +1,11 @@
 from collections import namedtuple
 
+from django.contrib.gis.geos import Point
 from django.template import Context, Template
 from django.test import TestCase, tag
+
+from hosting.models import LocationConfidence
+from maps import SRID
 
 MockResult = namedtuple('MockResult', 'address, country, country_code, city, lat, lng, latlng')
 
@@ -97,6 +101,98 @@ class ResultCountryFilterTests(TestCase):
         geocoding_result = MockResult(None, 'Rusuja Federacio', 'ru', None, 0, 0, [])
         page = self.template.render(Context({'result': geocoding_result}))
         self.assertEqual(page, "Rusio")
+
+
+@tag('templatetags')
+class FormatDMSFilterTests(TestCase):
+    template = Template("{% load format_dms from geoformat %}{{ location|format_dms }}")
+
+    def test_invalid_object(self):
+        with self.assertRaises(AttributeError):
+            self.template.render(Context({'location': "not a geo-point"}))
+        with self.assertRaises(AttributeError):
+            self.template.render(Context({'location': namedtuple('DummyObject', 'empty')(False)}))
+
+    def test_empty_location(self):
+        expected_result = "&8593;&nbsp;&#xFF1F;&deg;, &8594;&nbsp;&#xFF1F;&deg;"
+        # TODO: In Django 3 "&uarr; &#xff1f;&deg;, &larr; &#xff1f;&deg;"
+
+        page = self.template.render(Context({'location': None}))
+        self.assertHTMLEqual(page, expected_result)
+        page = self.template.render(Context({'location': namedtuple('DummyPoint', 'empty')(True)}))
+        self.assertHTMLEqual(page, expected_result)
+
+    def test_given_location(self, template=None):
+        expected_result = (
+            f"{{arrlat}}&nbsp;{51}&deg;{54}&#8242;{49.617}&#8243;&thinsp;{{letlat}}, "
+            f"{{arrlng}}&nbsp;{4}&deg;{27}&#8242;{52.014}&#8243;&thinsp;{{letlng}}"
+        )
+
+        tpl = template or self.template
+        page = tpl.render(Context({'location': Point(coded_result.lng, coded_result.lat, srid=SRID)}))
+        self.assertHTMLEqual(page, expected_result.format(arrlat="&8593;", letlat="N", arrlng="&8594;", letlng="E"))
+        page = tpl.render(Context({'location': Point(coded_result.lng, -coded_result.lat, srid=SRID)}))
+        self.assertHTMLEqual(page, expected_result.format(arrlat="&8595;", letlat="S", arrlng="&8594;", letlng="E"))
+        page = tpl.render(Context({'location': Point(-coded_result.lng, coded_result.lat, srid=SRID)}))
+        self.assertHTMLEqual(page, expected_result.format(arrlat="&8593;", letlat="N", arrlng="&8592;", letlng="W"))
+
+    def test_confidence_high(self):
+        self.test_given_location(Template(
+            f"{{% load format_dms from geoformat %}}{{{{ location|format_dms:{LocationConfidence.ACCEPTABLE} }}}}"
+        ))
+        self.test_given_location(Template(
+            f"{{% load format_dms from geoformat %}}{{{{ location|format_dms:{LocationConfidence.EXACT} }}}}"
+        ))
+
+    def test_confidence_low(self):
+        expected_result = (
+            f"{{arrlat}}&nbsp;{51}&deg;{54}&#8242;&thinsp;{{letlat}}, "
+            f"{{arrlng}}&nbsp;{4}&deg;{27}&#8242;&thinsp;{{letlng}}"
+        )
+        page = Template("{% load format_dms from geoformat %}{{ location|format_dms:0 }}").render(
+            Context({'location': Point(-coded_result.lng, -coded_result.lat, srid=SRID)}))
+        self.assertHTMLEqual(page, expected_result.format(arrlat="&8595;", letlat="S", arrlng="&8592;", letlng="W"))
+
+
+@tag('templatetags')
+class IsLocationInCountryFilterTests(TestCase):
+    MockPlace = namedtuple('MockPlace', 'country, location, location_confidence')
+    template = Template("{% load is_location_in_country from geoformat %}{{ place|is_location_in_country }}")
+
+    def setUp(self):
+        self.loc = Point(coded_result.lng, coded_result.lat, srid=SRID)
+
+    def test_unknown_location(self):
+        page = self.template.render(Context({'place': self.MockPlace('NL', None, 0)}))
+        self.assertEqual(page, str(False))
+        page = self.template.render(Context({'place': self.MockPlace('NL', Point([]), 0)}))
+        self.assertEqual(page, str(False))
+
+    def test_imprecise_location(self):
+        page = self.template.render(Context({
+            'place': self.MockPlace('NL', self.loc, LocationConfidence.UNDETERMINED),
+        }))
+        self.assertEqual(page, str(False))
+
+    def test_location_in_country(self):
+        for conf in (LocationConfidence.ACCEPTABLE, LocationConfidence.EXACT, LocationConfidence.CONFIRMED):
+            with self.subTest(confidence=conf):
+                page = self.template.render(Context({
+                    'place': self.MockPlace('NL', self.loc, conf),
+                }))
+                self.assertEqual(page, str(True))
+
+    def test_location_outside_country(self):
+        for conf in (LocationConfidence.ACCEPTABLE, LocationConfidence.EXACT):
+            with self.subTest(confidence=conf):
+                page = self.template.render(Context({
+                    'place': self.MockPlace('CH', self.loc, conf),
+                }))
+                self.assertEqual(page, str(False))
+            page = self.template.render(Context({
+                'place': self.MockPlace('PL', self.loc, LocationConfidence.CONFIRMED),
+            }))
+            self.assertEqual(page, str(True))
 
 
 @tag('templatetags')

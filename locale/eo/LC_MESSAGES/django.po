@@ -1719,6 +1719,9 @@ msgstr "Nur forpreni"
 msgid "Remove from list of family members"
 msgstr "Forpreni el listo de kunloĝantoj"
 
+msgid "Save without confirming"
+msgstr "Konservi sen konfirmi"
+
 msgid "Remove a phone number"
 msgstr "Forigi telefonan numeron"
 
@@ -2092,12 +2095,21 @@ msgstr "Kontrolita"
 msgid "Not checked"
 msgstr "Nekontrolita"
 
+msgid "more options"
+msgstr "pliaj opcioj"
+
 msgid "last login"
 msgstr "lasta ensaluto"
 
 #, python-format
 msgid "%(age)s y.o."
 msgstr "%(age)s-jaraĝa"
+
+msgid "Confirm?"
+msgstr "Ĉu konfirmi?"
+
+msgid "Location seems off"
+msgstr "Lokigo ŝajnas misa"
 
 msgid "Esperanto letters?"
 msgstr "Esperantaj literoj?"
@@ -2118,11 +2130,11 @@ msgid "Update email"
 msgstr "Redakti retadreson"
 
 msgid ""
-"The description or phone note seems to contain Esperanto written in a "
-"surrogate manner. Accept such text?"
+"The description of the place or phone note seem to contain Esperanto written "
+"in a surrogate manner. Accept such text?"
 msgstr ""
-"La priskribo aŭ la rimarkigo pri telefona numero ŝajne enhavas ne-normajn "
-"Esperanto-literojn (anstataŭ ĉapelitajn). Ĉu akcepti tian tekston?"
+"La priskribo de la loĝejo aŭ la rimarkigo pri telefona numero ŝajne enhavas "
+"ne-normajn Esperanto-literojn (anstataŭ ĉapelitajn). Ĉu akcepti tian tekston?"
 
 msgid "Print"
 msgstr "Printi"
@@ -2624,6 +2636,12 @@ msgstr "Nur la posedanto de la loĝejo povas aliri tiun ĉi paĝon"
 
 msgid "Only the user themselves can access this page"
 msgstr "Nur la uzanto mem povas aliri tiun ĉi paĝon"
+
+msgid "The geographical location on map is unknown."
+msgstr "La geografia surmapa lokigo ne estas konata."
+
+msgid "The geographical location on map is imprecise."
+msgstr "La geografia surmapa lokigo estas tro malpreciza."
 
 msgid "Data confirmed"
 msgstr "Informoj konfirmitaj"
