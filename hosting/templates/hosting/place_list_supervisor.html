@@ -267,7 +267,9 @@
                             {{ place.get_postcode_display }}
                             <span class="fa fa-fw fa-dot-circle-o" aria-hidden="true"></span>
                             <b>{{ place.city }}</b><br />
-                            {% expr place.subregion.latin_name or place.subregion.latin_code %}
+                            {% filter force_escape %}
+                                {% expr place.subregion.latin_name or place.subregion.latin_code %}
+                            {% endfilter %}
                         {# GEOGRAPHICAL LOCATION OF THE PLACE #}
                             <span style="display: inline-block">
                                 <span class="fa fa-fw fa-globe" aria-hidden="true"></span>
