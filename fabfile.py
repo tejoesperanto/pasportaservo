@@ -8,7 +8,7 @@
 #     Host ps
 #     HostName pasportaservo.org
 
-from fabric.api import env, local, prefix, require, run, sudo, task
+from fabric.api import env, local, prefix, require, run, settings, sudo, task
 
 env.hosts = ["ps"]
 env.user = "ps"
@@ -58,10 +58,11 @@ def checkout(remote="origin", branch="master", runlocal=True):
 
 @task
 def requirements():
-    run(
-        "pip install -Ur requirements.txt"
-        " | grep -v -e 'Requirement already satisfied' -e 'Requirement already up-to-date'"
-    )
+    with settings(ok_ret_codes=[0, 1]):
+        run(
+            "pip install -Ur requirements.txt"
+            " | grep -v -e 'Requirement already satisfied' -e 'Requirement already up-to-date'"
+        )
 
 
 @task
