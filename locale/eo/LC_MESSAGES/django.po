@@ -3809,6 +3809,30 @@ msgstr "Mesaĝo"
 msgid "Cannot send the message: This user has passed away."
 msgstr "Ne eblas sendi la mesaĝon: Tiu ĉi uzanto forpasis."
 
+#: pasportaservo/settings/base.py
+msgid "Great Britain"
+msgstr "Britio"
+
+#: pasportaservo/settings/base.py
+msgid "United Kingdom"
+msgstr "Unuiĝinta Reĝlando"
+
+#: pasportaservo/settings/base.py
+msgid "Falkland Islands (Malvinas)"
+msgstr "Falklandaj Insuloj (Malvinoj)"
+
+#: pasportaservo/settings/base.py
+msgid "Islas Malvinas"
+msgstr "Malvinoj"
+
+#: pasportaservo/settings/base.py
+msgid "American Samoa"
+msgstr "Usona Samoo"
+
+#: pasportaservo/settings/base.py
+msgid "Samoa (Eastern - U.S.)"
+msgstr "Samoo Orienta (Usona)"
+
 #: pasportaservo/templates/200.html
 msgid "OK"
 msgstr "Enordas"
