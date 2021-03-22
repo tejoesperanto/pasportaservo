@@ -3,6 +3,7 @@ from os import environ, path
 
 from django.conf import global_settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import gettext_lazy
 
 
 def get_env_setting(setting):
@@ -247,6 +248,21 @@ SUPPORT_EMAIL = "saluton [cxe] pasportaservo.org"
 
 
 from djangocodemirror.settings import *  # noqa isort:skip
+
+COUNTRIES_OVERRIDE = {
+    'GB': {'names': [
+        gettext_lazy("Great Britain"),
+        gettext_lazy("United Kingdom"),
+    ]},
+    'FK': {'names': [
+        gettext_lazy("Falkland Islands (Malvinas)"),
+        gettext_lazy("Islas Malvinas"),
+    ]},
+    'AS': {'names': [
+        gettext_lazy("American Samoa"),
+        gettext_lazy("Samoa (Eastern - U.S.)"),
+    ]},
+}
 
 # Helps entering phone numbers with "00" instead of "+"
 # This means: Interpret phone number as dialed in Poland

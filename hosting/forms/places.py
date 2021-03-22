@@ -97,7 +97,7 @@ class PlaceForm(forms.ModelForm):
                 logging.getLogger('PasportaServo.address').error(
                     "Service misconfigured: Mandatory regions for %s are not defined!"
                     "  (noted when %s)",
-                    place_country,
+                    getattr(place_country, 'code', place_country),
                     f"editing place #{self.instance.pk}" if self.instance.id else "adding new place",
                 )
             region_type = country_data.get('administrative_area_type')
