@@ -18,3 +18,7 @@ class CoreContextProcessorTests(WebTest):
             with self.subTest(setting=setting):
                 self.assertTrue(setting in response.context, msg="'{}' not present in the context".format(setting))
                 self.assertEqual(response.context[setting], getattr(settings, setting))
+        setting = 'HOUR'
+        with self.subTest(setting=setting):
+            self.assertTrue(setting in response.context, msg="'{}' not present in the context".format(setting))
+            self.assertEqual(response.context[setting], 3600)

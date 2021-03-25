@@ -13,4 +13,6 @@ def expose_selected_settings(request):
         'MAPBOX_GL_JS',
         'MAPBOX_GL_JS_INTEGRITY',
     ]
-    return {name: getattr(settings, name) for name in SETTINGS}
+    context = {name: getattr(settings, name) for name in SETTINGS}
+    context.update({'HOUR': 3600})
+    return context

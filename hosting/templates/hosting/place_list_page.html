@@ -1,4 +1,4 @@
-{% load i18n static expression variable utils %}
+{% load i18n static expression variable cache utils %}
 {% load el_pagination_tags %}
 
     {% expr view.paginate_first_by or view.paginate_by as first_page %}
@@ -47,7 +47,12 @@
                             <small>({{ place.internal_distance.km|floatformat:2 }}&nbsp;km)</small>
                         {% endif %}
                         <br />
-                        {% if place.state_province %}{{ place.subregion.translated_or_latin_name }}, {% endif %}
+                        {% if place.state_province %}
+                            {% cache HOUR|mult:96 country-subregion place.country.code place.state_province %}
+                                {# Regions are not expected to change too often, so caching for 96 hours. #}
+                                {{ place.subregion.translated_or_latin_name }},
+                            {% endcache %}
+                        {% endif %}
                         {{ place.get_country_display }}
                     {% else %}
                         {{ place.get_country_display }}

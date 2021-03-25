@@ -1,6 +1,6 @@
 {% extends 'core/base.html' %}
-{% load i18n static expression variable %}
-{% load next compact from utils %}
+{% load i18n static expression variable cache %}
+{% load next compact mult from utils %}
 {% load is_invalid clear_invalid is_esperanto_surrogate from profile %}
 {% load format_dms is_location_in_country from geoformat %}
 
@@ -267,9 +267,15 @@
                             {{ place.get_postcode_display }}
                             <span class="fa fa-fw fa-dot-circle-o" aria-hidden="true"></span>
                             <b>{{ place.city }}</b><br />
-                            {% filter force_escape %}
-                                {% expr place.subregion.latin_name or place.subregion.latin_code %}
-                            {% endfilter %}
+                            {% cache HOUR|mult:24 place-country-subregion place.country.code place.state_province %}
+                                {% comment %}
+                                    While regions do not change often, if there _is_ a change, we want supervisors
+                                    to see the updated information fairly on time; therefore, caching for 24 hours.
+                                {% endcomment %}
+                                {% filter force_escape %}
+                                    {% expr place.subregion.latin_name or place.subregion.latin_code %}
+                                {% endfilter %}
+                            {% endcache %}
                         {# GEOGRAPHICAL LOCATION OF THE PLACE #}
                             <span style="display: inline-block">
                                 <span class="fa fa-fw fa-globe" aria-hidden="true"></span>
