@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load i18n static cache geoformat %}
+{% load mult from utils %}
 
 {% block head_title %}
     {% trans "Find accommodation" %}
@@ -74,7 +75,7 @@
                 <a href="{% url 'world_map' %}{{ result|geo_url_hash }}">{% trans "Open map of the region" %}</a>
             </p>
         {% elif view.query %}
-            {% if result.error %}
+            {% if result.error and view.query|length > 1 %}
                 <span class="text-warning">
                     <span class="fa fa-chain-broken" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
                     {% trans "&lt;Geosearch service is unreachable&gt;" %}
@@ -95,7 +96,7 @@
     {% endwith %}
     </h4>
 
-    {% cache 86400 travel-advisory view.result.country_code.upper view.country_search|default:False %}
+    {% cache HOUR|mult:24 travel-advisory view.result.country_code.upper view.country_search|default:False %}
         {% for advisory in country_advisories %}
             {% include './snippets/travel_advice.html' with advisory=advisory country=view.result|geo_result_country only %}
         {% endfor %}

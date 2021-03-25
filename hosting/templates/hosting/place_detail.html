@@ -66,7 +66,7 @@
     {% if user.is_authenticated and place_availability|are_any and not place.deleted %}
     {% if view.role != roles.OWNER and user.profile not in place.family_members_cache %}
     {# PAGE-TOP NOTIFICATIONS TO VISITORS ABOUT TRAVEL RESTRICTIONS TO THIS COUNTRY #}
-        {% cache 86400 travel-advisory place.country.code.upper True %}
+        {% cache HOUR|mult:24 travel-advisory place.country.code.upper True %}
             {% for advisory in advisories %}
                 {% include './snippets/travel_advice.html' with advisory=advisory country=place.country.name only %}
             {% endfor %}
