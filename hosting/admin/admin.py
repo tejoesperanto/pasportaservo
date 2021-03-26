@@ -515,7 +515,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
         qs = qs.defer('owner__description')
         try:
             if not self.single_object_view:
-                qs = qs.defer('description', 'short_description')
+                qs = qs.defer('description', 'short_description', 'address')
         except Exception:
             pass
         return qs

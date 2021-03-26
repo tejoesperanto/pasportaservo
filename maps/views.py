@@ -153,11 +153,12 @@ class PublicDataView(GeoJSONLayerView):
         if not self.request.user.is_authenticated:
             by_visibility &= Q(owner__pref__public_listing=True)
         return (
-            PlottablePlace.available_objects
+            PlottablePlace.objects_raw
+            .filter(available=True)
             .exclude(Q(location__isnull=True) | Q(owner__death_date__isnull=False))
             .filter(by_visibility)
-            .prefetch_related('owner')
-            .defer('description', 'short_description', 'owner__description')
+            .select_related('owner')
+            .defer('address', 'description', 'short_description', 'owner__description')
         )
 
 
@@ -196,5 +197,6 @@ class CountryDataView(AuthMixin, GeoJSONLayerView):
         return (
             queryset
             .exclude(location__isnull=True)
-            .prefetch_related('owner')
+            .select_related('owner')
+            .defer('address', 'description', 'short_description', 'owner__description')
         )

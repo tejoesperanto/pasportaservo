@@ -42,7 +42,8 @@ from .filters import (
 )
 from .gravatar import email_to_gravatar
 from .managers import (
-    ActiveStatusManager, AvailableManager, NotDeletedManager, TrackingManager,
+    ActiveStatusManager, AvailableManager, NotDeletedManager,
+    NotDeletedRawManager, TrackingManager,
 )
 from .utils import UploadAndRenameAvatar, value_without_invalid_marker
 from .validators import (
@@ -123,6 +124,7 @@ class TrackingModel(models.Model):
 
     all_objects = TrackingManager()
     objects = NotDeletedManager()
+    objects_raw = NotDeletedRawManager()
 
     class Meta:
         abstract = True
