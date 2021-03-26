@@ -140,10 +140,8 @@ class SearchView(PlacePaginatedListView):
 
         qs = (
             self.queryset
-            .select_related(None)
-            .defer('description', 'family_members_visibility')
             .select_related('owner', 'owner__user')
-            .defer('owner__description', 'owner__email_visibility')
+            .defer('address', 'description', 'owner__description')
         )
 
         self.result = geocode(self.query)
