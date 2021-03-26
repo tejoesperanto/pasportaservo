@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.gis.geos import Point
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse_lazy
@@ -155,7 +156,7 @@ class PublicDataView(GeoJSONLayerView):
         return (
             PlottablePlace.objects_raw
             .filter(available=True)
-            .exclude(Q(location__isnull=True) | Q(owner__death_date__isnull=False))
+            .exclude(Q(location__isnull=True) | Q(location=Point([])) | Q(owner__death_date__isnull=False))
             .filter(by_visibility)
             .select_related('owner')
             .defer('address', 'description', 'short_description', 'owner__description')
@@ -196,7 +197,7 @@ class CountryDataView(AuthMixin, GeoJSONLayerView):
             queryset = narrowing_func(in_book=True, visibility__visible_in_book=True)
         return (
             queryset
-            .exclude(location__isnull=True)
+            .exclude(Q(location__isnull=True) | Q(location=Point([])))
             .select_related('owner')
             .defer('address', 'description', 'short_description', 'owner__description')
         )
