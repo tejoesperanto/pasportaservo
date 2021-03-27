@@ -1,15 +1,14 @@
 import json
 import logging
+from urllib.parse import quote_plus, unquote_plus
 
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
 from django.db.models import BooleanField, Case, Q, When
 from django.http import HttpResponseRedirect
-from django.urls import reverse_lazy
+from django.urls import reverse
 from django.utils.encoding import uri_to_iri
-from django.utils.http import urlquote_plus
-from django.utils.six.moves.urllib.parse import unquote_plus
 from django.utils.translation import pgettext
 from django.views import generic
 
@@ -123,9 +122,9 @@ class SearchView(PlacePaginatedListView):
             return " ".join(val.split())
         if 'ps_q' in request.GET:
             # Keeping Unicode in URL, replacing space with '+'.
-            query = uri_to_iri(urlquote_plus(unwhitespace(request.GET['ps_q'])))
+            query = uri_to_iri(quote_plus(unwhitespace(request.GET['ps_q'])))
             params = {'query': query} if query else None
-            return HttpResponseRedirect(reverse_lazy('search', kwargs=params))
+            return HttpResponseRedirect(reverse('search', kwargs=params))
         query = kwargs['query'] or ''  # Avoiding query=None
         self.query = unwhitespace(unquote_plus(query))
         # Exclude places whose owner blocked unauthenticated viewing.
