@@ -4,7 +4,6 @@ from django.db import models
 from django.db.models.fields.related_descriptors import (
     ForwardManyToOneDescriptor,
 )
-from django.utils import six
 from django.utils.html import format_html
 from django.utils.itercompat import is_iterable
 from django.utils.translation import ugettext_lazy as _
@@ -29,7 +28,7 @@ class PhoneNumberField(DjangoPhoneNumberField):
 
 
 def SuggestiveField(verbose_name=None, choices=None, to_field=None, **kwargs):
-    if isinstance(choices, six.string_types) or isinstance(choices, models.base.ModelBase):
+    if isinstance(choices, str) or isinstance(choices, models.base.ModelBase):
         # Assumed to be a reference to a model.
         return ForeigKeyWithSuggestions(
             choices=choices, to_field=to_field,
@@ -61,9 +60,9 @@ class CharFieldWithSuggestions(models.CharField):
         kwargs['verbose_name'] = verbose_name
         super().__init__(**kwargs)
         self.suggestions = choices
-        if not isinstance(choices, six.string_types) and is_iterable(choices):
+        if not isinstance(choices, str) and is_iterable(choices):
             choices = [('{:03d}'.format(i), choice)
-                       if isinstance(choice, six.string_types) or not is_iterable(choice)
+                       if isinstance(choice, str) or not is_iterable(choice)
                        else choice
                        for i, choice in enumerate(choices, start=1)]
         self.choices = choices
@@ -149,7 +148,7 @@ class ForeigKeyWithSuggestions(models.ForeignKey):
                     id='fields.E170.2',
                 )
             )
-        if not isinstance(self.suggestions_source_field, six.string_types):
+        if not isinstance(self.suggestions_source_field, str):
             errors.append(
                 checks.Error(
                     "A SuggestiveField's 'to_field' attribute must be a string.",
