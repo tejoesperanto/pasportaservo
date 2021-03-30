@@ -7,12 +7,17 @@ from django_countries.fields import Country
 from django_webtest import WebTest
 from factory import Faker
 
+from hosting.managers import AvailableManager
+
 from ..assertions import AdditionalAsserts
 from ..factories import PlaceFactory
+from .test_managers import TrackingManagersTests
 
 
 @tag('models', 'place')
-class PlaceModelTests(AdditionalAsserts, WebTest):
+class PlaceModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
+    factory = PlaceFactory
+
     @classmethod
     def setUpTestData(cls):
         cls.basic_place = PlaceFactory()
@@ -24,6 +29,18 @@ class PlaceModelTests(AdditionalAsserts, WebTest):
         self.assertEqual(place._meta.get_field('postcode').max_length, 11)
         self.assertEqual(place._meta.get_field('state_province').max_length, 70)
         self.assertEqual(place._meta.get_field('short_description').max_length, 140)
+
+    def test_available_manager(self):
+        model = self.basic_place._meta.model
+        # The Place model is expected to have the 'available_objects' manager.
+        self.assertTrue(hasattr(model, 'available_objects'))
+        self.assertIsInstance(model.available_objects, AvailableManager)
+        # The manager is expected to fetch only places which are marked available.
+        PlaceFactory(available=False)
+        qs = model.available_objects.order_by('id')
+        self.assertTrue(self.basic_place.available)
+        self.assertEqual(len(qs), 1)
+        self.assertEqual(qs[0].pk, self.basic_place.pk)
 
     def test_icon(self):
         place = PlaceFactory.build()

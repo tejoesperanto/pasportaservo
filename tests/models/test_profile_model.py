@@ -10,10 +10,13 @@ from hosting.utils import value_without_invalid_marker
 
 from ..assertions import AdditionalAsserts
 from ..factories import ProfileFactory, ProfileSansAccountFactory, UserFactory
+from .test_managers import TrackingManagersTests
 
 
 @tag('models', 'profile')
-class ProfileModelTests(AdditionalAsserts, WebTest):
+class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
+    factory = ProfileFactory
+
     @classmethod
     def setUpTestData(cls):
         cls.template_first_name = '<span class="first-name">{name}</span>'
@@ -152,9 +155,9 @@ class ProfileModelTests(AdditionalAsserts, WebTest):
         self.assertEqual(profile.age, 0)
         profile = ProfileFactory.build(birth_date=Faker('date_this_year', before_today=False, after_today=True))
         self.assertEqual(profile.age, 0)
-        profile = ProfileFactory.build(birth_date=Faker('date_between', start_date='-725d', end_date='-365d'))
+        profile = ProfileFactory.build(birth_date=Faker('date_between', start_date='-725d', end_date='-366d'))
         self.assertEqual(profile.age, 1)
-        profile = ProfileFactory.build(birth_date=Faker('date_between', start_date='+365d', end_date='+725d'))
+        profile = ProfileFactory.build(birth_date=Faker('date_between', start_date='+366d', end_date='+725d'))
         self.assertEqual(profile.age, -1)
         profile = ProfileFactory.build(birth_date=Faker('date_between', start_date='-6935d', end_date='-6575d'))
         self.assertEqual(profile.age, 18)
