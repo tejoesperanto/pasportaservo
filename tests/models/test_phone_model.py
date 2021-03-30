@@ -6,10 +6,13 @@ from hosting.models import PHONE_TYPE_CHOICES
 
 from ..assertions import AdditionalAsserts
 from ..factories import PhoneFactory
+from .test_managers import TrackingManagersTests
 
 
 @tag('models', 'phone')
-class PhoneModelTests(AdditionalAsserts, WebTest):
+class PhoneModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
+    factory = PhoneFactory
+
     def test_field_max_lengths(self):
         phone = PhoneFactory()
         self.assertEqual(phone._meta.get_field('comments').max_length, 255)

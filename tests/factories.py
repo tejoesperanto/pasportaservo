@@ -166,8 +166,8 @@ class PlaceFactory(DjangoModelFactory):
     short_description = Faker('text', max_nb_chars=140)
     in_book = False
 
-    @classmethod
-    def generate_postcode(cls, country):
+    @staticmethod
+    def generate_postcode(country):
         regex = COUNTRIES_DATA[country]['postcode_regex'] or r'\d{5}'
         # The * repetition qualifier makes the generator go wild, strictly limit to 1 copy.
         regex = regex.replace('*', '{1}')
