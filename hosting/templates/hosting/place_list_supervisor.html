@@ -347,7 +347,6 @@
                         </div>
                         <div class="phone-number-list">
                         {# LIST OF PHONE NUMBERS VIA WHICH THE OWNER IS REACHABLE #}
-                            {# TODO: Phones are re-fetched even though they are in a prefetch... #}
                             {% for phone in place.profile.phones.all %}
                                 {% if not phone.deleted %}
                                     <small class="phone-number">

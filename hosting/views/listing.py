@@ -5,7 +5,7 @@ from urllib.parse import quote_plus, unquote_plus
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
-from django.db.models import BooleanField, Case, Q, When
+from django.db.models import BooleanField, Case, Count, Prefetch, Q, When
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.encoding import uri_to_iri
@@ -20,7 +20,7 @@ from core.auth import SUPERVISOR, AuthMixin
 from maps import SRID
 from maps.utils import bufferize_country_boundaries
 
-from ..models import LocationConfidence, Place, TravelAdvice
+from ..models import LocationConfidence, Phone, Place, TravelAdvice
 from ..utils import geocode
 
 
@@ -58,7 +58,14 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
         self.base_qs = self.model.available_objects.filter(country=self.country.code).filter(
             Q(visibility__visible_online_public=True) | Q(in_book=True, visibility__visible_in_book=True)
         )
-        self.base_qs = self.base_qs.annotate(
+        if self.in_book_status is not None:
+            narrowing_func = getattr(self.base_qs, 'filter' if self.in_book_status else 'exclude')
+            qs = narrowing_func(in_book=True, visibility__visible_in_book=True)
+        else:
+            qs = self.base_qs
+        if self.invalid_emails:
+            qs = qs.filter(owner__user__email__startswith=settings.INVALID_PREFIX)
+        qs = qs.annotate(
             location_valid=Case(
                 When(Q(location__isnull=False) & ~Q(location=Point([])), then=True),
                 default=False, output_field=BooleanField()
@@ -72,37 +79,37 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
                 default=False, output_field=BooleanField()
             ),
         )
-        if self.in_book_status is not None:
-            narrowing_func = getattr(self.base_qs, 'filter' if self.in_book_status else 'exclude')
-            qs = narrowing_func(in_book=True, visibility__visible_in_book=True)
-        else:
-            qs = self.base_qs
-        if self.invalid_emails:
-            qs = qs.filter(owner__user__email__startswith=settings.INVALID_PREFIX)
-        return (qs.prefetch_related('owner__user', 'owner__phones')
+        phones_prefetch = Prefetch('owner__phones', queryset=Phone.objects_raw.select_related('visibility'))
+        return (qs.select_related('owner', 'owner__user')
+                  .prefetch_related(phones_prefetch)
                   .order_by('-confirmed', 'checked', 'owner__last_name'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         in_book_status_filter = Q(in_book=True) & Q(visibility__visible_in_book=True)
-        context['in_book_count'] = self.base_qs.filter(in_book_status_filter).count()
-        context['not_in_book_count'] = self.base_qs.filter(~in_book_status_filter).count()
+        counts_overall = {
+            'in_book_count': Count('pk', filter=in_book_status_filter),
+            'not_in_book_count': Count('pk', filter=~in_book_status_filter),
+            'invalid_emails_count': Count('pk', filter=Q(owner__user__email__startswith=settings.INVALID_PREFIX)),
+        }
+        counts_qs = self.base_qs._clone()
+        counts_qs.query.annotations.clear()
+        context.update(counts_qs.aggregate(**counts_overall))
+
         if self.in_book_status is True:
-            book_filter = in_book_status_filter
             context['place_count'] = context['in_book_count']
         elif self.in_book_status is False:
-            book_filter = ~in_book_status_filter
             context['place_count'] = context['not_in_book_count']
         else:
-            book_filter = Q()
             context['place_count'] = context['in_book_count'] + context['not_in_book_count']
-        context['checked_count'] = self.base_qs.filter(book_filter, checked=True).count()
-        context['confirmed_count'] = self.base_qs.filter(book_filter, confirmed=True).count()
+        # Forcing evaluation of the query result at this stage avoids repeated queries of the DB.
+        # Counting could be done with a, b = zip(*status); a.count(True) but that would create two
+        # additional lists of the length of `object_list`.
+        status = ([place.pk, place.checked, place.confirmed] for place in list(self.object_list))
+        context['checked_count'] = sum(1 for place_status in status if place_status[1])
+        context['confirmed_count'] = sum(1 for place_status in status if place_status[2])
         context['not_confirmed_count'] = context['place_count'] - context['confirmed_count']
-        context['invalid_emails_count'] = (
-            self.base_qs.filter(owner__user__email__startswith=settings.INVALID_PREFIX).count()
-        )
 
         coords = bufferize_country_boundaries(self.country.code)
         if coords:
