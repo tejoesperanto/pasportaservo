@@ -1,0 +1,94 @@
+name: Django CI
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-test:
+    name: Build, Test, Report Coverage
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.python-version == '3.9' || matrix.django-version >= '3' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.7, 3.8, 3.9]
+        django-version: [2.2.0, 3.0.0, 3.1.0]
+
+    services:
+      postgres:
+        # postgresql 10 with postgis 2.5
+        image: pasportaservo/psdb
+        credentials:
+          username: pasportaservo
+          password: ${{ secrets.DOCKERHUB_CI_TOKEN }}
+        env:
+          POSTGRES_PASSWORD: pg_master
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements/dev.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
+
+      - name: Test DB connection
+        run: |
+          cntid=$(docker ps --filter ancestor=pasportaservo/psdb -q)
+          echo $cntid
+          docker exec $cntid psql -U postgres -d pasportaservo -c "\conninfo"
+
+      - name: Set up locale
+        run: sudo locale-gen eo
+
+      - name: Set up dependencies
+        run: |
+          sudo apt-get install -y --no-install-recommends libgdal-dev
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements/dev.txt
+
+      - name: Install latest patch of Django ${{ matrix.django-version }}
+        run: pip install -U Django~=${{ matrix.django-version }}
+
+      - name: Lint
+        run: |
+          isort .
+          flake8
+
+      - name: Run tests
+        env:
+          DJANGO_SETTINGS_MODULE: pasportaservo.settings.testing
+          POSTGRES_HOST: 127.0.0.1
+          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+          POSTGRES_USERNAME: postgres
+          POSTGRES_PASSWORD: pg_master
+        run: coverage run ./manage.py test
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
