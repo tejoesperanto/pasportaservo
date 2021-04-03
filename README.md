@@ -9,7 +9,7 @@
 [![GNU AGPLv3](https://img.shields.io/badge/licenco-GNU_AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0.html)
 [![Kontaktu nin en Telegramo https://t.me/joinchat/Bg10skEz3jFXpBk-nZAuiw](https://img.shields.io/badge/babili%20en-Telegramo-179CDE.svg)](https://t.me/joinchat/Bg10skEz3jFXpBk-nZAuiw)
 
-[![Travis CI](https://img.shields.io/travis/tejoesperanto/pasportaservo.svg)](https://travis-ci.com/tejoesperanto/pasportaservo)
+![CI build](https://github.com/tejoesperanto/pasportaservo/actions/workflows/ci.yml/badge.svg)
 [![Codecov](https://img.shields.io/codecov/c/github/tejoesperanto/pasportaservo.svg)](https://codecov.io/gh/tejoesperanto/pasportaservo)
 
 
