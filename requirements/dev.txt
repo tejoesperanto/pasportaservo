@@ -1,7 +1,7 @@
 -r base.txt
 
 bpython==0.21
-django-debug-toolbar==2.2
+django-debug-toolbar==2.2.1
 sqlparse>=0.2.4
 fabric3<2
 django-webtest==1.9.7
