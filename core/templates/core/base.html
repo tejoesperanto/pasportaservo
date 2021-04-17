@@ -153,7 +153,7 @@
                     </span>
                     <span class="visible-print-inline-block text-light">{% trans "World Esperanto Youth Organisation" %}</span>
                 </div>
-                {% if ENVIRONMENT != 'PROD' %}
+                {% if ENVIRONMENT and ENVIRONMENT != 'PROD' %}
                     <div class="col-md-12 small text-muted hidden-print" style="margin-top: 10px" aria-hidden="true">
                         {{ ENVIRONMENT }} &bull; {{ CURRENT_COMMIT|join:': '|default:"?" }}
                     </div>
