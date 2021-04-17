@@ -84,7 +84,10 @@ def updatestatic():
     run("./manage.py compilejsi18n -l eo")
     run("./manage.py compilescss")
     extra_args = "--ignore=*.scss" if env.site == "prod" else ""
-    run(f"./manage.py collectstatic --verbosity 0 --noinput {extra_args}")
+    run(
+        f"./manage.py collectstatic --verbosity 1 --noinput {extra_args}"
+        " | grep -v 'Found another file with the destination path' "
+    )
     run("./manage.py compress --verbosity 0 --force")
 
 
