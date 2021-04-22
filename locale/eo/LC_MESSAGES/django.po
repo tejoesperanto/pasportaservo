@@ -140,7 +140,8 @@ msgid ""
 "case-sensitive ('aBc' is different from 'abc')."
 msgstr ""
 "Bonvole enigu ĝustajn salutnomon kaj pasvorton. Notu, ke ambaŭ kampoj estas "
-"uskleco-distingaj (‘aBc’ ne estas la sama kiel ‘abc’)."
+"uskleco-distingaj&ensp;<wbr><span style=\"display: inline-block\"><i>(‘aBc’ "
+"ne estas la sama kiel ‘abc’)</i>.</span>"
 
 #: core/forms.py
 #, python-format
@@ -1156,7 +1157,7 @@ msgid ""
 "('Q') and lower-case ('q') letters."
 msgstr ""
 "Memoru ke la kampo ‘%(field)s’ distingas usklecon, do inter majusk&shy;laj "
-"('E') kaj minusklaj literoj ('e')."
+"(‘E’) kaj minusklaj literoj&nbsp;(‘e’)."
 
 #: core/templates/registration/password_reset_form.html
 msgid ""
@@ -1881,12 +1882,12 @@ msgstr "persona pronomo"
 msgid "birth date"
 msgstr "naskiĝdato"
 
-# atentu, la traduka ĉeno enhavas nerompeblajn spacojn!
 #: hosting/models.py
 msgid "In the format year(4 digits)-month(2 digits)-day(2 digits)."
 msgstr ""
-"En la formato <nobr>jaro (4 ciferoj)−</nobr>​<wbr><nobr>monato (2 ciferoj)−</"
-"nobr>​<wbr><nobr>tago (2 ciferoj).</nobr>"
+"En la formato <nobr>jaro<small> (4&thinsp;ciferoj)</small>−</nobr>​"
+"<wbr><nobr>monato<small> (2&thinsp;ciferoj)</small>−</nobr>​"
+"<wbr><nobr>tago<small> (2&thinsp;ciferoj)</small>.</nobr>"
 
 #: hosting/models.py
 msgid "death date"
@@ -2098,7 +2099,8 @@ msgid ""
 "International number format begining with the plus sign (e.g.: +31 10 436 "
 "1044)"
 msgstr ""
-"En formato de internacia numero, komencu per pluso (ekz:  +31 10 436 1044)"
+"En formato de internacia numero, komencu per pluso (ekz:&nbsp; <span style="
+"\"white-space: nowrap\">+31 10 436 1044</span>)"
 
 #: hosting/models.py
 msgid "comments"
