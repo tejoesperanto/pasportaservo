@@ -23,13 +23,12 @@ jobs:
     services:
       postgres:
         # postgresql 10 with postgis 2.5
-        image: pasportaservo/psdb
-        credentials:
-          username: pasportaservo
-          password: ${{ secrets.DOCKERHUB_CI_TOKEN }}
+        image: postgis/postgis:10-2.5
         env:
+          POSTGRES_DB: pasportaservo
           POSTGRES_PASSWORD: pg_master
         options: >-
+          --label ps-pg-db
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
@@ -60,7 +59,7 @@ jobs:
 
       - name: Test DB connection
         run: |
-          cntid=$(docker ps --filter ancestor=pasportaservo/psdb -q)
+          cntid=$(docker ps --filter label=ps-pg-db -q)
           echo $cntid
           docker exec $cntid psql -U postgres -d pasportaservo -c "\conninfo"
 
