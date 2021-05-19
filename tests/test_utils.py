@@ -1,3 +1,4 @@
+import logging
 import random
 from typing import NamedTuple
 from unittest import skipUnless
@@ -237,11 +238,14 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
         self.assertIsNone(geocode(""))
 
         mock_get.side_effect = HTTPConnectionError("Failed to establish a new connection. Max retries exceeded.")
+        null_handler = logging.NullHandler()
+        logging.getLogger('geocoder').addHandler(null_handler)
         result = geocode("Roterdamo", annotations=True)
         self.assertIs(type(result), OpenCageQuery)
         self.assertStartsWith(result.status, 'ERROR')
         self.assertEqual(len(result), 0)
         self.assertIsNone(result.point)
+        logging.getLogger('geocoder').removeHandler(null_handler)
 
         mock_get.return_value.json.return_value = {
             "rate": {"limit": 2500, "remaining": 2100, "reset": 1586908800},
@@ -455,6 +459,8 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
             ),
         )
 
+        null_handler = logging.NullHandler()
+        logging.getLogger('geocoder').addHandler(null_handler)
         for status_code, exc, json, expected_status in test_data:
             with self.subTest(status=expected_status):
                 mock_get.return_value.json.return_value = json
@@ -466,6 +472,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                 self.assertFalse(result.ok)
                 self.assertEqual(len(result), 0)
                 self.assertIsNone(result.point)
+        logging.getLogger('geocoder').removeHandler(null_handler)
 
     @tag('external')
     @skipUnless(settings.TEST_EXTERNAL_SERVICES, 'External services are tested only explicitly')
