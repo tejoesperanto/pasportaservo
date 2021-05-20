@@ -2,9 +2,7 @@ import re
 from unittest.mock import patch
 
 from django.conf import settings
-from django.contrib.auth.views import (
-    INTERNAL_RESET_SESSION_TOKEN, INTERNAL_RESET_URL_TOKEN,
-)
+from django.contrib.auth.views import INTERNAL_RESET_SESSION_TOKEN
 from django.contrib.sessions.backends.cache import SessionStore
 from django.core import mail
 from django.http import HttpRequest
@@ -23,7 +21,9 @@ from core.forms import (
     UserAuthenticationForm, UsernameRemindRequestForm,
     UsernameUpdateForm, UserRegistrationForm,
 )
-from core.views import PasswordResetView, UsernameRemindView
+from core.views import (
+    PasswordResetConfirmView, PasswordResetView, UsernameRemindView,
+)
 
 from ..assertions import AdditionalAsserts
 from ..factories import UserFactory
@@ -1020,7 +1020,7 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
         page = self.app.get(
             reverse('password_reset_confirm', kwargs={
                 'uidb64': user_id if isinstance(user_id, str) else user_id.decode(),
-                'token': INTERNAL_RESET_URL_TOKEN})
+                'token': PasswordResetConfirmView.reset_url_token})
         )
         self.assertEqual(page.status_code, 200, msg=repr(page))
         self.assertEqual(len(page.forms), 1)
@@ -1034,7 +1034,7 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
         page = self.app.get(
             reverse('password_reset_confirm', kwargs={
                 'uidb64': user_id if isinstance(user_id, str) else user_id.decode(),
-                'token': INTERNAL_RESET_URL_TOKEN}),
+                'token': PasswordResetConfirmView.reset_url_token}),
             user=self.user)
         page.form['new_password1'] = page.form['new_password2'] = Faker().password()
         session = self.app.session

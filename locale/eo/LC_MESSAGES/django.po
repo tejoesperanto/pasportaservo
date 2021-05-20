@@ -1311,6 +1311,11 @@ msgid "Farewell !"
 msgstr "Adiaŭ !"
 
 #: core/views.py
+msgctxt "URL"
+msgid "set-password"
+msgstr "agordi-pasvorton"
+
+#: core/views.py
 msgid ""
 "A confirmation email has been sent. Please check your mailbox to complete "
 "the process."

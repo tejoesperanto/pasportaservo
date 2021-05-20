@@ -8,6 +8,7 @@ from django.contrib.auth.views import (
     LoginView as LoginBuiltinView,
     PasswordChangeDoneView as PasswordChangeDoneBuiltinView,
     PasswordChangeView as PasswordChangeBuiltinView,
+    PasswordResetConfirmView as PasswordResetConfirmBuiltinView,
     PasswordResetView as PasswordResetBuiltinView,
 )
 from django.contrib.flatpages.models import FlatPage
@@ -308,6 +309,10 @@ class PasswordResetView(PasswordResetBuiltinView):
     html_email_template_name = {True: 'email/password_reset.html', False: 'email/password_reset_activate.html'}
     email_template_name = {True: 'email/password_reset.txt', False: 'email/password_reset_activate.txt'}
     subject_template_name = 'email/password_reset_subject.txt'
+
+
+class PasswordResetConfirmView(PasswordResetConfirmBuiltinView):
+    reset_url_token = pgettext_lazy("URL", "set-password")
 
 
 class PasswordChangeView(LoginRequiredMixin, PasswordChangeBuiltinView):
