@@ -1,7 +1,6 @@
 from django.conf.urls import include, url
 from django.contrib.auth.views import (
-    LogoutView, PasswordResetCompleteView,
-    PasswordResetConfirmView, PasswordResetDoneView,
+    LogoutView, PasswordResetCompleteView, PasswordResetDoneView,
 )
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView
@@ -10,7 +9,8 @@ from .forms import SystemPasswordResetForm, SystemPasswordResetRequestForm
 
 from .views import (  # isort:skip
     HomeView, RegisterView, LoginView, AccountRestoreRequestView,
-    PasswordResetView, UsernameRemindView, UsernameRemindDoneView,
+    PasswordResetView, PasswordResetConfirmView,
+    UsernameRemindView, UsernameRemindDoneView,
     AgreementView, AgreementRejectView,
     AccountSettingsView,
     PasswordChangeView, PasswordChangeDoneView, UsernameChangeView,
