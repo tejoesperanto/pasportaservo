@@ -1,0 +1,17 @@
+---
+# https://pre-commit.com/
+# pip install pre-commit
+# pre-commit install
+
+repos:
+  - repo: https://github.com/timothycrosley/isort
+    rev: 5.7.0
+    hooks:
+      - id: isort
+
+  - repo: https://github.com/psf/black
+    rev: 21.5b1
+    hooks:
+      - id: black
+        pass_filenames: false
+        args: ["."]
