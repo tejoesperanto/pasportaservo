@@ -11,7 +11,8 @@ from faker import Faker
 
 from core.models import SiteConfiguration
 from hosting.forms.profiles import (
-    ProfileCreateForm, ProfileEmailUpdateForm, ProfileForm,
+    PreferenceOptinsForm, ProfileCreateForm,
+    ProfileEmailUpdateForm, ProfileForm,
 )
 from hosting.models import MR, MRS, PRONOUN_CHOICES
 
@@ -599,3 +600,58 @@ class ProfileEmailUpdateFormTests(EmailUpdateFormTests):
                 )
             )
             self.assertEqual(self.user.email, new_email.strip())
+
+
+@tag('forms', 'forms-profile', 'profile')
+@override_settings(LANGUAGE_CODE='en')
+class PreferenceOptinsFormTests(WebTest):
+    def test_init(self):
+        form_empty = PreferenceOptinsForm()
+        expected_fields = [
+            'public_listing',
+            'site_analytics_consent',
+        ]
+        # Verify that the expected fields are part of the form.
+        self.assertEqual(set(expected_fields), set(form_empty.fields))
+
+        # Verify that fields are not unnecessarily marked 'required'.
+        for field in expected_fields:
+            with self.subTest(field=field):
+                self.assertFalse(form_empty.fields[field].required)
+
+        # Verify that the form's save method is protected in templates.
+        self.assertTrue(
+            hasattr(form_empty.save, 'alters_data')
+            or hasattr(form_empty.save, 'do_not_call_in_templates')
+        )
+
+    def test_view_page(self):
+        user = ProfileFactory(user=UserFactory(invalid_email=True))
+        page = self.app.get(
+            reverse('profile_settings', kwargs={'pk': user.pk, 'slug': user.autoslug}),
+            user=user.user,
+        )
+        self.assertEqual(page.status_code, 200)
+        self.assertGreaterEqual(len(page.forms), 1)
+        self.assertIn('optinouts_form', page.context)
+        self.assertIsInstance(page.context['optinouts_form'], PreferenceOptinsForm)
+
+    def test_form_submit(self):
+        user = ProfileFactory(with_email=True)
+        page = self.app.get(
+            reverse('profile_settings', kwargs={'pk': user.pk, 'slug': user.autoslug}),
+            user=user.user,
+        )
+        self.assertTrue(user.pref.public_listing)
+        form = page.forms['privacy_form']
+        form['public_listing'] = False
+        page = form.submit()
+        user.refresh_from_db()
+        self.assertRedirects(
+            page,
+            '{}#pR'.format(
+                reverse('profile_edit', kwargs={'pk': user.pk, 'slug': user.autoslug})
+            )
+        )
+        self.assertFalse(user.pref.public_listing)
+        self.assertTrue(user.pref.site_analytics_consent)
