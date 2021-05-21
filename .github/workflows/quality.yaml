@@ -1,0 +1,20 @@
+name: Quality
+
+on: 
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  black:
+    name: Code style
+    runs-on: ubuntu-20.04
+    container:
+      image: kiwicom/black:21.5b0
+      options: -u root
+    
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run Black
+        run: black --check . --diff
