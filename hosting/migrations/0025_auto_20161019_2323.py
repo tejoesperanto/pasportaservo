@@ -9,21 +9,20 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0024_auto_20161019_2256'),
+        ("hosting", "0024_auto_20161019_2256"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='FamilyMember',
-            fields=[
-            ],
+            name="FamilyMember",
+            fields=[],
             options={
-                'proxy': True,
-                'ordering': ['first_name', 'last_name', 'id'],
+                "proxy": True,
+                "ordering": ["first_name", "last_name", "id"],
             },
-            bases=('hosting.profile',),
+            bases=("hosting.profile",),
             managers=[
-                ('all_objects', django.db.models.manager.Manager()),
+                ("all_objects", django.db.models.manager.Manager()),
             ],
         ),
     ]

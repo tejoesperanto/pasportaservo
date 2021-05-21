@@ -8,44 +8,52 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0021_update_availability'),
+        ("hosting", "0021_update_availability"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='phone',
-            name='confirmed',
+            model_name="phone",
+            name="confirmed",
         ),
         migrations.RemoveField(
-            model_name='place',
-            name='confirmed',
+            model_name="place",
+            name="confirmed",
         ),
         migrations.RemoveField(
-            model_name='profile',
-            name='confirmed',
+            model_name="profile",
+            name="confirmed",
         ),
         migrations.RemoveField(
-            model_name='website',
-            name='confirmed',
+            model_name="website",
+            name="confirmed",
         ),
         migrations.AddField(
-            model_name='phone',
-            name='confirmed_on',
-            field=models.DateTimeField(blank=True, default=None, null=True, verbose_name='confirmed on'),
+            model_name="phone",
+            name="confirmed_on",
+            field=models.DateTimeField(
+                blank=True, default=None, null=True, verbose_name="confirmed on"
+            ),
         ),
         migrations.AddField(
-            model_name='place',
-            name='confirmed_on',
-            field=models.DateTimeField(blank=True, default=None, null=True, verbose_name='confirmed on'),
+            model_name="place",
+            name="confirmed_on",
+            field=models.DateTimeField(
+                blank=True, default=None, null=True, verbose_name="confirmed on"
+            ),
         ),
         migrations.AddField(
-            model_name='profile',
-            name='confirmed_on',
-            field=models.DateTimeField(blank=True, default=None, null=True, verbose_name='confirmed on'),
+            model_name="profile",
+            name="confirmed_on",
+            field=models.DateTimeField(
+                blank=True, default=None, null=True, verbose_name="confirmed on"
+            ),
         ),
         migrations.AddField(
-            model_name='website',
-            name='confirmed_on',
-            field=models.DateTimeField(blank=True, default=None, null=True, verbose_name='confirmed on'),
+            model_name="website",
+            name="confirmed_on",
+            field=models.DateTimeField(
+                blank=True, default=None, null=True, verbose_name="confirmed on"
+            ),
         ),
     ]

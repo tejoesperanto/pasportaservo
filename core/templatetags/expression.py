@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy
 
 register = template.Library()
 
-expr_log = logging.getLogger('PasportaServo.expr')
+expr_log = logging.getLogger("PasportaServo.expr")
 
 
 class ExprNode(template.Node):
@@ -43,9 +43,11 @@ class ExprNode(template.Node):
     def render(self, context):
         try:
             d = context.flatten()
-            d['_'] = gettext_lazy
+            d["_"] = gettext_lazy
             result = eval(self.expr_string, d)
-            expr_log.debug("Evaluated [ %s ] resulting in [ %r ]", self.expr_string, result)
+            expr_log.debug(
+                "Evaluated [ %s ] resulting in [ %r ]", self.expr_string, result
+            )
             if self.variable:
                 if self.variable.is_global:
                     context.dicts[0][self.variable.name] = result
@@ -59,19 +61,21 @@ class ExprNode(template.Node):
             return ""
 
 
-re_expr = re.compile(r'(.*?)\s+as\s+(?:(global)\s+)?(\w+)', re.DOTALL)
+re_expr = re.compile(r"(.*?)\s+as\s+(?:(global)\s+)?(\w+)", re.DOTALL)
 
 
-@register.tag(name='expr')
+@register.tag(name="expr")
 def do_expr(parser, token):
     try:
         tag_name, arg = token.contents.split(maxsplit=1)
     except ValueError:
-        raise template.TemplateSyntaxError("'%s' tag: Expression is required" % token.contents)
+        raise template.TemplateSyntaxError(
+            "'%s' tag: Expression is required" % token.contents
+        )
     m = re_expr.fullmatch(arg)
     if m:
         expr_string = m.group(1)
-        var = namedtuple('Variable', 'name, is_global')(m.group(3), m.group(2))
+        var = namedtuple("Variable", "name, is_global")(m.group(3), m.group(2))
     else:
         expr_string, var = arg, None
     return ExprNode(expr_string, var)

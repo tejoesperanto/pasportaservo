@@ -36,35 +36,48 @@ class PlaceForm(forms.ModelForm):
     class Meta:
         model = Place
         fields = [
-            'country',
-            'state_province',
-            'postcode',
-            'city',
-            'address',
-            'closest_city',
-            'max_guest', 'max_night', 'contact_before',
-            'description', 'short_description',
-            'available',
-            'tour_guide', 'have_a_drink',
-            'sporadic_presence',
-            'in_book',
-            'conditions',
+            "country",
+            "state_province",
+            "postcode",
+            "city",
+            "address",
+            "closest_city",
+            "max_guest",
+            "max_night",
+            "contact_before",
+            "description",
+            "short_description",
+            "available",
+            "tour_guide",
+            "have_a_drink",
+            "sporadic_presence",
+            "in_book",
+            "conditions",
         ]
         widgets = {
-            'short_description': forms.Textarea(attrs={'rows': 3}),
+            "short_description": forms.Textarea(attrs={"rows": 3}),
         }
 
     class _validation_meta:
-        meeting_required_fields = ['city', ]
-        hosting_required_fields = ['address', 'city', 'closest_city', ]
+        meeting_required_fields = [
+            "city",
+        ]
+        hosting_required_fields = [
+            "address",
+            "city",
+            "closest_city",
+        ]
         book_required_fields = [
-            'address', 'city', 'closest_city', 'available',
+            "address",
+            "city",
+            "closest_city",
+            "available",
         ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        place_country = self.data.get('country') or self.instance.country
+        place_country = self.data.get("country") or self.instance.country
         if place_country and place_country in COUNTRIES_DATA:
             country_data = COUNTRIES_DATA[place_country]
             self.country_regions = CountryRegion.objects.filter(country=place_country)
@@ -79,15 +92,15 @@ class PlaceForm(forms.ModelForm):
                 # Using a ModelChoiceField here, while more natural, is also more cumbersome, since
                 # both the field itself (for labels) and the ModelChoiceIterator (for sorting) must
                 # be subclassed.
-                RegionChoice = namedtuple('Choice', 'code, label')
-                self.fields['state_province'] = forms.ChoiceField(
-                    choices=sort_by(['label'], (RegionChoice(*r) for r in regions)),
-                    initial=self.fields['state_province'].initial,
+                RegionChoice = namedtuple("Choice", "code, label")
+                self.fields["state_province"] = forms.ChoiceField(
+                    choices=sort_by(["label"], (RegionChoice(*r) for r in regions)),
+                    initial=self.fields["state_province"].initial,
                     required=False,
-                    label=self.fields['state_province'].label,
-                    help_text=self.fields['state_province'].help_text,
+                    label=self.fields["state_province"].label,
+                    help_text=self.fields["state_province"].help_text,
                     error_messages={
-                        'invalid_choice': _(
+                        "invalid_choice": _(
                             "Choose from the list. The name provided by you is not known."
                         ),
                     },
@@ -95,113 +108,161 @@ class PlaceForm(forms.ModelForm):
             elif place_country in countries_with_mandatory_region():
                 # We don't want to raise an error, preventing the user from using the form,
                 # but we do want to log it and notify the administrators.
-                logging.getLogger('PasportaServo.address').error(
+                logging.getLogger("PasportaServo.address").error(
                     "Service misconfigured: Mandatory regions for %s are not defined!"
                     "  (noted when %s)",
-                    getattr(place_country, 'code', place_country),
-                    f"editing place #{self.instance.pk}" if self.instance.id else "adding new place",
+                    getattr(place_country, "code", place_country),
+                    f"editing place #{self.instance.pk}"
+                    if self.instance.id
+                    else "adding new place",
                 )
-            region_type = country_data.get('administrative_area_type')
+            region_type = country_data.get("administrative_area_type")
             if region_type in SUBREGION_TYPES:
-                self.fields['state_province'].label = SUBREGION_TYPES[region_type].capitalize()
-                self.fields['state_province'].localised_label = True
+                self.fields["state_province"].label = SUBREGION_TYPES[
+                    region_type
+                ].capitalize()
+                self.fields["state_province"].localised_label = True
 
-        self.fields['address'].widget.attrs['rows'] = 2
-        self.fields['conditions'].widget.attrs['data-placeholder'] = _("Choose your conditions...")
+        self.fields["address"].widget.attrs["rows"] = 2
+        self.fields["conditions"].widget.attrs["data-placeholder"] = _(
+            "Choose your conditions..."
+        )
 
     def clean_state_province(self):
-        state_province, country = self.cleaned_data['state_province'], self.cleaned_data.get('country')
+        state_province, country = self.cleaned_data[
+            "state_province"
+        ], self.cleaned_data.get("country")
         if not country:
             return state_province
 
         if country in countries_with_mandatory_region() and not state_province:
             # Verifies that the region is indeed indicated when it is mandatory.
-            if hasattr(self.fields['state_province'], 'localised_label'):
-                message = _("For an address in {country}, the name of the "
-                            "{region_type} must be indicated.")
+            if hasattr(self.fields["state_province"], "localised_label"):
+                message = _(
+                    "For an address in {country}, the name of the "
+                    "{region_type} must be indicated."
+                )
             else:
-                message = _("For an address in {country}, the name of the "
-                            "state or province must be indicated.")
-            raise forms.ValidationError(format_lazy(
-                message,
-                country=Country(country).name.split(' (')[0],
-                region_type=self.fields['state_province'].label.lower()
-            ))
+                message = _(
+                    "For an address in {country}, the name of the "
+                    "state or province must be indicated."
+                )
+            raise forms.ValidationError(
+                format_lazy(
+                    message,
+                    country=Country(country).name.split(" (")[0],
+                    region_type=self.fields["state_province"].label.lower(),
+                )
+            )
         return state_province
 
     def clean_postcode(self):
-        postcode, country = self.cleaned_data['postcode'], self.cleaned_data.get('country')
+        postcode, country = self.cleaned_data["postcode"], self.cleaned_data.get(
+            "country"
+        )
         if not country or not postcode:
             return postcode
 
-        postcode_re = COUNTRIES_DATA[country]['postcode_regex']
-        if postcode_re and COUNTRIES_DATA[country].get('postal_code_prefix'):
-            prefix_re = re.escape(COUNTRIES_DATA[country]['postal_code_prefix'])
-            postcode_re = r'(?:{})?'.format(prefix_re) + postcode_re
+        postcode_re = COUNTRIES_DATA[country]["postcode_regex"]
+        if postcode_re and COUNTRIES_DATA[country].get("postal_code_prefix"):
+            prefix_re = re.escape(COUNTRIES_DATA[country]["postal_code_prefix"])
+            postcode_re = r"(?:{})?".format(prefix_re) + postcode_re
 
         if postcode_re and not re.fullmatch(postcode_re, postcode.upper()):
-            accepted_patterns = COUNTRIES_DATA[country]['postcode_format'].split('|')
-            raise forms.ValidationError(mark_safe_lazy(
-                format_lazy(
-                    _("Postal code should follow the pattern {} (# is digit, @ is a letter)."),
-                    join_lazy(_(" or "), list(map(lambda pn: f"<kbd>{pn}</kbd>", accepted_patterns)))
+            accepted_patterns = COUNTRIES_DATA[country]["postcode_format"].split("|")
+            raise forms.ValidationError(
+                mark_safe_lazy(
+                    format_lazy(
+                        _(
+                            "Postal code should follow the pattern {} (# is digit, @ is a letter)."
+                        ),
+                        join_lazy(
+                            _(" or "),
+                            list(map(lambda pn: f"<kbd>{pn}</kbd>", accepted_patterns)),
+                        ),
+                    )
                 )
-            ))
+            )
         # Removing non-alphanumeric characters (except for the allowed separators 'space'
         # and 'dash'), is mainly for freeform postal codes in countries for which no regex
         # is defined.
-        return re.sub(r'[^A-Z0-9 -]', '', ' '.join(postcode.split()).upper(), re.ASCII)
+        return re.sub(r"[^A-Z0-9 -]", "", " ".join(postcode.split()).upper(), re.ASCII)
 
     def clean(self):
         cleaned_data = super().clean()
         config = SiteConfiguration.get_solo()
 
-        for_hosting = cleaned_data['available']
-        for_meeting = cleaned_data['tour_guide'] or cleaned_data['have_a_drink']
+        for_hosting = cleaned_data["available"]
+        for_meeting = cleaned_data["tour_guide"] or cleaned_data["have_a_drink"]
         if any([for_hosting, for_meeting]):
             # Verifies that user is of correct age if they want to host or meet visitors.
-            profile = self.profile if hasattr(self, 'profile') else self.instance.owner
+            profile = self.profile if hasattr(self, "profile") else self.instance.owner
             try:
-                allowed_age = config.host_min_age if for_hosting else config.meet_min_age
+                allowed_age = (
+                    config.host_min_age if for_hosting else config.meet_min_age
+                )
                 TooNearPastValidator(allowed_age)(profile.birth_date or date.today())
             except forms.ValidationError:
                 if for_hosting:
-                    self.add_error('available', "")
+                    self.add_error("available", "")
                     message = _("The minimum age to be allowed hosting is {age:d}.")
                 else:
-                    if cleaned_data['tour_guide']:
-                        self.add_error('tour_guide', "")
-                    if cleaned_data['have_a_drink']:
-                        self.add_error('have_a_drink', "")
-                    message = _("The minimum age to be allowed meeting with visitors is {age:d}.")
+                    if cleaned_data["tour_guide"]:
+                        self.add_error("tour_guide", "")
+                    if cleaned_data["have_a_drink"]:
+                        self.add_error("have_a_drink", "")
+                    message = _(
+                        "The minimum age to be allowed meeting with visitors is {age:d}."
+                    )
                 raise forms.ValidationError(format_lazy(message, age=allowed_age))
 
         # Some fields are required if user wants to host or to meet visitors,
         # or wants their data to be printed in the book.
-        Req = namedtuple('Requirements', 'on, required_fields, form_error, field_error')
+        Req = namedtuple("Requirements", "on, required_fields, form_error, field_error")
         requirements = [
-            Req(for_hosting, self._validation_meta.hosting_required_fields,
+            Req(
+                for_hosting,
+                self._validation_meta.hosting_required_fields,
                 None,
-                forms.ValidationError(_("This field is required if you accept guests."),
-                                      code='host_condition')),
-            Req(for_meeting, self._validation_meta.meeting_required_fields,
+                forms.ValidationError(
+                    _("This field is required if you accept guests."),
+                    code="host_condition",
+                ),
+            ),
+            Req(
+                for_meeting,
+                self._validation_meta.meeting_required_fields,
                 None,
-                forms.ValidationError(_("This field is required if you meet visitors."),
-                                      code='host_condition')),
-            Req(cleaned_data['in_book'], self._validation_meta.book_required_fields,
-                _("You want to be in the printed edition of Pasporta Servo. "
-                  "In order to have a quality product, some fields are required. "
-                  "If you think there is a problem, please contact us."),
-                forms.ValidationError(_("This field is required to be printed in the book."),
-                                      code='book_condition')),
+                forms.ValidationError(
+                    _("This field is required if you meet visitors."),
+                    code="host_condition",
+                ),
+            ),
+            Req(
+                cleaned_data["in_book"],
+                self._validation_meta.book_required_fields,
+                _(
+                    "You want to be in the printed edition of Pasporta Servo. "
+                    "In order to have a quality product, some fields are required. "
+                    "If you think there is a problem, please contact us."
+                ),
+                forms.ValidationError(
+                    _("This field is required to be printed in the book."),
+                    code="book_condition",
+                ),
+            ),
         ]
         message = []
 
         for cond in requirements:
-            all_filled = all([cleaned_data.get(field, False) for field in cond.required_fields])
+            all_filled = all(
+                [cleaned_data.get(field, False) for field in cond.required_fields]
+            )
             if cond.on and not all_filled:
                 for field in cond.required_fields:
-                    if not cleaned_data.get(field, False) and not self.has_error(field, cond.field_error.code):
+                    if not cleaned_data.get(field, False) and not self.has_error(
+                        field, cond.field_error.code
+                    ):
                         self.add_error(field, cond.field_error)
                 if cond.form_error:
                     message += forms.ValidationError(cond.form_error)
@@ -212,41 +273,45 @@ class PlaceForm(forms.ModelForm):
 
     def _format_address(self, with_street=True):
         address = {
-            'street': self.cleaned_data['address'].replace('\r\n', ', ') if with_street else '',
-            'zip': self.cleaned_data['postcode'].replace(' ', ''),
-            'city': self.cleaned_data['city'],
-            'state': getattr(self.cleaned_region, 'latin_code', '') or self.cleaned_data['state_province'],
+            "street": self.cleaned_data["address"].replace("\r\n", ", ")
+            if with_street
+            else "",
+            "zip": self.cleaned_data["postcode"].replace(" ", ""),
+            "city": self.cleaned_data["city"],
+            "state": getattr(self.cleaned_region, "latin_code", "")
+            or self.cleaned_data["state_province"],
         }
-        return '{street}, {zip} {city}, {state}'.format(**address).lstrip(', ')
+        return "{street}, {zip} {city}, {state}".format(**address).lstrip(", ")
 
     def _geocode_new_city(self):
         geocities = Whereabouts.objects.filter(
             type=LocationType.CITY,
-            name=self.cleaned_data['city'].upper(),
-            country=self.cleaned_data['country'],
+            name=self.cleaned_data["city"].upper(),
+            country=self.cleaned_data["country"],
         )
-        if self.cleaned_data['country'] in countries_with_mandatory_region():
-            region = self.cleaned_data['state_province'].upper()
+        if self.cleaned_data["country"] in countries_with_mandatory_region():
+            region = self.cleaned_data["state_province"].upper()
             geocities = geocities.filter(state=region)
         else:
-            region = ''
+            region = ""
         if not geocities.exists():
             city_location = geocode_city(
-                self.cleaned_data['city'],
+                self.cleaned_data["city"],
                 state_province=(
-                    getattr(self.cleaned_region, 'latin_code', '')
-                    or self.cleaned_data['state_province']
+                    getattr(self.cleaned_region, "latin_code", "")
+                    or self.cleaned_data["state_province"]
                 ),
-                country=self.cleaned_data['country'],
+                country=self.cleaned_data["country"],
             )
             if city_location:
                 Whereabouts.objects.create(
                     type=LocationType.CITY,
-                    name=self.cleaned_data['city'].upper(),
+                    name=self.cleaned_data["city"].upper(),
                     state=region,
-                    country=self.cleaned_data['country'],
+                    country=self.cleaned_data["country"],
                     bbox=LineString(
-                        city_location.bbox['southwest'], city_location.bbox['northeast'],
+                        city_location.bbox["southwest"],
+                        city_location.bbox["northeast"],
                         srid=SRID,
                     ),
                     center=Point(city_location.xy, srid=SRID),
@@ -255,8 +320,11 @@ class PlaceForm(forms.ModelForm):
     def save(self, commit=True):
         place = super().save(commit=False)
 
-        residence_change = ['country', 'state_province', 'city', 'postcode']
-        if any(field in self.changed_data and field in self.cleaned_data for field in residence_change):
+        residence_change = ["country", "state_province", "city", "postcode"]
+        if any(
+            field in self.changed_data and field in self.cleaned_data
+            for field in residence_change
+        ):
             # When the user moves to a different country, state, or city their
             # previously saved location (geopoint) is not up-to-date anymore.
             place.location = None
@@ -264,27 +332,42 @@ class PlaceForm(forms.ModelForm):
         if place.location is None or place.location.empty:
             # Only recalculate the location if it was not already geocoded before.
             try:
-                self.cleaned_region = self.country_regions.get(iso_code=self.cleaned_data['state_province'])
+                self.cleaned_region = self.country_regions.get(
+                    iso_code=self.cleaned_data["state_province"]
+                )
             except CountryRegion.DoesNotExist:
                 self.cleaned_region = None
-            location = geocode(self._format_address(), country=self.cleaned_data['country'], private=True)
-            if location and not location.point and 'address' in self.changed_data:
+            location = geocode(
+                self._format_address(),
+                country=self.cleaned_data["country"],
+                private=True,
+            )
+            if location and not location.point and "address" in self.changed_data:
                 # Try again without the address block when location cannot be determined.
                 # This is because users often put stuff into the address block, which the
                 # poor geocoder has trouble deciphering.
                 location = geocode(
                     self._format_address(with_street=False),
-                    country=self.cleaned_data['country'], private=True)
-            if location and location.point and location.confidence > LocationConfidence.GT_25KM:
+                    country=self.cleaned_data["country"],
+                    private=True,
+                )
+            if (
+                location
+                and location.point
+                and location.confidence > LocationConfidence.GT_25KM
+            ):
                 # https://geocoder.opencagedata.com/api#confidence
                 place.location = location.point
             place.location_confidence = (
-                (getattr(location, 'confidence', None) or LocationConfidence.UNDETERMINED)
+                (
+                    getattr(location, "confidence", None)
+                    or LocationConfidence.UNDETERMINED
+                )
                 if place.location
                 else LocationConfidence.UNDETERMINED
             )
 
-            if self.cleaned_data['city'] != '':
+            if self.cleaned_data["city"] != "":
                 # Create a new geocoding of the user's city if we don't have it in the database yet.
                 self._geocode_new_city()
 
@@ -293,12 +376,13 @@ class PlaceForm(forms.ModelForm):
             self.save_m2m()
         self.confidence = place.location_confidence
         return place
+
     save.alters_data = True
 
 
 class PlaceCreateForm(PlaceForm):
     def __init__(self, *args, **kwargs):
-        self.profile = kwargs.pop('profile')
+        self.profile = kwargs.pop("profile")
         super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
@@ -308,25 +392,26 @@ class PlaceCreateForm(PlaceForm):
             place.save()
             self.save_m2m()
         return place
+
     save.alters_data = True
 
 
 class PlaceLocationForm(forms.ModelForm):
     class Meta:
         model = Place
-        fields = ['location']
+        fields = ["location"]
         widgets = {
-            'location': MapboxGlWidget(),
+            "location": MapboxGlWidget(),
         }
 
     def __init__(self, *args, **kwargs):
-        self.view_role = kwargs.pop('view_role')
+        self.view_role = kwargs.pop("view_role")
         super().__init__(*args, **kwargs)
-        self.fields['location'].widget.attrs['data-selectable-zoom'] = 11.5
+        self.fields["location"].widget.attrs["data-selectable-zoom"] = 11.5
 
     def save(self, commit=True):
         place = super().save(commit=False)
-        if self.cleaned_data.get('location'):
+        if self.cleaned_data.get("location"):
             if self.view_role >= SUPERVISOR:
                 place.location_confidence = LocationConfidence.CONFIRMED
             else:
@@ -334,23 +419,24 @@ class PlaceLocationForm(forms.ModelForm):
         else:
             place.location_confidence = LocationConfidence.UNDETERMINED
         if commit:
-            place.save(update_fields=['location', 'location_confidence'])
+            place.save(update_fields=["location", "location_confidence"])
         return place
+
     save.alters_data = True
 
 
 class PlaceBlockForm(forms.ModelForm):
     class Meta:
         model = Place
-        fields = ['blocked_from', 'blocked_until']
+        fields = ["blocked_from", "blocked_until"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         widget_settings = {
-            'data-date-start-date': '-0d',
-            'data-date-force-parse': 'false',
-            'data-date-autoclose': 'true',
-            'placeholder': 'jjjj-mm-tt',
+            "data-date-start-date": "-0d",
+            "data-date-force-parse": "false",
+            "data-date-autoclose": "true",
+            "placeholder": "jjjj-mm-tt",
         }
 
         for field_name in self._meta.fields:
@@ -365,18 +451,22 @@ class PlaceBlockForm(forms.ModelForm):
         Checks if starting date is earlier than the ending date.
         """
         if self.instance.deleted:
-            raise forms.ValidationError(_("Deleted place"), code='deleted')
+            raise forms.ValidationError(_("Deleted place"), code="deleted")
 
         cleaned_data = super().clean()
         cleaned_data = self.filter_cleaned_data(cleaned_data)
-        CleanedData = namedtuple('CleanedData', 'blocked_from, blocked_until')
-        data = CleanedData(cleaned_data.get('blocked_from'), cleaned_data.get('blocked_until'))
+        CleanedData = namedtuple("CleanedData", "blocked_from, blocked_until")
+        data = CleanedData(
+            cleaned_data.get("blocked_from"), cleaned_data.get("blocked_until")
+        )
 
         today = date.today()
         if (data.blocked_from or today) < today:
-            self.add_error('blocked_from', _("Preferably select a date in the future."))
+            self.add_error("blocked_from", _("Preferably select a date in the future."))
         if (data.blocked_until or today) < today:
-            self.add_error('blocked_until', _("Preferably select a date in the future."))
+            self.add_error(
+                "blocked_until", _("Preferably select a date in the future.")
+            )
 
         if self.__class__ is PlaceBlockForm:
             compare_with = data
@@ -385,65 +475,76 @@ class PlaceBlockForm(forms.ModelForm):
 
         if data.blocked_until and compare_with.blocked_from:
             if data.blocked_until <= compare_with.blocked_from:
-                raise forms.ValidationError(_("Unavailability should finish after it starts."),
-                                            code='dates_agreement')
+                raise forms.ValidationError(
+                    _("Unavailability should finish after it starts."),
+                    code="dates_agreement",
+                )
         if data.blocked_from and compare_with.blocked_until:
             if data.blocked_from >= compare_with.blocked_until:
-                raise forms.ValidationError(_("Unavailability should start before it finishes."),
-                                            code='dates_agreememt')
+                raise forms.ValidationError(
+                    _("Unavailability should start before it finishes."),
+                    code="dates_agreememt",
+                )
 
         return cleaned_data
 
 
 class PlaceBlockQuickForm(PlaceBlockForm):
     dirty = forms.ChoiceField(
-        choices=(('blocked_from', 1), ('blocked_until', 2)),
-        widget=forms.HiddenInput, label="")
+        choices=(("blocked_from", 1), ("blocked_until", 2)),
+        widget=forms.HiddenInput,
+        label="",
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         widget_settings = {
-            'data-on-ajax-setup': 'blockPlaceSetup',
-            'data-on-ajax-success': 'blockPlaceSuccess',
+            "data-on-ajax-setup": "blockPlaceSetup",
+            "data-on-ajax-success": "blockPlaceSuccess",
         }
-        widget_classes = ' form-control quick-form-control input-sm ajax-on-change'
+        widget_classes = " form-control quick-form-control input-sm ajax-on-change"
 
-        for (field_name, field_label) in (('blocked_from', _("commencing on")),
-                                          ('blocked_until', _("concluding on"))):
+        for (field_name, field_label) in (
+            ("blocked_from", _("commencing on")),
+            ("blocked_until", _("concluding on")),
+        ):
             field = self.fields[field_name]
             field.label = field_label
             attrs = field.widget.attrs
             attrs.update(widget_settings)
-            attrs['class'] = attrs.get('class', '') + widget_classes
+            attrs["class"] = attrs.get("class", "") + widget_classes
             value = self[field_name].value()
-            attrs['data-value'] = field.widget.format_value(value) if value is not None else ''
+            attrs["data-value"] = (
+                field.widget.format_value(value) if value is not None else ""
+            )
 
     def filter_cleaned_data(self, cleaned_data):
         # Only inspect the field that was just changed (named in the 'dirty' parameter).
-        cleaned_data = dict((k, v) for k, v in cleaned_data.items()
-                            if k == cleaned_data.get('dirty', ''))
+        cleaned_data = dict(
+            (k, v)
+            for k, v in cleaned_data.items()
+            if k == cleaned_data.get("dirty", "")
+        )
         return cleaned_data
 
 
 class UserAuthorizeForm(forms.Form):
-    user = forms.CharField(
-        label=_("Authorize user"),
-        max_length=254)
+    user = forms.CharField(label=_("Authorize user"), max_length=254)
     remove = forms.BooleanField(
-        required=False, initial=False,
-        widget=forms.widgets.HiddenInput)
+        required=False, initial=False, widget=forms.widgets.HiddenInput
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['user'].widget.attrs['placeholder'] = _("username")
-        self.fields['user'].widget.attrs['inputmode'] = 'verbatim'
+        self.fields["user"].widget.attrs["placeholder"] = _("username")
+        self.fields["user"].widget.attrs["inputmode"] = "verbatim"
 
     def clean(self):
         cleaned_data = super().clean()
-        if 'user' not in cleaned_data:
+        if "user" not in cleaned_data:
             return
-        user_qualifier = cleaned_data['user']
-        if not cleaned_data.get('remove', False):
+        user_qualifier = cleaned_data["user"]
+        if not cleaned_data.get("remove", False):
             try:
                 User.objects.get(username=user_qualifier).profile
             except User.DoesNotExist:
@@ -456,5 +557,5 @@ class UserAuthorizeForm(forms.Form):
 class UserAuthorizedOnceForm(UserAuthorizeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['user'].widget = forms.widgets.HiddenInput()
-        self.fields['remove'].initial = True
+        self.fields["user"].widget = forms.widgets.HiddenInput()
+        self.fields["remove"].initial = True

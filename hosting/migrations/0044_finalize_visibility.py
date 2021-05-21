@@ -9,33 +9,52 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0043_update_visibility'),
+        ("hosting", "0043_update_visibility"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='visibilitysettings',
-            name='content_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType'),
+            model_name="visibilitysettings",
+            name="content_type",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to="contenttypes.ContentType",
+            ),
         ),
         migrations.AlterField(
-            model_name='profile',
-            name='email_visibility',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name='profile', to='hosting.VisibilitySettingsForPublicEmail'),
+            model_name="profile",
+            name="email_visibility",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="profile",
+                to="hosting.VisibilitySettingsForPublicEmail",
+            ),
         ),
         migrations.AlterField(
-            model_name='phone',
-            name='visibility',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name='phone', to='hosting.VisibilitySettingsForPhone'),
+            model_name="phone",
+            name="visibility",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="phone",
+                to="hosting.VisibilitySettingsForPhone",
+            ),
         ),
         migrations.AlterField(
-            model_name='place',
-            name='visibility',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name='place', to='hosting.VisibilitySettingsForPlace'),
+            model_name="place",
+            name="visibility",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="place",
+                to="hosting.VisibilitySettingsForPlace",
+            ),
         ),
         migrations.AlterField(
-            model_name='place',
-            name='family_members_visibility',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name='family_members', to='hosting.VisibilitySettingsForFamilyMembers'),
+            model_name="place",
+            name="family_members_visibility",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="family_members",
+                to="hosting.VisibilitySettingsForFamilyMembers",
+            ),
         ),
     ]

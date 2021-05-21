@@ -8,9 +8,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0038_add_approver_proxy_model'),
-        ('hosting', '0035_place_blocking_dates'),
+        ("hosting", "0038_add_approver_proxy_model"),
+        ("hosting", "0035_place_blocking_dates"),
     ]
 
-    operations = [
-    ]
+    operations = []

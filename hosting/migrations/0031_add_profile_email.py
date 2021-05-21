@@ -6,9 +6,11 @@ from django.db import migrations, models, transaction
 
 
 def populate_profile_email(apps, schema_editor):
-    profiles = apps.get_model('hosting', 'Profile')._default_manager.filter(
-        user__isnull=False).exclude(
-        user__email__startswith='INVALID_')
+    profiles = (
+        apps.get_model("hosting", "Profile")
+        ._default_manager.filter(user__isnull=False)
+        .exclude(user__email__startswith="INVALID_")
+    )
     with transaction.atomic():
         for profile in profiles:
             profile.email = profile.user.email
@@ -22,15 +24,19 @@ def unpopulate_profile_email(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0030_remove_boolean_tracking_fields'),
+        ("hosting", "0030_remove_boolean_tracking_fields"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='profile',
-            name='email',
-            field=models.EmailField(blank=True, help_text='This email address will be used for the book. Leave blank if you don’t want this email to be public.\nThe system will never send emails to this address.', max_length=254, verbose_name='profile email'),
+            model_name="profile",
+            name="email",
+            field=models.EmailField(
+                blank=True,
+                help_text="This email address will be used for the book. Leave blank if you don’t want this email to be public.\nThe system will never send emails to this address.",
+                max_length=254,
+                verbose_name="profile email",
+            ),
         ),
-
-        migrations.RunPython(populate_profile_email, unpopulate_profile_email)
+        migrations.RunPython(populate_profile_email, unpopulate_profile_email),
     ]

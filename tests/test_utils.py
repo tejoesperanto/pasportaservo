@@ -37,7 +37,7 @@ from maps.utils import bufferize_country_boundaries
 from .assertions import AdditionalAsserts
 
 
-@tag('utils')
+@tag("utils")
 class UtilityFunctionsTests(AdditionalAsserts, TestCase):
     def test_camel_case_split(self):
         test_data = (
@@ -47,8 +47,10 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
             ("TITLE", ["TITLE"]),
             ("TItLe", ["T", "It", "Le"]),
             ("TItLE", ["T", "It", "LE"]),
-            ("ACamelCaseIsOftenUsedForVariables",
-             ["A", "Camel", "Case", "Is", "Often", "Used", "For", "Variables"]),
+            (
+                "ACamelCaseIsOftenUsedForVariables",
+                ["A", "Camel", "Case", "Is", "Often", "Used", "For", "Variables"],
+            ),
             ("an tAlbanach", ["an t", "Albanach"]),
         )
         for camel_case_value, expected_value in test_data:
@@ -66,8 +68,8 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
             ("nasir al-din al-tusi", "Nasir Al-Din Al-Tusi"),
             ("d'artagnan", "D'Artagnan"),
             ("D'artagnan", "D'Artagnan"),
-            ("d\"artagnan", "D\"Artagnan"),
-            ("D\"artagnaN", "D\"Artagnan"),
+            ('d"artagnan', 'D"Artagnan'),
+            ('D"artagnaN', 'D"Artagnan'),
             ("van artagnan", "van Artagnan"),
             ("del artagnaN", "del Artagnan"),
             ("Af-arTagnan", "af-Artagnan"),
@@ -90,7 +92,9 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
         )
         for title, expected_value in test_data:
             with self.subTest(title=title):
-                self.assertEqual(title_with_particule(title, ["ibn", "al"]), expected_value)
+                self.assertEqual(
+                    title_with_particule(title, ["ibn", "al"]), expected_value
+                )
 
     def test_split_util(self):
         test_data = (
@@ -108,27 +112,47 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
     def test_value_without_invalid_marker(self):
         test_data = (
             ("user@mail.com", "user@mail.com"),
-            (f"user_{settings.INVALID_PREFIX}@mail.com", f"user_{settings.INVALID_PREFIX}@mail.com"),
-            (f"user@mail.com_{settings.INVALID_PREFIX}", f"user@mail.com_{settings.INVALID_PREFIX}"),
-            ("{0}{0}user".format(settings.INVALID_PREFIX), f"{settings.INVALID_PREFIX}user"),
-            ("{0}user{0}".format(settings.INVALID_PREFIX), f"user{settings.INVALID_PREFIX}"),
+            (
+                f"user_{settings.INVALID_PREFIX}@mail.com",
+                f"user_{settings.INVALID_PREFIX}@mail.com",
+            ),
+            (
+                f"user@mail.com_{settings.INVALID_PREFIX}",
+                f"user@mail.com_{settings.INVALID_PREFIX}",
+            ),
+            (
+                "{0}{0}user".format(settings.INVALID_PREFIX),
+                f"{settings.INVALID_PREFIX}user",
+            ),
+            (
+                "{0}user{0}".format(settings.INVALID_PREFIX),
+                f"user{settings.INVALID_PREFIX}",
+            ),
             (f"{settings.INVALID_PREFIX}user@not--mail", "user@not--mail"),
         )
         self.assertNotEqual(settings.INVALID_PREFIX, "")
         for original_value, expected_value in test_data:
             with self.subTest(value=original_value):
-                self.assertEqual(value_without_invalid_marker(original_value), expected_value)
+                self.assertEqual(
+                    value_without_invalid_marker(original_value), expected_value
+                )
 
     def test_sort_by_simple(self):
-        Country = NamedTuple('Country', [('code', str), ('name', str)])
-        countries = zw, cn, ca = Country("ZW", "Zimbabvo"), Country("CN", "Ĉinio"), Country("CA", "Kanado")
+        Country = NamedTuple("Country", [("code", str), ("name", str)])
+        countries = zw, cn, ca = (
+            Country("ZW", "Zimbabvo"),
+            Country("CN", "Ĉinio"),
+            Country("CA", "Kanado"),
+        )
         expected = [cn, ca, zw]
 
-        self.assertEqual(sort_by(['name'], countries), expected)
+        self.assertEqual(sort_by(["name"], countries), expected)
 
     def test_sort_by_nested(self):
-        Person = NamedTuple('Person', [('name', str)])
-        House = NamedTuple('House', [('city', str), ('country', str), ('owner', Person)])
+        Person = NamedTuple("Person", [("name", str)])
+        House = NamedTuple(
+            "House", [("city", str), ("country", str), ("owner", Person)]
+        )
         houses = wta, ptb, pfa, pfb, pta = (
             House("Pawnee", "Texas", Person("A")),
             House("Paris", "Texas", Person("B")),
@@ -138,32 +162,34 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
         )
         expected = [pfa, pfb, pta, ptb, wta]
 
-        self.assertEqual(sort_by(['owner.name', 'city', 'country'], houses), expected)
+        self.assertEqual(sort_by(["owner.name", "city", "country"], houses), expected)
 
     def test_join_lazy(self):
         test_data = {
-            'sep': (", ", lazystr(", ")),
-            'items': (
+            "sep": (", ", lazystr(", ")),
+            "items": (
                 lambda: ["aa", "bb", "cc"],
                 lambda: [lazystr("aa"), "bb", lazystr("cc")],
                 lazy(lambda: ["aa", lazystr("bb"), "cc"], list),
             ),
         }
-        for sep, i_sep, items, j_items in [(s, i, l, j)
-                                           for i, s in enumerate(test_data['sep'], start=1)
-                                           for j, l in enumerate(test_data['items'], start=1)]:
+        for sep, i_sep, items, j_items in [
+            (s, i, l, j)
+            for i, s in enumerate(test_data["sep"], start=1)
+            for j, l in enumerate(test_data["items"], start=1)
+        ]:
             with self.subTest(sep=i_sep, list=j_items):
                 joined = join_lazy(sep, items())
-                self.assertIn('_proxy____cast', dir(joined))
+                self.assertIn("_proxy____cast", dir(joined))
                 self.assertEqual(str(joined), "aa, bb, cc")
 
     def test_email_to_gravatar(self):
         test_data = (
-            {'fallback': None, 'size': 250},
-            {'fallback': '', 'size': None},
-            {'fallback': '', 'size': 5000},
-            {'fallback': '404', 'size': None},
-            {'fallback': '404', 'size': 7500},
+            {"fallback": None, "size": 250},
+            {"fallback": "", "size": None},
+            {"fallback": "", "size": 5000},
+            {"fallback": "404", "size": None},
+            {"fallback": "404", "size": 7500},
         )
         for params in test_data:
             with self.subTest(extra_params=params):
@@ -173,7 +199,7 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
                 self.assertIn("dcfd20df1a72567cbe06c4bce058f513", url)
                 self.assertNotIn("None", url)
 
-    @patch('core.utils.requests.get')
+    @patch("core.utils.requests.get")
     def test_is_password_compromised(self, mock_get):
         test_data = (
             ("NoConnection", 500, (None, None), HTTPConnectionError),
@@ -205,90 +231,110 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
                 self.assertEqual(len(result), 2)
                 self.assertEqual(result, expected_result)
 
-    @tag('external')
-    @skipUnless(settings.TEST_EXTERNAL_SERVICES, 'External services are tested only explicitly')
+    @tag("external")
+    @skipUnless(
+        settings.TEST_EXTERNAL_SERVICES, "External services are tested only explicitly"
+    )
     def test_is_password_compromised_integration_contract(self):
         result = is_password_compromised("esperanto", full_list=True)
         self.assertEqual(len(result), 3)
-        all_hashes = result[2] + ('\n' if not result[2].endswith('\n') else '')
-        self.assertRegex(all_hashes, r'^([A-F0-9]{35}:\d+\r?\n)+$')
+        all_hashes = result[2] + ("\n" if not result[2].endswith("\n") else "")
+        self.assertRegex(all_hashes, r"^([A-F0-9]{35}:\d+\r?\n)+$")
 
-    @override_settings(SECRET_KEY='JustASecret')
+    @override_settings(SECRET_KEY="JustASecret")
     def test_create_unique_url(self):
         test_data = [
-            ("{aaa}", 'InthYWF9Ig'),
-            ("/CCC/", 'Ii9DQ0MvIg'),
-            ("", 'IiI'),
-            ({'name': "A. User", 'profession': "Tester"}, 'eyJuYW1lIjoiQS4gVXNlciIsInByb2Zlc3Npb24iOiJUZXN0ZXIifQ'),
-            ({}, 'e30'),
+            ("{aaa}", "InthYWF9Ig"),
+            ("/CCC/", "Ii9DQ0MvIg"),
+            ("", "IiI"),
+            (
+                {"name": "A. User", "profession": "Tester"},
+                "eyJuYW1lIjoiQS4gVXNlciIsInByb2Zlc3Npb24iOiJUZXN0ZXIifQ",
+            ),
+            ({}, "e30"),
             # A large payload is gzipped and then base64-encoded.
-            ("[Quite a long content over here]"*3, '.eJxTig4szSxJVUhUyMnPS1dIzs8rSc0rUcgvSy1SyEgtSo2lVF4JAN38I6k'),
+            (
+                "[Quite a long content over here]" * 3,
+                ".eJxTig4szSxJVUhUyMnPS1dIzs8rSc0rUcgvSy1SyEgtSo2lVF4JAN38I6k",
+            ),
         ]
         for payload, token_prefix in test_data:
             with self.subTest(payload=payload):
                 result = create_unique_url(payload=payload, salt="bbbb")
                 self.assertIs(type(result), tuple)
                 self.assertEqual(len(result), 2)
-                self.assertStartsWith(result[0], '/ligilo/{}.'.format(token_prefix))
-                self.assertStartsWith(result[1], '{}.'.format(token_prefix))
-                self.assertEqual(result[1].count('.'), 3 if token_prefix.startswith('.') else 2)
+                self.assertStartsWith(result[0], "/ligilo/{}.".format(token_prefix))
+                self.assertStartsWith(result[1], "{}.".format(token_prefix))
+                self.assertEqual(
+                    result[1].count("."), 3 if token_prefix.startswith(".") else 2
+                )
 
 
-@tag('utils')
+@tag("utils")
 class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
-    @patch('geocoder.base.requests.Session.get')
+    @patch("geocoder.base.requests.Session.get")
     def test_geocode(self, mock_get):
         # An empty query is expected to return None.
         self.assertIsNone(geocode(""))
 
-        mock_get.side_effect = HTTPConnectionError("Failed to establish a new connection. Max retries exceeded.")
+        mock_get.side_effect = HTTPConnectionError(
+            "Failed to establish a new connection. Max retries exceeded."
+        )
         null_handler = logging.NullHandler()
-        logging.getLogger('geocoder').addHandler(null_handler)
+        logging.getLogger("geocoder").addHandler(null_handler)
         result = geocode("Roterdamo", annotations=True)
         self.assertIs(type(result), OpenCageQuery)
-        self.assertStartsWith(result.status, 'ERROR')
+        self.assertStartsWith(result.status, "ERROR")
         self.assertEqual(len(result), 0)
         self.assertIsNone(result.point)
-        logging.getLogger('geocoder').removeHandler(null_handler)
+        logging.getLogger("geocoder").removeHandler(null_handler)
 
         mock_get.return_value.json.return_value = {
             "rate": {"limit": 2500, "remaining": 2100, "reset": 1586908800},
-            "licenses": [{"name": "see attribution guide", "url": "https://opencagedata.com/credits"}],
-            "results": [{
-                "annotations": {
-                    "OSM": {
-                        "url": "https://www.openstreetmap.org/?mlat=51.92290&mlon=4.46317#map=17/51.92290/4.46317"
+            "licenses": [
+                {
+                    "name": "see attribution guide",
+                    "url": "https://opencagedata.com/credits",
+                }
+            ],
+            "results": [
+                {
+                    "annotations": {
+                        "OSM": {
+                            "url": "https://www.openstreetmap.org/?mlat=51.92290&mlon=4.46317#map=17/51.92290/4.46317"
+                        },
+                        "callingcode": 31,
+                        "timezone": {"name": "Europe/Amsterdam", "short_name": "CEST"},
                     },
-                    "callingcode": 31,
-                    "timezone": {"name": "Europe/Amsterdam", "short_name": "CEST"},
-                },
-                "bounds": {
-                    "northeast": {"lat": 51.9942816, "lng": 4.6018083},
-                    "southwest": {"lat": 51.8616672, "lng": 4.3793095},
-                },
-                "components": {
-                    "ISO_3166-1_alpha-2": "NL",
-                    "ISO_3166-1_alpha-3": "NLD",
-                    "_category": "place",
-                    "_type": "neighbourhood",
-                    "city": "Roterdamo",
-                    "continent": "Eŭropo",
-                    "country": "Nederlando",
-                    "country_code": "nl",
-                    "political_union": "Eŭropa Unio",
-                    "state": "Suda Holando",
-                },
-                "confidence": 5,
-                "formatted": "Roterdamo, Suda Holando, Nederlando",
-                "geometry": {"lat": 51.9228958, "lng": 4.4631727}
-            }],
-            "status": {"code": 200, "message": "OK"}, "total_results": 1
+                    "bounds": {
+                        "northeast": {"lat": 51.9942816, "lng": 4.6018083},
+                        "southwest": {"lat": 51.8616672, "lng": 4.3793095},
+                    },
+                    "components": {
+                        "ISO_3166-1_alpha-2": "NL",
+                        "ISO_3166-1_alpha-3": "NLD",
+                        "_category": "place",
+                        "_type": "neighbourhood",
+                        "city": "Roterdamo",
+                        "continent": "Eŭropo",
+                        "country": "Nederlando",
+                        "country_code": "nl",
+                        "political_union": "Eŭropa Unio",
+                        "state": "Suda Holando",
+                    },
+                    "confidence": 5,
+                    "formatted": "Roterdamo, Suda Holando, Nederlando",
+                    "geometry": {"lat": 51.9228958, "lng": 4.4631727},
+                }
+            ],
+            "status": {"code": 200, "message": "OK"},
+            "total_results": 1,
         }
         mock_get.return_value.status_code = 200
         mock_get.side_effect = None
         result = geocode("Roterdamo", annotations=True)
         self.assertIs(type(result), OpenCageQuery)
-        self.assertEqual(result.status, 'OK')
+        self.assertEqual(result.status, "OK")
         self.assertEqual(len(result), 1)
         self.assertIs(type(result.current_result), OpenCageResult)
         self.assertGreater(len(result.current_result._annotations), 0)
@@ -297,26 +343,37 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
 
         mock_get.return_value.json.return_value = {
             "rate": {"limit": 2500, "remaining": 2100, "reset": 1586908800},
-            "licenses": [{"name": "see attribution guide", "url": "https://opencagedata.com/credits"}],
+            "licenses": [
+                {
+                    "name": "see attribution guide",
+                    "url": "https://opencagedata.com/credits",
+                }
+            ],
             "results": [],
-            "status": {"code": 200, "message": "OK"}, "total_results": 0
+            "status": {"code": 200, "message": "OK"},
+            "total_results": 0,
         }
         mock_get.return_value.status_code = 200
         mock_get.side_effect = None
-        result = geocode("Roterdamo", 'PL', annotations=True)
+        result = geocode("Roterdamo", "PL", annotations=True)
         self.assertIs(type(result), OpenCageQuery)
-        self.assertEqual(result.status, 'ERROR - No results found')
+        self.assertEqual(result.status, "ERROR - No results found")
         self.assertEqual(len(result), 0)
         self.assertIsNone(result.point)
 
-    @patch('geocoder.base.requests.Session.get')
+    @patch("geocoder.base.requests.Session.get")
     def test_geocode_multiple(self, mock_get):
         # An empty query is expected to return None.
         self.assertIsNone(geocode("", multiple=True))
 
         mock_get.return_value.json.return_value = {
             "rate": {"limit": 2500, "remaining": 1900, "reset": 1586908800},
-            "licenses": [{"name": "see attribution guide", "url": "https://opencagedata.com/credits"}],
+            "licenses": [
+                {
+                    "name": "see attribution guide",
+                    "url": "https://opencagedata.com/credits",
+                }
+            ],
             "results": [
                 {
                     "components": {
@@ -330,7 +387,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "country_code": "fr",
                         "county": "Parizo",
                         "political_union": "Eŭropa Unio",
-                        "state": "Francilio"
+                        "state": "Francilio",
                     },
                     "confidence": 6,
                     "formatted": "Parizo, Francio",
@@ -339,7 +396,8 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "northeast": {"lat": 48.902156, "lng": 2.4697602},
                         "southwest": {"lat": 48.8155755, "lng": 2.224122},
                     },
-                }, {
+                },
+                {
                     "components": {
                         "ISO_3166-1_alpha-2": "US",
                         "ISO_3166-1_alpha-3": "USA",
@@ -351,7 +409,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "country_code": "us",
                         "county": "Lamar County",
                         "postcode": "75460",
-                        "state": "Teksaso"
+                        "state": "Teksaso",
                     },
                     "confidence": 5,
                     "formatted": "Pariso, Teksaso, Usono",
@@ -360,7 +418,8 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "northeast": {"lat": 33.7383866, "lng": -95.4354115},
                         "southwest": {"lat": 33.6206345, "lng": -95.6279396},
                     },
-                }, {
+                },
+                {
                     "components": {
                         "ISO_3166-1_alpha-2": "US",
                         "ISO_3166-1_alpha-3": "USA",
@@ -371,7 +430,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "country": "Usono",
                         "country_code": "us",
                         "county": "Bourbon County",
-                        "state": "Kentukio"
+                        "state": "Kentukio",
                     },
                     "confidence": 7,
                     "formatted": "Pariso, Kentukio, Usono",
@@ -380,7 +439,8 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "northeast": {"lat": 38.238271, "lng": -84.232089},
                         "southwest": {"lat": 38.164922, "lng": -84.307326},
                     },
-                }, {
+                },
+                {
                     "components": {
                         "ISO_3166-1_alpha-2": "CA",
                         "ISO_3166-1_alpha-3": "CAN",
@@ -394,7 +454,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "state": "Ontario",
                         "state_code": "ON",
                         "state_district": "Sudokcidenta Ontario",
-                        "town": "Pariso"
+                        "town": "Pariso",
                     },
                     "confidence": 7,
                     "formatted": "Pariso, ON N3L 2M3, Kanado",
@@ -403,7 +463,8 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "northeast": {"lat": 43.233234, "lng": -80.344281},
                         "southwest": {"lat": 43.153234, "lng": -80.424281},
                     },
-                }, {
+                },
+                {
                     "components": {
                         "ISO_3166-1_alpha-2": "US",
                         "ISO_3166-1_alpha-3": "USA",
@@ -415,18 +476,19 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "country_code": "us",
                         "county": "Washington County",
                         "hamlet": "Paris",
-                        "state": "Pensilvanio"
+                        "state": "Pensilvanio",
                     },
                     "confidence": 7,
                     "formatted": "Hanover Township, Pensilvanio, Usono",
-                }
+                },
             ],
-            "status": {"code": 200, "message": "OK"}, "total_results": 5
+            "status": {"code": 200, "message": "OK"},
+            "total_results": 5,
         }
         mock_get.return_value.status_code = 200
         result = geocode("Paris", multiple=True, private=True)
         self.assertIs(type(result), OpenCageQuery)
-        self.assertEqual(result.status, 'OK')
+        self.assertEqual(result.status, "OK")
         self.assertEqual(len(result), 5)
         self.assertIs(type(result.current_result), OpenCageResult)
         self.assertIsNotNone(result.point)
@@ -435,36 +497,62 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
             self.assertIs(type(r), OpenCageResult)
             self.assertEqual(
                 len(r.xy),
-                2 if 'geometry' in mock_get.return_value.json.return_value['results'][i] else 0)
+                2
+                if "geometry" in mock_get.return_value.json.return_value["results"][i]
+                else 0,
+            )
             self.assertEqual(r._annotations, {})
             self.assertEqual(
                 r.country_code,
-                mock_get.return_value.json.return_value['results'][i]['components']['country_code'])
+                mock_get.return_value.json.return_value["results"][i]["components"][
+                    "country_code"
+                ],
+            )
             self.assertNotEqual(r._components, {})
 
-    @patch('geocoder.base.requests.Session.get')
+    @patch("geocoder.base.requests.Session.get")
     def test_geocode_invalid_api_key_or_limit_reached(self, mock_get):
         test_data = (
-            (401, HTTPError("401 Client Error: Unauthorized"), {}, 'ERROR - 401 Client Error: Unauthorized'),
             (
-                200, None,
-                {"results": [], "status": {"code": 401, "message": "unknown API key"}, "total_results": 0},
-                'unknown API key'
+                401,
+                HTTPError("401 Client Error: Unauthorized"),
+                {},
+                "ERROR - 401 Client Error: Unauthorized",
             ),
             (
-                200, None,
-                {"results": [], "status": {"code": 401, "message": "invalid API key"}, "total_results": 0},
-                'invalid API key'
+                200,
+                None,
+                {
+                    "results": [],
+                    "status": {"code": 401, "message": "unknown API key"},
+                    "total_results": 0,
+                },
+                "unknown API key",
             ),
             (
-                402, None,
-                {"results": [], "status": {"code": 402, "message": "quota exceeded"}, "total_results": 0},
-                'quota exceeded'
+                200,
+                None,
+                {
+                    "results": [],
+                    "status": {"code": 401, "message": "invalid API key"},
+                    "total_results": 0,
+                },
+                "invalid API key",
+            ),
+            (
+                402,
+                None,
+                {
+                    "results": [],
+                    "status": {"code": 402, "message": "quota exceeded"},
+                    "total_results": 0,
+                },
+                "quota exceeded",
             ),
         )
 
         null_handler = logging.NullHandler()
-        logging.getLogger('geocoder').addHandler(null_handler)
+        logging.getLogger("geocoder").addHandler(null_handler)
         for status_code, exc, json, expected_status in test_data:
             with self.subTest(status=expected_status):
                 mock_get.return_value.json.return_value = json
@@ -476,74 +564,95 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                 self.assertFalse(result.ok)
                 self.assertEqual(len(result), 0)
                 self.assertIsNone(result.point)
-        logging.getLogger('geocoder').removeHandler(null_handler)
+        logging.getLogger("geocoder").removeHandler(null_handler)
 
-    @tag('external')
-    @skipUnless(settings.TEST_EXTERNAL_SERVICES, 'External services are tested only explicitly')
+    @tag("external")
+    @skipUnless(
+        settings.TEST_EXTERNAL_SERVICES, "External services are tested only explicitly"
+    )
     def test_geocode_integration_contract(self):
-        result = geocode("Harlem", 'US', multiple=True, annotations=True)
-        self.assertEqual(result.status, 'OK')
+        result = geocode("Harlem", "US", multiple=True, annotations=True)
+        self.assertEqual(result.status, "OK")
         self.assertGreater(len(result), 10)
         for r in result:
-            self.assertEqual(r.country_code.upper(), 'US')
+            self.assertEqual(r.country_code.upper(), "US")
             self.assertEqual(r.country, "Usono")
             self.assertNotEqual(r._annotations, {})
             self.assertEqual(r.callingcode, 1)
-            self.assertEqual(r.raw['annotations']['currency']['iso_code'], 'USD')
+            self.assertEqual(r.raw["annotations"]["currency"]["iso_code"], "USD")
             self.assertGreaterEqual(r.confidence, 7)
             self.assertEqual(len(r.xy), 2)
-            self.assertIn('northeast', r.bbox)
-            self.assertIn('southwest', r.bbox)
+            self.assertIn("northeast", r.bbox)
+            self.assertIn("southwest", r.bbox)
 
-    @patch('geocoder.base.requests.Session.get')
+    @patch("geocoder.base.requests.Session.get")
     def test_geocode_city(self, mock_get):
         mock_get.return_value.json.return_value = {
             "rate": {"limit": 2500, "remaining": 2399, "reset": 1586908800},
-            "licenses": [{"name": "see attribution guide", "url": "https://opencagedata.com/credits"}],
-            "results": [{
-                "components": {
-                    "ISO_3166-1_alpha-2": "US",
-                    "ISO_3166-1_alpha-3": "USA",
-                    "_category": "commerce",
-                    "_type": "restaurant",
-                    "city": "Providence",
-                    "continent": "Norda Ameriko",
-                    "country": "Usono",
-                    "country_code": "us",
-                    "county": "Providence County",
-                    "neighbourhood": "Fox Point",
-                    "postcode": "02903-2996",
-                    "restaurant": "Tel Aviv",
-                    "road": "Bridge Street",
-                    "state": "Rod-Insulo"
-                },
-                "confidence": 9,
-                "formatted": "Tel Aviv, Bridge Street, Providence, Rod-Insulo 02903-2996, Usono",
-                "geometry": {"lat": 41.8174523, "lng": -71.4018689},
-                "bounds": {
-                    "northeast": {"lat": 41.8175371, "lng": -71.4017684},
-                    "southwest": {"lat": 41.8173675, "lng": -71.4019694},
-                },
-            }],
-            "status": {"code": 200, "message": "OK"}, "total_results": 1
+            "licenses": [
+                {
+                    "name": "see attribution guide",
+                    "url": "https://opencagedata.com/credits",
+                }
+            ],
+            "results": [
+                {
+                    "components": {
+                        "ISO_3166-1_alpha-2": "US",
+                        "ISO_3166-1_alpha-3": "USA",
+                        "_category": "commerce",
+                        "_type": "restaurant",
+                        "city": "Providence",
+                        "continent": "Norda Ameriko",
+                        "country": "Usono",
+                        "country_code": "us",
+                        "county": "Providence County",
+                        "neighbourhood": "Fox Point",
+                        "postcode": "02903-2996",
+                        "restaurant": "Tel Aviv",
+                        "road": "Bridge Street",
+                        "state": "Rod-Insulo",
+                    },
+                    "confidence": 9,
+                    "formatted": "Tel Aviv, Bridge Street, Providence, Rod-Insulo 02903-2996, Usono",
+                    "geometry": {"lat": 41.8174523, "lng": -71.4018689},
+                    "bounds": {
+                        "northeast": {"lat": 41.8175371, "lng": -71.4017684},
+                        "southwest": {"lat": 41.8173675, "lng": -71.4019694},
+                    },
+                }
+            ],
+            "status": {"code": 200, "message": "OK"},
+            "total_results": 1,
         }
         mock_get.return_value.status_code = 200
-        result = geocode_city("Tel aviv", state_province='Rhode Island', country='US')
+        result = geocode_city("Tel aviv", state_province="Rhode Island", country="US")
         self.assertIsNone(result)
 
         mock_get.return_value.json.return_value = empty_result_set = {
             "rate": {"limit": 2500, "remaining": 2396, "reset": 1586908800},
-            "licenses": [{"name": "see attribution guide", "url": "https://opencagedata.com/credits"}],
+            "licenses": [
+                {
+                    "name": "see attribution guide",
+                    "url": "https://opencagedata.com/credits",
+                }
+            ],
             "results": [],
-            "status": {"code": 200, "message": "OK"}, "total_results": 0
+            "status": {"code": 200, "message": "OK"},
+            "total_results": 0,
         }
         mock_get.return_value.status_code = 200
-        result = geocode_city("Varsovia", 'US')
+        result = geocode_city("Varsovia", "US")
         self.assertIsNone(result)
 
         mock_get.return_value.json.return_value = full_result_set = {
             "rate": {"limit": 2500, "remaining": 2393, "reset": 1586908800},
-            "licenses": [{"name": "see attribution guide", "url": "https://opencagedata.com/credits"}],
+            "licenses": [
+                {
+                    "name": "see attribution guide",
+                    "url": "https://opencagedata.com/credits",
+                }
+            ],
             "results": [
                 {
                     "components": {
@@ -557,12 +666,13 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "county": "Montelibano",
                         "locality": "Varsovia",
                         "state": "Cordoba",
-                        "state_code": "COR"
+                        "state_code": "COR",
                     },
                     "confidence": 7,
                     "formatted": "Varsovia, Montelibano, Ekvadoro",
                     "geometry": {"lat": 7.965104, "lng": -75.3542833},
-                }, {
+                },
+                {
                     "components": {
                         "ISO_3166-1_alpha-2": "EC",
                         "ISO_3166-1_alpha-3": "ECU",
@@ -576,7 +686,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "postcode": "632001",
                         "state": "Quindio",
                         "state_code": "QUI",
-                        "town": "Calarca"
+                        "town": "Calarca",
                     },
                     "confidence": 9,
                     "formatted": "Varsovia, 632001 Calarca, QUI, Ekvadoro",
@@ -585,7 +695,8 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "northeast": {"lat": 4.5173117, "lng": -75.6443835},
                         "southwest": {"lat": 4.5172117, "lng": -75.6444835},
                     },
-                }, {
+                },
+                {
                     "components": {
                         "ISO_3166-1_alpha-2": "EC",
                         "ISO_3166-1_alpha-3": "ECU",
@@ -599,7 +710,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "road": "Varsovia",
                         "road_type": "track",
                         "state": "Risaralda",
-                        "state_code": "RIS"
+                        "state_code": "RIS",
                     },
                     "confidence": 9,
                     "formatted": "Varsovia, San Carlos, RIS, Ekvadoro",
@@ -608,7 +719,8 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "northeast": {"lat": 4.9254217, "lng": -75.6930418},
                         "southwest": {"lat": 4.9180269, "lng": -75.7019525},
                     },
-                }, {
+                },
+                {
                     "components": {
                         "ISO_3166-1_alpha-2": "EC",
                         "ISO_3166-1_alpha-3": "ECU",
@@ -621,7 +733,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "county": "Monteria",
                         "locality": "Varsovia",
                         "state": "Cordoba",
-                        "state_code": "COR"
+                        "state_code": "COR",
                     },
                     "confidence": 7,
                     "formatted": "Monteria, Ekvadoro",
@@ -630,7 +742,8 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "northeast": {"lat": 8.3916971, "lng": -75.890398},
                         "southwest": {"lat": 8.3716971, "lng": -75.910398},
                     },
-                }, {
+                },
+                {
                     "components": {
                         "ISO_3166-1_alpha-2": "EC",
                         "ISO_3166-1_alpha-3": "ECU",
@@ -646,7 +759,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                         "postcode": "111631",
                         "road": "Avenida Calle 8 Sur",
                         "state": "Distrito Capital",
-                        "suburb": "Puente Aranda"
+                        "suburb": "Puente Aranda",
                     },
                     "confidence": 9,
                     "formatted": "Varsovia, Avenida Calle 8 Sur, 111631 Puente Aranda, Distrito Capital, Ekvadoro",
@@ -657,28 +770,32 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                     },
                 },
             ],
-            "status": {"code": 200, "message": "OK"}, "total_results": 5
+            "status": {"code": 200, "message": "OK"},
+            "total_results": 5,
         }
         mock_get.return_value.status_code = 200
         # Originally the test was built with data for Colombia, but apparently
         # it is a federal state, so I had to switch the mock to Ecuador...
-        result = geocode_city("Varsovia", state_province='COR', country='EC')
+        result = geocode_city("Varsovia", state_province="COR", country="EC")
         self.assertIsNotNone(result)
         self.assertEqual(result.remaining_api_calls, 2393)
-        self.assertEqual(result._components['_type'], 'village')
+        self.assertEqual(result._components["_type"], "village")
         self.assertEqual(result.confidence, 7)
-        self.assertEqual(result.country_code.upper(), 'EC')
+        self.assertEqual(result.country_code.upper(), "EC")
         self.assertEqual(result.city, "Monteria")
         self.assertEqual(result.village, "Varsovia")
         self.assertEqual(result.xy, [-75.900398, 8.3816971])
 
         mock_get.return_value.json.side_effect = [empty_result_set, full_result_set]
         mock_get.reset_mock()
-        result = geocode_city("Varsovia", state_province='GUA', country='EC')
+        result = geocode_city("Varsovia", state_province="GUA", country="EC")
         self.assertEqual(mock_get.call_count, 2)
-        self.assertEqual([result.state, result.city, result.village], ["Cordoba", "Monteria", "Varsovia"])
+        self.assertEqual(
+            [result.state, result.city, result.village],
+            ["Cordoba", "Monteria", "Varsovia"],
+        )
 
-    @tag('subregions')
+    @tag("subregions")
     def test_countries_with_mandatory_region(self):
         with self.assertRaises(UserWarning, msg="Result is not iterable."):
             try:
@@ -687,30 +804,33 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                 pass
             else:
                 raise UserWarning
-        with patch('hosting.countries.frozenset') as mock_set_object:
+        with patch("hosting.countries.frozenset") as mock_set_object:
             countries = countries_with_mandatory_region()
             # Validate that the cache is only populated once.
             mock_set_object.assert_not_called()
             # Validate that the contents are 2-character country codes.
             self.assertTrue(
-                all(isinstance(c, str) and len(c) == 2 and c.isalpha() for c in countries)
+                all(
+                    isinstance(c, str) and len(c) == 2 and c.isalpha()
+                    for c in countries
+                )
             )
 
     def test_bufferize_country_boundaries_unknown(self):
-        self.assertIsNone(bufferize_country_boundaries('XYZ'))
+        self.assertIsNone(bufferize_country_boundaries("XYZ"))
 
     def test_bufferize_country_boundaries(self):
         country = random.choice(list(geodata.COUNTRIES_GEO))
         with self.subTest(country=country):
             res = bufferize_country_boundaries(country)
-            self.assertIn('northeast', res['bbox'])
-            self.assertEqual(len(res['bbox']['northeast']), 2)
-            self.assertIn('southwest', res['bbox'])
-            self.assertEqual(len(res['bbox']['southwest']), 2)
-            self.assertEqual(res['center'], geodata.COUNTRIES_GEO[country]['center'])
+            self.assertIn("northeast", res["bbox"])
+            self.assertEqual(len(res["bbox"]["northeast"]), 2)
+            self.assertIn("southwest", res["bbox"])
+            self.assertEqual(len(res["bbox"]["southwest"]), 2)
+            self.assertEqual(res["center"], geodata.COUNTRIES_GEO[country]["center"])
 
 
-@tag('utils')
+@tag("utils")
 class MassMailTests(TestCase):
     def test_empty_list(self):
         self.assertEqual(send_mass_html_mail(tuple()), 0)
@@ -719,11 +839,15 @@ class MassMailTests(TestCase):
         test_data = list()
         faker = Faker()
         for i in range(random.randint(3, 7)):
-            test_data.append((
-                faker.sentence(),
-                faker.word(), "<strong>{}</strong>".format(faker.word()),
-                "test@ps", [],
-            ))
+            test_data.append(
+                (
+                    faker.sentence(),
+                    faker.word(),
+                    "<strong>{}</strong>".format(faker.word()),
+                    "test@ps",
+                    [],
+                )
+            )
             for j in range(random.randint(1, 3)):
                 test_data[i][4].append(faker.email())
 

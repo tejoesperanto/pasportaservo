@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 
 
 class ClearableWithPreviewImageInput(form_widgets.ClearableFileInput):
-    preview_template_name = 'hosting/snippets/widget-image_file_preview.html'
+    preview_template_name = "hosting/snippets/widget-image_file_preview.html"
 
     class ImagePreviewValue(object):
         def __init__(self, value, template):
@@ -22,17 +22,22 @@ class ClearableWithPreviewImageInput(form_widgets.ClearableFileInput):
         if not self.is_initial(value):
             return
         preview_template = get_template(self.preview_template_name)
-        substitutions = {'field_name': getattr(self, 'field_name', None), 'url': value.url}
+        substitutions = {
+            "field_name": getattr(self, "field_name", None),
+            "url": value.url,
+        }
         substitutions.update(**kwargs)
         rendered = mark_safe(preview_template.render(substitutions).strip())
         return self.ImagePreviewValue(value, rendered)
 
 
 class TextWithDatalistInput(form_widgets.TextInput):
-    template_name = 'hosting/snippets/widget-text+datalist.html'
+    template_name = "hosting/snippets/widget-text+datalist.html"
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
-        context['widget']['choices'] = self.choices
-        context['widget']['attrs']['list'] = context['widget']['attrs']['id'] + '_options'
+        context["widget"]["choices"] = self.choices
+        context["widget"]["attrs"]["list"] = (
+            context["widget"]["attrs"]["id"] + "_options"
+        )
         return context

@@ -8,16 +8,20 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0040_add_point_field_location'),
+        ("hosting", "0040_add_point_field_location"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='countrygroup',
-            options={'permissions': (('can_supervise', 'Can modify users from specific country'),)},
+            name="countrygroup",
+            options={
+                "permissions": (
+                    ("can_supervise", "Can modify users from specific country"),
+                )
+            },
         ),
         migrations.RemoveField(
-            model_name='condition',
-            name='latex',
+            model_name="condition",
+            name="latex",
         ),
     ]

@@ -11,22 +11,21 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('hosting', '0051_whereabouts_model'),
+        ("hosting", "0051_whereabouts_model"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PlottablePlace',
-            fields=[
-            ],
+            name="PlottablePlace",
+            fields=[],
             options={
-                'proxy': True,
-                'indexes': [],
+                "proxy": True,
+                "indexes": [],
             },
-            bases=('hosting.place',),
+            bases=("hosting.place",),
             managers=[
-                ('available_objects', django.db.models.manager.Manager()),
-                ('all_objects', django.db.models.manager.Manager()),
+                ("available_objects", django.db.models.manager.Manager()),
+                ("all_objects", django.db.models.manager.Manager()),
             ],
         ),
     ]

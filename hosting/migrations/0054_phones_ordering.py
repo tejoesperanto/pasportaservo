@@ -10,20 +10,20 @@ def set_priority_for_deleted_phones(app_registry, schema_editor):
     Deleted phones should have higher priority rating, to appear lower on
     the list (lower rating = higher on list = more important).
     """
-    Phone = app_registry.get_model('hosting', 'Phone')
+    Phone = app_registry.get_model("hosting", "Phone")
     Phone.all_objects.filter(deleted_on__isnull=False).update(_order=100)
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0053_profile_death_date'),
+        ("hosting", "0053_profile_death_date"),
     ]
 
     operations = [
         migrations.AlterOrderWithRespectTo(
-            name='phone',
-            order_with_respect_to='profile',
+            name="phone",
+            order_with_respect_to="profile",
         ),
         migrations.RunPython(
             set_priority_for_deleted_phones, reverse_code=migrations.RunPython.noop

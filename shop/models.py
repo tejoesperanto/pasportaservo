@@ -8,18 +8,14 @@ from django_extensions.db.models import TimeStampedModel
 
 
 class Product(TimeStampedModel):
-    name = models.CharField(
-        _("name"), max_length=50)
-    code = models.CharField(
-        _("code"), max_length=20, unique=True)
+    name = models.CharField(_("name"), max_length=50)
+    code = models.CharField(_("code"), max_length=20, unique=True)
     price = models.DecimalField(
-        _("price"),
-        default=Decimal('8.99'),
-        max_digits=4, decimal_places=2)
+        _("price"), default=Decimal("8.99"), max_digits=4, decimal_places=2
+    )
     low_price = models.DecimalField(
-        _("low price"),
-        default=Decimal('2.99'),
-        max_digits=4, decimal_places=2)
+        _("low price"), default=Decimal("2.99"), max_digits=4, decimal_places=2
+    )
 
     class Meta:
         verbose_name = _("product")
@@ -34,29 +30,29 @@ class Product(TimeStampedModel):
 
 class Reservation(TimeStampedModel):
     product = models.ForeignKey(
-        'shop.Product', verbose_name=_("product"),
-        on_delete=models.CASCADE)
+        "shop.Product", verbose_name=_("product"), on_delete=models.CASCADE
+    )
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, verbose_name=_("user"),
-        on_delete=models.CASCADE)
-    amount = models.PositiveSmallIntegerField(
-        _("amount"),
-        default=1)
+        settings.AUTH_USER_MODEL, verbose_name=_("user"), on_delete=models.CASCADE
+    )
+    amount = models.PositiveSmallIntegerField(_("amount"), default=1)
     discount = models.BooleanField(
         _("TEJO discount"),
         default=False,
         # Translator: xgettext:no-python-format
-        help_text=_("If you are member of TEJO or UEA "
-                    "and the 10% discount applies (twice a year)."))
+        help_text=_(
+            "If you are member of TEJO or UEA "
+            "and the 10% discount applies (twice a year)."
+        ),
+    )
     support = models.DecimalField(
-        _("support"),
-        default=Decimal('0.00'),
-        max_digits=6, decimal_places=2)
+        _("support"), default=Decimal("0.00"), max_digits=6, decimal_places=2
+    )
 
     class Meta:
         verbose_name = _("reservation")
         verbose_name_plural = _("reservations")
-        unique_together = (('product', 'user'))
+        unique_together = ("product", "user")
 
     def __str__(self):
         return " - ".join((self.product.code, str(self.user)))
@@ -66,7 +62,7 @@ class Reservation(TimeStampedModel):
         return st.format(self.amount, self.support)
 
     def get_absolute_url(self):
-        return reverse('reservation', kwargs={'product_code': self.product.code})
+        return reverse("reservation", kwargs={"product_code": self.product.code})
 
     def get_edit_url(self):
-        return reverse('reserve', kwargs={'product_code': self.product.code})
+        return reverse("reserve", kwargs={"product_code": self.product.code})

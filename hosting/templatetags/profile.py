@@ -30,7 +30,9 @@ def is_supervisor(user_or_profile):
     if auth_log.getEffectiveLevel() == logging.DEBUG:
         auth_log.debug(
             "* checking if supervising... [ %s %s]",
-            user, "<~ '%s' " % user_or_profile if user != user_or_profile else "")
+            user,
+            "<~ '%s' " % user_or_profile if user != user_or_profile else "",
+        )
     return user.has_perm(PERM_SUPERVISOR)
 
 
@@ -40,8 +42,10 @@ def is_supervisor_of(user_or_profile, profile_or_countries):
     if auth_log.getEffectiveLevel() == logging.DEBUG:
         auth_log.debug(
             "* checking if object is supervised... [ %s %s] [ %s ]",
-            user, "<~ '%s' " % user_or_profile if user != user_or_profile else "",
-            repr(profile_or_countries))
+            user,
+            "<~ '%s' " % user_or_profile if user != user_or_profile else "",
+            repr(profile_or_countries),
+        )
     if isinstance(profile_or_countries, int):
         try:
             profile_or_countries = Profile.objects.get(pk=profile_or_countries)
@@ -70,7 +74,9 @@ def supervisor_of(user_or_profile):
     if auth_log.getEffectiveLevel() == logging.DEBUG:
         auth_log.debug(
             "* searching supervised objects... [ %s %s]",
-            user, "<~ '%s' " % user_or_profile if user != user_or_profile else "")
+            user,
+            "<~ '%s' " % user_or_profile if user != user_or_profile else "",
+        )
     for backend in auth.get_backends():
         try:
             return sorted(backend.get_user_supervisor_of(user))
@@ -87,23 +93,27 @@ def get_approver(context, model_instance):
     # the same...
     if not model_instance or not model_instance.checked_by_id:
         return None
-    if 'user' in context:
-        default_cache = {context['user'].pk: context['user']}
+    if "user" in context:
+        default_cache = {context["user"].pk: context["user"]}
     else:
         default_cache = {}
-    cache = context['view'].__dict__.setdefault('approvers_cache', default_cache)
+    cache = context["view"].__dict__.setdefault("approvers_cache", default_cache)
     if model_instance.checked_by_id not in cache:
         cache[model_instance.checked_by_id] = model_instance.checked_by
     return cache[model_instance.checked_by_id]
 
 
 @register.filter
-def format_pronoun(profile, tag=''):
-    tag = tag.lstrip('<').rstrip('>')
-    return mark_safe(" ".join(
-        format_html("<{tag}>{part}</{tag}>", tag=tag, part=part.capitalize()) if index % 2 else part
-        for index, part in enumerate(profile.get_pronoun_parts(), start=1)
-    ))
+def format_pronoun(profile, tag=""):
+    tag = tag.lstrip("<").rstrip(">")
+    return mark_safe(
+        " ".join(
+            format_html("<{tag}>{part}</{tag}>", tag=tag, part=part.capitalize())
+            if index % 2
+            else part
+            for index, part in enumerate(profile.get_pronoun_parts(), start=1)
+        )
+    )
 
 
 @register.filter
@@ -129,16 +139,21 @@ def avatar_dimension(profile, size_percent=100):
     else:
         dimension = ["width", "height"]
         aspect = "square"
-    return mark_safe(" ".join(
-        ["{attr}=\"{s:.2f}%\"".format(attr=attr, s=float(size_percent)) for attr in dimension]
-        + ["data-{aspect}".format(aspect=aspect)]
-    ))
+    return mark_safe(
+        " ".join(
+            [
+                '{attr}="{s:.2f}%"'.format(attr=attr, s=float(size_percent))
+                for attr in dimension
+            ]
+            + ["data-{aspect}".format(aspect=aspect)]
+        )
+    )
 
 
 @register.filter
-def icon(model_instance, field=''):
+def icon(model_instance, field=""):
     obj = model_instance if not field else model_instance._meta.get_field(field)
-    return getattr(obj, 'icon', '')
+    return getattr(obj, "icon", "")
 
 
 @register.filter(is_safe=True)
@@ -159,6 +174,8 @@ def is_esperanto_surrogate(value):
     return re_esperanto.search(value)
 
 
-re_esperanto = re.compile(r'cx|gx|hx|jx|sx|ux|ch|gh|hh|jh|sh|'
-                          r'c\^|g\^|h\^|j\^|s\^|u\^|u~|\^c|\^g|\^h|\^j|\^s|\^u|~u',
-                          re.IGNORECASE)
+re_esperanto = re.compile(
+    r"cx|gx|hx|jx|sx|ux|ch|gh|hh|jh|sh|"
+    r"c\^|g\^|h\^|j\^|s\^|u\^|u~|\^c|\^g|\^h|\^j|\^s|\^u|~u",
+    re.IGNORECASE,
+)

@@ -5,16 +5,16 @@ from django.template import Context, Template, TemplateSyntaxError
 from django.test import TestCase, tag
 
 
-@tag('templatetags')
+@tag("templatetags")
 class ExpressionTagTests(TestCase):
-    _sentinel = {'T': 'F', 'r': 'R', 'u': 'A', 't': 'U', 'h': 'D'}
+    _sentinel = {"T": "F", "r": "R", "u": "A", "t": "U", "h": "D"}
 
     @classmethod
     def setUpTestData(cls):
         cls.test_data = [
             ("13.7", "13.7", False),
             (15.8, "15.8", False),
-            ("\"Abc\"", "Abc", False),
+            ('"Abc"', "Abc", False),
             (True, "True", False),
             ("varONE", "", True),
             ("request.user", "", True),
@@ -29,21 +29,21 @@ class ExpressionTagTests(TestCase):
             ("str(type(view))[1:str(type(view)).find(' ')].upper()", "CLASS", False),
             ("[1, 0, 7].express()", "", True),
         ]
-        cls.logger = logging.getLogger('PasportaServo.expr')
+        cls.logger = logging.getLogger("PasportaServo.expr")
         cls.logger.setLevel(logging.CRITICAL)
 
     @property
     def base_context(self):
         return {
-            'varTWO': self.__class__.__name__,
-            'view': self,
+            "varTWO": self.__class__.__name__,
+            "view": self,
         }
 
     @property
     def more_context(self):
         return {
-            'WIZARD': 1.3,
-            'ELF': 0.8,
+            "WIZARD": 1.3,
+            "ELF": 0.8,
         }
 
     def test_incorrect_syntax(self):
@@ -52,7 +52,9 @@ class ExpressionTagTests(TestCase):
         self.assertIn("Expression is required", str(cm.exception))
 
     def test_incorrect_var_name(self):
-        template = Template("{% load expression %}{% expr 42 + 24 as view.secret_key %}")
+        template = Template(
+            "{% load expression %}{% expr 42 + 24 as view.secret_key %}"
+        )
         with self.assertLogs(self.logger, logging.WARNING):
             page = template.render(Context({}))
         self.assertEqual(page, "")
@@ -73,10 +75,12 @@ class ExpressionTagTests(TestCase):
 
     def test_stored_result(self):
         template_string_clear = string.Template(
-            "{% load expression %} {% expr $TESTEXPR as test_var %}")
+            "{% load expression %} {% expr $TESTEXPR as test_var %}"
+        )
         template_string_print = string.Template(
             "{% load l10n expression %} {% expr $TESTEXPR as test_var %}"
-            "{% localize off %}#{{ test_var|safe }}#{% endlocalize %}")
+            "{% localize off %}#{{ test_var|safe }}#{% endlocalize %}"
+        )
 
         for expr, expected, should_emit_log in self.test_data:
             with self.subTest(expr=expr):
@@ -97,7 +101,8 @@ class ExpressionTagTests(TestCase):
                 self.assertEqual(page, " #{}#".format(expected))
 
     def test_stored_locally_result(self, is_global=False):
-        template_string = string.Template("""
+        template_string = string.Template(
+            """
             {% load l10n expression %}{% localize off %}
             ^{{ $VARNAME|safe }}^
             {% with local_context=True %}
@@ -106,20 +111,27 @@ class ExpressionTagTests(TestCase):
             {% endwith %}
             *{{ $VARNAME|safe }}*
             {% endlocalize %}
-        """)
+        """
+        )
 
-        for var_name in ('test_var', 'qwe_rty_uio_p8', 'global'):
+        for var_name in ("test_var", "qwe_rty_uio_p8", "global"):
             for expr, expected, should_emit_log in self.test_data:
                 with self.subTest(expr=expr, var=var_name):
-                    template = Template(template_string.substitute(
-                        TESTEXPR=expr, VARNAME=var_name, GLOBAL="global" if is_global else "",
-                    ))
+                    template = Template(
+                        template_string.substitute(
+                            TESTEXPR=expr,
+                            VARNAME=var_name,
+                            GLOBAL="global" if is_global else "",
+                        )
+                    )
                     context = Context(self.base_context.copy())
                     page = template.render(context)
                     self.assertEqual(
-                        page.replace(" "*16, "").replace(" "*12, "").strip(),
+                        page.replace(" " * 16, "").replace(" " * 12, "").strip(),
                         "^^\n\n\n#{value_local}#\n\n*{value_global}*".format(
-                            value_local=expected, value_global=expected if is_global else "")
+                            value_local=expected,
+                            value_global=expected if is_global else "",
+                        ),
                     )
 
     def test_stored_globally_result(self):

@@ -8,9 +8,11 @@ from postman.forms import AnonymousWriteForm, FullReplyForm, QuickReplyForm, Wri
 class ChatMessageMixin(object):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['body'].label = _("Message")
-        if 'recipients' in self.fields and hasattr(self.fields['recipients'], 'user_filter'):
-            self.fields['recipients'].user_filter = self.user_filter
+        self.fields["body"].label = _("Message")
+        if "recipients" in self.fields and hasattr(
+            self.fields["recipients"], "user_filter"
+        ):
+            self.fields["recipients"].user_filter = self.user_filter
 
     def user_filter(self, recipient):
         try:
@@ -18,7 +20,8 @@ class ChatMessageMixin(object):
                 if self.instance.sender:
                     raise ValidationError(
                         _("Cannot send the message: This user has passed away."),
-                        code='deceased')
+                        code="deceased",
+                    )
                 else:
                     return ""  # Display the default sending rejection notification.
         except ProfileDoesNotExist:

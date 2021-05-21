@@ -8,17 +8,18 @@ import hosting.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0058_countryregion_model'),
+        ("hosting", "0058_countryregion_model"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='phone',
-            name='number',
+            model_name="phone",
+            name="number",
             field=hosting.fields.PhoneNumberField(
-                help_text='International number format begining with the plus sign (e.g.: +31 10 436 1044)',
+                help_text="International number format begining with the plus sign (e.g.: +31 10 436 1044)",
                 max_length=128,
                 region=None,
-                verbose_name='number'),
+                verbose_name="number",
+            ),
         ),
     ]

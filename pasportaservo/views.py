@@ -19,7 +19,9 @@ from .forms import (
 User = get_user_model()
 
 
-def custom_permission_denied_view(request, exception, template_name=ERROR_403_TEMPLATE_NAME):
+def custom_permission_denied_view(
+    request, exception, template_name=ERROR_403_TEMPLATE_NAME
+):
     """
     The Permission Denied view normally lacks information about the view that triggered the
     exception, unless this information was provided in the exception object manually (as the
@@ -28,10 +30,12 @@ def custom_permission_denied_view(request, exception, template_name=ERROR_403_TE
     It is used, among others, by the Auth mixin to provide data about the offending view to
     the Debug toolbar.
     """
-    response = permission_denied(request, exception.args[0] if exception.args else exception, template_name)
+    response = permission_denied(
+        request, exception.args[0] if exception.args else exception, template_name
+    )
     try:
-        response.context_data = getattr(response, 'context_data', {})
-        response.context_data['view'] = exception.args[1]
+        response.context_data = getattr(response, "context_data", {})
+        response.context_data["view"] = exception.args[1]
     except IndexError:
         pass
     return response
@@ -42,23 +46,27 @@ class ExtendedWriteView(PostmanWriteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        recipients = context['form'].initial.get('recipients')
+        recipients = context["form"].initial.get("recipients")
         if recipients:
-            to = recipients.split(', ')[0]
+            to = recipients.split(", ")[0]
             self.to_user = User.objects.get(username=to)
-            context['target_user'] = self.to_user
-            context['target_public_phones'] = SimpleLazyObject(lambda: self.target_user_public_phones)
+            context["target_user"] = self.to_user
+            context["target_public_phones"] = SimpleLazyObject(
+                lambda: self.target_user_public_phones
+            )
         else:
-            context['target_user'] = None
+            context["target_user"] = None
         return context
 
     @cached_property
     def author_is_authorized(self):
         try:
-            auth_users = Place.objects.filter(owner=self.to_user.profile).values_list('authorized_users', flat=True)
+            auth_users = Place.objects.filter(owner=self.to_user.profile).values_list(
+                "authorized_users", flat=True
+            )
         except (AttributeError, Profile.DoesNotExist):
             return False
-        is_authorized = (self.request.user.pk in auth_users)
+        is_authorized = self.request.user.pk in auth_users
         return is_authorized
 
     @cached_property
@@ -69,11 +77,10 @@ class ExtendedWriteView(PostmanWriteView):
             else:
                 by_visibility = Q(visibility__visible_online_public=True)
             phones = (
-                Phone.objects
-                .filter(profile=self.to_user.profile)
+                Phone.objects.filter(profile=self.to_user.profile)
                 .filter(by_visibility)
                 .select_related(None)
-                .only('number', 'type', 'country')
+                .only("number", "type", "country")
             )
         except (AttributeError, Profile.DoesNotExist):
             phones = None
@@ -91,7 +98,13 @@ class ChatMixin(object):
         context = super().get_context_data(**kwargs)
         user = self.request.user
         m = self.msgs[0]
-        context['counterparty'] = m.sender if m.sender != user else m.recipient if m.recipient != user else None
+        context["counterparty"] = (
+            m.sender
+            if m.sender != user
+            else m.recipient
+            if m.recipient != user
+            else None
+        )
         return context
 
 

@@ -14,5 +14,5 @@ admin.site.unregister(FlatPage)
 @admin.register(FlatPage)
 class FlatPageAdmin(FlatPageAdmin):
     formfield_overrides = {
-        models.TextField: {'widget': CodeMirrorAdminWidget(config_name='html')},
+        models.TextField: {"widget": CodeMirrorAdminWidget(config_name="html")},
     }

@@ -4,17 +4,17 @@ from django_webtest import WebTest
 from ..factories import GenderFactory
 
 
-@tag('models')
+@tag("models")
 class GenderModelTests(WebTest):
     def test_field_max_lengths(self):
         gender = GenderFactory.build()
-        self.assertEqual(gender._meta.get_field('name_en').max_length, 255)
-        self.assertEqual(gender._meta.get_field('name').max_length, 255)
+        self.assertEqual(gender._meta.get_field("name_en").max_length, 255)
+        self.assertEqual(gender._meta.get_field("name").max_length, 255)
 
     def test_field_uniqueness(self):
         gender = GenderFactory.build()
-        self.assertTrue(gender._meta.get_field('name_en').unique)
-        self.assertTrue(gender._meta.get_field('name').unique)
+        self.assertTrue(gender._meta.get_field("name_en").unique)
+        self.assertTrue(gender._meta.get_field("name").unique)
 
     def test_eqality(self):
         gender = GenderFactory.build(name="forrest", name_en="gump")
@@ -33,9 +33,9 @@ class GenderModelTests(WebTest):
     def test_str(self):
         gender_known = GenderFactory.build()
         gender_novel = GenderFactory.build(id=None, name_en="")
-        with override_settings(LANGUAGE_CODE='eo'):
+        with override_settings(LANGUAGE_CODE="eo"):
             self.assertEqual(str(gender_known), gender_known.name)
             self.assertEqual(str(gender_novel), gender_novel.name)
-        with override_settings(LANGUAGE_CODE='fr'):
+        with override_settings(LANGUAGE_CODE="fr"):
             self.assertEqual(str(gender_known), gender_known.name_en)
             self.assertEqual(str(gender_novel), gender_novel.name)

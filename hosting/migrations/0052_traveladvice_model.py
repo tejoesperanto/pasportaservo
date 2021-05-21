@@ -11,25 +11,64 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0051_whereabouts_model'),
+        ("hosting", "0051_whereabouts_model"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='TravelAdvice',
+            name="TravelAdvice",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('content', simplemde.fields.SimpleMDEField(verbose_name='Markdown content')),
-                ('description', models.TextField(verbose_name='HTML description')),
-                ('countries', django_countries.fields.CountryField(blank=True, max_length=746, multiple=True, verbose_name='countries')),
-                ('active_from', models.DateField(blank=True, null=True, verbose_name='advice valid from date')),
-                ('active_until', models.DateField(blank=True, null=True, verbose_name='advice valid until date')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created",
+                    django_extensions.db.fields.CreationDateTimeField(
+                        auto_now_add=True, verbose_name="created"
+                    ),
+                ),
+                (
+                    "modified",
+                    django_extensions.db.fields.ModificationDateTimeField(
+                        auto_now=True, verbose_name="modified"
+                    ),
+                ),
+                (
+                    "content",
+                    simplemde.fields.SimpleMDEField(verbose_name="Markdown content"),
+                ),
+                ("description", models.TextField(verbose_name="HTML description")),
+                (
+                    "countries",
+                    django_countries.fields.CountryField(
+                        blank=True,
+                        max_length=746,
+                        multiple=True,
+                        verbose_name="countries",
+                    ),
+                ),
+                (
+                    "active_from",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="advice valid from date"
+                    ),
+                ),
+                (
+                    "active_until",
+                    models.DateField(
+                        blank=True, null=True, verbose_name="advice valid until date"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'travel advice',
-                'verbose_name_plural': 'travel advices',
+                "verbose_name": "travel advice",
+                "verbose_name_plural": "travel advices",
             },
         ),
     ]

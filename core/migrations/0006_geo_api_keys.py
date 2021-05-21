@@ -8,18 +8,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0005_agreement_withdrawal'),
+        ("core", "0005_agreement_withdrawal"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='siteconfiguration',
-            name='opencage_api_key',
-            field=models.CharField(blank=True, default='a27f7e361bdfe11881a987a6e86fb5fd', max_length=32),
+            model_name="siteconfiguration",
+            name="opencage_api_key",
+            field=models.CharField(
+                blank=True, default="a27f7e361bdfe11881a987a6e86fb5fd", max_length=32
+            ),
         ),
         migrations.AddField(
-            model_name='siteconfiguration',
-            name='openmaptiles_api_key',
-            field=models.CharField(blank=True, default='iQbjILhp2gs0dgNfTlIV', max_length=32),
+            model_name="siteconfiguration",
+            name="openmaptiles_api_key",
+            field=models.CharField(
+                blank=True, default="iQbjILhp2gs0dgNfTlIV", max_length=32
+            ),
         ),
     ]

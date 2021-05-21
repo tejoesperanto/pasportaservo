@@ -11,18 +11,32 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('hosting', '0022_confirmed_on'),
+        ("hosting", "0022_confirmed_on"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='phone',
-            name='checked_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='approved by'),
+            model_name="phone",
+            name="checked_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="+",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="approved by",
+            ),
         ),
         migrations.AddField(
-            model_name='website',
-            name='checked_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='approved by'),
+            model_name="website",
+            name="checked_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="+",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="approved by",
+            ),
         ),
     ]

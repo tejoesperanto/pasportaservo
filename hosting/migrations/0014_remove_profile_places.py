@@ -7,12 +7,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0013_place_family_members'),
+        ("hosting", "0013_place_family_members"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='profile',
-            name='places',
+            model_name="profile",
+            name="places",
         ),
     ]

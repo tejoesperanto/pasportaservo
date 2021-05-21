@@ -11,33 +11,52 @@ import hosting.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0044_finalize_visibility'),
+        ("hosting", "0044_finalize_visibility"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='place',
-            name='blocked_from',
-            field=models.DateField(blank=True, help_text='In the format year(4 digits)-month(2 digits)-day(2 digits).', null=True, verbose_name='unavailable from'),
+            model_name="place",
+            name="blocked_from",
+            field=models.DateField(
+                blank=True,
+                help_text="In the format year(4 digits)-month(2 digits)-day(2 digits).",
+                null=True,
+                verbose_name="unavailable from",
+            ),
         ),
         migrations.AlterField(
-            model_name='place',
-            name='blocked_until',
-            field=models.DateField(blank=True, help_text='In the format year(4 digits)-month(2 digits)-day(2 digits).', null=True, verbose_name='unavailable until'),
+            model_name="place",
+            name="blocked_until",
+            field=models.DateField(
+                blank=True,
+                help_text="In the format year(4 digits)-month(2 digits)-day(2 digits).",
+                null=True,
+                verbose_name="unavailable until",
+            ),
         ),
         migrations.AlterField(
-            model_name='profile',
-            name='email',
-            field=hosting.fields.StyledEmailField(blank=True, help_text="This email address will be used for the book. Leave blank if you don't want this email to be public.\nThe system will never send emails to this address, neither publish it on the site without your permission.", max_length=254, verbose_name='public email'),
+            model_name="profile",
+            name="email",
+            field=hosting.fields.StyledEmailField(
+                blank=True,
+                help_text="This email address will be used for the book. Leave blank if you don't want this email to be public.\nThe system will never send emails to this address, neither publish it on the site without your permission.",
+                max_length=254,
+                verbose_name="public email",
+            ),
         ),
         migrations.AlterField(
-            model_name='visibilitysettings',
-            name='model_id',
-            field=models.PositiveIntegerField(null=True, verbose_name='content id'),
+            model_name="visibilitysettings",
+            name="model_id",
+            field=models.PositiveIntegerField(null=True, verbose_name="content id"),
         ),
         migrations.AlterField(
-            model_name='visibilitysettings',
-            name='content_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType', verbose_name='content type'),
+            model_name="visibilitysettings",
+            name="content_type",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to="contenttypes.ContentType",
+                verbose_name="content type",
+            ),
         ),
     ]

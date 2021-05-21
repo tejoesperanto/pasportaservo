@@ -13,31 +13,31 @@ from .widgets import TextWithDatalistInput
 class StyledEmailField(models.EmailField):
     @property
     def icon(self):
-        template = ('<span class="fa fa-envelope" title="{title}" '
-                    '      data-toggle="tooltip" data-placement="bottom"></span>')
+        template = (
+            '<span class="fa fa-envelope" title="{title}" '
+            '      data-toggle="tooltip" data-placement="bottom"></span>'
+        )
         return format_html(template, title=_("email address").capitalize())
 
 
 class PhoneNumberField(DjangoPhoneNumberField):
-    default_error_messages = {'invalid': _("Enter a valid phone number.")}
+    default_error_messages = {"invalid": _("Enter a valid phone number.")}
 
 
 def SuggestiveField(verbose_name=None, choices=None, to_field=None, **kwargs):
     if isinstance(choices, str) or isinstance(choices, models.base.ModelBase):
         # Assumed to be a reference to a model.
         return ForeigKeyWithSuggestions(
-            choices=choices, to_field=to_field,
-            verbose_name=verbose_name,
-            **kwargs)
+            choices=choices, to_field=to_field, verbose_name=verbose_name, **kwargs
+        )
     else:
         # Otherwise it is a list of options.
         return CharFieldWithSuggestions(
-            choices=choices,
-            verbose_name=verbose_name,
-            **kwargs)
+            choices=choices, verbose_name=verbose_name, **kwargs
+        )
 
 
-def _handle_invalid_choice(field, *args, function='validate', code='invalid_choice'):
+def _handle_invalid_choice(field, *args, function="validate", code="invalid_choice"):
     validation_exception_intercepted = False
     try:
         validation_result = getattr(super(type(field), field), function)(*args)
@@ -52,19 +52,21 @@ def _handle_invalid_choice(field, *args, function='validate', code='invalid_choi
 
 class CharFieldWithSuggestions(models.CharField):
     def __init__(self, verbose_name=None, choices=None, **kwargs):
-        kwargs['verbose_name'] = verbose_name
+        kwargs["verbose_name"] = verbose_name
         super().__init__(**kwargs)
         self.suggestions = choices
         if not isinstance(choices, str) and is_iterable(choices):
-            choices = [('{:03d}'.format(i), choice)
-                       if isinstance(choice, str) or not is_iterable(choice)
-                       else choice
-                       for i, choice in enumerate(choices, start=1)]
+            choices = [
+                ("{:03d}".format(i), choice)
+                if isinstance(choice, str) or not is_iterable(choice)
+                else choice
+                for i, choice in enumerate(choices, start=1)
+            ]
         self.choices = choices
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        kwargs['choices'] = self.suggestions
+        kwargs["choices"] = self.suggestions
         return name, path, args, kwargs
 
     def check(self, **kwargs):
@@ -74,15 +76,15 @@ class CharFieldWithSuggestions(models.CharField):
                 checks.Error(
                     "A SuggestiveField must define a 'choices' attribute.",
                     obj=self,
-                    id='fields.E170.1',
+                    id="fields.E170.1",
                 )
             )
         for error in errors:
-            error.msg = error.msg.replace('CharField', 'String-based SuggestiveField')
+            error.msg = error.msg.replace("CharField", "String-based SuggestiveField")
         return errors
 
     def get_choices(self, **kwargs):
-        kwargs['include_blank'] = False
+        kwargs["include_blank"] = False
         return super().get_choices(**kwargs)
 
     def validate(self, value, model_instance):
@@ -104,7 +106,9 @@ class CharFieldWithSuggestions(models.CharField):
                 value = super().to_python(value)
                 if value not in self.empty_values:
                     try:
-                        value = next(i for (i, choice) in self.choices if choice == value)
+                        value = next(
+                            i for (i, choice) in self.choices if choice == value
+                        )
                     except StopIteration:
                         pass
                 return value
@@ -112,7 +116,7 @@ class CharFieldWithSuggestions(models.CharField):
             def validate(self, value):
                 _handle_invalid_choice(self, value)
 
-        defaults = {'choices_form_class': SuggestiveTypedChoiceFormField}
+        defaults = {"choices_form_class": SuggestiveTypedChoiceFormField}
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
@@ -122,15 +126,20 @@ class ForeigKeyWithSuggestions(models.ForeignKey):
         self.suggestions_source_field = to_field
         self.suggestions = choices
         kwargs.update(
-            db_constraint=False, null=True, on_delete=models.DO_NOTHING,
-            to=self.suggestions, to_field=to_field, verbose_name=verbose_name)
+            db_constraint=False,
+            null=True,
+            on_delete=models.DO_NOTHING,
+            to=self.suggestions,
+            to_field=to_field,
+            verbose_name=verbose_name,
+        )
         super().__init__(**kwargs)
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        for provided_key in ('to', 'db_constraint', 'null', 'on_delete'):
+        for provided_key in ("to", "db_constraint", "null", "on_delete"):
             del kwargs[provided_key]
-        kwargs['choices'] = self.suggestions
+        kwargs["choices"] = self.suggestions
         return name, path, args, kwargs
 
     def check(self, **kwargs):
@@ -140,7 +149,7 @@ class ForeigKeyWithSuggestions(models.ForeignKey):
                 checks.Error(
                     "A SuggestiveField must define a 'to_field' attribute.",
                     obj=self,
-                    id='fields.E170.2',
+                    id="fields.E170.2",
                 )
             )
         if not isinstance(self.suggestions_source_field, str):
@@ -148,7 +157,7 @@ class ForeigKeyWithSuggestions(models.ForeignKey):
                 checks.Error(
                     "A SuggestiveField's 'to_field' attribute must be a string.",
                     obj=self,
-                    id='fields.E170.3',
+                    id="fields.E170.3",
                 )
             )
         return errors
@@ -158,14 +167,16 @@ class ForeigKeyWithSuggestions(models.ForeignKey):
             try:
                 return super().get_object(model_instance)
             except models.ObjectDoesNotExist:
-                data = {'pk': -1}
-                data[self.field.to_fields[0]] = getattr(model_instance, self.field.attname)
+                data = {"pk": -1}
+                data[self.field.to_fields[0]] = getattr(
+                    model_instance, self.field.attname
+                )
                 return self.field.remote_field.model(**data)
 
     forward_related_accessor_class = LenientForwardDescriptor
 
     def validate(self, value, model_instance):
-        _handle_invalid_choice(self, value, model_instance, code='invalid')
+        _handle_invalid_choice(self, value, model_instance, code="invalid")
 
     def formfield(self, **kwargs):
         class SuggestiveModelChoiceFormField(forms.ModelChoiceField):
@@ -176,15 +187,17 @@ class ForeigKeyWithSuggestions(models.ForeignKey):
                 self.empty_label = None
 
             def to_python(self, value):
-                converted_value, is_invalid = _handle_invalid_choice(self, value, function='to_python')
+                converted_value, is_invalid = _handle_invalid_choice(
+                    self, value, function="to_python"
+                )
                 if is_invalid:
-                    data = {'pk': value}
-                    if self.to_field_name and self.to_field_name != 'pk':
+                    data = {"pk": value}
+                    if self.to_field_name and self.to_field_name != "pk":
                         data.update({self.to_field_name: value})
-                        data['pk'] = -1
+                        data["pk"] = -1
                     converted_value = self.queryset.model(**data)
                 return converted_value
 
-        defaults = {'form_class': SuggestiveModelChoiceFormField}
+        defaults = {"form_class": SuggestiveModelChoiceFormField}
         defaults.update(kwargs)
         return super().formfield(**defaults)

@@ -21,22 +21,26 @@ def random_identifier(length=None):
         length = None
     if length is None or length <= 0:
         length = random.randint(16, 48)
-    return ''.join(random.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789_')
-                   for n in range(length))
+    return "".join(
+        random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789_")
+        for n in range(length)
+    )
 
 
 @register.filter(is_safe=True)
 def public_id(account):
     try:
-        return sha256(str(account.pk).encode() + str(account.date_joined).encode()).hexdigest()
+        return sha256(
+            str(account.pk).encode() + str(account.date_joined).encode()
+        ).hexdigest()
     except Exception:
-        return ''
+        return ""
 
 
-register.simple_tag(func=lambda *args: list(args), name='list')
+register.simple_tag(func=lambda *args: list(args), name="list")
 
 
-register.simple_tag(func=lambda **kwargs: dict(kwargs), name='dict')
+register.simple_tag(func=lambda **kwargs: dict(kwargs), name="dict")
 
 
 @register.filter(is_safe=True)
@@ -67,10 +71,10 @@ def split(value, by=None):
     """
     try:
         length = None
-        if by == 'NEWLINE':
-            by = '\n'
-        if by and isinstance(by, str) and '~' in by:
-            by, length = by.rsplit('~', maxsplit=1)
+        if by == "NEWLINE":
+            by = "\n"
+        if by and isinstance(by, str) and "~" in by:
+            by, length = by.rsplit("~", maxsplit=1)
             try:
                 length = abs(int(length))
             except ValueError:
@@ -82,7 +86,12 @@ def split(value, by=None):
     if isinstance(value, SafeData):
         parts = [mark_safe(part) for part in parts]
     if length:
-        parts = [[part[i:i+length] for i in range(0, len(part), length)] if part else [part] for part in parts]
+        parts = [
+            [part[i : i + length] for i in range(0, len(part), length)]
+            if part
+            else [part]
+            for part in parts
+        ]
         return [chunk for part_chunks in parts for chunk in part_chunks]
     else:
         return parts
@@ -93,7 +102,7 @@ def mult(value, by):
     try:
         return value * int(by)
     except (ValueError, TypeError):
-        return ''
+        return ""
 
 
 @register.filter(is_safe=True)
@@ -104,14 +113,18 @@ def compact(value):
     at the beginning and at the end of the resulting string. Any characters that can role as whitespace (including
     new lines) are replaced by a space and collapsed.
     """
-    return ' '.join(value.split())
+    return " ".join(value.split())
 
 
-@register.simple_tag(name='next', takes_context=True)
+@register.simple_tag(name="next", takes_context=True)
 def next_link(
-        context,
-        proceed_to, proceed_to_anchor=None, proceed_to_anchor_id=None,
-        url_only=False, default=''):
+    context,
+    proceed_to,
+    proceed_to_anchor=None,
+    proceed_to_anchor_id=None,
+    url_only=False,
+    default="",
+):
     """
     A template tag used to provide the properly encoded redirection target parameter for URLs. The target can be
     specified directly, or via the tokens 'this page' (meaning, the current page's URL will be used) or 'next page'
@@ -120,30 +133,42 @@ def next_link(
       - url_only: causes the tag to output only the calculated target's URL, without encoding for a Query String.
       - default:  provides a default value to output in case the indicated redirection target is empty or unsafe.
     """
-    if str(proceed_to).startswith('#'):
-        proceed_to_anchor_id, proceed_to_anchor, proceed_to = proceed_to_anchor, proceed_to, 'this page'
+    if str(proceed_to).startswith("#"):
+        proceed_to_anchor_id, proceed_to_anchor, proceed_to = (
+            proceed_to_anchor,
+            proceed_to,
+            "this page",
+        )
     if isinstance(context, HttpRequest):
-        context = {'request': context}
-    url_param = ''
+        context = {"request": context}
+    url_param = ""
 
     if proceed_to == "this page":
-        if 'request' in context:
-            url_param = context['request'].get_full_path()
+        if "request" in context:
+            url_param = context["request"].get_full_path()
     elif proceed_to == "next page":
-        if 'request' in context:
-            url_param = sanitize_next(context['request'])
+        if "request" in context:
+            url_param = sanitize_next(context["request"])
     else:
         url_param = proceed_to
 
-    url_param_value = ''.join([
-        str(url_param),
-        str(proceed_to_anchor) if proceed_to_anchor else '',
-        str(proceed_to_anchor_id) if proceed_to_anchor and proceed_to_anchor_id else '',
-    ]) if url_param else default
+    url_param_value = (
+        "".join(
+            [
+                str(url_param),
+                str(proceed_to_anchor) if proceed_to_anchor else "",
+                str(proceed_to_anchor_id)
+                if proceed_to_anchor and proceed_to_anchor_id
+                else "",
+            ]
+        )
+        if url_param
+        else default
+    )
     if not url_only and url_param_value:
         return urlencode(
             {settings.REDIRECT_FIELD_NAME: url_param_value},
-            quote_via=lambda v, *args: urlquote(v, safe='')
+            quote_via=lambda v, *args: urlquote(v, safe=""),
         )
     else:
-        return url_param_value or ''
+        return url_param_value or ""

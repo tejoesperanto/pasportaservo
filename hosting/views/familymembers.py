@@ -15,18 +15,22 @@ from .mixins import (
 
 
 class FamilyMemberCreateView(
-        CreateMixin, AuthMixin, FamilyMemberMixin,
-        generic.CreateView):
+    CreateMixin, AuthMixin, FamilyMemberMixin, generic.CreateView
+):
     form_class = FamilyMemberCreateForm
 
     def verify_anonymous_family(self):
         # Allow creation of only one completely anonymous family member.
         if self.place.family_is_anonymous:
-            return HttpResponseRedirect(reverse_lazy(
-                'family_member_update',
-                kwargs={'pk': self.place.family_members_cache()[0].pk,
-                        'place_pk': self.kwargs['place_pk']}
-            ))
+            return HttpResponseRedirect(
+                reverse_lazy(
+                    "family_member_update",
+                    kwargs={
+                        "pk": self.place.family_members_cache()[0].pk,
+                        "place_pk": self.kwargs["place_pk"],
+                    },
+                )
+            )
         else:
             return None
 
@@ -40,29 +44,28 @@ class FamilyMemberCreateView(
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['place'] = self.place
+        kwargs["place"] = self.place
         return kwargs
 
 
 class FamilyMemberUpdateView(
-        UpdateMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin,
-        generic.UpdateView):
+    UpdateMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin, generic.UpdateView
+):
     form_class = FamilyMemberForm
     display_fair_usage_condition = True
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['place'] = self.place
+        kwargs["place"] = self.place
         return kwargs
 
 
-class FamilyMemberRemoveView(
-        AuthMixin, FamilyMemberMixin,
-        generic.DeleteView):
+class FamilyMemberRemoveView(AuthMixin, FamilyMemberMixin, generic.DeleteView):
     """
     Removes the family member for the Place.
     """
-    template_name = 'hosting/family_member_confirm_delete.html'
+
+    template_name = "hosting/family_member_confirm_delete.html"
     display_fair_usage_condition = True
     minimum_role = OWNER
 
@@ -73,22 +76,25 @@ class FamilyMemberRemoveView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['place'] = self.place
+        context["place"] = self.place
         return context
 
 
 class FamilyMemberDeleteView(
-        DeleteMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin,
-        generic.DeleteView):
+    DeleteMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin, generic.DeleteView
+):
     """
     Removes the family member for the Place and deletes the profile.
     """
+
     display_fair_usage_condition = True
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
         if self.other_places.count() > 0:
-            raise Http404("This family member is listed at other places as well; cannot delete the profile.")
+            raise Http404(
+                "This family member is listed at other places as well; cannot delete the profile."
+            )
         return self.object
 
     def delete(self, request, *args, **kwargs):

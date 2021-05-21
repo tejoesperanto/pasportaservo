@@ -26,19 +26,22 @@ class LoginRequiredMixin(AuthenticatedUserRequiredMixin):
     for the redirection after successful authentication. Needed due to
     arbitrary limitations on the parameter name customization by Django.
     """
+
     redirect_field_name = settings.REDIRECT_FIELD_NAME
 
 
 class UserModifyMixin(object):
     def get_success_url(self, *args, **kwargs):
         try:
-            if hasattr(self.object, self.object._meta.get_field('profile').get_cache_name()):
+            if hasattr(
+                self.object, self.object._meta.get_field("profile").get_cache_name()
+            ):
                 profile = self.object.profile
             else:
                 profile = Profile.get_basic_data(user=self.object)
             return profile.get_edit_url()
         except Profile.DoesNotExist:
-            return reverse_lazy('profile_create')
+            return reverse_lazy("profile_create")
 
 
 def flatpages_as_templates(cls):
@@ -48,23 +51,28 @@ def flatpages_as_templates(cls):
     tags and the view's context. Performs some magic to capture the specific
     view's custom context and provides a helper function `render_flat_page`.
     """
-    context_func_name = 'get_context_data'
+    context_func_name = "get_context_data"
     context_func = getattr(cls, context_func_name, None)
     if context_func:
+
         def _get_context_data_superfunc(self, **kwargs):
             context = context_func(self, **kwargs)
             self._flat_page_context = context
             return context
+
         setattr(cls, context_func_name, _get_context_data_superfunc)
 
     def render_flat_page(self, page):
         if not page:
-            return ''
+            return ""
         from django.template import engines
-        template = engines.all()[0].from_string(page['content'])
+
+        template = engines.all()[0].from_string(page["content"])
         return template.render(
-            getattr(self, '_flat_page_context', render_flat_page._view_context),
-            self.request)
+            getattr(self, "_flat_page_context", render_flat_page._view_context),
+            self.request,
+        )
+
     cls.render_flat_page = render_flat_page
     cls.render_flat_page._view_context = {}
 
@@ -76,19 +84,22 @@ class UsernameFormMixin(object):
     A form mixin that performs a case-insensitive uniqueness validation of the
     provided username value on form submit.
     """
+
     username_error_messages = {
         # We do not want to disclose the exact usernames in the system through
         # the error messages, and thus facilitate user enumeration attacks...
-        'unique': _("A user with a similar username already exists."),
+        "unique": _("A user with a similar username already exists."),
         # Clearly spell out to the potential new users what a valid username is.
-        'invalid': lazy(mark_safe, str)(_(
-            "Enter a username conforming to these rules: "
-            " This value may contain only letters, numbers, and the symbols"
-            " <kbd>@</kbd> <kbd>.</kbd> <kbd>+</kbd> <kbd>-</kbd> <kbd>_</kbd>."
-            " Spaces are not allowed."
-        )),
+        "invalid": lazy(mark_safe, str)(
+            _(
+                "Enter a username conforming to these rules: "
+                " This value may contain only letters, numbers, and the symbols"
+                " <kbd>@</kbd> <kbd>.</kbd> <kbd>+</kbd> <kbd>-</kbd> <kbd>_</kbd>."
+                " Spaces are not allowed."
+            )
+        ),
         # Indicate what are the limitations in terms of number of characters.
-        'max_length': _(
+        "max_length": _(
             "Ensure that this value has at most %(limit_value)d characters "
             "(it has now %(show_value)d)."
         ),
@@ -104,12 +115,12 @@ class UsernameFormMixin(object):
         Ensure that the username provided is unique (in a case-insensitive manner).
         This check replaces the Django's built-in uniqueness verification.
         """
-        username = self.cleaned_data['username']
+        username = self.cleaned_data["username"]
         if username == self.previous_uname:
             return username
         threshold = 1 if username.lower() != self.previous_uname.lower() else 2
         if User.objects.filter(username__iexact=username).count() >= threshold:
-            raise ValidationError(self._meta.error_messages['username']['unique'])
+            raise ValidationError(self._meta.error_messages["username"]["unique"])
         return username
 
 
@@ -119,8 +130,9 @@ class SystemEmailFormMixin(object):
     provided email address value on form submit. Both valid and invalid existing
     emails in the database are taken into account.
     """
+
     email_error_messages = {
-        'max_length': _(
+        "max_length": _(
             "Ensure that this value has at most %(limit_value)d characters "
             "(it has now %(show_value)d)."
         ),
@@ -135,17 +147,25 @@ class SystemEmailFormMixin(object):
         """
         Ensure that the email address provided is unique (in a case-insensitive manner).
         """
-        email_value = self.cleaned_data['email']
+        email_value = self.cleaned_data["email"]
         if not email_value:
             raise ValidationError(_("Enter a valid email address."))
         if email_value.startswith(settings.INVALID_PREFIX):
-            message = _("Email address cannot start with {PREFIX} "
-                        "(in all-capital letters).").format(PREFIX=settings.INVALID_PREFIX)
+            message = _(
+                "Email address cannot start with {PREFIX} " "(in all-capital letters)."
+            ).format(PREFIX=settings.INVALID_PREFIX)
             raise ValidationError(message)
-        invalid_email = '{}{}'.format(settings.INVALID_PREFIX, email_value)
-        emails_lookup = Q(email_lc=email_value.lower()) | Q(email_lc=invalid_email.lower())
-        if email_value and email_value.lower() != self.previous_email.lower() \
-                and User.objects.annotate(email_lc=Lower('email')).filter(emails_lookup).exists():
+        invalid_email = "{}{}".format(settings.INVALID_PREFIX, email_value)
+        emails_lookup = Q(email_lc=email_value.lower()) | Q(
+            email_lc=invalid_email.lower()
+        )
+        if (
+            email_value
+            and email_value.lower() != self.previous_email.lower()
+            and User.objects.annotate(email_lc=Lower("email"))
+            .filter(emails_lookup)
+            .exists()
+        ):
             raise ValidationError(_("User address already in use."))
         return email_value
 
@@ -161,22 +181,44 @@ class PasswordFormMixin(object):
         insecure, howmuch = is_password_compromised(password_field_value)
 
         if insecure and howmuch > 99:
-            self.add_error(NON_FIELD_ERRORS, ValidationError(_(
-                "The password selected by you is too insecure. "
-                "Such combination of characters is very well-known to cyber-criminals."),
-                code='compromised_password'))
-            self.add_error(self.analyze_password_field, _("Choose a less easily guessable password."))
+            self.add_error(
+                NON_FIELD_ERRORS,
+                ValidationError(
+                    _(
+                        "The password selected by you is too insecure. "
+                        "Such combination of characters is very well-known to cyber-criminals."
+                    ),
+                    code="compromised_password",
+                ),
+            )
+            self.add_error(
+                self.analyze_password_field,
+                _("Choose a less easily guessable password."),
+            )
         elif insecure and howmuch > 1:
-            self.add_error(NON_FIELD_ERRORS, ValidationError(_(
-                "The password selected by you is not very secure. "
-                "Such combination of characters is known to cyber-criminals."),
-                code='compromised_password'))
-            self.add_error(self.analyze_password_field, _("Choose a less easily guessable password."))
+            self.add_error(
+                NON_FIELD_ERRORS,
+                ValidationError(
+                    _(
+                        "The password selected by you is not very secure. "
+                        "Such combination of characters is known to cyber-criminals."
+                    ),
+                    code="compromised_password",
+                ),
+            )
+            self.add_error(
+                self.analyze_password_field,
+                _("Choose a less easily guessable password."),
+            )
 
         if insecure:
             auth_log.warning(
-                "Password with HIBP count {:d} selected in {}.".format(howmuch, self.__class__.__name__),
-                extra={'request': self.view_request} if hasattr(self, 'view_request') else None,
+                "Password with HIBP count {:d} selected in {}.".format(
+                    howmuch, self.__class__.__name__
+                ),
+                extra={"request": self.view_request}
+                if hasattr(self, "view_request")
+                else None,
             )
 
     def clean(self):

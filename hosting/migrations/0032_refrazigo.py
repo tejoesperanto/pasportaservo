@@ -8,13 +8,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0031_add_profile_email'),
+        ("hosting", "0031_add_profile_email"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='profile',
-            name='email',
-            field=models.EmailField(blank=True, help_text='This email address will be used for the book. Leave blank if you don’t want this email to be public.\nThe system will never send emails to this address, neither publish it on the site without your permission.', max_length=254, verbose_name='profile email'),
+            model_name="profile",
+            name="email",
+            field=models.EmailField(
+                blank=True,
+                help_text="This email address will be used for the book. Leave blank if you don’t want this email to be public.\nThe system will never send emails to this address, neither publish it on the site without your permission.",
+                max_length=254,
+                verbose_name="profile email",
+            ),
         ),
     ]

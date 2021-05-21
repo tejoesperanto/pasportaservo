@@ -16,24 +16,33 @@ class TrackingManager(models.Manager):
             validity_period = SiteConfiguration.get_solo().confirmation_validity_period
         except DatabaseError:
             from datetime import timedelta
+
             validity_period = timedelta(weeks=42)
         validity_start = timezone.now() - validity_period
-        return super().get_queryset().annotate(
-            deleted=Case(
-                When(deleted_on__isnull=True, then=False),
-                default=True,
-                output_field=BooleanField()),
-            confirmed=Case(
-                When(confirmed_on__isnull=True, then=False),
-                When(confirmed_on__lt=validity_start, then=False),
-                default=True,
-                output_field=BooleanField()),
-            checked=Case(
-                When(checked_on__isnull=True, then=False),
-                # When(checked_on__lt=validity_start, then=False),  # Temporarily disabled.
-                default=True,
-                output_field=BooleanField()),
-        ).select_related()
+        return (
+            super()
+            .get_queryset()
+            .annotate(
+                deleted=Case(
+                    When(deleted_on__isnull=True, then=False),
+                    default=True,
+                    output_field=BooleanField(),
+                ),
+                confirmed=Case(
+                    When(confirmed_on__isnull=True, then=False),
+                    When(confirmed_on__lt=validity_start, then=False),
+                    default=True,
+                    output_field=BooleanField(),
+                ),
+                checked=Case(
+                    When(checked_on__isnull=True, then=False),
+                    # When(checked_on__lt=validity_start, then=False),  # Temporarily disabled.
+                    default=True,
+                    output_field=BooleanField(),
+                ),
+            )
+            .select_related()
+        )
 
 
 class NotDeletedManager(TrackingManager):
@@ -53,10 +62,15 @@ class NotDeletedRawManager(models.Manager):
 
 class ActiveStatusManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().annotate(
-            is_active=Case(
-                When(active_from__gt=timezone.now(), then=False),
-                When(active_until__lt=timezone.now(), then=False),
-                default=True,
-                output_field=BooleanField()),
+        return (
+            super()
+            .get_queryset()
+            .annotate(
+                is_active=Case(
+                    When(active_from__gt=timezone.now(), then=False),
+                    When(active_until__lt=timezone.now(), then=False),
+                    default=True,
+                    output_field=BooleanField(),
+                ),
+            )
         )

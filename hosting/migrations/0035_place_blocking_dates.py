@@ -8,18 +8,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0034_auto_20170218_1339'),
+        ("hosting", "0034_auto_20170218_1339"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='place',
-            name='blocked_from',
-            field=models.DateField(blank=True, null=True, verbose_name='unavailable from'),
+            model_name="place",
+            name="blocked_from",
+            field=models.DateField(
+                blank=True, null=True, verbose_name="unavailable from"
+            ),
         ),
         migrations.AddField(
-            model_name='place',
-            name='blocked_until',
-            field=models.DateField(blank=True, null=True, verbose_name='unavailable until'),
+            model_name="place",
+            name="blocked_until",
+            field=models.DateField(
+                blank=True, null=True, verbose_name="unavailable until"
+            ),
         ),
     ]

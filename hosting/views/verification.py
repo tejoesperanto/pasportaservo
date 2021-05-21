@@ -24,10 +24,11 @@ class InfoConfirmView(LoginRequiredMixin, generic.View):
     Allows the current user (only) to confirm their profile and accommodation
     details as up-to-date.
     """
-    http_method_names = ['post']
-    template_name = 'links/confirmed.html'
 
-    @vary_on_headers('HTTP_X_REQUESTED_WITH')
+    http_method_names = ["post"]
+    template_name = "links/confirmed.html"
+
+    @vary_on_headers("HTTP_X_REQUESTED_WITH")
     def post(self, request, *args, **kwargs):
         try:
             request.user.profile.confirm_all_info()
@@ -35,12 +36,13 @@ class InfoConfirmView(LoginRequiredMixin, generic.View):
             if request.is_ajax():
                 return HttpResponseBadRequest(
                     "Cannot confirm data; a profile must be created first.",
-                    content_type="text/plain")
+                    content_type="text/plain",
+                )
             else:
-                return HttpResponseRedirect(reverse_lazy('profile_create'))
+                return HttpResponseRedirect(reverse_lazy("profile_create"))
         else:
             if request.is_ajax():
-                return JsonResponse({'success': 'confirmed'})
+                return JsonResponse({"success": "confirmed"})
             else:
                 return TemplateResponse(request, self.template_name)
 
@@ -51,25 +53,30 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
     The profile and place data are both validated to make sure they conform to
     the requirements from hosts and guests.
     """
-    http_method_names = ['post']
-    template_names = {True: '200.html', False: 'hosting/place_check_detail.html'}
+
+    http_method_names = ["post"]
+    template_names = {True: "200.html", False: "hosting/place_check_detail.html"}
     display_fair_usage_condition = True
     minimum_role = SUPERVISOR
 
     class LocationDummyForm(ModelForm):
         class Meta:
             model = Place
-            fields = ['location', 'location_confidence']
+            fields = ["location", "location_confidence"]
 
         def clean(self):
-            if not self.initial['location'] or self.initial['location'].empty:
-                self.add_error('location', _("The geographical location on map is unknown."))
-            elif self.initial['location_confidence'] < LocationConfidence.ACCEPTABLE:
-                self.add_error('location', _("The geographical location on map is imprecise."))
+            if not self.initial["location"] or self.initial["location"].empty:
+                self.add_error(
+                    "location", _("The geographical location on map is unknown.")
+                )
+            elif self.initial["location_confidence"] < LocationConfidence.ACCEPTABLE:
+                self.add_error(
+                    "location", _("The geographical location on map is imprecise.")
+                )
             else:
-                self.cleaned_data = {'location': self.data['location']}
+                self.cleaned_data = {"location": self.data["location"]}
 
-    @vary_on_headers('HTTP_X_REQUESTED_WITH')
+    @vary_on_headers("HTTP_X_REQUESTED_WITH")
     def post(self, request, *args, **kwargs):
         place = self.get_object()
         data = [
@@ -81,25 +88,35 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
         all_forms = []
         for form_class, objects in data:
             for object_model in objects:
-                object_data = serializers.serialize('json', [object_model], fields=form_class._meta.fields)
-                object_data = json.loads(object_data)[0]['fields']
+                object_data = serializers.serialize(
+                    "json", [object_model], fields=form_class._meta.fields
+                )
+                object_data = json.loads(object_data)[0]["fields"]
                 all_forms.append(form_class(data=object_data, instance=object_model))
 
-        data_correct = all([form.is_valid() for form in all_forms])  # We want all validations.
-        viewresponse = {'result': data_correct}
+        data_correct = all(
+            [form.is_valid() for form in all_forms]
+        )  # We want all validations.
+        viewresponse = {"result": data_correct}
         if not data_correct:
-            viewresponse['err'] = OrderedDict()
+            viewresponse["err"] = OrderedDict()
             data_problems = set()
             for form in all_forms:
-                viewresponse['err'].update({
-                    self._get_field_label(form, field_name) : list(field_errs)  # noqa: E203
-                    for field_name, field_errs
-                    in [(k, set(err for err in v if err)) for k, v in form.errors.items()]
-                    if field_name != NON_FIELD_ERRORS and len(field_errs)
-                })
+                viewresponse["err"].update(
+                    {
+                        self._get_field_label(form, field_name): list(
+                            field_errs
+                        )  # noqa: E203
+                        for field_name, field_errs in [
+                            (k, set(err for err in v if err))
+                            for k, v in form.errors.items()
+                        ]
+                        if field_name != NON_FIELD_ERRORS and len(field_errs)
+                    }
+                )
                 data_problems.update(form.errors.get(NON_FIELD_ERRORS, []))
             if len(data_problems):
-                viewresponse['err'+NON_FIELD_ERRORS] = list(data_problems)
+                viewresponse["err" + NON_FIELD_ERRORS] = list(data_problems)
         else:
             place.set_check_status(self.request.user)
 
@@ -109,7 +126,7 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
             return TemplateResponse(
                 request,
                 self.template_names[data_correct],
-                context={'view': self, 'place': place, 'result': viewresponse}
+                context={"view": self, "place": place, "result": viewresponse},
             )
 
     def _get_field_label(self, form, field_name):

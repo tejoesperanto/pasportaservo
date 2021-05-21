@@ -10,11 +10,11 @@ from ..models import Profile, VisibilitySettings
 
 class CountryMentionedOnlyFilter(admin.SimpleListFilter):
     title = _("country")
-    parameter_name = 'country__in'
+    parameter_name = "country__in"
 
     def lookups(self, request, model_admin):
-        self.multicountry = hasattr(model_admin.model, 'countries')
-        country_field = 'countries' if self.multicountry else 'country'
+        self.multicountry = hasattr(model_admin.model, "countries")
+        country_field = "countries" if self.multicountry else "country"
         qs = model_admin.get_queryset(request).only(country_field).select_related(None)
         qs.query.annotations.clear()
         countries = [
@@ -32,9 +32,9 @@ class CountryMentionedOnlyFilter(admin.SimpleListFilter):
 
     def choices(self, changelist):
         yield {
-            'selected': not self.value(),
-            'query_string': changelist.get_query_string({}, [self.parameter_name]),
-            'display': _('All'),
+            "selected": not self.value(),
+            "query_string": changelist.get_query_string({}, [self.parameter_name]),
+            "display": _("All"),
         }
         value_list = self.values()
         for lookup, title in self.lookup_choices:
@@ -45,23 +45,40 @@ class CountryMentionedOnlyFilter(admin.SimpleListFilter):
             else:
                 current_lookups.add(lookup)
             query_string = changelist.get_query_string(
-                new_params={self.parameter_name: ",".join(current_lookups)} if current_lookups else {},
-                remove=[self.parameter_name] if not current_lookups else [])
-            yield {'selected': item_selected, 'query_string': query_string, 'display': title}
+                new_params={self.parameter_name: ",".join(current_lookups)}
+                if current_lookups
+                else {},
+                remove=[self.parameter_name] if not current_lookups else [],
+            )
+            yield {
+                "selected": item_selected,
+                "query_string": query_string,
+                "display": title,
+            }
 
     def queryset(self, request, queryset):
-        value_list = set([v.strip() for v in self.values() if len(v.strip()) == 2 and v.strip().isalpha()])
+        value_list = set(
+            [
+                v.strip()
+                for v in self.values()
+                if len(v.strip()) == 2 and v.strip().isalpha()
+            ]
+        )
         if not self.multicountry:
             lookup = Q(country__in=value_list)
         else:
             # No risk of injection because values are restricted to be 2 letters.
-            lookup = Q(countries__regex=r'(^|,)({})(,|$)'.format('|'.join(value_list)))
-        return queryset.filter(lookup) if value_list else (queryset.none() if self.value() else queryset)
+            lookup = Q(countries__regex=r"(^|,)({})(,|$)".format("|".join(value_list)))
+        return (
+            queryset.filter(lookup)
+            if value_list
+            else (queryset.none() if self.value() else queryset)
+        )
 
 
 class VisibilityTargetFilter(admin.SimpleListFilter):
     title = _("type")
-    parameter_name = 'model_type'
+    parameter_name = "model_type"
 
     def lookups(self, request, model_admin):
         targets = [
@@ -81,7 +98,7 @@ class VisibilityTargetFilter(admin.SimpleListFilter):
 class SimpleBooleanListFilter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         self.model = model_admin.model
-        return ((1, _('Yes')), (0, _('No')))
+        return ((1, _("Yes")), (0, _("No")))
 
     def is_no(self):
         return int(self.value()) == 0
@@ -93,10 +110,10 @@ class SimpleBooleanListFilter(admin.SimpleListFilter):
 
 class SupervisorFilter(SimpleBooleanListFilter):
     title = _("supervisor status")
-    parameter_name = 'is_supervisor'
+    parameter_name = "is_supervisor"
 
     def perform_filter(self, queryset):
-        country_filter = r'^[A-Z]{2}$'
+        country_filter = r"^[A-Z]{2}$"
         if self.is_no():
             return queryset.exclude(groups__name__regex=country_filter)
         else:
@@ -105,11 +122,13 @@ class SupervisorFilter(SimpleBooleanListFilter):
 
 class EmailValidityFilter(SimpleBooleanListFilter):
     title = _("invalid email")
-    parameter_name = 'email_invalid'
+    parameter_name = "email_invalid"
 
     def perform_filter(self, queryset):
         email_filter = {
-            '{0}email__startswith'.format('user__' if self.model is Profile else ''): settings.INVALID_PREFIX,
+            "{0}email__startswith".format(
+                "user__" if self.model is Profile else ""
+            ): settings.INVALID_PREFIX,
         }
         if self.is_no():
             qs = queryset.exclude(**email_filter)
@@ -122,7 +141,7 @@ class EmailValidityFilter(SimpleBooleanListFilter):
 
 class ProfileHasUserFilter(SimpleBooleanListFilter):
     title = _("user is defined")
-    parameter_name = 'has_user'
+    parameter_name = "has_user"
 
     def perform_filter(self, queryset):
         return queryset.filter(user__isnull=self.is_no())
@@ -130,7 +149,7 @@ class ProfileHasUserFilter(SimpleBooleanListFilter):
 
 class PlaceHasLocationFilter(SimpleBooleanListFilter):
     title = _("location is defined")
-    parameter_name = 'has_location'
+    parameter_name = "has_location"
 
     def perform_filter(self, queryset):
         return queryset.filter(location__isnull=self.is_no())
@@ -138,7 +157,7 @@ class PlaceHasLocationFilter(SimpleBooleanListFilter):
 
 class ActiveStatusFilter(SimpleBooleanListFilter):
     title = _("active")
-    parameter_name = 'is_active'
+    parameter_name = "is_active"
 
     def perform_filter(self, queryset):
         return queryset.filter(is_active=not self.is_no())

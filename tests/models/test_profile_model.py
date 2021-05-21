@@ -12,7 +12,7 @@ from ..factories import ProfileFactory, ProfileSansAccountFactory, UserFactory
 from .test_managers import TrackingManagersTests
 
 
-@tag('models', 'profile')
+@tag("models", "profile")
 class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
     factory = ProfileFactory
 
@@ -21,23 +21,25 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
         cls.template_first_name = '<span class="first-name">{name}</span>'
         cls.template_last_name = '<span class="last-name">{name}</span>'
         cls.template_username = '<span class="profile-noname">{name}</span>'
-        cls.template_joiner = '&ensp;'
+        cls.template_joiner = "&ensp;"
 
         cls.basic_profile = ProfileFactory(first_name="Aaa", last_name="Bbb")
 
     def test_field_max_lengths(self):
         profile = self.basic_profile
-        self.assertEqual(profile._meta.get_field('title').max_length, 5)
-        self.assertEqual(profile._meta.get_field('first_name').max_length, 255)
-        self.assertEqual(profile._meta.get_field('last_name').max_length, 255)
-        self.assertEqual(profile._meta.get_field('pronoun').max_length, 10)
+        self.assertEqual(profile._meta.get_field("title").max_length, 5)
+        self.assertEqual(profile._meta.get_field("first_name").max_length, 255)
+        self.assertEqual(profile._meta.get_field("last_name").max_length, 255)
+        self.assertEqual(profile._meta.get_field("pronoun").max_length, 10)
 
     def test_name(self):
         # A profile with name "Aa" is expected to be "Aa".
         profile = ProfileFactory.build(first_name="Aa", last_name="Bb")
         self.assertEqual(profile.name, "Aa")
         # A profile with name "Aa", names inversed, is expected to be "Aa".
-        profile = ProfileFactory.build(first_name="Aa", last_name="Bb", names_inversed=True)
+        profile = ProfileFactory.build(
+            first_name="Aa", last_name="Bb", names_inversed=True
+        )
         self.assertEqual(profile.name, "Aa")
         # A profile with name "  Aa  " is expected to be "Aa".
         profile = ProfileFactory.build(first_name="  Aa  ", last_name="Bb")
@@ -52,11 +54,15 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
     def test_fullname(self):
         # Normal profile with both names is expected to be "Aa Bb".
         profile = ProfileFactory.build()
-        self.assertEqual(profile.full_name, '{} {}'.format(profile.first_name, profile.last_name))
+        self.assertEqual(
+            profile.full_name, "{} {}".format(profile.first_name, profile.last_name)
+        )
 
         # Normal profile with both names, inversed, is expected to be "Bb Aa".
         profile = ProfileFactory.build(names_inversed=True)
-        self.assertEqual(profile.full_name, '{} {}'.format(profile.last_name, profile.first_name))
+        self.assertEqual(
+            profile.full_name, "{} {}".format(profile.last_name, profile.first_name)
+        )
 
         # A profile with only last name is expected to be "Bb".
         profile = ProfileFactory.build(first_name="")
@@ -82,94 +88,132 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
     def test_profile_fullname_template(self):
         # Normal profile with both names is expected to be "Aa Bb".
         profile = ProfileFactory()
-        self.assertEqual(profile.get_fullname_display(), self.template_joiner.join([
-            format_html(self.template_first_name, name=profile.first_name),
-            format_html(self.template_last_name, name=profile.last_name),
-        ]))
+        self.assertEqual(
+            profile.get_fullname_display(),
+            self.template_joiner.join(
+                [
+                    format_html(self.template_first_name, name=profile.first_name),
+                    format_html(self.template_last_name, name=profile.last_name),
+                ]
+            ),
+        )
 
         # Normal profile with both names, inversed, is expected to be "Bb Aa".
         profile = ProfileFactory(names_inversed=True)
-        self.assertEqual(profile.get_fullname_display(), self.template_joiner.join([
-            format_html(self.template_last_name, name=profile.last_name),
-            format_html(self.template_first_name, name=profile.first_name),
-        ]))
+        self.assertEqual(
+            profile.get_fullname_display(),
+            self.template_joiner.join(
+                [
+                    format_html(self.template_last_name, name=profile.last_name),
+                    format_html(self.template_first_name, name=profile.first_name),
+                ]
+            ),
+        )
 
         # A profile with only last name is expected to be "Bb".
         profile = ProfileFactory(first_name="")
-        self.assertEqual(profile.get_fullname_display(), (
-            format_html(self.template_last_name, name=profile.last_name)
-        ))
+        self.assertEqual(
+            profile.get_fullname_display(),
+            (format_html(self.template_last_name, name=profile.last_name)),
+        )
         # A profile with only last name, names inversed, is expected to be "Bb".
         profile = ProfileFactory(first_name="", names_inversed=True)
-        self.assertEqual(profile.get_fullname_display(), (
-            format_html(self.template_last_name, name=profile.last_name)
-        ))
+        self.assertEqual(
+            profile.get_fullname_display(),
+            (format_html(self.template_last_name, name=profile.last_name)),
+        )
 
         # A profile with only first name is expected to be "Aa".
         profile = ProfileFactory(last_name="")
-        self.assertEqual(profile.get_fullname_display(), (
-            format_html(self.template_first_name, name=profile.first_name)
-        ))
+        self.assertEqual(
+            profile.get_fullname_display(),
+            (format_html(self.template_first_name, name=profile.first_name)),
+        )
         # A profile with only first name, names inversed, is expected to be "Aa".
         profile = ProfileFactory(last_name="", names_inversed=True)
-        self.assertEqual(profile.get_fullname_display(), (
-            format_html(self.template_first_name, name=profile.first_name)
-        ))
+        self.assertEqual(
+            profile.get_fullname_display(),
+            (format_html(self.template_first_name, name=profile.first_name)),
+        )
 
         # A profile with no names provided is expected to be "Uu".
         profile = ProfileFactory(first_name="", last_name="")
-        self.assertEqual(profile.get_fullname_display(), (
-            format_html(self.template_username, name=profile.user.username.title())
-        ))
+        self.assertEqual(
+            profile.get_fullname_display(),
+            (format_html(self.template_username, name=profile.user.username.title())),
+        )
         # A profile with no names provided, names inversed, is expected to be "Uu".
         profile = ProfileFactory(first_name="", last_name="", names_inversed=True)
-        self.assertEqual(profile.get_fullname_display(), (
-            format_html(self.template_username, name=profile.user.username.title())
-        ))
+        self.assertEqual(
+            profile.get_fullname_display(),
+            (format_html(self.template_username, name=profile.user.username.title())),
+        )
         # A profile with no user account and no names provided is expected to have empty output.
         profile = ProfileSansAccountFactory(first_name="", last_name="")
-        self.assertEqual(profile.get_fullname_display(), (
-            format_html(self.template_username, name=" ")
-        ))
+        self.assertEqual(
+            profile.get_fullname_display(),
+            (format_html(self.template_username, name=" ")),
+        )
         # A profile with no user account and no names provided (inversed) is expected to have empty output.
-        profile = ProfileSansAccountFactory(first_name="", last_name="", names_inversed=True)
-        self.assertEqual(profile.get_fullname_display(), (
-            format_html(self.template_username, name=" ")
-        ))
+        profile = ProfileSansAccountFactory(
+            first_name="", last_name="", names_inversed=True
+        )
+        self.assertEqual(
+            profile.get_fullname_display(),
+            (format_html(self.template_username, name=" ")),
+        )
         # When 'always', a profile with no user and no names provided is expected to have output of a dash.
         profile = ProfileSansAccountFactory(first_name="", last_name="")
-        self.assertEqual(profile.get_fullname_always_display(), (
-            format_html(self.template_username, name="--")
-        ))
+        self.assertEqual(
+            profile.get_fullname_always_display(),
+            (format_html(self.template_username, name="--")),
+        )
         # When 'always', a profile with no user, no names provided (inversed) is expected to have output of a dash.
-        profile = ProfileSansAccountFactory(first_name="", last_name="", names_inversed=True)
-        self.assertEqual(profile.get_fullname_always_display(), (
-            format_html(self.template_username, name="--")
-        ))
+        profile = ProfileSansAccountFactory(
+            first_name="", last_name="", names_inversed=True
+        )
+        self.assertEqual(
+            profile.get_fullname_always_display(),
+            (format_html(self.template_username, name="--")),
+        )
 
     def test_age(self):
         profile = ProfileFactory.build(birth_date=None)
         self.assertRaises(TypeError, lambda: profile.age)
-        profile = ProfileFactory.build(birth_date=Faker('date_this_year', before_today=True, after_today=False))
+        profile = ProfileFactory.build(
+            birth_date=Faker("date_this_year", before_today=True, after_today=False)
+        )
         self.assertEqual(profile.age, 0)
-        profile = ProfileFactory.build(birth_date=Faker('date_this_year', before_today=False, after_today=True))
+        profile = ProfileFactory.build(
+            birth_date=Faker("date_this_year", before_today=False, after_today=True)
+        )
         self.assertEqual(profile.age, 0)
-        profile = ProfileFactory.build(birth_date=Faker('date_between', start_date='-725d', end_date='-366d'))
+        profile = ProfileFactory.build(
+            birth_date=Faker("date_between", start_date="-725d", end_date="-366d")
+        )
         self.assertEqual(profile.age, 1)
-        profile = ProfileFactory.build(birth_date=Faker('date_between', start_date='+366d', end_date='+725d'))
+        profile = ProfileFactory.build(
+            birth_date=Faker("date_between", start_date="+366d", end_date="+725d")
+        )
         self.assertEqual(profile.age, -1)
-        profile = ProfileFactory.build(birth_date=Faker('date_between', start_date='-6935d', end_date='-6575d'))
+        profile = ProfileFactory.build(
+            birth_date=Faker("date_between", start_date="-6935d", end_date="-6575d")
+        )
         self.assertEqual(profile.age, 18)
 
-        profile = ProfileFactory.build(birth_date=None, death_date=Faker('date_this_year'))
+        profile = ProfileFactory.build(
+            birth_date=None, death_date=Faker("date_this_year")
+        )
         self.assertRaises(TypeError, lambda: profile.age)
         profile = ProfileFactory.build(
-            birth_date=Faker('date_between', start_date='-2000d', end_date='-1825d'),
-            death_date=Faker('date_between', start_date='-360d', end_date='-185d'))
+            birth_date=Faker("date_between", start_date="-2000d", end_date="-1825d"),
+            death_date=Faker("date_between", start_date="-360d", end_date="-185d"),
+        )
         self.assertEqual(profile.age, 4)
         profile = ProfileFactory.build(
-            birth_date=Faker('date_between', start_date='-2000d', end_date='-1825d'),
-            death_date=Faker('date_between', start_date='+370d', end_date='+545d'))
+            birth_date=Faker("date_between", start_date="-2000d", end_date="-1825d"),
+            death_date=Faker("date_between", start_date="+370d", end_date="+545d"),
+        )
         self.assertEqual(profile.age, 6)
 
     def test_avatar_url(self):
@@ -177,21 +221,26 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
         profile = ProfileFactory()
         self.assertEqual(
             profile.avatar_url,
-            email_to_gravatar(profile.user.email, settings.DEFAULT_AVATAR_URL)
+            email_to_gravatar(profile.user.email, settings.DEFAULT_AVATAR_URL),
         )
         # A normal profile with invalid email is expected to be gravatar url for email.
         user = UserFactory(invalid_email=True)
         profile = ProfileFactory(user=user)
         self.assertEqual(
             profile.avatar_url,
-            email_to_gravatar(value_without_invalid_marker(profile.user.email), settings.DEFAULT_AVATAR_URL)
+            email_to_gravatar(
+                value_without_invalid_marker(profile.user.email),
+                settings.DEFAULT_AVATAR_URL,
+            ),
         )
 
         # A profile with no user account is expected to be gravatar url for fake family member email.
         profile = ProfileSansAccountFactory()
         self.assertEqual(
             profile.avatar_url,
-            email_to_gravatar("family.member@pasportaservo.org", settings.DEFAULT_AVATAR_URL)
+            email_to_gravatar(
+                "family.member@pasportaservo.org", settings.DEFAULT_AVATAR_URL
+            ),
         )
 
     def test_icon(self):
@@ -202,15 +251,22 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
     def test_str(self):
         # Normal profile with both names is expected to be "Aa Bb".
         profile = ProfileFactory()
-        self.assertEqual(str(profile), '{} {}'.format(profile.first_name, profile.last_name))
+        self.assertEqual(
+            str(profile), "{} {}".format(profile.first_name, profile.last_name)
+        )
 
         # A profile with no names provided is expected to be "Anonymous (uu)".
         profile = ProfileFactory(first_name="", last_name="")
-        self.assertEqual(str(profile), '{} ({})'.format(str(profile.INCOGNITO), profile.user.username))
+        self.assertEqual(
+            str(profile),
+            "{} ({})".format(str(profile.INCOGNITO), profile.user.username),
+        )
 
         # A profile with no user account and both names is expected to be "Aa Bb".
         profile = ProfileSansAccountFactory()
-        self.assertEqual(str(profile), '{} {}'.format(profile.first_name, profile.last_name))
+        self.assertEqual(
+            str(profile), "{} {}".format(profile.first_name, profile.last_name)
+        )
         # A profile with no user account and no names provided is expected to have output of a dash.
         profile = ProfileSansAccountFactory(first_name="", last_name="")
         self.assertEqual(str(profile), "--")
@@ -222,11 +278,17 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
     def test_rawdisplay(self):
         # Raw string for profile with a birth date is expected to include the birth year.
         profile = ProfileFactory()
-        self.assertEqual(profile.rawdisplay(), f"{str(profile)} ({profile.birth_date.year})")
+        self.assertEqual(
+            profile.rawdisplay(), f"{str(profile)} ({profile.birth_date.year})"
+        )
         profile = ProfileFactory(first_name="", last_name="")
-        self.assertEqual(profile.rawdisplay(), f"{str(profile)} ({profile.birth_date.year})")
+        self.assertEqual(
+            profile.rawdisplay(), f"{str(profile)} ({profile.birth_date.year})"
+        )
         profile = ProfileSansAccountFactory()
-        self.assertEqual(profile.rawdisplay(), f"{str(profile)} ({profile.birth_date.year})")
+        self.assertEqual(
+            profile.rawdisplay(), f"{str(profile)} ({profile.birth_date.year})"
+        )
 
         # Raw string for profile without a birth date is expected to include a question mark.
         profile = ProfileFactory(birth_date=None)
@@ -256,11 +318,15 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
 
     def test_get_basic_data(self):
         # The get_basic_data function is expected to be a class (only) method.
-        self.assertRaises(AttributeError, lambda: self.basic_profile.get_basic_data(pk=1))
+        self.assertRaises(
+            AttributeError, lambda: self.basic_profile.get_basic_data(pk=1)
+        )
 
         # The database query is expected to return sufficient data to generate URLs.
         with self.assertNumQueries(1):
-            p = self.basic_profile.__class__.get_basic_data(user=self.basic_profile.user)
+            p = self.basic_profile.__class__.get_basic_data(
+                user=self.basic_profile.user
+            )
             p.autoslug
             p.get_absolute_url()
             p.get_edit_url()
@@ -273,7 +339,9 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
             p.get_admin_url()
         # Additional database queries are expected when further data of profile is used.
         with self.assertNumQueries(5):
-            p = self.basic_profile.__class__.get_basic_data(email=self.basic_profile.email)
+            p = self.basic_profile.__class__.get_basic_data(
+                email=self.basic_profile.email
+            )
             p.age
             p.email_visibility
 
@@ -281,20 +349,20 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
         profile = self.basic_profile
         self.assertEqual(
             profile.get_absolute_url(),
-            '/profilo/{}/{}/'.format(profile.pk, profile.first_name.lower())
+            "/profilo/{}/{}/".format(profile.pk, profile.first_name.lower()),
         )
 
     def test_edit_url(self):
         profile = self.basic_profile
         self.assertEqual(
             profile.get_edit_url(),
-            '/profilo/{}/{}/aktualigi/'.format(profile.pk, profile.first_name.lower())
+            "/profilo/{}/{}/aktualigi/".format(profile.pk, profile.first_name.lower()),
         )
 
-    @override_settings(LANGUAGE_CODE='en')
+    @override_settings(LANGUAGE_CODE="en")
     def test_admin_url(self):
         profile = self.basic_profile
         self.assertEqual(
             profile.get_admin_url(),
-            '/management/hosting/profile/{}/change/'.format(profile.pk)
+            "/management/hosting/profile/{}/change/".format(profile.pk),
         )

@@ -18,11 +18,20 @@ class AdditionalAsserts:
         if not isinstance(string, str):
             self.fail("First argument is not a string")
         if prefix and not string.startswith(prefix):
-            self.fail(self._formatMessage(msg, "'{}' does not start with '{}'".format(
-                string[:len(prefix)+8]
-                + ("[...]" if len(string) > len(prefix)+10 else string[len(prefix)+10:]),
-                prefix
-            )))
+            self.fail(
+                self._formatMessage(
+                    msg,
+                    "'{}' does not start with '{}'".format(
+                        string[: len(prefix) + 8]
+                        + (
+                            "[...]"
+                            if len(string) > len(prefix) + 10
+                            else string[len(prefix) + 10 :]
+                        ),
+                        prefix,
+                    ),
+                )
+            )
 
     def assertEndsWith(self, string, postfix=None, msg=None):
         """
@@ -31,11 +40,20 @@ class AdditionalAsserts:
         if not isinstance(string, str):
             self.fail("First argument is not a string")
         if postfix and not string.endswith(postfix):
-            self.fail(self._formatMessage(msg, "'{}' does not end with '{}'".format(
-                ("[...]" if len(string) > len(postfix)+10 else string[:-len(postfix)-8])
-                + string[-len(postfix)-8:],
-                postfix
-            )))
+            self.fail(
+                self._formatMessage(
+                    msg,
+                    "'{}' does not end with '{}'".format(
+                        (
+                            "[...]"
+                            if len(string) > len(postfix) + 10
+                            else string[: -len(postfix) - 8]
+                        )
+                        + string[-len(postfix) - 8 :],
+                        postfix,
+                    ),
+                )
+            )
 
     def assertEqual(self, obj1, obj2, msg=None):
         """
@@ -49,8 +67,8 @@ class AdditionalAsserts:
                 obj2 = GeoPoint(obj2, srid=SRID)
             if not obj1 == obj2:
                 comparisson_message = "{} != {}".format(
-                    getattr(obj1, 'wkt', str(obj1)),
-                    getattr(obj2, 'wkt', str(obj2)),
+                    getattr(obj1, "wkt", str(obj1)),
+                    getattr(obj2, "wkt", str(obj2)),
                 )
                 self.fail(self._formatMessage(msg, comparisson_message))
         else:

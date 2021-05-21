@@ -12,7 +12,12 @@ class VarNode(template.Node):
     """
 
     def __init__(self, nodelist, name, is_global, is_trimmed):
-        self.nodelist, self.var_name, self.var_is_global, self.trim_contents = nodelist, name, is_global, is_trimmed
+        self.nodelist, self.var_name, self.var_is_global, self.trim_contents = (
+            nodelist,
+            name,
+            is_global,
+            is_trimmed,
+        )
 
     def render(self, context):
         result = self.nodelist.render(context)
@@ -22,7 +27,7 @@ class VarNode(template.Node):
             context.dicts[0][self.var_name] = result
         else:
             context[self.var_name] = result
-        return ''
+        return ""
 
 
 class DeleteVarNode(template.Node):
@@ -37,7 +42,7 @@ class DeleteVarNode(template.Node):
 
     def render(self, context):
         if self.vars_are_global:
-            primitives = {'True': True, 'False': False, 'None': None}
+            primitives = {"True": True, "False": False, "None": None}
             for var_name in self.var_names:
                 if var_name in primitives:
                     context.dicts[0][var_name] = primitives[var_name]
@@ -46,45 +51,60 @@ class DeleteVarNode(template.Node):
         else:
             for var_name in self.var_names:
                 context.dicts[-1].pop(var_name, None)
-        return ''
+        return ""
 
 
-re_one_var = re.compile(r'(?:(global)\s+)?(?P<varname>\w+)(?:\s+(trimmed))?', re.DOTALL)
-re_many_vars = re.compile(r'(?:(global)\s+)?(?P<varnames>\w+(?:\s+\w+)*)', re.DOTALL)
+re_one_var = re.compile(r"(?:(global)\s+)?(?P<varname>\w+)(?:\s+(trimmed))?", re.DOTALL)
+re_many_vars = re.compile(r"(?:(global)\s+)?(?P<varnames>\w+(?:\s+\w+)*)", re.DOTALL)
 
 
-@register.tag(name='asvar')
+@register.tag(name="asvar")
 def do_variable(parser, token):
     try:
         tag_name, arg = token.contents.split(maxsplit=1)
     except ValueError:
-        raise template.TemplateSyntaxError("'%s' tag: Variable name is required" % token.contents)
+        raise template.TemplateSyntaxError(
+            "'%s' tag: Variable name is required" % token.contents
+        )
     m = re_one_var.fullmatch(arg)
     if m:
-        if m.group('varname').startswith('_'):
+        if m.group("varname").startswith("_"):
             raise template.TemplateSyntaxError(
-                "'%s' tag: Variables may not begin with underscores: '%s'" % (tag_name, m.group('varname')))
-        nodelist = parser.parse(('endasvar',))
+                "'%s' tag: Variables may not begin with underscores: '%s'"
+                % (tag_name, m.group("varname"))
+            )
+        nodelist = parser.parse(("endasvar",))
         parser.delete_first_token()
-        return VarNode(nodelist, name=m.group('varname'), is_global=m.group(1), is_trimmed=m.group(3))
+        return VarNode(
+            nodelist,
+            name=m.group("varname"),
+            is_global=m.group(1),
+            is_trimmed=m.group(3),
+        )
     else:
         raise template.TemplateSyntaxError(
-            "'%s' tag: Syntax is {%% asvar [global] var_name [trimmed] %%}" % tag_name)
+            "'%s' tag: Syntax is {%% asvar [global] var_name [trimmed] %%}" % tag_name
+        )
 
 
-@register.tag(name='delvar')
+@register.tag(name="delvar")
 def undo_variable(parser, token):
     try:
         tag_name, args = token.contents.split(maxsplit=1)
     except ValueError:
-        raise template.TemplateSyntaxError("'%s' tag: At least one variable name is required" % token.contents)
+        raise template.TemplateSyntaxError(
+            "'%s' tag: At least one variable name is required" % token.contents
+        )
     m = re_many_vars.fullmatch(args)
     if m:
-        var_list = m.group('varnames').split()
-        if any(v.startswith('_') for v in var_list):
+        var_list = m.group("varnames").split()
+        if any(v.startswith("_") for v in var_list):
             raise template.TemplateSyntaxError(
-                "'%s' tag: Variables may not begin with underscores" % tag_name)
+                "'%s' tag: Variables may not begin with underscores" % tag_name
+            )
         return DeleteVarNode(names=var_list, are_global=m.group(1))
     else:
         raise template.TemplateSyntaxError(
-            "'%s' tag: Syntax is {%% delvar [global] var_name [var_name...] %%}" % tag_name)
+            "'%s' tag: Syntax is {%% delvar [global] var_name [var_name...] %%}"
+            % tag_name
+        )

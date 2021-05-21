@@ -10,4 +10,4 @@ def create_unique_url(payload, salt=None):
     salt = config.salt if salt is None else salt
     s = URLSafeTimedSerializer(settings.SECRET_KEY, salt=salt)
     token = s.dumps(payload)
-    return reverse('unique_link', kwargs={'token': token}), token
+    return reverse("unique_link", kwargs={"token": token}), token

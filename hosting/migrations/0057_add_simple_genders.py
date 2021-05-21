@@ -7,27 +7,25 @@ from django.db import connection, migrations
 
 
 def add_genders(app_registry, schema_editor):
-    Gender = app_registry.get_model('hosting', 'Gender')
+    Gender = app_registry.get_model("hosting", "Gender")
     with connection.cursor() as cursor:
         for sql in connection.ops.sequence_reset_sql(no_style(), [Gender]):
             cursor.execute(sql)
-    Gender(name_en='woman', name='virino').save()
-    Gender(name_en='man', name='viro').save()
+    Gender(name_en="woman", name="virino").save()
+    Gender(name_en="man", name="viro").save()
 
 
 def remove_genders(app_registry, schema_editor):
-    Gender = app_registry.get_model('hosting', 'Gender')
-    Gender.objects.filter(name_en__in=['woman', 'man']).delete()
+    Gender = app_registry.get_model("hosting", "Gender")
+    Gender.objects.filter(name_en__in=["woman", "man"]).delete()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0056_change_place_conditions_desc'),
+        ("hosting", "0056_change_place_conditions_desc"),
     ]
 
     operations = [
-        migrations.RunPython(
-            add_genders, reverse_code=remove_genders
-        ),
+        migrations.RunPython(add_genders, reverse_code=remove_genders),
     ]

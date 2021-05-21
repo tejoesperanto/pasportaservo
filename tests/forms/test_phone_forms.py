@@ -12,8 +12,8 @@ from hosting.models import PHONE_TYPE_CHOICES, Phone
 from ..factories import PhoneFactory, ProfileFactory
 
 
-@tag('forms', 'forms-phone', 'phone')
-@override_settings(LANGUAGE_CODE='en')
+@tag("forms", "forms-phone", "phone")
+@override_settings(LANGUAGE_CODE="en")
 class PhoneFormTests(WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -22,10 +22,10 @@ class PhoneFormTests(WebTest):
         cls.all_countries = Countries().countries.keys()
 
         cls.expected_fields = [
-            'country',
-            'type',
-            'number',
-            'comments',
+            "country",
+            "type",
+            "number",
+            "comments",
         ]
 
         cls.profile_one = ProfileFactory()
@@ -33,13 +33,15 @@ class PhoneFormTests(WebTest):
         cls.phone2_valid = PhoneFactory(profile=cls.profile_one)
         cls.phone3_deleted = PhoneFactory(
             profile=cls.profile_one,
-            deleted_on=make_aware(cls.faker.date_time_this_decade()))
+            deleted_on=make_aware(cls.faker.date_time_this_decade()),
+        )
 
         cls.profile_two = ProfileFactory()
         cls.phone4_valid = PhoneFactory(profile=cls.profile_two)
         cls.phone5_deleted = PhoneFactory(
             profile=cls.profile_two,
-            deleted_on=make_aware(cls.faker.date_time_this_decade()))
+            deleted_on=make_aware(cls.faker.date_time_this_decade()),
+        )
 
     def setUp(self):
         self.phone1_valid.refresh_from_db()
@@ -57,13 +59,13 @@ class PhoneFormTests(WebTest):
         # Verify that the expected fields are part of the form.
         self.assertEqual(set(self.expected_fields), set(form.fields))
         # Verify that fields are marked 'required'.
-        for field in ('country', 'type', 'number'):
+        for field in ("country", "type", "number"):
             with self.subTest(field=field):
                 self.assertTrue(form.fields[field].required)
         # Verify that the form's save method is protected in templates.
         self.assertTrue(
-            hasattr(form.save, 'alters_data')
-            or hasattr(form.save, 'do_not_call_in_templates')
+            hasattr(form.save, "alters_data")
+            or hasattr(form.save, "do_not_call_in_templates")
         )
 
     def test_invalid_init(self):
@@ -74,42 +76,53 @@ class PhoneFormTests(WebTest):
 
     def test_blank_data(self):
         # Empty form is expected to be invalid.
-        form = self._init_form(data={}, instance=self.phone1_valid, owner=self.profile_one)
+        form = self._init_form(
+            data={}, instance=self.phone1_valid, owner=self.profile_one
+        )
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {
-            'country': ["This field is required."],
-            'type': ["This field is required."],
-            'number': ["This field is required."],
-        })
+        self.assertEqual(
+            form.errors,
+            {
+                "country": ["This field is required."],
+                "type": ["This field is required."],
+                "number": ["This field is required."],
+            },
+        )
 
     def test_invalid_country(self):
-        form = self._init_form(data={'country': ""}, instance=self.phone2_valid, owner=self.profile_one)
+        form = self._init_form(
+            data={"country": ""}, instance=self.phone2_valid, owner=self.profile_one
+        )
         self.assertFalse(form.is_valid())
-        self.assertIn('country', form.errors)
-        self.assertEqual(form.errors['country'], ["This field is required."])
+        self.assertIn("country", form.errors)
+        self.assertEqual(form.errors["country"], ["This field is required."])
 
-        form = self._init_form(data={'country': "ZZ"}, instance=self.phone4_valid, owner=self.profile_two)
+        form = self._init_form(
+            data={"country": "ZZ"}, instance=self.phone4_valid, owner=self.profile_two
+        )
         self.assertFalse(form.is_valid())
-        self.assertIn('country', form.errors)
-        self.assertEqual(form.errors['country'], ["Select a valid choice. ZZ is not one of the available choices."])
+        self.assertIn("country", form.errors)
+        self.assertEqual(
+            form.errors["country"],
+            ["Select a valid choice. ZZ is not one of the available choices."],
+        )
 
     def test_invalid_number(self):
         form = self._init_form(
-            data={
-                'country': "PL",
-                'type': "m",
-                'number': "+31600000001"
-            },
+            data={"country": "PL", "type": "m", "number": "+31600000001"},
             instance=self.phone1_valid,
-            owner=self.profile_one)
+            owner=self.profile_one,
+        )
         self.assertFalse(form.is_valid())
-        self.assertIn('number', form.errors)
-        self.assertEqual(form.errors['number'], ["Enter a valid phone number."])
+        self.assertIn("number", form.errors)
+        self.assertEqual(form.errors["number"], ["Enter a valid phone number."])
 
     def test_unique_number(self):
         # Resaving the same form without change is expected to be valid.
         form = self._init_form(instance=self.phone1_valid, owner=self.profile_one)
-        form = self._init_form(data=form.initial.copy(), instance=self.phone1_valid, owner=self.profile_one)
+        form = self._init_form(
+            data=form.initial.copy(), instance=self.phone1_valid, owner=self.profile_one
+        )
         self.assertTrue(form.is_valid(), msg=repr(form.errors))
         phone = form.save(commit=False)
         self.assertEqual(phone.pk, self.phone1_valid.pk)
@@ -117,9 +130,15 @@ class PhoneFormTests(WebTest):
 
         # Resaving the same form with change in non-number related fields is expected to be valid.
         data = form.initial.copy()
-        data['country'] = self.faker.random_element(elements=set(self.all_countries) - set([data['country']]))
-        data['type'] = self.faker.random_element(elements=[ch[0] for ch in PHONE_TYPE_CHOICES])
-        form = self._init_form(data=data, instance=self.phone1_valid, owner=self.profile_one)
+        data["country"] = self.faker.random_element(
+            elements=set(self.all_countries) - set([data["country"]])
+        )
+        data["type"] = self.faker.random_element(
+            elements=[ch[0] for ch in PHONE_TYPE_CHOICES]
+        )
+        form = self._init_form(
+            data=data, instance=self.phone1_valid, owner=self.profile_one
+        )
         self.assertTrue(form.is_valid())
         phone = form.save(commit=False)
         self.assertEqual(phone.pk, self.phone1_valid.pk)
@@ -127,16 +146,20 @@ class PhoneFormTests(WebTest):
         self.assertEqual(phone.country, self.phone1_valid.country)
 
         # Resaving the same form with change in only the number field is expected to be valid.
-        data['number'] = PhoneFactory.number.evaluate(self.phone1_valid, None, None)
-        form = self._init_form(data=data, instance=self.phone1_valid, owner=self.profile_one)
+        data["number"] = PhoneFactory.number.evaluate(self.phone1_valid, None, None)
+        form = self._init_form(
+            data=data, instance=self.phone1_valid, owner=self.profile_one
+        )
         self.assertTrue(form.is_valid())
         phone = form.save(commit=False)
         self.assertEqual(phone.pk, self.phone1_valid.pk)
         self.assertEqual(phone.number, self.phone1_valid.number)
 
         # A phone form with number belonging to a different user is expected to be valid.
-        data['number'] = self.phone4_valid.number
-        form = self._init_form(data=data, instance=self.phone1_valid, owner=self.profile_one)
+        data["number"] = self.phone4_valid.number
+        form = self._init_form(
+            data=data, instance=self.phone1_valid, owner=self.profile_one
+        )
         self.assertTrue(form.is_valid())
         phone = form.save(commit=False)
         self.assertEqual(phone.pk, self.phone1_valid.pk)
@@ -144,8 +167,10 @@ class PhoneFormTests(WebTest):
         self.assertEqual(phone.number, self.phone1_valid.number)
         self.assertFalse(phone.deleted_on)
 
-        data['number'] = self.phone5_deleted.number
-        form = self._init_form(data=data, instance=self.phone1_valid, owner=self.profile_one)
+        data["number"] = self.phone5_deleted.number
+        form = self._init_form(
+            data=data, instance=self.phone1_valid, owner=self.profile_one
+        )
         self.assertTrue(form.is_valid())
         phone = form.save(commit=False)
         self.assertEqual(phone.pk, self.phone1_valid.pk)
@@ -159,37 +184,53 @@ class PhoneFormTests(WebTest):
         # A phone form with inactive number belonging to the same user is expected to be valid,
         phone6_deleted = PhoneFactory(
             profile=self.profile_one,
-            deleted_on=make_aware(self.faker.date_time_this_decade()))
+            deleted_on=make_aware(self.faker.date_time_this_decade()),
+        )
         phone6_deleted.set_check_status(self.profile_two.user)
         test_data = [
             ("same user/active", self.phone1_valid, False),
             ("same user/active", self.phone2_valid, False),
-            ("same user/deleted", phone6_deleted, True),  # A side-effect is expected. It shouldn't affect other tests.
+            (
+                "same user/deleted",
+                phone6_deleted,
+                True,
+            ),  # A side-effect is expected. It shouldn't affect other tests.
             ("other user/active", self.phone4_valid, True),
             ("other user/deleted", self.phone5_deleted, True),
         ]
 
         for case_tag, other_phone, expected_valid in test_data:
             initial_phone = PhoneFactory(profile=self.profile_one)
-            remaining_countries = set(self.all_countries) - set([initial_phone.country.code])
+            remaining_countries = set(self.all_countries) - set(
+                [initial_phone.country.code]
+            )
             with self.subTest(tag=case_tag):
                 form_data = {
-                    'country': self.faker.random_element(elements=remaining_countries),
-                    'type': self.faker.random_element(elements=[ch[0] for ch in PHONE_TYPE_CHOICES]),
-                    'number': other_phone.number,
-                    'comments': self.faker.sentence(),
+                    "country": self.faker.random_element(elements=remaining_countries),
+                    "type": self.faker.random_element(
+                        elements=[ch[0] for ch in PHONE_TYPE_CHOICES]
+                    ),
+                    "number": other_phone.number,
+                    "comments": self.faker.sentence(),
                 }
-                form = self._init_form(data=form_data, instance=initial_phone, owner=self.profile_one)
+                form = self._init_form(
+                    data=form_data, instance=initial_phone, owner=self.profile_one
+                )
 
                 self.assertEqual(form.is_valid(), expected_valid)
                 if not expected_valid:
-                    self.assertIn('number', form.errors)
-                    self.assertEqual(form.errors, {'number': ["You already have this telephone number."]})
+                    self.assertIn("number", form.errors)
+                    self.assertEqual(
+                        form.errors,
+                        {"number": ["You already have this telephone number."]},
+                    )
                 else:
                     phone = form.save()
                     initial_phone.refresh_from_db()
                     for field_name in self.expected_fields:
-                        self.assertEqual(getattr(phone, field_name), form_data[field_name])
+                        self.assertEqual(
+                            getattr(phone, field_name), form_data[field_name]
+                        )
                     self.assertIsNone(phone.deleted_on)
                     self.assertIsNone(phone.checked_on)
                     self.assertIsNone(phone.checked_by)
@@ -203,33 +244,39 @@ class PhoneFormTests(WebTest):
 
     def test_view_page(self):
         page = self.app.get(
-            reverse('phone_update', kwargs={
-                'pk': self.phone1_valid.pk,
-                'profile_pk': self.profile_one.pk}),
+            reverse(
+                "phone_update",
+                kwargs={"pk": self.phone1_valid.pk, "profile_pk": self.profile_one.pk},
+            ),
             user=self.profile_one.user,
         )
         self.assertEqual(page.status_int, 200)
         self.assertEqual(len(page.forms), 1)
-        self.assertIs(type(page.context['form']), PhoneForm)
+        self.assertIs(type(page.context["form"]), PhoneForm)
 
     def test_form_submit(self):
         page = self.app.get(
-            reverse('phone_update', kwargs={
-                'pk': self.phone4_valid.pk,
-                'profile_pk': self.profile_two.pk}),
+            reverse(
+                "phone_update",
+                kwargs={"pk": self.phone4_valid.pk, "profile_pk": self.profile_two.pk},
+            ),
             user=self.profile_two.user,
         )
-        page.form['comments'] = comment = Faker(locale='ar').text(max_nb_chars=250)
+        page.form["comments"] = comment = Faker(locale="ar").text(max_nb_chars=250)
         page = page.form.submit()
         self.phone4_valid.refresh_from_db()
         self.assertRedirects(
             page,
-            '{}#t{}'.format(
-                reverse('profile_edit', kwargs={
-                    'pk': self.profile_two.pk,
-                    'slug': self.profile_two.autoslug}),
+            "{}#t{}".format(
+                reverse(
+                    "profile_edit",
+                    kwargs={
+                        "pk": self.profile_two.pk,
+                        "slug": self.profile_two.autoslug,
+                    },
+                ),
                 self.phone4_valid.pk,
-            )
+            ),
         )
         self.assertEqual(self.phone4_valid.comments, comment.rstrip())
 
@@ -248,10 +295,12 @@ class PhoneCreateFormTests(PhoneFormTests):
     def test_unique_number(self):
         # Form with number not appearing anywhere else is expected to be valid.
         form_data = {
-            'country': self.faker.random_element(elements=self.all_countries),
-            'type': self.faker.random_element(elements=[ch[0] for ch in PHONE_TYPE_CHOICES]),
-            'number': PhoneFactory.number.evaluate(None, None, None),
-            'comments': self.faker.sentence(),
+            "country": self.faker.random_element(elements=self.all_countries),
+            "type": self.faker.random_element(
+                elements=[ch[0] for ch in PHONE_TYPE_CHOICES]
+            ),
+            "number": PhoneFactory.number.evaluate(None, None, None),
+            "comments": self.faker.sentence(),
         }
         form = self._init_form(data=form_data, owner=ProfileFactory())
         self.assertTrue(form.is_valid(), msg=repr(form.errors))
@@ -261,33 +310,41 @@ class PhoneCreateFormTests(PhoneFormTests):
 
     def test_view_page(self):
         page = self.app.get(
-            reverse('phone_create', kwargs={'profile_pk': self.profile_one.pk}),
+            reverse("phone_create", kwargs={"profile_pk": self.profile_one.pk}),
             user=self.profile_one.user,
         )
         self.assertEqual(page.status_int, 200)
         self.assertEqual(len(page.forms), 1)
-        self.assertIs(type(page.context['form']), PhoneCreateForm)
+        self.assertIs(type(page.context["form"]), PhoneCreateForm)
 
     def test_form_submit(self):
         page = self.app.get(
-            reverse('phone_create', kwargs={'profile_pk': self.profile_two.pk}),
+            reverse("phone_create", kwargs={"profile_pk": self.profile_two.pk}),
             user=self.profile_two.user,
         )
-        page.form['country'] = self.faker.random_element(elements=self.all_countries)
-        page.form['type'] = self.faker.random_element(elements=[ch[0] for ch in PHONE_TYPE_CHOICES])
+        page.form["country"] = self.faker.random_element(elements=self.all_countries)
+        page.form["type"] = self.faker.random_element(
+            elements=[ch[0] for ch in PHONE_TYPE_CHOICES]
+        )
         number = PhoneFactory.number.evaluate(None, None, None)
-        page.form['number'] = number.as_international
-        page.form['comments'] = comment = Faker(locale='th').text(max_nb_chars=250)
+        page.form["number"] = number.as_international
+        page.form["comments"] = comment = Faker(locale="th").text(max_nb_chars=250)
         page = page.form.submit()
-        new_phone = Phone.all_objects.filter(profile=self.profile_two).order_by('-id').first()
+        new_phone = (
+            Phone.all_objects.filter(profile=self.profile_two).order_by("-id").first()
+        )
         self.assertRedirects(
             page,
-            '{}#t{}'.format(
-                reverse('profile_edit', kwargs={
-                    'pk': self.profile_two.pk,
-                    'slug': self.profile_two.autoslug}),
+            "{}#t{}".format(
+                reverse(
+                    "profile_edit",
+                    kwargs={
+                        "pk": self.profile_two.pk,
+                        "slug": self.profile_two.autoslug,
+                    },
+                ),
                 new_phone.pk,
-            )
+            ),
         )
         self.assertEqual(new_phone.number, number)
         self.assertEqual(new_phone.comments, comment.rstrip())

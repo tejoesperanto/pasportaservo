@@ -10,19 +10,20 @@ import hosting.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0054_phones_ordering'),
+        ("hosting", "0054_phones_ordering"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='profile',
-            name='gender',
+            model_name="profile",
+            name="gender",
             field=hosting.fields.ForeigKeyWithSuggestions(
                 blank=True,
-                choices='hosting.Gender',
-                db_column='gender_value',
+                choices="hosting.Gender",
+                db_column="gender_value",
                 help_text='Also known as "social sex identity". Type your own preference or select one of the suggestions.',
-                to_field='name',
-                verbose_name='gender'),
+                to_field="name",
+                verbose_name="gender",
+            ),
         ),
     ]

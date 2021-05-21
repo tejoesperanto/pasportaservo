@@ -10,31 +10,39 @@ def update_ages(app_registry, schema_editor):
     """
     Minimum ages must be updated to the higher values.
     """
-    Config = app_registry.get_model('core', 'SiteConfiguration')
-    Config.objects.update_or_create(defaults={
-        'host_min_age': Config._meta.get_field('host_min_age').default,
-        'meet_min_age': Config._meta.get_field('meet_min_age').default,
-    })
+    Config = app_registry.get_model("core", "SiteConfiguration")
+    Config.objects.update_or_create(
+        defaults={
+            "host_min_age": Config._meta.get_field("host_min_age").default,
+            "meet_min_age": Config._meta.get_field("meet_min_age").default,
+        }
+    )
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0002_auto_20171030_1716'),
+        ("core", "0002_auto_20171030_1716"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='siteconfiguration',
-            name='host_min_age',
-            field=models.PositiveSmallIntegerField(default=17, validators=[django.core.validators.MinValueValidator(16)], verbose_name='minumum age for hosting'),
+            model_name="siteconfiguration",
+            name="host_min_age",
+            field=models.PositiveSmallIntegerField(
+                default=17,
+                validators=[django.core.validators.MinValueValidator(16)],
+                verbose_name="minumum age for hosting",
+            ),
         ),
         migrations.AlterField(
-            model_name='siteconfiguration',
-            name='meet_min_age',
-            field=models.PositiveSmallIntegerField(default=16, validators=[django.core.validators.MinValueValidator(16)], verbose_name='minumum age for meeting'),
+            model_name="siteconfiguration",
+            name="meet_min_age",
+            field=models.PositiveSmallIntegerField(
+                default=16,
+                validators=[django.core.validators.MinValueValidator(16)],
+                verbose_name="minumum age for meeting",
+            ),
         ),
-        migrations.RunPython(
-            update_ages, reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(update_ages, reverse_code=migrations.RunPython.noop),
     ]

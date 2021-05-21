@@ -10,21 +10,21 @@ from ..validators import client_side_validated
 class PhoneForm(forms.ModelForm):
     class Meta:
         model = Phone
-        fields = ['number', 'type', 'country', 'comments']
+        fields = ["number", "type", "country", "comments"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if not hasattr(self, 'profile'):
+        if not hasattr(self, "profile"):
             self.profile = self.instance.profile
-        self.fields['number'].widget.input_type = 'tel'
+        self.fields["number"].widget.input_type = "tel"
 
     def clean(self):
         """
         Checks if the number and the profile are unique together.
         """
         cleaned_data = super().clean()
-        if 'number' in cleaned_data:
-            data = cleaned_data['number'].as_e164
+        if "number" in cleaned_data:
+            data = cleaned_data["number"].as_e164
             if self.instance.number and data == self.instance.number.as_e164:
                 phones = Phone.all_objects.none()
             else:
@@ -35,16 +35,18 @@ class PhoneForm(forms.ModelForm):
             if len(phones) == 1:
                 self.existing_phone = phones[0]
                 if not phones[0].deleted:
-                    self.add_error('number', _("You already have this telephone number."))
+                    self.add_error(
+                        "number", _("You already have this telephone number.")
+                    )
         return cleaned_data
 
     def save(self, commit=True):
         phone = super().save(commit=False)
-        if hasattr(self, 'existing_phone') and self.existing_phone.deleted:
+        if hasattr(self, "existing_phone") and self.existing_phone.deleted:
             # Just overwrite the existing deleted phone object with new data
             # (i.e., type and comments), because the user did not remember
             # deleting this phone number.
-            for field in filter(lambda f: f != 'number', self._meta.fields):
+            for field in filter(lambda f: f != "number", self._meta.fields):
                 setattr(self.existing_phone, field, getattr(phone, field))
             phone = self.existing_phone
             # Clear the deletion timestamp.
@@ -54,16 +56,17 @@ class PhoneForm(forms.ModelForm):
             # Mark the original phone object being updated as deleted.
             if self.instance.pk:
                 self.instance.deleted_on = timezone.now()
-                self.instance.save(update_fields=['deleted_on'])
+                self.instance.save(update_fields=["deleted_on"])
         if commit:
             phone.save()
         return phone
+
     save.alters_data = True
 
 
 class PhoneCreateForm(PhoneForm):
     def __init__(self, *args, **kwargs):
-        self.profile = kwargs.pop('profile')
+        self.profile = kwargs.pop("profile")
         super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
@@ -72,4 +75,5 @@ class PhoneCreateForm(PhoneForm):
         if commit:
             phone.save()
         return phone
+
     save.alters_data = True

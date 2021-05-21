@@ -8,7 +8,7 @@ from .models import Post
 
 
 class PostListView(generic.ListView):
-    queryset = Post.objects.published().defer('content', 'body')
+    queryset = Post.objects.published().defer("content", "body")
 
 
 class PostDetailView(generic.DetailView):
@@ -17,14 +17,16 @@ class PostDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         posts = self.model.objects.all()
-        context['previous_post'] = posts.filter(pk__lt=self.object.pk).published().first()
-        context['next_post'] = posts.filter(pk__gt=self.object.pk).published().last()
+        context["previous_post"] = (
+            posts.filter(pk__lt=self.object.pk).published().first()
+        )
+        context["next_post"] = posts.filter(pk__gt=self.object.pk).published().last()
         return context
 
 
 class PostsFeed(Feed):
     title = "Pasporta Servo"
-    link = reverse_lazy('blog:posts')
+    link = reverse_lazy("blog:posts")
     description = _("The last news about Pasporta Servo")
 
     def items(self):

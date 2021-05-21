@@ -8,13 +8,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0026_create_country_groups'),
+        ("hosting", "0026_create_country_groups"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='profile',
-            name='names_inversed',
-            field=models.BooleanField(default=False, verbose_name='names in inverse order'),
+            model_name="profile",
+            name="names_inversed",
+            field=models.BooleanField(
+                default=False, verbose_name="names in inverse order"
+            ),
         ),
     ]

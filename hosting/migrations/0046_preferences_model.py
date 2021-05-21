@@ -7,14 +7,14 @@ from django.db import migrations, models
 
 
 def create_general_preferences(app_registry, schema_editor):
-    Preferences = app_registry.get_model('hosting', 'Preferences')
-    Profile = app_registry.get_model('hosting', 'Profile')
+    Preferences = app_registry.get_model("hosting", "Preferences")
+    Profile = app_registry.get_model("hosting", "Profile")
     for profile in Profile.all_objects.filter(user__isnull=False):
         Preferences.objects.create(profile=profile)
 
 
 def shift_contact_preferences(app_registry, schema_editor, reverse=False):
-    Preferences = app_registry.get_model('hosting', 'Preferences')
+    Preferences = app_registry.get_model("hosting", "Preferences")
     for pref in Preferences.objects.all():
         if not reverse:
             pref.contact_preferences = pref.profile.contact_preferences.all()
@@ -29,26 +29,52 @@ def unshift_contact_preferences(app_registry, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0045_auto_20180107_1630'),
+        ("hosting", "0045_auto_20180107_1630"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Preferences',
+            name="Preferences",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('site_analytics_consent', models.NullBooleanField(help_text='These technologies help us to improve Pasporta Servo. Through them we collect information about how visitors interact with the web site and which changes will make the interaction better.', verbose_name='I agree to be included by usage measurement tools.')),
-                ('contact_preferences', models.ManyToManyField(blank=True, to='hosting.ContactPreference', verbose_name='contact preferences')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "site_analytics_consent",
+                    models.NullBooleanField(
+                        help_text="These technologies help us to improve Pasporta Servo. Through them we collect information about how visitors interact with the web site and which changes will make the interaction better.",
+                        verbose_name="I agree to be included by usage measurement tools.",
+                    ),
+                ),
+                (
+                    "contact_preferences",
+                    models.ManyToManyField(
+                        blank=True,
+                        to="hosting.ContactPreference",
+                        verbose_name="contact preferences",
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'preferences for profile',
-                'verbose_name': 'preferences for profile',
+                "verbose_name_plural": "preferences for profile",
+                "verbose_name": "preferences for profile",
             },
         ),
         migrations.AddField(
-            model_name='preferences',
-            name='profile',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='pref', to='hosting.Profile', verbose_name='profile'),
+            model_name="preferences",
+            name="profile",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="pref",
+                to="hosting.Profile",
+                verbose_name="profile",
+            ),
         ),
         migrations.RunPython(
             create_general_preferences, reverse_code=migrations.RunPython.noop
@@ -57,7 +83,7 @@ class Migration(migrations.Migration):
             shift_contact_preferences, reverse_code=unshift_contact_preferences
         ),
         migrations.RemoveField(
-            model_name='profile',
-            name='contact_preferences',
+            model_name="profile",
+            name="contact_preferences",
         ),
     ]

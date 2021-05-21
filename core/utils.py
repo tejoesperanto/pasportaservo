@@ -17,13 +17,15 @@ def getattr_(obj, path):
 def _lazy_joiner(sep, items, item_to_string=str):
     return str(sep).join(map(item_to_string, items))
 
+
 join_lazy = lazy(_lazy_joiner, str)  # noqa:E305
 
 mark_safe_lazy = keep_lazy_text(mark_safe)
 
 
-def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,
-                        connection=None):
+def send_mass_html_mail(
+    datatuple, fail_silently=False, user=None, password=None, connection=None
+):
     """
     Given a datatuple of (subject, text_content, html_content, from_email,
     recipient_list), sends each message to each recipient list. Returns the
@@ -35,14 +37,19 @@ def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None
     If auth_password is None, the EMAIL_HOST_PASSWORD setting is used.
     """
     connection = connection or get_connection(
-        username=user, password=password, fail_silently=fail_silently)
+        username=user, password=password, fail_silently=fail_silently
+    )
     messages = []
     default_from = settings.DEFAULT_FROM_EMAIL
     for subject, text, html, from_email, recipients in datatuple:
         message = EmailMultiAlternatives(
-            subject, text, default_from, recipients,
-            headers={'Reply-To': 'Pasporta Servo <saluton@pasportaservo.org>'})
-        message.attach_alternative(html, 'text/html')
+            subject,
+            text,
+            default_from,
+            recipients,
+            headers={"Reply-To": "Pasporta Servo <saluton@pasportaservo.org>"},
+        )
+        message.attach_alternative(html, "text/html")
         messages.append(message)
     return connection.send_messages(messages) or 0
 
@@ -53,7 +60,10 @@ def camel_case_split(identifier):
     """
     # stackoverflow.com/a/29920015/1019109 -by- stackoverflow.com/u/1157100/200-success
     from re import finditer
-    matches = finditer('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', identifier)
+
+    matches = finditer(
+        ".+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)", identifier
+    )
     return [m.group(0) for m in matches]
 
 
@@ -64,13 +74,15 @@ def sanitize_next(request, from_post=False):
     value in this case, and empty string otherwise.
     """
     param_source = request.POST if from_post else request.GET
-    redirect = param_source.get(settings.REDIRECT_FIELD_NAME, default='').strip()
-    if redirect and is_safe_url(url=redirect,
-                                allowed_hosts={request.get_host()},
-                                require_https=request.is_secure()):
+    redirect = param_source.get(settings.REDIRECT_FIELD_NAME, default="").strip()
+    if redirect and is_safe_url(
+        url=redirect,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
         return redirect
     else:
-        return ''
+        return ""
 
 
 def sort_by(paths, iterable):
@@ -79,7 +91,9 @@ def sort_by(paths, iterable):
     """
     locale.setlocale(locale.LC_ALL, settings.SYSTEM_LOCALE)
     for path in paths:
-        iterable = sorted(iterable, key=lambda obj: locale.strxfrm(str(getattr_(obj, path))))
+        iterable = sorted(
+            iterable, key=lambda obj: locale.strxfrm(str(getattr_(obj, path)))
+        )
     return iterable
 
 
@@ -92,11 +106,11 @@ def is_password_compromised(pwdvalue, full_list=False):
     pwdhash = hashlib.sha1(pwdvalue.encode()).hexdigest().upper()
     try:
         result = requests.get(
-            'https://api.pwnedpasswords.com/range/{}'.format(pwdhash[:5]),
+            "https://api.pwnedpasswords.com/range/{}".format(pwdhash[:5]),
             headers={
-                'Add-Padding': 'true',
-                'User-Agent': 'pasportaservo.org',
-            }
+                "Add-Padding": "true",
+                "User-Agent": "pasportaservo.org",
+            },
         )
     except requests.exceptions.ConnectionError:
         return None, None
@@ -105,7 +119,7 @@ def is_password_compromised(pwdvalue, full_list=False):
             return None, None
 
     for line in result.text.splitlines():
-        suffix, count = line.split(':')
+        suffix, count = line.split(":")
         count = int(count)
         if pwdhash.endswith(suffix):
             if count > 0:

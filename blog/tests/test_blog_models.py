@@ -9,7 +9,7 @@ from ..models import Post, PublishedManager, PublishedQueryset
 from .factories import PostFactory
 
 
-@tag('models', 'blog')
+@tag("models", "blog")
 class PostModelTests(AdditionalAsserts, WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -17,24 +17,24 @@ class PostModelTests(AdditionalAsserts, WebTest):
 
     def test_field_max_lengths(self):
         post = PostFactory.build()
-        self.assertEqual(post._meta.get_field('title').max_length, 200)
+        self.assertEqual(post._meta.get_field("title").max_length, 200)
 
     def test_field_blanks(self):
         post = PostFactory.build()
-        self.assertFalse(post._meta.get_field('title').blank)
-        self.assertFalse(post._meta.get_field('slug').blank)
-        self.assertTrue(post._meta.get_field('body').blank)
-        self.assertTrue(post._meta.get_field('description').blank)
-        self.assertTrue(post._meta.get_field('author').blank)
-        self.assertTrue(post._meta.get_field('pub_date').blank)
+        self.assertFalse(post._meta.get_field("title").blank)
+        self.assertFalse(post._meta.get_field("slug").blank)
+        self.assertTrue(post._meta.get_field("body").blank)
+        self.assertTrue(post._meta.get_field("description").blank)
+        self.assertTrue(post._meta.get_field("author").blank)
+        self.assertTrue(post._meta.get_field("pub_date").blank)
 
     def test_field_uniqueness(self):
         post = PostFactory.build()
-        self.assertTrue(post._meta.get_field('slug').unique)
+        self.assertTrue(post._meta.get_field("slug").unique)
 
     def test_ordering(self):
         post = PostFactory.build()
-        self.assertEqual(post._meta.ordering, ['-pub_date', '-created'])
+        self.assertEqual(post._meta.ordering, ["-pub_date", "-created"])
 
     def test_str(self):
         post = PostFactory()
@@ -46,7 +46,7 @@ class PostModelTests(AdditionalAsserts, WebTest):
 
     def test_absolute_url(self):
         post = PostFactory()
-        self.assertEqual(post.get_absolute_url(), f'/blogo/{post.slug}/')
+        self.assertEqual(post.get_absolute_url(), f"/blogo/{post.slug}/")
 
     def test_save(self):
         SEPARATOR = "----"
@@ -59,26 +59,32 @@ class PostModelTests(AdditionalAsserts, WebTest):
         post.author.save()
         post.save()
         self.assertIsNotNone(post.pk)
-        self.assertEqual(post.description, "<p>{}</p>\n".format(post.content.split(SEPARATOR, 1)[0]))
-        self.assertEqual(post.body, "<p>{}</p>\n".format(post.content.replace(SEPARATOR, "", 1)))
+        self.assertEqual(
+            post.description, "<p>{}</p>\n".format(post.content.split(SEPARATOR, 1)[0])
+        )
+        self.assertEqual(
+            post.body, "<p>{}</p>\n".format(post.content.replace(SEPARATOR, "", 1))
+        )
 
         # A blog post containing an empty part separated by dashes from a non-empty part is expected
         # to have no description.
         post = PostFactory.build(
-            content=f"{SEPARATOR}{self.faker.sentence()}",
-            description="", body="")
+            content=f"{SEPARATOR}{self.faker.sentence()}", description="", body=""
+        )
         self.assertEqual(post.description, "")
         self.assertEqual(post.body, "")
         post.author.save()
         post.save()
         self.assertEqual(post.description, "")
-        self.assertEqual(post.body, "<p>{}</p>\n".format(post.content.replace(SEPARATOR, "", 1)))
+        self.assertEqual(
+            post.body, "<p>{}</p>\n".format(post.content.replace(SEPARATOR, "", 1))
+        )
 
         # A blog post containing a non-empty part separated by dashes from an empty part is expected
         # to have a description, equal to body.
         post = PostFactory.build(
-            content=f"{self.faker.sentence()}{SEPARATOR}",
-            description="", body="")
+            content=f"{self.faker.sentence()}{SEPARATOR}", description="", body=""
+        )
         self.assertEqual(post.description, "")
         self.assertEqual(post.body, "")
         post.author.save()
@@ -88,9 +94,7 @@ class PostModelTests(AdditionalAsserts, WebTest):
         self.assertEqual(post.body, assert_content)
 
         # A blog post containing no dashes is expected to have a description equal to body.
-        post = PostFactory.build(
-            content=self.faker.sentence(),
-            description="", body="")
+        post = PostFactory.build(content=self.faker.sentence(), description="", body="")
         self.assertEqual(post.description, "")
         self.assertEqual(post.body, "")
         post.author.save()
@@ -104,10 +108,12 @@ class PostModelTests(AdditionalAsserts, WebTest):
 
         # A blog post with less than or more than 4 dashes (not a content separator) is expected
         # to have a description, equal to body.
-        for splitter in ("-"*2, "-"*3, "-"*5, "-"*6):
+        for splitter in ("-" * 2, "-" * 3, "-" * 5, "-" * 6):
             post = PostFactory.build(
                 content=f"{self.faker.sentence()}{splitter}{self.faker.sentence()}",
-                description="", body="")
+                description="",
+                body="",
+            )
             self.assertEqual(post.description, "")
             self.assertEqual(post.body, "")
             post.author.save()
@@ -119,32 +125,46 @@ class PostModelTests(AdditionalAsserts, WebTest):
 
         # A blog post with dashes (not a content separator) followed by separator dashes is expected
         # to have a description, containing dashes, and the full body.
-        for splitter in ("-"*2, "-"*3, "-"*5, "-"*6):
+        for splitter in ("-" * 2, "-" * 3, "-" * 5, "-" * 6):
             post = PostFactory.build(
                 content=f"{self.faker.sentence()}{splitter}{self.faker.sentence()}----{self.faker.sentence()}",
-                description="", body="")
+                description="",
+                body="",
+            )
             self.assertEqual(post.description, "")
             self.assertEqual(post.body, "")
             post.author.save()
             post.save()
             with self.subTest(splitter=splitter):
-                self.assertEqual(post.description, "<p>{}</p>\n".format(post.content.rsplit(SEPARATOR, 1)[0]))
-                self.assertEqual(post.body, "<p>{}</p>\n".format("".join(post.content.rsplit(SEPARATOR, 1))))
+                self.assertEqual(
+                    post.description,
+                    "<p>{}</p>\n".format(post.content.rsplit(SEPARATOR, 1)[0]),
+                )
+                self.assertEqual(
+                    post.body,
+                    "<p>{}</p>\n".format("".join(post.content.rsplit(SEPARATOR, 1))),
+                )
 
         # A blog post with separator dashes followed by separator dashes is expected
         # to have a description and the full body, containing dashes.
         post = PostFactory.build(
             content=f"{self.faker.sentence()}----{self.faker.sentence()}----{self.faker.sentence()}",
-            description="", body="")
+            description="",
+            body="",
+        )
         self.assertEqual(post.description, "")
         self.assertEqual(post.body, "")
         post.author.save()
         post.save()
-        self.assertEqual(post.description, "<p>{}</p>\n".format(post.content.split(SEPARATOR, 1)[0]))
-        self.assertEqual(post.body, "<p>{}</p>\n".format("".join(post.content.split(SEPARATOR, 1))))
+        self.assertEqual(
+            post.description, "<p>{}</p>\n".format(post.content.split(SEPARATOR, 1)[0])
+        )
+        self.assertEqual(
+            post.body, "<p>{}</p>\n".format("".join(post.content.split(SEPARATOR, 1)))
+        )
 
 
-@tag('blog')
+@tag("blog")
 class PublishedManagerTests(WebTest):
     def test_queryset_class(self):
         mgr = Post.objects
@@ -159,11 +179,11 @@ class PublishedManagerTests(WebTest):
         # A blog post with pub_date in the future.
         PostFactory(will_be_published=True)
 
-        qs = Post.objects.get_queryset().order_by('id')
+        qs = Post.objects.get_queryset().order_by("id")
         self.assertEqual(len(qs), 3)
-        for i, (publish_tag, flag) in enumerate((
-                    ("in past", True), ("not published", False), ("in future", False)
-                )):
+        for i, (publish_tag, flag) in enumerate(
+            (("in past", True), ("not published", False), ("in future", False))
+        ):
             with self.subTest(published=publish_tag):
                 self.assertEqual(qs[i].published, flag)
 
@@ -173,7 +193,7 @@ class PublishedManagerTests(WebTest):
         # A blog post without an introduction.
         PostFactory(content=Faker().text())
 
-        qs = Post.objects.get_queryset().order_by('id')
+        qs = Post.objects.get_queryset().order_by("id")
         self.assertEqual(len(qs), 2)
         for i, flag in enumerate((True, False)):
             with self.subTest(has_more=flag):

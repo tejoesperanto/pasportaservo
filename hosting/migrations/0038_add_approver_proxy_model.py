@@ -9,20 +9,19 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0037_add_countrygroup_proxy_model'),
+        ("hosting", "0037_add_countrygroup_proxy_model"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='InstanceApprover',
-            fields=[
-            ],
+            name="InstanceApprover",
+            fields=[],
             options={
-                'proxy': True,
+                "proxy": True,
             },
-            bases=('auth.user',),
+            bases=("auth.user",),
             managers=[
-                ('objects', django.contrib.auth.models.UserManager()),
+                ("objects", django.contrib.auth.models.UserManager()),
             ],
         ),
     ]

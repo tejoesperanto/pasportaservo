@@ -7,7 +7,7 @@ from django.db import migrations
 
 def indicate_availability(app_registry, schema_editor):
     # use the historical version of the model
-    Place = app_registry.get_model('hosting', 'Place')
+    Place = app_registry.get_model("hosting", "Place")
     for place in Place.all_objects.all():
         if place.owner not in place.family_members.all():
             place.sporadic_presence = True
@@ -18,7 +18,7 @@ def indicate_availability(app_registry, schema_editor):
 
 def revert_availability_indicator(app_registry, schema_editor):
     # retrieve the correct version of the model from the versioned app registry
-    Place = app_registry.get_model('hosting', 'Place')
+    Place = app_registry.get_model("hosting", "Place")
     for place in Place.all_objects.all():
         if not place.sporadic_presence:
             place.family_members.add(place.owner)
@@ -27,7 +27,7 @@ def revert_availability_indicator(app_registry, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('hosting', '0020_auto_20161002_1255'),
+        ("hosting", "0020_auto_20161002_1255"),
     ]
 
     operations = [

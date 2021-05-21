@@ -19,23 +19,59 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Post',
+            name="Post",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('title', models.CharField(max_length=200, verbose_name='title')),
-                ('slug', models.SlugField(unique=True, verbose_name='slug')),
-                ('content', simplemde.fields.SimpleMDEField(verbose_name='Markdown content')),
-                ('body', models.TextField(blank=True, verbose_name='HTML content')),
-                ('description', models.TextField(blank=True, verbose_name='HTML description')),
-                ('pub_date', models.DateTimeField(blank=True, null=True, verbose_name='publication date')),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='author')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created",
+                    django_extensions.db.fields.CreationDateTimeField(
+                        auto_now_add=True, verbose_name="created"
+                    ),
+                ),
+                (
+                    "modified",
+                    django_extensions.db.fields.ModificationDateTimeField(
+                        auto_now=True, verbose_name="modified"
+                    ),
+                ),
+                ("title", models.CharField(max_length=200, verbose_name="title")),
+                ("slug", models.SlugField(unique=True, verbose_name="slug")),
+                (
+                    "content",
+                    simplemde.fields.SimpleMDEField(verbose_name="Markdown content"),
+                ),
+                ("body", models.TextField(blank=True, verbose_name="HTML content")),
+                (
+                    "description",
+                    models.TextField(blank=True, verbose_name="HTML description"),
+                ),
+                (
+                    "pub_date",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="publication date"
+                    ),
+                ),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="author",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'post',
-                'verbose_name_plural': 'posts',
-                'ordering': ['-pub_date', '-created'],
+                "verbose_name": "post",
+                "verbose_name_plural": "posts",
+                "ordering": ["-pub_date", "-created"],
             },
         ),
     ]

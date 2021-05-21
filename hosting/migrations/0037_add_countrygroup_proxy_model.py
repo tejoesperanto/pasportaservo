@@ -9,21 +9,22 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0033_condition_latex'),
+        ("hosting", "0033_condition_latex"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='CountryGroup',
-            fields=[
-            ],
+            name="CountryGroup",
+            fields=[],
             options={
-                'proxy': True,
-                'permissions': (('can_supervise', 'Can modify users from specific country'),),
+                "proxy": True,
+                "permissions": (
+                    ("can_supervise", "Can modify users from specific country"),
+                ),
             },
-            bases=('auth.group',),
+            bases=("auth.group",),
             managers=[
-                ('objects', django.contrib.auth.models.GroupManager()),
+                ("objects", django.contrib.auth.models.GroupManager()),
             ],
         ),
     ]

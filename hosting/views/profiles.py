@@ -40,8 +40,8 @@ User = get_user_model()
 
 
 class ProfileCreateView(
-        LoginRequiredMixin, ProfileModifyMixin, FormInvalidMessageMixin,
-        generic.CreateView):
+    LoginRequiredMixin, ProfileModifyMixin, FormInvalidMessageMixin, generic.CreateView
+):
     model = Profile
     form_class = ProfileCreateForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
@@ -54,34 +54,44 @@ class ProfileCreateView(
             return HttpResponseRedirect(profile.get_edit_url(), status=301)
         except Profile.DoesNotExist:
             # Cache the result for the reverse related descriptor, to spare further DB queries.
-            setattr(request.user, request.user._meta.fields_map['profile'].get_cache_name(), None)
+            setattr(
+                request.user,
+                request.user._meta.fields_map["profile"].get_cache_name(),
+                None,
+            )
             return super().dispatch(request, *args, **kwargs)
         except AssertionError:
             # Redirect to registration page when user is not authenticated.
-            return HttpResponseRedirect(reverse_lazy('register'), status=303)
+            return HttpResponseRedirect(reverse_lazy("register"), status=303)
 
     def get_form(self, form_class=ProfileCreateForm):
         return form_class(user=self.request.user, **self.get_form_kwargs())
 
 
 class ProfileUpdateView(
-        UpdateMixin, AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin, FormInvalidMessageMixin,
-        generic.UpdateView):
+    UpdateMixin,
+    AuthMixin,
+    ProfileIsUserMixin,
+    ProfileMixin,
+    ProfileModifyMixin,
+    FormInvalidMessageMixin,
+    generic.UpdateView,
+):
     form_class = ProfileForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
     display_fair_usage_condition = True
 
 
 class ProfileDeleteView(
-        DeleteMixin, AuthMixin, ProfileIsUserMixin, ProfileMixin,
-        generic.DeleteView):
+    DeleteMixin, AuthMixin, ProfileIsUserMixin, ProfileMixin, generic.DeleteView
+):
     form_class = ProfileForm
-    success_url = reverse_lazy('logout')
+    success_url = reverse_lazy("logout")
     display_fair_usage_condition = True
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['places'] = self.object.owned_places.filter(deleted=False)
+        context["places"] = self.object.owned_places.filter(deleted=False)
         return context
 
     def get_success_url(self):
@@ -91,8 +101,10 @@ class ProfileDeleteView(
         return self.success_url
 
     def get_failure_url(self):
-        return reverse_lazy('profile_settings', kwargs={
-            'pk': self.object.pk, 'slug': self.object.autoslug})
+        return reverse_lazy(
+            "profile_settings",
+            kwargs={"pk": self.object.pk, "slug": self.object.autoslug},
+        )
 
     def delete(self, request, *args, **kwargs):
         """
@@ -106,9 +118,9 @@ class ProfileDeleteView(
             for place in self.object.owned_places.filter(deleted=False):
                 place.deleted_on = now
                 place.save()
-                place.family_members.filter(
-                    deleted=False, user_id__isnull=True
-                ).update(deleted_on=now)
+                place.family_members.filter(deleted=False, user_id__isnull=True).update(
+                    deleted_on=now
+                )
             self.object.phones.filter(deleted=False).update(deleted_on=now)
             self.object.user.is_active = False
             self.object.user.save()
@@ -118,9 +130,9 @@ class ProfileDeleteView(
 
 
 class ProfileRestoreView(
-        AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin,
-        generic.DetailView):
-    template_name = 'hosting/profile_confirm_restore.html'
+    AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin, generic.DetailView
+):
+    template_name = "hosting/profile_confirm_restore.html"
     display_fair_usage_condition = True
     exact_role = ADMIN
 
@@ -130,7 +142,9 @@ class ProfileRestoreView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.object.deleted:
-            context['linked_objects'] = (p for p in chain(self.linked_places, self.linked_phones))
+            context["linked_objects"] = (
+                p for p in chain(self.linked_places, self.linked_phones)
+            )
         return context
 
     @property
@@ -138,12 +152,10 @@ class ProfileRestoreView(
         return self.object.deleted_on.replace(second=0, microsecond=0)
 
     def _truncate_delete_field(self):
-        return Trunc('deleted_on', kind='minute')
+        return Trunc("deleted_on", kind="minute")
 
     def _annotated_objects(self, qs):
-        return qs.annotate(
-            deleted_when=self._truncate_delete_field()
-        ).filter(
+        return qs.annotate(deleted_when=self._truncate_delete_field()).filter(
             deleted_when=self.deletion_timestamp
         )
 
@@ -160,15 +172,20 @@ class ProfileRestoreView(
         if not self.object.deleted:
             return self.get(request, *args, **kwargs)
         with transaction.atomic():
-            [qs.update(deleted_on=None) for qs in [
-                self._annotated_objects(Profile.all_objects)
-                    .filter(
-                        pk__in=self.linked_places.values_list('family_members', flat=True),
-                        user_id__isnull=True),
-                self.linked_places,
-                self.linked_phones,
-                Profile.all_objects.filter(pk=self.object.pk),
-            ]]
+            [
+                qs.update(deleted_on=None)
+                for qs in [
+                    self._annotated_objects(Profile.all_objects).filter(
+                        pk__in=self.linked_places.values_list(
+                            "family_members", flat=True
+                        ),
+                        user_id__isnull=True,
+                    ),
+                    self.linked_places,
+                    self.linked_phones,
+                    Profile.all_objects.filter(pk=self.object.pk),
+                ]
+            ]
             User.objects.filter(pk=self.object.user_id).update(is_active=True)
         return HttpResponseRedirect(self.object.get_edit_url())
 
@@ -177,9 +194,9 @@ class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
     permanent = False
 
     def get_redirect_url(self, *args, **kwargs):
-        if kwargs.get('pk'):
+        if kwargs.get("pk"):
             try:
-                profile = Profile.get_basic_data(pk=kwargs['pk'])
+                profile = Profile.get_basic_data(pk=kwargs["pk"])
             except Profile.DoesNotExist:
                 raise Http404("No profile with the given id exists.")
             if profile.user_id:
@@ -190,27 +207,31 @@ class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
         try:
             profile = Profile.get_basic_data(user=self.request.user)
         except Profile.DoesNotExist:
-            return reverse_lazy('profile_create')
+            return reverse_lazy("profile_create")
         else:
             return profile.get_edit_url()
 
 
 class ProfileDetailView(
-        AuthMixin, ProfileIsUserMixin, ProfileMixin,
-        generic.DetailView):
+    AuthMixin, ProfileIsUserMixin, ProfileMixin, generic.DetailView
+):
     display_fair_usage_condition = True
     public_view = True
     minimum_role = VISITOR
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related('user', 'email_visibility')
+        qs = super().get_queryset().select_related("user", "email_visibility")
         if self.request.user.has_perm(PERM_SUPERVISOR):
-            qs = qs.select_related('checked_by', 'checked_by__profile')
+            qs = qs.select_related("checked_by", "checked_by__profile")
         return qs
 
     def get_object(self, queryset=None):
         profile = super().get_object(queryset)
-        if profile.deleted and self.role == VISITOR and not self.request.user.has_perm(PERM_SUPERVISOR):
+        if (
+            profile.deleted
+            and self.role == VISITOR
+            and not self.request.user.has_perm(PERM_SUPERVISOR)
+        ):
             raise Http404("Profile was deleted.")
         return profile
 
@@ -219,47 +240,53 @@ class ProfileDetailView(
 
         display_places = self.object.owned_places.filter(deleted=False)
         if self.public_view:
-            display_places = display_places.filter(visibility__visible_online_public=True)
+            display_places = display_places.filter(
+                visibility__visible_online_public=True
+            )
         else:
             family_members = Prefetch(
-                'family_members',
-                Profile.all_objects.order_by('birth_date').select_related('user'))
+                "family_members",
+                Profile.all_objects.order_by("birth_date").select_related("user"),
+            )
             display_places = display_places.prefetch_related(family_members)
         if self.request.user.has_perm(PERM_SUPERVISOR):
-            display_places = (display_places
-                              .select_related('checked_by', 'checked_by__profile')
-                              .defer('checked_by__profile__description'))
-        context['places'] = display_places.select_related('visibility')
+            display_places = display_places.select_related(
+                "checked_by", "checked_by__profile"
+            ).defer("checked_by__profile__description")
+        context["places"] = display_places.select_related("visibility")
 
         display_phones = self.object.phones.filter(deleted=False)
-        context['phones'] = display_phones
-        context['phones_public'] = display_phones.filter(visibility__visible_online_public=True).select_related(None)
+        context["phones"] = display_phones
+        context["phones_public"] = display_phones.filter(
+            visibility__visible_online_public=True
+        ).select_related(None)
 
         return context
 
 
 class ProfileEditView(ProfileDetailView):
-    template_name = 'hosting/profile_edit.html'
+    template_name = "hosting/profile_edit.html"
     public_view = False
     minimum_role = OWNER
 
 
 class ProfileSettingsView(ProfileDetailView):
-    template_name = 'hosting/settings.html'
+    template_name = "hosting/settings.html"
     minimum_role = OWNER
 
     @property
     def profile_email_help_text(self):
-        return Profile._meta.get_field('email').help_text
+        return Profile._meta.get_field("email").help_text
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['account'] = self.object.user
-        context['privacy_matrix'] = ProfilePrivacyUpdateView.VisibilityFormSet(
+        context["account"] = self.object.user
+        context["privacy_matrix"] = ProfilePrivacyUpdateView.VisibilityFormSet(
             profile=self.object,
             read_only=(self.role > OWNER and self.role < ADMIN),
-            prefix=ProfilePrivacyUpdateView.VISIBILITY_FORMSET_PREFIX)
-        context['optinouts_form'] = PreferenceOptinsForm(instance=self.object.pref)
+            prefix=ProfilePrivacyUpdateView.VISIBILITY_FORMSET_PREFIX,
+        )
+        context["optinouts_form"] = PreferenceOptinsForm(instance=self.object.pref)
         return context
 
 
@@ -270,52 +297,56 @@ class ProfileSettingsRedirectView(LoginRequiredMixin, generic.RedirectView):
         try:
             profile = Profile.get_basic_data(user=self.request.user)
         except Profile.DoesNotExist:
-            return reverse_lazy('profile_create')
+            return reverse_lazy("profile_create")
         else:
-            return reverse_lazy('profile_settings', kwargs={
-                'pk': profile.pk, 'slug': profile.autoslug})
+            return reverse_lazy(
+                "profile_settings", kwargs={"pk": profile.pk, "slug": profile.autoslug}
+            )
 
 
 class ProfileEmailUpdateView(
-        AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin,
-        generic.UpdateView):
-    template_name = 'hosting/profile-email_form.html'
+    AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin, generic.UpdateView
+):
+    template_name = "hosting/profile-email_form.html"
     form_class = ProfileEmailUpdateForm
     display_fair_usage_condition = True
-    success_with_anchor = 'e'
+    success_with_anchor = "e"
     minimum_role = OWNER
 
 
 class ProfilePrivacyUpdateView(AuthMixin, ProfileMixin, generic.View):
-    http_method_names = ['post']
+    http_method_names = ["post"]
     exact_role = (OWNER, ADMIN)
 
     VisibilityFormSet = modelformset_factory(
-        VisibilitySettings,
-        form=VisibilityForm, formset=VisibilityFormSetBase, extra=0)
-    VISIBILITY_FORMSET_PREFIX = 'publish'
+        VisibilitySettings, form=VisibilityForm, formset=VisibilityFormSetBase, extra=0
+    )
+    VISIBILITY_FORMSET_PREFIX = "publish"
 
     def get_permission_denied_message(self, *args, **kwargs):
         return _("Only the user themselves can access this page")
 
-    @vary_on_headers('HTTP_X_REQUESTED_WITH')
+    @vary_on_headers("HTTP_X_REQUESTED_WITH")
     def post(self, request, *args, **kwargs):
         profile = self.get_object()
         data = QueryDict(request.body)
 
         publish_formset = self.VisibilityFormSet(
-            profile=profile, data=data, prefix=self.VISIBILITY_FORMSET_PREFIX)
+            profile=profile, data=data, prefix=self.VISIBILITY_FORMSET_PREFIX
+        )
         matrix_data_correct = publish_formset.is_valid()
         if matrix_data_correct:
             publish_formset.save()
         else:
             for index, err in enumerate(publish_formset.errors):
-                err['_pk'] = publish_formset[index].instance.pk
+                err["_pk"] = publish_formset[index].instance.pk
                 if err:
-                    err['_obj'] = repr(publish_formset[index].instance)
-            logging.getLogger('PasportaServo.{module_}.{class_}'.format(
-                module_=__name__, class_=self.__class__.__name__
-            )).error(publish_formset.errors)
+                    err["_obj"] = repr(publish_formset[index].instance)
+            logging.getLogger(
+                "PasportaServo.{module_}.{class_}".format(
+                    module_=__name__, class_=self.__class__.__name__
+                )
+            ).error(publish_formset.errors)
 
         optins_form = PreferenceOptinsForm(data=data, instance=profile.pref)
         optins_data_correct = optins_form.is_valid()
@@ -323,10 +354,18 @@ class ProfilePrivacyUpdateView(AuthMixin, ProfileMixin, generic.View):
             optins_form.save()
 
         if request.is_ajax():
-            return JsonResponse({'result': matrix_data_correct and optins_data_correct})
+            return JsonResponse({"result": matrix_data_correct and optins_data_correct})
         else:
             if not matrix_data_correct:
-                raise ValueError("Unexpected visibility cofiguration. Ref {}".format(publish_formset.errors))
+                raise ValueError(
+                    "Unexpected visibility cofiguration. Ref {}".format(
+                        publish_formset.errors
+                    )
+                )
             if not optins_data_correct:
-                raise ValueError("Opt-in/out preference could not be set. Ref {}".format(optins_form.errors))
-            return HttpResponseRedirect('{}#pR'.format(profile.get_edit_url()))
+                raise ValueError(
+                    "Opt-in/out preference could not be set. Ref {}".format(
+                        optins_form.errors
+                    )
+                )
+            return HttpResponseRedirect("{}#pR".format(profile.get_edit_url()))

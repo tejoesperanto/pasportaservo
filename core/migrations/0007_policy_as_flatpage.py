@@ -7,22 +7,26 @@ from django.template.loader import get_template
 
 
 def create_initial_policy(app_registry, schema_editor):
-    Policy = app_registry.get_model('core', 'Policy')
-    template = 'pages/snippets/privacy_policy_initial.html'
+    Policy = app_registry.get_model("core", "Policy")
+    template = "pages/snippets/privacy_policy_initial.html"
 
     content = get_template(template).template.source
-    Policy.objects.create(url='/privacy-policy-2018-001/', title='Privacy Policy (1st revision)', content=content)
+    Policy.objects.create(
+        url="/privacy-policy-2018-001/",
+        title="Privacy Policy (1st revision)",
+        content=content,
+    )
 
 
 def remove_initial_policy(app_registry, schema_editor):
-    Policy = app_registry.get_model('core', 'Policy')
-    Policy.objects.filter(url='/privacy-policy-2018-001/').delete()
+    Policy = app_registry.get_model("core", "Policy")
+    Policy.objects.filter(url="/privacy-policy-2018-001/").delete()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0006_geo_api_keys'),
+        ("core", "0006_geo_api_keys"),
     ]
 
     operations = [

@@ -10,17 +10,19 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('core', '0004_agreement_model'),
+        ("core", "0004_agreement_model"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='agreement',
-            name='withdrawn',
-            field=models.DateTimeField(blank=True, default=None, null=True, verbose_name='withdrawn on'),
+            model_name="agreement",
+            name="withdrawn",
+            field=models.DateTimeField(
+                blank=True, default=None, null=True, verbose_name="withdrawn on"
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='agreement',
-            unique_together=set([('user', 'policy_version', 'withdrawn')]),
+            name="agreement",
+            unique_together=set([("user", "policy_version", "withdrawn")]),
         ),
     ]

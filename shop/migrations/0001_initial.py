@@ -11,9 +11,8 @@ from django.db import migrations, models
 
 
 def create_product(apps, schema_editor):
-    apps.get_model('shop', 'Product')._default_manager.create(
-        name="Pasporta Servo 2017",
-        code='PS2017'
+    apps.get_model("shop", "Product")._default_manager.create(
+        name="Pasporta Servo 2017", code="PS2017"
     )
 
 
@@ -27,41 +26,128 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Product',
+            name="Product",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('name', models.CharField(max_length=50, verbose_name='name')),
-                ('code', models.CharField(max_length=20, unique=True, verbose_name='code')),
-                ('price', models.DecimalField(decimal_places=2, default=Decimal('8.99'), max_digits=4, verbose_name='price')),
-                ('low_price', models.DecimalField(decimal_places=2, default=Decimal('2.99'), max_digits=4, verbose_name='low price')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created",
+                    django_extensions.db.fields.CreationDateTimeField(
+                        auto_now_add=True, verbose_name="created"
+                    ),
+                ),
+                (
+                    "modified",
+                    django_extensions.db.fields.ModificationDateTimeField(
+                        auto_now=True, verbose_name="modified"
+                    ),
+                ),
+                ("name", models.CharField(max_length=50, verbose_name="name")),
+                (
+                    "code",
+                    models.CharField(max_length=20, unique=True, verbose_name="code"),
+                ),
+                (
+                    "price",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=Decimal("8.99"),
+                        max_digits=4,
+                        verbose_name="price",
+                    ),
+                ),
+                (
+                    "low_price",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=Decimal("2.99"),
+                        max_digits=4,
+                        verbose_name="low price",
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'products',
-                'verbose_name': 'product',
+                "verbose_name_plural": "products",
+                "verbose_name": "product",
             },
         ),
         migrations.CreateModel(
-            name='Reservation',
+            name="Reservation",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('amount', models.PositiveSmallIntegerField(default=1, verbose_name='amount')),
-                ('discount', models.BooleanField(default=False, help_text='If you are member of TEJO or UEA and the 10% discount applies (twice a year).', verbose_name='TEJO discount')),
-                ('support', models.DecimalField(decimal_places=2, default=Decimal('0.00'), max_digits=6, verbose_name='support')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='shop.Product', verbose_name='product')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='user')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created",
+                    django_extensions.db.fields.CreationDateTimeField(
+                        auto_now_add=True, verbose_name="created"
+                    ),
+                ),
+                (
+                    "modified",
+                    django_extensions.db.fields.ModificationDateTimeField(
+                        auto_now=True, verbose_name="modified"
+                    ),
+                ),
+                (
+                    "amount",
+                    models.PositiveSmallIntegerField(default=1, verbose_name="amount"),
+                ),
+                (
+                    "discount",
+                    models.BooleanField(
+                        default=False,
+                        help_text="If you are member of TEJO or UEA and the 10% discount applies (twice a year).",
+                        verbose_name="TEJO discount",
+                    ),
+                ),
+                (
+                    "support",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=Decimal("0.00"),
+                        max_digits=6,
+                        verbose_name="support",
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="shop.Product",
+                        verbose_name="product",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="user",
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'reservations',
-                'verbose_name': 'reservation',
+                "verbose_name_plural": "reservations",
+                "verbose_name": "reservation",
             },
         ),
         migrations.AlterUniqueTogether(
-            name='reservation',
-            unique_together=set([('product', 'user')]),
+            name="reservation",
+            unique_together=set([("product", "user")]),
         ),
-        migrations.RunPython(create_product, migrations.RunPython.noop)
+        migrations.RunPython(create_product, migrations.RunPython.noop),
     ]

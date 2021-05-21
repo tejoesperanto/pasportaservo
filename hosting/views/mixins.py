@@ -26,11 +26,11 @@ class ProfileMixin(object):
         finally:
             # When the profile-related View needs to show data of the current user, we already have
             # the Profile object in `request.user.profile` and do not need to re-query the database.
-            if str(current_user_profile_pk) == str(self.kwargs['pk']):
+            if str(current_user_profile_pk) == str(self.kwargs["pk"]):
                 profile = self.request.user.profile
             else:
                 where_from = queryset if queryset is not None else self.get_queryset()
-                profile = get_object_or_404(where_from, pk=self.kwargs['pk'])
+                profile = get_object_or_404(where_from, pk=self.kwargs["pk"])
         return profile
 
     def get_queryset(self):
@@ -41,7 +41,7 @@ class ProfileMixin(object):
 
 
 class ProfileModifyMixin(object):
-    url_anchors = {Place: 'p', Phone: 't'}
+    url_anchors = {Place: "p", Phone: "t"}
 
     def get_success_url(self, *args, **kwargs):
         redirect_to = sanitize_next(self.request)
@@ -49,18 +49,17 @@ class ProfileModifyMixin(object):
             return redirect_to
 
         success_url, success_url_anchor = None, None
-        if hasattr(self.object, 'profile'):
+        if hasattr(self.object, "profile"):
             success_url = self.object.profile.get_edit_url()
             success_url_anchor = self.url_anchors.get(self.model)
         if type(self.object) is Profile:
             success_url = self.object.get_edit_url()
-            success_url_anchor = getattr(self, 'success_with_anchor', None)
+            success_url_anchor = getattr(self, "success_with_anchor", None)
         if success_url_anchor:
-            url_pattern = '{url}#{anchor}{obj_id}'
+            url_pattern = "{url}#{anchor}{obj_id}"
             return url_pattern.format(
-                url=success_url,
-                anchor=success_url_anchor,
-                obj_id=self.object.pk)
+                url=success_url, anchor=success_url_anchor, obj_id=self.object.pk
+            )
         else:
             return success_url
 
@@ -68,7 +67,7 @@ class ProfileModifyMixin(object):
 class ProfileIsUserMixin(object):
     def dispatch(self, request, *args, **kwargs):
         try:
-            if not kwargs.get('auth_base').owner.user_id:
+            if not kwargs.get("auth_base").owner.user_id:
                 raise Http404("Detached profile (probably a family member).")
         except AttributeError:
             pass
@@ -85,14 +84,14 @@ class CreateMixin(object):
     minimum_role = OWNER
 
     def dispatch(self, request, *args, **kwargs):
-        if self.kwargs.get('profile_pk'):
-            profile = get_object_or_404(Profile, pk=self.kwargs['profile_pk'])
+        if self.kwargs.get("profile_pk"):
+            profile = get_object_or_404(Profile, pk=self.kwargs["profile_pk"])
             self.create_for = profile
-        elif self.kwargs.get('place_pk'):
-            place = get_object_or_404(Place, pk=self.kwargs['place_pk'])
+        elif self.kwargs.get("place_pk"):
+            place = get_object_or_404(Place, pk=self.kwargs["place_pk"])
             self.create_for = place
 
-        kwargs['auth_base'] = getattr(self, 'create_for', None)
+        kwargs["auth_base"] = getattr(self, "create_for", None)
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -100,14 +99,30 @@ class ProfileAssociatedObjectCreateMixin(object):
     def form_valid(self, form):
         response = super().form_valid(form)
         if self.role == OWNER:
-            url = ''.join((
-                reverse('profile_settings', kwargs={'pk': self.create_for.pk, 'slug': self.create_for.autoslug}),
-                '#ppv', str(self.object.visibility.pk),
-            ))
+            url = "".join(
+                (
+                    reverse(
+                        "profile_settings",
+                        kwargs={
+                            "pk": self.create_for.pk,
+                            "slug": self.create_for.autoslug,
+                        },
+                    ),
+                    "#ppv",
+                    str(self.object.visibility.pk),
+                )
+            )
             msg_affirm = self.get_confirmation_message()
-            msg_remind = _("<a href=\"{url}\">Don't forget to choose</a> where it should be displayed.")
-            messages.info(self.request, extra_tags='eminent',
-                          message=format_html("{}&ensp;{}", msg_affirm, format_html(msg_remind, url=url)))
+            msg_remind = _(
+                '<a href="{url}">Don\'t forget to choose</a> where it should be displayed.'
+            )
+            messages.info(
+                self.request,
+                extra_tags="eminent",
+                message=format_html(
+                    "{}&ensp;{}", msg_affirm, format_html(msg_remind, url=url)
+                ),
+            )
         return response
 
 
@@ -116,7 +131,7 @@ class PlaceMixin(object):
 
     def get_object(self, queryset=None):
         where_from = queryset if queryset is not None else self.get_queryset()
-        return get_object_or_404(where_from, pk=self.kwargs['pk'])
+        return get_object_or_404(where_from, pk=self.kwargs["pk"])
 
     def get_location(self, object):
         return object.country
@@ -131,12 +146,17 @@ class PlaceMixin(object):
 class PlaceModifyMixin(object):
     def form_valid(self, form):
         response = super().form_valid(form)
-        if '_gotomap' in self.request.POST or form.confidence < LocationConfidence.ACCEPTABLE:
-            map_url = reverse('place_location_update', kwargs={'pk': self.object.pk})
+        if (
+            "_gotomap" in self.request.POST
+            or form.confidence < LocationConfidence.ACCEPTABLE
+        ):
+            map_url = reverse("place_location_update", kwargs={"pk": self.object.pk})
             redirect_to = sanitize_next(self.request)
-            return HttpResponseRedirect(('{}' if not redirect_to else '{}?{}').format(
-                map_url, next_link(self.request, redirect_to)
-            ))
+            return HttpResponseRedirect(
+                ("{}" if not redirect_to else "{}?{}").format(
+                    map_url, next_link(self.request, redirect_to)
+                )
+            )
         return response
 
 
@@ -144,7 +164,9 @@ class PhoneMixin(object):
     model = Phone
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Phone, pk=self.kwargs['pk'], profile=self.kwargs['profile_pk'])
+        return get_object_or_404(
+            Phone, pk=self.kwargs["pk"], profile=self.kwargs["profile_pk"]
+        )
 
 
 class FamilyMemberMixin(object):
@@ -159,16 +181,24 @@ class FamilyMemberMixin(object):
         if profile in self.place.family_members_cache():
             return profile
         else:
-            raise Http404("Profile {} is not a family member at place {}.".format(profile.pk, self.place.pk))
+            raise Http404(
+                "Profile {} is not a family member at place {}.".format(
+                    profile.pk, self.place.pk
+                )
+            )
 
     def get_place(self):
-        if not hasattr(self, 'place'):
-            self.place = getattr(self, 'create_for', None) or get_object_or_404(Place, pk=self.kwargs['place_pk'])
+        if not hasattr(self, "place"):
+            self.place = getattr(self, "create_for", None) or get_object_or_404(
+                Place, pk=self.kwargs["place_pk"]
+            )
         return self.place
 
     @cached_property
     def other_places(self):
-        return Place.objects.filter(family_members__pk=self.object.pk).exclude(pk=self.place.pk)
+        return Place.objects.filter(family_members__pk=self.object.pk).exclude(
+            pk=self.place.pk
+        )
 
     def get_owner(self, object):
         return self.get_place().owner
@@ -202,8 +232,10 @@ class UpdateMixin(object):
     def form_valid(self, form):
         self.object.set_check_status(
             self.request.user,
-            clear_only=getattr(self, 'update_partial', False) or ('_save-only' in self.request.POST),
-            commit=False)
+            clear_only=getattr(self, "update_partial", False)
+            or ("_save-only" in self.request.POST),
+            commit=False,
+        )
         return super().form_valid(form)
 
 
@@ -211,7 +243,7 @@ class DeleteMixin(object):
     minimum_role = OWNER
 
     def get_object(self, queryset=None):
-        if getattr(self, 'object', None) is not None:
+        if getattr(self, "object", None) is not None:
             # In some use-cases, get_object will be called several times prior to deletion.
             # Avoid multiple trips to the database for those cases.
             return self.object
@@ -220,7 +252,7 @@ class DeleteMixin(object):
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if self.object.deleted:
-            if hasattr(self, 'get_failure_url'):
+            if hasattr(self, "get_failure_url"):
                 return HttpResponseRedirect(self.get_failure_url())
             else:
                 return HttpResponseRedirect(self.get_success_url())
@@ -228,7 +260,7 @@ class DeleteMixin(object):
             return super().get(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
-        if getattr(self, 'object', None) is None:
+        if getattr(self, "object", None) is None:
             self.object = self.get_object()
         if not self.object.deleted:
             self.object.deleted_on = timezone.now()

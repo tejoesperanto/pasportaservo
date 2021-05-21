@@ -9,21 +9,21 @@ COUNTRIES = sorted(dict(data.COUNTRIES).keys())
 
 
 def create_country_groups(apps, schema_editor):
-    Group = apps.get_model('auth', 'Group')
+    Group = apps.get_model("auth", "Group")
     for country in COUNTRIES:
         Group.objects.get_or_create(name=country)
 
 
 def delete_country_groups(apps, schema_editor):
-    Group = apps.get_model('auth', 'Group')
+    Group = apps.get_model("auth", "Group")
     Group.objects.filter(name__in=COUNTRIES).delete()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('auth', '0008_alter_user_username_max_length'),
-        ('hosting', '0025_auto_20161019_2323'),
+        ("auth", "0008_alter_user_username_max_length"),
+        ("hosting", "0025_auto_20161019_2323"),
     ]
 
     operations = [

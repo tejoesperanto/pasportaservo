@@ -10,11 +10,15 @@ from django.db import migrations
 
 
 def populate_location(app_registry, schema_editor):
-    Place = app_registry.get_model('hosting', 'Place')
-    places = Place._default_manager.filter(
-        latitude__isnull=False,
-        longitude__isnull=False,
-    ).only('latitude', 'longitude').order_by('pk')
+    Place = app_registry.get_model("hosting", "Place")
+    places = (
+        Place._default_manager.filter(
+            latitude__isnull=False,
+            longitude__isnull=False,
+        )
+        .only("latitude", "longitude")
+        .order_by("pk")
+    )
     for place in places:
         print(place.pk, place.longitude, place.latitude)
         place.location = Point(place.longitude, place.latitude)
@@ -25,7 +29,7 @@ def populate_location(app_registry, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0039_merge_20170613_1341'),
+        ("hosting", "0039_merge_20170613_1341"),
     ]
 
     operations = [
@@ -33,12 +37,12 @@ class Migration(migrations.Migration):
         # postgres=# CREATE EXTENSION postgis;
         #
         # CreateExtension('postgis'),
-
         migrations.AddField(
-            model_name='place',
-            name='location',
-            field=django.contrib.gis.db.models.fields.PointField(blank=True, null=True, srid=4326, verbose_name='location'),
+            model_name="place",
+            name="location",
+            field=django.contrib.gis.db.models.fields.PointField(
+                blank=True, null=True, srid=4326, verbose_name="location"
+            ),
         ),
-
         migrations.RunPython(populate_location),
     ]

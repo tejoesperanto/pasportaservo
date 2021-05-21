@@ -7,10 +7,10 @@ from django.utils.translation import ugettext_lazy as _
 
 class ShowCountryMixin(object):
     def display_country(self, obj):
-        return '{country.code}: {country.name}'.format(country=obj.country)
+        return "{country.code}: {country.name}".format(country=obj.country)
 
     display_country.short_description = _("country")
-    display_country.admin_order_field = 'country'
+    display_country.admin_order_field = "country"
 
 
 class ShowConfirmedMixin(object):
@@ -18,13 +18,15 @@ class ShowConfirmedMixin(object):
         return format_html(
             display_for_value(obj.confirmed_on is not None, None, boolean=True)
             + (
-                '&nbsp; ' + date_format(obj.confirmed_on, 'DATETIME_FORMAT', use_l10n=True)
-                if obj.confirmed_on else ""
+                "&nbsp; "
+                + date_format(obj.confirmed_on, "DATETIME_FORMAT", use_l10n=True)
+                if obj.confirmed_on
+                else ""
             )
         )
 
     display_confirmed.short_description = _("confirmed on")
-    display_confirmed.admin_order_field = 'confirmed_on'
+    display_confirmed.admin_order_field = "confirmed_on"
 
 
 class ShowDeletedMixin(object):
@@ -36,4 +38,4 @@ class ShowDeletedMixin(object):
         )
 
     is_deleted.short_description = _("deleted")
-    is_deleted.admin_order_field = 'deleted'
+    is_deleted.admin_order_field = "deleted"

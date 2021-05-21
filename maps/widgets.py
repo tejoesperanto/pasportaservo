@@ -11,40 +11,35 @@ class MapboxGlWidget(BaseGeometryWidget):
     """
     An OpenLayers/OpenStreetMap-based widget.
     """
-    template_name = 'gis/mapbox-gl.html'
+
+    template_name = "gis/mapbox-gl.html"
     map_srid = SRID
     default_lon = 5
     default_lat = 47
 
     class Media:
-        css = {
-            'all': (
-                settings.MAPBOX_GL_CSS,
-            )
-        }
-        js = (
-            settings.MAPBOX_GL_JS,
-        )
+        css = {"all": (settings.MAPBOX_GL_CSS,)}
+        js = (settings.MAPBOX_GL_JS,)
 
     def __init__(self, attrs=None):
         super().__init__()
-        for key in ('default_lon', 'default_lat'):
+        for key in ("default_lon", "default_lat"):
             self.attrs[key] = getattr(self, key)
         if attrs:
             self.attrs.update(attrs)
 
     @property
     def media(self):
-        return (
-            forms.Media(css=self.Media.css, js=self.Media.js)
-            + forms.Media(js=(
-                format_lazy('{}?format=js&type=widget', reverse_lazy('gis_endpoints')),
-                'maps/mapbox-gl.eo.js',
-                'maps/mapbox-gl-widget.js'))
+        return forms.Media(css=self.Media.css, js=self.Media.js) + forms.Media(
+            js=(
+                format_lazy("{}?format=js&type=widget", reverse_lazy("gis_endpoints")),
+                "maps/mapbox-gl.eo.js",
+                "maps/mapbox-gl-widget.js",
+            )
         )
 
     def serialize(self, value):
-        return value.json if value else ''
+        return value.json if value else ""
 
 
 class AdminMapboxGlWidget(MapboxGlWidget):
@@ -52,5 +47,5 @@ class AdminMapboxGlWidget(MapboxGlWidget):
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
-        context['admin_site'] = self.admin_site
+        context["admin_site"] = self.admin_site
         return context

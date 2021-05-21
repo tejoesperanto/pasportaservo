@@ -8,18 +8,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0019_auto_20161001_1021'),
+        ("hosting", "0019_auto_20161001_1021"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='place',
-            name='sporadic_presence',
-            field=models.BooleanField(default=False, help_text='If you are not often at this address and need an advance notification.', verbose_name='irregularly present'),
+            model_name="place",
+            name="sporadic_presence",
+            field=models.BooleanField(
+                default=False,
+                help_text="If you are not often at this address and need an advance notification.",
+                verbose_name="irregularly present",
+            ),
         ),
         migrations.AlterField(
-            model_name='place',
-            name='in_book',
-            field=models.BooleanField(default=True, help_text='If you want this place to be in the printed book. Must be available.', verbose_name='print in book'),
+            model_name="place",
+            name="in_book",
+            field=models.BooleanField(
+                default=True,
+                help_text="If you want this place to be in the printed book. Must be available.",
+                verbose_name="print in book",
+            ),
         ),
     ]

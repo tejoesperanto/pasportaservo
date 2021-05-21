@@ -8,24 +8,26 @@ from django.db.models import Case, DateTimeField, F, When
 
 def populate_tracking_fields(apps, schema_editor):
     managers = [
-        apps.get_model('hosting', 'Phone')._default_manager.all(),
-        apps.get_model('hosting', 'Place')._default_manager.all(),
-        apps.get_model('hosting', 'Profile')._default_manager.all(),
-        apps.get_model('hosting', 'Website')._default_manager.all(),
+        apps.get_model("hosting", "Phone")._default_manager.all(),
+        apps.get_model("hosting", "Place")._default_manager.all(),
+        apps.get_model("hosting", "Profile")._default_manager.all(),
+        apps.get_model("hosting", "Website")._default_manager.all(),
     ]
 
     for objects in managers:
         objects.update(
             deleted_on=Case(
                 When(deleted=False, then=None),
-                default=F('modified'),
-                output_field=DateTimeField())
+                default=F("modified"),
+                output_field=DateTimeField(),
+            )
         )
         objects.update(
             checked_on=Case(
                 When(checked=False, then=None),
-                default=F('modified'),
-                output_field=DateTimeField())
+                default=F("modified"),
+                output_field=DateTimeField(),
+            )
         )
 
 
@@ -36,50 +38,67 @@ def unpopulate_tracking_fields(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0028_adding_validators'),
+        ("hosting", "0028_adding_validators"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='phone',
-            name='checked_on',
-            field=models.DateTimeField(blank=True, default=None, null=True, verbose_name='checked on'),
+            model_name="phone",
+            name="checked_on",
+            field=models.DateTimeField(
+                blank=True, default=None, null=True, verbose_name="checked on"
+            ),
         ),
         migrations.AddField(
-            model_name='phone',
-            name='deleted_on',
-            field=models.DateTimeField(blank=True, default=None, null=True, verbose_name='delete on'),
+            model_name="phone",
+            name="deleted_on",
+            field=models.DateTimeField(
+                blank=True, default=None, null=True, verbose_name="delete on"
+            ),
         ),
         migrations.AddField(
-            model_name='place',
-            name='checked_on',
-            field=models.DateTimeField(blank=True, default=None, null=True, verbose_name='checked on'),
+            model_name="place",
+            name="checked_on",
+            field=models.DateTimeField(
+                blank=True, default=None, null=True, verbose_name="checked on"
+            ),
         ),
         migrations.AddField(
-            model_name='place',
-            name='deleted_on',
-            field=models.DateTimeField(blank=True, default=None, null=True, verbose_name='delete on'),
+            model_name="place",
+            name="deleted_on",
+            field=models.DateTimeField(
+                blank=True, default=None, null=True, verbose_name="delete on"
+            ),
         ),
         migrations.AddField(
-            model_name='profile',
-            name='checked_on',
-            field=models.DateTimeField(blank=True, default=None, null=True, verbose_name='checked on'),
+            model_name="profile",
+            name="checked_on",
+            field=models.DateTimeField(
+                blank=True, default=None, null=True, verbose_name="checked on"
+            ),
         ),
         migrations.AddField(
-            model_name='profile',
-            name='deleted_on',
-            field=models.DateTimeField(blank=True, default=None, null=True, verbose_name='delete on'),
+            model_name="profile",
+            name="deleted_on",
+            field=models.DateTimeField(
+                blank=True, default=None, null=True, verbose_name="delete on"
+            ),
         ),
         migrations.AddField(
-            model_name='website',
-            name='checked_on',
-            field=models.DateTimeField(blank=True, default=None, null=True, verbose_name='checked on'),
+            model_name="website",
+            name="checked_on",
+            field=models.DateTimeField(
+                blank=True, default=None, null=True, verbose_name="checked on"
+            ),
         ),
         migrations.AddField(
-            model_name='website',
-            name='deleted_on',
-            field=models.DateTimeField(blank=True, default=None, null=True, verbose_name='delete on'),
+            model_name="website",
+            name="deleted_on",
+            field=models.DateTimeField(
+                blank=True, default=None, null=True, verbose_name="delete on"
+            ),
         ),
-
-        migrations.RunPython(populate_tracking_fields, reverse_code=unpopulate_tracking_fields),
+        migrations.RunPython(
+            populate_tracking_fields, reverse_code=unpopulate_tracking_fields
+        ),
     ]

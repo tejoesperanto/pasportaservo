@@ -12,38 +12,66 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('flatpages', '0001_initial'),
-        ('core', '0003_update_min_age'),
+        ("flatpages", "0001_initial"),
+        ("core", "0003_update_min_age"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Agreement',
+            name="Agreement",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='user')),
-                ('policy_version', models.CharField(max_length=50, verbose_name='version of policy')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created",
+                    django_extensions.db.fields.CreationDateTimeField(
+                        auto_now_add=True, verbose_name="created"
+                    ),
+                ),
+                (
+                    "modified",
+                    django_extensions.db.fields.ModificationDateTimeField(
+                        auto_now=True, verbose_name="modified"
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="+",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="user",
+                    ),
+                ),
+                (
+                    "policy_version",
+                    models.CharField(max_length=50, verbose_name="version of policy"),
+                ),
             ],
             options={
-                'default_permissions': ('delete',),
-                'verbose_name_plural': 'agreements',
-                'verbose_name': 'agreement',
+                "default_permissions": ("delete",),
+                "verbose_name_plural": "agreements",
+                "verbose_name": "agreement",
             },
         ),
         migrations.AlterUniqueTogether(
-            name='agreement',
-            unique_together=set([('user', 'policy_version')]),
+            name="agreement",
+            unique_together=set([("user", "policy_version")]),
         ),
         migrations.CreateModel(
-            name='Policy',
-            fields=[
-            ],
+            name="Policy",
+            fields=[],
             options={
-                'proxy': True,
-                'indexes': [],
+                "proxy": True,
+                "indexes": [],
             },
-            bases=('flatpages.flatpage',),
+            bases=("flatpages.flatpage",),
         ),
     ]

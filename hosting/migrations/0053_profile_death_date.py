@@ -10,13 +10,19 @@ import hosting.validators
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0052_traveladvice_model'),
+        ("hosting", "0052_traveladvice_model"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='profile',
-            name='death_date',
-            field=models.DateField(blank=True, help_text='In the format year(4 digits)-month(2 digits)-day(2 digits).', null=True, validators=[hosting.validators.validate_not_in_future], verbose_name='death date'),
+            model_name="profile",
+            name="death_date",
+            field=models.DateField(
+                blank=True,
+                help_text="In the format year(4 digits)-month(2 digits)-day(2 digits).",
+                null=True,
+                validators=[hosting.validators.validate_not_in_future],
+                verbose_name="death date",
+            ),
         ),
     ]

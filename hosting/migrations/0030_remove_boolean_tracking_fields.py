@@ -8,40 +8,40 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0029_tracking_fields_using_datetime'),
+        ("hosting", "0029_tracking_fields_using_datetime"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='phone',
-            name='checked',
+            model_name="phone",
+            name="checked",
         ),
         migrations.RemoveField(
-            model_name='phone',
-            name='deleted',
+            model_name="phone",
+            name="deleted",
         ),
         migrations.RemoveField(
-            model_name='place',
-            name='checked',
+            model_name="place",
+            name="checked",
         ),
         migrations.RemoveField(
-            model_name='place',
-            name='deleted',
+            model_name="place",
+            name="deleted",
         ),
         migrations.RemoveField(
-            model_name='profile',
-            name='checked',
+            model_name="profile",
+            name="checked",
         ),
         migrations.RemoveField(
-            model_name='profile',
-            name='deleted',
+            model_name="profile",
+            name="deleted",
         ),
         migrations.RemoveField(
-            model_name='website',
-            name='checked',
+            model_name="website",
+            name="checked",
         ),
         migrations.RemoveField(
-            model_name='website',
-            name='deleted',
+            model_name="website",
+            name="deleted",
         ),
     ]

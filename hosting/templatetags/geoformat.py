@@ -16,7 +16,7 @@ def format_geo_result(result):
     Replace given country (-ujo) by the one from django_countries
     """
     if not result.country:
-        return result.address or ''
+        return result.address or ""
     try:
         country = Countries().name(result.country_code.upper())
     except Exception:
@@ -49,8 +49,10 @@ def is_location_in_country(place):
         return False
     conf = place.location_confidence
     if conf >= LocationConfidence.ACCEPTABLE and conf != LocationConfidence.CONFIRMED:
-        country_bbox = COUNTRIES_GEO[place.country]['bbox']
-        country_geom = LineString(country_bbox['northeast'], country_bbox['southwest']).envelope
+        country_bbox = COUNTRIES_GEO[place.country]["bbox"]
+        country_geom = LineString(
+            country_bbox["northeast"], country_bbox["southwest"]
+        ).envelope
         return place.location.within(country_geom)
     return conf == LocationConfidence.CONFIRMED
 
@@ -60,8 +62,8 @@ def format_dms(location, confidence=None):
     if not location or location.empty:
         return mark_safe("&#8593;&nbsp;&#xFF1F;&deg;, &#8594;&nbsp;&#xFF1F;&deg;")
     formatting = [
-        (location.y, {True: ('N', '&#8593;'), False: ('S', '&#8595;')}),
-        (location.x, {True: ('E', '&#8594;'), False: ('W', '&#8592;')}),
+        (location.y, {True: ("N", "&#8593;"), False: ("S", "&#8595;")}),
+        (location.x, {True: ("E", "&#8594;"), False: ("W", "&#8592;")}),
     ]
     dms = []
     for coord, signs in formatting:
@@ -72,8 +74,10 @@ def format_dms(location, confidence=None):
             dms_seconds = f"{seconds:.3f}&#8243;"
         else:
             dms_seconds = ""
-        dms.append(f"{arrow}&nbsp;{degrees}&deg;{minutes}&#8242;{dms_seconds}&thinsp;{letter}")
-    return mark_safe(', '.join(dms))
+        dms.append(
+            f"{arrow}&nbsp;{degrees}&deg;{minutes}&#8242;{dms_seconds}&thinsp;{letter}"
+        )
+    return mark_safe(", ".join(dms))
 
 
 @register.filter
@@ -83,11 +87,11 @@ def geo_url_hash(result):
     https://www.mapbox.com/mapbox-gl-js/api/#map
     """
     if not result.latlng:
-        return ''
+        return ""
 
     zoom = 6
     if not result.country:
         zoom = 4  # Continent, others...
     elif result.city:
         zoom = 8  # City or lower
-    return f'#{zoom}/{result.lat}/{result.lng}'
+    return f"#{zoom}/{result.lat}/{result.lng}"

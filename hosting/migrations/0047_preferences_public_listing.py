@@ -8,13 +8,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hosting', '0046_preferences_model'),
+        ("hosting", "0046_preferences_model"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='preferences',
-            name='public_listing',
-            field=models.BooleanField(default=True, verbose_name='List my profile in search results open to the internet.'),
+            model_name="preferences",
+            name="public_listing",
+            field=models.BooleanField(
+                default=True,
+                verbose_name="List my profile in search results open to the internet.",
+            ),
         ),
     ]

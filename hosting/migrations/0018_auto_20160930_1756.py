@@ -12,42 +12,56 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('hosting', '0017_auto_20160921_1245'),
+        ("hosting", "0017_auto_20160921_1245"),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='phone',
+            name="phone",
             managers=[
-                ('all_objects', django.db.models.manager.Manager()),
+                ("all_objects", django.db.models.manager.Manager()),
             ],
         ),
         migrations.AlterModelManagers(
-            name='place',
+            name="place",
             managers=[
-                ('all_objects', django.db.models.manager.Manager()),
+                ("all_objects", django.db.models.manager.Manager()),
             ],
         ),
         migrations.AlterModelManagers(
-            name='profile',
+            name="profile",
             managers=[
-                ('all_objects', django.db.models.manager.Manager()),
+                ("all_objects", django.db.models.manager.Manager()),
             ],
         ),
         migrations.AlterModelManagers(
-            name='website',
+            name="website",
             managers=[
-                ('all_objects', django.db.models.manager.Manager()),
+                ("all_objects", django.db.models.manager.Manager()),
             ],
         ),
         migrations.AddField(
-            model_name='place',
-            name='checked_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='approved by'),
+            model_name="place",
+            name="checked_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="+",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="approved by",
+            ),
         ),
         migrations.AddField(
-            model_name='profile',
-            name='checked_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='approved by'),
+            model_name="profile",
+            name="checked_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="+",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="approved by",
+            ),
         ),
     ]

@@ -10,28 +10,40 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0001_initial'),
+        ("core", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='siteconfiguration',
-            name='confirmation_validity_period',
-            field=models.DurationField(default=datetime.timedelta(294), help_text='Delay (in days/hours) after which an object is no longer considered as confirmed.', verbose_name='confirmation validity period'),
+            model_name="siteconfiguration",
+            name="confirmation_validity_period",
+            field=models.DurationField(
+                default=datetime.timedelta(294),
+                help_text="Delay (in days/hours) after which an object is no longer considered as confirmed.",
+                verbose_name="confirmation validity period",
+            ),
         ),
         migrations.AlterField(
-            model_name='siteconfiguration',
-            name='host_min_age',
-            field=models.PositiveSmallIntegerField(default=16, verbose_name='minumum age for hosting'),
+            model_name="siteconfiguration",
+            name="host_min_age",
+            field=models.PositiveSmallIntegerField(
+                default=16, verbose_name="minumum age for hosting"
+            ),
         ),
         migrations.AlterField(
-            model_name='siteconfiguration',
-            name='meet_min_age',
-            field=models.PositiveSmallIntegerField(default=13, verbose_name='minumum age for meeting'),
+            model_name="siteconfiguration",
+            name="meet_min_age",
+            field=models.PositiveSmallIntegerField(
+                default=13, verbose_name="minumum age for meeting"
+            ),
         ),
         migrations.AlterField(
-            model_name='siteconfiguration',
-            name='token_max_age',
-            field=models.PositiveIntegerField(default=172800, help_text='In seconds: 2 days = 3600 x 24 x 2 = 172800', verbose_name='unique link lifetime'),
+            model_name="siteconfiguration",
+            name="token_max_age",
+            field=models.PositiveIntegerField(
+                default=172800,
+                help_text="In seconds: 2 days = 3600 x 24 x 2 = 172800",
+                verbose_name="unique link lifetime",
+            ),
         ),
     ]

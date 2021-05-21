@@ -62,7 +62,7 @@ from .validators import (
     validate_size,
 )
 
-MRS, MR = 'Mrs', 'Mr'
+MRS, MR = "Mrs", "Mr"
 TITLE_CHOICES = (
     (None, ""),
     (MRS, _("Mrs")),
@@ -71,19 +71,19 @@ TITLE_CHOICES = (
 
 PRONOUN_CHOICES = (  # In Django 3.x: TextChoices enum.
     (None, ""),
-    ('She', pgettext_lazy("Personal Pronoun", "she")),
-    ('He', pgettext_lazy("Personal Pronoun", "he")),
-    ('They', pgettext_lazy("Personal Pronoun", "they")),
-    ('Ze', pgettext_lazy("Personal Pronoun", "ze")),
-    ('They/She', pgettext_lazy("Personal Pronoun", "they or she")),
-    ('They/He', pgettext_lazy("Personal Pronoun", "they or he")),
-    ('Ze/She', pgettext_lazy("Personal Pronoun", "ze or she")),
-    ('Ze/He', pgettext_lazy("Personal Pronoun", "ze or he")),
-    ('Any', pgettext_lazy("Personal Pronoun", "any")),
+    ("She", pgettext_lazy("Personal Pronoun", "she")),
+    ("He", pgettext_lazy("Personal Pronoun", "he")),
+    ("They", pgettext_lazy("Personal Pronoun", "they")),
+    ("Ze", pgettext_lazy("Personal Pronoun", "ze")),
+    ("They/She", pgettext_lazy("Personal Pronoun", "they or she")),
+    ("They/He", pgettext_lazy("Personal Pronoun", "they or he")),
+    ("Ze/She", pgettext_lazy("Personal Pronoun", "ze or she")),
+    ("Ze/He", pgettext_lazy("Personal Pronoun", "ze or he")),
+    ("Any", pgettext_lazy("Personal Pronoun", "any")),
 )
-PRONOUN_NEUTRAL_CHOICE = next(p for p in PRONOUN_CHOICES if p[0] == 'They')
+PRONOUN_NEUTRAL_CHOICE = next(p for p in PRONOUN_CHOICES if p[0] == "They")
 
-MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
+MOBILE, HOME, WORK, FAX = "m", "h", "w", "f"
 PHONE_TYPE_CHOICES = (
     (MOBILE, _("mobile")),
     (HOME, _("home")),
@@ -93,9 +93,9 @@ PHONE_TYPE_CHOICES = (
 
 
 class LocationType(Enum):
-    CITY = 'C'
-    REGION = 'R'
-    UNKNOWN = 'U'
+    CITY = "C"
+    REGION = "R"
+    UNKNOWN = "U"
 
     def __str__(member):
         return member.value
@@ -103,14 +103,14 @@ class LocationType(Enum):
 
 class LocationConfidence(IntEnum):
     # https://opencagedata.com/api#confidence
-    UNDETERMINED = 0    # Geocoder was unable to determine a position or bounding box.
-    GT_25KM = 1         # 25 km or greater distance.
-    LT_25KM = 2         # < 25 km
-    LT_1KM = 8          # < 1 km
-    LT_0_25KM = 10      # < 0.25 km
-    ACCEPTABLE = 8      # The minimum confidence accepted as good.
-    EXACT = 100         # The user selected the position manually on the map.
-    CONFIRMED = 101     # A supervisor selected the position manually on the map.
+    UNDETERMINED = 0  # Geocoder was unable to determine a position or bounding box.
+    GT_25KM = 1  # 25 km or greater distance.
+    LT_25KM = 2  # < 25 km
+    LT_1KM = 8  # < 1 km
+    LT_0_25KM = 10  # < 0.25 km
+    ACCEPTABLE = 8  # The minimum confidence accepted as good.
+    EXACT = 100  # The user selected the position manually on the map.
+    CONFIRMED = 101  # A supervisor selected the position manually on the map.
 
 
 class TrackingModel(models.Model):
@@ -118,19 +118,24 @@ class TrackingModel(models.Model):
     An abstract model that adds fields allowing tracking of activity related to
     the child model's instances, such as deletion or confirmation of the data.
     """
+
     deleted_on = models.DateTimeField(
-        _("deleted on"),
-        default=None, blank=True, null=True)
+        _("deleted on"), default=None, blank=True, null=True
+    )
     confirmed_on = models.DateTimeField(
-        _("confirmed on"),
-        default=None, blank=True, null=True)
+        _("confirmed on"), default=None, blank=True, null=True
+    )
     checked_on = models.DateTimeField(
-        _("checked on"),
-        default=None, blank=True, null=True)
+        _("checked on"), default=None, blank=True, null=True
+    )
     checked_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, verbose_name=_("approved by"),
-        blank=True, null=True,
-        related_name='+', on_delete=models.SET_NULL)
+        settings.AUTH_USER_MODEL,
+        verbose_name=_("approved by"),
+        blank=True,
+        null=True,
+        related_name="+",
+        on_delete=models.SET_NULL,
+    )
 
     all_objects = TrackingManager()
     objects = NotDeletedManager()
@@ -138,7 +143,7 @@ class TrackingModel(models.Model):
 
     class Meta:
         abstract = True
-        base_manager_name = 'all_objects'
+        base_manager_name = "all_objects"
 
     def set_check_status(self, set_by_user, clear_only=False, commit=True):
         """
@@ -154,7 +159,7 @@ class TrackingModel(models.Model):
         else:
             self.checked_on, self.checked_by = None, None
         if commit:
-            self.save(update_fields=['checked_on', 'checked_by'])
+            self.save(update_fields=["checked_on", "checked_by"])
         return self.checked_on, self.checked_by
 
 
@@ -163,18 +168,16 @@ class VisibilitySettings(models.Model):
     Contains flags for visibility of objects in various venues: online or in
     the book. Can be linked via a generic foreign key to multiple model types.
     """
-    DEFAULT_TYPE = 'Unknown'
-    model_type = models.CharField(
-        _("type"),
-        max_length=25, default=DEFAULT_TYPE)
-    model_id = models.PositiveIntegerField(
-        _("content id"),
-        null=True)
+
+    DEFAULT_TYPE = "Unknown"
+    model_type = models.CharField(_("type"), max_length=25, default=DEFAULT_TYPE)
+    model_id = models.PositiveIntegerField(_("content id"), null=True)
     content_type = models.ForeignKey(
-        ContentType, verbose_name=_("content type"),
-        on_delete=models.CASCADE)
+        ContentType, verbose_name=_("content type"), on_delete=models.CASCADE
+    )
     content_object = GenericForeignKey(
-        'content_type', 'model_id', for_concrete_model=False)
+        "content_type", "model_id", for_concrete_model=False
+    )
 
     # The object should be viewable by any authenticated user.
     visible_online_public = models.BooleanField(_("visible online for all"))
@@ -199,18 +202,25 @@ class VisibilitySettings(models.Model):
         try:
             container = apps.get_model(cls._CONTAINER_MODEL)
         except AttributeError:
-            raise TypeError("Only specific visibility settings may be created") from None
+            raise TypeError(
+                "Only specific visibility settings may be created"
+            ) from None
         if parent:
-            assert hasattr(parent, '_state'), (
-                "{!r} is not a Model instance!".format(parent))
-            assert isinstance(parent, container), (
-                "{!r} is not a {}.{}!".format(parent, container.__module__, container.__name__))
-        initial = {'{}{}'.format(cls._PREFIX, field): value for field, value in cls.defaults.items()}
+            assert hasattr(parent, "_state"), "{!r} is not a Model instance!".format(
+                parent
+            )
+            assert isinstance(parent, container), "{!r} is not a {}.{}!".format(
+                parent, container.__module__, container.__name__
+            )
+        initial = {
+            "{}{}".format(cls._PREFIX, field): value
+            for field, value in cls.defaults.items()
+        }
         return cls.objects.create(
-            model_id=getattr(parent, 'pk', None),
+            model_id=getattr(parent, "pk", None),
             model_type=cls.type(),
             content_type=ContentType.objects.get_for_model(container),
-            **initial
+            **initial,
         )
 
     def as_specific(self):
@@ -223,7 +233,8 @@ class VisibilitySettings(models.Model):
         if self._meta.proxy:
             return self
         specific_name = "{base}For{narrow_type}".format(
-            base=self.__class__.__name__, narrow_type=self.model_type)
+            base=self.__class__.__name__, narrow_type=self.model_type
+        )
         try:
             specific_class = globals()[specific_name]
         except KeyError as e:
@@ -239,9 +250,9 @@ class VisibilitySettings(models.Model):
         if cls._meta.proxy:
             cls = cls.__mro__[1]
         return {
-            n[len(cls.__name__+'For'):] : c  # noqa: E203
+            n[len(cls.__name__ + "For") :]: c  # noqa: E203
             for n, c in globals().items()
-            if n.startswith(cls.__name__+'For')
+            if n.startswith(cls.__name__ + "For")
         }
 
     @classmethod
@@ -252,8 +263,10 @@ class VisibilitySettings(models.Model):
         for existing values of the field.
         """
         if not cls._meta.proxy:
-            raise TypeError("Model type is only defined for specific visibility settings")
-        return cls.__name__[len(cls.__mro__[1].__name__+'For'):]
+            raise TypeError(
+                "Model type is only defined for specific visibility settings"
+            )
+        return cls.__name__[len(cls.__mro__[1].__name__ + "For") :]
 
     @property
     def printable(self):
@@ -263,9 +276,15 @@ class VisibilitySettings(models.Model):
     @property
     def concealed(self):
         """Can this data be seen by anyone apart from owner and supervisors?"""
-        return not any([self.visible_online_public, self.visible_online_authed, self.visible_in_book])
+        return not any(
+            [
+                self.visible_online_public,
+                self.visible_online_authed,
+                self.visible_in_book,
+            ]
+        )
 
-    _PREFIX = 'visible_'
+    _PREFIX = "visible_"
 
     @classmethod
     def venues(cls):
@@ -276,18 +295,20 @@ class VisibilitySettings(models.Model):
           - in_book       (printed edition users)
         """
         return [
-            f.name[len(cls._PREFIX):] for f in cls._meta.get_fields() if f.name.startswith(cls._PREFIX)
+            f.name[len(cls._PREFIX) :]
+            for f in cls._meta.get_fields()
+            if f.name.startswith(cls._PREFIX)
         ]
 
     def __getitem__(self, venue):
         try:
-            return getattr(self, self._PREFIX+venue)
+            return getattr(self, self._PREFIX + venue)
         except Exception:
             raise KeyError("Unknown venue {!r}".format(venue))
 
     def __setitem__(self, venue, value):
         self[venue]  # This will raise an exception if venue is invalid.
-        setattr(self, self._PREFIX+venue, value)
+        setattr(self, self._PREFIX + venue, value)
 
     def __str__(self):
         model_name = " ".join(camel_case_split(self.model_type)).lower()
@@ -300,20 +321,23 @@ class VisibilitySettings(models.Model):
             repr(self.content_object),
             str(self.visible_online_public)[0],
             str(self.visible_online_authed)[0],
-            str(self.visible_in_book)[0]
+            str(self.visible_in_book)[0],
         )
 
 
 class VisibilitySettingsForPlace(VisibilitySettings):
     class Meta:
         proxy = True
-    _CONTAINER_MODEL = 'hosting.Place'
+
+    _CONTAINER_MODEL = "hosting.Place"
     # Defaults contain the presets of visibility prior to user's customization.
     # Changes to the defaults must be reflected in a data migration.
     defaults = dict(online_public=True, online_authed=True, in_book=True)
     # Rules define what can be customized by the user. Tied online means an object
     # hidden for public will necessarily be hidden also for authorized users.
-    rules = dict(online_public=True, online_authed=False, in_book=True, tied_online=True)
+    rules = dict(
+        online_public=True, online_authed=False, in_book=True, tied_online=True
+    )
 
     @cached_property
     def printable(self):
@@ -323,7 +347,8 @@ class VisibilitySettingsForPlace(VisibilitySettings):
 class VisibilitySettingsForFamilyMembers(VisibilitySettings):
     class Meta:
         proxy = True
-    _CONTAINER_MODEL = 'hosting.Place'
+
+    _CONTAINER_MODEL = "hosting.Place"
     defaults = dict(online_public=False, online_authed=True, in_book=True)
     rules = dict(online_public=True, online_authed=False, in_book=False)
 
@@ -335,7 +360,8 @@ class VisibilitySettingsForFamilyMembers(VisibilitySettings):
 class VisibilitySettingsForPhone(VisibilitySettings):
     class Meta:
         proxy = True
-    _CONTAINER_MODEL = 'hosting.Phone'
+
+    _CONTAINER_MODEL = "hosting.Phone"
     defaults = dict(online_public=False, online_authed=True, in_book=True)
     rules = dict(online_public=True, online_authed=True, in_book=True)
 
@@ -347,7 +373,8 @@ class VisibilitySettingsForPhone(VisibilitySettings):
 class VisibilitySettingsForPublicEmail(VisibilitySettings):
     class Meta:
         proxy = True
-    _CONTAINER_MODEL = 'hosting.Profile'
+
+    _CONTAINER_MODEL = "hosting.Profile"
     defaults = dict(online_public=False, online_authed=False, in_book=True)
     rules = dict(online_public=True, online_authed=True, in_book=False)
 
@@ -363,69 +390,84 @@ class Profile(TrackingModel, TimeStampedModel):
     PRONOUN_NEUTRAL_VALUE = PRONOUN_NEUTRAL_CHOICE[1]
 
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        null=True, blank=True, on_delete=models.SET_NULL)
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL
+    )
     title = models.CharField(
-        _("title"),
-        blank=True,
-        max_length=5, choices=TITLE_CHOICES)
+        _("title"), blank=True, max_length=5, choices=TITLE_CHOICES
+    )
     first_name = models.CharField(
         _("first name"),
         blank=True,
         max_length=255,
-        validators=[validate_not_too_many_caps, validate_no_digit, validate_latin])
+        validators=[validate_not_too_many_caps, validate_no_digit, validate_latin],
+    )
     last_name = models.CharField(
         _("last name"),
         blank=True,
         max_length=255,
-        validators=[validate_not_too_many_caps, validate_no_digit, validate_latin])
-    names_inversed = models.BooleanField(
-        _("names in inverse order"),
-        default=False)
+        validators=[validate_not_too_many_caps, validate_no_digit, validate_latin],
+    )
+    names_inversed = models.BooleanField(_("names in inverse order"), default=False)
     gender = SuggestiveField(
         _("gender"),
         blank=True,
-        choices='hosting.Gender', to_field='name',
-        db_column='gender_value',
-        help_text=_("Also known as \"social sex identity\". Type your "
-                    "own preference or select one of the suggestions."))
+        choices="hosting.Gender",
+        to_field="name",
+        db_column="gender_value",
+        help_text=_(
+            'Also known as "social sex identity". Type your '
+            "own preference or select one of the suggestions."
+        ),
+    )
     pronoun = models.CharField(
-        _("personal pronoun"),
-        blank=True,
-        max_length=10, choices=PRONOUN_CHOICES)
+        _("personal pronoun"), blank=True, max_length=10, choices=PRONOUN_CHOICES
+    )
     birth_date = models.DateField(
         _("birth date"),
-        null=True, blank=True,
+        null=True,
+        blank=True,
         validators=[TooFarPastValidator(200), validate_not_in_future],
-        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))
+        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."),
+    )
     death_date = models.DateField(
         _("death date"),
-        null=True, blank=True,
+        null=True,
+        blank=True,
         validators=[validate_not_in_future],
-        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))
+        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."),
+    )
     email = StyledEmailField(
         _("public email"),
         blank=True,
-        help_text=_("This email address will be used for the book. "
-                    "Leave blank if you don't want this email to be public.\n"
-                    "The system will never send emails to this address, "
-                    "neither publish it on the site without your permission."))
+        help_text=_(
+            "This email address will be used for the book. "
+            "Leave blank if you don't want this email to be public.\n"
+            "The system will never send emails to this address, "
+            "neither publish it on the site without your permission."
+        ),
+    )
     email_visibility = models.OneToOneField(
-        'hosting.VisibilitySettingsForPublicEmail',
-        related_name='%(class)s', on_delete=models.PROTECT)
+        "hosting.VisibilitySettingsForPublicEmail",
+        related_name="%(class)s",
+        on_delete=models.PROTECT,
+    )
     description = models.TextField(
         _("description"),
         blank=True,
-        help_text=_("Short biography. \n"
-                    "Provide here further details about yourself. "
-                    "If you indicated that your gender is non-binary, "
-                    "it will be helpful if you explain more."))
+        help_text=_(
+            "Short biography. \n"
+            "Provide here further details about yourself. "
+            "If you indicated that your gender is non-binary, "
+            "it will be helpful if you explain more."
+        ),
+    )
     avatar = models.ImageField(
         _("avatar"),
         blank=True,
         upload_to=UploadAndRenameAvatar("avatars"),
         validators=[validate_image, validate_size],
-        help_text=_("Small image under 100kB. Ideal size: 140x140 px."))
+        help_text=_("Small image under 100kB. Ideal size: 140x140 px."),
+    )
 
     class Meta:
         verbose_name = _("profile")
@@ -458,10 +500,12 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @property
     def avatar_url(self):
-        if self.avatar and hasattr(self.avatar, 'url') and self.avatar_exists():
+        if self.avatar and hasattr(self.avatar, "url") and self.avatar_exists():
             return self.avatar.url
         else:
-            email = self.user.email if self.user_id else "family.member@pasportaservo.org"
+            email = (
+                self.user.email if self.user_id else "family.member@pasportaservo.org"
+            )
             email = value_without_invalid_marker(email)
             return email_to_gravatar(email, settings.DEFAULT_AVATAR_URL)
 
@@ -471,7 +515,9 @@ class Profile(TrackingModel, TimeStampedModel):
     @property
     def icon(self):
         title = self.get_title_display().capitalize()
-        template = '<span class="fa fa-user" title="{title}" aria-label="{title}"></span>'
+        template = (
+            '<span class="fa fa-user" title="{title}" aria-label="{title}"></span>'
+        )
         return format_html(template, title=title)
 
     def get_fullname_display(self, quote='"', non_empty=False):
@@ -480,23 +526,27 @@ class Profile(TrackingModel, TimeStampedModel):
         HTML pages. The `non_empty` flag ensures that something is output also
         for profiles without a user account (i.e., family members).
         """
-        template_first_name = '<span class={q}first-name{q}>{name}</span>'
-        template_last_name = '<span class={q}last-name{q}>{name}</span>'
-        template_username = '<span class={q}profile-noname{q}>{name}</span>'
+        template_first_name = "<span class={q}first-name{q}>{name}</span>"
+        template_last_name = "<span class={q}last-name{q}>{name}</span>"
+        template_username = "<span class={q}profile-noname{q}>{name}</span>"
         template = []
         if self.first_name.strip():
             template.append((template_first_name, self.first_name))
         if self.last_name.strip():
             template.append((template_last_name, self.last_name))
         if not template:
-            template.append((
-                template_username,
-                self.user.username.title() if self.user_id else ('--' if non_empty else " ")
-            ))
+            template.append(
+                (
+                    template_username,
+                    self.user.username.title()
+                    if self.user_id
+                    else ("--" if non_empty else " "),
+                )
+            )
         output = [format_html(t, q=mark_safe(quote), name=n) for (t, n) in template]
         if self.names_inversed:
             output.reverse()
-        return mark_safe('&ensp;'.join(output))
+        return mark_safe("&ensp;".join(output))
 
     get_fullname_always_display = partialmethod(get_fullname_display, non_empty=True)
 
@@ -505,38 +555,54 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @property
     def autoslug(self):
-        slugify = Slugify(to_lower=True, pretranslate={'ĉ': 'ch', 'ĝ': 'gh', 'ĥ': 'hh', 'ĵ': 'jh', 'ŝ': 'sh'})
-        return slugify(self.name) or '--'
+        slugify = Slugify(
+            to_lower=True,
+            pretranslate={"ĉ": "ch", "ĝ": "gh", "ĥ": "hh", "ĵ": "jh", "ŝ": "sh"},
+        )
+        return slugify(self.name) or "--"
 
     @cached_property
     def _listed_places(self):
         fields = (
-            'id',
+            "id",
             # host's offer (hosting/meeting):
-            'available', 'tour_guide', 'have_a_drink',
+            "available",
+            "tour_guide",
+            "have_a_drink",
             # in printed edition?
-            'in_book',
+            "in_book",
             # visibility preferences:
-            'visibility__visible_online_public', 'visibility__visible_in_book',
+            "visibility__visible_online_public",
+            "visibility__visible_in_book",
             # verification status:
-            'confirmed', 'checked',
+            "confirmed",
+            "checked",
         )
         objects = self.owned_places.filter(deleted=False).values(*fields)
-        return tuple(namedtuple('SimplePlaceContainer', place.keys())(*place.values()) for place in objects)
+        return tuple(
+            namedtuple("SimplePlaceContainer", place.keys())(*place.values())
+            for place in objects
+        )
 
     def _count_listed_places(self, attr, query, restrained_search, **kwargs):
-        cached = self.__dict__.setdefault('_host_offer_cache', {}).get(attr) if not len(kwargs) else None
+        cached = (
+            self.__dict__.setdefault("_host_offer_cache", {}).get(attr)
+            if not len(kwargs)
+            else None
+        )
         if not cached:
             try:
                 _filter = {
-                    'hosting': HostingFilter,
-                    'meeting': MeetingFilter,
-                    'accepting_guests': OkForGuestsFilter,
-                    'in_book': InBookFilter,
-                    'ok_for_book': OkForBookFilter,
+                    "hosting": HostingFilter,
+                    "meeting": MeetingFilter,
+                    "accepting_guests": OkForGuestsFilter,
+                    "in_book": InBookFilter,
+                    "ok_for_book": OkForBookFilter,
                 }[query](restrained_search, **kwargs)
             except KeyError:
-                raise AttributeError("Query '%s' is not implemented for model Profile" % query)
+                raise AttributeError(
+                    "Query '%s' is not implemented for model Profile" % query
+                )
             else:
                 cached = len([p.id for p in self._listed_places if _filter(p)])
             if not len(kwargs):
@@ -545,7 +611,9 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @property
     def places_confirmed(self):
-        return all(p.confirmed for p in self.owned_places.filter(deleted=False, in_book=True))
+        return all(
+            p.confirmed for p in self.owned_places.filter(deleted=False, in_book=True)
+        )
 
     def __getattr__(self, attr):
         """
@@ -557,16 +625,22 @@ class Profile(TrackingModel, TimeStampedModel):
             * is_in_book / has_places_for_in_book
             * is_ok_for_book
         """
-        m = re.match(r'^(is|has_places_for)_([a-z_]+)$', attr)
+        m = re.match(r"^(is|has_places_for)_([a-z_]+)$", attr)
         if not m:
             raise AttributeError("Attribute %s does not exist on model Profile" % attr)
         query = m.group(2).lower()
-        restrained_search = m.group(1) == 'is'
+        restrained_search = m.group(1) == "is"
         customizable_queries = {
-            'ok_for_book': {'accept_confirmed': False, 'accept_approved': True},
+            "ok_for_book": {"accept_confirmed": False, "accept_approved": True},
         }
         if query in customizable_queries:
-            return partial(self._count_listed_places, attr, query, restrained_search, **customizable_queries[query])
+            return partial(
+                self._count_listed_places,
+                attr,
+                query,
+                restrained_search,
+                **customizable_queries[query],
+            )
         else:
             return self._count_listed_places(attr, query, restrained_search)
 
@@ -574,34 +648,37 @@ class Profile(TrackingModel, TimeStampedModel):
         if self.full_name:
             return self.full_name
         elif self.user_id:
-            return '{} ({})'.format(str(self.INCOGNITO), self.user.username)
-        return '--'
+            return "{} ({})".format(str(self.INCOGNITO), self.user.username)
+        return "--"
 
     def __lt__(self, other):
-        return ((self.last_name < other.last_name)
-                or (self.last_name == other.last_name and self.first_name < other.first_name))
+        return (self.last_name < other.last_name) or (
+            self.last_name == other.last_name and self.first_name < other.first_name
+        )
 
     def __repr__(self):
         return "<{} #{}: {}>".format(self.__class__.__name__, self.id, self.__str__())
 
     def rawdisplay(self):
-        return "{} ({})".format(self.__str__(), getattr(self.birth_date, 'year', "?"))
+        return "{} ({})".format(self.__str__(), getattr(self.birth_date, "year", "?"))
 
     def rawdisplay_phones(self):
         return ", ".join(phone.rawdisplay() for phone in self.phones.all())
 
     def get_absolute_url(self):
-        return reverse('profile_detail', kwargs={
-            'pk': self.pk,
-            'slug': getattr(self, 'slug', self.autoslug)})
+        return reverse(
+            "profile_detail",
+            kwargs={"pk": self.pk, "slug": getattr(self, "slug", self.autoslug)},
+        )
 
     def get_edit_url(self):
-        return reverse('profile_edit', kwargs={
-            'pk': self.pk,
-            'slug': getattr(self, 'slug', self.autoslug)})
+        return reverse(
+            "profile_edit",
+            kwargs={"pk": self.pk, "slug": getattr(self, "slug", self.autoslug)},
+        )
 
     def get_admin_url(self):
-        return reverse('admin:hosting_profile_change', args=(self.pk,))
+        return reverse("admin:hosting_profile_change", args=(self.pk,))
 
     def confirm_all_info(self, confirm=True):
         """
@@ -614,6 +691,7 @@ class Profile(TrackingModel, TimeStampedModel):
             self.phones.filter(deleted=False).update(confirmed_on=now)
             self.website_set.filter(deleted=False).update(confirmed_on=now)
             self.save()
+
     confirm_all_info.alters_data = True
 
     @classonlymethod
@@ -622,7 +700,9 @@ class Profile(TrackingModel, TimeStampedModel):
         Returns only the strictly necessary data for determining if a profile exists and for
         building the profile's URLs. This avoids overly complicated DB queries.
         """
-        qs = cls.all_objects.select_related(None).only('first_name', 'last_name', 'user_id')
+        qs = cls.all_objects.select_related(None).only(
+            "first_name", "last_name", "user_id"
+        )
         return qs.get(**kwargs)
 
     @classmethod
@@ -633,13 +713,13 @@ class Profile(TrackingModel, TimeStampedModel):
         models = {cls: None, get_user_model(): None}
         for model in models:
             models[model] = (
-                model.objects
-                .filter(email__in=emails)
-                .exclude(email='')
+                model.objects.filter(email__in=emails)
+                .exclude(email="")
                 .exclude(email__startswith=settings.INVALID_PREFIX)
-                .update(email=Concat(V(settings.INVALID_PREFIX), F('email')))
+                .update(email=Concat(V(settings.INVALID_PREFIX), F("email")))
             )
         return models
+
     mark_invalid_emails.do_not_call_in_templates = True
 
     @classmethod
@@ -649,136 +729,158 @@ class Profile(TrackingModel, TimeStampedModel):
         """
         models = {cls: None, get_user_model(): None}
         for model in models:
-            models[model] = (
-                model.objects
-                .filter(
-                    email__in=emails,
-                    email__startswith=settings.INVALID_PREFIX
-                )
-                .update(email=Substr(F('email'), len(settings.INVALID_PREFIX) + 1))
-            )
+            models[model] = model.objects.filter(
+                email__in=emails, email__startswith=settings.INVALID_PREFIX
+            ).update(email=Substr(F("email"), len(settings.INVALID_PREFIX) + 1))
         return models
+
     mark_valid_emails.do_not_call_in_templates = True
 
 
 class Place(TrackingModel, TimeStampedModel):
     owner = models.ForeignKey(
-        'hosting.Profile', verbose_name=_("owner"),
-        related_name="owned_places", on_delete=models.CASCADE)
+        "hosting.Profile",
+        verbose_name=_("owner"),
+        related_name="owned_places",
+        on_delete=models.CASCADE,
+    )
     address = models.TextField(
-        _("address"),
-        blank=True,
-        help_text=_("e.g.: Nieuwe Binnenweg 176"))
+        _("address"), blank=True, help_text=_("e.g.: Nieuwe Binnenweg 176")
+    )
     city = models.CharField(
         _("city"),
         blank=True,
         max_length=255,
         validators=[validate_not_all_caps, validate_not_too_many_caps],
-        help_text=_("Name in the official language, not in Esperanto (e.g.: Rotterdam)."))
+        help_text=_(
+            "Name in the official language, not in Esperanto (e.g.: Rotterdam)."
+        ),
+    )
     closest_city = models.CharField(
         _("closest big city"),
         blank=True,
         max_length=255,
         validators=[validate_not_all_caps, validate_not_too_many_caps],
-        help_text=_("If your place is in a town near a bigger city. "
-                    "Name in the official language, not in Esperanto."))
-    postcode = models.CharField(
-        _("postcode"),
-        blank=True,
-        max_length=11)
-    state_province = models.CharField(
-        _("State / Province"),
-        blank=True,
-        max_length=70)
-    country = CountryField(
-        _("country"))
-    location = PointField(
-        _("location"), srid=SRID,
-        null=True, blank=True)
-    location_confidence = models.PositiveSmallIntegerField(
-        _("confidence"),
-        default=0)
-    latitude = models.FloatField(
-        _("latitude"),
-        null=True, blank=True)
-    longitude = models.FloatField(
-        _("longitude"),
-        null=True, blank=True)
+        help_text=_(
+            "If your place is in a town near a bigger city. "
+            "Name in the official language, not in Esperanto."
+        ),
+    )
+    postcode = models.CharField(_("postcode"), blank=True, max_length=11)
+    state_province = models.CharField(_("State / Province"), blank=True, max_length=70)
+    country = CountryField(_("country"))
+    location = PointField(_("location"), srid=SRID, null=True, blank=True)
+    location_confidence = models.PositiveSmallIntegerField(_("confidence"), default=0)
+    latitude = models.FloatField(_("latitude"), null=True, blank=True)
+    longitude = models.FloatField(_("longitude"), null=True, blank=True)
     max_guest = models.PositiveSmallIntegerField(
-        _("maximum number of guest"),
-        null=True, blank=True)
+        _("maximum number of guest"), null=True, blank=True
+    )
     max_night = models.PositiveSmallIntegerField(
-        _("maximum number of night"),
-        null=True, blank=True)
+        _("maximum number of night"), null=True, blank=True
+    )
     contact_before = models.PositiveSmallIntegerField(
         _("contact before"),
-        null=True, blank=True,
-        help_text=_("Number of days before people should contact host."))
+        null=True,
+        blank=True,
+        help_text=_("Number of days before people should contact host."),
+    )
     description = models.TextField(
         _("description"),
         blank=True,
-        help_text=_("Description or remarks about your place and its surroundings. "
-                    "Consider that your guests, for example, might have an allergy "
-                    "for animal fur or an arachnophobia, or have trouble scaling "
-                    "multiple flights of stairs."))
+        help_text=_(
+            "Description or remarks about your place and its surroundings. "
+            "Consider that your guests, for example, might have an allergy "
+            "for animal fur or an arachnophobia, or have trouble scaling "
+            "multiple flights of stairs."
+        ),
+    )
     short_description = models.CharField(
         _("short description"),
         blank=True,
         max_length=140,
-        help_text=_("Used in the book and on profile, 140 characters maximum."))
+        help_text=_("Used in the book and on profile, 140 characters maximum."),
+    )
     available = models.BooleanField(
         _("available"),
         default=True,
-        help_text=_("If this place is searchable. If yes, you will be considered as host."))
+        help_text=_(
+            "If this place is searchable. If yes, you will be considered as host."
+        ),
+    )
     in_book = models.BooleanField(
         _("print in book"),
         default=True,
-        help_text=_("If you want this place to be in the printed book. Must be available."))
+        help_text=_(
+            "If you want this place to be in the printed book. Must be available."
+        ),
+    )
     tour_guide = models.BooleanField(
         _("tour guide"),
         default=False,
-        help_text=_("If you are ready to show your area to visitors."))
+        help_text=_("If you are ready to show your area to visitors."),
+    )
     have_a_drink = models.BooleanField(
         _("have a drink"),
         default=False,
-        help_text=_("If you are ready to have a coffee or beer with visitors."))
+        help_text=_("If you are ready to have a coffee or beer with visitors."),
+    )
     sporadic_presence = models.BooleanField(
         _("irregularly present"),
         default=False,
-        help_text=_("If you are not often at this address and need an advance notification."))
+        help_text=_(
+            "If you are not often at this address and need an advance notification."
+        ),
+    )
     conditions = models.ManyToManyField(
-        'hosting.Condition', verbose_name=_("conditions"),
+        "hosting.Condition",
+        verbose_name=_("conditions"),
         blank=True,
-        help_text=_("You are welcome to expand on the conditions "
-                    "in your home in the description."))
+        help_text=_(
+            "You are welcome to expand on the conditions "
+            "in your home in the description."
+        ),
+    )
     family_members = models.ManyToManyField(
-        'hosting.Profile', verbose_name=_("family members"),
-        blank=True)
+        "hosting.Profile", verbose_name=_("family members"), blank=True
+    )
     family_members_visibility = models.OneToOneField(
-        'hosting.VisibilitySettingsForFamilyMembers',
-        related_name='family_members', on_delete=models.PROTECT)
+        "hosting.VisibilitySettingsForFamilyMembers",
+        related_name="family_members",
+        on_delete=models.PROTECT,
+    )
     blocked_from = models.DateField(
         _("unavailable from"),
-        null=True, blank=True,
-        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))
+        null=True,
+        blank=True,
+        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."),
+    )
     blocked_until = models.DateField(
         _("unavailable until"),
-        null=True, blank=True,
-        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))
-    authorized_users = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, verbose_name=_("authorized users"),
+        null=True,
         blank=True,
-        help_text=_("List of users authorized to view most of data of this accommodation."))
+        help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."),
+    )
+    authorized_users = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        verbose_name=_("authorized users"),
+        blank=True,
+        help_text=_(
+            "List of users authorized to view most of data of this accommodation."
+        ),
+    )
     visibility = models.OneToOneField(
-        'hosting.VisibilitySettingsForPlace',
-        related_name='%(class)s', on_delete=models.PROTECT)
+        "hosting.VisibilitySettingsForPlace",
+        related_name="%(class)s",
+        on_delete=models.PROTECT,
+    )
 
     available_objects = AvailableManager()
 
     class Meta:
         verbose_name = _("place")
         verbose_name_plural = _("places")
-        default_manager_name = 'all_objects'
+        default_manager_name = "all_objects"
 
     @property
     def profile(self):
@@ -813,16 +915,22 @@ class Place(TrackingModel, TimeStampedModel):
     @cached_property
     def subregion(self):
         try:
-            region = CountryRegion.objects.get(country=self.country, iso_code=self.state_province)
+            region = CountryRegion.objects.get(
+                country=self.country, iso_code=self.state_province
+            )
         except CountryRegion.DoesNotExist:
-            region = CountryRegion(country=self.country, iso_code='X-00', latin_code=self.state_province)
+            region = CountryRegion(
+                country=self.country, iso_code="X-00", latin_code=self.state_province
+            )
         region.save = lambda self, **kwargs: None  # Read-only instance.
         return region
 
     @property
     def icon(self):
-        template = ('<span class="fa ps-home-fh" title="{title}" '
-                    '      data-toggle="tooltip" data-placement="left"></span>')
+        template = (
+            '<span class="fa ps-home-fh" title="{title}" '
+            '      data-toggle="tooltip" data-placement="left"></span>'
+        )
         return format_html(template, title=self._meta.verbose_name.capitalize())
 
     def family_members_cache(self):
@@ -830,14 +938,18 @@ class Place(TrackingModel, TimeStampedModel):
         Cached QuerySet of family members.
         (Direct access to the field in templates re-queries the database.)
         """
-        cache_name = '_family_cache'
+        cache_name = "_family_cache"
         try:
             cached_qs = self.__dict__[cache_name]
         except KeyError:
             try:
-                cached_qs = self._prefetched_objects_cache[self.family_members.prefetch_cache_name]
+                cached_qs = self._prefetched_objects_cache[
+                    self.family_members.prefetch_cache_name
+                ]
             except (AttributeError, KeyError):
-                cached_qs = self.family_members.order_by('birth_date').select_related('user')
+                cached_qs = self.family_members.order_by("birth_date").select_related(
+                    "user"
+                )
             self.__dict__[cache_name] = cached_qs
         finally:
             return cached_qs
@@ -858,9 +970,9 @@ class Place(TrackingModel, TimeStampedModel):
         - Flag `complete` fetches also profile data for each user record.
         - Flag `also_deleted` fetches records with deleted_on != NULL.
         """
-        cache_name = '_authed{}{}_cache'.format(
-            '_all' if also_deleted else '_active',
-            '_complete' if complete else '',
+        cache_name = "_authed{}{}_cache".format(
+            "_all" if also_deleted else "_active",
+            "_complete" if complete else "",
         )
         try:
             cached_qs = self.__dict__[cache_name]
@@ -869,7 +981,9 @@ class Place(TrackingModel, TimeStampedModel):
             if not also_deleted:
                 cached_qs = cached_qs.filter(profile__deleted_on__isnull=True)
             if complete:
-                cached_qs = cached_qs.select_related('profile').defer('profile__description')
+                cached_qs = cached_qs.select_related("profile").defer(
+                    "profile__description"
+                )
             self.__dict__[cache_name] = cached_qs
         finally:
             return cached_qs
@@ -879,7 +993,7 @@ class Place(TrackingModel, TimeStampedModel):
         Cached QuerySet of place conditions.
         (Direct access to the field in templates re-queries the database.)
         """
-        return self.__dict__.setdefault('_conditions_cache', self.conditions.all())
+        return self.__dict__.setdefault("_conditions_cache", self.conditions.all())
 
     @property
     def owner_available(self):
@@ -887,18 +1001,24 @@ class Place(TrackingModel, TimeStampedModel):
 
     @property
     def is_blocked(self):
-        return any([self.blocked_until and self.blocked_until >= date.today(),
-                    self.blocked_from and not self.blocked_until])
+        return any(
+            [
+                self.blocked_until and self.blocked_until >= date.today(),
+                self.blocked_from and not self.blocked_until,
+            ]
+        )
 
     def get_absolute_url(self):
-        return reverse('place_detail', kwargs={'pk': self.pk})
+        return reverse("place_detail", kwargs={"pk": self.pk})
 
     def get_locality_display(self):
         """
         Returns "city (country)" or just "country" when no city is given.
         """
         if self.city:
-            return format_lazy("{city} ({state})", city=self.city, state=self.country.name)
+            return format_lazy(
+                "{city} ({state})", city=self.city, state=self.country.name
+            )
         else:
             return self.country.name
 
@@ -909,9 +1029,11 @@ class Place(TrackingModel, TimeStampedModel):
             pass
 
         if self.postcode:
-            postcode_prefix = COUNTRIES_DATA.get(self.country.code, {}).get('postal_code_prefix')
+            postcode_prefix = COUNTRIES_DATA.get(self.country.code, {}).get(
+                "postal_code_prefix"
+            )
             if postcode_prefix and not self.postcode.startswith(postcode_prefix):
-                display_value = f'{postcode_prefix}{self.postcode}'
+                display_value = f"{postcode_prefix}{self.postcode}"
             else:
                 display_value = self.postcode
         else:
@@ -920,12 +1042,12 @@ class Place(TrackingModel, TimeStampedModel):
         return display_value
 
     def __setattr__(self, name, value):
-        if name == 'postcode':
+        if name == "postcode":
             try:
                 del self._postcode_display_cache
             except AttributeError:
                 pass
-        if name == 'state_province':
+        if name == "state_province":
             try:
                 del self.subregion
             except AttributeError:
@@ -933,13 +1055,19 @@ class Place(TrackingModel, TimeStampedModel):
         super().__setattr__(name, value)
 
     def __str__(self):
-        return ", ".join([self.city, str(self.country.name)]) if self.city else str(self.country.name)
+        return (
+            ", ".join([self.city, str(self.country.name)])
+            if self.city
+            else str(self.country.name)
+        )
 
     def __repr__(self):
         return "<{} #{}: {}>".format(self.__class__.__name__, self.id, self.__str__())
 
     def rawdisplay_family_members(self):
-        family_members = self.family_members.exclude(pk=self.owner_id).order_by('birth_date')
+        family_members = self.family_members.exclude(pk=self.owner_id).order_by(
+            "birth_date"
+        )
         return ", ".join(fm.rawdisplay() for fm in family_members)
 
     def rawdisplay_conditions(self):
@@ -951,34 +1079,37 @@ class Place(TrackingModel, TimeStampedModel):
 
 class Phone(TrackingModel, TimeStampedModel):
     PHONE_TYPE_CHOICES = PHONE_TYPE_CHOICES
-    MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
+    MOBILE, HOME, WORK, FAX = "m", "h", "w", "f"
 
     profile = models.ForeignKey(
-        'hosting.Profile', verbose_name=_("profile"),
-        related_name="phones", on_delete=models.CASCADE)
+        "hosting.Profile",
+        verbose_name=_("profile"),
+        related_name="phones",
+        on_delete=models.CASCADE,
+    )
     number = PhoneNumberField(
         _("number"),
-        help_text=_("International number format begining with the plus sign "
-                    "(e.g.: +31 10 436 1044)"))
-    country = CountryField(
-        _("country"))
-    comments = models.CharField(
-        _("comments"),
-        blank=True,
-        max_length=255)
+        help_text=_(
+            "International number format begining with the plus sign "
+            "(e.g.: +31 10 436 1044)"
+        ),
+    )
+    country = CountryField(_("country"))
+    comments = models.CharField(_("comments"), blank=True, max_length=255)
     type = models.CharField(
-        _("phone type"),
-        max_length=3,
-        choices=PHONE_TYPE_CHOICES, default=MOBILE)
+        _("phone type"), max_length=3, choices=PHONE_TYPE_CHOICES, default=MOBILE
+    )
     visibility = models.OneToOneField(
-        'hosting.VisibilitySettingsForPhone',
-        related_name='%(class)s', on_delete=models.PROTECT)
+        "hosting.VisibilitySettingsForPhone",
+        related_name="%(class)s",
+        on_delete=models.PROTECT,
+    )
 
     class Meta:
         verbose_name = _("phone")
         verbose_name_plural = _("phones")
-        unique_together = ('profile', 'number')
-        order_with_respect_to = 'profile'
+        unique_together = ("profile", "number")
+        order_with_respect_to = "profile"
 
     @property
     def owner(self):
@@ -995,23 +1126,26 @@ class Phone(TrackingModel, TimeStampedModel):
         else:  # self.HOME or ''
             cls = "ps-old-phone"
         title = self.get_type_display().capitalize() or _("type not indicated")
-        template = ('<span class="fa {cls}" title="{title}" '
-                    '      data-toggle="tooltip" data-placement="left"></span>')
+        template = (
+            '<span class="fa {cls}" title="{title}" '
+            '      data-toggle="tooltip" data-placement="left"></span>'
+        )
         return format_html(template, cls=cls, title=title)
 
     def __str__(self):
-        """ as_e164             '+31104361044'
-            as_international    '+31 10 436 1044'
-            as_national         '010 436 1044'
-            as_rfc3966          'tel:+31-10-436-1044'
+        """as_e164             '+31104361044'
+        as_international    '+31 10 436 1044'
+        as_national         '010 436 1044'
+        as_rfc3966          'tel:+31-10-436-1044'
         """
         return self.number.as_international
 
     def __repr__(self):
         return "<{}: {}{} |p#{}>".format(
             self.__class__.__name__,
-            "("+self.type+") " if self.type else "", self.__str__(),
-            self.profile_id
+            "(" + self.type + ") " if self.type else "",
+            self.__str__(),
+            self.profile_id,
         )
 
     def rawdisplay(self):
@@ -1020,7 +1154,9 @@ class Phone(TrackingModel, TimeStampedModel):
 
 
 class Website(TrackingModel, TimeStampedModel):
-    profile = models.ForeignKey('hosting.Profile', verbose_name=_("profile"), on_delete=models.CASCADE)
+    profile = models.ForeignKey(
+        "hosting.Profile", verbose_name=_("profile"), on_delete=models.CASCADE
+    )
     url = models.URLField(_("URL"))
 
     class Meta:
@@ -1036,20 +1172,15 @@ class Website(TrackingModel, TimeStampedModel):
 
     def __repr__(self):
         return "<{}: {} |p#{}>".format(
-            self.__class__.__name__,
-            self.__str__(),
-            self.profile_id
+            self.__class__.__name__, self.__str__(), self.profile_id
         )
 
 
 class Gender(models.Model):
     """Profile's possible gender."""
-    name_en = models.CharField(
-        _("name (in English)"),
-        max_length=255, unique=True)
-    name = models.CharField(
-        _("name"),
-        max_length=255, unique=True)
+
+    name_en = models.CharField(_("name (in English)"), max_length=255, unique=True)
+    name = models.CharField(_("name"), max_length=255, unique=True)
 
     class Meta:
         verbose_name = _("gender")
@@ -1065,49 +1196,43 @@ class Gender(models.Model):
 
     def __str__(self):
         return (
-            self.name if str(get_language()).startswith('eo')
+            self.name
+            if str(get_language()).startswith("eo")
             else (self.name_en or self.name)
         )
 
 
 class CountryRegion(models.Model):
-    country = CountryField(
-        _("country"))
-    iso_code = models.CharField(
-        _("ISO code"),
-        max_length=4)
+    country = CountryField(_("country"))
+    iso_code = models.CharField(_("ISO code"), max_length=4)
     latin_code = models.CharField(
-        _("Normative code in latin letters"),
-        blank=False,
-        max_length=70)
+        _("Normative code in latin letters"), blank=False, max_length=70
+    )
     latin_name = models.CharField(
-        _("Full name in latin letters"),
-        blank=True,
-        max_length=70)
+        _("Full name in latin letters"), blank=True, max_length=70
+    )
     local_code = models.CharField(
-        _("Normative code in local language"),
-        blank=True,
-        max_length=70)
+        _("Normative code in local language"), blank=True, max_length=70
+    )
     local_name = models.CharField(
-        _("Full name in local language"),
-        blank=True,
-        max_length=70)
-    esperanto_name = models.CharField(
-        _("Name in Esperanto"),
-        blank=True,
-        max_length=70)
+        _("Full name in local language"), blank=True, max_length=70
+    )
+    esperanto_name = models.CharField(_("Name in Esperanto"), blank=True, max_length=70)
 
     class Meta:
         verbose_name = _("subregion")
         verbose_name_plural = _("subregions")
-        unique_together = ('country', 'iso_code')
+        unique_together = ("country", "iso_code")
         indexes = [
-            models.Index(fields=['country', 'iso_code', 'id'], name='countryregion_isocode_pk_idx'),
+            models.Index(
+                fields=["country", "iso_code", "id"],
+                name="countryregion_isocode_pk_idx",
+            ),
         ]
 
     @property
     def translated_name(self):
-        return self.esperanto_name if str(get_language()).startswith('eo') else ""
+        return self.esperanto_name if str(get_language()).startswith("eo") else ""
 
     @property
     def translated_or_latin_name(self):
@@ -1131,17 +1256,19 @@ class CountryRegion(models.Model):
         if local_region:
             try:
                 validate_latin(local_region)
-                if (local_region != latin_region
-                        and local_region not in latin_region
-                        and latin_region not in local_region
-                        and unidecode(local_region) != latin_region):
+                if (
+                    local_region != latin_region
+                    and local_region not in latin_region
+                    and latin_region not in local_region
+                    and unidecode(local_region) != latin_region
+                ):
                     # Sometimes the difference between the local and the main names is
                     # only in the diacritical marks or the addition of "Province of".
                     raise UnicodeError
             except Exception:
                 # If the local name is not in latin letters or different from the
                 # main name, display both of them.
-                native_name = f'{latin_region} ({local_region})'
+                native_name = f"{latin_region} ({local_region})"
             else:
                 # When the local name is mostly identical (except for the diacritical
                 # marks) to the main name, display only the local name.
@@ -1149,19 +1276,23 @@ class CountryRegion(models.Model):
         else:
             native_name = latin_region
         if self.esperanto_name and with_esperanto:
-            display_value = f'{self.esperanto_name}  –  {native_name}'
+            display_value = f"{self.esperanto_name}  –  {native_name}"
         else:
             display_value = native_name
 
         self._display_value_cache[with_esperanto] = display_value
         return display_value
 
-    get_display_value_with_esperanto = partialmethod(get_display_value, with_esperanto=True)
+    get_display_value_with_esperanto = partialmethod(
+        get_display_value, with_esperanto=True
+    )
 
     def __str__(self):
         return "{}: {}".format(
             self.country.code,
-            f"{self.latin_name} ({self.latin_code})" if self.latin_name else self.latin_code
+            f"{self.latin_name} ({self.latin_code})"
+            if self.latin_name
+            else self.latin_code,
         )
 
 
@@ -1172,26 +1303,28 @@ class Whereabouts(models.Model):
     )
 
     type = models.CharField(
-        _("location type"),
-        max_length=1,
-        choices=WHEREABOUTS_TYPE_CHOICES)
+        _("location type"), max_length=1, choices=WHEREABOUTS_TYPE_CHOICES
+    )
     name = models.CharField(
         _("name"),
         blank=False,
         max_length=255,
-        help_text=_("Name in the official language, not in Esperanto (e.g.: Rotterdam)."))
-    state = models.CharField(
-        _("State / Province"),
-        blank=True,
-        max_length=70)
-    country = CountryField(
-        _("country"))
+        help_text=_(
+            "Name in the official language, not in Esperanto (e.g.: Rotterdam)."
+        ),
+    )
+    state = models.CharField(_("State / Province"), blank=True, max_length=70)
+    country = CountryField(_("country"))
     bbox = LineStringField(
-        _("bounding box"), srid=SRID,
-        help_text=_("Expected diagonal: south-west lon/lat, north-east lon/lat."))
+        _("bounding box"),
+        srid=SRID,
+        help_text=_("Expected diagonal: south-west lon/lat, north-east lon/lat."),
+    )
     center = PointField(
-        _("geographical center"), srid=SRID,
-        help_text=_("Expected: longitude/latitude position."))
+        _("geographical center"),
+        srid=SRID,
+        help_text=_("Expected: longitude/latitude position."),
+    )
 
     class Meta:
         verbose_name = pgettext_lazy("name::singular", "whereabouts")
@@ -1200,14 +1333,15 @@ class Whereabouts(models.Model):
     def __str__(self):
         return str(_("Location of {landmark} ({state})")).format(
             landmark=self.name,
-            state=", ".join(filter(None, [self.state, str(self.country.name)]))
+            state=", ".join(filter(None, [self.state, str(self.country.name)])),
         )
 
     def __repr__(self):
         return "<{}: {} ~ SW{} NE{}>".format(
             self.__class__.__name__,
             ", ".join(filter(None, [self.name, self.state, self.country.name])),
-            self.bbox.coords[0], self.bbox.coords[1]
+            self.bbox.coords[0],
+            self.bbox.coords[1],
         )
 
 
@@ -1215,16 +1349,14 @@ class Condition(models.Model):
     """
     Hosting condition in a place (e.g. bringing sleeping bag, no smoking...).
     """
-    name = models.CharField(
-        _("name"),
-        max_length=255,
-        help_text=_("E.g.: 'Ne fumu'."))
+
+    name = models.CharField(_("name"), max_length=255, help_text=_("E.g.: 'Ne fumu'."))
     abbr = models.CharField(
         _("abbreviation"),
         max_length=20,
-        help_text=_("Official abbreviation as used in the book. E.g.: 'Nef.'"))
-    slug = models.SlugField(
-        _("URL friendly name"))
+        help_text=_("Official abbreviation as used in the book. E.g.: 'Nef.'"),
+    )
+    slug = models.SlugField(_("URL friendly name"))
 
     class Meta:
         verbose_name = _("condition")
@@ -1238,9 +1370,8 @@ class ContactPreference(models.Model):
     """
     Contact preference for a profile: whether by email, telephone or snail mail.
     """
-    name = models.CharField(
-        _("name"),
-        max_length=255)
+
+    name = models.CharField(_("name"), max_length=255)
 
     class Meta:
         verbose_name = _("contact preference")
@@ -1252,56 +1383,59 @@ class ContactPreference(models.Model):
 
 class Preferences(models.Model):
     """Profile's various general preferences, that relate to the account as a whole."""
+
     profile = models.OneToOneField(
-        'hosting.Profile', verbose_name=_("profile"),
-        related_name="pref", on_delete=models.CASCADE)
+        "hosting.Profile",
+        verbose_name=_("profile"),
+        related_name="pref",
+        on_delete=models.CASCADE,
+    )
     contact_preferences = models.ManyToManyField(
-        'hosting.ContactPreference', verbose_name=_("contact preferences"),
-        blank=True)
+        "hosting.ContactPreference", verbose_name=_("contact preferences"), blank=True
+    )
     site_analytics_consent = models.NullBooleanField(
         _("I agree to be included by usage measurement tools."),
-        help_text=_("These technologies help us to improve Pasporta Servo. Through them "
-                    "we collect information about how visitors interact with the "
-                    "web site and which changes will make the interaction better."))
+        help_text=_(
+            "These technologies help us to improve Pasporta Servo. Through them "
+            "we collect information about how visitors interact with the "
+            "web site and which changes will make the interaction better."
+        ),
+    )
     public_listing = models.BooleanField(
-        _("List my profile in search results open to the internet."),
-        default=True)
+        _("List my profile in search results open to the internet."), default=True
+    )
 
     class Meta:
         verbose_name = _("preferences for profile")
         verbose_name_plural = _("preferences for profile")
 
     def __str__(self):
-        return ''
+        return ""
 
     def __repr__(self):
-        return "<{}|p#{}>".format(
-            self.__class__.__name__,
-            self.profile_id
-        )
+        return "<{}|p#{}>".format(self.__class__.__name__, self.profile_id)
 
 
 class TravelAdvice(TimeStampedModel):
     content = SimpleMDEField(
         _("Markdown content"),
         simplemde_options={
-            'hideIcons': ['heading', 'quote', 'unordered-list', 'ordered-list', 'image'],
-            'spellChecker': False,
-        })
-    description = models.TextField(
-        _("HTML description"),
-        blank=False)
+            "hideIcons": [
+                "heading",
+                "quote",
+                "unordered-list",
+                "ordered-list",
+                "image",
+            ],
+            "spellChecker": False,
+        },
+    )
+    description = models.TextField(_("HTML description"), blank=False)
     countries = CountryField(
-        _("countries"),
-        multiple=True,
-        blank_label=_("- ALL COUNTRIES -"),
-        blank=True)
-    active_from = models.DateField(
-        _("advice valid from date"),
-        null=True, blank=True)
-    active_until = models.DateField(
-        _("advice valid until date"),
-        null=True, blank=True)
+        _("countries"), multiple=True, blank_label=_("- ALL COUNTRIES -"), blank=True
+    )
+    active_from = models.DateField(_("advice valid from date"), null=True, blank=True)
+    active_until = models.DateField(_("advice valid until date"), null=True, blank=True)
 
     objects = ActiveStatusManager()
 
@@ -1310,13 +1444,17 @@ class TravelAdvice(TimeStampedModel):
         verbose_name_plural = _("travel advices")
 
     def trimmed_content(self, cut_off=70):
-        return '{}...'.format(self.content[:cut_off-2]) if len(self.content) > cut_off else self.content
+        return (
+            "{}...".format(self.content[: cut_off - 2])
+            if len(self.content) > cut_off
+            else self.content
+        )
 
     def applicable_countries(self, all_label=None, code=True):
         if not self.countries:
-            return all_label or self._meta.get_field('countries').blank_label
+            return all_label or self._meta.get_field("countries").blank_label
         else:
-            return ', '.join(c.code if code else c.name for c in self.countries)
+            return ", ".join(c.code if code else c.name for c in self.countries)
 
     @classmethod
     def get_for_country(cls, country_code, is_active=True):
@@ -1328,28 +1466,31 @@ class TravelAdvice(TimeStampedModel):
         False, only advices for this specific country which are not anymore or not yet
         valid are returned.
         """
-        lookups = Q(countries__regex=r'(^|,){}(,|$)'.format(country_code))
+        lookups = Q(countries__regex=r"(^|,){}(,|$)".format(country_code))
         if is_active is False:
             lookups = lookups & Q(is_active=False)
         else:
-            lookups = lookups | Q(countries='')
+            lookups = lookups | Q(countries="")
             if is_active is not None:
                 lookups = lookups & Q(is_active=True)
-        return cls.objects.filter(lookups).order_by('-active_until', '-id')
+        return cls.objects.filter(lookups).order_by("-active_until", "-id")
 
     def __str__(self):
-        return ' '.join((
-            self.trimmed_content().replace('\n', ' '),
-            '({})'.format(self.applicable_countries())
-        ))
+        return " ".join(
+            (
+                self.trimmed_content().replace("\n", " "),
+                "({})".format(self.applicable_countries()),
+            )
+        )
 
     def __repr__(self):
         return "<TravelAdvice for {}: {}>".format(
             self.applicable_countries("ALL"),
-            self.trimmed_content(90).replace('\n', ' ')
+            self.trimmed_content(90).replace("\n", " "),
         )
 
     def save(self, *args, **kwargs):
         self.description = commonmark(self.content)
         return super().save(*args, **kwargs)
+
     save.alters_data = True

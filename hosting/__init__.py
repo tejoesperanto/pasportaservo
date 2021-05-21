@@ -1,1 +1,1 @@
-default_app_config = 'hosting.apps.HostingConfig'
+default_app_config = "hosting.apps.HostingConfig"
