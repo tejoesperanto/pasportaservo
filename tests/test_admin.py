@@ -1,5 +1,4 @@
 from django.urls import reverse
-
 from django_webtest import WebTest
 
 from .factories import AdminUserFactory, StaffUserFactory, UserFactory

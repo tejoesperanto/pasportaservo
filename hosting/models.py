@@ -4,6 +4,7 @@ from datetime import date
 from enum import Enum, IntEnum
 from functools import partial, partialmethod
 
+from commonmark import commonmark
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -11,7 +12,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.db.models import LineStringField, PointField
 from django.db import models, transaction
-from django.db.models import F, Q, Value as V
+from django.db.models import F, Q
+from django.db.models import Value as V
 from django.db.models.functions import Concat, Substr
 from django.urls import reverse
 from django.utils import timezone
@@ -20,11 +22,8 @@ from django.utils.functional import cached_property
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
-from django.utils.translation import (
-    get_language, pgettext_lazy, ugettext_lazy as _,
-)
-
-from commonmark import commonmark
+from django.utils.translation import get_language, pgettext_lazy
+from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
 from django_extensions.db.models import TimeStampedModel
 from simplemde.fields import SimpleMDEField
@@ -37,19 +36,30 @@ from maps import SRID
 from .countries import COUNTRIES_DATA
 from .fields import PhoneNumberField, StyledEmailField, SuggestiveField
 from .filters import (
-    HostingFilter, InBookFilter, MeetingFilter,
-    OkForBookFilter, OkForGuestsFilter,
+    HostingFilter,
+    InBookFilter,
+    MeetingFilter,
+    OkForBookFilter,
+    OkForGuestsFilter,
 )
 from .gravatar import email_to_gravatar
 from .managers import (
-    ActiveStatusManager, AvailableManager, NotDeletedManager,
-    NotDeletedRawManager, TrackingManager,
+    ActiveStatusManager,
+    AvailableManager,
+    NotDeletedManager,
+    NotDeletedRawManager,
+    TrackingManager,
 )
 from .utils import UploadAndRenameAvatar, value_without_invalid_marker
 from .validators import (
-    TooFarPastValidator, validate_image, validate_latin,
-    validate_no_digit, validate_not_all_caps, validate_not_in_future,
-    validate_not_too_many_caps, validate_size,
+    TooFarPastValidator,
+    validate_image,
+    validate_latin,
+    validate_no_digit,
+    validate_not_all_caps,
+    validate_not_in_future,
+    validate_not_too_many_caps,
+    validate_size,
 )
 
 MRS, MR = 'Mrs', 'Mr'

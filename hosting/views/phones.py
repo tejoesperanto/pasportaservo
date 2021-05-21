@@ -10,8 +10,14 @@ from core.auth import OWNER, AuthMixin
 from ..forms import PhoneCreateForm, PhoneForm
 from ..models import Phone
 from .mixins import (
-    CreateMixin, DeleteMixin, PhoneMixin, ProfileAssociatedObjectCreateMixin,
-    ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin, UpdateMixin,
+    CreateMixin,
+    DeleteMixin,
+    PhoneMixin,
+    ProfileAssociatedObjectCreateMixin,
+    ProfileIsUserMixin,
+    ProfileMixin,
+    ProfileModifyMixin,
+    UpdateMixin,
 )
 
 

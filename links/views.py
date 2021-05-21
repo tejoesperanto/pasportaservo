@@ -7,9 +7,11 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from django.views import generic
-
 from itsdangerous import (
-    BadSignature, BadTimeSignature, SignatureExpired, URLSafeTimedSerializer,
+    BadSignature,
+    BadTimeSignature,
+    SignatureExpired,
+    URLSafeTimedSerializer,
 )
 
 from core.models import SiteConfiguration

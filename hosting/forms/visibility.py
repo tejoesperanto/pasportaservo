@@ -1,14 +1,15 @@
 from django import forms
-from django.db.models import (
-    BinaryField, BooleanField, Case, CharField, Q, Value, When,
-)
+from django.db.models import BinaryField, BooleanField, Case, CharField, Q, Value, When
 from django.utils.functional import cached_property
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from ..models import (
-    Place, VisibilitySettings, VisibilitySettingsForFamilyMembers,
-    VisibilitySettingsForPhone, VisibilitySettingsForPlace,
+    Place,
+    VisibilitySettings,
+    VisibilitySettingsForFamilyMembers,
+    VisibilitySettingsForPhone,
+    VisibilitySettingsForPlace,
     VisibilitySettingsForPublicEmail,
 )
 from ..utils import value_without_invalid_marker

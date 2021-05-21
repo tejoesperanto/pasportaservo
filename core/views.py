@@ -1,23 +1,24 @@
 from copy import copy
 from datetime import datetime, timedelta
 
+from commonmark import commonmark
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, get_user_model, login
+from django.contrib.auth.views import LoginView as LoginBuiltinView
 from django.contrib.auth.views import (
-    LoginView as LoginBuiltinView,
     PasswordChangeDoneView as PasswordChangeDoneBuiltinView,
-    PasswordChangeView as PasswordChangeBuiltinView,
-    PasswordResetConfirmView as PasswordResetConfirmBuiltinView,
-    PasswordResetView as PasswordResetBuiltinView,
 )
+from django.contrib.auth.views import PasswordChangeView as PasswordChangeBuiltinView
+from django.contrib.auth.views import (
+    PasswordResetConfirmView as PasswordResetConfirmBuiltinView,
+)
+from django.contrib.auth.views import PasswordResetView as PasswordResetBuiltinView
 from django.contrib.flatpages.models import FlatPage
 from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q
-from django.http import (
-    Http404, HttpResponse, HttpResponseRedirect, JsonResponse,
-)
+from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.template.response import TemplateResponse
@@ -28,28 +29,30 @@ from django.utils.functional import cached_property
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
-from django.utils.translation import gettext, pgettext_lazy, ugettext_lazy as _
+from django.utils.translation import gettext, pgettext_lazy
+from django.utils.translation import ugettext_lazy as _
 from django.views import generic
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.vary import vary_on_headers
 
-from commonmark import commonmark
-
 from blog.models import Post
 from core.models import Policy
 from hosting.models import Phone, Place, Profile
 from hosting.utils import value_without_invalid_marker
-from hosting.views.mixins import (
-    ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin,
-)
+from hosting.views.mixins import ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin
 from links.utils import create_unique_url
 
 from .auth import ADMIN, OWNER, SUPERVISOR, AuthMixin
 from .forms import (
-    EmailStaffUpdateForm, EmailUpdateForm, MassMailForm,
-    SystemPasswordChangeForm, UserAuthenticationForm,
-    UsernameRemindRequestForm, UsernameUpdateForm, UserRegistrationForm,
+    EmailStaffUpdateForm,
+    EmailUpdateForm,
+    MassMailForm,
+    SystemPasswordChangeForm,
+    UserAuthenticationForm,
+    UsernameRemindRequestForm,
+    UsernameUpdateForm,
+    UserRegistrationForm,
 )
 from .mixins import LoginRequiredMixin, UserModifyMixin, flatpages_as_templates
 from .models import Agreement, SiteConfiguration

@@ -3,8 +3,8 @@
 from __future__ import unicode_literals
 
 import django.contrib.gis.db.models.fields
-from django.db import migrations, models
 import django_countries.fields
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):

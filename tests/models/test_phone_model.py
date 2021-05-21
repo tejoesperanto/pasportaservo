@@ -1,5 +1,4 @@
 from django.test import override_settings, tag
-
 from django_webtest import WebTest
 
 from hosting.models import PHONE_TYPE_CHOICES

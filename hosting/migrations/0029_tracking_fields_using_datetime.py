@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-from django.db.models import F, Case, When, DateTimeField
+from django.db.models import Case, DateTimeField, F, When
 
 
 def populate_tracking_fields(apps, schema_editor):

@@ -2,6 +2,7 @@ import json
 import logging
 from urllib.parse import quote_plus, unquote_plus
 
+import geocoder
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
@@ -11,8 +12,6 @@ from django.urls import reverse
 from django.utils.encoding import uri_to_iri
 from django.utils.translation import pgettext
 from django.views import generic
-
-import geocoder
 from django_countries.fields import Country
 from el_pagination.views import AjaxListView
 

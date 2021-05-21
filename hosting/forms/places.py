@@ -9,7 +9,6 @@ from django.contrib.gis.geos import LineString, Point
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
-
 from django_countries.fields import Country
 
 from core.auth import SUPERVISOR
@@ -18,12 +17,14 @@ from core.utils import join_lazy, mark_safe_lazy, sort_by
 from maps import SRID
 from maps.widgets import MapboxGlWidget
 
-from ..countries import (
-    COUNTRIES_DATA, SUBREGION_TYPES, countries_with_mandatory_region,
-)
+from ..countries import COUNTRIES_DATA, SUBREGION_TYPES, countries_with_mandatory_region
 from ..models import (
-    CountryRegion, LocationConfidence,
-    LocationType, Place, Profile, Whereabouts,
+    CountryRegion,
+    LocationConfidence,
+    LocationType,
+    Place,
+    Profile,
+    Whereabouts,
 )
 from ..utils import geocode, geocode_city
 from ..validators import TooNearPastValidator

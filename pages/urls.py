@@ -1,11 +1,15 @@
 from django.conf.urls import include, url
 from django.utils.text import format_lazy
-from django.utils.translation import pgettext_lazy, ugettext_lazy as _
+from django.utils.translation import pgettext_lazy
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView
 
 from .views import (
-    AboutView, FaqView, PrivacyPolicyView,
-    SupervisorsView, TermsAndConditionsView,
+    AboutView,
+    FaqView,
+    PrivacyPolicyView,
+    SupervisorsView,
+    TermsAndConditionsView,
 )
 
 urlpatterns = [

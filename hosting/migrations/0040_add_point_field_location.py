@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import django.contrib.gis.db.models.fields
 from django.contrib.gis.geos import Point
+
 # from django.contrib.postgres.operations import CreateExtension
 from django.db import migrations
 

@@ -1,12 +1,12 @@
 # https://faker.readthedocs.io/en/latest/providers/faker.providers.person.html
 import re
 from datetime import timedelta
-from random import choice, randint, random, uniform as uniform_random
-
-from django.contrib.gis.geos import LineString, Point
+from random import choice, randint, random
+from random import uniform as uniform_random
 
 import factory
 import rstr
+from django.contrib.gis.geos import LineString, Point
 from django_countries.data import COUNTRIES
 from django_countries.fields import Country
 from factory import Faker
@@ -16,9 +16,7 @@ from phonenumber_field.phonenumber import PhoneNumber
 from slugify import slugify
 
 from hosting.countries import COUNTRIES_DATA, countries_with_mandatory_region
-from hosting.models import (
-    MR, MRS, PHONE_TYPE_CHOICES, PRONOUN_CHOICES, LocationType,
-)
+from hosting.models import MR, MRS, PHONE_TYPE_CHOICES, PRONOUN_CHOICES, LocationType
 from maps import SRID
 from maps.data import COUNTRIES_GEO
 

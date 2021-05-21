@@ -20,12 +20,11 @@
 import json
 import re
 
+import requests
 from django.contrib.gis.geos import LineString, Point
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.utils.termcolors import make_style
-
-import requests
 from django_countries.data import COUNTRIES
 from unidecode import unidecode
 

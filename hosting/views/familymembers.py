@@ -6,8 +6,11 @@ from core.auth import OWNER, AuthMixin
 
 from ..forms import FamilyMemberCreateForm, FamilyMemberForm
 from .mixins import (
-    CreateMixin, DeleteMixin, FamilyMemberAuthMixin,
-    FamilyMemberMixin, UpdateMixin,
+    CreateMixin,
+    DeleteMixin,
+    FamilyMemberAuthMixin,
+    FamilyMemberMixin,
+    UpdateMixin,
 )
 
 

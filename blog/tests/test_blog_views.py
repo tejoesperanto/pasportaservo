@@ -1,6 +1,5 @@
 from django.test import tag
 from django.urls import reverse
-
 from django_webtest import WebTest
 
 from .factories import PostFactory

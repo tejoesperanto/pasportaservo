@@ -2,13 +2,12 @@ import hashlib
 import locale
 from functools import reduce
 
+import requests
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.utils.functional import keep_lazy_text, lazy
 from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
-
-import requests
 
 
 def getattr_(obj, path):

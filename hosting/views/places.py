@@ -4,13 +4,12 @@ import re
 from collections import namedtuple
 from datetime import date
 
+from braces.views import FormInvalidMessageMixin
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.gis.geos import LineString, Point
 from django.core.mail import send_mail
-from django.http import (
-    HttpResponse, HttpResponseRedirect, JsonResponse, QueryDict,
-)
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, QueryDict
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.urls import reverse_lazy
@@ -18,11 +17,7 @@ from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.views import generic
 
-from braces.views import FormInvalidMessageMixin
-
-from core.auth import (
-    ANONYMOUS, OWNER, PERM_SUPERVISOR, SUPERVISOR, VISITOR, AuthMixin,
-)
+from core.auth import ANONYMOUS, OWNER, PERM_SUPERVISOR, SUPERVISOR, VISITOR, AuthMixin
 from core.models import SiteConfiguration
 from core.templatetags.utils import next_link
 from core.utils import sanitize_next
@@ -31,16 +26,30 @@ from maps.utils import bufferize_country_boundaries
 
 from ..countries import countries_with_mandatory_region
 from ..forms import (
-    PlaceBlockForm, PlaceBlockQuickForm, PlaceCreateForm, PlaceForm,
-    PlaceLocationForm, UserAuthorizedOnceForm, UserAuthorizeForm,
+    PlaceBlockForm,
+    PlaceBlockQuickForm,
+    PlaceCreateForm,
+    PlaceForm,
+    PlaceLocationForm,
+    UserAuthorizedOnceForm,
+    UserAuthorizeForm,
 )
 from ..models import (
-    LocationConfidence, LocationType, Place,
-    Profile, TravelAdvice, Whereabouts,
+    LocationConfidence,
+    LocationType,
+    Place,
+    Profile,
+    TravelAdvice,
+    Whereabouts,
 )
 from .mixins import (
-    CreateMixin, DeleteMixin, PlaceMixin, PlaceModifyMixin,
-    ProfileIsUserMixin, ProfileModifyMixin, UpdateMixin,
+    CreateMixin,
+    DeleteMixin,
+    PlaceMixin,
+    PlaceModifyMixin,
+    ProfileIsUserMixin,
+    ProfileModifyMixin,
+    UpdateMixin,
 )
 
 User = get_user_model()

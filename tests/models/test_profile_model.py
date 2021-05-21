@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.test import override_settings, tag
 from django.utils.html import format_html
-
 from django_webtest import WebTest
 from factory import Faker
 

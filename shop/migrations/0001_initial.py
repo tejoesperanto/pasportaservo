@@ -3,10 +3,11 @@
 from __future__ import unicode_literals
 
 from decimal import Decimal
-from django.conf import settings
-from django.db import migrations, models
+
 import django.db.models.deletion
 import django_extensions.db.fields
+from django.conf import settings
+from django.db import migrations, models
 
 
 def create_product(apps, schema_editor):

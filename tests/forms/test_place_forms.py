@@ -7,7 +7,6 @@ from django.contrib.gis.geos import Point as GeoPoint
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.test import override_settings, tag
 from django.urls import reverse
-
 from django_countries import Countries
 from django_webtest import WebTest
 from faker import Faker
@@ -15,19 +14,29 @@ from faker import Faker
 from core.auth import OWNER, SUPERVISOR
 from core.models import SiteConfiguration
 from hosting.countries import (
-    COUNTRIES_DATA, SUBREGION_TYPES, countries_with_mandatory_region,
+    COUNTRIES_DATA,
+    SUBREGION_TYPES,
+    countries_with_mandatory_region,
 )
 from hosting.forms.places import PlaceCreateForm, PlaceForm, PlaceLocationForm
 from hosting.models import (
-    Condition, CountryRegion, LocationConfidence,
-    LocationType, Place, Whereabouts,
+    Condition,
+    CountryRegion,
+    LocationConfidence,
+    LocationType,
+    Place,
+    Whereabouts,
 )
 from maps import SRID
 
 from ..assertions import AdditionalAsserts
 from ..factories import (
-    ConditionFactory, CountryRegionFactory, PlaceFactory,
-    ProfileFactory, UserFactory, WhereaboutsFactory,
+    ConditionFactory,
+    CountryRegionFactory,
+    PlaceFactory,
+    ProfileFactory,
+    UserFactory,
+    WhereaboutsFactory,
 )
 
 

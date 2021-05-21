@@ -1,5 +1,4 @@
 from django.test import override_settings, tag
-
 from django_webtest import WebTest
 
 from ..forms import PostForm

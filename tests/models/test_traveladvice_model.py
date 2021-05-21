@@ -2,7 +2,6 @@ import random
 from datetime import date
 
 from django.test import tag
-
 from django_countries import Countries
 from django_webtest import WebTest
 from faker import Faker

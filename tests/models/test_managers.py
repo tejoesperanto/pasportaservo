@@ -4,12 +4,9 @@ from unittest.mock import patch
 
 from django.db import DatabaseError
 from django.utils.timezone import make_aware
-
 from faker import Faker
 
-from hosting.managers import (
-    NotDeletedManager, NotDeletedRawManager, TrackingManager,
-)
+from hosting.managers import NotDeletedManager, NotDeletedRawManager, TrackingManager
 
 
 class TrackingManagersTests:

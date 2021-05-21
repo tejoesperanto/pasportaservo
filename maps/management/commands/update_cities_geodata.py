@@ -1,8 +1,9 @@
 from django.contrib.gis.geos import LineString, Point
 from django.core.management.base import BaseCommand
-from django.db.models import (
-    Case, CharField, Value as V, When, functions as dbf,
-)
+from django.db.models import Case, CharField
+from django.db.models import Value as V
+from django.db.models import When
+from django.db.models import functions as dbf
 from django.utils.termcolors import make_style
 
 from hosting.countries import countries_with_mandatory_region

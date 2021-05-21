@@ -1,9 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from hosting.validators import (
-    validate_not_all_caps, validate_not_too_many_caps,
-)
+from hosting.validators import validate_not_all_caps, validate_not_too_many_caps
 
 
 class ValidatorTests(TestCase):

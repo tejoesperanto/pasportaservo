@@ -1,17 +1,18 @@
 from collections import namedtuple
 from datetime import date, timedelta
 
+import rstr
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.test import override_settings, tag
 from django.urls import reverse
-
-import rstr
 from django_webtest import WebTest
 from faker import Faker
 
 from core.models import SiteConfiguration
 from hosting.forms.profiles import (
-    ProfileCreateForm, ProfileEmailUpdateForm, ProfileForm,
+    ProfileCreateForm,
+    ProfileEmailUpdateForm,
+    ProfileForm,
 )
 from hosting.models import MR, MRS, PRONOUN_CHOICES
 

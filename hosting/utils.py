@@ -3,11 +3,10 @@ import os
 import re
 from uuid import uuid4
 
+import geocoder
 from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.utils.deconstruct import deconstructible
-
-import geocoder
 
 from core.models import SiteConfiguration
 from maps import SRID

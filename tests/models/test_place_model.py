@@ -2,7 +2,6 @@ from datetime import date
 from unittest.mock import PropertyMock, patch
 
 from django.test import tag
-
 from django_countries.fields import Country
 from django_webtest import WebTest
 from factory import Faker

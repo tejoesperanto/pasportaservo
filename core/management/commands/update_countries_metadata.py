@@ -4,9 +4,8 @@ import re
 import sys
 from collections import OrderedDict
 
-from django.core.management.base import BaseCommand
-
 import requests
+from django.core.management.base import BaseCommand
 
 from hosting.countries import COUNTRIES_DATA
 

@@ -9,21 +9,25 @@ from django.contrib.gis.geos import Point as GeoPoint
 from django.core import mail
 from django.test import TestCase, override_settings, tag
 from django.utils.functional import lazy, lazystr
-
 from faker import Faker
 from geocoder.opencage import OpenCageQuery, OpenCageResult
-from requests.exceptions import (
-    ConnectionError as HTTPConnectionError, HTTPError,
-)
+from requests.exceptions import ConnectionError as HTTPConnectionError
+from requests.exceptions import HTTPError
 
 from core.utils import (
-    camel_case_split, is_password_compromised,
-    join_lazy, send_mass_html_mail, sort_by,
+    camel_case_split,
+    is_password_compromised,
+    join_lazy,
+    send_mass_html_mail,
+    sort_by,
 )
 from hosting.countries import countries_with_mandatory_region
 from hosting.gravatar import email_to_gravatar
 from hosting.utils import (
-    geocode, geocode_city, split, title_with_particule,
+    geocode,
+    geocode_city,
+    split,
+    title_with_particule,
     value_without_invalid_marker,
 )
 from links.utils import create_unique_url

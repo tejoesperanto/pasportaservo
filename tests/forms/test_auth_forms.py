@@ -10,20 +10,22 @@ from django.test import override_settings, tag
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-
 from django_webtest import WebTest
 from faker import Faker
 
 from core.auth import auth_log
 from core.forms import (
-    EmailStaffUpdateForm, EmailUpdateForm, SystemPasswordChangeForm,
-    SystemPasswordResetForm, SystemPasswordResetRequestForm,
-    UserAuthenticationForm, UsernameRemindRequestForm,
-    UsernameUpdateForm, UserRegistrationForm,
+    EmailStaffUpdateForm,
+    EmailUpdateForm,
+    SystemPasswordChangeForm,
+    SystemPasswordResetForm,
+    SystemPasswordResetRequestForm,
+    UserAuthenticationForm,
+    UsernameRemindRequestForm,
+    UsernameUpdateForm,
+    UserRegistrationForm,
 )
-from core.views import (
-    PasswordResetConfirmView, PasswordResetView, UsernameRemindView,
-)
+from core.views import PasswordResetConfirmView, PasswordResetView, UsernameRemindView
 
 from ..assertions import AdditionalAsserts
 from ..factories import UserFactory

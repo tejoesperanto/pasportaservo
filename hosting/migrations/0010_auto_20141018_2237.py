@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
-import hosting.validators
-import phonenumber_field.modelfields
 import django.db.models.deletion
+import phonenumber_field.modelfields
+from django.db import migrations, models
+
+import hosting.validators
 
 
 class Migration(migrations.Migration):

@@ -2,18 +2,18 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.utils.functional import SimpleLazyObject, cached_property
 from django.views.defaults import ERROR_403_TEMPLATE_NAME, permission_denied
-
-from postman.views import (
-    ConversationView as PostmanConversationView,
-    MessageView as PostmanMessageView,
-    ReplyView as PostmanReplyView, WriteView as PostmanWriteView,
-)
+from postman.views import ConversationView as PostmanConversationView
+from postman.views import MessageView as PostmanMessageView
+from postman.views import ReplyView as PostmanReplyView
+from postman.views import WriteView as PostmanWriteView
 
 from hosting.models import Phone, Place, Profile
 
 from .forms import (
-    CustomAnonymousWriteForm, CustomQuickReplyForm,
-    CustomReplyForm, CustomWriteForm,
+    CustomAnonymousWriteForm,
+    CustomQuickReplyForm,
+    CustomReplyForm,
+    CustomWriteForm,
 )
 
 User = get_user_model()

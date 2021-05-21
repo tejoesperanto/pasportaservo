@@ -7,28 +7,43 @@ from django.contrib.auth.admin import GroupAdmin, UserAdmin
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django.contrib.flatpages.models import FlatPage
+
 # from django.contrib.gis import admin as gis_admin
 from django.contrib.gis.db.models import LineStringField, PointField
 from django.contrib.gis.forms import OSMWidget
 from django.db import models
-from django.db.models import Q, Value as V, functions as dbf
+from django.db.models import Q
+from django.db.models import Value as V
+from django.db.models import functions as dbf
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
-
 from django_countries.fields import Country
 
 from core.models import Agreement
 from maps.widgets import AdminMapboxGlWidget
 
 from ..models import (
-    Condition, ContactPreference, CountryRegion, Phone, Place, Preferences,
-    Profile, TravelAdvice, VisibilitySettings, Website, Whereabouts,
+    Condition,
+    ContactPreference,
+    CountryRegion,
+    Phone,
+    Place,
+    Preferences,
+    Profile,
+    TravelAdvice,
+    VisibilitySettings,
+    Website,
+    Whereabouts,
 )
 from .filters import (
-    ActiveStatusFilter, CountryMentionedOnlyFilter,
-    EmailValidityFilter, PlaceHasLocationFilter,
-    ProfileHasUserFilter, SupervisorFilter, VisibilityTargetFilter,
+    ActiveStatusFilter,
+    CountryMentionedOnlyFilter,
+    EmailValidityFilter,
+    PlaceHasLocationFilter,
+    ProfileHasUserFilter,
+    SupervisorFilter,
+    VisibilityTargetFilter,
 )
 from .forms import WhereaboutsAdminForm
 from .mixins import ShowConfirmedMixin, ShowCountryMixin, ShowDeletedMixin

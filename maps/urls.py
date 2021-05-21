@@ -3,8 +3,12 @@ from django.utils.text import format_lazy
 from django.utils.translation import pgettext_lazy
 
 from .views import (
-    CountryDataView, EndpointsView, MapStyleView,
-    MapTypeConfigureView, PublicDataView, WorldMapView,
+    CountryDataView,
+    EndpointsView,
+    MapStyleView,
+    MapTypeConfigureView,
+    PublicDataView,
+    WorldMapView,
 )
 
 urlpatterns = [

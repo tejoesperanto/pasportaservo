@@ -15,7 +15,6 @@ import re
 from collections import OrderedDict
 
 from django.core.management.base import BaseCommand
-
 from django_countries.data import COUNTRIES
 
 from hosting.utils import geocode

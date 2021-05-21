@@ -1,6 +1,7 @@
 import logging
 from itertools import chain
 
+from braces.views import FormInvalidMessageMixin
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.db import transaction
@@ -15,21 +16,24 @@ from django.utils.translation import ugettext_lazy as _
 from django.views import generic
 from django.views.decorators.vary import vary_on_headers
 
-from braces.views import FormInvalidMessageMixin
-
-from core.auth import (
-    ADMIN, OWNER, PERM_SUPERVISOR, SUPERVISOR, VISITOR, AuthMixin,
-)
+from core.auth import ADMIN, OWNER, PERM_SUPERVISOR, SUPERVISOR, VISITOR, AuthMixin
 from core.mixins import LoginRequiredMixin
 
 from ..forms import (
-    PreferenceOptinsForm, ProfileCreateForm, ProfileEmailUpdateForm,
-    ProfileForm, VisibilityForm, VisibilityFormSetBase,
+    PreferenceOptinsForm,
+    ProfileCreateForm,
+    ProfileEmailUpdateForm,
+    ProfileForm,
+    VisibilityForm,
+    VisibilityFormSetBase,
 )
 from ..models import Profile, VisibilitySettings
 from .mixins import (
-    DeleteMixin, ProfileIsUserMixin, ProfileMixin,
-    ProfileModifyMixin, UpdateMixin,
+    DeleteMixin,
+    ProfileIsUserMixin,
+    ProfileMixin,
+    ProfileModifyMixin,
+    UpdateMixin,
 )
 
 User = get_user_model()

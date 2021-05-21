@@ -1,7 +1,6 @@
 from django import template
 from django.contrib.gis.geos import LineString
 from django.utils.safestring import mark_safe
-
 from django_countries import Countries
 
 from maps.data import COUNTRIES_GEO

@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "pasportaservo"
+version = "3.9.0"
+description = "La senpaga tutmonda gastiga servo."
+authors = ["Your Name <you@example.com>"]
+license = "AGPLv3"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3

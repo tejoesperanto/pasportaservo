@@ -1,5 +1,4 @@
 from django.test import tag
-
 from django_webtest import WebTest
 
 from ..factories import ConditionFactory

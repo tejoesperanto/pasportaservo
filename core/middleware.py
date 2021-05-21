@@ -1,7 +1,6 @@
 from django.conf import settings
-from django.contrib.auth.views import (
-    LoginView, LogoutView, redirect_to_login as redirect_to_intercept,
-)
+from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import redirect_to_login as redirect_to_intercept
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.template.response import TemplateResponse
 from django.urls import Resolver404, resolve, reverse
@@ -14,9 +13,7 @@ from core.models import Agreement, Policy, SiteConfiguration
 from core.views import AgreementRejectView, AgreementView, HomeView
 from hosting.models import Preferences, Profile
 from hosting.validators import TooNearPastValidator
-from pasportaservo.urls import (
-    url_index_debug, url_index_maps, url_index_postman,
-)
+from pasportaservo.urls import url_index_debug, url_index_maps, url_index_postman
 
 
 class AccountFlagsMiddleware(MiddlewareMixin):

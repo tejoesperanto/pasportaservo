@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
-
 SYMBOLS = (
     ('dont-smoke', {'latex': r'\faBan'}),
     ('one-room', {'latex': r'\faGroup'}),

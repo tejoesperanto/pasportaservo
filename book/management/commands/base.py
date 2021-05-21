@@ -9,7 +9,6 @@ from django.core import sort_by
 from django.core.management.base import CommandError
 from django.template import Template
 from django.utils import translation
-
 from django_countries import countries
 
 from hosting.models import Place

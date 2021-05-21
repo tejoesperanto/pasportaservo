@@ -7,7 +7,6 @@ from django.template import Context, Template, TemplateSyntaxError
 from django.test import TestCase, tag
 from django.utils.functional import SimpleLazyObject
 from django.utils.html import escape
-
 from faker import Faker
 
 

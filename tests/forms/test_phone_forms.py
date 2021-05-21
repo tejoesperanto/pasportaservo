@@ -1,7 +1,6 @@
 from django.test import override_settings, tag
 from django.urls import reverse
 from django.utils.timezone import make_aware
-
 from django_countries import Countries
 from django_webtest import WebTest
 from faker import Faker

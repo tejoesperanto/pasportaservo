@@ -12,7 +12,6 @@ from django.http import Http404, HttpResponseNotAllowed
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.views import generic
-
 from django_countries.fields import Country
 
 from hosting.models import Place, Profile

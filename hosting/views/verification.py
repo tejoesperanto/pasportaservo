@@ -4,9 +4,7 @@ from collections import OrderedDict
 from django.core import serializers
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.forms import ModelForm
-from django.http import (
-    HttpResponseBadRequest, HttpResponseRedirect, JsonResponse,
-)
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.utils.translation import ugettext_lazy as _

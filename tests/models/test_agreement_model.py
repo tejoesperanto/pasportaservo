@@ -2,7 +2,6 @@ import re
 
 from django.test import override_settings, tag
 from django.utils import timezone
-
 from django_webtest import WebTest
 
 from ..factories import AgreementFactory

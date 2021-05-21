@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-
 from django_countries import data
 
 COUNTRIES = sorted(dict(data.COUNTRIES).keys())

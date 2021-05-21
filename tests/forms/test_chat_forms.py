@@ -4,14 +4,15 @@ from django.contrib.auth.models import AnonymousUser
 from django.core import mail
 from django.test import override_settings, tag
 from django.urls import reverse
-
 from django_webtest import WebTest
 from faker import Faker
 from postman.models import Message
 
 from pasportaservo.forms import (
-    CustomAnonymousWriteForm, CustomQuickReplyForm,
-    CustomReplyForm, CustomWriteForm,
+    CustomAnonymousWriteForm,
+    CustomQuickReplyForm,
+    CustomReplyForm,
+    CustomWriteForm,
 )
 
 from ..assertions import AdditionalAsserts

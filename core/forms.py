@@ -5,15 +5,19 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import (
-    AuthenticationForm, PasswordChangeForm,
-    PasswordResetForm, SetPasswordForm, UserCreationForm,
+    AuthenticationForm,
+    PasswordChangeForm,
+    PasswordResetForm,
+    SetPasswordForm,
+    UserCreationForm,
 )
 from django.contrib.auth.hashers import UNUSABLE_PASSWORD_PREFIX
 from django.core.mail import send_mail
 from django.db.models import Q
 from django.template.loader import get_template
 from django.urls import reverse
-from django.utils.translation import pgettext_lazy, ugettext_lazy as _
+from django.utils.translation import pgettext_lazy
+from django.utils.translation import ugettext_lazy as _
 
 from hosting.models import Profile
 from hosting.utils import value_without_invalid_marker

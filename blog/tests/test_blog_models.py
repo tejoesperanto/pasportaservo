@@ -1,6 +1,5 @@
 from django.test import tag
 from django.utils import timezone
-
 from django_webtest import WebTest
 from faker import Faker
 

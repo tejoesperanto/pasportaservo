@@ -5,8 +5,10 @@ from django.urls import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 
 from .views import (
-    ExtendedConversationView, ExtendedMessageView,
-    ExtendedReplyView, ExtendedWriteView,
+    ExtendedConversationView,
+    ExtendedMessageView,
+    ExtendedReplyView,
+    ExtendedWriteView,
 )
 
 urlpatterns = [
