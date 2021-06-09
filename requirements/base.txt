@@ -1,4 +1,4 @@
-Django==2.2.19
+Django==2.2.22
 psycopg2==2.8.6
 Pillow==8.1.2
 
