@@ -1,15 +1,20 @@
 import re
 from datetime import date
+from difflib import SequenceMatcher
 from string import digits
 
-from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.core.exceptions import (
+    ImproperlyConfigured, ObjectDoesNotExist, ValidationError,
+)
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.template.defaultfilters import filesizeformat
 from django.utils.deconstruct import deconstructible
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
-from .utils import split, title_with_particule
+from core.utils import getattr_, join_lazy
+
+from .utils import split, title_with_particule, value_without_invalid_marker
 
 
 def validate_not_all_caps(value):
@@ -105,6 +110,56 @@ class TooNearPastValidator(TooFarPastValidator):
         except ValueError:
             back_in_time = now.replace(year=now.year - self.number_years, day=now.day-1)
         MaxValueValidator(back_in_time)(datevalue)
+
+
+@deconstructible
+class AccountAttributesSimilarityValidator():
+    def __init__(self, max_similarity=0.7):
+        self.max_similarity = max_similarity
+
+    def __eq__(self, other):
+        return (type(other) is self.__class__ and self.max_similarity == other.max_similarity)
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __call__(self, value, user=None):
+        """
+        Validates that the given value is not too similar to known attributes of the account.
+        """
+        if not user:
+            return
+
+        account_attributes = ['username', 'email', 'profile.first_name', 'profile.last_name', 'profile.email']
+        similar_to_attributes = []
+        for attribute_path in account_attributes:
+            try:
+                path = attribute_path.split('.')
+                attribute_name = path[-1]
+                obj = getattr_(user, path[:-1])
+                attribute = getattr(obj, attribute_name)
+            except ObjectDoesNotExist:
+                attribute = None
+            if not attribute:
+                continue
+            if 'email' in attribute_name:
+                attribute = value_without_invalid_marker(attribute)
+
+            for attribute_part in set(re.split(r'\W+', attribute) + [attribute, attribute[::-1]]):
+                # The reverse value of the attribute is obtained quick-and-dirty, a more
+                # complete approach is detailed in: https://stackoverflow.com/a/56282726.
+                if SequenceMatcher(a=value.lower(), b=attribute_part.lower()).quick_ratio() >= self.max_similarity:
+                    verbose_name = obj._meta.get_field(attribute_name).verbose_name
+                    similar_to_attributes.append(verbose_name)
+                    break
+
+        if similar_to_attributes:
+            raise ValidationError(
+                # Translators: This is a validation error already defined (and translated) by Django.
+                _("The password is too similar to the %(verbose_name)s."),
+                code='password_too_similar',
+                params={'verbose_name': join_lazy(", ", similar_to_attributes)},
+            )
 
 
 def validate_image(content):
