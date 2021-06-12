@@ -2,9 +2,11 @@ import re
 from unittest.mock import patch
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.views import INTERNAL_RESET_SESSION_TOKEN
 from django.contrib.sessions.backends.cache import SessionStore
 from django.core import mail
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest
 from django.test import override_settings, tag
 from django.urls import reverse
@@ -128,6 +130,48 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
                 )
                 self.assertNotIn('password1', form.errors)
 
+    @patch('core.mixins.is_password_compromised')
+    def test_password_similar_to_username(self, mock_pwd_check):
+        mock_pwd_check.return_value = (False, 0)
+        for transform in self.test_transforms + [lambda v: v[::-1]]:
+            username = self.faker.user_name()
+            transformed_value = transform(username) + "!@"
+            with self.subTest(username=username, password=transformed_value):
+                form = UserRegistrationForm(data={
+                    'username': username,
+                    'password1': transformed_value,
+                    'password2': transformed_value,
+                    'email': self.faker.email(),
+                })
+                self.assertFalse(form.is_valid())
+                self.assertIn('password1', form.errors)
+                self.assertEqual(
+                    form.errors['password1'],
+                    ["The password is too similar to the username."]
+                )
+                mock_pwd_check.assert_not_called()
+
+    @patch('core.mixins.is_password_compromised')
+    def test_password_similar_to_email(self, mock_pwd_check):
+        mock_pwd_check.return_value = (False, 0)
+        for transform in self.test_transforms + [lambda v: v[::-1]]:
+            email = self.faker.email()
+            transformed_value = "**" + transform(email)
+            with self.subTest(email=email, password=transformed_value):
+                form = UserRegistrationForm(data={
+                    'username': self.faker.user_name(),
+                    'password1': transformed_value,
+                    'password2': transformed_value,
+                    'email': email,
+                })
+                self.assertFalse(form.is_valid())
+                self.assertIn('password1', form.errors)
+                self.assertEqual(
+                    form.errors['password1'],
+                    ["The password is too similar to the email address."]
+                )
+                mock_pwd_check.assert_not_called()
+
     def test_weak_password(self):
         weak_password_tests(
             self,
@@ -184,6 +228,27 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
                     log.records[0].message,
                     "Registration failed, flies found in honeypot."
                 )
+
+    def test_proxy_user(self):
+        form = UserRegistrationForm(data={})
+        user = form.proxy_user
+        self.assertIsNotNone(user)
+        self.assertIs(user._meta, get_user_model()._meta)
+        # The proxy is expected to raise a Profile.DoesNotExist exception
+        # if the `profile` attribute is accessed.
+        self.assertRaises(ObjectDoesNotExist, lambda: user.profile)
+        # The proxy is expected to raise an AttributeError exception as
+        # long as the form was not cleaned.
+        with self.assertRaises(AttributeError) as cm:
+            user.username
+        self.assertEqual(str(cm.exception), "Form was not cleaned yet")
+        # The proxy is expected to return the value of the form data field
+        # and raise no exception, once the form was cleaned.
+        form.is_valid()
+        try:
+            user.email
+        except AttributeError as e:
+            raise AssertionError(f"Unexpected {e!r}") from None  # = self.fail()
 
     def test_view_page(self):
         page = self.app.get(reverse('register'))
@@ -993,6 +1058,27 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
         for field in self.expected_fields:
             with self.subTest(field=field):
                 self.assertIn(field, form.errors)
+
+    @patch('core.mixins.is_password_compromised')
+    def test_password_similar_to_account_details(self, mock_pwd_check):
+        mock_pwd_check.return_value = (False, 0)
+        test_data = [
+            ('username', _snake_str(self.user.username)),
+            ('email address', self.user._clean_email.upper()),
+            ('first name', _snake_str(self.user.profile.first_name)),
+            ('last name', _snake_str(self.user.profile.last_name)),
+        ]
+        for case, transformed_value in test_data:
+            with self.subTest(case=case, password=transformed_value):
+                data = {field_name: transformed_value for field_name in self.expected_fields}
+                if 'old_password' in self.expected_fields:
+                    data['old_password'] = "adm1n"
+                form = self.form_class(self.user, data=data)
+                self.assertFalse(form.is_valid())
+                self.assertIn('new_password1', form.errors)
+                self.assertStartsWith(form.errors['new_password1'][0], "The password is too similar to the ")
+                self.assertIn(case, form.errors['new_password1'][0])
+                mock_pwd_check.assert_not_called()
 
     def test_weak_password(self):
         weak_password_tests(

@@ -65,6 +65,27 @@ class UserRegistrationForm(UsernameFormMixin, PasswordFormMixin, SystemEmailForm
             raise forms.ValidationError("")
         return flies
 
+    @property
+    def proxy_user(self):
+        """
+        Returns an object that looks like a User but proxies value queries to
+        the cleaned data of the form.
+        """
+        class ProxyUser:
+            @property
+            def _meta(proxy):
+                return self._meta.model._meta
+
+            def __getattr__(proxy, attr):
+                try:
+                    if attr == 'profile':
+                        raise Profile.DoesNotExist
+                    return self.cleaned_data.get(attr)
+                except AttributeError:
+                    raise AttributeError("Form was not cleaned yet")
+
+        return ProxyUser()
+
     def save(self, **kwargs):
         return super().save(**kwargs)
     save.alters_data = True

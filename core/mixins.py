@@ -13,6 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from hosting.models import Profile
 from hosting.utils import value_without_invalid_marker
+from hosting.validators import AccountAttributesSimilarityValidator
 
 from .auth import auth_log
 from .utils import is_password_compromised
@@ -152,9 +153,16 @@ class SystemEmailFormMixin(object):
 
 class PasswordFormMixin(object):
     """
-    A form mixin adding a functionality of verifying (anonymously) whether
-    the submitted password value has not been compromised, via the HIBP's
-    Pwned Passwords service.
+    A form mixin adding a functionality of validating the submitted password
+    value against several criteria:
+    -  Similarity to other attributes of the account / profile;
+    -  Verification (anonymously) whether the value has not been compromised,
+       via the HIBP's Pwned Passwords service.
+
+    While Django comes with a built in password validation mechanism (AUTH_PASSWORD_VALIDATORS),
+    it is too rigid, from presentation: help texts, hardcoded error messages;
+    to association: which form field is validated; to function: inability to
+    customise behaviour without rewriting the validation logic.
     """
 
     def analyze_password(self, password_field_value):
@@ -182,5 +190,12 @@ class PasswordFormMixin(object):
     def clean(self):
         cleaned_data = super().clean()
         if self.analyze_password_field in cleaned_data:
-            self.analyze_password(cleaned_data[self.analyze_password_field])
+            cleaned_password = cleaned_data[self.analyze_password_field]
+            try:
+                user = getattr(self, 'user', getattr(self, 'proxy_user', None))
+                AccountAttributesSimilarityValidator()(cleaned_password, user)
+            except ValidationError as e:
+                self.add_error(self.analyze_password_field, e)
+            else:
+                self.analyze_password(cleaned_password)
         return cleaned_data

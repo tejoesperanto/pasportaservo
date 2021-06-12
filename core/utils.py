@@ -12,7 +12,7 @@ import requests
 
 
 def getattr_(obj, path):
-    return reduce(getattr, path.split("."), obj)
+    return reduce(getattr, path.split('.') if isinstance(path, str) else path, obj)
 
 
 def _lazy_joiner(sep, items, item_to_string=str):
