@@ -9,7 +9,6 @@ from django.core.exceptions import (
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.template.defaultfilters import filesizeformat
 from django.utils.deconstruct import deconstructible
-from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
 from core.utils import getattr_, join_lazy
@@ -23,8 +22,8 @@ def validate_not_all_caps(value):
     Validates until 3 characters and non latin strings.
     """
     if len(value) > 3 and value[-1:].isupper() and value == value.upper():
-        message = _("Today is not CapsLock day. Please try with '{correct_value}'.")
-        raise ValidationError(format_lazy(message, correct_value=title_with_particule(value)), code='caps')
+        message = _("Today is not CapsLock day. Please try with '%(correct_value)s'.")
+        raise ValidationError(message, code='caps', params={'correct_value': title_with_particule(value)})
 
 
 def validate_not_too_many_caps(value):
@@ -32,25 +31,25 @@ def validate_not_too_many_caps(value):
     Tries to figure out whether the value has too many capitals.
     Maximum two capitals per word.
     """
-    authorized_begining = ("a", "de", "la", "mac", "mc")
-    message = _("It seems there are too many uppercase letters. Please try with '{correct_value}'.")
-    message = format_lazy(message, correct_value=title_with_particule(value))
+    authorized_beginning = ("a", "de", "la", "mac", "mc")
+    message = _("It seems there are too many uppercase letters. Please try with '%(correct_value)s'.")
+    correct_value = title_with_particule(value)
 
     words = split(value)
     if not any(words):
-        pass  # For non latin letters
+        pass  # For non-letters.
     elif value == value.upper():
         validate_not_all_caps(value)
     else:
         for word in words:
             nb_caps = sum(1 for char in word if char.isupper())
             if nb_caps > 1:
-                if any([word.lower().startswith(s) for s in authorized_begining]):
-                    # This should validate 'McCoy'
+                if any([word.lower().startswith(s) for s in authorized_beginning]):
+                    # This should validate 'McCoy'.
                     if nb_caps > 2:
-                        raise ValidationError(message, code='caps')
+                        raise ValidationError(message, code='caps', params={'correct_value': correct_value})
                 else:
-                    raise ValidationError(message, code='caps')
+                    raise ValidationError(message, code='caps', params={'correct_value': correct_value})
 
 
 def validate_no_digit(value):
@@ -80,7 +79,7 @@ def validate_not_in_future(datevalue):
 
 
 @deconstructible
-class TooFarPastValidator(object):
+class TooFarPastValidator():
     def __init__(self, number_years):
         self.number_years = number_years
 
@@ -94,7 +93,7 @@ class TooFarPastValidator(object):
         MinValueValidator(back_in_time)(datevalue)
 
     def __eq__(self, other):
-        return (isinstance(other, TooFarPastValidator) and self.number_years == other.number_years)
+        return (type(other) is self.__class__ and self.number_years == other.number_years)
 
     def __ne__(self, other):
         return not (self == other)
@@ -173,11 +172,11 @@ def validate_image(content):
 def validate_size(content):
     """Validates if the size of the content in not too big."""
     if content.file.size > validate_size.MAX_UPLOAD_SIZE:
-        message = format_lazy(
-            _("Please keep filesize under {limit}. Current filesize {current}"),
-            limit=filesizeformat(validate_size.MAX_UPLOAD_SIZE),
-            current=filesizeformat(content.file.size))
-        raise ValidationError(message, code='file-size')
+        message = _("Please keep file size under %(limit)s. Current file size %(current_size)s.")
+        raise ValidationError(message, code='file-size', params={
+            'limit': filesizeformat(validate_size.MAX_UPLOAD_SIZE),
+            'current_size': filesizeformat(content.file.size),
+        })
 
 validate_size.MAX_UPLOAD_SIZE = 102400  # 100kB
 validate_size.constraint = ('maxlength', validate_size.MAX_UPLOAD_SIZE)

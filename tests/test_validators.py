@@ -1,24 +1,494 @@
+from datetime import date, timedelta
+from io import BytesIO
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
+
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, override_settings, tag
+
+from faker import Faker
 
 from hosting.validators import (
-    validate_not_all_caps, validate_not_too_many_caps,
+    AccountAttributesSimilarityValidator, TooFarPastValidator,
+    TooNearPastValidator, validate_image, validate_latin,
+    validate_no_digit, validate_not_all_caps, validate_not_in_future,
+    validate_not_too_many_caps, validate_size,
 )
 
+from .assertions import AdditionalAsserts
+from .factories import GenderFactory, UserFactory
 
-class ValidatorTests(TestCase):
-    def test_validate_not_allcaps(self):
-        valid = ("ZAM", "Zam", "zim Zam zum", "McCoy", "鋭郎", "鋭郎 三好", "O'Hara", "O’Timmins")
-        invalid = ("ZAMENHOF", "MC COY")
-        for value in valid:
-            self.assertEqual(validate_not_all_caps(value), None)
-        for value in invalid:
-            self.assertRaises(ValidationError, validate_not_all_caps, value)
 
-    def test_validate_not_toomanycaps(self):
-        valid = ("ZAM", "Zam", "zim Zam zum", "McCoy", "鋭郎", "鋭郎 三好", "O'Hara", "O’Timmins")
-        invalid = ("ZAMENHOF", "ZAm", "mcCOY", "mc COY")
+@tag('validators')
+class ValidatorsTests(AdditionalAsserts, TestCase):
+    def test_validate_not_all_caps(self):
+        valid = [
+            "ZAM", "ZaM", "Zam", "zim Zam Zum", "McCoy", "O'Hara", "O’Timmins",
+            "鋭郎", "鋭郎 三好", "An-Nāṣir Ṣalāḥ ad-Dīn", "الناصر صلاح الدين", "!@#'%", "(B)"
+        ]
+        invalid = {"ZAMENHOF": "Zamenhof", "MC COY": "Mc Coy", "O’MA'HONY": "O’Ma'Hony"}
         for value in valid:
-            self.assertEqual(validate_not_too_many_caps(value), None)
+            with self.subTest(valid_value=value):
+                try:
+                    validate_not_all_caps(value)
+                except ValidationError as e:
+                    raise AssertionError(f"Unexpected {e!r}") from None  # = self.fail()
         for value in invalid:
-            self.assertRaises(ValidationError, validate_not_too_many_caps, value)
+            with self.subTest(invalid_value=value):
+                with self.assertRaises(ValidationError) as cm:
+                    validate_not_all_caps(value)
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertEqual(
+                        next(iter(cm.exception)),
+                        f"Today is not CapsLock day. Please try with '{invalid[value]}'."
+                    )
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertStartsWith(
+                        next(iter(cm.exception)),
+                        "La CapsLock-tago ne estas hodiaŭ."
+                    )
+
+    def test_validate_not_too_many_caps(self):
+        valid = [
+            "ZAM", "Zam", "AZam", "zim Zam Zum", "McCoy", "O'Hara", "O’Timmins",
+            "(鋭之進郎)", "鋭郎 三好", "AnNāṣir Ṣalāḥ AdDīn", "الناصر صلاح الدين", "DelaCruz", "!@#'%"
+        ]
+        msg_all_caps = {
+            'en': "Today is not CapsLock day",
+            'eo': "La CapsLock-tago ne estas hodiaŭ",
+        }
+        msg_many_caps = {
+            'en': "It seems there are too many uppercase letters",
+            'eo': "Ŝajnas ke estas tro da majuskloj",
+        }
+        invalid = {
+            "ZAMENHOF": ("Zamenhof", msg_all_caps),
+            "ZAm": ("Zam", msg_many_caps),
+            "LAZAM": ("Lazam", msg_all_caps),
+            "mcCOY": ("Mccoy", msg_many_caps),
+            "mc COY": ("Mc Coy", msg_many_caps),
+            "DeLaCruz": ("Delacruz", msg_many_caps),
+            "deL VarSoviA": ("del Varsovia", msg_many_caps),
+        }
+        for value in valid:
+            with self.subTest(valid_value=value):
+                try:
+                    validate_not_too_many_caps(value)
+                except ValidationError as e:
+                    raise AssertionError(f"Unexpected {e!r}") from None  # = self.fail()
+        for value, (correct_value, expected_error) in invalid.items():
+            with self.subTest(invalid_value=value):
+                with self.assertRaises(ValidationError) as cm:
+                    validate_not_too_many_caps(value)
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertEqual(
+                        next(iter(cm.exception)),
+                        f"{expected_error['en']}. Please try with '{correct_value}'."
+                    )
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertStartsWith(
+                        next(iter(cm.exception)),
+                        expected_error['eo']
+                    )
+
+    def test_validate_no_digit(self):
+        valid = ["VARSOVIO", " Varšava ", "\tװאַרשע", "ვარშავა", "وارسو:٢٢", "二十二", "²₂WawA", "!@#'%"]
+        valid.append("𝟷𝟾𝟻𝟿–𝟙𝟡𝟙𝟟")  # These digits are from the Math Alphanumeric Symbols Unicode block.
+        invalid = ["VARS0", " Varsóv1a ", "\n\r\tLe3T\b\a"]
+        for value in valid:
+            with self.subTest(valid_value=value):
+                try:
+                    validate_no_digit(value)
+                except ValidationError as e:
+                    raise AssertionError(f"Unexpected {e!r}") from None  # = self.fail()
+        for value in invalid:
+            with self.subTest(invalid_value=value):
+                with self.assertRaises(ValidationError) as cm:
+                    validate_no_digit(value)
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertEqual(next(iter(cm.exception)), "Digits are not allowed.")
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertEqual(
+                        next(iter(cm.exception)),
+                        "Ciferoj ne estas permesitaj en tiu ĉi kampo."
+                    )
+        # Verify that client-side constraint is properly defined.
+        self.assertTrue(hasattr(validate_no_digit, 'constraint'))
+        self.assertIn('pattern', validate_no_digit.constraint)
+
+    def test_validate_latin(self):
+        basic_strings = ["Zam", "زامنهوف", "柴門霍夫"]
+        valid_prefix = [
+            "L", "L.", "la-", "Ł", "Ĉ", "Æ", "Ø", "Ý", "Þ", "ð", "ÿ", "ď", "œ", "ß", "ſ", "Ə",
+            "Ƙ", "ƶ", "ƿ", "Ǚ", "Ș", "ȵ", "ɢ", "ʟ", "Ḝ", "ṥ", "ỿ", "ͩA", "̃Q", "̴J", "I̴", "ɀ",
+        ]
+        invalid_prefix = [
+            "!", "1", "像", "ל", "ზ", "ᴌ", "ᴔ", "ʳ", "ʶ", "ᴳ", "ᶍ", "ᶭ", "ᶽ", "Å", "Ⱶ", "Ꜯ", "Ꝕ",
+            "Ꝙ", "Ꞟ", "ꭙ", "ﬃ", "ⅻ", "ℛ", "℉", "𝐙", "𝑦", "𝓻", "𝔚", "𝕏", "𝖍", "𝘴", "Ｌ", "ｊ",
+        ]
+        for base in basic_strings:
+            for value in valid_prefix:
+                with self.subTest(valid_value=value + base):
+                    try:
+                        validate_latin(value + base)
+                    except ValidationError as e:
+                        raise AssertionError(f"Unexpected {e!r}") from None  # = self.fail()
+            for value in invalid_prefix:
+                with self.subTest(invalid_value=value + base):
+                    with self.assertRaises(ValidationError) as cm:
+                        validate_latin(value + base)
+                    with override_settings(LANGUAGE_CODE='en'):
+                        self.assertStartsWith(
+                            next(iter(cm.exception)),
+                            "Please provide this data in Latin characters"
+                        )
+                    with override_settings(LANGUAGE_CODE='eo'):
+                        self.assertStartsWith(
+                            next(iter(cm.exception)),
+                            "Bonvole indiku tiun ĉi informon per latinaj literoj"
+                        )
+        # Verify that client-side constraint is properly defined.
+        self.assertTrue(hasattr(validate_latin, 'constraint'))
+        self.assertIn('pattern', validate_latin.constraint)
+
+    def test_validate_image_type(self):
+        faker = Faker()
+        data = BytesIO(faker.binary(length=10))
+        data.name = faker.file_name(category='image')
+        test_content = SimpleNamespace()  # Mocking the Django's ImageField.
+        test_content.file = data
+
+        try:
+            validate_image(test_content)
+            data.content_type = faker.mime_type(category='image')
+            validate_image(test_content)
+        except ValidationError as e:
+            raise AssertionError(f"Unexpected {e!r}") from None  # = self.fail()
+
+        for category in ['application', 'audio', 'message', 'model', 'multipart', 'text', 'video']:
+            data.content_type = faker.mime_type(category=category)
+            with self.subTest(content_type=data.content_type):
+                with self.assertRaises(ValidationError) as cm:
+                    validate_image(test_content)
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertEqual(next(iter(cm.exception)), "File type is not supported")
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertEqual(next(iter(cm.exception)), "Dosiertipo ne akceptebla")
+
+    def test_validate_image_size(self):
+        faker = Faker()
+        test_content = SimpleNamespace()  # Mocking the Django's ImageField.
+
+        def prep_data(length):
+            data = BytesIO(faker.binary(length=length))
+            data.name = faker.file_name(category='image')
+            data.content_type = faker.mime_type(category='image')
+            data.size = length
+            return data
+
+        # File size lesser than or equal to 100 kB is expected to be accepted.
+        for test_length in (10, 1024, 102400):
+            test_content.file = prep_data(test_length)
+            with self.subTest(size=test_length):
+                try:
+                    validate_size(test_content)
+                except ValidationError as e:
+                    raise AssertionError(f"Unexpected {e!r}") from None  # = self.fail()
+
+        # File size larger than 100 kB is expected to fail the validation.
+        for test_length in (102402, 102502):
+            test_content.file = prep_data(test_length)
+            with self.subTest(size=test_length):
+                with self.assertRaises(ValidationError) as cm:
+                    validate_size(test_content)
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertStartsWith(
+                        next(iter(cm.exception)),
+                        "Please keep file size under 100,0 KB."
+                    )
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertStartsWith(
+                        next(iter(cm.exception)),
+                        "Bv. certigu ke dosiergrando estas sub 100,0 KB."
+                    )
+
+        # Verify that client-side constraint is properly defined.
+        self.assertTrue(hasattr(validate_size, 'constraint'))
+        self.assertIn('maxlength', validate_size.constraint)
+
+    def test_validate_not_in_future(self):
+        for delta in (365, 1, 0):
+            date_value = date.today() - timedelta(days=delta)
+            with self.subTest(date_value=date_value):
+                try:
+                    validate_not_in_future(date_value)
+                except ValidationError as e:
+                    raise AssertionError(f"Unexpected {e!r}") from None
+        for delta in (1, 7, 365):
+            date_value = date.today() + timedelta(days=delta)
+            with self.subTest(date_value=date_value):
+                with self.assertRaises(ValidationError) as cm:
+                    validate_not_in_future(date_value)
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertEqual(
+                        next(iter(cm.exception)),
+                        f"Ensure this value is less than or equal to {date.today():%Y-%m-%d}."
+                    )
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertEqual(
+                        next(iter(cm.exception)),
+                        f"Certigu ke ĉi tiu valoro estas malpli ol aŭ egala al {date.today():%Y-%m-%d}."
+                    )
+
+    def test_too_far_past_validator(self):
+        validator10 = TooFarPastValidator(10)
+        self.assertNotEqual(validator10, None)
+        self.assertNotEqual(validator10, object())
+        self.assertNotEqual(validator10, TooNearPastValidator(10))
+        self.assertNotEqual(validator10, 10)
+        self.assertEqual(validator10, validator10)
+        self.assertEqual(validator10, TooFarPastValidator(10.0))
+
+        faker = Faker()
+        with patch('hosting.validators.date', Mock(today=Mock(return_value=date(2024, 2, 29)))):
+            for date_value in (faker.date_between_dates(date_start=date(2014, 3, 2), date_end=date(2024, 2, 28)),
+                               date(2014, 2, 28),
+                               date(2014, 3, 1),
+                               date(2024, 2, 29),
+                               faker.date_between_dates(date_start=date(2024, 3, 1), date_end=date(2030, 1, 15))):
+                with self.subTest(date_value=date_value):
+                    try:
+                        validator10(date_value)
+                    except ValidationError as e:
+                        raise AssertionError(f"Unexpected {e!r}") from None
+
+            for date_value in (faker.date_between_dates(date_start=date(2000, 1, 1), date_end=date(2013, 12, 1)),
+                               date(2014, 1, 2),
+                               date(2014, 2, 27)):
+                with self.subTest(date_value=date_value):
+                    with self.assertRaises(ValidationError) as cm:
+                        validator10(date_value)
+                    with override_settings(LANGUAGE_CODE='en'):
+                        self.assertEqual(
+                            next(iter(cm.exception)),
+                            "Ensure this value is greater than or equal to 2014-02-28."
+                        )
+                    with override_settings(LANGUAGE_CODE='eo'):
+                        self.assertEqual(
+                            next(iter(cm.exception)),
+                            "Certigu ke ĉi tiu valoro estas pli ol aŭ egala al 2014-02-28."
+                        )
+
+    def test_too_near_past_validator(self):
+        validator5 = TooNearPastValidator(5)
+        self.assertNotEqual(validator5, None)
+        self.assertNotEqual(validator5, object())
+        self.assertNotEqual(validator5, TooFarPastValidator(5))
+        self.assertNotEqual(validator5, 5)
+        self.assertEqual(validator5, validator5)
+        self.assertEqual(validator5, TooNearPastValidator(5.0))
+
+        faker = Faker()
+        with patch('hosting.validators.date', Mock(today=Mock(return_value=date(2024, 2, 29)))):
+            for date_value in (faker.date_between_dates(date_start=date(2000, 2, 1), date_end=date(2019, 2, 27)),
+                               date(2019, 2, 28)):
+                with self.subTest(date_value=date_value):
+                    try:
+                        validator5(date_value)
+                    except ValidationError as e:
+                        raise AssertionError(f"Unexpected {e!r}") from None
+
+            for date_value in (faker.date_between_dates(date_start=date(2019, 3, 1), date_end=date(2024, 2, 28)),
+                               date(2019, 3, 1),
+                               date(2024, 2, 28),
+                               date(2024, 2, 29),
+                               faker.date_between_dates(date_start=date(2024, 3, 1), date_end=date(2030, 1, 15))):
+                with self.subTest(date_value=date_value):
+                    with self.assertRaises(ValidationError) as cm:
+                        validator5(date_value)
+                    with override_settings(LANGUAGE_CODE='en'):
+                        self.assertEqual(
+                            next(iter(cm.exception)),
+                            "Ensure this value is less than or equal to 2019-02-28."
+                        )
+                    with override_settings(LANGUAGE_CODE='eo'):
+                        self.assertEqual(
+                            next(iter(cm.exception)),
+                            "Certigu ke ĉi tiu valoro estas malpli ol aŭ egala al 2019-02-28."
+                        )
+
+
+@tag('validators')
+class AccountAttributesSimilarityValidatorTests(AdditionalAsserts, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.validator_dflt = AccountAttributesSimilarityValidator()
+        cls.validator_dflt.tag = "default"
+        cls.validator_all = AccountAttributesSimilarityValidator(0.0)
+        cls.validator_all.tag = "all"
+        cls.validator_exact = AccountAttributesSimilarityValidator(1.0)
+        cls.validator_exact.tag = "exact"
+        cls.validator_none = AccountAttributesSimilarityValidator(1.1)
+        cls.validator_none.tag = "none"
+        cls.validators = [cls.validator_dflt, cls.validator_all, cls.validator_exact, cls.validator_none]
+
+    def test_operators(self):
+        self.assertNotEqual(self.validator_dflt, None)
+        self.assertNotEqual(self.validator_dflt, object())
+        self.assertNotEqual(self.validator_dflt, 0.70)
+        self.assertEqual(self.validator_dflt, self.validator_dflt)
+        self.assertEqual(self.validator_dflt, AccountAttributesSimilarityValidator(70 / 100))
+
+    def _get_spec(self, validator):
+        return {'validator_tag': validator.tag, 'allowed_similarity': validator.max_similarity}
+
+    def test_no_user(self):
+        # When no user object is provided, all validators are expected to succeed.
+        for v in self.validators:
+            with self.subTest(**self._get_spec(v)):
+                try:
+                    v("dRakuJo")
+                except ValidationError as e:
+                    raise AssertionError(f"Unexpected {e!r}") from None
+
+    def test_validation(self):
+        test_config = [
+            {
+                'user_data': {'username': "drake_jennifer", 'email': "", 'profile': None},
+                'field': 'username',
+                'violations': {'en': "username", 'eo': "salutnomo"},
+            }, {
+                'user_data': {'email': "drake_jennifer@mail.edu", 'profile': None},
+                'field': 'email',
+                'violations': {'en': "email address", 'eo': "retpoŝta adreso"},
+            }, {
+                'user_data': {'email': "INVALID_84+refinnejekard@mail.edu", 'profile': None},
+                'field': 'email (invalid)',
+                'violations': {'en': "email address", 'eo': "retpoŝta adreso"},
+            }, {
+                'user_data': {
+                    'email': "",
+                    'profile__first_name': "Ardinej",
+                    'profile__last_name': "",
+                    'profile__email': "",
+                },
+                'field': 'first_name',
+                'violations': {'en': "first name", 'eo': "persona nomo"},
+            }, {
+                'user_data': {
+                    'email': "",
+                    'profile__first_name': "",
+                    'profile__last_name': "Drakennir",
+                    'profile__email': "",
+                },
+                'field': 'last_name',
+                'violations': {'en': "last name", 'eo': "familia nomo"},
+            }, {
+                'user_data': {
+                    'email': "",
+                    'profile__first_name': "",
+                    'profile__last_name': "",
+                    'profile__email': "jen@rinnekard.io",
+                },
+                'field': 'profile_email',
+                'violations': {'en': "public email", 'eo': "publika retpoŝta adreso"},
+            }, {
+                'user_data': {
+                    'email': "",
+                    'profile__first_name': "",
+                    'profile__last_name': "",
+                    'profile__email': "INVALID_Drake_Jenni17@hotmail.com",
+                },
+                'field': 'profile_email (invalid)',
+                'violations': {'en': "public email", 'eo': "publika retpoŝta adreso"},
+            }, {
+                'user_data': {
+                    'username': "Drake_Jen",
+                    'email': "jenni@drake.com",
+                    'profile__first_name': "Jennifer",
+                    'profile__last_name': "Drakennir",
+                    'profile__email': "",
+                },
+                'field': 'multiple',
+                'violations': {
+                    'en': "username, email address, first name, last name",
+                    'eo': "salutnomo, retpoŝta adreso, persona nomo, familia nomo",
+                },
+            },
+        ]
+
+        for test_data in test_config:
+            user = UserFactory(**test_data['user_data'])
+            if 'username' not in test_data['user_data']:
+                user.username = ""
+            with self.subTest(field=test_data['field']):
+                for v in [self.validator_dflt, self.validator_all]:
+                    with self.subTest(**self._get_spec(v)):
+                        with self.assertRaises(ValidationError) as cm:
+                            v("Jennidrake", user)
+                        with override_settings(LANGUAGE_CODE='en'):
+                            self.assertEqual(
+                                next(iter(cm.exception)),
+                                f"The password is too similar to the {test_data['violations']['en']}."
+                            )
+                        with override_settings(LANGUAGE_CODE='eo'):
+                            self.assertEqual(
+                                next(iter(cm.exception)),
+                                f"La pasvorto estas tro simila al la {test_data['violations']['eo']}."
+                            )
+                for v in [self.validator_exact, self.validator_none]:
+                    with self.subTest(**self._get_spec(v)):
+                        try:
+                            v("Jennidrake")
+                        except ValidationError as e:
+                            raise AssertionError(f"Unexpected {e!r}") from None
+
+    def test_extreme_validation(self):
+        user = UserFactory(invalid_email=True, profile__last_name="Dragons Here", profile__with_email=True)
+        test_config = [
+            {
+                'validator': self.validator_all,
+                # The "catch all" validator with similarity 0 is expected to reject all values.
+                'violations': {
+                    'en': "username, email address, first name, last name, public email",
+                    'eo': "salutnomo, retpoŝta adreso, persona nomo, familia nomo, publika retpoŝta adreso",
+                },
+            }, {
+                'validator': self.validator_exact,
+                # The "exact value" validator with similarity 1 is expected to reject only strictly equal values.
+                'violations': {
+                    'en': "last name",
+                    'eo': "familia nomo",
+                }
+            }
+        ]
+
+        for test_data in test_config:
+            with self.subTest(**self._get_spec(test_data['validator'])):
+                with self.assertRaises(ValidationError) as cm:
+                    test_data['validator']("ereh snogard", user)
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertEqual(
+                        next(iter(cm.exception)),
+                        f"The password is too similar to the {test_data['violations']['en']}."
+                    )
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertEqual(
+                        next(iter(cm.exception)),
+                        f"La pasvorto estas tro simila al la {test_data['violations']['eo']}."
+                    )
+
+    def test_non_validation(self):
+        # For profile attributes not inspected by the validators, no violation is expected.
+        user = UserFactory(
+            email="", profile__first_name="", profile__last_name="", profile__email="",
+            profile__description="Dragons here!", profile__gender=GenderFactory(name="DraGonS HeRe!"))
+        user.username = ""
+        with self.subTest(attributes=('description', 'gender')):
+            for v in self.validators:
+                for test_value in ["dragons here!", "!ereh snogard"]:
+                    with self.subTest(**self._get_spec(v), test_value=test_value):
+                        try:
+                            v(test_value, user)
+                        except ValidationError as e:
+                            raise AssertionError(f"Unexpected {e!r}") from None

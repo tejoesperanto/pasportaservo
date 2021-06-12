@@ -3551,16 +3551,16 @@ msgid "^search(?:/(?P<query>.+))?/$"
 msgstr "^esplori(?:/(?P<query>.+))?/$"
 
 #: hosting/validators.py
-#, python-brace-format
-msgid "Today is not CapsLock day. Please try with '{correct_value}'."
-msgstr "La CapsLock-tago ne estas hodiaŭ. Bv. provu “{correct_value}”."
+#, python-format
+msgid "Today is not CapsLock day. Please try with '%(correct_value)s'."
+msgstr "La CapsLock-tago ne estas hodiaŭ. Bv. provu “%(correct_value)s”."
 
 #: hosting/validators.py
-#, python-brace-format
+#, python-format
 msgid ""
 "It seems there are too many uppercase letters. Please try with "
-"'{correct_value}'."
-msgstr "Ŝajnas ke estas tro da majuskloj. Bv. provu “{correct_value}”."
+"'%(correct_value)s'."
+msgstr "Ŝajnas ke estas tro da majuskloj. Bv. provu “%(correct_value)s”."
 
 #: hosting/validators.py
 msgid "Digits are not allowed."
@@ -3585,9 +3585,12 @@ msgid "File type is not supported"
 msgstr "Dosiertipo ne akceptebla"
 
 #: hosting/validators.py
-#, python-brace-format
-msgid "Please keep filesize under {limit}. Current filesize {current}"
-msgstr "Bv. certigu ke dosiergrando estas sub {limit}. Nuna grando: {current}"
+#, python-format
+msgid ""
+"Please keep file size under %(limit)s. Current file size %(current_size)s."
+msgstr ""
+"Bv. certigu ke dosiergrando estas sub %(limit)s. Nuna grando: "
+"%(current_size)s."
 
 #: hosting/views/listing.py
 msgctxt "value::plural"
