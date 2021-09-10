@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load crispy_forms_tags i18n %}
 <form class="place-blocking-form form-inline {{ form_class }}" action="{% url 'place_block' place.pk %}" method="PUT"
       data-csrf="{{ csrf_token }}">
     <div class="form-group">
@@ -6,9 +6,7 @@
               aria-role="status" data-notification="{% trans "saved" %}"></span>&nbsp;
         {% trans "I am not available over here" %}
     </div>
-    {% include 'bootstrapform/field.html' with field=form.blocked_from classes=form.render_classes.blocked_from %}
-    {% include 'bootstrapform/field.html' with field=form.blocked_until classes=form.render_classes.blocked_until %}
-    <input type="hidden" id="id_dirty" name="dirty" value="">
+    {% crispy form %}
     <div class="blocking-tip help-block text-left">
         {% trans "Leave the corresponding field empty if the starting or the ending date is not known." %}
     </div>

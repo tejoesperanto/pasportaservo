@@ -2,6 +2,9 @@ from django import forms
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Div, Field
+
 from ..models import Phone
 from ..validators import client_side_validated
 
@@ -16,7 +19,11 @@ class PhoneForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if not hasattr(self, 'profile'):
             self.profile = self.instance.profile
+        self.helper = FormHelper(self)
+        self.helper[0:2].wrap_together(Div, css_class='row')
         self.fields['number'].widget.input_type = 'tel'
+        self.helper['number'].wrap(Field, wrapper_class='col-xxs-12 col-xs-7')
+        self.helper['type'].wrap(Field, wrapper_class='col-xxs-12 col-xs-5')
 
     def clean(self):
         """

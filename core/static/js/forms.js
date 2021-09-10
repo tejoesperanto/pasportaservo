@@ -235,8 +235,8 @@ $(function() {
     var updatePersonNamesExample = function() {
         var nameF = $('#id_first_name').val().trim(),
             nameL = $('#id_last_name').val().trim(),
-            labelFL = $('label:has(#id_names_inversed_0)'),
-            labelLF = $('label:has(#id_names_inversed_1)');
+            labelFL = $('label:has(#id_names_inversed_1)'),
+            labelLF = $('label:has(#id_names_inversed_2)');
         $.each(labelFL[0].childNodes, function() {
             if (this.nodeType == Node.TEXT_NODE && this.textContent.trim()) {
                 if (nameF && nameL)
@@ -261,11 +261,9 @@ $(function() {
 
     +function() {
         $('ul.chosen-choices').addClass('form-control');
-        $('.form-group .radio:has(.form-control-horizontal)')
-            .removeClass('radio').addClass('radio-inline').children('label').css('font-weight', "normal")
-            .each(function() {
-                $(this).data('blank-label', $(this).text().trim());
-            });
+        $('.form-group .radio-inline').each(function() {
+            $(this).data('blank-label', $(this).text().trim());
+        });
         updatePersonNamesExample();
     }();
 

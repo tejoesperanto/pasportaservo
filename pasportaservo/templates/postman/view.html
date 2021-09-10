@@ -1,5 +1,5 @@
 {% extends "postman/base.html" %}
-{% load i18n postman_tags bootstrap %}
+{% load i18n postman_tags crispy_forms_tags %}
 {% load compact from utils %}
 
 {% block content %}
@@ -74,9 +74,8 @@
                     <h2>{% trans "Reply" context "postman:title" %}</h2>
 
                     <form action="{% url 'postman:reply' reply_to_pk %}?next={{ next_url|urlencode }}" method="post">
-                        {% csrf_token %}
                         <div id="pm_reply">
-                            {{ form|bootstrap }}
+                            {% crispy form %}
                         </div>
                         <button class="btn btn-primary" type="submit">
                             <span class="fa fa-share" aria-hidden="true"></span>&nbsp;

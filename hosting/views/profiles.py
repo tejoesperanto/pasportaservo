@@ -256,6 +256,7 @@ class ProfileSettingsView(ProfileDetailView):
             read_only=(self.role > OWNER and self.role < ADMIN),
             prefix=ProfilePrivacyUpdateView.VISIBILITY_FORMSET_PREFIX)
         context['optinouts_form'] = PreferenceOptinsForm(instance=self.object.pref)
+        context['optinouts_form'].helper.disable_csrf = True
         return context
 
 
