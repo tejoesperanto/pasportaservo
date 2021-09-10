@@ -1,5 +1,5 @@
 {% extends 'account/settings.html' %}
-{% load i18n static bootstrap domain %}
+{% load i18n static crispy_forms_tags domain %}
 {% load next from utils %}
 {% load is_invalid clear_invalid from profile %}
 
@@ -126,7 +126,8 @@
                 &nbsp;<small><span class="label label-info" style="vertical-align: text-top">{% trans "Preview" context 'Title' %}</span></small>
             {% endif %}
         </h4>
-        <form id="privacy_form" action="{% url 'profile_privacy_update' profile.pk profile.autoslug %}" method="POST" data-csrf="{{ csrf_token }}">
+        <form id="privacy_form" action="{% url 'profile_privacy_update' profile.pk profile.autoslug %}" method="POST"
+              data-csrf="{% if not privacy_matrix.read_only %}{{ csrf_token }}{% endif %}">
             <div class="suggest-adjust-screen well well-sm" aria-hidden="true">
                 <p class="help-block with-icon turn-device"
                    style="min-height: 40px; background-image: url('{% get_static_prefix %}img/adjust-device{% if 'iPhone' in request.META.HTTP_USER_AGENT %}-i{% endif %}.png');"
@@ -149,7 +150,7 @@
                         <span class="fa fa-check" aria-hidden="true"></span>
                         <span class="notification">{% trans "saved" %}</span>
                     </span>
-                    {{ optinouts_form|bootstrap }}
+                    {% crispy optinouts_form %}
                     <a id="analytics_more_link" data-target="#analytics_more" data-toggle="collapse" style="cursor: help" class="requires-scripting">
                         {% trans "More&nbsp;information about the measurement technologies." %}
                     </a>

@@ -664,14 +664,15 @@ class Place(TrackingModel, TimeStampedModel):
         blank=True,
         max_length=255,
         validators=[validate_not_all_caps, validate_not_too_many_caps],
-        help_text=_("Name in the official language, not in Esperanto (e.g.: Rotterdam)."))
+        help_text=_("Name in the official language, in latin letters; "
+                    "not in Esperanto (e.g.:&nbsp;Rotterdam)."))
     closest_city = models.CharField(
         _("closest big city"),
         blank=True,
         max_length=255,
         validators=[validate_not_all_caps, validate_not_too_many_caps],
         help_text=_("If your place is in a town near a bigger city. "
-                    "Name in the official language, not in Esperanto."))
+                    "Name in the official language, in latin letters; not in Esperanto."))
     postcode = models.CharField(
         _("postcode"),
         blank=True,
@@ -695,13 +696,13 @@ class Place(TrackingModel, TimeStampedModel):
         _("longitude"),
         null=True, blank=True)
     max_guest = models.PositiveSmallIntegerField(
-        _("maximum number of guest"),
+        _("maximum number of guests"),
         null=True, blank=True)
     max_night = models.PositiveSmallIntegerField(
-        _("maximum number of night"),
+        _("maximum number of nights"),
         null=True, blank=True)
     contact_before = models.PositiveSmallIntegerField(
-        _("contact before"),
+        _("contact this number of days in advance"),
         null=True, blank=True,
         help_text=_("Number of days before people should contact host."))
     description = models.TextField(
@@ -1169,7 +1170,8 @@ class Whereabouts(models.Model):
         _("name"),
         blank=False,
         max_length=255,
-        help_text=_("Name in the official language, not in Esperanto (e.g.: Rotterdam)."))
+        help_text=_("Name in the official language, in latin letters; "
+                    "not in Esperanto (e.g.:&nbsp;Rotterdam)."))
     state = models.CharField(
         _("State / Province"),
         blank=True,

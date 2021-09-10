@@ -1,0 +1,62 @@
+{% load crispy_forms_field variable %}
+{% load compact from utils %}
+
+{% if field.is_hidden %}
+    {{ field }}
+{% else %}
+    {% asvar field_is_checkbox trimmed %}
+        {% if field|is_checkbox %} True {% endif %}
+    {% endasvar %}
+    {% if field_is_checkbox %}
+        <div class="form-group">
+        {% if label_class %}
+            <div class="controls {% for offset in bootstrap_checkbox_offsets %}{{ offset }} {% endfor %}{{ field_class }}">
+        {% endif %}
+    {% endif %}
+    <{% if tag %}{{ tag }}{% else %}div{% endif %} id="{{ field.auto_id }}_form_element"
+     class="{% filter compact %}
+                {% if not field_is_checkbox %} form-group {% else %} checkbox {% endif %}
+                {% if wrapper_class %} {{ wrapper_class }} {% endif %}
+                {% if form_show_errors %}{% if field.errors %} has-error {% endif %}{% endif %}
+                {% if field.css_classes %} {{ field.css_classes }} {% endif %}
+            {% endfilter %}">
+        {% if field.label and not field_is_checkbox and form_show_labels %}
+            <label for="{{ field.id_for_label }}" class="control-label {{ label_class }}{% if field.field.required %} requiredField{% endif %}">
+                {{ field.label|safe }}
+            </label>
+        {% endif %}
+
+        {% delvar field_is_checkboxselect_multiple %}
+        {% if field|is_checkboxselectmultiple %}
+            {% asvar field_is_checkboxselect_multiple %}True{% endasvar %}
+            {% include 'bootstrap3/layout/checkboxselectmultiple.html' %}
+        {% endif %}
+
+        {% delvar field_is_radioselect %}
+        {% if field|is_radioselect %}
+            {% asvar field_is_radioselect %}True{% endasvar %}
+            {% include 'bootstrap3/layout/radioselect.html' %}
+        {% endif %}
+
+        {% if not field_is_checkboxselect_multiple and not field_is_radioselect %}
+            {% if field_is_checkbox and form_show_labels %}
+                <label for="{{ field.id_for_label }}" class="{% if field.field.required %}requiredField{% endif %}">
+                    {% crispy_field field %}
+                    {{ field.label|safe }}
+                </label>
+                {% include 'bootstrap3/layout/help_text_and_errors.html' %}
+            {% else %}
+                <div class="controls {{ field_class }}">
+                    {% crispy_field field %}
+                    {% include 'bootstrap3/layout/help_text_and_errors.html' %}
+                </div>
+            {% endif %}
+        {% endif %}
+    </{% if tag %}{{ tag }}{% else %}div{% endif %}>
+    {% if field_is_checkbox %}
+        {% if label_class %}
+            </div>
+        {% endif %}
+        </div>
+    {% endif %}
+{% endif %}

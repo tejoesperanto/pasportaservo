@@ -660,9 +660,6 @@ header:not(.hero) #subtitle {
     width: 100%;
     max-width: 140px;
 }
-.owner .register {
-    margin-top: 1em;
-}
 #map:not([role="main"]) {
     background: url('/static/img/maps/map_loading_250.gif') no-repeat center/50% black;
 }
@@ -1116,9 +1113,6 @@ footer {
 }
 .base-form h4 {
     margin-top: 0;
-}
-.register label, .login label {
-    display: none;
 }
 .register .form-group:last-of-type:not(.has-error) {
     position: absolute;

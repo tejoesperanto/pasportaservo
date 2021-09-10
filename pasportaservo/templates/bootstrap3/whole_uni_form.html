@@ -1,0 +1,11 @@
+{% if form_tag_force %}
+    <form {{ flat_attrs|safe }} method="{{ form_method }}" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+{% endif %}
+        {% if form_method|upper == 'POST' and not disable_csrf %}
+            {% csrf_token %}
+        {% endif %}
+        {% include 'bootstrap3/display_form.html' %}
+        {% include 'bootstrap3/inputs.html' %}
+{% if form_tag_force %}
+    </form>
+{% endif %}

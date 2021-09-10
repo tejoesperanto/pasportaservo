@@ -1,5 +1,10 @@
 {% extends 'postman/base.html' %}
-{% load i18n static bootstrap expression profile privacy %}
+{% load i18n static crispy_forms_tags expression profile privacy %}
+
+{% block extra_js %}
+    <script src="{% static 'js/forms.js' %}"></script>
+    <script src="{% static 'js/forms-validation.eo.js' %}"></script>
+{% endblock extra_js %}
 
 {% block extra_head %}
     {{ block.super }}
@@ -63,9 +68,8 @@
         {% endif %}
 
         <form action="{% if next_url %}?next={{ next_url|urlencode }}{% endif %}" method="post">
-            {% csrf_token %}
             {% block pm_write_recipient %}{% endblock %}
-            {{ form|bootstrap }}
+            {% crispy form %}
             <button type="submit" class="btn btn-primary">
                 <span class="fa fa-share" aria-hidden="true"></span>&nbsp;
                 {% trans "Send" context "postman:action" %}

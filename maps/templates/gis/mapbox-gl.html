@@ -2,6 +2,13 @@
 
 <!-- Inline styling for the map container. Note that only 1 map per page is possible. -->
 <style>
+    .map-widget {
+        {% if not admin_site %}
+            border: solid 1px #e3e3e3;
+            border-radius: 3px;
+            padding: 1px;
+        {% endif %}
+    }
     #map {
         text-align: initial;
         height: 400px;
@@ -20,7 +27,7 @@
     {% if not debug %}#{{ id }} { display: none; } {% endif %}
 </style>
 
-<div id="map"></div>
+<div class="map-widget"><div id="map"></div></div>
 <noscript>
     <style>#map { display: none; }</style>
     <br />

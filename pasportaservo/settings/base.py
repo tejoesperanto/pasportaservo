@@ -61,6 +61,7 @@ INSTALLED_APPS = (
     'django.contrib.gis',
 
     'compressor',
+    'crispy_forms',
     'django_extensions',
     'django_countries',
     'djangocodemirror',
@@ -276,6 +277,8 @@ DEFAULT_AVATAR_URL = "mm"
 EL_PAGINATION_PAGE_LABEL = "p"
 EL_PAGINATION_PAGE_OUT_OF_RANGE_404 = True
 EL_PAGINATION_ORPHANS = 5
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 def user_first_name(user):
     try:

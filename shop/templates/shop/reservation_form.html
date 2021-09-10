@@ -1,5 +1,6 @@
-{% extends 'core/base_form.html' %}
-{% load i18n static bootstrap %}
+{% extends 'core/base_crispy_form.html' %}
+{% load i18n static %}
+{% load crispy_forms_filters %}
 {% load is_invalid from profile %}
 
 {% block extra_js %}
@@ -44,10 +45,10 @@
 
     <hr />
 
-    {{ form.discount|bootstrap }}
+    {{ form.discount|as_crispy_field }}
 
     {% if form.in_book.initial %}
-        {{ form.in_book|bootstrap }}
+        {{ form.in_book|as_crispy_field }}
     {% endif %}
 {% endblock %}
 
@@ -117,7 +118,7 @@
 
 {% block form_after %}
     <aside class="col-xs-12 text-center">
-        <p class="text-info">
+        <p class="text-success">
             {% trans "Reserving the book helps us to print the right quantity." %}
             {% trans "Buying the book really helps the Pasporta Servo project." %}
         </p>

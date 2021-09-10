@@ -118,7 +118,7 @@ $(document).ready(function() {
                .find('#id_site_analytics_consent')
                .closest('.form-group')
                .find('.help-block')
-               .append(this);
+               .append(" ", this);
     });
 
     window.updateVisibilitySetup = function($this) {

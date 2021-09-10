@@ -1,0 +1,17 @@
+{% load crispy_forms_utils %}
+
+{# Form media is included externally (in page head). #}
+
+{% if form_show_errors %}
+    {% include 'bootstrap3/errors.html' %}
+{% endif %}
+
+{% if form.form_html %}
+    {{ form.form_html }}
+{% else %}
+    {% specialspaceless %}
+        {% for field in form %}
+            {% include field_template %}
+        {% endfor %}
+    {% endspecialspaceless %}
+{% endif %}

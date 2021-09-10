@@ -15,6 +15,8 @@ from django.template.loader import get_template
 from django.urls import reverse
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 
+from crispy_forms.helper import FormHelper
+
 from hosting.models import Profile
 from hosting.utils import value_without_invalid_marker
 from links.utils import create_unique_url
@@ -50,7 +52,6 @@ class UserRegistrationForm(UsernameFormMixin, PasswordFormMixin, SystemEmailForm
         self.fields['email'].required = True
         for fieldname in ['username', 'password1', 'password2', 'email']:
             self.fields[fieldname].help_text = None
-            self.fields[fieldname].widget.attrs['placeholder'] = self.fields[fieldname].label
 
     def clean_realm(self):
         """
@@ -101,6 +102,9 @@ class UserAuthenticationForm(AuthenticationForm):
             "Note that both fields are case-sensitive "
             "('aBc' is different from 'abc')."
         )
+        self.helper = FormHelper(self)
+        # The form errors should be rendered in small font.
+        self.helper.form_error_class = 'small'
 
     def confirm_login_allowed(self, user):
         """

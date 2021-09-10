@@ -4,6 +4,9 @@ from django import forms
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
+from crispy_forms.bootstrap import InlineRadios
+from crispy_forms.helper import FormHelper
+
 from core.models import SiteConfiguration
 
 from ..models import Preferences, Profile
@@ -28,8 +31,7 @@ class ProfileForm(forms.ModelForm):
         ]
         widgets = {
             'names_inversed': forms.RadioSelect(choices=((False, _("First, then Last")),
-                                                         (True, _("Last, then First"))),
-                                                attrs={'class': 'form-control-horizontal'}),
+                                                         (True, _("Last, then First"))),),
             'avatar': ClearableWithPreviewImageInput,
         }
 
@@ -40,9 +42,11 @@ class ProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         config = SiteConfiguration.get_solo()
+        self.helper = FormHelper(self)
         self.fields['first_name'].widget.attrs['inputmode'] = 'latin-name'
         self.fields['last_name'].widget.attrs['inputmode'] = 'latin-name'
         self.fields['names_inversed'].label = _("Names ordering")
+        self.helper['names_inversed'].wrap(InlineRadios)
 
         field_bd = self.fields['birth_date']
         if self.instance.has_places_for_hosting or self.instance.has_places_for_meeting:
@@ -190,3 +194,4 @@ class PreferenceOptinsForm(forms.ModelForm):
             attrs.update(widget_settings)
             attrs['class'] = attrs.get('class', '') + widget_classes
             attrs['data-initial'] = self[field].value()
+        self.helper = FormHelper(self)

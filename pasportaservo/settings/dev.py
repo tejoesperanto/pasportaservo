@@ -29,6 +29,8 @@ logging.getLogger('PasportaServo.geo').setLevel(logging.DEBUG)
 
 SASS_PROCESSOR_ROOT = path.join(BASE_DIR, 'core', 'static')
 
+CRISPY_FAIL_SILENTLY = False
+
 INSTALLED_APPS += (
     'debug_toolbar',
 )

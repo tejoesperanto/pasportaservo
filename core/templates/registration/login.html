@@ -1,27 +1,11 @@
-{% extends 'core/base_form.html' %}
-{% load i18n bootstrap %}
+{% extends 'core/base_crispy_form.html' %}
+{% load i18n %}
 
 {% block head_title %}{% trans "Log in" context "Imperative" %} &amp; {% trans "Find accommodation" %}{% endblock %}
 
 {% block form_title %}{% trans "Log In" context "Title" %}{% endblock %}
 {% block form_tip %}{% trans "Log in with your username and password" %}{% endblock %}
 {% block form_block_class %} login{% endblock %}
-
-{% block fields %}
-    {% if form.non_field_errors %}
-        <div class="alert alert-danger small">
-            {% for non_field_error in form.non_field_errors %}
-                 {{ non_field_error|safe }}
-            {% endfor %}
-        </div>
-    {% endif %}
-    {% for field in form.hidden_fields %}
-        {{ field }}
-    {% endfor %}
-    {% for field in form.visible_fields %}
-        {{ field|bootstrap }}
-    {% endfor %}
-{% endblock %}
 
 {% block fields_after %}
     <p class="pull-left text-left keep-margin">

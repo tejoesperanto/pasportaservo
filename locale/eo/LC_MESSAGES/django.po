@@ -719,7 +719,8 @@ msgstr "Tutmonda Esperantista Junulara Organizo"
 msgid "Back to top of page"
 msgstr "Reen al paĝo-supro"
 
-#: core/templates/core/base_form.html hosting/templates/hosting/model_form.html
+#: core/templates/core/base_crispy_form.html core/templates/core/base_form.html
+#: hosting/templates/hosting/model_form.html
 #: hosting/templates/hosting/snippets/confirmed.html
 msgid "Confirm"
 msgstr "Konfirmi"
@@ -1946,8 +1947,12 @@ msgid "city"
 msgstr "urbo"
 
 #: hosting/models.py
-msgid "Name in the official language, not in Esperanto (e.g.: Rotterdam)."
-msgstr "Nomo en la oficiala lingvo, ne en Esperanto (ekz: Rotterdam)."
+msgid ""
+"Name in the official language, in latin letters; not in Esperanto (e.g.:"
+"&nbsp;Rotterdam)."
+msgstr ""
+"Nomo en la oficiala lingvo, latinlitere; ne en Esperanto (ekz:&nbsp;"
+"Rotterdam)."
 
 #: hosting/models.py
 msgid "closest big city"
@@ -1956,10 +1961,10 @@ msgstr "plej proksima granda urbo"
 #: hosting/models.py
 msgid ""
 "If your place is in a town near a bigger city. Name in the official "
-"language, not in Esperanto."
+"language, in latin letters; not in Esperanto."
 msgstr ""
 "Se via loĝejo estas en urbeto proksime al granda urbo. Nomo en la oficiala "
-"lingvo, ne en Esperanto."
+"lingvo, latinlitere; ne en Esperanto."
 
 #: hosting/models.py
 msgid "postcode"
@@ -1982,16 +1987,16 @@ msgid "longitude"
 msgstr "longitudo"
 
 #: hosting/models.py
-msgid "maximum number of guest"
+msgid "maximum number of guests"
 msgstr "maksimuma nombro de gastoj"
 
 #: hosting/models.py
-msgid "maximum number of night"
+msgid "maximum number of nights"
 msgstr "maksimuma nombro de noktoj"
 
 #: hosting/models.py
-msgid "contact before"
-msgstr "kontakti antaŭ"
+msgid "contact this number of days in advance"
+msgstr "kontakti tiom da tagoj anticipe"
 
 #: hosting/models.py
 msgid "Number of days before people should contact host."

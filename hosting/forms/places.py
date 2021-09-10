@@ -10,6 +10,9 @@ from django.db.models.fields import BLANK_CHOICE_DASH
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
+from crispy_forms.bootstrap import PrependedText
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Div, Field
 from django_countries.fields import Country
 
 from core.auth import SUPERVISOR
@@ -105,7 +108,25 @@ class PlaceForm(forms.ModelForm):
                 self.fields['state_province'].label = SUBREGION_TYPES[region_type].capitalize()
                 self.fields['state_province'].localised_label = True
 
+        self.helper = FormHelper(self)
+        # Combine the postcode and the city fields together in one line.
+        postcode_field_index = self._meta.fields.index('postcode')
+        self.helper[postcode_field_index:postcode_field_index+2].wrap_together(Div, css_class='row')
+        self.helper['postcode'].wrap(Field, wrapper_class='col-xxs-12 col-xs-4')
+        self.helper['city'].wrap(Field, wrapper_class='col-xxs-12 col-xs-8')
+        # Bigger input area for the address by default.
         self.fields['address'].widget.attrs['rows'] = 2
+        # Combine the count fields together in one line (index is shifted because of postcode+city layout change).
+        max_guests_field_index = self._meta.fields.index('max_guest')
+        self.helper[max_guests_field_index-1:max_guests_field_index+2].wrap_together(Div, css_class='row')
+        for field, field_icon in {'max_guest': 'fa-street-view', 'max_night': 'fa-moon-o'}.items():
+            self.helper[field].wrap(
+                PrependedText,
+                f'<span class="fa {field_icon}"></span>',
+                wrapper_class='col-xxs-12 col-xs-6 col-sm-4',
+                css_class='text-center')
+        self.helper['contact_before'].wrap(Field, wrapper_class='col-xs-12 col-sm-4', css_class='text-center')
+        # Placeholder for the multiple-select field of conditions.
         self.fields['conditions'].widget.attrs['data-placeholder'] = _("Choose your conditions...")
 
     def clean_state_province(self):
@@ -436,6 +457,9 @@ class UserAuthorizeForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['user'].widget.attrs['placeholder'] = _("username")
         self.fields['user'].widget.attrs['inputmode'] = 'verbatim'
+        self.helper = FormHelper(self)
+        # The form errors should be rendered in smaller box and font.
+        self.helper.form_error_class = 'alert-small'
 
     def clean(self):
         cleaned_data = super().clean()
