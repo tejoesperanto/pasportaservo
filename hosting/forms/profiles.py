@@ -4,7 +4,6 @@ from django import forms
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
-from crispy_forms.bootstrap import InlineRadios
 from crispy_forms.helper import FormHelper
 
 from core.models import SiteConfiguration
@@ -12,7 +11,7 @@ from core.models import SiteConfiguration
 from ..models import Preferences, Profile
 from ..utils import value_without_invalid_marker
 from ..validators import TooNearPastValidator, client_side_validated
-from ..widgets import ClearableWithPreviewImageInput
+from ..widgets import ClearableWithPreviewImageInput, InlineRadios
 
 
 @client_side_validated
@@ -46,7 +45,7 @@ class ProfileForm(forms.ModelForm):
         self.fields['first_name'].widget.attrs['inputmode'] = 'latin-name'
         self.fields['last_name'].widget.attrs['inputmode'] = 'latin-name'
         self.fields['names_inversed'].label = _("Names ordering")
-        self.helper['names_inversed'].wrap(InlineRadios)
+        self.helper['names_inversed'].wrap(InlineRadios, radio_label_class='person-full-name')
 
         field_bd = self.fields['birth_date']
         if self.instance.has_places_for_hosting or self.instance.has_places_for_meeting:
