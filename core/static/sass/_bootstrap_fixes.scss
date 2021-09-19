@@ -54,6 +54,13 @@ a:not([href]) {
 /* Bootstrap hack for tooltip */
 .btn.disabled { pointer-events: auto; }
 
+.radio-inline {
+    margin-right: 10px;
+}
+.radio-inline + .radio-inline {
+    margin-left: 0;
+}
+
 .table-like-grid > .row {
     margin-left: auto;
     margin-right: auto;

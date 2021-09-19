@@ -7,7 +7,8 @@
         {% if not inline_class %}
             <div class="radio">
         {% endif %}
-                <label for="id_{{ field.html_name }}_{{ forloop.counter }}" class="{% if inline_class %}radio-{{ inline_class }}{% endif %}">
+                <label for="id_{{ field.html_name }}_{{ forloop.counter }}"
+                       class="{% if inline_class %}radio-{{ inline_class }} {% endif %}{{ radio_label_class }}">
                     <input type="radio" name="{{ field.html_name }}" id="id_{{ field.html_name }}_{{ forloop.counter }}"
                            value="{{ choice.data.value|stringformat:'s' }}"
                            {% if choice.data.selected %} checked {% endif %}

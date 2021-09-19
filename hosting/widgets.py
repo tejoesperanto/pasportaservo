@@ -2,6 +2,9 @@ from django.forms import widgets as form_widgets
 from django.template.loader import get_template
 from django.utils.safestring import mark_safe
 
+from crispy_forms.layout import Field as CrispyField
+from crispy_forms.utils import TEMPLATE_PACK
+
 
 class ClearableWithPreviewImageInput(form_widgets.ClearableFileInput):
     preview_template_name = 'hosting/snippets/widget-image_file_preview.html'
@@ -36,3 +39,23 @@ class TextWithDatalistInput(form_widgets.TextInput):
         context['widget']['choices'] = self.choices
         context['widget']['attrs']['list'] = context['widget']['attrs']['id'] + '_options'
         return context
+
+
+class InlineRadios(CrispyField):
+    """
+    Form Layout object for rendering radio buttons inline.
+    """
+    template = '%s/layout/radioselect_inline.html'
+
+    def __init__(self, *args, **kwargs):
+        self.radio_label_class = kwargs.pop('radio_label_class', None)
+        super().__init__(*args, **kwargs)
+
+    def render(self, form, form_style, context, template_pack=TEMPLATE_PACK, **kwargs):
+        extra_context = {'inline_class': 'inline'}
+        if self.radio_label_class:
+            extra_context['radio_label_class'] = self.radio_label_class
+        return super().render(
+            form, form_style, context, template_pack=template_pack,
+            extra_context=extra_context
+        )
