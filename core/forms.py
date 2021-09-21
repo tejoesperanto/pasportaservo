@@ -52,6 +52,9 @@ class UserRegistrationForm(UsernameFormMixin, PasswordFormMixin, SystemEmailForm
         self.fields['email'].required = True
         for fieldname in ['username', 'password1', 'password2', 'email']:
             self.fields[fieldname].help_text = None
+        self.fields['username'].widget.attrs['autocomplete'] = 'username'
+        self.fields['password1'].widget.attrs['autocomplete'] = 'new-password'
+        self.fields['password2'].widget.attrs['autocomplete'] = 'new-password'
 
     def clean_realm(self):
         """
@@ -105,6 +108,8 @@ class UserAuthenticationForm(AuthenticationForm):
         self.helper = FormHelper(self)
         # The form errors should be rendered in small font.
         self.helper.form_error_class = 'small'
+        self.fields['username'].widget.attrs['autocomplete'] = 'username'
+        self.fields['password'].widget.attrs['autocomplete'] = 'current-password'
 
     def confirm_login_allowed(self, user):
         """
@@ -262,6 +267,11 @@ class SystemPasswordResetRequestForm(PasswordResetForm):
 class SystemPasswordResetForm(PasswordFormMixin, SetPasswordForm):
     analyze_password_field = 'new_password1'
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['new_password1'].widget.attrs['autocomplete'] = 'new-password'
+        self.fields['new_password2'].widget.attrs['autocomplete'] = 'new-password'
+
     def save(self, commit=True):
         super().save(commit)
         if commit:
@@ -272,6 +282,12 @@ class SystemPasswordResetForm(PasswordFormMixin, SetPasswordForm):
 
 class SystemPasswordChangeForm(PasswordFormMixin, PasswordChangeForm):
     analyze_password_field = 'new_password1'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['old_password'].widget.attrs['autocomplete'] = 'current-password'
+        self.fields['new_password1'].widget.attrs['autocomplete'] = 'new-password'
+        self.fields['new_password2'].widget.attrs['autocomplete'] = 'new-password'
 
     def save(self, **kwargs):
         return super().save(**kwargs)
