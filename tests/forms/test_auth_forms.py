@@ -75,6 +75,17 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
                 else:
                     self.assertFalse(form_empty.fields[field].required)
 
+        # Verify that fields are correctly marked for credential managers.
+        field_markups = {
+            'password1': "new-password",
+            'password2': "new-password",
+            'username': "username",
+        }
+        for field, markup in field_markups.items():
+            with self.subTest(field=field):
+                self.assertIn('autocomplete', form_empty.fields[field].widget.attrs)
+                self.assertEqual(form_empty.fields[field].widget.attrs['autocomplete'], markup)
+
         # Verify that the form's save method is protected in templates.
         self.assertTrue(hasattr(form_empty.save, 'alters_data'))
 
@@ -145,10 +156,8 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
                 })
                 self.assertFalse(form.is_valid())
                 self.assertIn('password1', form.errors)
-                self.assertEqual(
-                    form.errors['password1'],
-                    ["The password is too similar to the username."]
-                )
+                self.assertStartsWith(form.errors['password1'][0], "The password is too similar to the ")
+                self.assertIn("username", form.errors['password1'][0])
                 mock_pwd_check.assert_not_called()
 
     @patch('core.mixins.is_password_compromised')
@@ -166,10 +175,8 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
                 })
                 self.assertFalse(form.is_valid())
                 self.assertIn('password1', form.errors)
-                self.assertEqual(
-                    form.errors['password1'],
-                    ["The password is too similar to the email address."]
-                )
+                self.assertStartsWith(form.errors['password1'][0], "The password is too similar to the ")
+                self.assertIn("email address", form.errors['password1'][0])
                 mock_pwd_check.assert_not_called()
 
     def test_weak_password(self):
@@ -295,6 +302,11 @@ class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
         ]
         # Verify that the expected fields are part of the form.
         self.assertEqual(set(expected_fields), set(form_empty.fields))
+        # Verify that fields are correctly marked for credential managers.
+        for field, markup in {'password': "current-password", 'username': "username"}.items():
+            with self.subTest(field=field):
+                self.assertIn('autocomplete', form_empty.fields[field].widget.attrs)
+                self.assertEqual(form_empty.fields[field].widget.attrs['autocomplete'], markup)
 
     def test_blank_data(self):
         # Empty form is expected to be invalid.
@@ -1046,6 +1058,15 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
         form_empty = self.form_class(self.user)
         # Verify that the expected fields are part of the form.
         self.assertEqual(set(self.expected_fields), set(form_empty.fields))
+        # Verify that fields are correctly marked for credential managers.
+        field_markups = {'new_password1': "new-password", 'new_password2': "new-password"}
+        if 'old_password' in self.expected_fields:
+            field_markups['old_password'] = "current-password"
+        for field, markup in field_markups.items():
+            with self.subTest(field=field):
+                self.assertIn('autocomplete', form_empty.fields[field].widget.attrs)
+                self.assertEqual(form_empty.fields[field].widget.attrs['autocomplete'], markup)
+
         # Verify that the form's save method is protected in templates.
         self.assertTrue(hasattr(form_empty.save, 'alters_data'))
 

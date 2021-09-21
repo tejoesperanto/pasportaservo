@@ -152,6 +152,18 @@ class PlaceFormTestingBase:
             with self.subTest(field=field):
                 self.assertTrue(form_empty.fields[field].required)
 
+        # Verify that fields are correctly marked for browser's autofill.
+        field_markups = {
+            'state_province': "region",
+            'postcode': "postal-code",
+            'city': "locality",
+            'address': "street-address",
+        }
+        for field, markup in field_markups.items():
+            with self.subTest(field=field):
+                self.assertIn('autocomplete', form_empty.fields[field].widget.attrs)
+                self.assertEqual(form_empty.fields[field].widget.attrs['autocomplete'], markup)
+
         # Verify that the form's save method is protected in templates.
         self.assertTrue(
             hasattr(form_empty.save, 'alters_data')

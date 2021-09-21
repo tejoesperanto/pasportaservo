@@ -109,13 +109,17 @@ class PlaceForm(forms.ModelForm):
                 self.fields['state_province'].localised_label = True
 
         self.helper = FormHelper(self)
+        self.fields['state_province'].widget.attrs['autocomplete'] = 'region'
         # Combine the postcode and the city fields together in one line.
         postcode_field_index = self._meta.fields.index('postcode')
         self.helper[postcode_field_index:postcode_field_index+2].wrap_together(Div, css_class='row')
         self.helper['postcode'].wrap(Field, wrapper_class='col-xxs-12 col-xs-4')
         self.helper['city'].wrap(Field, wrapper_class='col-xxs-12 col-xs-8')
+        self.fields['postcode'].widget.attrs['autocomplete'] = 'postal-code'
+        self.fields['city'].widget.attrs['autocomplete'] = 'locality'
         # Bigger input area for the address by default.
         self.fields['address'].widget.attrs['rows'] = 2
+        self.fields['address'].widget.attrs['autocomplete'] = 'street-address'
         # Combine the count fields together in one line (index is shifted because of postcode+city layout change).
         max_guests_field_index = self._meta.fields.index('max_guest')
         self.helper[max_guests_field_index-1:max_guests_field_index+2].wrap_together(Div, css_class='row')
