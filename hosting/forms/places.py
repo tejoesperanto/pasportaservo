@@ -458,9 +458,14 @@ class UserAuthorizeForm(forms.Form):
         widget=forms.widgets.HiddenInput)
 
     def __init__(self, *args, **kwargs):
+        unauthorize = kwargs.pop('unauthorize', False)
         super().__init__(*args, **kwargs)
-        self.fields['user'].widget.attrs['placeholder'] = _("username")
-        self.fields['user'].widget.attrs['inputmode'] = 'verbatim'
+        if unauthorize:
+            self.fields['user'].widget = forms.widgets.HiddenInput()
+            self.fields['remove'].initial = True
+        else:
+            self.fields['user'].widget.attrs['placeholder'] = _("username")
+            self.fields['user'].widget.attrs['inputmode'] = 'verbatim'
         self.helper = FormHelper(self)
         # The form errors should be rendered in smaller box and font.
         self.helper.form_error_class = 'alert-small'
@@ -472,16 +477,10 @@ class UserAuthorizeForm(forms.Form):
         user_qualifier = cleaned_data['user']
         if not cleaned_data.get('remove', False):
             try:
-                User.objects.get(username=user_qualifier).profile
+                user_id = User.objects.values_list('pk', flat=True).get(username=user_qualifier)
+                Profile.all_objects.values('pk').get(user=user_id)
             except User.DoesNotExist:
                 raise forms.ValidationError(_("User does not exist"))
             except Profile.DoesNotExist:
                 raise forms.ValidationError(_("User has not set up a profile"))
         return cleaned_data
-
-
-class UserAuthorizedOnceForm(UserAuthorizeForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['user'].widget = forms.widgets.HiddenInput()
-        self.fields['remove'].initial = True
