@@ -1,5 +1,5 @@
 from collections import namedtuple
-from datetime import datetime
+from datetime import date, datetime
 from itertools import chain, islice
 from unittest.mock import patch
 
@@ -17,7 +17,10 @@ from core.models import SiteConfiguration
 from hosting.countries import (
     COUNTRIES_DATA, SUBREGION_TYPES, countries_with_mandatory_region,
 )
-from hosting.forms.places import PlaceCreateForm, PlaceForm, PlaceLocationForm
+from hosting.forms.places import (
+    PlaceBlockForm, PlaceBlockQuickForm,
+    PlaceCreateForm, PlaceForm, PlaceLocationForm,
+)
 from hosting.models import (
     Condition, CountryRegion, LocationConfidence,
     LocationType, Place, Whereabouts,
@@ -402,7 +405,7 @@ class PlaceFormTestingBase:
 
     def test_invalid_address_when_hosting(self):
         # Form data with missing nearest city name or address, when user is hosting, is expected to be invalid.
-        for field_name in ('closest_city', 'city', 'address'):
+        for field_name in 'closest_city', 'city', 'address':
             with self.subTest(offer='available', field=field_name):
                 form = self._init_form(
                     {
@@ -510,7 +513,7 @@ class PlaceFormTestingBase:
         number_coded_cities = Whereabouts.objects.count()
 
         for field_name in self.location_fields:
-            for field_empty in (False, True):
+            for field_empty in False, True:
                 data = form_data.copy()
                 if field_name == 'country':
                     # Ensure that the value of the country field is indeed changed.
@@ -586,7 +589,7 @@ class PlaceFormTestingBase:
         number_coded_cities = Whereabouts.objects.count()
 
         for field_name in self.location_fields:
-            for field_empty in (False, True):
+            for field_empty in False, True:
                 data = form_data.copy()
                 if field_name == 'country':
                     # Ensure that the value of the country field is indeed changed.
@@ -637,7 +640,7 @@ class PlaceFormTestingBase:
         # But we do care whether the geocoding of the city is done or not.
         mock_geocode_city.side_effect = AssertionError("geocode-city was unexpectedly called")
 
-        for region in ("mandatory", "optional", "unrestricted"):
+        for region in "mandatory", "optional", "unrestricted":
             if region == "mandatory":
                 countries = set(countries_with_mandatory_region())
             elif region == "optional":
@@ -656,7 +659,7 @@ class PlaceFormTestingBase:
             else:
                 form_data['state_province'] = self._fake_value('state_province', form_data['country'])
 
-            for field_empty in (False, True):
+            for field_empty in False, True:
                 form_data['city'] = whereabouts.name.lower() if not field_empty else ""
                 with self.subTest(state_province=region, city_has_value='✓ ' if not field_empty else '✗ '):
                     self.simple_place.refresh_from_db()
@@ -678,8 +681,8 @@ class PlaceFormTestingBase:
         number_coded_cities = Whereabouts.objects.count()
         GeoResult = namedtuple('GeoResult', 'xy, bbox')
 
-        for region in ("mandatory", "optional", "unrestricted"):
-            for field_empty in (False, True):
+        for region in "mandatory", "optional", "unrestricted":
+            for field_empty in False, True:
                 self.simple_place.refresh_from_db()
                 form = self._init_form(instance=self.simple_place, owner=self.complete_place.profile)
                 form_data = form.initial.copy()
@@ -935,7 +938,7 @@ class PlaceFormTests(PlaceFormTestingBase, AdditionalAsserts, WebTest):
         for field_name in ('short_description', 'description',
                            'max_guest', 'max_night', 'contact_before', 'sporadic_presence',
                            'tour_guide', 'have_a_drink', 'conditions'):
-            for field_empty in (False, True):
+            for field_empty in False, True:
                 data = form_data.copy()
                 if not field_empty:
                     data[field_name] = self._fake_value(field_name, prev_value=data[field_name])
@@ -1052,7 +1055,7 @@ class PlaceLocationFormTests(WebTest):
         self.assertTrue(form.is_valid(), msg=repr(form.errors))
 
     def test_save_blank(self):
-        for role in (OWNER, SUPERVISOR):
+        for role in OWNER, SUPERVISOR:
             with self.subTest(view_role=role):
                 self.place.refresh_from_db()
                 self.place.location_confidence = LocationConfidence.LT_25KM
@@ -1106,3 +1109,219 @@ class PlaceLocationFormTests(WebTest):
     def test_form_submit_as_supervisor(self):
         supervisor = UserFactory(is_superuser=True, profile=None)
         self.test_form_submit(supervisor, LocationConfidence.CONFIRMED)
+
+
+@tag('forms', 'forms-place', 'place')
+@override_settings(LANGUAGE_CODE='en')
+class PlaceBlockFormTests(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.expected_fields = ['blocked_from', 'blocked_until']
+        cls.place = PlaceFactory()
+        cls.faker = Faker()
+
+    def test_init(self):
+        expected_fields = {
+            PlaceBlockForm: self.expected_fields,
+            PlaceBlockQuickForm: self.expected_fields + ['dirty'],
+        }
+        for form_class in expected_fields.keys():
+            with self.subTest(form_class=form_class):
+                form_empty = form_class()
+                # Verify that the expected fields are part of the form.
+                self.assertEqual(set(expected_fields[form_class]), set(form_empty.fields))
+                # Verify that the form's save method is protected in templates.
+                self.assertTrue(
+                    hasattr(form_empty.save, 'alters_data')
+                    or hasattr(form_empty.save, 'do_not_call_in_templates')
+                )
+
+    def test_labels(self):
+        # The quick form is expected to have custom field labels.
+        form = PlaceBlockQuickForm()
+        self.assertEqual(form.fields['blocked_from'].label, "commencing on")
+        self.assertEqual(form.fields['blocked_until'].label, "concluding on")
+
+    def test_blank_data(self):
+        # Empty complete form is expected to be valid.
+        form = PlaceBlockForm(data={}, instance=self.place)
+        self.assertTrue(form.is_valid())
+
+        # Empty quick form is expected to be invalid.
+        form = PlaceBlockQuickForm(data={}, instance=self.place)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors, {'dirty': ["This field is required."]})
+
+        # Quick form with empty dates is expected to be valid.
+        form = PlaceBlockQuickForm(data={'dirty': 'blocked_from'}, instance=self.place)
+        self.assertTrue(form.is_valid(), msg=repr(form.errors))
+        form = PlaceBlockQuickForm(data={'dirty': 'blocked_until'}, instance=self.place)
+        self.assertTrue(form.is_valid(), msg=repr(form.errors))
+
+    def test_invalid_dirty_field(self):
+        # Quick form with unknown field name in 'dirty' param is expected to be invalid.
+        form = PlaceBlockQuickForm(data={'dirty': 'qwertyuiop'})
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors,
+            {'dirty': ["Select a valid choice. qwertyuiop is not one of the available choices."]}
+        )
+
+    def test_date_in_past(self):
+        # A start or end date in the past is expected to be invalid.
+        for form_class in PlaceBlockForm, PlaceBlockQuickForm:
+            for field in self.expected_fields:
+                date_value = str(self.faker.past_date())
+                with self.subTest(form_class=form_class.__name__, field=field, date=date_value):
+                    form = form_class(
+                        data={field: date_value, 'dirty': field},
+                        instance=self.place)
+                    self.place.blocked_from, self.place.blocked_until = None, None
+                    self.assertFalse(form.is_valid())
+                    self.assertEqual(
+                        form.errors,
+                        {field: ["Preferably select a date in the future."]}
+                    )
+
+    def test_date_in_future(self):
+        # A start date today or in the future (with no end date) is expected to be valid.
+        # An end date today or in the future (with no start date) is expected to be valid.
+        for form_class in PlaceBlockForm, PlaceBlockQuickForm:
+            for field in self.expected_fields:
+                for date_value in str(date.today()), str(self.faker.future_date()):
+                    with self.subTest(form_class=form_class.__name__, field=field, date=date_value):
+                        form = form_class(
+                            data={field: date_value, 'dirty': field},
+                            instance=self.place)
+                        self.place.blocked_from, self.place.blocked_until = None, None
+                        self.assertTrue(form.is_valid(), msg=repr(form.errors))
+
+    def test_date_incongruency(self):
+        # A start date later then the end date is expected to be invalid.
+        form = PlaceBlockForm(
+            data={
+                'blocked_from': str(self.faker.date_between(start_date='+45d', end_date='+90d')),
+                'blocked_until': str(self.faker.date_between(start_date='+30d', end_date='+43d')),
+            },
+            instance=self.place)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.non_field_errors(), ["Unavailability should finish after it starts."])
+        self.assertNotIn('blocked_from', form.errors)
+        self.assertNotIn('blocked_until', form.errors)
+
+        form = PlaceBlockQuickForm(
+            data={
+                'blocked_until': str(self.faker.date_between(start_date='+15d', end_date='+29d')),
+                'dirty': 'blocked_until',
+            },
+            instance=self.place)
+        # At this point the place is blocked at least 45 days in the future.
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.non_field_errors(), ["Unavailability should finish after it starts."])
+        self.assertNotIn('blocked_until', form.errors)
+
+        form = PlaceBlockQuickForm(
+            data={
+                'blocked_from': str(self.faker.date_between(start_date='+30d', end_date='+90d')),
+                'dirty': 'blocked_from',
+            },
+            instance=self.place)
+        # At this point the place is blocked until at most 29 days in the future.
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.non_field_errors(), ["Unavailability should start before it finishes."])
+        self.assertNotIn('blocked_from', form.errors)
+
+    def test_deleted_place(self):
+        self.place.deleted_on = date.today()
+        for form_class in PlaceBlockForm, PlaceBlockQuickForm:
+            with self.subTest(form_class=form_class.__name__):
+                form = form_class(data={}, instance=self.place)
+                self.assertFalse(form.is_valid())
+                self.assertEqual(form.non_field_errors(), ["Deleted place"])
+        self.place.deleted_on = None
+
+    def test_valid_data(self):
+        # A start date in the future earlier then an end date is expected to be valie.
+        form = PlaceBlockForm(
+            data={
+                'blocked_from': str(self.faker.date_between(start_date='+15d', end_date='+30d')),
+                'blocked_until': str(self.faker.date_between(start_date='+45d', end_date='+90d')),
+            },
+            instance=self.place)
+        with self.subTest(data=form.data):
+            self.assertTrue(form.is_valid(), msg=repr(form.errors))
+
+        form = PlaceBlockQuickForm(
+            data={
+                'blocked_from': str(self.faker.date_between(start_date='+5d', end_date='+14d')),
+                'dirty': 'blocked_from',
+            },
+            instance=self.place)
+        with self.subTest(data=form.data):
+            self.assertTrue(form.is_valid(), msg=repr(form.errors))
+
+        form = PlaceBlockQuickForm(
+            data={
+                'blocked_until': str(self.faker.date_between(start_date='+91d', end_date='+99d')),
+                'dirty': 'blocked_until',
+            },
+            instance=self.place)
+        with self.subTest(data=form.data):
+            self.assertTrue(form.is_valid(), msg=repr(form.errors))
+
+    def test_view_page(self):
+        page = self.app.get(
+            reverse('place_block', kwargs={'pk': self.place.pk}),
+            user=self.place.owner.user,
+        )
+        self.assertEqual(page.status_int, 200)
+        self.assertEqual(len(page.forms), 1)
+        self.assertIs(type(page.context['form']), PlaceBlockForm)
+
+    def test_regular_form_submit(self):
+        page = self.app.get(
+            reverse('place_block', kwargs={'pk': self.place.pk}),
+            user=self.place.owner.user,
+        )
+        from_date = self.faker.date_between(start_date='+15d', end_date='+30d')
+        until_date = self.faker.date_between(start_date='+45d', end_date='+90d')
+        page.form['blocked_from'], page.form['blocked_until'] = str(from_date), str(until_date)
+        page = page.form.submit()
+        self.place.refresh_from_db()
+        self.assertRedirects(
+            page,
+            reverse('place_detail', kwargs={'pk': self.place.pk})
+        )
+        self.assertEqual(self.place.blocked_from, from_date)
+        self.assertEqual(self.place.blocked_until, until_date)
+
+    def test_quick_form_submit(self):
+        place_page = self.app.get(
+            reverse('place_detail', kwargs={'pk': self.place.pk}),
+            user=self.place.owner.user,
+        )
+        token_name = 'csrfmiddlewaretoken'
+        token_value = place_page.forms['placeBlockForm' + str(self.place.pk)][token_name].value
+        from_date = self.faker.future_date(end_date='+40d')
+        until_date = self.place.blocked_until
+        response = self.app.put(
+            reverse('place_block', kwargs={'pk': self.place.pk}),
+            params={'blocked_from': str(from_date), 'dirty': 'blocked_from'},
+            headers={'X-CSRFToken': token_value},
+            user=self.place.owner.user,
+        )
+        self.place.refresh_from_db()
+        self.assertEqual(response.status_int, 200)
+        self.assertEqual(response.json, {"result": True})
+        self.assertEqual(self.place.blocked_from, from_date)
+        self.assertEqual(self.place.blocked_until, until_date)
+
+        response = self.app.put(
+            reverse('place_block', kwargs={'pk': self.place.pk}),
+            params={'blocked_until': str(self.faker.past_date()), 'dirty': 'blocked_until'},
+            headers={'X-CSRFToken': token_value},
+            user=self.place.owner.user,
+        )
+        self.assertEqual(response.status_int, 200)
+        self.assertIn('result', response.json)
+        self.assertEqual(response.json['result'], False)

@@ -388,7 +388,7 @@ class PlaceBlockForm(forms.ModelForm):
         Checks that place was not deleted (in this case, update is not allowed).
         Checks if starting date is earlier than the ending date.
         """
-        if self.instance.deleted:
+        if self.instance.deleted_on:
             raise forms.ValidationError(_("Deleted place"), code='deleted')
 
         cleaned_data = super().clean()
