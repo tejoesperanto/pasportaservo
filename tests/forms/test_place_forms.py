@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 from django.contrib.gis.geos import Point as GeoPoint
 from django.core.exceptions import NON_FIELD_ERRORS
+from django.forms.widgets import HiddenInput, TextInput
 from django.test import override_settings, tag
 from django.urls import reverse
 
@@ -18,8 +19,8 @@ from hosting.countries import (
     COUNTRIES_DATA, SUBREGION_TYPES, countries_with_mandatory_region,
 )
 from hosting.forms.places import (
-    PlaceBlockForm, PlaceBlockQuickForm,
-    PlaceCreateForm, PlaceForm, PlaceLocationForm,
+    PlaceBlockForm, PlaceBlockQuickForm, PlaceCreateForm,
+    PlaceForm, PlaceLocationForm, UserAuthorizeForm,
 )
 from hosting.models import (
     Condition, CountryRegion, LocationConfidence,
@@ -1325,3 +1326,59 @@ class PlaceBlockFormTests(WebTest):
         self.assertEqual(response.status_int, 200)
         self.assertIn('result', response.json)
         self.assertEqual(response.json['result'], False)
+
+
+@tag('forms', 'forms-place', 'place')
+@override_settings(LANGUAGE_CODE='en')
+class UserAuthorizeFormTests(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.place = PlaceFactory()
+        cls.faker = Faker()
+
+    def test_init(self):
+        form_empty = UserAuthorizeForm()
+
+        # Verify that the expected fields are part of the form.
+        self.assertEqual(set(['user', 'remove']), set(form_empty.fields))
+        # Verify that fields are marked 'required'.
+        self.assertTrue(form_empty.fields['user'].required)
+        self.assertFalse(form_empty.fields['remove'].required)
+        # Verify the labels and widgets of the fields.
+        self.assertEqual(form_empty.fields['user'].label, "Authorize user")
+        self.assertIs(type(form_empty.fields['remove'].widget), HiddenInput)
+
+        # The widget for 'user' field on authorization form is expected to be
+        # a "text" input with the value of 'remove' field set to False.
+        self.assertIs(type(form_empty.fields['user'].widget), TextInput)
+        self.assertEqual(form_empty.fields['remove'].initial, False)
+
+        # The widget for 'user' field on unauthorization form is expected to be
+        # a "hidden" input with the value of 'remove' field set to True.
+        form_empty = UserAuthorizeForm(unauthorize=True)
+        self.assertIs(type(form_empty.fields['user'].widget), HiddenInput)
+        self.assertEqual(form_empty.fields['remove'].initial, True)
+
+    def test_empty_user_identifier(self):
+        for authorize in True, False:
+            with self.subTest(authorize=authorize):
+                form = UserAuthorizeForm({}, unauthorize=not authorize)
+                self.assertFalse(form.is_valid())
+                self.assertEqual(form.errors, {'user': ["This field is required."]})
+
+    def test_nonexistent_user(self):
+        # Attempting to authorize a non-existent user is expected to result in error.
+        form = UserAuthorizeForm({'user': "NOT-FOUND-123", 'remove': 0})
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.non_field_errors(), ["User does not exist"])
+
+        # Attempting to unauthorize a non-existent user is expected to succeed.
+        form = UserAuthorizeForm({'user': "NOT-FOUND-123", 'remove': 1})
+        self.assertTrue(form.is_valid(), msg=repr(form.errors))
+
+    def test_nonexistent_profile(self):
+        # Attempting to authorize a user with no profile is expected to result in error.
+        user = UserFactory(profile=None)
+        form = UserAuthorizeForm({'user': user.username, 'remove': 0})
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.non_field_errors(), ["User has not set up a profile"])

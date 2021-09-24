@@ -31,8 +31,8 @@ from maps.utils import bufferize_country_boundaries
 
 from ..countries import countries_with_mandatory_region
 from ..forms import (
-    PlaceBlockForm, PlaceBlockQuickForm, PlaceCreateForm, PlaceForm,
-    PlaceLocationForm, UserAuthorizedOnceForm, UserAuthorizeForm,
+    PlaceBlockForm, PlaceBlockQuickForm, PlaceCreateForm,
+    PlaceForm, PlaceLocationForm, UserAuthorizeForm,
 )
 from ..models import (
     LocationConfidence, LocationType, Place,
@@ -395,7 +395,7 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
                 return user.username.lower()
 
         context['authorized_set'] = [
-            (user, UserAuthorizedOnceForm(initial={'user': user.pk}, auto_id=False))
+            (user, UserAuthorizeForm(initial={'user': user.pk}, unauthorize=True, auto_id=False))
             for user
             in sorted(self.place.authorized_users_cache(also_deleted=True), key=order_by_name)
         ]
@@ -410,7 +410,9 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
                 if not user.email.startswith(settings.INVALID_PREFIX):
                     self.send_email(user, self.place)
         else:
-            # For removal, "user" is the primary key.
+            # For removal, "user" is the primary key. If the value in the form is not an
+            # integer, the lookup will fail (with ValueError), which would indicate an
+            # unexpected situation / tampering, and we probably want to know about that.
             user = get_object_or_404(User, pk=form.cleaned_data['user'])
             self.place.authorized_users.remove(user)
         return HttpResponseRedirect(self.get_success_url())
