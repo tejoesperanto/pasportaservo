@@ -76,8 +76,8 @@ class PlaceFormTestingBase:
             'address': ('sentence', ),
             'postcode': ('postcode', ),
             'contact_before': ('pyint', ),
-            'max_guest': ('pyint', ),
-            'max_night': ('pyint', ),
+            'max_guest': ('pyint', {'min_value': 1, 'max_value': 10}),
+            'max_night': ('pyint', {'min_value': 1, 'max_value': 10}),
             'short_description': ('text', {'max_nb_chars': 140}),
             'description': ('paragraph', {'nb_sentences': 3}),
             'available': ('pybool', ),
@@ -107,7 +107,7 @@ class PlaceFormTestingBase:
             available=False, tour_guide=False, have_a_drink=False,
             state_province=cls.faker.county(), postcode=True,
             location_confidence=LocationConfidence.LT_0_25KM,
-            max_guest=123, max_night=456, contact_before=789,
+            max_guest=12, max_night=45, contact_before=78,
         )
 
     DummyLocation = namedtuple('Location', 'point')
@@ -493,6 +493,74 @@ class PlaceFormTestingBase:
             form.errors['state_province'],
             ["Choose from the list. The name provided by you is not known."]
         )
+
+    def test_invalid_guest_night_limit(self):
+        form = self._init_empty_form({
+            'country': self.faker.random_element(elements=self.countries_no_predefined_region),
+            'max_guest': self.faker.pyint(-100, -1),
+            'max_night': self.faker.pyint(-100, -1),
+        })
+        self.assertFalse(form.is_valid())
+        with self.subTest(field='max_guest', condition="negative"):
+            self.assertIn('max_guest', form.errors)
+            self.assertEqual(
+                form.errors['max_guest'],
+                ["Ensure this value is greater than or equal to 1."],
+                msg=f"\nDATA : {form.data}",
+            )
+        with self.subTest(field='max_night', condition="negative"):
+            self.assertIn('max_night', form.errors)
+            self.assertEqual(
+                form.errors['max_night'],
+                ["Ensure this value is greater than or equal to 1."],
+                msg=f"\nDATA : {form.data}",
+            )
+
+        form.data['max_guest'] = self.faker.pyint(51)
+        form.data['max_night'] = self.faker.pyint(181)
+        form.full_clean()
+        self.assertFalse(form.is_valid())
+        with self.subTest(field='max_guest', condition="large positive"):
+            self.assertIn('max_guest', form.errors)
+            self.assertEqual(
+                form.errors['max_guest'],
+                ["Ensure this value is less than or equal to 50."],
+                msg=f"\nDATA : {form.data}",
+            )
+        with self.subTest(field='max_night', condition="large positive"):
+            self.assertIn('max_night', form.errors)
+            self.assertEqual(
+                form.errors['max_night'],
+                ["Ensure this value is less than or equal to 180."],
+                msg=f"\nDATA : {form.data}",
+            )
+
+        form.data['max_guest'] = 0
+        form.data['max_night'] = 0
+        form.full_clean()
+        self.assertFalse(form.is_valid())
+        with self.subTest(field='max_guest', condition="zero"):
+            self.assertIn('max_guest', form.errors)
+            self.assertEqual(
+                form.errors['max_guest'],
+                ["Ensure this value is greater than or equal to 1."],
+                msg=f"\nDATA : {form.data}",
+            )
+        with self.subTest(field='max_night', condition="zero"):
+            self.assertIn('max_night', form.errors)
+            self.assertEqual(
+                form.errors['max_night'],
+                ["Ensure this value is greater than or equal to 1."],
+                msg=f"\nDATA : {form.data}",
+            )
+
+    def test_valid_guest_night_limit(self):
+        form = self._init_empty_form({
+            'country': self.faker.random_element(elements=self.countries_no_predefined_region),
+            'max_guest': self.faker.pyint(1, 50),
+            'max_night': self.faker.pyint(1, 180),
+        })
+        self.assertTrue(form.is_valid(), msg=f"{form.errors!r}\nDATA : {form.data}")
 
     @patch('hosting.forms.places.geocode')
     @patch('hosting.forms.places.geocode_city')

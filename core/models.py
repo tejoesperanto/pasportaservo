@@ -4,13 +4,14 @@ from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib.flatpages.models import FlatPage
-from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from django_extensions.db.models import TimeStampedModel
 from solo.models import SingletonModel
+
+from hosting.fields import RangeIntegerField
 
 from .managers import PoliciesManager
 
@@ -36,15 +37,13 @@ class SiteConfiguration(SingletonModel):
         default=3600 * 24 * 2,
         help_text=_("In seconds: 2 days = 3600 x 24 x 2 = 172800"))
 
-    host_min_age = models.PositiveSmallIntegerField(
+    host_min_age = RangeIntegerField(
         _("minumum age for hosting"),
-        default=17,
-        validators=[MinValueValidator(USER_MIN_AGE)])
+        min_value=USER_MIN_AGE, default=17)
 
-    meet_min_age = models.PositiveSmallIntegerField(
+    meet_min_age = RangeIntegerField(
         _("minumum age for meeting"),
-        default=16,
-        validators=[MinValueValidator(USER_MIN_AGE)])
+        min_value=USER_MIN_AGE, default=16)
 
     confirmation_validity_period = models.DurationField(
         _("confirmation validity period"),
