@@ -1,3 +1,6 @@
+import traceback
+from unittest.case import _AssertRaisesContext
+
 from django.contrib.gis.geos import Point as GeoPoint
 
 from maps import SRID
@@ -55,3 +58,25 @@ class AdditionalAsserts:
                 self.fail(self._formatMessage(msg, comparisson_message))
         else:
             super().assertEqual(obj1, obj2, msg=msg)
+
+    class _AssertNotRaisesContext(_AssertRaisesContext):
+        def __exit__(self, exc_type, exc_value, tb):
+            if exc_type is not None:
+                self.exception = exc_value.with_traceback(None)
+                if not issubclass(exc_type, self.expected):
+                    # Let unexpected exceptions pass through.
+                    return False
+                msg = self.test_case._formatMessage(self.msg, f"Unexpected {self.exception!r}")
+                raise self.test_case.failureException(msg) from None
+            else:
+                traceback.clear_frames(tb)
+                self.exception = None
+            return True
+
+    def assertNotRaises(self, expected_exception, *args, **kwargs):
+        # Based on https://stackoverflow.com/a/49062929.
+        context = self._AssertNotRaisesContext(expected_exception, self)
+        try:
+            return context.handle('assertNotRaises', args, kwargs)
+        finally:
+            context = None

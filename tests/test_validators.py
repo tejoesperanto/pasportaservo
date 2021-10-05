@@ -29,10 +29,8 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
         invalid = {"ZAMENHOF": "Zamenhof", "MC COY": "Mc Coy", "O’MA'HONY": "O’Ma'Hony"}
         for value in valid:
             with self.subTest(valid_value=value):
-                try:
+                with self.assertNotRaises(ValidationError):
                     validate_not_all_caps(value)
-                except ValidationError as e:
-                    raise AssertionError(f"Unexpected {e!r}") from None  # = self.fail()
         for value in invalid:
             with self.subTest(invalid_value=value):
                 with self.assertRaises(ValidationError) as cm:
@@ -72,10 +70,8 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
         }
         for value in valid:
             with self.subTest(valid_value=value):
-                try:
+                with self.assertNotRaises(ValidationError):
                     validate_not_too_many_caps(value)
-                except ValidationError as e:
-                    raise AssertionError(f"Unexpected {e!r}") from None  # = self.fail()
         for value, (correct_value, expected_error) in invalid.items():
             with self.subTest(invalid_value=value):
                 with self.assertRaises(ValidationError) as cm:
@@ -97,10 +93,8 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
         invalid = ["VARS0", " Varsóv1a ", "\n\r\tLe3T\b\a"]
         for value in valid:
             with self.subTest(valid_value=value):
-                try:
+                with self.assertNotRaises(ValidationError):
                     validate_no_digit(value)
-                except ValidationError as e:
-                    raise AssertionError(f"Unexpected {e!r}") from None  # = self.fail()
         for value in invalid:
             with self.subTest(invalid_value=value):
                 with self.assertRaises(ValidationError) as cm:
@@ -129,10 +123,8 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
         for base in basic_strings:
             for value in valid_prefix:
                 with self.subTest(valid_value=value + base):
-                    try:
+                    with self.assertNotRaises(ValidationError):
                         validate_latin(value + base)
-                    except ValidationError as e:
-                        raise AssertionError(f"Unexpected {e!r}") from None  # = self.fail()
             for value in invalid_prefix:
                 with self.subTest(invalid_value=value + base):
                     with self.assertRaises(ValidationError) as cm:
@@ -158,12 +150,10 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
         test_content = SimpleNamespace()  # Mocking the Django's ImageField.
         test_content.file = data
 
-        try:
+        with self.assertNotRaises(ValidationError):
             validate_image(test_content)
             data.content_type = faker.mime_type(category='image')
             validate_image(test_content)
-        except ValidationError as e:
-            raise AssertionError(f"Unexpected {e!r}") from None  # = self.fail()
 
         for category in ['application', 'audio', 'message', 'model', 'multipart', 'text', 'video']:
             data.content_type = faker.mime_type(category=category)
@@ -190,10 +180,8 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
         for test_length in (10, 1024, 102400):
             test_content.file = prep_data(test_length)
             with self.subTest(size=test_length):
-                try:
+                with self.assertNotRaises(ValidationError):
                     validate_size(test_content)
-                except ValidationError as e:
-                    raise AssertionError(f"Unexpected {e!r}") from None  # = self.fail()
 
         # File size larger than 100 kB is expected to fail the validation.
         for test_length in (102402, 102502):
@@ -220,10 +208,8 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
         for delta in (365, 1, 0):
             date_value = date.today() - timedelta(days=delta)
             with self.subTest(date_value=date_value):
-                try:
+                with self.assertNotRaises(ValidationError):
                     validate_not_in_future(date_value)
-                except ValidationError as e:
-                    raise AssertionError(f"Unexpected {e!r}") from None
         for delta in (1, 7, 365):
             date_value = date.today() + timedelta(days=delta)
             with self.subTest(date_value=date_value):
@@ -257,10 +243,8 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
                                date(2024, 2, 29),
                                faker.date_between_dates(date_start=date(2024, 3, 1), date_end=date(2030, 1, 15))):
                 with self.subTest(date_value=date_value):
-                    try:
+                    with self.assertNotRaises(ValidationError):
                         validator10(date_value)
-                    except ValidationError as e:
-                        raise AssertionError(f"Unexpected {e!r}") from None
 
             for date_value in (faker.date_between_dates(date_start=date(2000, 1, 1), date_end=date(2013, 12, 1)),
                                date(2014, 1, 2),
@@ -293,10 +277,8 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
             for date_value in (faker.date_between_dates(date_start=date(2000, 2, 1), date_end=date(2019, 2, 27)),
                                date(2019, 2, 28)):
                 with self.subTest(date_value=date_value):
-                    try:
+                    with self.assertNotRaises(ValidationError):
                         validator5(date_value)
-                    except ValidationError as e:
-                        raise AssertionError(f"Unexpected {e!r}") from None
 
             for date_value in (faker.date_between_dates(date_start=date(2019, 3, 1), date_end=date(2024, 2, 28)),
                                date(2019, 3, 1),
@@ -346,10 +328,7 @@ class AccountAttributesSimilarityValidatorTests(AdditionalAsserts, TestCase):
         # When no user object is provided, all validators are expected to succeed.
         for v in self.validators:
             with self.subTest(**self._get_spec(v)):
-                try:
-                    v("dRakuJo")
-                except ValidationError as e:
-                    raise AssertionError(f"Unexpected {e!r}") from None
+                self.assertNotRaises(ValidationError, lambda: v("dRakuJo"))
 
     def test_validation(self):
         test_config = [
@@ -438,10 +417,7 @@ class AccountAttributesSimilarityValidatorTests(AdditionalAsserts, TestCase):
                             )
                 for v in [self.validator_exact, self.validator_none]:
                     with self.subTest(**self._get_spec(v)):
-                        try:
-                            v("Jennidrake")
-                        except ValidationError as e:
-                            raise AssertionError(f"Unexpected {e!r}") from None
+                        self.assertNotRaises(ValidationError, lambda: v("Jennidrake"))
 
     def test_extreme_validation(self):
         user = UserFactory(invalid_email=True, profile__last_name="Dragons Here", profile__with_email=True)
@@ -488,7 +464,4 @@ class AccountAttributesSimilarityValidatorTests(AdditionalAsserts, TestCase):
             for v in self.validators:
                 for test_value in ["dragons here!", "!ereh snogard"]:
                     with self.subTest(**self._get_spec(v), test_value=test_value):
-                        try:
-                            v(test_value, user)
-                        except ValidationError as e:
-                            raise AssertionError(f"Unexpected {e!r}") from None
+                        self.assertNotRaises(ValidationError, lambda: v(test_value, user))

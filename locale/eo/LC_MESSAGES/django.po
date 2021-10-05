@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2021-03-11 16:20+0000\n"
+"POT-Revision-Date: 2021-10-02 18:12+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1565,6 +1565,10 @@ msgstr "provinco (vojevodio)"
 msgid "Enter a valid phone number."
 msgstr "Bv. enigu ĝustan telefon-numeron."
 
+#: hosting/fields.py
+msgid "Integer within a predefined range"
+msgstr "Entjero ene de antaŭdifinita intervalo"
+
 #: hosting/forms/familymembers.py
 msgid "A family member cannot be future-born (even if planned)."
 msgstr "Kunloĝanto ne povas naskiĝi estontece, eĉ se planita."
@@ -1989,6 +1993,10 @@ msgstr "longitudo"
 #: hosting/models.py
 msgid "maximum number of guests"
 msgstr "maksimuma nombro de gastoj"
+
+#: hosting/models.py
+msgid "Leave empty if there is no limitation."
+msgstr "Lasu malplena se ne estas limigo."
 
 #: hosting/models.py
 msgid "maximum number of nights"

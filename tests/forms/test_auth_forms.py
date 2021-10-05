@@ -252,10 +252,7 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
         # The proxy is expected to return the value of the form data field
         # and raise no exception, once the form was cleaned.
         form.is_valid()
-        try:
-            user.email
-        except AttributeError as e:
-            raise AssertionError(f"Unexpected {e!r}") from None  # = self.fail()
+        self.assertNotRaises(AttributeError, lambda: user.email)
 
     def test_view_page(self):
         page = self.app.get(reverse('register'))

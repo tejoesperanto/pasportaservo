@@ -1,6 +1,7 @@
 from datetime import date
 from unittest.mock import PropertyMock, patch
 
+from django.core.exceptions import ValidationError
 from django.test import tag
 
 from django_countries.fields import Country
@@ -29,6 +30,24 @@ class PlaceModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
         self.assertEqual(place._meta.get_field('postcode').max_length, 11)
         self.assertEqual(place._meta.get_field('state_province').max_length, 70)
         self.assertEqual(place._meta.get_field('short_description').max_length, 140)
+
+    def test_field_limits(self):
+        place = self.basic_place
+        # Verify the expected limits of the maximum number of guests.
+        max_guest_field = place._meta.get_field('max_guest')
+        self.assertEqual(max_guest_field.min_value, 1)
+        self.assertEqual(max_guest_field.max_value, 50)
+        # Verify the expected limits of the maximum number of nights.
+        max_night_field = place._meta.get_field('max_night')
+        self.assertEqual(max_night_field.min_value, 1)
+        self.assertEqual(max_night_field.max_value, 180)
+        # Verify that the number of days prior contact is 0 or higher.
+        place.contact_before = -1
+        with self.assertRaises(ValidationError) as cm:
+            place.clean_fields()
+        self.assertIn('contact_before', cm.exception.message_dict)
+        place.contact_before = 0
+        self.assertNotRaises(ValidationError, lambda: place.clean_fields())
 
     def test_available_manager(self):
         model = self.basic_place._meta.model

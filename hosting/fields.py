@@ -1,5 +1,6 @@
 from django import forms
 from django.core import checks
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.fields.related_descriptors import (
     ForwardManyToOneDescriptor,
@@ -25,6 +26,38 @@ class StyledEmailField(models.EmailField):
 
 class PhoneNumberField(DjangoPhoneNumberField):
     default_error_messages = {'invalid': _("Enter a valid phone number.")}
+
+
+class RangeIntegerField(models.IntegerField):
+    description = _("Integer within a predefined range")
+
+    def __init__(self, *args, min_value=None, max_value=None, **kwargs):
+        self.min_value, self.max_value = None, None
+        super().__init__(*args, **kwargs)
+        if isinstance(min_value, int):
+            self.validators.append(MinValueValidator(min_value))
+            self.min_value = min_value
+        if isinstance(max_value, int):
+            self.validators.append(MaxValueValidator(max_value))
+            self.max_value = max_value
+
+    def deconstruct(self):
+        name, path, args, kwargs = super().deconstruct()
+        if self.min_value is not None:
+            kwargs['min_value'] = self.min_value
+        if self.max_value is not None:
+            kwargs['max_value'] = self.max_value
+        return name, path, args, kwargs
+
+    def get_internal_type(self):
+        return 'IntegerField'
+
+    def formfield(self, **kwargs):
+        return super().formfield(**{
+            'min_value': self.min_value,
+            'max_value': self.max_value,
+            **kwargs,
+        })
 
 
 def SuggestiveField(verbose_name=None, choices=None, to_field=None, **kwargs):

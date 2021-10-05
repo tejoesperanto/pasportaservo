@@ -35,7 +35,9 @@ from core.utils import camel_case_split
 from maps import SRID
 
 from .countries import COUNTRIES_DATA
-from .fields import PhoneNumberField, StyledEmailField, SuggestiveField
+from .fields import (
+    PhoneNumberField, RangeIntegerField, StyledEmailField, SuggestiveField,
+)
 from .filters import (
     HostingFilter, InBookFilter, MeetingFilter,
     OkForBookFilter, OkForGuestsFilter,
@@ -695,12 +697,16 @@ class Place(TrackingModel, TimeStampedModel):
     longitude = models.FloatField(
         _("longitude"),
         null=True, blank=True)
-    max_guest = models.PositiveSmallIntegerField(
+    max_guest = RangeIntegerField(
         _("maximum number of guests"),
-        null=True, blank=True)
-    max_night = models.PositiveSmallIntegerField(
+        min_value=1, max_value=50,
+        null=True, blank=True,
+        help_text=_("Leave empty if there is no limitation."))
+    max_night = RangeIntegerField(
         _("maximum number of nights"),
-        null=True, blank=True)
+        min_value=1, max_value=180,
+        null=True, blank=True,
+        help_text=_("Leave empty if there is no limitation."))
     contact_before = models.PositiveSmallIntegerField(
         _("contact this number of days in advance"),
         null=True, blank=True,
