@@ -157,7 +157,7 @@
                                         </span>
                                     {% endif %}
                                     {% endspaceless %}
-                                    {% include './snippets/place_availability_icon.html' with place=place only %}
+                                    {% include './snippets/place_availability_icon.html' with place=place nudge_yes="0.05em" only %}
                                 </p>
                             {% endif %}
                             {% if view.role == roles.OWNER and not place.deleted %}
@@ -168,7 +168,7 @@
                                             type="button" data-toggle="collapse"
                                             aria-haspopup="true" aria-expanded="false">
                                         <span class="sr-only">{% trans "unavailable" %} ?</span>
-                                        <span class="fa fa-clock-o" aria-hidden="true"></span>
+                                        <span class="fa fa-regular fa-clock" aria-hidden="true"></span>
                                     </button>
                                     <div id="set-blocking" class="panel panel-default place-blocking-panel collapse">
                                         {% include './snippets/place_blocking_quick_form.html' with place=place form=blocking.form form_class="panel-body" csrf_token=csrf_token only %}
@@ -177,7 +177,7 @@
                                         <a href="{% url 'place_block' place.pk %}?{% next 'this page' %}"
                                            class="btn btn-default btn-sm">
                                             <span class="sr-only">{% trans "unavailable" %} ?</span>
-                                            <span class="fa fa-clock-o" aria-hidden="true"></span>
+                                            <span class="fa fa-regular fa-clock" aria-hidden="true"></span>
                                         </a>
                                     </noscript>
                                 </div>
@@ -265,7 +265,7 @@
                                           title="{% trans "last modification" %}"
                                           data-title="{% trans "last modification" %}:<br />{{ place.modified }}"
                                           data-toggle="tooltip" data-placement="top" data-html="true">
-                                        <small class="fa fa-fw fa-pencil-square-o" aria-hidden="true"></small>
+                                        <small class="fa fa-regular fa-fw fa-edit" aria-hidden="true"></small>
                                         <span class="sr-only">{% trans "last modification" %}</span>
                                         <small><samp> {{ place.modified|date:"Y-m-d H:i" }} UTC</samp></small>
                                     </span>
@@ -417,14 +417,18 @@
                 {% if place.sporadic_presence %}
                 {% if place_availability|are_any or view.verbose_view %}
                     <p>
-                        <span class="fa fa-calendar-times-o fa-fw text-muted" aria-label="{% trans "Note " context 'Title' %}"></span>&nbsp;
+                        <span class="text-muted">
+                            <span class="fa fa-regular fa-calendar-xmark fa-fw" aria-label="{% trans "Note " context 'Title' %}"></span>
+                        </span>
                         {% trans "I'm not present at this address at all times; contact me in advance." %}
                     </p>
                 {% endif %}
                 {% endif %}
                 {% if place.family_members_cache %}
                     <p>
-                        <span class="fa fa-bed fa-fw text-muted" aria-label="{% trans "Note " context 'Title' %}"></span>&nbsp;
+                        <span class="text-muted">
+                            <span class="fa ps-users fa-fw" aria-label="{% trans "Note " context 'Title' %}"></span>
+                        </span>
                         {% trans "Other dwellers at this place." %}
                         {% if shall_display_family_members and not place.family_is_anonymous %}
                             <button class="switch requires-scripting hidden-print btn btn-xs"
@@ -474,7 +478,7 @@
                                 {% if place_location.inaccurate %} – {% trans "the location is imprecise" %}{% endif %}
                               {% endfilter %}"
                        data-toggle="tooltip" data-container=".control-buttons.place-control">
-                        <span class="fa fa-map-marker" aria-hidden="true"></span>
+                        <span class="fa fa-location-dot" aria-hidden="true"></span>
                         <span class="hidden-xxs">
                             {% trans "Edit location" %}
                             {% if place_location.unknown or place_location.inaccurate %}
@@ -491,7 +495,7 @@
                                class="btn btn-success"
                                title="{% blocktrans %}Update {{ kin }}place{% endblocktrans %}"
                                data-toggle="tooltip" data-container=".control-buttons.place-control">
-                                <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+                                <span class="fa fa-edit" aria-hidden="true"></span>
                                 <span class="">{% trans "Update" %}</span>
                             </a>
                         {% endif %}
@@ -509,10 +513,10 @@
                                class="btn btn-primary"
                                title="{% trans "View as an authorized user" %}"
                                data-toggle="tooltip" data-container=".control-buttons.place-control">
-                                <span class="fa-stack fa-stack-sm" aria-hidden="true">
-                                    <span class="fa fa-eye fa-stack-1x"              style="top: -0.8ex"></span>
-                                    <span class="fa fa-long-arrow-right fa-stack-1x" style="top: +0.5ex"></span>
-                                </span>&nbsp;
+                                <span class="fa-stack fa-0_5x" aria-hidden="true">
+                                    <span class="fa fa-stack-1x fa-eye fa-pull-up"></span>
+                                    <span class="fa fa-stack-1x fa-long-arrow-alt-right fa-pull-down"></span>
+                                </span>
                                 <span class="hidden-xxs">{% trans "Full preview" %}</span>
                             </a>
                         {% else %}
@@ -520,10 +524,10 @@
                                class="btn btn-primary"
                                title="{% trans "View as a regular user" %}"
                                data-toggle="tooltip" data-container=".control-buttons.place-control">
-                                <span class="fa-stack fa-stack-sm" aria-hidden="true">
-                                    <span class="fa fa-circle-o fa-stack-1x"         style="top: -0.8ex"></span>
-                                    <span class="fa fa-long-arrow-right fa-stack-1x" style="top: +0.6ex"></span>
-                                </span>&nbsp;
+                                <span class="fa-stack fa-0_5x" aria-hidden="true">
+                                    <span class="fa fa-stack-1x fa-eye-low-vision fa-pull-up"></span>
+                                    <span class="fa fa-stack-1x fa-long-arrow-alt-right fa-pull-down"></span>
+                                </span>
                                 <span class="hidden-xxs">{% trans "Regular preview" %}</span>
                             </a>
                         {% endif %}
@@ -541,19 +545,19 @@
                 </p>
                 <p class="help-block">
                     {% trans "Available" %}:&nbsp;
-                    <span class="fa fa-{{ place.available|yesno:'check,times' }}"></span>
+                    <span class="fa fa-{{ place.available|yesno:"check,times" }}"></span>
                     {{ place.available|yesno }}
                 </p>
                 <p class="help-block">
                     {% trans "Can be printed in book" %}:&nbsp;
-                    <span class="fa fa-{{ place.in_book|yesno:'check,times' }}"></span>
+                    <span class="fa fa-{{ place.in_book|yesno:"check,times" }}"></span>
                     {{ place.in_book|yesno }}
                 </p>
                 {% if place.in_book %}
                 <p class="help-block">
                     {% trans "Print in book" %}:&nbsp;
                     {% expr (place.in_book and place.visibility.visible_in_book and not place.owner.death_date) as place_printable %}
-                    <span class="fa fa-{{ place_printable|yesno:'check,times' }}"></span>
+                    <span class="fa fa-{{ place_printable|yesno:"check,times" }}"></span>
                     {{ place_printable|yesno }}
                     {% url 'profile_settings_shortcut' as settings_link %}{% trans "privacy" context "URL" as privacy_shortcut %}
                     {% list settings_link '#' privacy_shortcut as privacy_settings_link %}

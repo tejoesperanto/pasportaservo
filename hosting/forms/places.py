@@ -123,7 +123,7 @@ class PlaceForm(forms.ModelForm):
         # Combine the count fields together in one line (index is shifted because of postcode+city layout change).
         max_guests_field_index = self._meta.fields.index('max_guest')
         self.helper[max_guests_field_index-1:max_guests_field_index+2].wrap_together(Div, css_class='row')
-        for field, field_icon in {'max_guest': 'fa-street-view', 'max_night': 'fa-moon-o'}.items():
+        for field, field_icon in {'max_guest': 'fa-street-view', 'max_night': 'fa-regular fa-moon'}.items():
             self.helper[field].wrap(
                 PrependedText,
                 f'<span class="fa {field_icon}"></span>',

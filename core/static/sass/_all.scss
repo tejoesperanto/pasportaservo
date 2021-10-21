@@ -66,12 +66,11 @@ body, .same-as-body {
 }
 
 .action-edit-inline {
+    font-size: 0.9em;
     margin-left: 0.3ex;
     padding-left: 1px;
-    .fa {
-        position: relative;
-        top: 1px;
-    }
+    position: relative;
+    bottom: 0.15ex;
     &:focus {
         outline-offset: 1px;
     }
@@ -146,19 +145,8 @@ code, kbd, pre, samp {
     margin-bottom: 2px;
 }
 ul.dropdown-menu li {
-    img:first-child, .fa:first-child {
-        width: 16px;
-        height: 16px;
-        margin-right: 15px;
-    }
     .fa:first-child {
-        vertical-align: middle;
-    }
-}
-ul.dropdown-menu-lg li {
-    img:first-child, .fa:first-child {
-        width: 24px;
-        height: 24px;
+        margin-right: 15px;
     }
 }
 .datepicker-dropdown {
@@ -183,7 +171,7 @@ ul.dropdown-menu-lg li {
 .linking-grip {
     display: none;
     float: left;
-    margin-left: -23px;
+    margin-left: -25px;
 }
 .list-group-item:hover .linking-grip {
     display: inline-block;
@@ -272,6 +260,15 @@ header .navigator {
         a:focus {
             outline: 0;
         }
+    }
+    .nav-inbox, .nav-settings, .nav-session, .nav-admin {
+        .fa {
+            position: relative;
+            top: 1px;
+        }
+    }
+    .nav-inbox .fa {
+        top: 2px;
     }
     .nav-profile.in {
         // accommodate the missing padding of .linkicon class
@@ -520,7 +517,7 @@ header:not(.hero) #subtitle {
     }
     .place-availability, .place-availability:before {
         @media (color) {
-            color: darken($color-brand-text, 60%) !important;
+            color: darken($color-brand-text, 77%) !important;
         }
         @media (color: 0) {
             color: darken($color-brand-text, 27%) !important;
@@ -536,7 +533,6 @@ header:not(.hero) #subtitle {
     }
     &.fa-stack > .place-availability {
         top: 0.2em;
-        left: 0.05em;
     }
 }
 .place-list-compact .status-hosting {
@@ -578,8 +574,7 @@ header:not(.hero) #subtitle {
     position: relative;
     top: 0.2ex;
     .fa {
-        position: relative;
-        top: 0.15ex;
+        font-size: 95%;
     }
 }
 .switch[data-target="#family-panel-small"],
@@ -714,7 +709,8 @@ html:not(.msie-compat) .mapboxgl-canvas[tabindex="0"]:focus {
         cursor: zoom-in;
 
         &:after {
-            font-family: FontAwesome;
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
             content: attr(data-content);
             position: absolute;
             bottom: -5px;
@@ -757,6 +753,9 @@ a.contact-details:not(:hover) {
 .owned-place {
     .conceal-marker {
         margin-right: 0.6em;
+        .fa {
+            margin-top: 0.3em;
+        }
     }
 }
 .owned-place,
@@ -894,7 +893,7 @@ a.contact-details:not(:hover) {
     .asset-icon {
         float: left;
         width: 13%;
-        width: 1em;
+        width: calc(1em);
     }
     .asset-value {
         float: left;
@@ -904,6 +903,13 @@ a.contact-details:not(:hover) {
     }
     .asset-value.idented {
         padding-left: 30px;
+    }
+    .toggle {
+        position: absolute;
+        margin-left: auto;
+        margin-right: auto;
+        left: 0px;
+        right: 0px;
     }
     .asterisk {
         position: absolute;
@@ -917,7 +923,6 @@ a.contact-details:not(:hover) {
     }
     .authorized-list.switch {
         position: absolute;
-        top: 1px;
         right: 0px;
     }
     .privacy-checkbox {
@@ -994,7 +999,7 @@ a.contact-details:not(:hover) {
     width: 420px;
     position: absolute;
     right: 0px;
-    top: calc(100% + 2px);
+    top: 24px;
     z-index: 11;
     .panel-body {
         overflow-y: auto;

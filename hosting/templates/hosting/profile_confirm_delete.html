@@ -46,7 +46,7 @@
                     {% for place in places %}
                         <li class="list-group-item place-list-compact">
                             {{ place }}
-                            {% include './snippets/place_availability_icon.html' with place=place extra_class='pull-right' only %}
+                            {% include './snippets/place_availability_icon.html' with place=place extra_class='pull-right' nudge_yes="0.06em" nudge_no="0.03em" only %}
                         </li>
                     {% endfor %}
                 </ul>

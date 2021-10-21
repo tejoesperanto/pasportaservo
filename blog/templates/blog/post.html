@@ -17,7 +17,7 @@
             <a href="{{ post.get_absolute_url }}" class="post-more text-center text-nowrap {{ more_class }}">
                 <em>
                     <span>{% trans "read more" %}</span>
-                    <span class="fa fa-long-arrow-right" style="margin-left: 0.6em" aria-label="&#x279e;"></span>
+                    <span class="fa fa-long-arrow-alt-right" style="margin-left: 0.6em" aria-label="&#x279e;"></span>
                 </em>
             </a>
             {% endspaceless %}
@@ -28,7 +28,8 @@
                 {% filter compact %}
                 <span class="post-more help-block text-nowrap {{ more_class }}">
                     [&nbsp;
-                    <a href="{{ post.get_absolute_url }}" style="color: inherit; text-decoration: none;">
+                    <a href="{{ post.get_absolute_url }}" style="color: inherit; text-decoration: none;"
+                       aria-label="{% blocktrans %}read more{% endblocktrans %}">
                         &bull;&thinsp;&bull;&thinsp;&bull;
                     </a>
                     &nbsp;]

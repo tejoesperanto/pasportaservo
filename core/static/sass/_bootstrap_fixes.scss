@@ -44,11 +44,25 @@ a:not([href]) {
 .glyphicon-stackbit-2x {
     font-size: 1.5em;
 }
-.fa-stack-sm {
-    width: 1em;
-    height: 1em;
-    line-height: 1em;
-    font-size: 0.9em;
+.fa-0_5x {
+    font-size: 0.5em;
+}
+.fa-stack.fa-0_5x {
+    .fa {
+        vertical-align: middle;
+        font-size: 1.5em;
+
+        &.fa-pull-up {
+            top: -0.4em;
+        }
+        &.fa-pull-down {
+            top: +0.4em;
+        }
+    }
+}
+.help-block .fa {
+    position: relative;
+    top: 0.15ex;
 }
 
 /* Bootstrap hack for tooltip */

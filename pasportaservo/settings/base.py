@@ -60,6 +60,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.gis',
 
+    'fontawesomefree',
     'compressor',
     'crispy_forms',
     'django_extensions',

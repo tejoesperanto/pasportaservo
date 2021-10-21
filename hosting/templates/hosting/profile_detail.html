@@ -126,8 +126,8 @@
                          title="{% trans "profile" %} {{ confirm_title }} {{ profile.confirmed_on|date:"DATE_FORMAT" }}"
                          data-title="{% trans "profile" %} {{ confirm_title }} <br /> {{ profile.confirmed_on|date:"DATE_FORMAT" }}"
                          data-toggle="tooltip" data-placement="left auto" data-html="true">
-                        <span class="fa fa-list-alt {{ confirm_color }}"></span>
-                        <span class="fa fa-{{ profile.confirmed|yesno:'check-,' }}square-o {{ confirm_color }}"></span>
+                        <span class="fa fa-regular fa-rectangle-list {{ confirm_color }}"></span>
+                        <span class="fa fa-regular fa-square{{ profile.confirmed|yesno:"-check," }} {{ confirm_color }}"></span>
                     </div>
                 {% endif %}
             </div>
@@ -138,7 +138,7 @@
             {% if profile.avatar_exists and profile.avatar.width > profile.avatar.height|mult:1.5 %}
                 {% expr True as narrow_avatar %}
             {% endif %}
-            <span class="avatar"{% if narrow_avatar %} data-narrow{% endif %} data-content-provider="fa" data-content="&#xf002;">
+            <span class="avatar"{% if narrow_avatar %} data-narrow{% endif %} data-content-provider="fa" data-content="&#xf00e;">
                 <img src="{{ profile.avatar_url }}"
                      data-mfp-src="{{ profile.avatar_url }}"
                      {% if profile.avatar %}data-proper-url="{{ profile.avatar.url }}"{% endif %}
@@ -184,6 +184,8 @@
                     <span class="person-username">{{ profile.user.username }}</span>
                 </h4>
                 <h4>
+                    <small class="visible-xxs-inline">{% trans "email address"|capfirst %}</small>
+                    <br class="visible-xxs-inline" />
                     <span class="email person-email-address">
                         {{ profile.user.email|clear_invalid }}&nbsp;
                         {% if profile.user.email|is_invalid %}
@@ -222,7 +224,7 @@
                   title="{% trans "last modification" %}"
                   data-title="{% trans "last modification" %}:<br />{{ profile.modified }}"
                   data-toggle="tooltip" data-placement="top" data-html="true">
-                <small class="fa fa-pencil-square-o" aria-hidden="true"></small>
+                <small class="fa fa-regular fa-edit" aria-hidden="true"></small>
                 <span class="sr-only">{% trans "last modification" %}</span>
                 <small><samp> {{ profile.modified|date:"Y-m-d H:i" }} UTC</samp></small>
             </span>
@@ -243,7 +245,7 @@
         {{ profile.description|linebreaks }}
         {% if profile.gender or profile.pronoun %}
             <p>
-                <span class="fa fa-transgender-alt text-muted"></span>
+                <span class="text-muted"><span class="fa fa-transgender"></span></span>
                 {% filter cut:"<span>"|cut:"</span>" %}{% spaceless %}
                     {% if profile.gender %}
                         {% asvar of_gender trimmed %}
@@ -350,7 +352,7 @@
                         {% endif %}
                         {% if place.closest_city %}
                             <h4>
-                                <span class="fa fa-hand-o-right small" aria-hidden="true"></span>
+                                <span class="fa fa-regular fa-hand-point-right small" aria-hidden="true"></span>
                                 {% blocktrans with closest_city=place.closest_city %}near {{ closest_city }}{% endblocktrans %}
                             </h4>
                         {% endif %}
@@ -380,7 +382,7 @@
                                 {% dict icon="ps-city-guide-fh" info=_("I can guide around the city")       as style_guide %}
                                 {% dict icon="ps-city-drink-fh" info=_("I'd like to have a drink together") as style_drink %}
                                 {% dict icon="fa-street-view"   info=place.max_guest  title=desc_max_guest  as style_guest %}
-                                {% dict icon="fa-moon-o"        info=place.max_night  title=desc_max_night  as style_night %}
+                                {% dict icon="fa-moon"          info=place.max_night  title=desc_max_night  as style_night %}
 
                                 {% cycle style_guide style_drink style_guest style_night as offer_style silent %}
                                 {% for clause in offer_details %}
@@ -413,8 +415,17 @@
                 {% else %}
                     {% if not place.visibility.online_public %}
                         {% trans "not displayed to other users" as concealed_title %}
-                        <span class="conceal-marker fa fa-eye-slash pull-left text-muted" aria-hidden="true"
-                              title="{{ concealed_title }}" data-toggle="tooltip"></span>
+                        {% if perms.hosting.can_supervise %}
+                            <p class="pull-left">
+                                <span class="conceal-marker">
+                                    <span class="fa fa-eye-slash text-muted" aria-hidden="true"
+                                          title="{{ concealed_title }}" data-toggle="tooltip"></span>
+                                </span>
+                            </p>
+                        {% else %}
+                            <span class="conceal-marker fa fa-eye-slash pull-left text-muted" aria-hidden="true"
+                                  title="{{ concealed_title }}" data-toggle="tooltip"></span>
+                        {% endif %}
                         <span class="sr-only">[{% trans "Note " context 'Title' %}: {{ concealed_title }}]</span>
                     {% endif %}
                     <div>

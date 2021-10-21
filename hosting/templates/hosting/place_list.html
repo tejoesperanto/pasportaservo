@@ -39,7 +39,7 @@
                     <a class="btn btn-default pull-right" href="{% url 'world_map' %}" id="maplink"
                        title="{% trans "Map of hosts" %}" tabindex="2"
                        data-toggle="tooltip" data-placement="bottom">
-                        <span class="fa fa-globe fa-lg" aria-hidden="true"></span>
+                        <span class="fa fa-map-location-dot fa-lg" aria-hidden="true"></span>
                         <span class="sr-only">{% trans "Map of hosts" %}</span>
                     </a>
                 {% endif %}
@@ -54,7 +54,7 @@
                         <span class="input-group-btn">
                             <button class="btn btn-default" type="submit" id="search" tabindex="1"
                                     title="{% trans "Search" %} {% trans "at" %} Pasporta Servo">
-                                <span class="fa fa-search" aria-hidden="true"></span>
+                                <span class="fa fa-search" aria-hidden="true"></span>&nbsp;
                                 <span class="hidden-xs">{% trans "Search" %}</span>
                             </button>
                         </span>
@@ -77,11 +77,11 @@
         {% elif view.query %}
             {% if result.error and view.query|length > 1 %}
                 <span class="text-warning">
-                    <span class="fa fa-chain-broken" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
+                    <span class="fa fa-store-slash" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
                     {% trans "&lt;Geosearch service is unreachable&gt;" %}
                 </span>
                 {% if debug %}
-                    <button type="button" class="btn btn-xs btn-default" id="geoerror"
+                    <button type="button" class="btn btn-sm btn-default" id="geoerror"
                             data-toggle="popover" data-placement="auto" data-content="{{ result.error }}">
                         <span class="fa fa-eye fa-lg" aria-hidden="true"></span>
                         <span class="sr-only">{% trans "Details..." %}</span>

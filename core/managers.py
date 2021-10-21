@@ -5,6 +5,8 @@ from django.db.models import functions as dbf
 class PoliciesManager(models.Manager):
     """ Adds the 'policy_version' calculated field. """
 
+    use_in_migrations = True
+
     def get_queryset(self):
         return (
             super().get_queryset()

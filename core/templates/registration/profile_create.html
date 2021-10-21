@@ -9,8 +9,9 @@
 {% block page %}
     <h1 class="text-center text-label-warning">
         <span class="fa-stack" aria-hidden="true">
-            <span class="fa fa-circle fa-stack-2x"></span>
-            <span class="fa fa-hand-stop-o fa-stack-1x fa-inverse"></span>
+            <span class="fa fa-circle fa-stack-2x hidden-print"></span>
+            <span class="fa fa-regular fa-circle fa-stack-2x visible-print-inline"></span>
+            <span class="fa fa-hand fa-stack-1x fa-inverse"></span>
         </span>
         <span class="sr-only">{% trans "Profile required" %}</span>
     </h1>

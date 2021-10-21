@@ -147,9 +147,15 @@
                 Vi krome povas indiki ĉe via loĝejo periodon kiam vi ne havas eblecon gastigi, se vi anticipe konas la datojn.
                 <br />
                 En via <a href="{% url 'profile_redirect' %}">profilo</a> estas la “Loĝejo”-parto de la paĝo.
-                Klaku sur la butono dekstre <span class="btn btn-primary btn-sm disabled"><span class="fa fa-arrow-right" aria-hidden="true"></span> Rigardi</span>.
+                Klaku sur la butono dekstre
+                <span class="btn btn-primary btn-sm disabled">
+                    <span class="fa fa-arrow-right" aria-hidden="true"></span> Rigardi
+                </span>.
                 Aperos la paĝo de via loĝejo, tie klaku sur la butono
-                <span class="btn btn-default btn-sm disabled"><span class="sr-only">Maldisponebla?</span><span class="fa fa-clock-o" aria-hidden="true"></span></span>.
+                <span class="btn btn-default btn-sm disabled">
+                    <span class="sr-only">Maldisponebla?</span>
+                    <span class="fa fa-regular fa-clock" aria-hidden="true"></span>
+                </span>.
                 Elektu la datojn kiam via maldisponebleco komenciĝas kaj/aŭ finiĝas.
             {% endasvar %}
             {% include './snippets/faq_item.html' with Question=Question Answer=Answer Answer_Alt1=AnswerAlt only %}
@@ -285,11 +291,17 @@
             {% asvar Question %}Mi ne plu volas aperi en la libro. Kion mi faru?{% endasvar %}
             {% asvar Answer %}
                 En via <a href="{% url 'profile_redirect' %}">profilo</a> estas la “Loĝejo”-parto de la paĝo.
-                Klaku sur la butono dekstre <span class="btn btn-primary btn-sm disabled"><span class="fa fa-arrow-right" aria-hidden="true"></span> Rigardi</span>.
+                Klaku sur la butono dekstre
+                <span class="btn btn-primary btn-sm disabled">
+                    <span class="fa fa-arrow-right" aria-hidden="true"></span> Rigardi
+                </span>.
                 Aperos la paĝo de via loĝejo, tie klaku sur la butono
-                <span class="btn btn-success btn-sm disabled"><span class="fa fa-pencil-square-o" aria-hidden="true"></span> Redakti</span>.
+                <span class="btn btn-success btn-sm disabled">
+                    <span class="fa fa-edit" aria-hidden="true"></span> Redakti
+                </span>.
                 <br />
-                En la redakta formularo iru tute malsupren kaj vidu ĉu estas markilo <span class="fa fa-check" aria-label="&#x2713;"></span>
+                En la redakta formularo iru tute malsupren kaj vidu ĉu estas markilo
+                <span class="fa fa-check" aria-label="&#x2713;"></span>
                 apud “Printu en la PS-libreto”, se jes, forigu ĝin kaj konservu.
             {% endasvar %}
             {% asvar AnswerAlt %}
@@ -302,10 +314,15 @@
                 En la paĝo de via loĝejo, sube, kontrolu kio aperas ĉe “printi en la PS-libreto”.
                 Se <strong>jes</strong>, vi aperos en la libreto! Se ne:
                 <br />
-                Klaku sur la butono <span class="btn btn-success btn-sm disabled"><span class="fa fa-pencil-square-o" aria-hidden="true"></span> Redakti</span> tie.
-                En la redakta formularo iru tute malsupren kaj certiĝu ke estas markilo <span class="fa fa-check" aria-label="&#x2713;"></span>
+                Klaku sur la butono
+                <span class="btn btn-success btn-sm disabled">
+                    <span class="fa fa-edit" aria-hidden="true"></span> Redakti
+                </span> tie.
+                En la redakta formularo iru tute malsupren kaj certiĝu ke estas markilo
+                <span class="fa fa-check" aria-label="&#x2713;"></span>
                 apud “Printu en la PS-libreto”, konservu.
-                Ankaŭ certiĝu ke en la <a href="{% url 'profile_settings_shortcut' %}#{% trans "privacy" context "URL" %}">privatecaj agordoj</a>
+                Ankaŭ certiĝu ke en la
+                <a href="{% url 'profile_settings_shortcut' %}#{% trans "privacy" context "URL" %}">privatecaj agordoj</a>
                 la loĝejo estas markita ke ĝi estu videbla en la libreto.
                 <br />
                 Se vi ankoraŭ ne havas profilon en la retejo, <a href="{% url 'profile_create' %}">kreu ĝin</a>,
