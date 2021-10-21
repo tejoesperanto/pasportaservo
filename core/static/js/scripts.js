@@ -115,23 +115,6 @@ $(document).ready(function() {
                });
     }();
 
-    // Image links with custom highlighting
-    +function() {
-        var set_highlight = function() {
-            var src = $(this).children('img').attr('src');
-            if (src.match(/-hl\.[a-z]+$/))
-                return;
-            $(this).children('img').attr('src', src.replace(/\.([a-z]+)$/, "-hl.$1"));
-        };
-        var del_highlight = function() {
-            var src = $(this).children('img').attr('src');
-            $(this).children('img').attr('src', src.replace(/-hl\.([a-z]+)$/, ".$1"));
-        };
-        $('.highlight-custom').hover(set_highlight, del_highlight);
-        $('.highlight-custom').focus(set_highlight);
-        $('.highlight-custom').blur( del_highlight);
-    }();
-
     // Highlighting elements pointed at via the URL
     if (["fixed", "sticky"].indexOf($('header').css('position')) >= 0) {
         function repositionTarget(targetEl) {
@@ -449,7 +432,8 @@ $(document).ready(function() {
 // Bootstrap tooltips and popovers
 function enableTooltips() {
     function realignTooltip(tip, elem) {
-        placement = elem.getAttribute('data-placement') || 'top';
+        placement = getComputedStyle(elem).getPropertyValue('--tooltip-placement')
+                    || elem.getAttribute('data-placement') || 'top';
         if (placement == 'left' && elem.getBoundingClientRect().left < 85) {
             return 'bottom';
         }

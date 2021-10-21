@@ -124,15 +124,14 @@ code, kbd, pre, samp {
 }
 @mixin highlighter($duration: 0.75s) {
     @include transition(background-color $duration);
-    $color-border-hl: lighten($color-brand, 27%);
     &.highlight {
-        background-color: lighten($color-brand, 44%) !important;
-        border-top-color: $color-border-hl !important;
-        border-bottom-color: $color-border-hl !important;
-        border-right-color: $color-border-hl !important;
+        background-color: $color-highlight-bg !important;
+        border-top-color: $color-highlight-border !important;
+        border-bottom-color: $color-highlight-border !important;
+        border-right-color: $color-highlight-border !important;
     }
     &:not(.callout).highlight {
-        border-left-color: $color-border-hl !important;
+        border-left-color: $color-highlight-border !important;
     }
 }
 

@@ -1,21 +1,23 @@
-$color-brand:       #f71;
-$color-brand-main:  $color-brand;
-$color-brand-aux:   #428bca;
-$color-brand-text:  #fff;
+$color-brand:               #f71;
+$color-brand-main:          $color-brand;
+$color-brand-aux:           #428bca;
+$color-brand-text:          #fff;
 
-$color-primary:     #337ab7; //darken(#428bca, 6.5%);
-$color-success:     #5cb85c;
-$color-info:        #5bc0de;
-$color-warning:     #f0ad4e;
-$color-danger:      #d9534f;
+$color-primary:             #337ab7; //darken(#428bca, 6.5%);
+$color-success:             #5cb85c;
+$color-info:                #5bc0de;
+$color-warning:             #f0ad4e;
+$color-danger:              #d9534f;
 
-$color-default-bg:  #f5f5f5;
-$color-danger-bg:   #a94442;
+$color-default-bg:          #f5f5f5;
+$color-danger-bg:           #a94442;
+$color-highlight-bg:        lighten($color-brand, 44%);
+$color-highlight-border:    lighten($color-brand, 27%);
 
-$color-text:        #333;
-$color-gray:        #777;
-$color-gray-light:  #eee;
+$color-text:                #333;
+$color-gray:                #777;
+$color-gray-light:          #eee;
 
-$color-state-info-text:    #31708f;
-$color-state-info-bg:      #d9edf7;
-$color-state-info-border:  darken(adjust-hue($color-state-info-bg, -10deg), 7%);
+$color-state-info-text:     #31708f;
+$color-state-info-bg:       #d9edf7;
+$color-state-info-border:   darken(adjust-hue($color-state-info-bg, -10deg), 7%);
