@@ -7,5 +7,6 @@
                   data-toggle="tooltip" data-placement="bottom"></span>
             <span class="{% filter compact %}
                             {% include './viewport_visibility_class.html' with breakpoints=label_at|default:"lg" %}
-                         {% endfilter %}">&#x2009;{% trans "settings" %}</span>
+                         {% endfilter %}"
+                  style="padding-left: 2px">{% trans "settings" %}</span>
         </a>

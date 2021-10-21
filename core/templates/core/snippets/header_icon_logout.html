@@ -3,10 +3,11 @@
 
         {% trans "log out" as title_logout %}
         <a href="{% url 'logout' %}" class="linkicon">
-            <span class="fa fa-sign-out fa-lg" style="position: relative; left: 1px;" aria-hidden="true"
+            <span class="fa fa-sign-out-alt" aria-hidden="true"
                   title="{{ title_logout|capfirst }}"
                   data-toggle="tooltip" data-placement="bottom"></span>
             <span class="{% filter compact %}
                             {% include './viewport_visibility_class.html' with breakpoints=label_at|default:"lg" %}
-                         {% endfilter %}">&#x200A;{{ title_logout }}</span>
+                         {% endfilter %}"
+                  style="padding-left: 2px">{{ title_logout }}</span>
         </a>

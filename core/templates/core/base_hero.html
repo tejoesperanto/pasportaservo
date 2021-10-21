@@ -26,10 +26,10 @@
                 {% if user.is_staff and user.is_superuser %}
                     <div class="nav-admin">
                         <a href="{% url 'admin:index' %}" target="ps_admin" class="linkicon">
-                            <span class="fa fa-th-list fa-lg" style="position: relative; top: 1px;" aria-hidden="true"
+                            <span class="fa fa-table-list" aria-hidden="true"
                                   title="{% trans "admin site"|capfirst %}"
                                   data-toggle="tooltip" data-placement="bottom"></span>
-                            <span class="hidden-xxs hidden-xs">&#x2009;{% trans "admin site" %}</span>
+                            <span class="hidden-xxs hidden-xs" style="padding-left: 4px">{% trans "admin site" %}</span>
                         </a>
                     </div>
                 {% endif %}
@@ -84,7 +84,8 @@
                                placeholder="{% trans "Search for a country, a region, or a city…" %}">
                         <span class="input-group-btn">
                             <button class="btn btn-default" type="submit" id="search">
-                                <span aria-label="{% trans "Search" %}" class="fa fa-search fa-lg"></span>
+                                <span class="fa fa-search fa-lg" aria-hidden="true"></span>
+                                <span class="sr-only">{% trans "Search" %}</span>
                             </button>
                         </span>
                     </div>

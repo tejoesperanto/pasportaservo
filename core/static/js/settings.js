@@ -70,9 +70,10 @@ $(document).ready(function() {
     // Automatically checks or unchecks the paired toggles.
     function updatePairedPrivacyToggle(event) {
         var onlyForCondition = event.data;
-        if (onlyForCondition === true || onlyForCondition === false)
+        if (onlyForCondition === true || onlyForCondition === false) {
             if (onlyForCondition !== $(this).prop('checked'))
                 return;
+        }
         var other_id = this.id.match(/(id_publish-\d+-visible_online_)[a-z_-]+/);
         var query = '[id^=' + other_id[1] + ']';
         $(query).not(this)
@@ -130,7 +131,11 @@ $(document).ready(function() {
             var $marker = $this.closest('td').find('.visibility-success');
             var $notify = $(document.createElement('span')).addClass('sr-only')
                           .text($marker.data('notification'));
-            flashSuccessIndicator($marker, $notify);
+            flashSuccessIndicator(
+                $marker,
+                function() { $marker.html($notify); },
+                function() { $notify.remove(); }
+            );
         }
         else {
             updatePrivacyFailure($this);
@@ -139,26 +144,32 @@ $(document).ready(function() {
 
     window.updatePrivacyResult = function($this, response) {
         if (response.result === true) {
-            flashSuccessIndicator($this.parent().find('.optinout-success'));
+            var $marker = $this.parent().find('.optinout-success');
+            var $notify = $marker.find('.notification');
+            flashSuccessIndicator(
+                $marker,
+                function() { $notify.text($marker.data('notification')); },
+                function() { $notify.text(""); }
+            );
         }
         else {
             updatePrivacyFailure($this);
         }
     }
 
-    function flashSuccessIndicator($marker, $notify) {
+    function flashSuccessIndicator($marker, action_pre, action_post) {
         $marker.delay(250)
                .css({ "visibility": "visible", "opacity": 0 });
-        if ($notify) {
-            $marker.html($notify);
+        if (typeof action_pre === "function") {
+            action_pre();
         }
         $marker.animate({ opacity: 1 }, 400)
                .delay(2000)
                .animate({ opacity: 0 }, 400, function() {
-                   $(this).css("visibility", "hidden");
-                   if ($notify) {
-                       $notify.remove();
-                   }
+                    $(this).css("visibility", "hidden");
+                    if (typeof action_post === "function") {
+                        action_post();
+                    }
                });
         return $marker;
     }

@@ -8,7 +8,7 @@
        class="btn btn-success"
        title="{% trans "Update profile" %}"
        data-toggle="tooltip" data-container="body" data-placement="bottom">
-        <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+        <span class="fa fa-user-edit" aria-hidden="true"></span>
         <span class="hidden-xxs">{% trans "Update" %}</span>
     </a>
     <a href="{% url 'profile_settings' profile.pk profile.autoslug %}"
@@ -31,7 +31,7 @@
     {% spaceless %}
     <a href="{% url 'profile_email_update' profile.pk profile.autoslug %}"
        class="action-edit-inline text-label-success" title="{% trans "Update public email" %}">
-        <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+        <span class="fa fa-edit" aria-hidden="true"></span>
         <span class="sr-only">{% trans "Update public email" %}</span>
     </a>
     {% endspaceless %}
@@ -41,7 +41,7 @@
     {% spaceless %}
     <a href="{% url 'phone_update' profile.pk phones_public.0.pk %}"
        class="action-edit-inline text-label-success" title="{% trans "Update a phone number" %}">
-        <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+        <span class="fa fa-edit" aria-hidden="true"></span>
         <span class="sr-only">{% trans "Update a phone number" %}</span>
     </a>
     {% endspaceless %}
@@ -53,14 +53,14 @@
            class="btn btn-success"
            title="{% blocktrans with kin=_("this ") %}Update {{ kin }}place{% endblocktrans %}"
            data-toggle="tooltip" data-container="#p{{ place.pk }}" data-placement="top">
-            <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+            <span class="fa fa-edit" aria-hidden="true"></span>
             <span class="hidden-xxs">{% trans "Update" %}</span>
         </a>
         <a href="{% url 'place_delete' place.pk %}"
            class="btn btn-danger"
            title="{% blocktrans with kin=_("this ") %}Remove {{ kin }}place{% endblocktrans %}"
            data-toggle="tooltip" data-container="#p{{ place.pk }}" data-placement="top">
-            <span class="fa fa-trash-o" aria-hidden="true"></span>
+            <span class="fa fa-regular fa-trash-can" aria-hidden="true"></span>
             <span class="sr-only">{% trans "Remove" %}</span>
         </a>
     {% endif %}
@@ -77,7 +77,7 @@
 
 {% block place_add_buttons %}
     <a class="control-buttons btn btn-info" href="{% url 'place_create' profile.pk %}">
-        <span class="fa fa-plus" aria-hidden="true"></span>
+        <span class="fa ps-plus-heavy" aria-hidden="true"></span>
         <b>{% trans "Add a place" %}</b>
     </a>
 {% endblock %}
@@ -90,7 +90,7 @@
                    class="btn btn-smaller-xxs btn-success"
                    title="{% trans "Update a family member" %}"
                    data-toggle="tooltip" data-container="#p{{ place.pk }}" data-placement="top">
-                    <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+                    <span class="fa fa-edit" aria-hidden="true"></span>
                     <span class="hidden-xs">{% trans "Update" %}</span>
                 </a>
             {% elif user|is_supervisor_of:member %}
@@ -98,7 +98,7 @@
                    class="btn btn-smaller-xxs btn-success"
                    title="{% trans "Update profile" %}"
                    data-toggle="tooltip" data-container="#p{{ place.pk }}" data-placement="top">
-                    <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+                    <span class="fa fa-edit" aria-hidden="true"></span>
                     <span class="hidden-xs">{% trans "Update" %}</span>
                 </a>
             {% endif %}
@@ -134,14 +134,14 @@
            class="btn btn-smaller-xxs btn-success"
            title="{% trans "Update a phone number" %}"
            data-toggle="tooltip" data-container="#t{{ phone.pk }}" data-placement="top">
-            <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+            <span class="fa fa-edit" aria-hidden="true"></span>
             <span class="hidden-xs">{% trans "Update" %}</span>
         </a>
         <a href="{% url 'phone_delete' profile.pk phone.pk %}"
            class="btn btn-smaller-xxs btn-danger"
            title="{% trans "Remove a phone number" %}"
            data-toggle="tooltip" data-container="#t{{ phone.pk }}" data-placement="top">
-            <span class="fa fa-trash-o" aria-hidden="true"></span>
+            <span class="fa fa-regular fa-trash-can" aria-hidden="true"></span>
             <span class="sr-only">{% trans "Remove" %}</span>
         </a>
     </div>
@@ -157,7 +157,7 @@
 
 {% block phone_add_buttons %}
     <a class="control-buttons btn btn-info btn-vert-space" href="{% url 'phone_create' profile.pk %}">
-        <span class="fa fa-plus" aria-hidden="true"></span>
+        <span class="fa ps-plus-heavy" aria-hidden="true"></span>
         <b>{% trans "Add a phone" %}</b>
     </a>
     {% if phones|length > 1 %}
@@ -165,7 +165,7 @@
                 type="button" data-list-selector=".phone-list"
                 aria-controls="{% for phone in phones %}phone-priority-buttons-{{ forloop.counter }} {% endfor %}"
                 aria-expanded="false">
-            <span class="fa fa-random" aria-hidden="true"></span>
+            <span class="fa fa-shuffle" aria-hidden="true"></span>
             <strong>{% trans "Set priorities" %}</strong>
         </button>
     {% endif %}
@@ -177,7 +177,7 @@
            class="btn btn-smaller-xxs btn-success"
            title="{% trans "Update public email" %}"
            data-toggle="tooltip" data-container="#e{{ profile.pk }}" data-placement="top">
-            <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+            <span class="fa fa-edit" aria-hidden="true"></span>
             <span class="hidden-xs">{% trans "Update" %}</span>
         </a>
     </div>

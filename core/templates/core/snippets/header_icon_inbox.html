@@ -5,19 +5,20 @@
             {% trans "inbox" as title_inbox %}
             <span class="sr-only">&#9993;</span>
             {% if not postman_unread_count %}
-                <span class="fa fa-envelope-o fa-lg" aria-hidden="true"
+                <span class="fa fa-regular fa-envelope fa-lg" aria-hidden="true"
                       title="{{ title_inbox|capfirst }}"
                       data-toggle="tooltip" data-placement="bottom"></span>
                 <span class="{% filter compact %}
                                 {% include './viewport_visibility_class.html' with breakpoints=label_at|default:"lg" %}
-                             {% endfilter %}">&#x2009;{{ title_inbox }}</span>
+                             {% endfilter %}"
+                      style="padding-left: 4px">{{ title_inbox }}</span>
             {% else %}
                 {% blocktrans count unread=postman_unread_count trimmed asvar verbose_count_inbox %}
                     {{ unread }} new message
                 {% plural %}
                     {{ unread }} new messages
                 {% endblocktrans %}
-                <span class="fa fa-envelope-o fa-lg" aria-hidden="true"
+                <span class="fa fa-solid fa-envelope fa-lg" aria-hidden="true"
                       title="{{ title_inbox|capfirst }}: {{ verbose_count_inbox }}"
                       data-toggle="tooltip" data-placement="bottom"></span>
                 <sup class="ticket" aria-hidden="true">
@@ -29,7 +30,8 @@
                 </sup>
                 <span class="{% filter compact %}
                                 {% include './viewport_visibility_class.html' with breakpoints=label_at|default:"lg" %}
-                             {% endfilter %}">&#x200A;&#x2002;{{ title_inbox }}</span>
+                             {% endfilter %}"
+                      style="padding-left: 10px">{{ title_inbox }}</span>
                 <span class="sr-only">({{ verbose_count_inbox }})</span>
             {% endif %}
         </a>

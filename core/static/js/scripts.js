@@ -67,7 +67,7 @@ $(document).ready(function() {
             var $toggler = $(document.createElement('span'));
             $toggler.addClass('form-control-feedback datepicker-btn-inline')
                     .attr('aria-hidden', "true")
-                    .append($(document.createElement('span')).addClass('fa fa-calendar'))
+                    .append($(document.createElement('span')).addClass('fa fa-regular fa-calendar'))
                     .click(function() { $input.datepicker("show"); });
             $input.after($toggler)
                   .parent().addClass('has-feedback');

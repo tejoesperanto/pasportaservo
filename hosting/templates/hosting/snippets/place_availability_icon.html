@@ -1,9 +1,19 @@
-{% load i18n variable %}
-<span class="status-hosting fa-stack {{ extra_class }}"
-      {% with local_context=True %}
-        {% asvar availability_title %}{% trans "place" %} {{ place.available|yesno:_("available,unavailable") }}{% endasvar %}
-        title="{{ availability_title }}" aria-label="{{ availability_title }}"
-      {% endwith %}>
+{% load i18n variable utils %}
+<span {% filter compact %}
+        class="status-hosting fa-stack {{ extra_class }}"
+        {% with local_context=True %}
+            {% asvar availability_title trimmed %}
+                {% trans "place" %} {{ place.available|yesno:_("available,unavailable") }}
+            {% endasvar %}
+            title="{{ availability_title }}" aria-label="{{ availability_title }}"
+        {% endwith %}
+      {% endfilter %}>
     <span class="place-marker fa fa-stack-2x ps-home" aria-hidden="true"></span>
-    <span class="place-availability fa fa-stack-1x fa-{{ place.available|yesno:'check,times' }}" aria-hidden="true"></span>
+    <span {% filter compact %}
+            class="place-availability {{ place.available|yesno:"yes,no" }}
+                   fa fa-stack-1x ps-{{ place.available|yesno:"check,times" }}-heavy"
+            aria-hidden="true"
+            {% if place.available and nudge_yes %}style="left: {{ nudge_yes }}"{% endif %}
+            {% if not place.available and nudge_no %}style="left: {{ nudge_no }}"{% endif %}
+          {% endfilter %}></span>
 </span>

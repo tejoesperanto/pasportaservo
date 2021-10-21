@@ -41,14 +41,14 @@
                 <a href="{% url 'profile_update' place.owner.pk place.owner.autoslug %}{% if next_page_url %}?{{ next_page_param }}{% endif %}"
                    class="btn btn-success" tabindex="2">
                     <span class="hidden-xxs" aria-hidden="true">
-                        <span class="fa fa-user"></span>&nbsp;<span class="fa fa-pencil"></span>&nbsp;
+                        <span class="fa fa-user"></span>&thinsp;<span class="fa fa-pencil"></span>&nbsp;
                     </span>
                     {% trans "Update profile" %}
                 </a>
                 <a href="{% url 'place_update' place.pk %}{% if next_page_url %}?{{ next_page_param }}{% endif %}"
                    class="btn btn-success" tabindex="2">
                     <span class="hidden-xxs" aria-hidden="true">
-                        <span class="fa fa-home"></span>&nbsp;<span class="fa fa-pencil"></span>&nbsp;
+                        <span class="fa fa-home"></span>&thinsp;<span class="fa fa-pencil"></span>&nbsp;
                     </span>
                     {% blocktrans %}Update {{ kin }}place{% endblocktrans %}
                 </a>

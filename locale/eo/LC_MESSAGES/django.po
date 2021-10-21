@@ -1373,6 +1373,7 @@ msgid "object"
 msgstr "objekto"
 
 #: hosting/admin/admin.py hosting/fields.py
+#: hosting/templates/hosting/profile_detail.html
 msgid "email address"
 msgstr "retpoŝta adreso"
 

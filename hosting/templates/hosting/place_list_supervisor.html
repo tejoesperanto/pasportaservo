@@ -60,7 +60,7 @@
                     type="button" data-target="#map-container" data-toggle="collapse"
                     aria-controls="map-container" aria-expanded="false"
                     title="{% trans "Map of the country" %}">
-                <span class="fa fa-lg fa-globe" aria-hidden="true"></span>
+                <span class="fa fa-lg fa-map" aria-hidden="true"></span>
                 <span class="sr-only">{% trans "Map of the country" %}</span>
             </button>
         {% endif %}
@@ -111,13 +111,14 @@
             <a href="{{ invalid_emails_list_url }}">
                 <span class="badge">{{ invalid_emails_count }}</span>
                 {% trans "invalid emails"|capfirst %}
+                <span class="fa fa-sm {{ view.kwargs.email|yesno:"fa-filter-circle-xmark,fa-filter" }} hidden-print" aria-hidden="true"></span>
             </a>
         </li>
         <li role="presentation" class="hidden-print btn-vert-space">
             <a href="#{% trans "not-confirmed" context "URL" %}">
                 <span class="badge">{{ not_confirmed_count }}</span>
                 {{ not_confirmed_title|capfirst }}
-                {% if not_confirmed_count %}<span class="fa fa-level-down" aria-hidden="true"></span>{% endif %}
+                {% if not_confirmed_count and place_list|length > 0 %}<span class="fa fa-sm fa-turn-down" aria-hidden="true"></span>{% endif %}
             </a>
         </li>
     </ul>
@@ -173,13 +174,15 @@
                                             {% trans "Not checked" %}
                                             <span class="sr-only">({% trans "Check?" %})</span>
                                         </button>
-                                        <span class="fa fa-clock-o fa-spin process-icon" style="display: none" aria-label="{% trans "working..." %}"></span>
+                                        <span class="fa fa-spinner fa-spin fa-lg process-icon"
+                                              style="display: none; --fa-animation-duration: 3s;"
+                                              aria-label="{% trans "working..." %}"></span>
                                     </form>
                                 {% endif %}
                             </div>
                             <div class="btn-group hidden-print" role="group">
                                 <a class="btn btn-success" href="{% url 'place_update' place.pk %}?{% next current_page_position %}">
-                                    <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+                                    <span class="fa fa-edit" aria-hidden="true"></span>
                                     {% trans "Update" %}
                                 </a>
                                 <button type="button" class="btn btn-success dropdown-toggle hidden-nano"
@@ -212,7 +215,7 @@
                            title="{% trans "last login" %}{% if not place.owner.user.last_login %} ({% trans "never" %}){% endif %}"
                            data-title="{% trans "last login" %}<br />{{ place.owner.user.last_login|default:_("never") }}"
                            data-toggle="tooltip" data-html="true" data-placement="bottom">
-                            <small class="fa fa-fw fa-sign-in" aria-hidden="true" style="position: relative; left: -1px"></small>
+                            <small class="fa fa-fw fa-sign-in-alt" aria-hidden="true" style="position: relative; left: -1px"></small>
                             <span class="sr-only">{% trans "last login" %}</span>
                             <small><samp> {{ place.owner.user.last_login|date:"Y-m-d H:i"|default:"—"|stringformat:"-16s" }} UTC</samp></small>
                         </p>
@@ -222,7 +225,7 @@
                            title="{% trans "last modification" %}{% if not place.modified %} ({% trans "never" %}){% endif %}"
                            data-title="{% trans "last modification" %}<br />{{ place.modified|default:_("never") }}"
                            data-toggle="tooltip" data-html="true" data-placement="bottom">
-                            <small class="fa fa-fw fa-pencil-square-o" aria-hidden="true"></small>
+                            <small class="fa fa-fw fa-regular fa-edit" aria-hidden="true"></small>
                             <span class="sr-only">{% trans "last modification" %}</span>
                             <small><samp> {{ place.modified|date:"Y-m-d H:i"|default:"—"|stringformat:"-16s" }} UTC</samp></small>
                         </p>
@@ -265,7 +268,7 @@
                         {# FULL ADDRESS OF THE PLACE #}
                             {{ place.address }}<br />
                             {{ place.get_postcode_display }}
-                            <span class="fa fa-fw fa-dot-circle-o" aria-hidden="true"></span>
+                            <span class="fa fa-fw fa-regular fa-circle-dot" aria-hidden="true"></span>
                             <b>{{ place.city }}</b><br />
                             {% cache HOUR|mult:24 place-country-subregion place.country.code place.state_province %}
                                 {% comment %}
@@ -295,7 +298,7 @@
                                 <a href="{% url 'place_location_update' place.pk %}?{% next current_page_position %}"
                                    class="action-edit-inline text-label-success"
                                    title="{% trans "Edit location" %}" data-toggle="tooltip">
-                                    <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+                                    <span class="fa fa-edit" aria-hidden="true"></span>
                                     <span class="sr-only">{% trans "Edit location" %}</span>
                                 </a>
                                 {% endspaceless %}
@@ -388,7 +391,7 @@
                                         <a href="{% url 'phone_update' place.profile.pk phone.pk %}?{% next current_page_position %}"
                                            class="action-edit-inline text-label-success"
                                            title="{% trans "Update a phone number" %}" data-toggle="tooltip">
-                                            <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+                                            <span class="fa fa-edit" aria-hidden="true"></span>
                                             <span class="sr-only">{% trans "Update a phone number" %}</span>
                                         </a>
                                         {% endspaceless %}

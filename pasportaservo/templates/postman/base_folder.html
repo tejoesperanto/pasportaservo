@@ -100,13 +100,13 @@
                         <div id="pm_buttons">
                             {% block pm_archive_button %}
                                 <button class="btn btn-info" type="submit" onclick="this.form.action='{% url 'postman:archive' %}'">
-                                    <span class="fa fa-folder-open-o" aria-hidden="true"></span>&nbsp;
+                                    <span class="fa fa-regular fa-folder-open" aria-hidden="true"></span>&nbsp;
                                     {% trans "Archive" context "postman:action" %}
                                 </button>
                             {% endblock %}
                             {% block pm_delete_button %}
                                 <button class="btn btn-danger" type="submit" onclick="this.form.action='{% url 'postman:delete' %}'">
-                                    <span class="fa fa-trash-o" aria-hidden="true"></span>&nbsp;
+                                    <span class="fa fa-regular fa-trash-can" aria-hidden="true"></span>&nbsp;
                                     {% trans "Delete" context "postman:action" %}
                                 </button>
                             {% endblock %}

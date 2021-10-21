@@ -146,9 +146,10 @@
             </div>
             {% if view.role == roles.OWNER %}
                 <div class="privacy-checkbox">
-                    <span class="text-label-success small text-nowrap optinout-success" style="display: none" aria-role="status">
+                    <span class="text-label-success small text-nowrap optinout-success" style="display: none"
+                          aria-role="status" data-notification="{% trans "saved" %}">
                         <span class="fa fa-check" aria-hidden="true"></span>
-                        <span class="notification">{% trans "saved" %}</span>
+                        <span class="notification"></span>
                     </span>
                     {% crispy optinouts_form %}
                     <a id="analytics_more_link" data-target="#analytics_more" data-toggle="collapse" style="cursor: help" class="requires-scripting">
@@ -200,7 +201,7 @@
             <h4>{% if view.role == roles.OWNER %}{% trans "End my membership" %}{% else %}{% trans "End membership" %}{% endif %}</h4>
             <a href="{% url 'profile_delete' profile.pk profile.autoslug %}"
                class="btn btn-danger">
-                <span class="fa fa-trash fa-lg" aria-hidden="true"></span>&nbsp;
+                <span class="fa fa-trash" aria-hidden="true"></span>&nbsp;
                 {% if view.role == roles.OWNER %}{% trans "Close account" %}{% else %}{% trans "Delete profile" %}{% endif %}
             </a>
         </section>
@@ -226,8 +227,7 @@
                 <span class="fa fa-arrow-left" aria-hidden="true"></span>
                 <span>{% blocktrans with back_to=_("profile") %}Back to {{ back_to }}{% endblocktrans %}</span>
             {% else %}
-                <span class="fa fa-arrow-right" aria-hidden="true"></span>
-                <span class="fa fa-user" aria-hidden="true"></span>
+                <span class="fa fa-arrow-right" aria-hidden="true"></span><span class="fa fa-user" aria-hidden="true"></span>
                 <span>{% blocktrans with fwd_to=_("profile") %}Forward to {{ fwd_to }}{% endblocktrans %}</span>
             {% endif %}
         </a>

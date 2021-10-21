@@ -1,6 +1,8 @@
 {% load i18n variable %}
 {% load next from utils %}
+
     {{ privacy_matrix.management_form }}
+
     <table class="table table-hover{% if privacy_matrix.read_only %} preview{% endif %}">
     <thead>
         <tr>
@@ -30,24 +32,24 @@
             {% for venue in asset.venues %}
             <td>
                 <div style="position: relative"> {# required for correct positioning of floating elements #}
-                    <div class="text-center">
-                        <span class="fa fa-check text-label-success visibility-success" style="visibility: hidden"
-                              aria-role="status" data-notification="{% trans "saved" %}"></span>
-                        <span class="sr-only">{% cycle _("all visitors") _("guests and hosts") _("in book") %}</span>
-                        {{ venue }}
-                        {% if venue.hosting_notification and not privacy_matrix.read_only %}
-                            {% if not asset.obj.available %}
-                                {% trans "you are not hosting, therefore this place will not be in the book" as asterisk_title %}
-                            {% elif not asset.obj.in_book %}
-                                {% trans "in place details, you have not marked it to be printed in the book" as asterisk_title %}
-                            {% else %}
-                                {% delvar asterisk_title %}
-                            {% endif %}
-                            <span class="fa fa-asterisk text-muted asterisk" tabindex="0"
-                                  title="{{ asterisk_title }}"
-                                  data-toggle="tooltip" data-placement="left" data-container="body" data-trigger="hover focus click"></span>
+                    <span class="fa fa-check text-label-success visibility-success" style="visibility: hidden"
+                          aria-role="status" data-notification="{% trans "saved" %}"></span>
+                    <span class="sr-only">{% cycle _("all visitors") _("guests and hosts") _("in book") %}</span>
+
+                    {{ venue }}
+
+                    {% if venue.hosting_notification and not privacy_matrix.read_only %}
+                        {% if not asset.obj.available %}
+                            {% trans "you are not hosting, therefore this place will not be in the book" as asterisk_title %}
+                        {% elif not asset.obj.in_book %}
+                            {% trans "in place details, you have not marked it to be printed in the book" as asterisk_title %}
+                        {% else %}
+                            {% delvar asterisk_title %}
                         {% endif %}
-                    </div>
+                        <span class="fa fa-asterisk text-muted asterisk" tabindex="0"
+                              title="{{ asterisk_title }}"
+                              data-toggle="tooltip" data-placement="left" data-container="body" data-trigger="hover focus click"></span>
+                    {% endif %}
                     {% if 'auth' in venue.name and asset.obj.authorized_users_cache.query %}
                         {% asvar id_auth_panel %}authlist-{{ asset.obj.visibility.pk }}{% endasvar %}
                         <button class="authorized-list switch requires-scripting btn btn-default btn-xs"
@@ -85,4 +87,5 @@
         {% endfor %}
     </tbody>
     </table>
+
     <input type="hidden" id="id_dirty" name="dirty" value="" autocomplete="off">

@@ -47,14 +47,14 @@
                             <a href="{% url 'family_member_update' place.pk member.pk %}?{% next 'this page' %}"
                                class="action-edit-inline text-label-success"
                                title="{% trans "Update a family member" %}">
-                                <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+                                <span class="fa fa-edit" aria-hidden="true"></span>
                                 <span class="sr-only">{% trans "Update" %}</span>
                             </a>
                         {% elif user|is_supervisor_of:member %}
                             <a href="{% url 'profile_update' member.pk member.autoslug %}?{% next 'this page' %}"
                                class="action-edit-inline text-label-success"
                                title="{% trans "Update profile" %}">
-                                <span class="fa fa-pencil-square-o" aria-hidden="true"></span>
+                                <span class="fa fa-edit" aria-hidden="true"></span>
                                 <span class="sr-only">{% trans "Update" %}</span>
                             </a>
                         {% endif %}

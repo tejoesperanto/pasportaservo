@@ -48,11 +48,11 @@
             <form action="" method="POST" class="pull-right">
                 {% csrf_token %}
                 <button type="submit" id="id_approve" name="action" value="approve" class="btn btn-primary btn-vert-space">
-                    <span class="fa fa-thumbs-up fa-lg" aria-hidden="true"></span>&nbsp;
+                    <span class="fa fa-regular fa-thumbs-up fa-lg" aria-hidden="true"></span>&nbsp;
                     {% if consent_required %}{% trans "I agree" %}{% else %}{% trans "I still agree" %}{% endif %}
                 </button>
                 <button type="submit" id="id_reject" name="action" value="reject" class="btn btn-danger btn-vert-space">
-                    <span class="fa fa-thumbs-down fa-lg" aria-hidden="true"></span>&nbsp;
+                    <span class="fa fa-regular fa-thumbs-down fa-lg" aria-hidden="true"></span>&nbsp;
                     {% trans "I DO NOT agree" %}
                 </button>
             </form>

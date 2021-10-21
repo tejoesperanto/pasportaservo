@@ -2,8 +2,22 @@
 @import "_colors.scss";
 
 @import "_bootstrap_base.scss";
+@import "./fontawesomefree/scss/functions";
+@import "./fontawesomefree/scss/variables";
+@import "./fontawesomefree/scss/mixins";
+@import "./fontawesomefree/scss/core";
+@import "./fontawesomefree/scss/sizing";
+@import "./fontawesomefree/scss/fixed-width";
+@import "./fontawesomefree/scss/animated";
+@import "./fontawesomefree/scss/rotated-flipped";
+@import "./fontawesomefree/scss/stacked";
+@import "./fontawesomefree/scss/icons";
+@import "./fontawesomefree/scss/solid.scss";
+@import "./fontawesomefree/scss/regular.scss";
+@import "./fontawesomefree/scss/brands.scss";
 @import "_bootstrap_fixes.scss";
 @import "_bootstrap_xxs.scss";
+
 @import "_all.scss";
 @import "_callout.scss";
 @import "_messages.scss";
