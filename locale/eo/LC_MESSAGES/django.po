@@ -690,7 +690,7 @@ msgstr "ensaluti"
 msgid "register"
 msgstr "registriĝi"
 
-#: core/templates/core/base.html core/templates/core/home.html
+#: core/templates/core/base.html
 msgid "About us"
 msgstr "Pri ni"
 
@@ -785,8 +785,12 @@ msgid "Skip the news"
 msgstr "Pretersalti la novaĵojn"
 
 #: core/templates/core/home.html
-msgid "Contact us via Skype"
-msgstr "Kontaktu nin per Skajpo"
+msgid "Discuss Pasporta Servo on Telegram"
+msgstr "Diskutoj pri Pasporta Servo per Telegramo"
+
+#: core/templates/core/home.html
+msgid "About Pasporta Servo, on YouTube"
+msgstr "Pri Pasporta Servo, ĉe YouTube"
 
 #: core/templates/core/home.html
 msgid "Contact us via email"

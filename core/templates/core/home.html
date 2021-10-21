@@ -1,5 +1,5 @@
 {% extends 'core/base_hero.html' %}
-{% load i18n static domain flatpages %}
+{% load i18n static domain flatpages variable utils %}
 
 {% block content-at %}{% if view.news or view.right_block %}{% trans "whats-new" context "URL" %}{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block nav-skip-label %}{% trans "Jump to content" %}{% endblock %}
@@ -71,40 +71,50 @@
 {% block page_role %}toolbar{% endblock %}
 
 {% block page %}
-    <div class="social-links social-networks sm-icons pull-left" data-nosnippet>
+    <div class="social-links social-networks pull-left" data-nosnippet>
         {% spaceless %}
-        <a href="https://www.facebook.com/pasportaservo" target="_blank" rel="external noreferrer"
-           title="Pasporta Servo {% trans "at" %} Facebook" class="highlight-custom">
-            <img src="{% static 'img/home/social_facebook-sm.png' %}" alt="[facebook]"/>
-        </a>
-        <a href="https://twitter.com/pasportaservo" target="_blank" rel="external noreferrer"
-           title="Pasporta Servo {% trans "at" %} Twitter" class="highlight-custom">
-            <img src="{% static 'img/home/social_twitter-sm.png' %}" alt="[twitter]"/>
-        </a>
-        <a href="https://youtu.be/hkQZUI5f_ck" target="_blank" rel="external noreferrer"
-           title="{% trans "About us" %}, {% trans "at" %} YouTube" class="highlight-custom">
-            <img src="{% static 'img/home/social_youtube-sm.png' %}" alt="[youtube]"/>
-        </a>
+            {% with local_context=True %}
+                {% asvar url %}https://www.facebook.com/pasportaservo{% endasvar %}
+                {% asvar title %}Pasporta Servo {% trans "at" %} Facebook{% endasvar %}
+                {% include './snippets/social_link.html' with url=url title=title outline="fa-square" content="fa-brands fa-facebook-f" only %}
+            {% endwith %}
+            {% with local_context=True %}
+                {% asvar url %}https://twitter.com/pasportaservo{% endasvar %}
+                {% asvar title %}Pasporta Servo {% trans "at" %} Twitter{% endasvar %}
+                {% include './snippets/social_link.html' with url=url title=title outline="fa-square" content="fa-brands fa-twitter" only %}
+            {% endwith %}
+            {% with local_context=True %}
+                {% asvar url %}https://pasportaservo.telegramo.org{% endasvar %}
+                {% trans "Discuss Pasporta Servo on Telegram" as title %}
+                {% include './snippets/social_link.html' with url=url title=title outline="fa-square" content="fa-brands fa-telegram" only %}
+            {% endwith %}
+            {% with local_context=True %}
+                {% asvar url %}https://youtu.be/hkQZUI5f_ck{% endasvar %}
+                {% trans "About Pasporta Servo, on YouTube" as title %}
+                {% include './snippets/social_link.html' with url=url title=title outline="fa-square" content="fa-brands fa-youtube" custom_content_size="22px" only %}
+            {% endwith %}
         {% endspaceless %}
     </div>
-    <div class="social-links social-contact sm-icons pull-right" data-nosnippet>
+    <div class="social-links social-contact pull-right" data-nosnippet>
         {% spaceless %}
-        <!--
-        <a href="skype:pasporta.servo?chat" title="{% trans "Contact us via Skype" %}" class="highlight-custom">
-            <img src="{% static 'img/home/social_skype-sm.png' %}" alt="[skype]"/>
-        </a>
-        -->
-        <a href="mailto:{{ SUPPORT_EMAIL }}" title="{% trans "Contact us via email" %}" class="highlight-custom">
-            <img src="{% static 'img/home/social_email-sm.png' %}" alt="[email]"/>
-        </a>
-        <a href="https://github.com/tejoesperanto/pasportaservo/discussions/categories/ideas" target="_blank" rel="external noreferrer"
-           title="{% trans "Your ideas and suggestions" %}" class="highlight-custom narrow">
-            <img src="{% static 'img/home/social_trello-sm.png' %}" alt="[github-ideas]"/>
-        </a>
-        <a href="https://github.com/tejoesperanto/pasportaservo" target="_blank" rel="external noreferrer"
-           title="{% trans "Pasporta Servo's source code" %} {% trans "at" %} GitHub" class="highlight-custom">
-            <img src="{% static 'img/home/social_github-sm.png' %}" alt="[github-code]"/>
-        </a>
+            {% with local_context=True %}
+                {% asvar url %}mailto:{{ SUPPORT_EMAIL }}{% endasvar %}
+                {% trans "Contact us via email" as title %}
+                {% include './snippets/social_link.html' with url=url title=title outline="fa-square" content="fa-solid fa-at" only %}
+            {% endwith %}
+            {% with local_context=True %}
+                {% asvar url %}https://github.com/tejoesperanto/pasportaservo/discussions/categories/ideas{% endasvar %}
+                {% trans "Your ideas and suggestions" as title %}
+                {% dict icon="16px" hl="22px" content="6px" as size %}
+                {% asvar css_icon %} top: 1px; {% endasvar %}
+                {% asvar css_content %} top: -5px; {% endasvar %}
+                {% include './snippets/social_link.html' with url=url title=title outline="fa-lightbulb" content="fa-solid fa-circle" custom_size=size icon_css=css_icon content_css=css_content only %}
+            {% endwith %}
+            {% with local_context=True %}
+                {% asvar url %}https://github.com/tejoesperanto/pasportaservo{% endasvar %}
+                {% trans "Pasporta Servo's source code" as title %}
+                {% include './snippets/social_link.html' with url=url title=title outline="fa-square" content="fa-brands fa-github" only %}
+            {% endwith %}
         {% endspaceless %}
     </div>
 {% endblock page %}

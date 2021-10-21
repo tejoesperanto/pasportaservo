@@ -1,0 +1,25 @@
+{% load compact from utils %}
+
+    <a href="{{ url }}" {% if 'https://' in url %}target="_blank" rel="external noreferrer"{% endif %}
+       title="{{ title }}" data-toggle="tooltip" data-placement="bottom">
+        <span class="social-icon fa-stack" aria-hidden="true"
+              {% if custom_size or icon_css %}
+                    style="{% filter compact %}
+                                {% if custom_size %}font-size: {{ custom_size.icon }}; {% endif %}
+                                {{ icon_css }}
+                           {% endfilter %}"
+              {% endif %}>
+            <span class="back-hl fa-stack-2x fa-solid {{ outline }}"{% if custom_size %} style="font-size: {{ custom_size.hl }};"{% endif %}></span>
+            <span class="outline fa-stack-2x fa-regular {{ outline }}"></span>
+            <span class="content fa-stack-1x {{ content }}"
+                  {% if custom_size or custom_content_size or content_css %}
+                        style="{% filter compact %}
+                                    {% if custom_size or custom_content_size %}
+                                        font-size: {% firstof custom_content_size custom_size.content %};
+                                    {% endif %}
+                                    {{ content_css }}
+                               {% endfilter %}"
+                  {% endif %}></span>
+        </span>
+        <span class="sr-only">[ {{ title }} ]</span>
+    </a>
