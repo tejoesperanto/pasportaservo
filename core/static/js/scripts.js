@@ -6,10 +6,86 @@
 document.getElementsByTagName('html')[0].className += ' js-enabled ';
 
 $(document).ready(function() {
-    // Kontraŭspamo
+
+    // Antispam and fallback for unhandled mail links
+    function openMailtoPopover($mailLink, htmlHasAddress, emailAddress) {
+        var assistHtml = window.mailto_fallback && window.mailto_fallback[htmlHasAddress];
+        assistHtml = (assistHtml || "").replace("[[email_address]]", emailAddress);
+        if (!assistHtml && !htmlHasAddress) {
+            assistHtml = emailAddress;
+        }
+        var popoverNode, $popover;
+        $mailLink.on('inserted.bs.popover', function() {
+            popoverNode = document.getElementById(this.getAttribute('aria-describedby'));
+            $popover = $(popoverNode);
+            if (navigator.clipboard) {
+                var $copyButton = $(popoverNode.querySelector('.popover-content .email-copy-button'));
+                $copyButton.removeClass('hidden').click(function() {
+                    navigator.clipboard.writeText(emailAddress);
+                });
+            }
+        });
+        $mailLink.popover({
+            trigger: "manual",
+            placement: "top",
+            html: true,
+            sanitize: false,
+            title: "",
+            content: assistHtml,
+        }).popover("show");
+        var mailLinkBlurHandler = function(event) {
+            if (!event.relatedTarget || !popoverNode.contains(event.relatedTarget)) {
+                $mailLink.popover("destroy");
+                $mailLink.off('blur', mailLinkBlurHandler);
+            }
+        };
+        var popoverBlurHandler = function(event) {
+            if (!event.relatedTarget ||
+                    (event.relatedTarget != $mailLink[0] && !popoverNode.contains(event.relatedTarget))) {
+                $mailLink.popover("destroy");
+                $popover.off('focusout', popoverBlurHandler);
+            }
+        };
+        $mailLink.on('blur', mailLinkBlurHandler);
+        $popover.on('focusout', popoverBlurHandler);
+        $mailLink.one('click', function() {
+            $mailLink.off('blur', mailLinkBlurHandler);
+            $popover.off('focusout', popoverBlurHandler);
+        });
+    }
     $('a[href^="mailto:"]').each(function() {
-        $(this).attr('href', $(this).attr('href').replace(" [cxe] ", "@"));
-        $(this).html($(this).html().replace(" [cxe] ", "@"));
+        var $mailLink = $(this);
+        var href = $mailLink.attr('href').replace(" [cxe] ", "@");
+
+        $mailLink.attr('href', href);
+        $mailLink.html($mailLink.html().replace(" [cxe] ", "@"));
+
+        if (!/iPhone;|iPad;/.test(navigator.userAgent) && this.getAttribute('data-nofallback') == null) {
+            $mailLink.click(function() {
+                $mailLink.tooltip("hide");
+                var htmlHasAddress = $mailLink.html().indexOf("@") > 0;
+                var t = setTimeout(function() {
+                    // The browser did not respond after 500ms: expose the email address to the user
+                    var assistHtml = window.mailto_fallback && window.mailto_fallback[htmlHasAddress];
+                    if (typeof assistHtml === "undefined") {
+                        var assistHtmlNode = document.createElement('div'),
+                            fragment = '.mailto-address-' + (htmlHasAddress ? 'visible' : 'opaque');
+                        $(assistHtmlNode).load('/fragment/mailto_fallback ' + fragment, function() {
+                            window.mailto_fallback = window.mailto_fallback || {};
+                            window.mailto_fallback[htmlHasAddress] = assistHtmlNode.innerHTML;
+                            openMailtoPopover($mailLink, htmlHasAddress, href.replace('mailto:', ''));
+                        });
+                    }
+                    else {
+                        openMailtoPopover($mailLink, htmlHasAddress, href.replace('mailto:', ''));
+                    }
+                }, 500);
+                $(window).blur(function() {
+                    // The browser apparently responded: stop the timeout
+                    clearTimeout(t);
+                });
+            });
+        }
     });
 
     // Lazy load images

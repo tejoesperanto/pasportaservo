@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2021-10-02 18:12+0000\n"
+"POT-Revision-Date: 2021-11-07 22:42+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1221,6 +1221,19 @@ msgid ""
 msgstr ""
 "Ĉu vi forgesis vian salutnomon? Malsupre enigu vian retpoŝt&shy;adreson per "
 "kiu vi registriĝis kaj ni retpoŝte sendos memori&shy;gon."
+
+#: core/templates/ui/fragment-mailto_fallback.html
+msgid "Copy"
+msgstr "Kopii"
+
+#: core/templates/ui/fragment-mailto_fallback.html
+msgid "Copy the email address and send an email via your mailbox."
+msgstr "Kopiu la retpoŝtan adreson kaj sendu retmesaĝon pere de via kesto."
+
+#: core/templates/ui/fragment-mailto_fallback.html
+msgid "Copy the email address below and send an email via your mailbox:"
+msgstr ""
+"Kopiu la suban retpoŝtan adreson kaj sendu retmesaĝon pere de via kesto:"
 
 #: core/urls.py
 msgid "^register/$"

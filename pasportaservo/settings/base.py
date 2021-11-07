@@ -177,6 +177,9 @@ LOGGING = {
             'handlers': ['mail_admins_important_bits'],
             'propagate': False,
         },
+        'PasportaServo.ui': {
+            'handlers': ['mail_admins_important_bits'],
+        },
     },
 }
 
