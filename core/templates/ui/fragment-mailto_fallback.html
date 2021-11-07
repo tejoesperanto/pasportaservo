@@ -1,0 +1,24 @@
+{% load i18n %}
+
+    <div class="mailto-address-visible">
+        <button class="email-copy-button btn btn-default btn-sm pull-left hidden" style="margin-right: 1em; margin-top: 2px">
+            <span class="fa fa-regular fa-copy" aria-hidden="true"></span>
+            <span class="sr-only">{% trans "Copy" %}</span>
+        </button>
+        <span class="help-block" style="overflow: hidden; margin: 0">
+            {% trans "Copy the email address and send an email via your mailbox." %}
+        </span>
+    </div>
+
+    <div class="mailto-address-opaque">
+        <span class="help-block">
+            {% trans "Copy the email address below and send an email via your mailbox:" %}
+        </span>
+        <span class="text-nowrap">
+            <span tabindex="0">[[email_address]]</span>
+            <button class="email-copy-button btn btn-default btn-xs hidden" style="margin-left: 0.5em">
+                <span class="fa fa-regular fa-copy" aria-hidden="true"></span>
+                <span class="sr-only">{% trans "Copy" %}</span>
+            </button>
+        </span>
+    </div>

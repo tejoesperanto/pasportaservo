@@ -1,3 +1,4 @@
+import logging
 from copy import copy
 from datetime import datetime, timedelta
 
@@ -674,6 +675,7 @@ class MassMailSentView(AuthMixin, generic.TemplateView):
 
 class HtmlFragmentRetrieveView(generic.TemplateView):
     template_names = {
+        'mailto_fallback': 'ui/fragment-mailto_fallback.html',
         'datalist_fallback': 'hosting/snippets/fragment-datalist_fallback.html',
     }
 
@@ -681,6 +683,10 @@ class HtmlFragmentRetrieveView(generic.TemplateView):
         self.fragment_id = kwargs['fragment_id']
         if self.fragment_id not in self.template_names:
             raise Http404("Unknown HTML Fragment")
+        if self.fragment_id.endswith('fallback'):
+            logging.getLogger('PasportaServo.ui.fallbacks').warning(
+                f"The {self.fragment_id} was used", extra={'request': request}
+            )
         return super().get(request, *args, **kwargs)
 
     def get_template_names(self):
