@@ -3,16 +3,18 @@ from io import BytesIO
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-from django.core.exceptions import ValidationError
-from django.test import TestCase, override_settings, tag
+from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.db.models import CharField, Model
+from django.forms import ModelForm
+from django.test import TestCase, modify_settings, override_settings, tag
 
 from faker import Faker
 
 from hosting.validators import (
     AccountAttributesSimilarityValidator, TooFarPastValidator,
-    TooNearPastValidator, validate_image, validate_latin,
-    validate_no_digit, validate_not_all_caps, validate_not_in_future,
-    validate_not_too_many_caps, validate_size,
+    TooNearPastValidator, client_side_validated, validate_image,
+    validate_latin, validate_no_digit, validate_not_all_caps,
+    validate_not_in_future, validate_not_too_many_caps, validate_size,
 )
 
 from .assertions import AdditionalAsserts
@@ -298,6 +300,113 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
                             next(iter(cm.exception)),
                             "Certigu ke ĉi tiu valoro estas malpli ol aŭ egala al 2019-02-28."
                         )
+
+
+@tag('validators')
+class ClientSideValidationSetupTests(AdditionalAsserts, TestCase):
+    @classmethod
+    @modify_settings(INSTALLED_APPS={
+        'append': 'tests.test_validators',
+    })
+    def setUpTestData(cls):
+        def validate_alpha():
+            pass
+        validate_alpha.constraint = ('maxlength', 10)
+        validate_alpha.message = "Length up to 10"
+
+        def validate_beta():
+            pass
+        validate_beta.constraint = ('length', 2, 12)
+
+        def validate_gamma():
+            pass
+        validate_gamma.constraint = {'pattern': '^Xyz', 'minlength': 6}
+
+        def validate_delta():
+            pass
+        validate_delta.constraint = {'pattern': '[a-f]{6}'}
+
+        def validate_epsilon():
+            pass
+
+        def validate_wau():
+            pass
+        validate_wau.constraint = ['step', (5, 7)]
+
+        class Dummy(Model):
+            aa = CharField(validators=[validate_alpha])
+            bb = CharField(validators=[validate_beta])
+            cc = CharField(validators=[validate_gamma])
+            dd = CharField(validators=[validate_delta])
+            ee = CharField(validators=[validate_epsilon])
+            ff = CharField(validators=[validate_wau])
+        cls.DummyModel = Dummy
+
+    def test_valid_tuple_constraint(self):
+        @client_side_validated
+        class DummyForm(ModelForm):
+            class Meta:
+                model = self.DummyModel
+                fields = ['aa', 'ee']
+
+        with self.assertNotRaises(ImproperlyConfigured):
+            form = DummyForm()
+        self.assertIn('maxlength', form.fields['aa'].widget.attrs)
+        self.assertEqual(form.fields['aa'].widget.attrs['maxlength'], 10)
+        self.assertIn('data-error-maxlength', form.fields['aa'].widget.attrs)
+
+    def test_valid_dict_constraint(self):
+        @client_side_validated
+        class DummyForm(ModelForm):
+            class Meta:
+                model = self.DummyModel
+                fields = ['ee', 'dd']
+
+        with self.assertNotRaises(ImproperlyConfigured):
+            form = DummyForm()
+        self.assertIn('pattern', form.fields['dd'].widget.attrs)
+        self.assertEqual(form.fields['dd'].widget.attrs['pattern'], '[a-f]{6}')
+        self.assertNotIn('data-error-pattern', form.fields['dd'].widget.attrs)
+
+    def test_invalid_constraint(self):
+        @client_side_validated
+        class ManyValuesForm(ModelForm):
+            class Meta:
+                model = self.DummyModel
+                fields = ['ee', 'bb']
+
+        with self.assertRaises(ImproperlyConfigured) as cm:
+            ManyValuesForm()
+        self.assertSurrounding(
+            str(cm.exception),
+            "Client-side constraint ", " must consist of name and value only."
+        )
+
+        @client_side_validated
+        class ManyKeysForm(ModelForm):
+            class Meta:
+                model = self.DummyModel
+                fields = ['cc', 'ee']
+
+        with self.assertRaises(ImproperlyConfigured) as cm:
+            ManyKeysForm()
+        self.assertSurrounding(
+            str(cm.exception),
+            "Client-side constraint ", " must consist of name and value only."
+        )
+
+    def test_unexpected_constraint(self):
+        @client_side_validated
+        class DummyForm(ModelForm):
+            class Meta:
+                model = self.DummyModel
+                fields = ['ff']
+
+        with self.assertNotRaises(ImproperlyConfigured):
+            form = DummyForm()
+        self.assertIn('step', form.fields['ff'].widget.attrs)
+        self.assertEqual(form.fields['ff'].widget.attrs['step'], (5, 7))
+        self.assertNotIn('data-error-step', form.fields['ff'].widget.attrs)
 
 
 @tag('validators')
