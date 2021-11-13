@@ -487,6 +487,7 @@ msgstr "Akcepti kaj malfunkciigi konton"
 
 #: core/templates/account/consent_rejected.html
 #: hosting/templates/hosting/place_authorized_users.html
+#: hosting/templates/hosting/place_check_detail.html
 #: hosting/templates/hosting/profile_confirm_restore.html
 #: hosting/templates/hosting/profile_form.html
 #: pasportaservo/templates/postman/view.html

@@ -11,3 +11,8 @@
 {% block extra_details %}
     {{ phone.number.as_international }}
 {% endblock %}
+
+{% block cancel_button %}
+    {% url 'profile_edit' phone.owner.pk phone.owner.autoslug as default_previous_page %}
+    {{ block.super }}
+{% endblock %}

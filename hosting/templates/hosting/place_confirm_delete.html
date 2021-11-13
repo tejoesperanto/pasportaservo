@@ -19,3 +19,8 @@
 {% block confirmation %}
     {% trans "Are you sure you want to delete this place?" %}
 {% endblock %}
+
+{% block cancel_button %}
+    {% url 'profile_edit' place.owner.pk place.owner.autoslug as default_previous_page %}
+    {{ block.super }}
+{% endblock %}

@@ -58,14 +58,17 @@ def camel_case_split(identifier):
     return [m.group(0) for m in matches]
 
 
-def sanitize_next(request, from_post=False):
+def sanitize_next(request, from_post=False, url=None):
     """
     Verifies if the redirect target provided in the request is a safe one,
     meaning (mainly) not pointing to an external domain. Returns the target
     value in this case, and empty string otherwise.
     """
-    param_source = request.POST if from_post else request.GET
-    redirect = param_source.get(settings.REDIRECT_FIELD_NAME, default='').strip()
+    if url is None:
+        param_source = request.POST if from_post else request.GET
+        redirect = param_source.get(settings.REDIRECT_FIELD_NAME, default='').strip()
+    else:
+        redirect = url
     if redirect and is_safe_url(url=redirect,
                                 allowed_hosts={request.get_host()},
                                 require_https=request.is_secure()):

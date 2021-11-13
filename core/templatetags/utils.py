@@ -1,6 +1,6 @@
 import random
 from hashlib import sha256
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 from django import template
 from django.conf import settings
@@ -147,3 +147,17 @@ def next_link(
         )
     else:
         return url_param_value or ''
+
+
+@register.simple_tag(name='previous', takes_context=True)
+def previous_link(context, default=''):
+    """
+    A template tag used to provide the properly verified redirection target for going back to the previously
+    visited page.
+      - default: provides a default value to output in case the redirection target is empty or unsafe.
+    """
+    url_param_value = ''
+    if 'request' in context:
+        referrer_url = context['request'].META.get('HTTP_REFERER', '')
+        url_param_value = sanitize_next(context['request'], url=referrer_url)
+    return urlparse(url_param_value).path or default
