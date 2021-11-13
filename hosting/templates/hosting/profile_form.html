@@ -59,7 +59,8 @@
 {% block form_back_link %}
     {% if view.place %}
     {# back button for family member form #}
-        <a href="{% next 'next page' url_only=True default="javascript:history.go(-1)" %}"
+        {% url 'place_detail_verbose' view.place.pk as place_page_url %}
+        <a id="id_form_cancel" href="{% next 'next page' url_only=True default=place_page_url %}"
            class="btn btn-default" title="{% trans "Back" %}">
             <span class="fa fa-arrow-left" aria-hidden="true"></span>
             <span class="hidden-xxs">{% trans "Back" %}</span>

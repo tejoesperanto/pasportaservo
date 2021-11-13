@@ -344,6 +344,14 @@ $(function() {
         $('#id_test_email').closest('.form-group').toggle($(this).val() === "test");
     }).change();
 
+    /* form cancel button enhancement */
+    $('#id_form_cancel').each(function() {
+        this.setAttribute('data-default-href', this.getAttribute('href'));
+        this.setAttribute('href', '#!');
+    }).click(function(event) {
+        event.preventDefault();
+        history.go(-1);
+    });
     /* form submit/cancel keyboard shortcut key implementation */
     var actionButtonShortcuts = {length: 0};
     ['id_form_submit', 'id_form_submit_alt', 'id_form_cancel'].forEach(function(elementId) {

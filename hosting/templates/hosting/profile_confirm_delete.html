@@ -25,6 +25,14 @@
 {% endblock %}
 
 {% block form_confirm_button_class %}{% if profile.user_id %}btn-danger{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block cancel_button %}
+    {% if profile.user_id %}
+        {% url 'profile_edit' profile.pk profile.autoslug as default_previous_page %}
+    {% else %}
+        {% url 'profile_edit' view.place.owner.pk view.place.owner.autoslug as default_previous_page %}
+    {% endif %}
+    {{ block.super }}
+{% endblock %}
 
 {% block extra_details %}
     {% if places %}<br />{% endif %}

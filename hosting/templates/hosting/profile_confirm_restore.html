@@ -55,6 +55,8 @@
 {% endblock %}
 
 
+{% block form_buttons_class %}{% if not profile.deleted %}pull-left{% else %}{{ block.super }}{% endif %}{% endblock %}
+
 {% block confirm_buttons %}
     {% if not profile.deleted %}{# No restoration is possible. #}{% else %}{{ block.super }}{% endif %}
 {% endblock %}
@@ -62,6 +64,11 @@
 {% block form_confirm_button_title %}{% trans "Restore profile" %}{% endblock %}
 {% block form_confirm_button %}
     <span class="fa fa-repeat" aria-hidden="true"></span> {% trans "Restore" %}
+{% endblock %}
+
+{% block cancel_button %}
+    {% url 'profile_settings' profile.pk profile.autoslug as default_previous_page %}
+    {{ block.super }}
 {% endblock %}
 
 {% block form_cancel_button_title %}{% if not profile.deleted %}{% trans "Back" %}{% else %}{{ block.super }}{% endif %}{% endblock %}

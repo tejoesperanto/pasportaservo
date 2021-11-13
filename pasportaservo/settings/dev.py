@@ -48,6 +48,7 @@ DEBUG_TOOLBAR_CONFIG = {
     'DISABLE_PANELS': {
         'debug_toolbar.panels.redirects.RedirectsPanel',
     },
+    'SHOW_TOOLBAR_CALLBACK': lambda request: True,
 }
 
 DEBUG_TOOLBAR_PANELS = DEBUG_PANEL_DEFAULTS[:]

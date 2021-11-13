@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load i18n %}
+{% load previous from utils %}
 
 {% block head_title %}
     &#9872; {% trans "Close account" %}
@@ -19,12 +20,8 @@
         </button>
     </form>
     <div class="text-center" style="margin-top: 30px">
-        {% comment %}
-            maybe TODO:
-            {% url 'account_settings' as account_settings_url %}
-            href="{{ request.META.HTTP_REFERER|safe_url|default=account_settings_url }}"
-        {% endcomment %}
-        <a id="id_form_cancel" href="{% url 'account_settings' %}"
+        {% url 'account_settings' as account_settings_url %}
+        <a id="id_form_cancel" href="{% previous default=account_settings_url %}"
            class="btn btn-default"
            title="{% trans "Cancel operation" %}">
             <span class="fa fa-arrow-left" aria-hidden="true"></span>&nbsp; {% trans "Cancel operation" %}
