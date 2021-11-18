@@ -39,16 +39,13 @@ MIDDLEWARE.insert(
     [i for i, mw in enumerate(MIDDLEWARE) if mw.startswith('django')][-1] + 1,
     'debug_toolbar.middleware.DebugToolbarMiddleware'
 )
-MIDDLEWARE += [
-    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
-]
 
 DEBUG_TOOLBAR_CONFIG = {
     'JQUERY_URL': '/static/js/jquery.min.js',
     'DISABLE_PANELS': {
         'debug_toolbar.panels.redirects.RedirectsPanel',
     },
-    'SHOW_TOOLBAR_CALLBACK': lambda request: True,
+    'SHOW_TOOLBAR_CALLBACK': 'pasportaservo.debug.show_debug_toolbar',
 }
 
 DEBUG_TOOLBAR_PANELS = DEBUG_PANEL_DEFAULTS[:]

@@ -231,6 +231,43 @@ $(function() {
         }
     }
 
+    /* dynamic updating of the country region form field */
+    if (document.getElementById('id_country') && document.getElementById('id_state_province')) {
+        $('#id_country').on('change', function() {
+            var country = this.value;
+            var nodeSubregion = document.getElementById('id_state_province'),
+                currentValue, semanticRole;
+
+            if (nodeSubregion.tagName == 'SELECT') {
+                currentValue = nodeSubregion.selectedIndex > 0
+                               ? nodeSubregion.options[nodeSubregion.selectedIndex].text : "";
+            } else {
+                currentValue = nodeSubregion.value;
+            }
+            semanticRole = nodeSubregion.getAttribute('autocomplete');
+
+            $('#id_state_province_form_element').load(
+                '/fragment/place_country_region_formfield' + (country ? '?country='+country : '')
+                + ' #id_state_province_form_element > *',
+                function(response, status) {
+                    if (status == "error")
+                        return;
+                    nodeSubregion = document.getElementById('id_state_province');
+                    if (semanticRole) {
+                        nodeSubregion.setAttribute('autocomplete', semanticRole);
+                    }
+                    if (currentValue && nodeSubregion.tagName == 'INPUT') {
+                        nodeSubregion.value = currentValue;
+                    }
+                    $('select#' + nodeSubregion.id).chosen({
+                        no_results_text: gettext("Nothing found for"),
+                        disable_search_threshold: nodeSubregion.getAttribute('data-search-threshold'),
+                    });
+                }
+            );
+        });
+    }
+
     /* dynamic display of names ordering (changes with user input) */
     var updatePersonNamesExample = function() {
         var nameF = $('#id_first_name').val().trim(),
@@ -334,7 +371,7 @@ $(function() {
         $('#id_preheader').val($(this).val().replace(/(\r\n|\n|\r)/gm,' ').slice(0,99)).keyup();
     }).keyup();
 
-    $.each(['heading', 'subject', 'preheader'], function(i, element){
+    $.each(['heading', 'subject', 'preheader'], function(i, element) {
         $('#id_'+element).keyup(function() {
             $('#preview_'+element).html($(this).val());
         }).keyup();

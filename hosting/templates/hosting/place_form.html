@@ -30,6 +30,11 @@
 {% block extra_css %}
         {{ block.super }}
         <link rel="stylesheet" href="{% static 'chosen/chosen.min.css' %}">
+        <style type="text/css">
+            .base-form .chosen-single span {
+                margin-left: 18px;
+            }
+        </style>
 {% endblock %}
 {% block extra_js %}
         {{ block.super }}
@@ -52,8 +57,13 @@
 
 {% block form_after %}
     <script type="text/javascript">
-        $('#id_conditions, #id_country, select#id_state_province').chosen(
-            {no_results_text: "{% trans "Nothing found for" %}"}
-        );
+        $('#id_conditions, #id_country, select#id_state_province').each(function() {
+            $(this).chosen(
+                {
+                    no_results_text: "{% trans "Nothing found for" %}",
+                    disable_search_threshold: this.getAttribute('data-search-threshold'),
+                }
+            );
+        });
     </script>
 {% endblock form_after %}

@@ -39,6 +39,7 @@ from commonmark import commonmark
 
 from blog.models import Post
 from core.models import Policy
+from hosting.forms import SubregionForm
 from hosting.models import Phone, Place, Profile
 from hosting.utils import value_without_invalid_marker
 from hosting.views.mixins import (
@@ -637,7 +638,7 @@ class MassMailView(AuthMixin, generic.FormView):
                 body.format(nomo=test_email),
                 template.render(context),
                 default_from,
-                [test_email]
+                [test_email],
             )]
 
         else:
@@ -651,7 +652,7 @@ class MassMailView(AuthMixin, generic.FormView):
                     'body': mark_safe(md_body.format(nomo=escape(profile.name or name_placeholder))),
                 }),
                 default_from,
-                [value_without_invalid_marker(profile.user.email)]
+                [value_without_invalid_marker(profile.user.email)],
             ) for profile in profiles] if profiles else []
 
         self.nb_sent = send_mass_html_mail(messages)
@@ -677,6 +678,7 @@ class HtmlFragmentRetrieveView(generic.TemplateView):
     template_names = {
         'mailto_fallback': 'ui/fragment-mailto_fallback.html',
         'datalist_fallback': 'hosting/snippets/fragment-datalist_fallback.html',
+        'place_country_region_formfield': 'ui/fragment-subregion_formfield.html',
     }
 
     def get(self, request, *args, **kwargs):
@@ -687,6 +689,13 @@ class HtmlFragmentRetrieveView(generic.TemplateView):
             logging.getLogger('PasportaServo.ui.fallbacks').warning(
                 f"The {self.fragment_id} was used", extra={'request': request}
             )
+
+        if self.fragment_id == 'place_country_region_formfield':
+            country = request.GET.get('country')
+            subform = SubregionForm(Place, 'state_province', for_country=country)
+            subform.helper.disable_csrf = True
+            self.extra_context = {'form': subform}
+
         return super().get(request, *args, **kwargs)
 
     def get_template_names(self):

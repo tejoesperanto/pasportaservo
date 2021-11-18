@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-10-25 16:00+0000\n"
-"POT-Revision-Date: 2020-11-09 21:52+0000\n"
+"POT-Revision-Date: 2021-11-18 23:10+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -16,11 +16,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: core/static/js/ajax.js:58
+#: core/static/js/ajax.js
 msgid "Server error"
 msgstr "Servila eraro"
 
-#: core/static/js/ajax.js:61
+#: core/static/js/ajax.js
 msgid ""
 "Something misfunctioned.<br>Please retry; if the error repeats itself, "
 "please <a href='{url}'>contact us</a>."
@@ -28,26 +28,30 @@ msgstr ""
 "Io misfunkciis. Bonvole reprovu; <br class='visible-xxs-inline'>se la eraro "
 "denove okazas, <a href='{url}'>kontaktu nin</a>."
 
-#: core/static/js/forms.js:275
+#: core/static/js/forms.js
+msgid "Nothing found for"
+msgstr "Nenio trovita por"
+
+#: core/static/js/forms.js
 msgid "select one of the suggestions"
 msgstr "elektu unu el inter la proponoj"
 
-#: core/static/js/scripts.js:179
+#: core/static/js/scripts.js
 msgid "Loading ▪ ▪ ▪"
 msgstr "Ŝargata ▪ ▪ ▪"
 
-#: core/static/js/scripts.js:180
+#: core/static/js/scripts.js
 msgid "Close"
 msgstr "Fermi"
 
-#: core/static/js/scripts.js:190
+#: core/static/js/scripts.js
 msgid "Cannot show the image. Please try again."
 msgstr "Ne eblas montri la bildon. Bv provu denove."
 
-#: core/static/js/settings.js:169
+#: core/static/js/settings.js
 msgid "You have not yet saved the privacy settings."
 msgstr "Vi ne jam konservis la agordojn de privateco."
 
-#: maps/static/maps/mapbox-gl-widget.js:74
+#: maps/static/maps/mapbox-gl-widget.js
 msgid "Please zoom in the map to select a point."
 msgstr "Bonvole pliproksimigu la mapon por elekti punkton."
