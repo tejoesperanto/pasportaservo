@@ -1,5 +1,11 @@
+from django.conf import settings
+
 from debug_toolbar.panels.logging import LoggingPanel
 from debug_toolbar.panels.request import RequestPanel
+
+
+def show_debug_toolbar(request):
+    return bool(settings.DEBUG)
 
 
 class CustomRequestPanel(RequestPanel):

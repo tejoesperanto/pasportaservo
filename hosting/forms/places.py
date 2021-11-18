@@ -7,6 +7,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.gis.geos import LineString, Point
 from django.db.models.fields import BLANK_CHOICE_DASH
+from django.utils.functional import keep_lazy_text
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
@@ -66,47 +67,13 @@ class PlaceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        place_country = self.data.get('country') or self.instance.country
-        if place_country and place_country in COUNTRIES_DATA:
-            country_data = COUNTRIES_DATA[place_country]
-            self.country_regions = CountryRegion.objects.filter(country=place_country)
-            regions = [
-                (r.iso_code, r.get_display_value_with_esperanto())
-                for r in self.country_regions
-            ] + BLANK_CHOICE_DASH
-            if len(regions) > 1:
-                # Replacing a form field must happen before the `_bound_fields_cache` is populated.
-                # Note: the 'chosen' JS addon interferes with normal HTML form functioning (including
-                #       showing form validation errors), that is why we keep the field not required.
-                # Using a ModelChoiceField here, while more natural, is also more cumbersome, since
-                # both the field itself (for labels) and the ModelChoiceIterator (for sorting) must
-                # be subclassed.
-                RegionChoice = namedtuple('Choice', 'code, label')
-                self.fields['state_province'] = forms.ChoiceField(
-                    choices=sort_by(['label'], (RegionChoice(*r) for r in regions)),
-                    initial=self.fields['state_province'].initial,
-                    required=False,
-                    label=self.fields['state_province'].label,
-                    help_text=self.fields['state_province'].help_text,
-                    error_messages={
-                        'invalid_choice': _(
-                            "Choose from the list. The name provided by you is not known."
-                        ),
-                    },
-                )
-            elif place_country in countries_with_mandatory_region():
-                # We don't want to raise an error, preventing the user from using the form,
-                # but we do want to log it and notify the administrators.
-                logging.getLogger('PasportaServo.address').error(
-                    "Service misconfigured: Mandatory regions for %s are not defined!"
-                    "  (noted when %s)",
-                    getattr(place_country, 'code', place_country),
-                    f"editing place #{self.instance.pk}" if self.instance.id else "adding new place",
-                )
-            region_type = country_data.get('administrative_area_type')
-            if region_type in SUBREGION_TYPES:
-                self.fields['state_province'].label = SUBREGION_TYPES[region_type].capitalize()
-                self.fields['state_province'].localised_label = True
+        subregion_form = SubregionForm(
+            self._meta.model, 'state_province',
+            for_country=self.data.get('country') or self.instance.country,
+            operation=f"editing place #{self.instance.pk}" if self.instance.id else "adding new place",
+        )
+        self.fields['state_province'] = subregion_form.fields['state_province']
+        self.country_regions = getattr(subregion_form, 'country_regions', None)
 
         self.helper = FormHelper(self)
         self.fields['state_province'].widget.attrs['autocomplete'] = 'region'
@@ -288,6 +255,8 @@ class PlaceForm(forms.ModelForm):
         if place.location is None or place.location.empty:
             # Only recalculate the location if it was not already geocoded before.
             try:
+                # `country_regions` will always be a valid QuerySet here, because `country`
+                # is a required field, validated before save() can be called.
                 self.cleaned_region = self.country_regions.get(iso_code=self.cleaned_data['state_province'])
             except CountryRegion.DoesNotExist:
                 self.cleaned_region = None
@@ -333,6 +302,57 @@ class PlaceCreateForm(PlaceForm):
             self.save_m2m()
         return place
     save.alters_data = True
+
+
+class SubregionForm(forms.Form):
+    def __init__(self, model, field, *args, for_country=None, operation=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.fields = forms.fields_for_model(model, [field])
+
+        if for_country and for_country in COUNTRIES_DATA:
+            country_data = COUNTRIES_DATA[for_country]
+            self.country_regions = CountryRegion.objects.filter(country=for_country)
+            regions = [
+                (r.iso_code, r.get_display_value_with_esperanto())
+                for r in self.country_regions
+            ] + BLANK_CHOICE_DASH
+            if len(regions) > 1:
+                # Replacing a form field must happen before the `_bound_fields_cache` is populated.
+                # Note: the 'chosen' JS addon interferes with normal HTML form functioning (including
+                #       showing form validation errors), that is why we keep the field not required.
+                # Using a ModelChoiceField here, while more natural, is also more cumbersome, since
+                # both the field itself (for labels) and the ModelChoiceIterator (for sorting) must
+                # be subclassed.
+                RegionChoice = namedtuple('Choice', 'code, label')
+                self.fields[field] = forms.ChoiceField(
+                    choices=sort_by(['label'], (RegionChoice(*r) for r in regions)),
+                    initial=self.fields[field].initial,
+                    required=False,
+                    label=self.fields[field].label,
+                    help_text=self.fields[field].help_text,
+                    error_messages={
+                        'invalid_choice': _(
+                            "Choose from the list. The name provided by you is not known."
+                        ),
+                    },
+                )
+            elif for_country in countries_with_mandatory_region():
+                # We don't want to raise an error, preventing the user from using the form,
+                # but we do want to log it and notify the administrators.
+                logging.getLogger('PasportaServo.address').error(
+                    "Service misconfigured: Mandatory regions for %s are not defined!"
+                    "  (noted when %s)",
+                    getattr(for_country, 'code', for_country),
+                    operation or "preparing choice field",
+                )
+            region_type = country_data.get('administrative_area_type')
+            if region_type in SUBREGION_TYPES:
+                capitalize_lazy = keep_lazy_text(lambda label: label.capitalize())
+                self.fields[field].label = capitalize_lazy(SUBREGION_TYPES[region_type])
+                self.fields[field].localised_label = True
+
+        self.fields[field].widget.attrs['data-search-threshold'] = 6
 
 
 class PlaceLocationForm(forms.ModelForm):

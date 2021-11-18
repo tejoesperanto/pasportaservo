@@ -5,8 +5,9 @@ from unittest.mock import patch
 
 from django.contrib.gis.geos import Point as GeoPoint
 from django.core.exceptions import NON_FIELD_ERRORS
+from django.db import models
 from django.forms.widgets import HiddenInput, TextInput
-from django.test import override_settings, tag
+from django.test import modify_settings, override_settings, tag
 from django.urls import reverse
 
 from django_countries import Countries
@@ -20,7 +21,7 @@ from hosting.countries import (
 )
 from hosting.forms.places import (
     PlaceBlockForm, PlaceBlockQuickForm, PlaceCreateForm,
-    PlaceForm, PlaceLocationForm, UserAuthorizeForm,
+    PlaceForm, PlaceLocationForm, SubregionForm, UserAuthorizeForm,
 )
 from hosting.models import (
     Condition, CountryRegion, LocationConfidence,
@@ -235,17 +236,6 @@ class PlaceFormTestingBase:
         self.assertEqual(
             form.errors,
             {'country': ["Select a valid choice. ZZ is not one of the available choices."]}
-        )
-
-    @tag('subregions')
-    def test_misconfigured_database(self):
-        country = self.faker.random_element(elements=countries_with_mandatory_region())
-        CountryRegion.objects.filter(country=country).delete()
-        with self.assertLogs('PasportaServo.address', level='ERROR') as log:
-            self._init_empty_form({'country': country, 'state_province': self.faker.word()})
-        self.assertStartsWith(
-            log.records[0].message,
-            f"Service misconfigured: Mandatory regions for {country} are not defined!"
         )
 
     @tag('subregions')
@@ -1077,6 +1067,76 @@ class PlaceCreateFormTests(PlaceFormTestingBase, AdditionalAsserts, WebTest):
         ]
 
         super().test_form_submit_non_location_data.__wrapped__(self, mock_geocode_city, mock_geocode)
+
+
+@tag('forms', 'forms-place', 'place', 'subregions')
+class SubregionFormTests(AdditionalAsserts, WebTest):
+    @classmethod
+    @modify_settings(INSTALLED_APPS={
+        'append': 'tests.forms.test_place_forms',
+    })
+    def setUpTestData(cls):
+        class DummyLocation(models.Model):
+            subregion = models.CharField("country region", blank=True)
+        cls.DummyLocationModel = DummyLocation
+        cls.faker = Faker(locale='en-GB')
+
+    def test_labels(self):
+        # The label for the region field for country without regions and without
+        # specific region nomenclature is expected to be the default field title.
+        form = SubregionForm(self.DummyLocationModel, 'subregion')
+        self.assertEqual(form.fields['subregion'].label, "Country region")
+        self.assertFalse(hasattr(form.fields['subregion'], 'localised_label'))
+        form = SubregionForm(self.DummyLocationModel, 'subregion', for_country='MO')
+        self.assertEqual(form.fields['subregion'].label, "Country region")
+        self.assertFalse(hasattr(form.fields['subregion'], 'localised_label'))
+
+        # The label for the region field for country without regions and with a
+        # specific region nomenclature is expected to be the known nomenclature.
+        form = SubregionForm(self.DummyLocationModel, 'subregion', for_country='BY')
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form.fields['subregion'].label, "Oblast")
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form.fields['subregion'].label, "Provinco (oblasto)")
+        self.assertTrue(hasattr(form.fields['subregion'], 'localised_label'))
+
+        # The label for the region field for country with regions is
+        # expected to follow the administrative area type in country's data.
+        countries = list(filter(
+            lambda c: 'administrative_area_type' in COUNTRIES_DATA[c],
+            countries_with_mandatory_region()
+        ))
+        country = self.faker.random_element(elements=countries)
+        CountryRegionFactory(country=country)
+        form = SubregionForm(self.DummyLocationModel, 'subregion', for_country=country)
+        with override_settings(LANGUAGE_CODE='en'):
+            with self.subTest(country=country, label=form.fields['subregion'].label, lang='en'):
+                self.assertEqual(
+                    form.fields['subregion'].label,
+                    SUBREGION_TYPES[COUNTRIES_DATA[country]['administrative_area_type']].capitalize()
+                )
+        with override_settings(LANGUAGE_CODE='eo'):
+            with self.subTest(country=country, label=form.fields['subregion'].label, lang='eo'):
+                self.assertEqual(
+                    form.fields['subregion'].label,
+                    SUBREGION_TYPES[COUNTRIES_DATA[country]['administrative_area_type']].capitalize()
+                )
+        with self.subTest(country=country):
+            self.assertTrue(hasattr(form.fields['subregion'], 'localised_label'))
+            self.assertEqual(form.fields['subregion'].choices[0][1], "---------")
+
+    @tag('subregions')
+    def test_misconfigured_database(self):
+        country = self.faker.random_element(elements=countries_with_mandatory_region())
+        CountryRegion.objects.filter(country=country).delete()
+        with self.assertLogs('PasportaServo.address', level='ERROR') as log:
+            SubregionForm(
+                self.DummyLocationModel, 'subregion', for_country=country,
+                initial={'subregion': self.faker.word})
+        self.assertStartsWith(
+            log.records[0].message,
+            f"Service misconfigured: Mandatory regions for {country} are not defined!"
+        )
 
 
 @tag('forms', 'forms-place', 'place')
