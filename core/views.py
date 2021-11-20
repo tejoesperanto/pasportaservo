@@ -677,7 +677,7 @@ class MassMailSentView(AuthMixin, generic.TemplateView):
 class HtmlFragmentRetrieveView(generic.TemplateView):
     template_names = {
         'mailto_fallback': 'ui/fragment-mailto_fallback.html',
-        'datalist_fallback': 'hosting/snippets/fragment-datalist_fallback.html',
+        'datalist_fallback': 'ui/fragment-datalist_fallback.html',
         'place_country_region_formfield': 'ui/fragment-subregion_formfield.html',
     }
 

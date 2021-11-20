@@ -1,5 +1,6 @@
 import hashlib
 import locale
+import re
 from functools import reduce
 
 from django.conf import settings
@@ -13,6 +14,22 @@ import requests
 
 def getattr_(obj, path):
     return reduce(getattr, path.split('.') if isinstance(path, str) else path, obj)
+
+
+def split(value):
+    """
+    Improvement of "".split(), with support of apostrophe.
+    """
+    return re.split('\W+', value)
+
+
+def camel_case_split(identifier):
+    """
+    Converts AStringInCamelCase to a list of separate words.
+    """
+    # stackoverflow.com/a/29920015/1019109 -by- stackoverflow.com/u/1157100/200-success
+    matches = re.finditer('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', identifier)
+    return [m.group(0) for m in matches]
 
 
 def _lazy_joiner(sep, items, item_to_string=str):
@@ -46,16 +63,6 @@ def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None
         message.attach_alternative(html, 'text/html')
         messages.append(message)
     return connection.send_messages(messages) or 0
-
-
-def camel_case_split(identifier):
-    """
-    Converts AStringInCamelCase to a list of separate words.
-    """
-    # stackoverflow.com/a/29920015/1019109 -by- stackoverflow.com/u/1157100/200-success
-    from re import finditer
-    matches = finditer('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', identifier)
-    return [m.group(0) for m in matches]
 
 
 def sanitize_next(request, from_post=False, url=None):

@@ -71,11 +71,6 @@ def title_with_particule(value, particules=None):
     return value
 
 
-def split(value):
-    """Improvement of "".split(), with support of apostrophe."""
-    return re.split('\W+', value)
-
-
 def value_without_invalid_marker(value):
     return (value[len(settings.INVALID_PREFIX):] if value.startswith(settings.INVALID_PREFIX) else value)
 

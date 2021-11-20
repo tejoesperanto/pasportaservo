@@ -308,7 +308,7 @@ $(function() {
     if (!('list' in document.createElement('input') &&
           Boolean(document.createElement('datalist') && window.HTMLDataListElement))) {
         var searchText = gettext("select one of the suggestions");
-        $('p.help-block:contains("' + searchText + '")').each(function() {
+        $('.help-block[id^="hint_"]:contains("' + searchText + '")').each(function() {
             // for each help block, find the corresponding <input> if any.
             var pNode = this,
                 inputId = (pNode.parentNode.getElementsByTagName('input')[0] || "").id;

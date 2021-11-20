@@ -18,13 +18,12 @@ from requests.exceptions import (
 
 from core.utils import (
     camel_case_split, is_password_compromised,
-    join_lazy, send_mass_html_mail, sort_by,
+    join_lazy, send_mass_html_mail, sort_by, split,
 )
 from hosting.countries import countries_with_mandatory_region
 from hosting.gravatar import email_to_gravatar
 from hosting.utils import (
-    geocode, geocode_city, split, title_with_particule,
-    value_without_invalid_marker,
+    geocode, geocode_city, title_with_particule, value_without_invalid_marker,
 )
 from links.utils import create_unique_url
 from maps import data as geodata
