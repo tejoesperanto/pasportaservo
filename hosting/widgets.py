@@ -7,7 +7,7 @@ from crispy_forms.utils import TEMPLATE_PACK
 
 
 class ClearableWithPreviewImageInput(form_widgets.ClearableFileInput):
-    preview_template_name = 'hosting/snippets/widget-image_file_preview.html'
+    preview_template_name = 'ui/widget-image_file_preview.html'
 
     class ImagePreviewValue(object):
         def __init__(self, value, template):
@@ -32,7 +32,7 @@ class ClearableWithPreviewImageInput(form_widgets.ClearableFileInput):
 
 
 class TextWithDatalistInput(form_widgets.TextInput):
-    template_name = 'hosting/snippets/widget-text+datalist.html'
+    template_name = 'ui/widget-text+datalist.html'
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)

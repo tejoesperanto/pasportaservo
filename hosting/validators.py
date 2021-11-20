@@ -11,9 +11,9 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.deconstruct import deconstructible
 from django.utils.translation import ugettext_lazy as _
 
-from core.utils import getattr_, join_lazy
+from core.utils import getattr_, join_lazy, split
 
-from .utils import split, title_with_particule, value_without_invalid_marker
+from .utils import title_with_particule, value_without_invalid_marker
 
 
 def validate_not_all_caps(value):

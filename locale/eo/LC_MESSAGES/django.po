@@ -814,8 +814,9 @@ msgstr "Retmesaĝoj senditaj"
 msgid "You sent %(nb)s emails. Well done!"
 msgstr "Vi sendis %(nb)s mesaĝojn. Bonege!"
 
-#: core/templates/core/message.html hosting/templates/hosting/place_detail.html
-#: hosting/templates/hosting/snippets/fragment-datalist_fallback.html
+#: core/templates/core/message.html
+#: core/templates/ui/fragment-datalist_fallback.html
+#: hosting/templates/hosting/place_detail.html
 #: hosting/templates/hosting/snippets/travel_advice.html
 #: pages/templates/pages/supervisors.html
 msgid "Hide"
@@ -1611,10 +1612,6 @@ msgid "You already have this telephone number."
 msgstr "Vi jam indikis tian telefonnumeron."
 
 #: hosting/forms/places.py
-msgid "Choose from the list. The name provided by you is not known."
-msgstr "Elektu el la listo. La provizita de vi nomo ne estas inter la konataj."
-
-#: hosting/forms/places.py
 msgid "Choose your conditions..."
 msgstr "Elektu viajn kondiĉojn…"
 
@@ -1675,6 +1672,10 @@ msgstr ""
 #: hosting/forms/places.py hosting/forms/profiles.py
 msgid "This field is required to be printed in the book."
 msgstr "Tiu ĉi kampo estas deviga por esti printita en la libreto."
+
+#: hosting/forms/places.py
+msgid "Choose from the list. The name provided by you is not known."
+msgstr "Elektu el la listo. La provizita de vi nomo ne estas inter la konataj."
 
 #: hosting/forms/places.py hosting/templates/hosting/place_detail.html
 msgid "Deleted place"
@@ -3288,7 +3289,6 @@ msgstr "Rulu la tabelon dekstren por vidi la pliajn agordojn."
 #: hosting/templates/hosting/settings.html
 #: hosting/templates/hosting/settings_privacy_matrix.html
 #: hosting/templates/hosting/snippets/place_blocking_quick_form.html
-#: hosting/templates/hosting/snippets/widget-visibility_toggle.html
 msgid "saved"
 msgstr "konservita"
 
@@ -3362,7 +3362,6 @@ msgid "guests and hosts"
 msgstr "gastoj kaj gastigantoj"
 
 #: hosting/templates/hosting/settings_privacy_matrix.html
-#: hosting/templates/hosting/snippets/widget-visibility_toggle.html
 msgid "you are not hosting, therefore this place will not be in the book"
 msgstr "vi ne gastigas, kaj tial tiu ĉi loĝejo ne aperos en la libreto"
 
