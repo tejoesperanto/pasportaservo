@@ -47,7 +47,7 @@ from .managers import (
     ActiveStatusManager, AvailableManager, NotDeletedManager,
     NotDeletedRawManager, TrackingManager,
 )
-from .utils import UploadAndRenameAvatar, value_without_invalid_marker
+from .utils import RenameAndPrefixAvatar, value_without_invalid_marker
 from .validators import (
     TooFarPastValidator, validate_image, validate_latin,
     validate_no_digit, validate_not_all_caps, validate_not_in_future,
@@ -415,7 +415,7 @@ class Profile(TrackingModel, TimeStampedModel):
     avatar = models.ImageField(
         _("avatar"),
         blank=True,
-        upload_to=UploadAndRenameAvatar("avatars"),
+        upload_to=RenameAndPrefixAvatar("avatars"),
         validators=[validate_image, validate_size],
         help_text=_("Small image under 100kB. Ideal size: 140x140 px."))
 

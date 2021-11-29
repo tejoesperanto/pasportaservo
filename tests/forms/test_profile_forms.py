@@ -1,7 +1,9 @@
 from collections import namedtuple
 from datetime import date, timedelta
+from unittest.mock import patch
 
 from django.core.exceptions import NON_FIELD_ERRORS
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings, tag
 from django.urls import reverse
 
@@ -16,6 +18,7 @@ from hosting.forms.profiles import (
 )
 from hosting.models import MR, MRS, PRONOUN_CHOICES
 
+from ..assertions import AdditionalAsserts
 from ..factories import PlaceFactory, ProfileFactory, UserFactory
 from .test_auth_forms import EmailUpdateFormTests
 
@@ -247,6 +250,50 @@ class ProfileFormTestingBase:
                     instance=profile)
                 self.assertTrue(form.is_valid())
 
+    @tag('avatar')
+    def test_invalid_avatar(self):
+        # An invalid image binary is expected to be rejected.
+        test_data = [
+            SimpleUploadedFile(
+                self.faker.file_name(extension='jpeg'), self.faker.binary(length=256), 'image/jpeg'),
+            SimpleUploadedFile(
+                self.faker.file_name(extension='PNG'), bytes(self.faker.sentence(), 'UTF-8'), 'text/plain')
+        ]
+        for data in test_data:
+            with self.subTest(file=repr(data), violation='non-image'):
+                form = self._init_form(files={'avatar': data}, instance=self.profile_with_no_places.obj)
+                self.assertFalse(form.is_valid())
+                self.assertIn('avatar', form.errors)
+                self.assertEqual(
+                    form.errors['avatar'],
+                    ["Upload a valid image. The file you uploaded was either not an image or a corrupted image."]
+                )
+
+        # An invalid file mime type is expected to be rejected.
+        with open('tests/assets/c325d34f.mpg', 'rb') as fh:
+            data = SimpleUploadedFile(self.faker.file_name(category='image'), fh.read())
+        with self.subTest(file=repr(data), violation='content-type'):
+            form = self._init_form(files={'avatar': data}, instance=self.profile_with_no_places.obj)
+            self.assertFalse(form.is_valid())
+            self.assertIn('avatar', form.errors)
+            self.assertIn("File type is not supported.", form.errors['avatar'])
+
+        # A too-large file is expected to be rejected.
+        with open('tests/assets/b7044568.gif', 'rb') as fh:
+            data = SimpleUploadedFile(self.faker.file_name(category='image'), fh.read())
+        with self.subTest(file=repr(data), violation='size', size=data.size):
+            form = self._init_form(files={'avatar': data}, instance=self.profile_with_no_places.obj)
+            self.assertFalse(form.is_valid())
+            self.assertIn('avatar', form.errors)
+            self.assertStartsWith(form.errors['avatar'][0], "Please keep file size under 100.0 KB.")
+
+    @tag('avatar')
+    def test_valid_avatar(self):
+        data = SimpleUploadedFile(
+            self.faker.file_name(category='image'), self.faker.image(size=(150, 160), image_format='webp'))
+        form = self._init_form(files={'avatar': data}, instance=self.profile_with_no_places.obj)
+        self.assertTrue(form.is_valid(), msg=repr(form.errors))
+
     def test_valid_data_for_simple_profile(self):
         form = self._init_form({}, instance=self.profile_with_no_places.obj, save=True)
         self.assertTrue(form.is_valid())
@@ -264,22 +311,40 @@ class ProfileFormTestingBase:
         self.assertEqual(profile.pronoun, "")
         self.assertIsNone(profile.birth_date)
         self.assertEqual(profile.description, "")
+        self.assertEqual(profile.avatar.name, "")
 
-    def test_valid_data(self, profile, profile_tag):
+    @override_settings(MEDIA_ROOT='tests/assets/')
+    @patch('django.core.files.storage.FileSystemStorage.save', return_value='a2529045.jpg')
+    def test_valid_data(self, profile, profile_tag, mock_storage_save):
         for dataset_type in ("full", "partial"):
             data = {
+                'title': "",
                 'first_name': Faker(locale='fr').first_name(),
                 'last_name': Faker(locale='es').last_name(),
                 'names_inversed': self.faker.boolean(),
-                'title': self.faker.random_element(elements=[MRS, MR]) if dataset_type == "full" else "",
                 'birth_date': self.faker.date_between(start_date='-100y', end_date='-18y'),
-                'description': self.faker.text() if dataset_type == "full" else "",
-                'gender': self.faker.word() if dataset_type == "full" or "in book" in profile_tag else None,
-                'pronoun': (self.faker.random_element(elements=[ch[0] for ch in PRONOUN_CHOICES])
-                            if dataset_type == "full" else None),
+                'description': "",
+                'gender': self.faker.word() if "in book" in profile_tag else None,
+                'pronoun': None,
+                'avatar': None,
             }
+            if dataset_type == "full":
+                avatar_file = SimpleUploadedFile(
+                    self.faker.file_name(extension='pcx'), self.faker.image(size=(10, 10), image_format='pcx'))
+                data.update({
+                    'title': self.faker.random_element(elements=[MRS, MR]),
+                    'description': self.faker.text(),
+                    'gender': self.faker.word(),
+                    'pronoun': self.faker.random_element(elements=[ch[0] for ch in PRONOUN_CHOICES]),
+                    'avatar': avatar_file,
+                })
             with self.subTest(dataset=dataset_type, condition=profile_tag):
-                form = self._init_form(data, instance=profile, save=True)
+                avatar_file = data.pop('avatar', None)
+                form = self._init_form(
+                    {**data, 'avatar-clear': avatar_file is None},
+                    files={'avatar': avatar_file},
+                    instance=profile,
+                    save=True)
                 self.assertTrue(form.is_valid())
                 saved_profile = form.save()
                 if type(form) is ProfileForm:
@@ -290,6 +355,11 @@ class ProfileFormTestingBase:
                     with self.subTest(field=field):
                         if field == 'gender':
                             self.assertEqual(getattr(saved_profile, field), data[field])
+                        elif field == 'avatar':
+                            self.assertEqual(
+                                saved_profile.avatar.name,
+                                mock_storage_save.return_value if avatar_file is not None else ""
+                            )
                         else:
                             self.assertEqual(
                                 getattr(saved_profile, field),
@@ -299,11 +369,11 @@ class ProfileFormTestingBase:
 
 @tag('forms', 'forms-profile', 'profile')
 @override_settings(LANGUAGE_CODE='en')
-class ProfileFormTests(ProfileFormTestingBase, WebTest):
-    def _init_form(self, data=None, instance=None, empty=False, save=False, user=None):
+class ProfileFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
+    def _init_form(self, data=None, files=None, instance=None, empty=False, save=False, user=None):
         if not empty:
             assert instance is not None
-        return ProfileForm(data=data, instance=instance)
+        return ProfileForm(data=data, files=files, instance=instance)
 
     def test_init(self):
         super().test_init()
@@ -495,12 +565,12 @@ class ProfileFormTests(ProfileFormTestingBase, WebTest):
 
 @tag('forms', 'forms-profile', 'profile')
 @override_settings(LANGUAGE_CODE='en')
-class ProfileCreateFormTests(ProfileFormTestingBase, WebTest):
-    def _init_form(self, data=None, instance=None, empty=False, save=False, user=None):
+class ProfileCreateFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
+    def _init_form(self, data=None, files=None, instance=None, empty=False, save=False, user=None):
         if not empty:
             assert instance is not None
         for_user = user or (instance.user if not save else UserFactory(profile=None))
-        return ProfileCreateForm(data=data, user=for_user)
+        return ProfileCreateForm(data=data, files=files, user=for_user)
 
     def test_invalid_init(self):
         # Form without a user associated with the profile is expected to be invalid.
