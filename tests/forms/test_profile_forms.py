@@ -524,6 +524,21 @@ class ProfileFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
                 else:
                     self.assertNotIn("Please indicate how guests should name you", form.errors[NON_FIELD_ERRORS])
 
+    @tag('avatar')
+    @override_settings(MEDIA_ROOT='tests/assets/')
+    def test_missing_avatar_file(self):
+        # The form is expected to raise an error when existing avatar file
+        # cannot be found on disk.
+        profile = ProfileFactory(avatar='null.png')
+        form = self._init_form({}, instance=profile, save=True)
+        self.assertFalse(form.is_valid())
+        self.assertIn('avatar', form.errors)
+        self.assertEqual(
+            form.errors['avatar'],
+            ["There seems to be a problem with the avatar's file. Please re-upload it or choose 'Clear'."]
+        )
+        self.assertRaises(ValueError, form.save)
+
     def test_valid_data(self):
         for profile, profile_tag in (self.profile_with_no_places,
                                      self.profile_hosting,

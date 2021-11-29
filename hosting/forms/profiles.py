@@ -79,6 +79,19 @@ class ProfileForm(forms.ModelForm):
 
         self.fields['avatar'].widget.attrs['accept'] = 'image/*'
 
+    def clean_avatar(self):
+        try:
+            self.cleaned_data['avatar'].file
+        except AttributeError:
+            pass
+        except IOError:
+            raise forms.ValidationError(
+                _("There seems to be a problem with the avatar's file. "
+                  "Please re-upload it or choose '%(label)s'."),
+                code='faulty_binary',
+                params={'label': self.fields['avatar'].widget.clear_checkbox_label})
+        return self.cleaned_data['avatar']
+
     def clean(self):
         """
         Sets specific fields as required when user wants their data to be

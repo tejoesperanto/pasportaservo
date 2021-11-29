@@ -164,15 +164,22 @@ class AccountAttributesSimilarityValidator():
 
 def validate_image(content):
     """Validates if Content Type is an image."""
-    if getattr(content.file, 'content_type', None):
+    try:
         content_type = content.file.content_type.split('/')[0]
+    except (IOError, AttributeError):
+        pass
+    else:
         if content_type != 'image':
             raise ValidationError(_("File type is not supported."), code='file-type')
 
 
 def validate_size(content):
     """Validates if the size of the content in not too big."""
-    if content.file.size > validate_size.MAX_UPLOAD_SIZE:
+    try:
+        content_size = content.file.size
+    except IOError:
+        content_size = 0
+    if content_size > validate_size.MAX_UPLOAD_SIZE:
         message = _("Please keep file size under %(limit)s. Current file size %(current_size)s.")
         raise ValidationError(message, code='file-size', params={
             'limit': lazy(filesizeformat, str)(validate_size.MAX_UPLOAD_SIZE),
