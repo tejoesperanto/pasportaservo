@@ -1726,6 +1726,15 @@ msgid "Names ordering"
 msgstr "Ordigo de la nomoj"
 
 #: hosting/forms/profiles.py
+#, python-format
+msgid ""
+"There seems to be a problem with the avatar's file. Please re-upload it or "
+"choose '%(label)s'."
+msgstr ""
+"Ŝajnas ke estas problemo pri la profilbilda dosiero. Bonvole re-alŝutu ĝin "
+"aŭ elektu “%(label)s”."
+
+#: hosting/forms/profiles.py
 msgid "Please indicate how guests should name you"
 msgstr "Bonvole indiku kiel gastoj nomu vin"
 

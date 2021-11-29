@@ -1,7 +1,6 @@
 from datetime import date, timedelta
 from io import BytesIO
-from types import SimpleNamespace
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, PropertyMock, patch
 
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db.models import CharField, Model
@@ -149,14 +148,23 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
         faker = Faker()
         data = BytesIO(faker.binary(length=10))
         data.name = faker.file_name(category='image')
-        test_content = SimpleNamespace()  # Mocking the Django's ImageField.
-        test_content.file = data
+        class DummyField: pass       # noqa: E701
+        test_content = DummyField()  # Mocking the Django's ImageField.
 
         with self.assertNotRaises(ValidationError):
+            # A field with no underlying file is expected to pass the validation.
             validate_image(test_content)
+            type(test_content).file = PropertyMock(side_effect=FileNotFoundError)
+            validate_image(test_content)
+            del type(test_content).file  # Clear the property mock for further testing.
+            # A field with file of unknown content type is expected to pass the validation.
+            test_content.file = data
+            validate_image(test_content)
+            # A field with file of content type 'image' is expected to pass the validation.
             data.content_type = faker.mime_type(category='image')
             validate_image(test_content)
 
+        # A field with file of unsupported content type is expected to fail validation.
         for category in ['application', 'audio', 'message', 'model', 'multipart', 'text', 'video']:
             data.content_type = faker.mime_type(category=category)
             with self.subTest(content_type=data.content_type):
@@ -169,7 +177,8 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
 
     def test_validate_image_size(self):
         faker = Faker()
-        test_content = SimpleNamespace()  # Mocking the Django's ImageField.
+        class DummyField: pass       # noqa: E701
+        test_content = DummyField()  # Mocking the Django's ImageField.
 
         def prep_data(length):
             data = BytesIO(faker.binary(length=length))
@@ -177,6 +186,12 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
             data.content_type = faker.mime_type(category='image')
             data.size = length
             return data
+
+        # A field with no underlying file is expected to pass the validation.
+        with self.assertNotRaises(ValidationError):
+            type(test_content).file = PropertyMock(side_effect=FileNotFoundError)
+            validate_size(test_content)
+            del type(test_content).file  # Clear the property mock for further testing.
 
         # File size lesser than or equal to 100 kB is expected to be accepted.
         for test_length in (10, 1024, 102400):
