@@ -163,9 +163,9 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
                 with self.assertRaises(ValidationError) as cm:
                     validate_image(test_content)
                 with override_settings(LANGUAGE_CODE='en'):
-                    self.assertEqual(next(iter(cm.exception)), "File type is not supported")
+                    self.assertEqual(next(iter(cm.exception)), "File type is not supported.")
                 with override_settings(LANGUAGE_CODE='eo'):
-                    self.assertEqual(next(iter(cm.exception)), "Dosiertipo ne akceptebla")
+                    self.assertEqual(next(iter(cm.exception)), "Dosiertipo ne akceptebla.")
 
     def test_validate_image_size(self):
         faker = Faker()
@@ -194,7 +194,7 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
                 with override_settings(LANGUAGE_CODE='en'):
                     self.assertStartsWith(
                         next(iter(cm.exception)),
-                        "Please keep file size under 100,0 KB."
+                        "Please keep file size under 100.0 KB."
                     )
                 with override_settings(LANGUAGE_CODE='eo'):
                     self.assertStartsWith(

@@ -9,6 +9,7 @@ from django.core.exceptions import (
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.template.defaultfilters import filesizeformat
 from django.utils.deconstruct import deconstructible
+from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
 from core.utils import getattr_, join_lazy, split
@@ -166,7 +167,7 @@ def validate_image(content):
     if getattr(content.file, 'content_type', None):
         content_type = content.file.content_type.split('/')[0]
         if content_type != 'image':
-            raise ValidationError(_("File type is not supported"), code='file-type')
+            raise ValidationError(_("File type is not supported."), code='file-type')
 
 
 def validate_size(content):
@@ -174,8 +175,8 @@ def validate_size(content):
     if content.file.size > validate_size.MAX_UPLOAD_SIZE:
         message = _("Please keep file size under %(limit)s. Current file size %(current_size)s.")
         raise ValidationError(message, code='file-size', params={
-            'limit': filesizeformat(validate_size.MAX_UPLOAD_SIZE),
-            'current_size': filesizeformat(content.file.size),
+            'limit': lazy(filesizeformat, str)(validate_size.MAX_UPLOAD_SIZE),
+            'current_size': lazy(filesizeformat, str)(content.file.size),
         })
 
 validate_size.MAX_UPLOAD_SIZE = 102400  # 100kB

@@ -76,17 +76,17 @@ def value_without_invalid_marker(value):
 
 
 @deconstructible
-class UploadAndRenameAvatar(object):
+class RenameAndPrefixAvatar(object):
     def __init__(self, path):
         self.sub_path = path
 
-    def __call__(self, instance, filename):
+    def __call__(self, profile_instance, filename):
         ext = filename.split('.')[-1]
-        if instance.pk:
-            filename = 'p{}_{}'.format(instance.pk, hex(uuid4().fields[0])[2:-1])
-        elif instance.user:
-            filename = 'u{}_{}'.format(instance.user.pk, hex(uuid4().fields[0])[2:-1])
+        if profile_instance.pk:
+            filename = f'p{profile_instance.pk}_{uuid4().fields[0]:08x}'
+        elif profile_instance.user:
+            filename = f'u{profile_instance.user.pk}_{uuid4().fields[0]:08x}'
         else:
-            filename = 'x{}'.format(str(uuid4()))
-        filename = 'picture-{}.{}'.format(filename, ext.lower())
+            filename = f'x{uuid4()}'
+        filename = f'picture-{filename}.{ext.lower()}'
         return os.path.join(self.sub_path, filename)

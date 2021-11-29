@@ -23,13 +23,15 @@ from core.utils import (
 from hosting.countries import countries_with_mandatory_region
 from hosting.gravatar import email_to_gravatar
 from hosting.utils import (
-    geocode, geocode_city, title_with_particule, value_without_invalid_marker,
+    RenameAndPrefixAvatar, geocode, geocode_city,
+    title_with_particule, value_without_invalid_marker,
 )
 from links.utils import create_unique_url
 from maps import data as geodata
 from maps.utils import bufferize_country_boundaries
 
 from .assertions import AdditionalAsserts
+from .factories import ProfileFactory, ProfileSansAccountFactory
 
 
 @tag('utils')
@@ -167,6 +169,35 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
                 self.assertIn("gravatar.com", url)
                 self.assertIn("dcfd20df1a72567cbe06c4bce058f513", url)
                 self.assertNotIn("None", url)
+
+    @tag('avatar')
+    def test_rename_avatar(self):
+        util = RenameAndPrefixAvatar('/storage/')
+        # Avatar's path for a non-saved profile linked to a user
+        # is expected to include the user ID prefixed by 'u'.
+        profile = ProfileFactory.build()
+        profile.user.save()
+        with self.subTest(profile=profile.pk, user=profile.user.pk):
+            path = util(profile, "new_image.2021.Jpeg")
+            self.assertRegex(path, fr"^/storage/picture-u{profile.user.id}_[0-9a-f]{{8}}\.jpeg$")
+        # Avatar's path for a non-saved profile without a user
+        # is expected to include just the indicator 'x'.
+        profile = ProfileSansAccountFactory.build()
+        with self.subTest(profile=profile.pk, user=profile.user):
+            path = util(profile, "Screenshot-2018.09.26_cropped+mirrored.PnG")
+            self.assertRegex(path, r"^/storage/picture-x[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}\.png$")
+        # Avatar's path for a saved profile linked to a user
+        # is expected to include the profile ID prefixed by 'p'.
+        profile = ProfileFactory()
+        with self.subTest(profile=profile.pk, user=profile.user.pk):
+            path = util(profile, "overly long and overtly descriptive name for a file.BMP")
+            self.assertRegex(path, fr"^/storage/picture-p{profile.id}_[0-9a-f]{{8}}\.bmp$")
+        # Avatar's path for a saved profile without a user
+        # is expected to include the profile ID prefixed by 'p'.
+        profile = ProfileSansAccountFactory()
+        with self.subTest(profile=profile.pk, user=profile.user):
+            path = util(profile, "invalid>filename<attempt|.tiffany")
+            self.assertRegex(path, fr"^/storage/picture-p{profile.id}_[0-9a-f]{{8}}\.tiffany$")
 
     @patch('core.utils.requests.get')
     def test_is_password_compromised(self, mock_get):

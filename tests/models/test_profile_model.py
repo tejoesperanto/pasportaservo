@@ -1,12 +1,15 @@
+from unittest.mock import patch
+
 from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings, tag
 from django.utils.html import format_html
 
+import faker
 from django_webtest import WebTest
 from factory import Faker
 
 from hosting.gravatar import email_to_gravatar
-from hosting.utils import value_without_invalid_marker
 
 from ..assertions import AdditionalAsserts
 from ..factories import ProfileFactory, ProfileSansAccountFactory, UserFactory
@@ -173,27 +176,59 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
             death_date=Faker('date_between', start_date='+370d', end_date='+545d'))
         self.assertEqual(profile.age, 6)
 
-    def test_avatar_url(self):
-        # A normal profile is expected to be gravatar url for email.
+    @tag('avatar')
+    @patch('django.core.files.storage.FileSystemStorage.exists')
+    @patch('django.core.files.storage.FileSystemStorage.save')
+    def test_avatar_url(self, mock_storage_save, mock_storage_exists):
+        # Avatar URL for normal profile is expected to be gravatar url for email.
         profile = ProfileFactory()
         self.assertEqual(
             profile.avatar_url,
             email_to_gravatar(profile.user.email, settings.DEFAULT_AVATAR_URL)
         )
-        # A normal profile with invalid email is expected to be gravatar url for email.
+        # Avatar URL for normal profile with invalid email is expected to be gravatar url for email.
         user = UserFactory(invalid_email=True)
         profile = ProfileFactory(user=user)
         self.assertEqual(
             profile.avatar_url,
-            email_to_gravatar(value_without_invalid_marker(profile.user.email), settings.DEFAULT_AVATAR_URL)
+            email_to_gravatar(user._clean_email, settings.DEFAULT_AVATAR_URL)
         )
 
-        # A profile with no user account is expected to be gravatar url for fake family member email.
+        # Avatar URL for profile with no user account is expected to be gravatar url for fake family member email.
         profile = ProfileSansAccountFactory()
         self.assertEqual(
             profile.avatar_url,
             email_to_gravatar("family.member@pasportaservo.org", settings.DEFAULT_AVATAR_URL)
         )
+
+        # Avatar URL for profile with uploaded profile picture is expected to be the path to the picture.
+        fake = faker.Faker()
+        upfile = SimpleUploadedFile(fake.file_name(extension='png'), fake.image(image_format='png'), 'image/png')
+        mock_storage_save.return_value = "test_avatars/xyz.png"
+        mock_storage_exists.return_value = True
+        profile = ProfileFactory(avatar=upfile)
+        self.assertEqual(profile.avatar_url, f"{settings.MEDIA_URL}test_avatars/xyz.png")
+
+    @tag('avatar')
+    @patch('django.core.files.storage.FileSystemStorage.exists')
+    @patch('django.core.files.storage.FileSystemStorage.save')
+    # https://cscheng.info/2018/08/21/mocking-a-file-storage-backend-in-django-tests.html
+    def test_avatar_exists(self, mock_storage_save, mock_storage_exists):
+        # Profile with no uploaded profile picture is expected to return False.
+        profile = ProfileFactory()
+        self.assertFalse(profile.avatar_exists())
+
+        # Profile with uploaded profile picture not saved on disk is expected to return False.
+        fake = faker.Faker()
+        upfile = SimpleUploadedFile(fake.file_name(extension='png'), fake.image(image_format='png'), 'image/png')
+        mock_storage_save.return_value = "test_avatars/xyz.png"
+        mock_storage_exists.return_value = False
+        profile = ProfileFactory(avatar=upfile)
+        self.assertFalse(profile.avatar_exists())
+
+        # Profile with uploaded profile picture properly saved on disk is expected to return True.
+        mock_storage_exists.return_value = True
+        self.assertTrue(profile.avatar_exists())
 
     def test_icon(self):
         profile = ProfileFactory.build()

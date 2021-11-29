@@ -85,7 +85,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='profile',
             name='avatar',
-            field=models.ImageField(blank=True, help_text='Small image under 100kB. Ideal size: 140x140 px.', upload_to=hosting.utils.UploadAndRenameAvatar('avatars'), validators=[hosting.validators.validate_image, hosting.validators.validate_size], verbose_name='avatar'),
+            field=models.ImageField(blank=True, help_text='Small image under 100kB. Ideal size: 140x140 px.', upload_to=hosting.utils.RenameAndPrefixAvatar('avatars'), validators=[hosting.validators.validate_image, hosting.validators.validate_size], verbose_name='avatar'),
         ),
         migrations.AlterField(
             model_name='profile',
