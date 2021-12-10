@@ -261,7 +261,7 @@ class AgreementAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
-        return request.method != 'POST'
+        return False
 
 
 class TrackingModelAdmin(ShowConfirmedMixin):
@@ -604,24 +604,17 @@ class WhereaboutsAdmin(ShowCountryMixin, admin.ModelAdmin):
 @admin.register(Condition)
 class ConditionAdmin(admin.ModelAdmin):
     list_display = ('name', 'abbr')
-    prepopulated_fields = {'slug': ("name",)}
-
-    fields = ('name', 'abbr', 'slug', 'icon')
+    prepopulated_fields = {'slug': ('name',)}
+    fields = ('name', 'abbr', 'slug')
+    readonly_fields = ('icon',)
 
     def icon(self, obj):
         return format_html('<img src="{static}img/cond_{slug}.svg" style="width:4ex; height:4ex;"/>',
                            static=settings.STATIC_URL, slug=obj.slug)
     icon.short_description = _("image")
 
-    def add_view(self, request, form_url='', extra_context=None):
-        self.readonly_fields = ()
-        return super().add_view(
-            request, form_url=form_url, extra_context=extra_context)
-
-    def change_view(self, request, object_id, form_url='', extra_context=None):
-        self.readonly_fields = ('icon',)
-        return super().change_view(
-            request, object_id, form_url=form_url, extra_context=extra_context)
+    def get_fields(self, request, obj=None):
+        return self.fields + (('icon',) if obj is not None else ())
 
 
 @admin.register(Website)
