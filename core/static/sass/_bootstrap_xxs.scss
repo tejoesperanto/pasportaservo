@@ -48,6 +48,9 @@
     }
     @include further-grid-columns("xxs", "xs");
 
+    .fullwidth-xxs {
+        width: 100%;
+    }
     .btn-smaller-xxs {
         padding: 4px 8px;
         line-height: 1.5;

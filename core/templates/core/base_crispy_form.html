@@ -34,7 +34,7 @@
                     {% endblock %}
                     {% block fields_after %}{% endblock %}
                     {# The additional items should not be <div> to avoid breaking the :last-of-type CSS #}
-                    <p class="pull-right">
+                    <p class="pull-right{% block form_submit_class %}{% endblock %}">
                         {% block form_submit %}
                             <button type="submit" class="btn btn-primary" id="id_form_submit" data-kbdshortcut="{% block form_keyboard_shortcut %}{% endblock %}">
                                 {% block form_submit_button %}{% trans "Confirm" %}{% endblock %}
