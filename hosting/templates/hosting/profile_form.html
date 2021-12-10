@@ -46,6 +46,11 @@
         <script src="{% static 'popup/magnific-popup.min.js' %}"></script>
 {% endblock %}
 
+{% block page %}
+    {% asvar admin_submit_condition %}{% if view.role == roles.ADMIN and not view.place %}True{% endif %}{% endasvar %}
+    {{ block.super }}
+{% endblock %}
+
 {% block form_title %}
     {% if view.place and view.role >= roles.SUPERVISOR %}
         {{ view.place }} <hr />
@@ -55,6 +60,12 @@
 {% block form_block_class %} profile-form {% endblock %}
 
 {% block enctype %}enctype='multipart/form-data'{% endblock %}
+
+{% block fields_after %}
+    {% if admin_submit_condition %}
+        <hr class="visible-xxs-block" />
+    {% endif %}
+{% endblock %}
 
 {% block form_back_link %}
     {% if view.place %}
@@ -68,7 +79,4 @@
     {% endif %}
 {% endblock %}
 
-{% block form_submit %}
-    {% asvar admin_submit_condition %}{% if view.role == roles.ADMIN and not view.place %}True{% endif %}{% endasvar %}
-    {{ block.super }}
-{% endblock %}
+{% block form_submit_class %}{% if admin_submit_condition %} fullwidth-xxs{% endif %}{% endblock %}

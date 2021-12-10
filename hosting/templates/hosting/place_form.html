@@ -41,14 +41,23 @@
         <script src="{% static 'chosen/chosen.jquery.min.js' %}" type="text/javascript"></script>
 {% endblock %}
 
-{% block form_container_class %}col-xs-12 col-md-offset-2 col-md-8{% endblock %}
 
-
-{% block form_submit %}
+{% block page %}
     {% asvar admin_submit_condition %}{% if view.role == roles.ADMIN and not form.location %}True{% endif %}{% endasvar %}
     {% asvar extra_submit_condition %}{% if not form.location %}True{% endif %}{% endasvar %}
     {{ block.super }}
 {% endblock %}
+
+{% block form_container_class %}col-xs-12 col-md-offset-2 col-md-8{% endblock %}
+
+{% block fields_after %}
+    {% if admin_submit_condition or extra_submit_condition %}
+        <hr class="visible-xxs-block" />
+    {% endif %}
+{% endblock %}
+
+{% block form_submit_class %}{% if admin_submit_condition or extra_submit_condition %} fullwidth-xxs{% endif %}{% endblock %}
+
 {% block form_submit_extra_button_name %}_gotomap{% endblock %}
 {% block form_submit_extra_button %}
         <span class="fa fa-location-dot" aria-hidden="true"></span>

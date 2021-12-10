@@ -12,7 +12,15 @@
     {% endif %}
 {% endblock %}
 
-{% block form_submit %}
+{% block page %}
     {% asvar admin_submit_condition %}{% if view.role == roles.ADMIN %}True{% endif %}{% endasvar %}
     {{ block.super }}
 {% endblock %}
+
+{% block fields_after %}
+    {% if admin_submit_condition %}
+        <hr class="visible-xxs-block" />
+    {% endif %}
+{% endblock %}
+
+{% block form_submit_class %}{% if admin_submit_condition %} fullwidth-xxs{% endif %}{% endblock %}

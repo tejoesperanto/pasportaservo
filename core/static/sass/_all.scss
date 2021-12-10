@@ -1242,6 +1242,10 @@ p.tip {
         }
     }
 
+    #id_form_submit_ext, #id_form_submit_ext + #id_form_submit,
+    #id_form_submit_alt, #id_form_submit_alt + #id_form_submit {
+        width: 100%;
+    }
     #page.settings #privacy_form {
         .privacy-checkbox input[type="checkbox"] ~ .optinout-success {
             display: block;
