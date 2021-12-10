@@ -31,5 +31,6 @@ phonenumberslite==8.12.19
 requests==2.25.1
 sendgrid-django==2.0.0
 sentry-sdk==1.0.0
+user_agents==2.2.0
 
 wheel

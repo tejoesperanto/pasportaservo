@@ -117,3 +117,59 @@ class Agreement(TimeStampedModel):
             policy=self.policy_version,
             date=self.created
         )
+
+
+class UserBrowser(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, verbose_name=_("user"),
+        related_name='+', null=True, on_delete=models.SET_NULL)
+    user_agent_string = models.CharField(
+        _("user agent string"),
+        max_length=250)
+    user_agent_hash = models.CharField(
+        _("user agent hash"),
+        max_length=32)
+    geolocation = models.CharField(
+        _("location"),
+        blank=True,
+        max_length=50,
+        help_text=_("Region and country code, separated by comma."))
+    added_on = models.DateTimeField(
+        _("created"),
+        auto_now_add=True)
+    os_name = models.CharField(
+        _("operating system"),
+        blank=True,
+        max_length=15)
+    os_version = models.CharField(
+        _("operating system version"),
+        blank=True,
+        max_length=15)
+    browser_name = models.CharField(
+        _("browser"),
+        blank=True,
+        max_length=15)
+    browser_version = models.CharField(
+        _("browser version"),
+        blank=True,
+        max_length=15)
+    device_type = models.CharField(
+        _("type of device"),
+        blank=True,
+        max_length=30)
+
+    class Meta:
+        verbose_name = _("user browser")
+        verbose_name_plural = _("user browsers")
+
+    def __str__(self):
+        return (f'{self.user.username}: '
+                f'{self.browser_name or "?"} {self.browser_version} '
+                f'{_("at")} {self.os_name or "?"} {self.os_version}')
+
+    def __repr__(self):
+        return ((f"<User: {self.user.username}"
+                 f" · Browser: {self.browser_name} {self.browser_version}"
+                 f" · OS: {self.os_name} {self.os_version}")
+                + (f" · Device: {self.device_type}" if self.device_type else "")
+                + ">")

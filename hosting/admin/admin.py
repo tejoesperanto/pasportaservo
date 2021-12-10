@@ -18,7 +18,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from django_countries.fields import Country
 
-from core.models import Agreement
+from core.models import Agreement, UserBrowser
 from maps.widgets import AdminMapboxGlWidget
 
 from ..models import (
@@ -262,6 +262,49 @@ class AgreementAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         return False
+
+
+@admin.register(UserBrowser)
+class UserBrowserAdmin(admin.ModelAdmin):
+    list_display = (
+        'user', 'os_name', 'os_version', 'browser_name', 'browser_version', 'added_on',
+    )
+    ordering = ('user__username', '-added_on')
+    list_filter = (
+        'os_name', 'os_version', 'browser_name', 'browser_version',
+    )
+    fields = (
+        'user_agent_string', 'user_agent_hash',
+        'os_name', 'os_version', 'browser_name', 'browser_version', 'device_type',
+        'geolocation',
+    )
+    raw_id_fields = ('user',)
+    readonly_fields = ('added_on',)
+
+    def user_link(self, obj):
+        try:
+            link = reverse('admin:auth_user_change', args=[obj.user.pk])
+            return format_html('<a href="{link}">{user}</a>', link=link, user=obj.user)
+        except AttributeError:
+            return format_html('{userid} <sup>?</sup>', userid=obj.user_id)
+    user_link.short_description = _("user")
+    user_link.admin_order_field = 'user__username'
+
+    def get_fields(self, request, obj=None):
+        return (
+            ('user' if obj is None else 'user_link',)
+            + self.fields
+            + (('added_on',) if obj is not None else ())
+        )
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def get_form(self, request, *args, **kwargs):
+        form = super().get_form(request, *args, **kwargs)
+        if form.base_fields:
+            form.base_fields['user_agent_string'].widget.attrs['style'] = "width: 50em;"
+        return form
 
 
 class TrackingModelAdmin(ShowConfirmedMixin):
