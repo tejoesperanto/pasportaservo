@@ -1,6 +1,7 @@
 # https://faker.readthedocs.io/en/latest/providers/faker.providers.person.html
 import re
 from datetime import timedelta
+from hashlib import md5
 from random import choice, randint, random, uniform as uniform_random
 
 from django.contrib.gis.geos import LineString, Point
@@ -91,6 +92,61 @@ class StaffUserFactory(UserFactory):
 
 class AdminUserFactory(StaffUserFactory):
     is_superuser = True
+
+
+class UserBrowserFactory(DjangoModelFactory):
+    class Meta:
+        model = 'core.UserBrowser'
+        exclude = ('BROWSERS', 'browser', 'PLATFORMS', 'platform', 'platform_token')
+
+    BROWSERS = {
+        'chrome': ("Google Chrome", r'Chrome/([0-9.]+)'),
+        'firefox': ("Mozilla Firefox", r'Firefox/([0-9.]+)'),
+        'internet_explorer': ("MSIE", r'MSIE ([0-9.]+)'),
+        'opera': ("Opera", r'Version/([0-9.]+)'),
+        'safari': ("Apple Safari", r'Version/([0-9.]+)'),
+    }
+    PLATFORMS = {
+        'android': r'(Android) ([0-9.]+)',
+        'ios': r'(i[a-zA-Z]+ OS) ([0-9_]+)',
+        'linux': r'(Linux) ()',
+        'mac': r'(Mac OS X) ([0-9_]+)',
+        'windows': r'(Windows) (.+)',
+    }
+
+    user = factory.SubFactory('tests.factories.UserFactory', profile=None)
+    browser = Faker('random_element', elements=BROWSERS.keys())
+    user_agent_string = factory.LazyAttribute(lambda obj: getattr(InstantFaker(), obj.browser)())
+    user_agent_hash = factory.LazyAttribute(lambda obj: md5(obj.user_agent_string.encode('utf-8')).hexdigest())
+    browser_name = factory.LazyAttribute(lambda obj: obj.BROWSERS[obj.browser][0])
+
+    @factory.lazy_attribute
+    def browser_version(self):
+        m = re.search(self.BROWSERS[self.browser][1], self.user_agent_string)
+        return m.group(1) if m else ''
+
+    platform = Faker('random_element', elements=PLATFORMS.keys())
+
+    @factory.lazy_attribute
+    def platform_token(self):
+        return re.search(
+            self.PLATFORMS[self.platform],
+            getattr(InstantFaker(), f'{self.platform}_platform_token')()
+        )
+
+    os_name = factory.LazyAttribute(lambda obj: obj.platform_token.group(1) if obj.platform_token else '')
+    os_version = factory.LazyAttribute(lambda obj: obj.platform_token.group(2) if obj.platform_token else '')
+
+    @factory.lazy_attribute
+    def device_type(self):
+        if not self.platform_token:
+            return ''
+        platform = self.platform_token.group(1)
+        return (
+            "Smartphone" if platform.startswith('iPhone') or platform == 'Android'
+            else "Tablet" if platform.startswith('iPad')
+            else "PC"
+        )
 
 
 class ProfileFactory(DjangoModelFactory):

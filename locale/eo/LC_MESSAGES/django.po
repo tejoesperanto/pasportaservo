@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2021-11-07 22:42+0000\n"
+"POT-Revision-Date: 2021-12-22 07:06+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -364,6 +364,54 @@ msgstr "interkonsentoj"
 #, python-brace-format
 msgid "User {user} agreed to '{policy}' on {date:%Y-%m-%d}"
 msgstr "Uzanto {user} akceptis '{policy}' je {date:%Y-%m-%d}"
+
+#: core/models.py
+msgid "user agent string"
+msgstr "aplikaĵa identigilo"
+
+#: core/models.py
+msgid "user agent hash"
+msgstr "aplikaĵa haketo"
+
+#: core/models.py hosting/admin/admin.py hosting/models.py
+msgid "location"
+msgstr "lokigo"
+
+#: core/models.py
+msgid "Region and country code, separated by comma."
+msgstr "Regiono kaj landokodo, apartigitaj per komo."
+
+#: core/models.py
+msgid "created"
+msgstr "kreita je"
+
+#: core/models.py
+msgid "operating system"
+msgstr "operaciumo"
+
+#: core/models.py
+msgid "operating system version"
+msgstr "versio de operaciumo"
+
+#: core/models.py
+msgid "browser"
+msgstr "retumilo"
+
+#: core/models.py
+msgid "browser version"
+msgstr "versio de retumilo"
+
+#: core/models.py
+msgid "type of device"
+msgstr "tipo de aparato"
+
+#: core/models.py
+msgid "user browser"
+msgstr "uzanta retumilo"
+
+#: core/models.py
+msgid "user browsers"
+msgstr "uzantaj retumiloj"
 
 #: core/templates/account/account_confirm_delete.html
 #: core/templates/account/settings.html hosting/templates/hosting/settings.html
@@ -1405,10 +1453,6 @@ msgstr "aprobita de"
 #: hosting/templates/hosting/snippets/place_conditions.html
 msgid "Conditions"
 msgstr "Kondiĉoj"
-
-#: hosting/admin/admin.py hosting/models.py
-msgid "location"
-msgstr "lokigo"
 
 #: hosting/admin/admin.py hosting/models.py
 #: hosting/templates/hosting/place_detail.html

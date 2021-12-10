@@ -1,3 +1,5 @@
+from hashlib import md5
+
 from django.conf import settings
 from django.contrib.auth.views import (
     LoginView, LogoutView, redirect_to_login as redirect_to_intercept,
@@ -10,7 +12,10 @@ from django.utils.deprecation import MiddlewareMixin
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
-from core.models import Agreement, Policy, SiteConfiguration
+import geocoder
+import user_agents
+
+from core.models import Agreement, Policy, SiteConfiguration, UserBrowser
 from core.views import AgreementRejectView, AgreementView, HomeView
 from hosting.models import Preferences, Profile
 from hosting.validators import TooNearPastValidator
@@ -55,6 +60,8 @@ class AccountFlagsMiddleware(MiddlewareMixin):
             pref = Preferences.objects.filter(profile=profile, site_analytics_consent__isnull=True)
             pref.update(site_analytics_consent=not request.DNT)
             request.session['flag_analytics_setup'] = str(timezone.now())
+
+        self._update_connection_info(request)
 
         # Is user's age above the legally required minimum?
         birth_date = profile.values_list('birth_date', flat=True)
@@ -122,3 +129,54 @@ class AccountFlagsMiddleware(MiddlewareMixin):
                     })
             t.render()
             return t
+
+    def _update_connection_info(self, request):
+        """
+        Store information about the browser and device the user is employing and
+        where the user is connecting from.
+        """
+        last_connection_check = request.session.get('flag_connection_logged')
+        if last_connection_check is None:
+            last_connection_check = timezone.make_aware(timezone.datetime(1887, 1, 1))
+        elif isinstance(last_connection_check, str):
+            last_connection_check = timezone.datetime.fromisoformat(last_connection_check)
+        connection_check = timezone.now() - last_connection_check
+
+        if timezone.timedelta(0) < connection_check < timezone.timedelta(hours=24):
+            return
+        if 'HTTP_USER_AGENT' not in getattr(request, 'META', {}):
+            return
+
+        ua_string = request.META.get('HTTP_USER_AGENT', '')
+        if not isinstance(ua_string, str):
+            ua_string = ua_string.decode('utf-8', 'ignore')
+        ua_hash = md5(ua_string.encode('utf-8')).hexdigest()
+        locations = (
+            UserBrowser.objects
+            .filter(user=request.user, user_agent_hash=ua_hash)
+            .order_by('-pk')
+        )
+        position = geocoder.ip(request.META['HTTP_X_REAL_IP']
+                               if settings.ENVIRONMENT != 'DEV'
+                               else "188.166.58.162")
+        current_location = (f'{position.state}, ' if position.state else '') + position.country
+
+        connection_id = locations.filter(geolocation=current_location).values_list('pk', flat=True).first()
+        if connection_id is None:
+            # Parse the UA (slow) and create new record only if one does not exist yet.
+            ua = user_agents.parse(ua_string)
+            conn = UserBrowser(
+                user=request.user,
+                user_agent_string=ua_string[:250],
+                user_agent_hash=ua_hash,
+                os_name=ua.os.family[:15],
+                os_version=ua.os.version_string[:15],
+                browser_name=ua.browser.family[:15],
+                browser_version=ua.browser.version_string[:15],
+                device_type=ua.get_device()[:30],
+                geolocation=current_location,
+            )
+            conn.save()
+            connection_id = conn.pk
+        request.session['connection_id'] = connection_id
+        request.session['flag_connection_logged'] = str(timezone.now())
