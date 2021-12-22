@@ -1,6 +1,8 @@
 import re
+from unittest import skipIf
 from unittest.mock import patch
 
+import django
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.views import INTERNAL_RESET_SESSION_TOKEN
@@ -35,8 +37,7 @@ def _snake_str(string):
     return ''.join([c if i % 2 else c.upper() for i, c in enumerate(string)])
 
 
-@tag('forms', 'forms-auth')
-@override_settings(LANGUAGE_CODE='en')
+@tag('forms', 'forms-auth', 'auth')
 class UserRegistrationFormTests(AdditionalAsserts, WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -114,10 +115,16 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
                 })
                 self.assertFalse(form.is_valid())
                 self.assertIn('username', form.errors)
-                self.assertEqual(
-                    form.errors['username'],
-                    ["A user with a similar username already exists."]
-                )
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertEqual(
+                        form.errors['username'],
+                        ["A user with a similar username already exists."]
+                    )
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertEqual(
+                        form.errors['username'],
+                        ["Uzanto kun simila salutnomo jam ekzistas."]
+                    )
                 self.assertNotIn('password1', form.errors)
 
     @patch('core.mixins.is_password_compromised')
@@ -135,10 +142,16 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
                 })
                 self.assertFalse(form.is_valid())
                 self.assertIn('email', form.errors)
-                self.assertEqual(
-                    form.errors['email'],
-                    ["User address already in use."]
-                )
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertEqual(
+                        form.errors['email'],
+                        ["User address already in use."]
+                    )
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertEqual(
+                        form.errors['email'],
+                        ["Adreso de uzanto jam utiligita ĉe la retejo."]
+                    )
                 self.assertNotIn('password1', form.errors)
 
     @patch('core.mixins.is_password_compromised')
@@ -156,8 +169,18 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
                 })
                 self.assertFalse(form.is_valid())
                 self.assertIn('password1', form.errors)
-                self.assertStartsWith(form.errors['password1'][0], "The password is too similar to the ")
-                self.assertIn("username", form.errors['password1'][0])
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertStartsWith(
+                        form.errors['password1'][0],
+                        "The password is too similar to the "
+                    )
+                    self.assertIn("username", form.errors['password1'][0])
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertStartsWith(
+                        form.errors['password1'][0],
+                        "La pasvorto estas tro simila al la "
+                    )
+                    self.assertIn("salutnomo", form.errors['password1'][0])
                 mock_pwd_check.assert_not_called()
 
     @patch('core.mixins.is_password_compromised')
@@ -175,8 +198,18 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
                 })
                 self.assertFalse(form.is_valid())
                 self.assertIn('password1', form.errors)
-                self.assertStartsWith(form.errors['password1'][0], "The password is too similar to the ")
-                self.assertIn("email address", form.errors['password1'][0])
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertStartsWith(
+                        form.errors['password1'][0],
+                        "The password is too similar to the "
+                    )
+                    self.assertIn("email address", form.errors['password1'][0])
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertStartsWith(
+                        form.errors['password1'][0],
+                        "La pasvorto estas tro simila al la "
+                    )
+                    self.assertIn("retpoŝta adreso", form.errors['password1'][0])
                 mock_pwd_check.assert_not_called()
 
     def test_weak_password(self):
@@ -277,8 +310,7 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
         self.assertEqual(page.context['user'].email, email)
 
 
-@tag('forms', 'forms-auth')
-@override_settings(LANGUAGE_CODE='en')
+@tag('forms', 'forms-auth', 'auth')
 class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -329,9 +361,14 @@ class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
         form = UserAuthenticationForm(
             self.dummy_request, {'username': self.user.username, 'password': "incorrect"})
         self.assertFalse(form.is_valid())
-        self.assertStartsWith(
-            form.non_field_errors()[0],
-            "Please enter the correct username and password")
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertStartsWith(
+                form.non_field_errors()[0],
+                "Please enter the correct username and password")
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertStartsWith(
+                form.non_field_errors()[0],
+                "Bonvole enigu ĝustajn salutnomon kaj pasvorton")
         self.assertNotIn('restore_request_id', self.dummy_request.session)
 
         # The error for an inactive user's login with correct credentials is
@@ -357,9 +394,14 @@ class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
         form = UserAuthenticationForm(
             self.dummy_request, {'username': self.user.username, 'password': "incorrect"})
         self.assertFalse(form.is_valid())
-        self.assertStartsWith(
-            form.non_field_errors()[0],
-            "Please enter the correct username and password")
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertStartsWith(
+                form.non_field_errors()[0],
+                "Please enter the correct username and password")
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertStartsWith(
+                form.non_field_errors()[0],
+                "Bonvole enigu ĝustajn salutnomon kaj pasvorton")
         self.assertNotIn('restore_request_id', self.dummy_request.session)
 
         # For an active user's login with correct credentials, no error is
@@ -379,10 +421,20 @@ class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
             form = UserAuthenticationForm(
                 self.dummy_request, {'username': credentials[0], 'password': credentials[1]})
             self.assertFalse(form.is_valid())
-            self.assertStartsWith(
-                form.non_field_errors()[0],
-                "Please enter the correct username and password")
-            self.assertIn("Note that both fields are case-sensitive", form.non_field_errors()[0])
+            with override_settings(LANGUAGE_CODE='en'):
+                self.assertStartsWith(
+                    form.non_field_errors()[0],
+                    "Please enter the correct username and password")
+                self.assertIn(
+                    "Note that both fields are case-sensitive",
+                    form.non_field_errors()[0])
+            with override_settings(LANGUAGE_CODE='eo'):
+                self.assertStartsWith(
+                    form.non_field_errors()[0],
+                    "Bonvole enigu ĝustajn salutnomon kaj pasvorton")
+                self.assertIn(
+                    "Notu, ke ambaŭ kampoj estas uskleco-distingaj",
+                    form.non_field_errors()[0])
 
     def test_view_page(self):
         page = self.app.get(reverse('login'))
@@ -408,8 +460,7 @@ class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
         self.assertRedirects(page, '/')
 
 
-@tag('forms', 'forms-auth')
-@override_settings(LANGUAGE_CODE='en')
+@tag('forms', 'forms-auth', 'auth')
 class UsernameUpdateFormTests(AdditionalAsserts, WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -435,29 +486,63 @@ class UsernameUpdateFormTests(AdditionalAsserts, WebTest):
         # Empty form is expected to be invalid.
         form = UsernameUpdateForm(data={})
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {'username': ["This field is required."]})
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form.errors, {'username': ["This field is required."]})
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form.errors, {'username': ["Ĉi tiu kampo estas deviga."]})
 
     def test_invalid_username(self):
         test_data = [
+            # Too-long username is expected to be rejected.
             (
-                # Too-long username is expected to be rejected.
                 "a" * (self.user._meta.get_field('username').max_length + 1),
-                f"Ensure that this value has at most "
-                f"{self.user._meta.get_field('username').max_length} characters"
+                {
+                    'en': (f"Ensure that this value has at most "
+                           f"{self.user._meta.get_field('username').max_length} characters"),
+                    'eo': (f"Certigu ke tiu ĉi valoro maksimume enhavu "
+                           f"{self.user._meta.get_field('username').max_length} karaktrojn"),
+                }
             ),
             # Username consisting of only whitespace is expected to be rejected.
-            (" \t \r \f ", "This field is required"),
+            (
+                " \t \r \f ",
+                {
+                    'en': "This field is required",
+                    'eo': "Ĉi tiu kampo estas deviga",
+                }
+            ),
             # Usernames containing invalid characters are expected to be rejected.
-            (self.user.username + " id", "Enter a username conforming to these rules: "),
-            (self.user.username + "=+~", "Enter a username conforming to these rules: "),
-            ("A<B", "Enter a username conforming to these rules: "),
+            (
+                self.user.username + " id",
+                {
+                    'en': "Enter a username conforming to these rules: ",
+                    'eo': "Enigu salutnomon laŭantan la jenajn regulojn: ",
+                }
+            ),
+            (
+                self.user.username + "=+~",
+                {
+                    'en': "Enter a username conforming to these rules: ",
+                    'eo': "Enigu salutnomon laŭantan la jenajn regulojn: ",
+                }
+            ),
+            (
+                "A<B",
+                {
+                    'en': "Enter a username conforming to these rules: ",
+                    'eo': "Enigu salutnomon laŭantan la jenajn regulojn: ",
+                }
+            ),
         ]
         for new_username, expected_error in test_data:
             with self.subTest(value=new_username):
                 form = UsernameUpdateForm(data={'username': new_username}, instance=self.user)
                 self.assertFalse(form.is_valid())
                 self.assertEqual(len(form.errors['username']), 1)
-                self.assertStartsWith(form.errors['username'][0], expected_error)
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertStartsWith(form.errors['username'][0], expected_error['en'])
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertStartsWith(form.errors['username'][0], expected_error['eo'])
 
     def test_same_username(self):
         # Username without any change is expected to be accepted.
@@ -485,10 +570,16 @@ class UsernameUpdateFormTests(AdditionalAsserts, WebTest):
             data={'username': self.user.username.capitalize()},
             instance=self.user)
         self.assertFalse(form.is_valid())
-        self.assertEqual(
-            form.errors,
-            {'username': ["A user with a similar username already exists."]}
-        )
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(
+                form.errors,
+                {'username': ["A user with a similar username already exists."]}
+            )
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(
+                form.errors,
+                {'username': ["Uzanto kun simila salutnomo jam ekzistas."]}
+            )
 
     def test_nonunique_username(self):
         other_user = UserFactory()
@@ -498,10 +589,16 @@ class UsernameUpdateFormTests(AdditionalAsserts, WebTest):
             with self.subTest(value=new_username):
                 form = UsernameUpdateForm(data={'username': new_username}, instance=self.user)
                 self.assertFalse(form.is_valid())
-                self.assertEqual(
-                    form.errors,
-                    {'username': ["A user with a similar username already exists."]}
-                )
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertEqual(
+                        form.errors,
+                        {'username': ["A user with a similar username already exists."]}
+                    )
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertEqual(
+                        form.errors,
+                        {'username': ["Uzanto kun simila salutnomo jam ekzistas."]}
+                    )
 
     def test_valid_data(self):
         new_username = self.user.username * 2
@@ -531,8 +628,7 @@ class UsernameUpdateFormTests(AdditionalAsserts, WebTest):
         self.assertEqual(self.user.username, new_username)
 
 
-@tag('forms', 'forms-auth')
-@override_settings(LANGUAGE_CODE='en')
+@tag('forms', 'forms-auth', 'auth')
 class EmailUpdateFormTests(AdditionalAsserts, WebTest):
     empty_is_invalid = True
 
@@ -574,35 +670,69 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
         form = self._init_form(data={}, instance=self.user)
         if self.empty_is_invalid:
             self.assertFalse(form.is_valid())
-            self.assertEqual(form.errors, {'email': ["Enter a valid email address."]})
+            with override_settings(LANGUAGE_CODE='en'):
+                self.assertEqual(form.errors, {'email': ["Enter a valid email address."]})
+            with override_settings(LANGUAGE_CODE='eo'):
+                self.assertEqual(form.errors, {'email': ["Enigu retadreson en ĝusta formo."]})
         else:
             self.assertTrue(form.is_valid(), msg=repr(form.errors))
 
     def test_invalid_email(self):
         test_data = [
+            # Too-long email address is expected to be rejected.
             (
-                # Too-long email address is expected to be rejected.
                 "a" * self.user._meta.get_field('email').max_length + "@xyz.biz",
-                f"Ensure that this value has at most "
-                f"{self.user._meta.get_field('email').max_length} characters"
+                {
+                    'en': (f"Ensure that this value has at most "
+                           f"{self.user._meta.get_field('email').max_length} characters"),
+                    'eo': (f"Certigu ke tiu ĉi valoro maksimume enhavu "
+                           f"{self.user._meta.get_field('email').max_length} karaktrojn"),
+                }
             ),
             # Email address containing invalid characters is expected to be rejected.
-            ("abc[def]gh@localhost", "Enter a valid email address."),
-            ("abc def gh@localhost", "Enter a valid email address."),
+            (
+                "abc[def]gh@localhost",
+                {
+                    'en': "Enter a valid email address.",
+                    'eo': "Enigu retadreson en ĝusta formo.",
+                }
+            ),
+            (
+                "abc def gh@localhost",
+                {
+                    'en': "Enter a valid email address.",
+                    'eo': "Enigu retadreson en ĝusta formo.",
+                }
+            ),
             # Email address containing more than one 'at' sign is expected to be rejected.
-            ("abc@def@gh@localhost", "Enter a valid email address."),
+            (
+                "abc@def@gh@localhost",
+                {
+                    'en': "Enter a valid email address.",
+                    'eo': "Enigu retadreson en ĝusta formo.",
+                }
+            ),
         ]
         if self.empty_is_invalid:
             test_data.append(
                 # Email address consisting of only whitespace is expected to be rejected.
-                (" \t \r \f ", "Enter a valid email address.")
+                (
+                    " \t \r \f ",
+                    {
+                        'en': "Enter a valid email address.",
+                        'eo': "Enigu retadreson en ĝusta formo.",
+                    }
+                )
             )
         for new_email, expected_error in test_data:
             with self.subTest(value=new_email):
                 form = self._init_form(data={'email': new_email}, instance=self.user)
                 self.assertFalse(form.is_valid())
                 self.assertEqual(len(form.errors['email']), 1)
-                self.assertStartsWith(form.errors['email'][0], expected_error)
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertStartsWith(form.errors['email'][0], expected_error['en'])
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertStartsWith(form.errors['email'][0], expected_error['eo'])
 
     def test_valid_strange_email(self):
         test_data = [
@@ -625,10 +755,16 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
                 form = self._init_form(data={'email': transformed_email}, instance=self.user)
                 self.assertFalse(form.is_valid())
                 self.assertEqual(len(form.errors['email']), 1)
-                self.assertStartsWith(
-                    form.errors['email'][0],
-                    f"Email address cannot start with {settings.INVALID_PREFIX}"
-                )
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertStartsWith(
+                        form.errors['email'][0],
+                        f"Email address cannot start with {settings.INVALID_PREFIX}"
+                    )
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertStartsWith(
+                        form.errors['email'][0],
+                        f"Retpoŝta adreso ne povas komenciĝi per {settings.INVALID_PREFIX}"
+                    )
 
     def test_same_email(self):
         # Email address without any change is expected to be accepted.
@@ -684,7 +820,16 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
             with self.subTest(tag=obj_tag, value=transformed_email):
                 form = self._init_form(data={'email': transformed_email}, instance=self.user)
                 self.assertFalse(form.is_valid())
-                self.assertEqual(form.errors, {'email': ["User address already in use."]})
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertEqual(
+                        form.errors,
+                        {'email': ["User address already in use."]}
+                    )
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertEqual(
+                        form.errors,
+                        {'email': ["Adreso de uzanto jam utiligita ĉe la retejo."]}
+                    )
 
         # Attempting to use an email address similar to an existing invalid address
         # is expected to result in error.
@@ -692,20 +837,32 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
             data={'email': self.invalid_email_user.email},
             instance=self.user)
         self.assertFalse(form.is_valid())
-        self.assertTrue(
-            any(
-                e.startswith(f"Email address cannot start with {settings.INVALID_PREFIX}")
-                for e in form.errors['email']
-            ),
-            msg=repr(form.errors))
-        self.assertNotIn("User address already in use.", form.errors['email'])
+        expected_errors = {
+            'en': f"Email address cannot start with {settings.INVALID_PREFIX}",
+            'eo': f"Retpoŝta adreso ne povas komenciĝi per {settings.INVALID_PREFIX}",
+        }
+        unexpected_errors = {
+            'en': "User address already in use.",
+            'eo': "Adreso de uzanto jam utiligita ĉe la retejo.",
+        }
+        for lang in expected_errors:
+            with override_settings(LANGUAGE_CODE=lang):
+                self.assertTrue(
+                    any(
+                        e.startswith(expected_errors[lang])
+                        for e in form.errors['email']
+                    ),
+                    msg=repr(form.errors))
+                self.assertNotIn(unexpected_errors[lang], form.errors['email'])
 
-        transformed_email = "{}{}".format(
-            settings.INVALID_PREFIX, self.invalid_email_user._clean_email)
+        transformed_email = f"{settings.INVALID_PREFIX}{self.invalid_email_user._clean_email}"
         transformed_email = _snake_str(transformed_email.lower())
         form = self._init_form(data={'email': transformed_email}, instance=self.user)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors['email'], ["User address already in use."])
+        expected_errors = unexpected_errors
+        for lang in expected_errors:
+            with override_settings(LANGUAGE_CODE=lang):
+                self.assertEqual(form.errors['email'], [expected_errors[lang]])
 
     def test_valid_data(self):
         for obj_tag, obj in (("normal email", self.user),
@@ -725,43 +882,60 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
         self.assertIsInstance(page.context['form'], EmailUpdateForm)
 
     @override_settings(EMAIL_SUBJECT_PREFIX_FULL="TEST ")
-    def test_form_submit(self, obj=None):
+    def form_submission_tests(self, *, lang, obj=None):
         obj = self.user if obj is None else obj
-        page = self.app.get(reverse('email_update'), user=obj)
         old_email = obj._clean_email
         new_email = '{}@ps.org'.format(_snake_str(obj.username))
         unchanged_email = obj.email
 
-        page.form['email'] = new_email
-        page = page.form.submit()
-        obj.refresh_from_db()
-        self.assertRedirects(
-            page,
-            reverse('profile_edit', kwargs={
-                'pk': obj.profile.pk, 'slug': obj.profile.autoslug})
-        )
+        with override_settings(LANGUAGE_CODE=lang):
+            page = self.app.get(reverse('email_update'), user=obj)
+            page.form['email'] = new_email
+            page = page.form.submit()
+            obj.refresh_from_db()
+            self.assertRedirects(
+                page,
+                reverse('profile_edit', kwargs={
+                    'pk': obj.profile.pk, 'slug': obj.profile.autoslug})
+            )
         self.assertEqual(obj.email, unchanged_email)
         self.assertEqual(len(mail.outbox), 2)
+        test_subject = {
+            'en': "TEST Change of email address",
+            'eo': "TEST Retpoŝtadreso ĉe retejo ŝanĝita",
+        }
         test_contents = {
-            old_email: (
-                "you (or someone on your behalf) requested "
-                "a change of your email address",
-                f"The new address is: {new_email}",
-            ),
-            new_email: (
-                "you requested to change your email address",
-                "Please go to the following page to confirm your new email address:",
-            ),
+            old_email: {
+                'en': ("you (or someone on your behalf) requested a change of your email address",
+                       f"The new address is: {new_email}",),
+                'eo': ("vi (aŭ iu vianome) petis ŝanĝon de via retpoŝta adreso",
+                       f"La nova adreso estas: {new_email}",),
+            },
+            new_email: {
+                'en': ("you requested to change your email address",
+                       "Please go to the following page to confirm your new email address:",),
+                'eo': ("vi petis ŝanĝon de via retpoŝta adreso",
+                       "Bonvole iru al la jena paĝo por konfirmi vian novan retadreson:",),
+            },
         }
         for i, recipient in enumerate([old_email, new_email]):
-            self.assertEqual(mail.outbox[i].subject, "TEST Change of email address")
+            self.assertEqual(mail.outbox[i].subject, test_subject[lang])
             self.assertEqual(mail.outbox[i].from_email, settings.DEFAULT_FROM_EMAIL)
             self.assertEqual(mail.outbox[i].to, [recipient])
-            for content in test_contents[recipient]:
+            for content in test_contents[recipient][lang]:
                 self.assertIn(content, mail.outbox[i].body)
 
+    def test_form_submit(self):
+        mail.outbox = []
+        self.form_submission_tests(lang='en')
+        mail.outbox = []
+        self.form_submission_tests(lang='eo')
+
     def test_form_submit_for_invalid_email(self):
-        self.test_form_submit(obj=self.invalid_email_user)
+        mail.outbox = []
+        self.form_submission_tests(obj=self.invalid_email_user, lang='en')
+        mail.outbox = []
+        self.form_submission_tests(obj=self.invalid_email_user, lang='eo')
 
 
 class EmailStaffUpdateFormTests(EmailUpdateFormTests):
@@ -782,13 +956,13 @@ class EmailStaffUpdateFormTests(EmailUpdateFormTests):
         self.assertEqual(len(page.forms), 1)
         self.assertIsInstance(page.context['form'], EmailStaffUpdateForm)
 
-    def test_form_submit(self, obj=None):
+    def form_submission_tests(self, *, lang, obj=None):
         obj = self.user if obj is None else obj
+        new_email = '{}@ps.org'.format(_snake_str(obj.username))
         page = self.app.get(
             reverse('staff_email_update', kwargs={
                 'pk': obj.profile.pk, 'slug': obj.profile.autoslug}),
             user=self.supervisor)
-        new_email = '{}@ps.org'.format(_snake_str(obj.username))
         page.form['email'] = new_email
         page = page.form.submit()
         obj.refresh_from_db()
@@ -801,8 +975,7 @@ class EmailStaffUpdateFormTests(EmailUpdateFormTests):
         self.assertEqual(len(mail.outbox), 0)
 
 
-@tag('forms', 'forms-auth')
-@override_settings(LANGUAGE_CODE='en')
+@tag('forms', 'forms-auth', 'auth')
 class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -834,7 +1007,10 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
         # Empty form is expected to be invalid.
         form = self._init_form(data={})
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {'email': ["This field is required."]})
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form.errors, {'email': ["This field is required."]})
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form.errors, {'email': ["Ĉi tiu kampo estas deviga."]})
 
     def test_get_users(self):
         with self.settings(PASSWORD_HASHERS=[
@@ -881,63 +1057,92 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
             " but the account is deactivated"
         )
 
-    def _get_email_content(self, active):
+    def _get_email_content(self, active, lang):
         test_data = {}
-        test_data[True] = (
-            "TEST Password reset",
-            [
-                "You're receiving this email because you requested "
-                "a password reset for your user account",
-                "Please go to the following page and choose a new password:",
-            ],
-            [
-                "you deactivated your account previously",
-            ]
-        )
-        test_data[False] = (
-            "TEST Password reset",
-            [
-                "You're receiving this email because you requested "
-                "a password reset for your user account",
-                "Unfortunately, you deactivated your account previously, "
-                "and first it needs to be re-activated",
-            ],
-            [
-                "Please go to the following page and choose a new password:",
-            ]
-        )
-        return test_data[active]
+        test_data[True] = {
+            'en': (
+                "TEST Password reset",
+                [
+                    "You're receiving this email because you requested "
+                    "a password reset for your user account",
+                    "Please go to the following page and choose a new password:",
+                ],
+                [
+                    "you deactivated your account previously",
+                ],
+            ),
+            'eo': (
+                "TEST Nova pasvorto",
+                [
+                    "Vi ricevis ĉi tiun retpoŝton ĉar vi petis pasvortan "
+                    "rekomencigon por via uzanta konto",
+                    "Bonvolu iri al la sekvanta paĝo kaj elekti novan pasvorton:",
+                ],
+                [
+                    "vi malaktivigis vian konton en la pasinteco",
+                ],
+            ),
+        }
+        test_data[False] = {
+            'en': (
+                "TEST Password reset",
+                [
+                    "You're receiving this email because you requested "
+                    "a password reset for your user account",
+                    "Unfortunately, you deactivated your account previously, "
+                    "and first it needs to be re-activated",
+                ],
+                [
+                    "Please go to the following page and choose a new password:",
+                ],
+            ),
+            'eo': (
+                "TEST Nova pasvorto",
+                [
+                    "Vi ricevis ĉi tiun retpoŝton ĉar vi petis pasvortan "
+                    "rekomencigon por via uzanta konto",
+                    "Bedaŭrinde vi malaktivigis vian konton en la pasinteco, "
+                    "kaj unue necesas ĝin restarigi",
+                ],
+                [
+                    "Bonvolu iri al la sekvanta paĝo kaj elekti novan pasvorton:",
+                ],
+            )
+        }
+        return test_data[active][lang]
 
     @override_settings(EMAIL_SUBJECT_PREFIX_FULL="TEST ")
     def test_active_user_request(self):
         # Active users are expected to receive an email with password reset link.
         for user_tag, user in [("normal email", self.active_user),
                                ("invalid email", self.active_invalid_email_user)]:
-            with self.subTest(tag=user_tag):
-                # No warnings are expected on the auth log.
-                with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
-                    form = self._init_form({'email': user._clean_email})
-                    self.assertTrue(form.is_valid())
-                    form.save(
-                        subject_template_name=self._related_view.subject_template_name,
-                        email_template_name=self._related_view.email_template_name,
-                        html_email_template_name=self._related_view.html_email_template_name,
-                    )
-                    # Workaround for lack of assertNotLogs.
-                    auth_log.warning("No warning emitted.")
-                self.assertEqual(len(log.records), 1)
-                self.assertEqual(log.records[0].message, "No warning emitted.")
-                # The email message is expected to describe the password reset procedure.
-                title, expected_content, not_expected_content = self._get_email_content(True)
-                self.assertEqual(len(mail.outbox), 1)
-                self.assertEqual(mail.outbox[0].subject, title)
-                self.assertEqual(mail.outbox[0].from_email, settings.DEFAULT_FROM_EMAIL)
-                self.assertEqual(mail.outbox[0].to, [user._clean_email])
-                for content in expected_content:
-                    self.assertIn(content, mail.outbox[0].body)
-                for content in not_expected_content:
-                    self.assertNotIn(content, mail.outbox[0].body)
-            mail.outbox = []
+            for lang in ['en', 'eo']:
+                with override_settings(LANGUAGE_CODE=lang):
+                    with self.subTest(tag=user_tag, lang=lang):
+                        # No warnings are expected on the auth log.
+                        with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
+                            form = self._init_form({'email': user._clean_email})
+                            self.assertTrue(form.is_valid())
+                            form.save(
+                                subject_template_name=self._related_view.subject_template_name,
+                                email_template_name=self._related_view.email_template_name,
+                                html_email_template_name=self._related_view.html_email_template_name,
+                            )
+                            # Workaround for lack of assertNotLogs.
+                            auth_log.warning("No warning emitted.")
+                        self.assertEqual(len(log.records), 1)
+                        self.assertEqual(log.records[0].message, "No warning emitted.")
+                        # The email message is expected to describe the password reset procedure.
+                        title, expected_content, not_expected_content = self._get_email_content(True, lang)
+                        self.assertEqual(len(mail.outbox), 1)
+                        self.assertEqual(mail.outbox[0].subject, title)
+                        self.assertEqual(mail.outbox[0].from_email, settings.DEFAULT_FROM_EMAIL)
+                        self.assertEqual(mail.outbox[0].to, [user._clean_email])
+                        for content in expected_content:
+                            self.assertIn(content, mail.outbox[0].body)
+                        for content in not_expected_content:
+                            self.assertNotIn(content, mail.outbox[0].body)
+                    mail.outbox = []
 
     @override_settings(EMAIL_SUBJECT_PREFIX_FULL="TEST ")
     def test_inactive_user_request(self):
@@ -945,35 +1150,37 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
         # for activating their account and not password reset link.
         for user_tag, user in [("normal email", self.inactive_user),
                                ("invalid email", self.inactive_invalid_email_user)]:
-            with self.subTest(tag=user_tag):
-                # A warning about a deactivated account is expected on the auth log.
-                with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
-                    form = self._init_form({'email': user._clean_email})
-                    self.assertTrue(form.is_valid())
-                    form.save(
-                        subject_template_name=self._related_view.subject_template_name,
-                        email_template_name=self._related_view.email_template_name,
-                        html_email_template_name=self._related_view.html_email_template_name,
-                    )
-                self.assertEqual(len(log.records), 1)
-                self.assertStartsWith(log.records[0].message, self._get_admin_message(user))
-                # The warning is expected to include a reference number.
-                code = re.search(r'\[([A-F0-9-]+)\]', log.records[0].message)
-                self.assertIsNotNone(code)
-                code = code.group(1)
-                # The email message is expected to describe the account reactivation procedure.
-                title, expected_content, not_expected_content = self._get_email_content(False)
-                self.assertEqual(len(mail.outbox), 1)
-                self.assertEqual(mail.outbox[0].subject, title)
-                self.assertEqual(mail.outbox[0].from_email, settings.DEFAULT_FROM_EMAIL)
-                self.assertEqual(mail.outbox[0].to, [user._clean_email])
-                for content in expected_content:
-                    self.assertIn(content, mail.outbox[0].body)
-                for content in not_expected_content:
-                    self.assertNotIn(content, mail.outbox[0].body)
-                # The email message is expected to include the reference number.
-                self.assertIn(code, mail.outbox[0].body)
-            mail.outbox = []
+            for lang in ['en', 'eo']:
+                with override_settings(LANGUAGE_CODE=lang):
+                    with self.subTest(tag=user_tag, lang=lang):
+                        # A warning about a deactivated account is expected on the auth log.
+                        with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
+                            form = self._init_form({'email': user._clean_email})
+                            self.assertTrue(form.is_valid())
+                            form.save(
+                                subject_template_name=self._related_view.subject_template_name,
+                                email_template_name=self._related_view.email_template_name,
+                                html_email_template_name=self._related_view.html_email_template_name,
+                            )
+                        self.assertEqual(len(log.records), 1)
+                        self.assertStartsWith(log.records[0].message, self._get_admin_message(user))
+                        # The warning is expected to include a reference number.
+                        code = re.search(r'\[([A-F0-9-]+)\]', log.records[0].message)
+                        self.assertIsNotNone(code)
+                        code = code.group(1)
+                        # The email message is expected to describe the account reactivation procedure.
+                        title, expected_content, not_expected_content = self._get_email_content(False, lang)
+                        self.assertEqual(len(mail.outbox), 1)
+                        self.assertEqual(mail.outbox[0].subject, title)
+                        self.assertEqual(mail.outbox[0].from_email, settings.DEFAULT_FROM_EMAIL)
+                        self.assertEqual(mail.outbox[0].to, [user._clean_email])
+                        for content in expected_content:
+                            self.assertIn(content, mail.outbox[0].body)
+                        for content in not_expected_content:
+                            self.assertNotIn(content, mail.outbox[0].body)
+                        # The email message is expected to include the reference number.
+                        self.assertIn(code, mail.outbox[0].body)
+                    mail.outbox = []
 
     def test_view_page(self):
         page = self.app.get(self.view_page_url)
@@ -1014,31 +1221,52 @@ class UsernameRemindRequestFormTests(SystemPasswordResetRequestFormTests):
             " but the account is deactivated"
         )
 
-    def _get_email_content(self, active):
+    def _get_email_content(self, active, lang):
         test_data = {}
-        test_data[True] = (
-            "TEST Username reminder",
-            [
-                "Your username, in case you've forgotten:",
-            ],
-            [
-                "you deactivated your account previously",
-            ]
-        )
-        test_data[False] = (
-            "TEST Username reminder",
-            [
-                "Your username, in case you've forgotten:",
-                "Unfortunately, you deactivated your account previously, "
-                "and first it needs to be re-activated",
-            ],
-            []
-        )
-        return test_data[active]
+        test_data[True] = {
+            'en': (
+                "TEST Username reminder",
+                [
+                    "Your username, in case you've forgotten:",
+                ],
+                [
+                    "you deactivated your account previously",
+                ],
+            ),
+            'eo': (
+                "TEST Memorigo pri salutnomo",
+                [
+                    "Via salutnomo, kaze ke vi forgesis:",
+                ],
+                [
+                    "vi malaktivigis vian konton en la pasinteco",
+                ],
+            ),
+        }
+        test_data[False] = {
+            'en': (
+                "TEST Username reminder",
+                [
+                    "Your username, in case you've forgotten:",
+                    "Unfortunately, you deactivated your account previously, "
+                    "and first it needs to be re-activated",
+                ],
+                [],
+            ),
+            'eo': (
+                "TEST Memorigo pri salutnomo",
+                [
+                    "Via salutnomo, kaze ke vi forgesis:",
+                    "Bedaŭrinde vi malaktivigis vian konton en la pasinteco, "
+                    "kaj unue necesas ĝin restarigi",
+                ],
+                [],
+            ),
+        }
+        return test_data[active][lang]
 
 
-@tag('forms', 'forms-auth', 'forms-pwd')
-@override_settings(LANGUAGE_CODE='en')
+@tag('forms', 'forms-auth', 'forms-pwd', 'auth')
 class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -1081,12 +1309,12 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
     def test_password_similar_to_account_details(self, mock_pwd_check):
         mock_pwd_check.return_value = (False, 0)
         test_data = [
-            ('username', _snake_str(self.user.username)),
-            ('email address', self.user._clean_email.upper()),
-            ('first name', _snake_str(self.user.profile.first_name)),
-            ('last name', _snake_str(self.user.profile.last_name)),
+            ('username', "salutnomo", _snake_str(self.user.username)),
+            ('email address', "retpoŝta adreso", self.user._clean_email.upper()),
+            ('first name', "persona nomo", _snake_str(self.user.profile.first_name)),
+            ('last name', "familia nomo", _snake_str(self.user.profile.last_name)),
         ]
-        for case, transformed_value in test_data:
+        for case, label_eo, transformed_value in test_data:
             with self.subTest(case=case, password=transformed_value):
                 data = {field_name: transformed_value for field_name in self.expected_fields}
                 if 'old_password' in self.expected_fields:
@@ -1094,8 +1322,16 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
                 form = self.form_class(self.user, data=data)
                 self.assertFalse(form.is_valid())
                 self.assertIn('new_password1', form.errors)
-                self.assertStartsWith(form.errors['new_password1'][0], "The password is too similar to the ")
-                self.assertIn(case, form.errors['new_password1'][0])
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertStartsWith(
+                        form.errors['new_password1'][0],
+                        "The password is too similar to the ")
+                    self.assertIn(case, form.errors['new_password1'][0])
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertStartsWith(
+                        form.errors['new_password1'][0],
+                        "La pasvorto estas tro simila al la ")
+                    self.assertIn(label_eo, form.errors['new_password1'][0])
                 mock_pwd_check.assert_not_called()
 
     def test_weak_password(self):
@@ -1118,20 +1354,26 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
         self.assertEqual(user.pk, self.user.pk)
 
     @patch('django.contrib.auth.views.default_token_generator.check_token')
-    def test_view_page(self, mock_check_token):
+    def test_view_page(self, mock_check_token, lang='en'):
         mock_check_token.return_value = True
         user_id = urlsafe_base64_encode(force_bytes(self.user.pk))
-        page = self.app.get(
-            reverse('password_reset_confirm', kwargs={
-                'uidb64': user_id if isinstance(user_id, str) else user_id.decode(),
-                'token': PasswordResetConfirmView.reset_url_token})
-        )
+        with override_settings(LANGUAGE_CODE=lang):
+            page = self.app.get(
+                reverse('password_reset_confirm', kwargs={
+                    'uidb64': user_id if isinstance(user_id, str) else user_id.decode(),
+                    'token': PasswordResetConfirmView.reset_url_token})
+            )
         self.assertEqual(page.status_code, 200, msg=repr(page))
         self.assertEqual(len(page.forms), 1)
         self.assertIsInstance(page.context['form'], SystemPasswordResetForm)
 
+    @skipIf(django.VERSION < (3, 0, 0), 'Localisation of reset URL token is in Dj3.0 and later')
+    def test_view_page_localised(self):
+        self.test_view_page(lang='eo')
+
     @patch('core.mixins.is_password_compromised')
     @patch('django.contrib.auth.views.default_token_generator.check_token')
+    @override_settings(LANGUAGE_CODE='en')
     def test_form_submit(self, mock_check_token, mock_pwd_check):
         mock_check_token.return_value = True  # Bypass Django's token verification.
         user_id = urlsafe_base64_encode(force_bytes(self.user.pk))
@@ -1170,8 +1412,9 @@ class SystemPasswordChangeFormTests(SystemPasswordResetFormTests):
             'old_password',
         ]
 
-    def test_view_page(self):
-        page = self.app.get(reverse('password_change'), user=self.user)
+    def test_view_page(self, lang='en'):
+        with override_settings(LANGUAGE_CODE=lang):
+            page = self.app.get(reverse('password_change'), user=self.user)
         self.assertEqual(page.status_code, 200, msg=repr(page))
         self.assertEqual(len(page.forms), 1)
         self.assertIsInstance(page.context['form'], SystemPasswordChangeForm)
@@ -1192,12 +1435,18 @@ class SystemPasswordChangeFormTests(SystemPasswordResetFormTests):
 def weak_password_tests(test_inst, where_to_patch, form_class, form_args, form_data, inspect_field):
     test_data = [
         (1, True, ""),
-        (2, False,
-         "The password selected by you is not very secure. "
-         "Such combination of characters is known to cyber-criminals."),
-        (100, False,
-         "The password selected by you is too insecure. "
-         "Such combination of characters is very well-known to cyber-criminals."),
+        (2, False, {
+            'en': ("The password selected by you is not very secure. "
+                   "Such combination of characters is known to cyber-criminals."),
+            'eo': ("La pasvorto elektita de vi ne estas tre sekura. "
+                   "Tia kombino de karaktroj estas konata al ciber-krimuloj."),
+        }),
+        (100, False, {
+            'en': ("The password selected by you is too insecure. "
+                   "Such combination of characters is very well-known to cyber-criminals."),
+            'eo': ("La pasvorto elektita de vi estas tro nesekura. "
+                   "Tia kombino de karaktroj estas bone konata al ciber-krimuloj."),
+        }),
     ]
     for number_seen, expected_result, expected_error in test_data:
         # Mock the response of the Pwned Pwds API to indicate a compromised password,
@@ -1210,10 +1459,16 @@ def weak_password_tests(test_inst, where_to_patch, form_class, form_args, form_d
             mock_pwd_check.assert_called_once_with(form_data[inspect_field])
         if expected_result is False:
             test_inst.assertIn(inspect_field, form.errors)
-            test_inst.assertEqual(
-                form.errors[inspect_field],
-                ["Choose a less easily guessable password."])
-            test_inst.assertEqual(form.non_field_errors(), [expected_error])
+            with override_settings(LANGUAGE_CODE='en'):
+                test_inst.assertEqual(
+                    form.errors[inspect_field],
+                    ["Choose a less easily guessable password."])
+                test_inst.assertEqual(form.non_field_errors(), [expected_error['en']])
+            with override_settings(LANGUAGE_CODE='eo'):
+                test_inst.assertEqual(
+                    form.errors[inspect_field],
+                    ["Bonvole elektu pli malfacile diveneblan pasvorton."])
+                test_inst.assertEqual(form.non_field_errors(), [expected_error['eo']])
         test_inst.assertEqual(
             log.records[0].message,
             f"Password with HIBP count {number_seen} selected in {form_class.__name__}."
