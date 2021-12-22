@@ -9,6 +9,7 @@ from django.db.models.functions import Lower
 from django.urls import reverse_lazy
 from django.utils.functional import lazy
 from django.utils.safestring import mark_safe
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
 from hosting.models import Profile
@@ -140,9 +141,10 @@ class SystemEmailFormMixin(object):
         if not email_value:
             raise ValidationError(_("Enter a valid email address."))
         if email_value.startswith(settings.INVALID_PREFIX):
-            message = _("Email address cannot start with {PREFIX} "
-                        "(in all-capital letters).").format(PREFIX=settings.INVALID_PREFIX)
-            raise ValidationError(message)
+            raise ValidationError(format_lazy(
+                _("Email address cannot start with {PREFIX} (in all-capital letters)."),
+                PREFIX=settings.INVALID_PREFIX
+            ))
         invalid_email = '{}{}'.format(settings.INVALID_PREFIX, email_value)
         emails_lookup = Q(email_lc=email_value.lower()) | Q(email_lc=invalid_email.lower())
         if email_value and email_value.lower() != self.previous_email.lower() \
