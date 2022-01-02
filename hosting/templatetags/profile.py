@@ -43,11 +43,15 @@ def is_supervisor_of(user_or_profile, profile_or_countries):
             user, "<~ '%s' " % user_or_profile if user != user_or_profile else "",
             repr(profile_or_countries))
     if isinstance(profile_or_countries, int):
+        # Assumed pk of a profile.
         try:
             profile_or_countries = Profile.objects.get(pk=profile_or_countries)
         except Profile.DoesNotExist:
-            return False
+            # For consistency, superusers are treated as supervisors of non-
+            # existing profiles, as they are assumed to have all permissions.
+            return False if not user.is_superuser else True
     elif isinstance(profile_or_countries, str):
+        # Assumed a list of country codes.
         profile_or_countries = profile_or_countries.split(" ")
 
     # supervisor = False
@@ -76,7 +80,7 @@ def supervisor_of(user_or_profile):
             return sorted(backend.get_user_supervisor_of(user))
         except Exception:
             pass
-    return ("",)
+    return []
 
 
 @register.simple_tag(takes_context=True)
