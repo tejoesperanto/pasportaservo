@@ -71,7 +71,7 @@ class SupervisorAuthBackend(ModelBackend):
                 countries = [obj.country]
                 auth_log.debug("\t\tGot a Place, %s", countries)
             elif hasattr(obj, '__iter__') and not isinstance(obj, str):
-                countries = obj  # assume an iterable of countries
+                countries = obj  # Assume an iterable of countries.
                 auth_log.debug("\t\tGot an iterable, %s", countries)
             else:
                 raise ImproperlyConfigured(
@@ -89,7 +89,8 @@ class SupervisorAuthBackend(ModelBackend):
         Compare intersection between responsibilities and given countries.
         The given object may be an iterable of countries, a single country, or a profile.
         """
-        supervised = self.get_user_supervisor_of(user_obj, obj or object(), code=True)
+        supervised = self.get_user_supervisor_of(
+            user_obj, obj if obj is not None else object(), code=True)
         return any(supervised)
 
     def has_perm(self, user_obj, perm, obj=None):
@@ -208,7 +209,7 @@ class AuthMixin(AccessMixin):
             self.allow_anonymous = True
         if not request.user.is_authenticated and not self.allow_anonymous:
             self.role = VISITOR
-            return self.handle_no_permission()  # authorization implies a logged-in user
+            return self.handle_no_permission()  # Authorization implies a logged-in user.
         if 'auth_base' in kwargs:
             object = kwargs['auth_base']
             self._auth_verify(object, context_omitted=object is None)
@@ -244,7 +245,9 @@ class AuthMixin(AccessMixin):
             if self.role in roles_allowed:
                 return object
         else:
-            auth_log.info("minimum role allowed: {- %s -} , current role: {- %s -}", self.minimum_role, self.role)
+            auth_log.info(
+                "minimum role allowed: {- %s -} , current role: {- %s -}",
+                self.minimum_role, self.role)
             if self.role >= self.minimum_role:
                 return object
         if settings.DEBUG:
