@@ -1,6 +1,6 @@
 Django==2.2.25
 psycopg2==2.8.6
-Pillow==8.3.2
+Pillow==9.0.0
 
 awesome-slugify==1.6.5
 commonmark==0.9.1
