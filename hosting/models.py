@@ -39,7 +39,7 @@ from .countries import COUNTRIES_DATA
 from .fields import (
     PhoneNumberField, RangeIntegerField, StyledEmailField, SuggestiveField,
 )
-from .filters import (
+from .filters.places import (
     HostingFilter, InBookFilter, MeetingFilter,
     OkForBookFilter, OkForGuestsFilter,
 )

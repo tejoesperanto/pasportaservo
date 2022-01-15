@@ -1,0 +1,7 @@
+{% extends './base_toggle.html' %}
+{% load variable %}
+
+{% block choices %}
+    {% asvar toggle_widget_type %}checkbox{% endasvar %}
+    {{ block.super }}
+{% endblock %}

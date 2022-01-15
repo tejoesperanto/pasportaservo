@@ -2,8 +2,8 @@
 {% load el_pagination_tags %}
 
     {% expr view.paginate_first_by or view.paginate_by as first_page %}
-    {% expr view.paginate_by as paginate_by %}
-    {% lazy_paginate first_page,paginate_by place_list %}
+    {% url 'search' cache=queryset_cache_id as pagination_url %}
+    {% lazy_paginate first_page,view.paginate_by place_list with pagination_url %}
 
     {% for place in place_list %}
         <div class="row place-list">
