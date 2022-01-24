@@ -1,0 +1,152 @@
+{
+"strings": {
+    "personal_names": {
+        "M": {
+            "A": "Aarono Abelardo Abnero Adalberto Adamo Adriano Agamemno Aiko Ajakso Akifumio Akijoŝio Akimio Akiro Akiŝigeo Akteono Alano Alariko Alberto Aleksandro Aleksio Alfredo Alio Alkajo Amadeo Ambrozio Ampelo Anatolo Andreo Anĝelo Anrio Anselmo Antono Arato Areso Arguso Arĥimedo Aristarĥo Aristofano Armando Armelo Arnoldo Arturo Asao Asklepio Aŝmodeo Atilo Atreo Atsuto Aŭgio Aŭgusto Aŭrelio Azumo",
+            "B": "Baldueno Baltazaro Banrio Baptisto Barbaro Barnabo Bartolomeo Baruĥo Bastiano Bazilo Benedikto Benito Benjameno Bernardo Bertilo Bertrando Blazio Bonaparto Bonifaco Boriso Boromeo Brigito Bronislavo Bruno Bunĵio Bunto",
+            "C": "Celesteno Cecilo Cezaro Cicerono Cinno Cipriano Ciro Cirilo Ĉiakio Ĉihiro Ĉikajoŝio Ĉikaro Ĉitoseo Ĉuiĉio",
+            "D": "Dagoberto Daiĉio Daigo Daikio Dairokuo Daisukeo Daiŝino Daizo Dajo Damiano Damoklo Danielo Dario Davido Demetrio Demokrito Denizo Djego Dimitro Diodoro Diogeno Diomedo Dionizio Domiciano Dominiko Donaldo",
+            "E": "Eberhardo Edgaro Edmundo Eduardo Eiĉiro Eiĵio Eikiĉio Einosukeo Eisukeo Eiŝuno Eizo Elija Elio Eliezero Emanuelo Emeriko Emilo Emilio Enriko Epikteto Erasmo Eriko Ernesto Etsuĵio Eŭgeno Eŭripido Eŭstako",
+            "F": "Fabio Fabiano Fabricio Falko Farnezo Faŭsto Felikso Ferdinando Fernando Filipo Filokteto Filono Filipo Firmiano Flaminio Flavio Floriano Francisko Franko Frederiko Fuĵio Fujukio Fumiakio Fumihiko Fumiĥiro Fumijo Fusanosukeo Fusazaneo Futoŝio",
+            "G": "Gabrielo Gajo Gakuo Gakuto Galbo Gasparo Gastono Geniĉiro Genĵiro Gentaro Gento Genzo Georgo Gerardo Gedeono Giĉio Gilberto Gino Godfredo Goiĉio Gontrano Gonzago Goro Gregorio Gustavo Ĝenovevo Ĝeraldo Ĝermano Ĝofredo",
+            "H": "Habelo Hajanario Haĵimeo Haroldo Haruakio Harujoŝio Haruko Hedvigo Heleno Hektoro Henriko Herberto Hermano Herodo Herodoto Heziodo Hiacinto Hideakio Hieronimo Hirokio Hisajo Homero Horacio Huberto Hugo Ĥagajo Ĥiro Ĥiramo",
+            "I": "Iĉiro Ignaco Iko Ikuo Inocento Iono Ipejo Ireneo Isaako Isamio Isao Isejo Ismailo Iŝam Itaruo Itsukio Ivao Ivo Ivano Izokrato Izumio",
+            "J": "Jakobo Jano Janosukeo Jasuo Jemaso Jeremio Jesaja Jesuo Johano Jonatano Jozefo Jozo Jugio Jugo Juliano Julio Justiniano Juto Juvenalo Ĵafaro Ĵaspero Ĵotaro Ĵuzo",
+            "K": "Kaino Kaito Kamilo Kandido Karlo Kasio Kataldo Katsujoŝio Kazimiro Keiĉio Keito Kengo Kentaro Kento Kjo Klaŭdio Klemento Kleono Knuto Kolomano Konrado Konstanteno Kornelo Kotaro Kristiano Kristofo Kristoforo Ksavero",
+            "L": "Ladislao Laerto Lajo Lamberto Lanceloto Laŭro Laŭranto Lazaro Leandro Leĥo Leo Leono Leonardo Leopoldo Livio Lotario Lubomiro Luciano Ludoviko Luko",
+            "M": "Majo Makio Maksimo Maksimiliano Manfredo Manĵiro Marcelo Mario Marko Marteno Mateo Matiaso Maŭrico Meleagro Miĥaelo Mikoto Miroslavo Mirto Misao Mitridato Mohamedo Morio Muneo",
+            "N": "Namio Nankiĉio Napoleono Natano Nazaro Nestoro Nikodemo Nikolao Nikola Noa Nobuteruo Norberto Norio Normano Nujo Numo",
+            "O": "Oberono Odino Okimoto Oktavio Olafo Olivero Olego Omaro Onufrio Oskaro Osvaldo Otoĥiko Otto Oveno Ovidio",
+            "P": "Pablo Paciano Paskvalo Patriko Paŭlo Periklo Petro Pio Pilado Platono Polikarpo Prospero Prokopo Pŝemislavo Ptolemeo",
+            "R": "Rafaelo Rafalo Raizo Rajmondo Raulo Regulo Renaldo Rejo Remo Renardo Renato Rentaro Rikardo Rino Rinŝo Rjo Roberto Rodrigo Roĝero Rokuro Rolando Rolfo Romulo Ronaldo Romano Romeo Rudolfo",
+            "S": "Salomono Salvatoro Samsono Samuelo Sanĉo Sebastiano Sergeo Setho Setsuno Sigismundo Siksto Silvano Silvestro Simeono Simono Slavomiro Sogeno Solimano Soro Stanislao Stefano Sunao Ŝogo Ŝventoslavo",
+            "T": "Tadamio Tadeo Tamerlano Taro Teodoro Teodozo Teofilo Terencio Ticiano Timoteo Timuro Tito Tobio Tomaso Tomio Tonio Toruo Toŝio Trento Tristano",
+            "U": "Ugo Ulano Uliso Ulriko Umaro Umberto Umeĵio Urielo Ŭalto Ŭebstero Ŭesleo",
+            "V": "Vaclavo Valburgo Valdemaro Valenteno Valerio Valtero Vataruo Venceslavo Vereno Viktoro Vilhelmo Vincento Virgilo Vito Vitoldo Vladimiro Vojteho Voldemaro Volfgango Votano",
+            "Z": "Zaĥario Zako Zenĵiro Zenito Zenono Zentaro Zenzo Zdislavo Zmitro Zoltano Zorio"
+        },
+        "F": {
+            "A": "Abigaela Ada Adalberta Adela Adelajda Adriana Afrodita Agata Aika Akaria Alana Alberta Aleksandra Alica Amaja Amalia Amanea Amia Ana Anabela Anastazia Andrea Andromeda Anĝelika Anĝela Anita Anna Anria Antea Artemisa Antigona Anzua Aoja Arabela Ariadna Armela Asaka Asamia Atalja Aŭrora Aŭgusta Aŭgustena Aŭŝra Azumia",
+            "B": "Barbara Basilisa Beata Beatrica Benedikta Benita Benjamena Berenica Berta Betia Bianka Blanka Brigita Bronislava",
+            "C": "Ceara Cecilia Celestina Celina Cintia Ĉarlota Ĉeslava Ĉija Ĉika",
+            "D": "Dagmara Dafnea Dalia Dalila Daniela Danuta Daria Debora Debra Deja Dejanira Delfina Demetria Deniza Dezira Diana Dida Dominika Donalda Donata Dora Doriana Dorotea Dulcia",
+            "E": "Edita Eika Eimia Elektra Eleonora Eliza Elizabeta Elina Elmira Elodia Elvira Elza Emma Emilia Emiliana Emika Enora Erika Estella Estera Etela Eŭgenia Eŭrika Eva Evelina Eviana",
+            "F": "Fabia Fabiana Fatima Faŭstina Fedora Felicja Ferdinanda Filipa Fiona Flavia Flora Franciska Franĉeska Freja Frida Frederika Fuĵika",
+            "G": "Gabriela Gaja Galla Gemma Georgina Gerda Gertruda Gia Gizela Gloria Golda Gracia Greta Grizelda Gŭenda Ĝulia Ĝenoveva",
+            "H": "Hadasa Hana Harmonia Hedviga Hekata Halina Helena Helga Heloiza Henrieta Henrika Hera Hermelena Hermiona Hermosa Hersenta Hiacinta Hilda Hiroa Hitomia Ĥanna Ĥimena",
+            "I": "Iĉika Ida Idra Ikŭea Ikumia Ilona Ilza Ina Indira Indra Inna Irena Irenea Irisa Irma Irmina Irida Ita Itsuka Iva Ivanna Ivona Iza Izabela Izalina Izidora Izolda Izumia",
+            "J": "Jacinda Jagoda Jana Jasmina Jasuka Jekaterina Jenesa Jesenia Joanna Johana Joka Jolanda Jordana Joria Jozefa Jua Judita Juija Juka Julia Juliana Julieta Juliina Jumia Juna Junona Juria Jurieja Jurika Jurina Justina Ĵaneta Ĵanna",
+            "K": "Kaedea Kaja Kalina Kamila Kana Karla Karena Karina Karmena Karola Karolina Kasandra Kasumia Katalda Katalina Katrina Katia Kazimira Keja Kiara Kinga Kira Klara Klaŭdia Klemantina Kleopatra Klia Konstancia Koralia Korentina Kornelia Kotomia Kotoria Kristina Kristiana Ksantipa Ksavera Ksenia Kumia",
+            "L": "Laguna Lajla Lamberta Lana Lara Larisa Laŭra Laŭranca Lea Leda Leksia Lena Leonia Leticja Lidja Liliana Linda Lisbeta Livia Liza Lolita Loreta Lorna Lubomira Luana Lucia Lucilia Ludmila Ludovika Luiza Lumia",
+            "M": "Maa Madoka Magda Magdalena Maja Makota Malina Manuela Mara Marika Margareta Maria Marianna Marika Marlena Marta Matilda Meika Meja Melania Midoria Miĥaela Mika Mina Minoria Miraja Mira Mirabella Miranda Mirjama Miva Mizuka Moa Mona Monika",
+            "N": "Naama Nadia Nana Naoka Naomia Narumia Nastazja Natalia Nataŝa Natsukia Neala Nelda Nera Nika Nikola Nikoleta Nina Nizana Noa Nobuka Nora Norabela Norija Nuala",
+            "O": "Obelia Oda Odela Oksana Oktavia Olena Olga Olimpia Olivja Omia Ondrea Opala Ormanda Otoha Otomea Ovidia",
+            "P": "Palmira Pamela Panra Patricja Paŭla Paulina Paŭlena Paŭleta Penelopa Petra Pia Poliksena Polina Prakseda Prija Pŝemislava",
+            "R": "Rada Rafaela Raĥela Raisa Ramira Ramona Rana Rebeka Regina Reika Reja Remina Rena Renata Rieka Rika Rina Risa Rita Rjea Roanna Roberta Roksana Romualda Romula Rona Ronalda Roza Rozalia Rufina Rumia Runa Ruria Ruslana Ruta",
+            "S": "Sabina Sabrina Safrona Saja Samira Samuela Sanaa Sandra Sara Satoka Saŝa Seana Selena Serafina Sevila Sienna Silena Silvana Skarleta Sneĵana Sofia Sonia Sora Stefania Stela Subarua Sumirea Suzana Svetlana Ŝakira Ŝalonda Ŝania Ŝarona Ŝeena Ŝejla",
+            "T": "Taa Tabia Taeka Taida Taja Talia Tamara Tamika Tanja Tasmina Tatjana Teika Tekla Teksana Telma Teodora Terencia Tereza Terua Terumia Timotea Tina Tizba Tojoka Toma Tomika Tomoa Tresa Triana Tristana Tuliana",
+            "U": "Uda Ula Ulima Ulrika Ultima Umbria Una Urania Uriela Ursula Uta Ŭetlea",
+            "V": "Valda Valburga Valentina Valeria Valetta Vanda Vanesa Vanita Veda Vera Verena Verlinda Veronika Viktoria Vilda Vilhelmina Vilma Viola Violeta Vitolda Viviana",
+            "Z": "Zabela Zafira Zaida Zaira Zaltana Zaneta Zara Zaria Zdenka Zehava Zefirina Zelda Zelina Zendaja Zerelda Ziranda Zita Ziva Zofia Zohara Zoria Zumara Zuzana Zvezda"
+        }
+    },
+    "family_names": {
+        "A": "Aarons Abbe Abbott Abderhalden Abel Abrikosov Adler Agnesi Agricola Aguilon Alcubierre Alfvén Allis Alvarez Andersen Andronikashvili Ångström Arfvedson Arrhenius Ashby Azeredo",
+        "B": "Babbage Bacon Ball Barnaud Bartlett Beeckman Beguin Berthollet Berzelius Bessel Black Bodenstein Bolyai Boltzmann Borodin Borrichius Bosch Boyle Braconnot Brønsted Buchner Bunsen",
+        "C": "Cabras Calvin Cantor Cardano Carius Caro Carothers Castro Cavalieri Cavendish Chandler Chandrasekhar Châtelier Chatzidakis Chevreul Church Clarke Clapeyron Clapp Cramer Curl",
+        "D": "Dalén Dalitz Dalton Dam Damjanović Darden Das Davy Deconge Debye Dedekind Dee Delbrück Dewar Dijkgraaf Dirac Dogonadze Dolbear Dorgelo Dowker Drell Druțu Duarte Durrance Dyson",
+        "E": "Easley Eberly Eccles Eckart Eddington Ehrenfest Eichengrün Eisele Elkins El-Karoui Ellis Elo Enskog Eötvös Epp Ernst Erschler Esclangon Espagnet Esteban Evans Ewing Exner",
+        "F": "Fahroo Faraday Fawcett Feenberg Fermi Fersman Feynman Fincke Fischer FitzGerald Flapan Florov Fokker Forshaw Fourier Fox Franklin Fraunhofer Freier Freund Frisch Fues Frumkin",
+        "G": "Gallagher Garvin Gassendi Gay-Lussac Gennes Gibbs Gilbert Gödel Gog Goldratt Golic Gough Grabiner Graham Greenwood Griffiths Grignard Grimshaw Gomes Goswami Gu Guionnet Gupta",
+        "H": "Haber Hadamard Hadzi Hahn Håkansson Haldane Hardy Hartmann Hatchett Havemann Heisenberg Helmont Hersh Hess Hevesy Heyrovský Hingston Hoàng Hoff Hoffmann Huber-Dyson Hughes Hunt",
+        "I": "Ibe Iberall Iliopoulos İmamoğlu Imes Ioffe Ipsen Isgur Ishii Ising Iyengar",
+        "J": "Jaci Jackiw Jackson Jaczko Jain Janev Jaszlinszky Jaynes Jeffrey Jensen Jin Johnson Joliot-Curie Jonoska Jónsson Jordan Josephson Joshi Joule Jucys Juna",
+        "K": "Kahn Kajjam Karrer Kayser Kekulé Kerr Khan Kilby Kirchhoff Kleene Klitzing Knoevenagel Kolbe Kornberg Kornhauser Koshiba Kotwal Kowarski Krönig Krylov Kurĉatov Kurşunoğlu Kusch",
+        "L": "Łaba Lagrange Laisant Langmuir Lavoisier Lebesgue Lee Lehr Levec Levi Lewis Libavius Libby Liebig Lodge Loepp Logan Logsdon López Lorenz Löwdin Lowry Luther Lutz Lyapunov Lykken",
+        "M": "Macintyre Maddy Magnus Maier Marci Markovnikov Mayerne Meitner Mercer Mersenne Meyer Mirzakhani Mitscherlich Mohr Moivre Monge Monod Morawetz Moriaen Mulliken Murgatroyd Mylius",
+        "N": "Nagurney Nambu Napier Narlikar Neddermeyer Néel Nekrasov Nelson Nettesheim Neufville Newcomb Ney Nezan Nielsen Niethammer Nobili Nœther Nordheim Nordström Nörremberg Novoselov Nye",
+        "O": "Ohno Okikiolu Oleinik Oliphant Olive Ollerenshaw Omladič Onsager Oppenheimer Oresme Orlov Ornstein Orowan Ørsted Ortes Oriani Osheroff Osinga Ostwald Ostrogradsky Ouedraogo Owens",
+        "P": "Pagels Painlevé Panofsky Pariser Parr Pascal Pasteur Pauli Pauling Pegram Peletarius Penzias Petrzhak Piccard Plesset Plunkett Poincaré Pontecorvo Pregl Priestley Prigogine Prout",
+        "R": "Rabel Ramakrishnan Ramsay Ray Réaumur Rebek Rees Reichstein Regge Reynolds Richardson Riefenstahl Riemann Ritz Röntgen Rossby Rouelle Rovelli Runge Rutherford Ruzicka Rydberg Ryle",
+        "S": "Sally Samec Sargent Scheele Schwertzer Sefström Selten Semjonov Sendivogius Sędziwój Serna Shahak Shannon Soddy Sørensen Sós Stanovnik Stevin Stiltjes Stockmann Sunyer Svedberg",
+        "T": "Tamm Taub Taylor Tegmark Telesi Tent Thamwattana Thomson Thorn Thiessen Tiĥonov Tisler Tisseur Tokura Tomlin Tonks Torricelli Touschek Townes Tralles Treiman Tsui Turok Tyndall",
+        "U": "Ugbebor Uhlenbeck Ulam Ulcigrai Umov Upatnieks Uraltsev Urey Yalow Yang Yau Yeldham Yoccoz Yoneda Young Yunusov Yusof",
+        "Y": "Yalow Yang Yau Yeldham Yoccoz Yoneda Young Yunusov Yusof Ugbebor Uhlenbeck Ulam Ulcigrai Umov Upatnieks Uraltsev Urey",
+        "V": "Vafa Vavilov Veltman Venturi Vernadsky Viète Vigier Virtanen Vlasov Vleck Voigt Volmer Watt Waals Weaire Wei Werner Westervelt Wiley Woehler Wollaston Woodward Wurtz Wüthrich",
+        "W": "Watt Waals Weaire Wei Werner Westervelt Wiley Woehler Wollaston Woodward Wurtz Wüthrich Vafa Vavilov Veltman Venturi Vernadsky Viète Vigier Virtanen Vlasov Vleck Voigt Volmer",
+        "Z": "Zaanen Zacaire Zahedi Zannotti Zariphopoulou Zee Zehnder Zeilinger Zeldovich Zeleny Žerovnik Zermelo Ziegler Zoller Zubarev Zucchi Zupančić Żurek Zurria Zweig Zwiebach Zwirner"
+    },
+    "family_prefixes":
+        "A ,Ab ,Abu ,Al-,Bar ,ibn ,Bet ,Da ,de ,de la ,Der ,Di ,Du ,d',El-,Fitz,La ,Le,Mac,Mc,M',Ny ,O ,O',Op het ,Pour ,'t ,Ter ,van ,van der ,von ,von zu ",
+    "street_types": {
+        "common": "Strato str.",
+        "uncommon": "Aleo Avenuo ave. Bulvardo bvd. Pado"
+    },
+    "street_names": [
+        "Abio Abutilo Acero Alteo Anzino Avelujo Baobabo Betulo Cedro Cipreso Citruso Cugo Fago Forsitio Frakseno Ginko Gofero Hikorio Juglandujo Junipero Kastaneo Katajo Kenafo Kotonujo Kverko ",
+        "Lariko Ligustro Notocugo Olivujo Oranĝujo Pekanujo Piceo Pino Pirujo Pomujo Poplo Saliko Sekvojo Siringo Ŝajnlariko Ŝajnocugo Taksuso Tamariko Ulmo Vimeno Zelkovo",
+        "Ambrozio Arniko Arĝentokardo Astero Aĥileo Beliso Borago Buftalmo Cejano Centaŭreo Cikorio Dalio Doroniko Ekinaceo Ekinopso Erigerono Fajrolilio Geranio Gladiolo Gvizotio Helianto Hieracio ",
+        "Ibicelo Inkarvileo Jakarando Jovelano Kalendulo Kampso Karduo Karlino Katalpo Knifofio Konvalo Koreopso Krizantemo Laktokardo Lapo Lapsano Leonfaŭko Leontodono Leŭkanto Lilio Luzerno ",
+        "Madio Mandragoro Mirabilo Nerino Ornitogalo Papavo Peonio Pulikario Ramondo Ranunkolo Reado Rudbekio Santpaŭlio Seratulo Siningio Solidago ",
+        "Tanaceto Taraksako Tigrolilio Tomandersiao Tulipo Tusilago Verbasko Verbezeno Zantedeŝio Zinio"
+    ]
+},
+"avatars": {
+    "JPG": {
+        "content-type": "image/jpeg",
+        "list": [
+            {"url": "https://thumbs.dreamstime.com/t/red-fox-920091.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/lovely-dog-1934596.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/giraffe-s-head-picture-realy-near-loking-camera-30882275.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/st-patrick-s-day-dog-26119207.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/gray-wolf-10046924.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/tiger-standing-up-2238223.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/chameleon-back-flapped-catching-cricket-59132510.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/tibetan-terrier-fan-front-white-background-35831545.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/cat-reading-22246345.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/bear-cubs-forest-26993603.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/lion-portrait-savanna-landscape-background-mount-kilimanjaro-sunset-33764722.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/dog-jumping-over-pool-water-29720697.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/grooving-puppy-3978556.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/kitten-looking-flowers-cute-little-outdoor-wooden-snag-46973975.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/bear-female-brown-bears-cares-their-babies-40241694.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/black-bear-resting-tree-branch-great-smoky-mountains-national-park-tn-usa-43342814.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/tiger-6775284.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/white-lion-moon-light-62073026.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/small-boy-playing-27373900.jpg"},
+            {"url": "https://thumbs.dreamstime.com/t/stress-concept-exhausted-businessman-work-44859217.jpg"}
+        ]
+    },
+    "PNG": {
+        "content-type": "image/png",
+        "list": [
+            {"url": "https://images.pexels.com/photos/397975/pexels-photo-397975.png?w=200"},
+            {"url": "https://images.pexels.com/photos/337354/pexels-photo-337354.png?w=200"},
+            {"url": "https://images.pexels.com/photos/437479/pexels-photo-437479.png?w=200"},
+            {"url": "https://images.pexels.com/photos/449582/pexels-photo-449582.png?w=200"},
+            {"url": "https://images.pexels.com/photos/296859/pexels-photo-296859.png?w=200"},
+            {"url": "https://images.pexels.com/photos/449585/pexels-photo-449585.png?w=200"},
+            {"url": "https://images.pexels.com/photos/255470/pexels-photo-255470.png?w=200"},
+            {"url": "https://images.pexels.com/photos/18729/pexels-photo.png?w=200"},
+            {"url": "https://images.pexels.com/photos/70381/pexels-photo-70381.png?w=200"},
+            {"url": "https://images.pexels.com/photos/37727/pexels-photo-37727.png?w=200"}
+        ]
+    },
+    "GIF": {
+        "content-type": "image/gif",
+        "list": [
+            {"url": "https://i.giphy.com/media/lSNzUBS6CrPLa/200_s.gif"},
+            {"url": "https://i.giphy.com/media/12RuaCIfMWTII0/200_s.gif"},
+            {"url": "https://i.giphy.com/media/5Tnerik4CD11m/200_s.gif"},
+            {"url": "https://ia601802.us.archive.org/35/items/Jack-o-lantern/Pumpkin-450px.gif"},
+            {"url": "https://ia601004.us.archive.org/5/items/SneakersOnPowerLines/Powerline-Sneakers-450.gif"}
+        ]
+    },
+    "BMP": {
+        "content-type": ["image/bmp", "image/x-ms-bmp"],
+        "list": [
+            {"url": "http://www.bighappyfunhouse.com/archives/old%20maid.bmp"}
+        ]
+    }
+}
+}

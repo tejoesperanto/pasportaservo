@@ -9,7 +9,5 @@ codecov==2.1.11
 coverage==5.5.0
 flake8==3.8.4
 isort==5.7.0
-faker==9.8.2
 factory-boy==3.2.0
 pyquery==1.4.3
-rstr==2.2.6
