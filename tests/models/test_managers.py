@@ -5,7 +5,7 @@ from unittest.mock import patch
 from django.db import DatabaseError
 from django.utils.timezone import make_aware
 
-from faker import Faker
+from factory import Faker
 
 from hosting.managers import (
     NotDeletedManager, NotDeletedRawManager, TrackingManager,
@@ -29,7 +29,7 @@ class TrackingManagersTests:
            return_value=namedtuple('DummyConfig', 'confirmation_validity_period')(timedelta(days=35)))
     def test_manager_flags(self, mock_config):
         model = self.factory._meta.model
-        faker = Faker()
+        faker = Faker._get_faker()
         existing_items_count = {
             manager_name: getattr(model, manager_name).count()
             for manager_name in ['objects', 'objects_raw', 'all_objects']
@@ -97,7 +97,7 @@ class TrackingManagersTests:
     @patch('hosting.managers.SiteConfiguration.get_solo', side_effect=DatabaseError)
     def test_manager_defaults(self, mock_config):
         model = self.factory._meta.model
-        faker = Faker()
+        faker = Faker._get_faker()
         # The default validity period is expected to be 42 weeks.
         self.factory(confirmed_on=make_aware(faker.date_time_between('-288d', '-293d')))
         self.factory(confirmed_on=make_aware(faker.date_time_between('-295d', '-300d')))

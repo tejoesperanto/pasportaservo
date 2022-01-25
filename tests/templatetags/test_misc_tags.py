@@ -8,7 +8,7 @@ from django.test import TestCase, tag
 from django.utils.functional import SimpleLazyObject
 from django.utils.html import escape
 
-from faker import Faker
+from factory import Faker
 
 
 @tag('templatetags')
@@ -56,7 +56,7 @@ class PublicIdFilterTests(TestCase):
             page = Template(self.template_string).render(Context({'my_obj': obj}))
             self.assertEqual(page, "d64d289bce1a4d5a355bf948a58af770842a008d74bd375f57d182375838994c")
 
-        faker = Faker()
+        faker = Faker._get_faker()
         first_obj = Cls(
             pk=faker.pyint(),
             name=faker.first_name(),

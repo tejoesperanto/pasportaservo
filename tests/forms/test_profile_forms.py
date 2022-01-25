@@ -9,7 +9,7 @@ from django.urls import reverse
 
 import rstr
 from django_webtest import WebTest
-from faker import Faker
+from factory import Faker
 
 from core.models import SiteConfiguration
 from hosting.forms.profiles import (
@@ -19,7 +19,7 @@ from hosting.forms.profiles import (
 from hosting.models import MR, MRS, PRONOUN_CHOICES
 
 from ..assertions import AdditionalAsserts
-from ..factories import PlaceFactory, ProfileFactory, UserFactory
+from ..factories import LocaleFaker, PlaceFactory, ProfileFactory, UserFactory
 from .test_auth_forms import EmailUpdateFormTests
 
 
@@ -36,7 +36,7 @@ class ProfileFormTestingBase:
             'last_name',
         ]
         cls.config = SiteConfiguration.get_solo()
-        cls.faker = Faker()
+        cls.faker = Faker._get_faker()
         TaggedProfile = namedtuple('TaggedProfile', 'obj, tag')
 
         cls.profile_with_no_places = TaggedProfile(ProfileFactory(), "simple")
@@ -180,9 +180,12 @@ class ProfileFormTestingBase:
 
     def test_invalid_names(self):
         # A profile with names containing non-latin characters or digits is expected to be invalid.
+        zh_faker = LocaleFaker._get_faker(locale='zh')
+        id_faker = LocaleFaker._get_faker(locale='id')
+        tr_faker = LocaleFaker._get_faker(locale='tr')
         test_data = (
             ("latin name",
-             lambda: Faker(locale='zh').name(),
+             lambda: zh_faker.name(),
              "provide this data in Latin characters"),
             ("symbols",
              lambda: rstr.punctuation(2) + rstr.punctuation(6, 10, include=rstr.lowercase(4)),
@@ -211,8 +214,8 @@ class ProfileFormTestingBase:
                                              self.profile_in_book_complex):
                     with self.subTest(condition=profile_tag, field=wrong_field, violation=field_violation):
                         data = {
-                            'first_name': Faker(locale='id').first_name(),
-                            'last_name': Faker(locale='tr').last_name(),
+                            'first_name': id_faker.first_name(),
+                            'last_name': tr_faker.last_name(),
                             'birth_date': self.faker.date_between(start_date='-100y', end_date='-18y'),
                             'gender': self.faker.word(),
                         }
@@ -228,13 +231,14 @@ class ProfileFormTestingBase:
 
     def test_valid_names(self):
         # A profile with only one of the names of a user who wishes to host or meet visitors is expected to be valid.
+        en_faker = LocaleFaker._get_faker(locale='en')
         for profile, profile_tag in (self.profile_hosting,
                                      self.profile_meeting,
                                      self.profile_hosting_and_meeting):
             with self.subTest(condition=profile_tag, name="first name"):
                 form = self._init_form(
                     {
-                        'first_name': Faker(locale='en').first_name(),
+                        'first_name': en_faker.first_name(),
                         'last_name': "",
                         'birth_date': self.faker.date_between(start_date='-100y', end_date='-18y'),
                     },
@@ -244,7 +248,7 @@ class ProfileFormTestingBase:
                 form = self._init_form(
                     {
                         'first_name': "",
-                        'last_name': Faker(locale='en').last_name(),
+                        'last_name': en_faker.last_name(),
                         'birth_date': self.faker.date_between(start_date='-100y', end_date='-18y'),
                     },
                     instance=profile)
@@ -316,11 +320,13 @@ class ProfileFormTestingBase:
     @override_settings(MEDIA_ROOT='tests/assets/')
     @patch('django.core.files.storage.FileSystemStorage.save', return_value='a2529045.jpg')
     def test_valid_data(self, profile, profile_tag, mock_storage_save):
+        fr_faker = LocaleFaker._get_faker(locale='fr')
+        es_faker = LocaleFaker._get_faker(locale='es')
         for dataset_type in ("full", "partial"):
             data = {
                 'title': "",
-                'first_name': Faker(locale='fr').first_name(),
-                'last_name': Faker(locale='es').last_name(),
+                'first_name': fr_faker.first_name(),
+                'last_name': es_faker.last_name(),
                 'names_inversed': self.faker.boolean(),
                 'birth_date': self.faker.date_between(start_date='-100y', end_date='-18y'),
                 'description': "",
@@ -566,8 +572,8 @@ class ProfileFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
                 'slug': self.profile_with_no_places.obj.autoslug}),
             user=self.profile_with_no_places.obj.user,
         )
-        page.form['first_name'] = Faker(locale='hu').first_name()
-        page.form['last_name'] = Faker(locale='cs').last_name()
+        page.form['first_name'] = LocaleFaker._get_faker(locale='hu').first_name()
+        page.form['last_name'] = LocaleFaker._get_faker(locale='cs').last_name()
         page = page.form.submit()
         self.profile_with_no_places.obj.refresh_from_db()
         self.assertRedirects(
@@ -605,8 +611,8 @@ class ProfileCreateFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest)
     def test_form_submit(self):
         user = UserFactory(profile=None)
         page = self.app.get(reverse('profile_create'), user=user)
-        page.form['first_name'] = Faker(locale='hu').first_name()
-        page.form['last_name'] = Faker(locale='cs').last_name()
+        page.form['first_name'] = LocaleFaker._get_faker(locale='hu').first_name()
+        page.form['last_name'] = LocaleFaker._get_faker(locale='cs').last_name()
         page = page.form.submit()
         user.refresh_from_db()
         self.assertRedirects(
@@ -665,7 +671,8 @@ class ProfileEmailUpdateFormTests(EmailUpdateFormTests):
         self.assertIsInstance(page.context['form'], ProfileEmailUpdateForm)
 
     def form_submission_tests(self, *, lang, obj=None):
-        for new_email in (Faker().email(), " "):
+        random_email = Faker._get_faker().email()
+        for new_email in (random_email, " "):
             page = self.app.get(
                 reverse('profile_email_update', kwargs={
                     'pk': self.user.pk,

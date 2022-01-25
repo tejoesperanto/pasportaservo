@@ -7,7 +7,7 @@ from django.db.models import CharField, Model
 from django.forms import ModelForm
 from django.test import TestCase, modify_settings, override_settings, tag
 
-from faker import Faker
+from factory import Faker
 
 from hosting.validators import (
     AccountAttributesSimilarityValidator, TooFarPastValidator,
@@ -145,7 +145,7 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
         self.assertIn('pattern', validate_latin.constraint)
 
     def test_validate_image_type(self):
-        faker = Faker()
+        faker = Faker._get_faker()
         data = BytesIO(faker.binary(length=10))
         data.name = faker.file_name(category='image')
         class DummyField: pass       # noqa: E701
@@ -176,7 +176,7 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
                     self.assertEqual(next(iter(cm.exception)), "Dosiertipo ne akceptebla.")
 
     def test_validate_image_size(self):
-        faker = Faker()
+        faker = Faker._get_faker()
         class DummyField: pass       # noqa: E701
         test_content = DummyField()  # Mocking the Django's ImageField.
 
@@ -252,7 +252,7 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
         self.assertEqual(validator10, validator10)
         self.assertEqual(validator10, TooFarPastValidator(10.0))
 
-        faker = Faker()
+        faker = Faker._get_faker()
         with patch('hosting.validators.date', Mock(today=Mock(return_value=date(2024, 2, 29)))):
             for date_value in (faker.date_between_dates(date_start=date(2014, 3, 2), date_end=date(2024, 2, 28)),
                                date(2014, 2, 28),
@@ -289,7 +289,7 @@ class ValidatorsTests(AdditionalAsserts, TestCase):
         self.assertEqual(validator5, validator5)
         self.assertEqual(validator5, TooNearPastValidator(5.0))
 
-        faker = Faker()
+        faker = Faker._get_faker()
         with patch('hosting.validators.date', Mock(today=Mock(return_value=date(2024, 2, 29)))):
             for date_value in (faker.date_between_dates(date_start=date(2000, 2, 1), date_end=date(2019, 2, 27)),
                                date(2019, 2, 28)):

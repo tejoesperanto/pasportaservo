@@ -12,7 +12,7 @@ from django.urls import reverse
 
 from django_countries import Countries
 from django_webtest import WebTest
-from faker import Faker
+from factory import Faker
 
 from core.auth import OWNER, SUPERVISOR
 from core.models import SiteConfiguration
@@ -40,7 +40,7 @@ class PlaceFormTestingBase:
     @classmethod
     def setUpTestData(cls):
         cls.config = SiteConfiguration.get_solo()
-        cls.faker = Faker(locale='en-GB')
+        cls.faker = Faker._get_faker(locale='en-GB')
         cls.all_countries = Countries().countries.keys()
         countries_no_mandatory_region = (
             set(cls.all_countries) - set(countries_with_mandatory_region())
@@ -805,7 +805,7 @@ class PlaceFormTestingBase:
             (["abc"], False, "\"abc\" is not a valid value"),
             ([-3], False, "Select a valid choice. -3 is not one of the available choices."),
             (None, True, ""),
-            (Faker().random_elements(elements=self.conditions, length=3, unique=True), True, ""),
+            (self.faker.random_elements(elements=self.conditions, length=3, unique=True), True, ""),
         ]
         for selected_conditions, expected_result, expected_error in test_data:
             with self.subTest(conds=selected_conditions):
@@ -827,7 +827,7 @@ class PlaceFormTestingBase:
                     )
 
     def test_valid_data(self):
-        faker = Faker(locale='el')
+        faker = Faker._get_faker(locale='el')
         test_dataset = {
             "partial": ('country', 'state_province', 'city', 'closest_city', 'address'),
             "full": self.expected_fields.keys(),
@@ -854,7 +854,7 @@ class PlaceFormTestingBase:
 
     def _init_page_form_for_submission(self, page, modify_fields, test_data=None):
         data = test_data or {}
-        faker = Faker(locale='zh')
+        faker = Faker._get_faker(locale='zh')
         for field_name in modify_fields:
             page.form[field_name] = data[field_name] = self._fake_value(
                 field_name, country=data.get('country'), faker=faker)
@@ -1079,7 +1079,7 @@ class SubregionFormTests(AdditionalAsserts, WebTest):
         class DummyLocation(models.Model):
             subregion = models.CharField("country region", blank=True)
         cls.DummyLocationModel = DummyLocation
-        cls.faker = Faker(locale='en-GB')
+        cls.faker = Faker._get_faker(locale='en-GB')
 
     def test_labels(self):
         # The label for the region field for country without regions and without
@@ -1132,7 +1132,7 @@ class SubregionFormTests(AdditionalAsserts, WebTest):
         with self.assertLogs('PasportaServo.address', level='ERROR') as log:
             SubregionForm(
                 self.DummyLocationModel, 'subregion', for_country=country,
-                initial={'subregion': self.faker.word})
+                initial={'subregion': self.faker.word()})
         self.assertStartsWith(
             log.records[0].message,
             f"Service misconfigured: Mandatory regions for {country} are not defined!"
@@ -1247,7 +1247,7 @@ class PlaceBlockFormTests(WebTest):
     def setUpTestData(cls):
         cls.expected_fields = ['blocked_from', 'blocked_until']
         cls.place = PlaceFactory()
-        cls.faker = Faker()
+        cls.faker = Faker._get_faker()
 
     def test_init(self):
         expected_fields = {
@@ -1459,11 +1459,6 @@ class PlaceBlockFormTests(WebTest):
 @tag('forms', 'forms-place', 'place')
 @override_settings(LANGUAGE_CODE='en')
 class UserAuthorizeFormTests(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        cls.place = PlaceFactory()
-        cls.faker = Faker()
-
     def test_init(self):
         form_empty = UserAuthorizeForm()
 

@@ -5,7 +5,6 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings, tag
 from django.utils.html import format_html
 
-import faker
 from django_webtest import WebTest
 from factory import Faker
 
@@ -202,7 +201,7 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
         )
 
         # Avatar URL for profile with uploaded profile picture is expected to be the path to the picture.
-        fake = faker.Faker()
+        fake = Faker._get_faker()
         upfile = SimpleUploadedFile(fake.file_name(extension='png'), fake.image(image_format='png'), 'image/png')
         mock_storage_save.return_value = "test_avatars/xyz.png"
         mock_storage_exists.return_value = True
@@ -219,7 +218,7 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
         self.assertFalse(profile.avatar_exists())
 
         # Profile with uploaded profile picture not saved on disk is expected to return False.
-        fake = faker.Faker()
+        fake = Faker._get_faker()
         upfile = SimpleUploadedFile(fake.file_name(extension='png'), fake.image(image_format='png'), 'image/png')
         mock_storage_save.return_value = "test_avatars/xyz.png"
         mock_storage_exists.return_value = False
