@@ -182,19 +182,19 @@ class FamilyMemberFormTests(WebTest):
                 "provide this data in Latin characters",
             ), (
                 "symbols",
-                lambda: rstr.punctuation(2) + rstr.punctuation(4, 10, include=rstr.lowercase(4)),
+                lambda: rstr.punctuation(2) + rstr.punctuation(6, 10, include=rstr.lowercase(4)),
                 "provide this data in Latin characters",
             ), (
                 "digits",
-                lambda: rstr.lowercase(6, 12, include=rstr.digits()),
+                lambda: rstr.lowercase(8, 12, include=set(rstr.digits())),
                 "Digits are not allowed",
             ), (
                 "all caps",
-                lambda: rstr.uppercase(6, 12),
+                lambda: rstr.uppercase(8, 12),
                 "Today is not CapsLock day",
             ), (
                 "many caps",
-                lambda: rstr.uppercase(6, 12, include=rstr.lowercase(5)),
+                lambda: rstr.uppercase(8, 12, include=rstr.lowercase(5)),
                 "there are too many uppercase letters",
             ),
         )
