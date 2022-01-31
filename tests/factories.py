@@ -39,10 +39,26 @@ class LocaleFaker(Faker):
         return cls._FAKER_REGISTRY[locale]
 
 
+class OptionalProvider(faker.providers.BaseProvider):
+    """
+    Faker provider that generates optional data (a value or a None).
+    Inspired by OptionalProvider by lyz-code, licensed under GPLv3:
+    https://github.com/lyz-code/faker-optional
+    """
+    def optional_value(self, fake, ratio=0.85, **kwargs):
+        if random() > ratio:
+            return None
+        else:
+            return self.generator.format(fake, **kwargs)
+
+
 def fake_providers(*providers):
     return {
         'providers': [f'faker.providers.{p}' for p in providers]
     }
+
+
+Faker.add_provider(OptionalProvider)
 
 
 class PolicyFactory(DjangoModelFactory):
@@ -388,13 +404,13 @@ class TravelAdviceFactory(DjangoModelFactory):
     def active_from(self):
         faker = Faker._get_faker()
         if self.in_past:
-            faked_date = faker.date_between(start_date='-365d', end_date='-200d') if random() < 0.85 else None
+            faked_date = faker.optional_value('date_between', start_date='-365d', end_date='-200d')
         elif self.in_future:
             faked_date = faker.date_between(start_date='+2d', end_date='+199d')
         elif self.in_present:
-            faked_date = faker.date_between(start_date='-200d', end_date='-2d') if random() < 0.85 else None
+            faked_date = faker.optional_value('date_between', start_date='-200d', end_date='-2d')
         else:
-            faked_date = faker.date_object(end_datetime='+5y') if random() < 0.85 else None
+            faked_date = faker.optional_value('date_object', end_datetime='+5y')
         return faked_date
 
     @factory.lazy_attribute
@@ -403,13 +419,13 @@ class TravelAdviceFactory(DjangoModelFactory):
         if self.in_past:
             faked_date = faker.date_between(start_date='-199d', end_date='-2d')
         elif self.in_future:
-            faked_date = faker.date_between(start_date='+200d', end_date='+365d') if random() < 0.85 else None
+            faked_date = faker.optional_value('date_between', start_date='+200d', end_date='+365d')
         elif self.in_present:
-            faked_date = faker.date_between(start_date='+2d', end_date='+200d') if random() < 0.85 else None
+            faked_date = faker.optional_value('date_between', start_date='+2d', end_date='+200d')
         else:
             if self.active_from:
                 start, end = self.active_from, self.active_from + timedelta(days=365)
-                faked_date = faker.date_between_dates(date_start=start, date_end=end) if random() < 0.85 else None
+                faked_date = faker.optional_value('date_between_dates', date_start=start, date_end=end)
             else:
-                faked_date = faker.date_object(end_datetime='+5y') if random() < 0.85 else None
+                faked_date = faker.optional_value('date_object', end_datetime='+5y')
         return faked_date
