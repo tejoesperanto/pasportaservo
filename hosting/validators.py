@@ -115,7 +115,7 @@ class TooNearPastValidator(TooFarPastValidator):
 @deconstructible
 class AccountAttributesSimilarityValidator():
     def __init__(self, max_similarity=0.7):
-        self.max_similarity = max_similarity
+        self.max_similarity = max(max_similarity, 0)
 
     def __eq__(self, other):
         return (type(other) is self.__class__ and self.max_similarity == other.max_similarity)
@@ -130,8 +130,12 @@ class AccountAttributesSimilarityValidator():
         if not user:
             return
 
-        account_attributes = ['username', 'email', 'profile.first_name', 'profile.last_name', 'profile.email']
+        account_attributes = [
+            'username', 'email',
+            'profile.first_name', 'profile.last_name', 'profile.email'
+        ]
         similar_to_attributes = []
+        value = value.lower()
         for attribute_path in account_attributes:
             try:
                 path = attribute_path.split('.')
@@ -144,11 +148,15 @@ class AccountAttributesSimilarityValidator():
                 continue
             if 'email' in attribute_name:
                 attribute = value_without_invalid_marker(attribute)
+            attribute = attribute.lower()
 
             for attribute_part in set(re.split(r'\W+', attribute) + [attribute, attribute[::-1]]):
                 # The reverse value of the attribute is obtained quick-and-dirty, a more
                 # complete approach is detailed in: https://stackoverflow.com/a/56282726.
-                if SequenceMatcher(a=value.lower(), b=attribute_part.lower()).quick_ratio() >= self.max_similarity:
+                if self.exceeds_maximum_length_ratio(len(value), len(attribute_part)):
+                    continue
+                if (self.max_similarity == 0
+                        or SequenceMatcher(a=value, b=attribute_part).quick_ratio() >= self.max_similarity):
                     verbose_name = obj._meta.get_field(attribute_name).verbose_name
                     similar_to_attributes.append(verbose_name)
                     break
@@ -160,6 +168,10 @@ class AccountAttributesSimilarityValidator():
                 code='password_too_similar',
                 params={'verbose_name': join_lazy(", ", similar_to_attributes)},
             )
+
+    def exceeds_maximum_length_ratio(self, value_length, attribute_length):
+        length_bound_similarity = self.max_similarity / 2 * value_length
+        return attribute_length < length_bound_similarity and value_length >= 100 * attribute_length
 
 
 def validate_image(content):

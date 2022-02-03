@@ -428,22 +428,22 @@ class ClientSideValidationSetupTests(AdditionalAsserts, TestCase):
 class AccountAttributesSimilarityValidatorTests(AdditionalAsserts, TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.validator_dflt = AccountAttributesSimilarityValidator()
-        cls.validator_dflt.tag = "default"
+        cls.validator_default = AccountAttributesSimilarityValidator()
+        cls.validator_default.tag = "default"
         cls.validator_all = AccountAttributesSimilarityValidator(0.0)
         cls.validator_all.tag = "all"
         cls.validator_exact = AccountAttributesSimilarityValidator(1.0)
         cls.validator_exact.tag = "exact"
         cls.validator_none = AccountAttributesSimilarityValidator(1.1)
         cls.validator_none.tag = "none"
-        cls.validators = [cls.validator_dflt, cls.validator_all, cls.validator_exact, cls.validator_none]
+        cls.validators = [cls.validator_default, cls.validator_all, cls.validator_exact, cls.validator_none]
 
     def test_operators(self):
-        self.assertNotEqual(self.validator_dflt, None)
-        self.assertNotEqual(self.validator_dflt, object())
-        self.assertNotEqual(self.validator_dflt, 0.70)
-        self.assertEqual(self.validator_dflt, self.validator_dflt)
-        self.assertEqual(self.validator_dflt, AccountAttributesSimilarityValidator(70 / 100))
+        self.assertNotEqual(self.validator_default, None)
+        self.assertNotEqual(self.validator_default, object())
+        self.assertNotEqual(self.validator_default, 0.70)
+        self.assertEqual(self.validator_default, self.validator_default)
+        self.assertEqual(self.validator_default, AccountAttributesSimilarityValidator(70 / 100))
 
     def _get_spec(self, validator):
         return {'validator_tag': validator.tag, 'allowed_similarity': validator.max_similarity}
@@ -525,7 +525,7 @@ class AccountAttributesSimilarityValidatorTests(AdditionalAsserts, TestCase):
             if 'username' not in test_data['user_data']:
                 user.username = ""
             with self.subTest(field=test_data['field']):
-                for v in [self.validator_dflt, self.validator_all]:
+                for v in [self.validator_default, self.validator_all]:
                     with self.subTest(**self._get_spec(v)):
                         with self.assertRaises(ValidationError) as cm:
                             v("Jennidrake", user)
@@ -541,7 +541,7 @@ class AccountAttributesSimilarityValidatorTests(AdditionalAsserts, TestCase):
                             )
                 for v in [self.validator_exact, self.validator_none]:
                     with self.subTest(**self._get_spec(v)):
-                        self.assertNotRaises(ValidationError, lambda: v("Jennidrake"))
+                        self.assertNotRaises(ValidationError, lambda: v("Jennidrake", user))
 
     def test_extreme_validation(self):
         user = UserFactory(invalid_email=True, profile__last_name="Dragons Here", profile__with_email=True)
@@ -577,6 +577,21 @@ class AccountAttributesSimilarityValidatorTests(AdditionalAsserts, TestCase):
                         next(iter(cm.exception)),
                         f"La pasvorto estas tro simila al la {test_data['violations']['eo']}."
                     )
+
+    @patch('hosting.validators.SequenceMatcher')
+    def test_overly_long_value(self, mock_matcher):
+        user = UserFactory(
+            username="AbAb", email="a@b.co",
+            profile__first_name="Ab Ba", profile__last_name="Ba")
+        test_value = "Ab" * 300
+        for v in self.validators:
+            with self.subTest(**self._get_spec(v)):
+                if v is not self.validator_all:
+                    self.assertNotRaises(ValidationError, lambda: v(test_value, user))
+                else:
+                    self.assertRaises(ValidationError, lambda: v(test_value, user))
+                mock_matcher.assert_not_called()
+                mock_matcher.reset_mock()
 
     def test_non_validation(self):
         # For profile attributes not inspected by the validators, no violation is expected.
