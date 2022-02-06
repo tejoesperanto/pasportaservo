@@ -5,7 +5,7 @@ from django.test import tag
 
 from django_countries import Countries
 from django_webtest import WebTest
-from faker import Faker
+from factory import Faker
 
 from hosting.managers import ActiveStatusManager
 from hosting.models import TravelAdvice
@@ -80,7 +80,7 @@ class TravelAdviceModelTests(AdditionalAsserts, WebTest):
 
     def test_save(self):
         # The advice content is expected to be transformed to a formatted description.
-        faker = Faker()
+        faker = Faker._get_faker()
         for content in ([faker.sentence()], faker.sentences(2)):
             with self.subTest():
                 advice = TravelAdviceFactory.build(description="", content='\n\n'.join(content))
@@ -122,7 +122,7 @@ class ActiveStatusManagerTests(WebTest):
         self.assertIsInstance(mgr, ActiveStatusManager)
 
     def test_active_status_flag(self):
-        faker = Faker()
+        faker = Faker._get_faker()
         test_data = [
             (
                 "in past", False,

@@ -13,11 +13,11 @@ from django.test import TestCase, modify_settings, override_settings, tag
 from django.utils import timezone
 from django.views import generic
 
-import faker
 from django_countries import countries as all_countries
 from django_countries.data import COUNTRIES
 from django_countries.fields import Country
 from django_webtest import WebTest
+from factory import Faker
 
 from hosting.models import Profile
 
@@ -285,7 +285,7 @@ class AvatarDimensionFilterTests(TestCase):
         )
         cls.template = Template(template_string.substitute(SIZE=''))
         cls.template_with_size = Template(template_string.substitute(SIZE=':76.54321'))
-        fake = faker.Faker()
+        fake = Faker._get_faker()
         cls.avatar = SimpleUploadedFile(
             fake.file_name(extension='png'), fake.image(image_format='png'), 'image/png')
 

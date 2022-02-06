@@ -16,7 +16,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from django_webtest import WebTest
-from faker import Faker
+from factory import Faker
 
 from core.auth import auth_log
 from core.forms import (
@@ -56,7 +56,7 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
             lambda v: v.upper(),
             lambda v: _snake_str(v),
         ]
-        cls.faker = Faker()
+        cls.faker = Faker._get_faker()
 
     def test_init(self):
         form_empty = UserRegistrationForm()
@@ -247,7 +247,7 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
     def test_honeypot(self, mock_pwd_check):
         mock_pwd_check.return_value = (False, 0)
         for expected_result, injected_value in ((True, "  \n \f  "),
-                                                (False, self.faker.word())):
+                                                (False, self.faker.domain_word())):
             pwd = self.faker.password()
             form = UserRegistrationForm(data={
                 'username': self.faker.user_name(),
@@ -1382,7 +1382,9 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
                 'uidb64': user_id if isinstance(user_id, str) else user_id.decode(),
                 'token': PasswordResetConfirmView.reset_url_token}),
             user=self.user)
-        page.form['new_password1'] = page.form['new_password2'] = Faker().password()
+        page.form['new_password1'] = page.form['new_password2'] = (
+            Faker._get_faker().password()
+        )
         session = self.app.session
         session[INTERNAL_RESET_SESSION_TOKEN] = None
         session.save()

@@ -4,13 +4,13 @@ from django.utils.timezone import make_aware
 
 from django_countries import Countries
 from django_webtest import WebTest
-from faker import Faker
+from factory import Faker
 
 from core.models import SiteConfiguration
 from hosting.forms.phones import PhoneCreateForm, PhoneForm
 from hosting.models import PHONE_TYPE_CHOICES, Phone
 
-from ..factories import PhoneFactory, ProfileFactory
+from ..factories import LocaleFaker, PhoneFactory, ProfileFactory
 
 
 @tag('forms', 'forms-phone', 'phone')
@@ -19,7 +19,7 @@ class PhoneFormTests(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.config = SiteConfiguration.get_solo()
-        cls.faker = Faker()
+        cls.faker = Faker._get_faker()
         cls.all_countries = Countries().countries.keys()
 
         cls.expected_fields = [
@@ -220,7 +220,9 @@ class PhoneFormTests(WebTest):
                 'profile_pk': self.profile_two.pk}),
             user=self.profile_two.user,
         )
-        page.form['comments'] = comment = Faker(locale='ar').text(max_nb_chars=250)
+        page.form['comments'] = comment = (
+            LocaleFaker._get_faker(locale='ar').text(max_nb_chars=250)
+        )
         page = page.form.submit()
         self.phone4_valid.refresh_from_db()
         self.assertRedirects(
@@ -278,7 +280,9 @@ class PhoneCreateFormTests(PhoneFormTests):
         page.form['type'] = self.faker.random_element(elements=[ch[0] for ch in PHONE_TYPE_CHOICES])
         number = PhoneFactory.number.evaluate(None, None, None)
         page.form['number'] = number.as_international
-        page.form['comments'] = comment = Faker(locale='th').text(max_nb_chars=250)
+        page.form['comments'] = comment = (
+            LocaleFaker._get_faker(locale='th').text(max_nb_chars=250)
+        )
         page = page.form.submit()
         new_phone = Phone.all_objects.filter(profile=self.profile_two).order_by('-id').first()
         self.assertRedirects(

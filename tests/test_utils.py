@@ -10,7 +10,7 @@ from django.core import mail
 from django.test import TestCase, override_settings, tag
 from django.utils.functional import lazy, lazystr
 
-from faker import Faker
+from factory import Faker
 from geocoder.opencage import OpenCageQuery, OpenCageResult
 from requests.exceptions import (
     ConnectionError as HTTPConnectionError, HTTPError,
@@ -743,15 +743,18 @@ class MassMailTests(TestCase):
 
     def test_mass_html_mail(self):
         test_data = list()
-        faker = Faker()
+        faker = Faker._get_faker()
         for i in range(random.randint(3, 7)):
             test_data.append((
+                # subject line
                 faker.sentence(),
+                # content: plain text & html
                 faker.word(), "<strong>{}</strong>".format(faker.word()),
+                # author email (ignored) & emails of recipients
                 "test@ps", [],
             ))
             for j in range(random.randint(1, 3)):
-                test_data[i][4].append(faker.email())
+                test_data[i][4].append(faker.company_email())
 
         result = send_mass_html_mail(test_data)
         self.assertEqual(result, len(test_data))

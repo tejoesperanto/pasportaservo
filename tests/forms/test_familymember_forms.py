@@ -5,14 +5,14 @@ from django.urls import reverse
 
 import rstr
 from django_webtest import WebTest
-from faker import Faker
+from factory import Faker
 
 from hosting.forms.familymembers import (
     FamilyMemberCreateForm, FamilyMemberForm,
 )
 from hosting.models import MR, MRS
 
-from ..factories import PlaceFactory, ProfileSansAccountFactory
+from ..factories import LocaleFaker, PlaceFactory, ProfileSansAccountFactory
 
 
 @tag('forms', 'forms-familymembers', 'family-members')
@@ -22,7 +22,7 @@ class FamilyMemberFormTests(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.faker = Faker()
+        cls.faker = Faker._get_faker()
 
         cls.expected_fields = [
             'first_name',
@@ -175,26 +175,27 @@ class FamilyMemberFormTests(WebTest):
     def test_invalid_names(self):
         # A family member with names containing non-latin characters or digits
         # is expected to be invalid.
+        ja_faker = LocaleFaker._get_faker(locale='ja')
         test_data = (
             (
                 "latin name",
-                lambda: Faker(locale='ja').name(),
+                lambda: ja_faker.name(),
                 "provide this data in Latin characters",
             ), (
                 "symbols",
-                lambda: rstr.punctuation(2) + rstr.punctuation(4, 10, include=rstr.lowercase(4)),
+                lambda: rstr.punctuation(2) + rstr.punctuation(6, 10, include=rstr.lowercase(4)),
                 "provide this data in Latin characters",
             ), (
                 "digits",
-                lambda: rstr.lowercase(6, 12, include=rstr.digits()),
+                lambda: rstr.lowercase(8, 12, include=set(rstr.digits())),
                 "Digits are not allowed",
             ), (
                 "all caps",
-                lambda: rstr.uppercase(6, 12),
+                lambda: rstr.uppercase(8, 12),
                 "Today is not CapsLock day",
             ), (
                 "many caps",
-                lambda: rstr.uppercase(6, 12, include=rstr.lowercase(5)),
+                lambda: rstr.uppercase(8, 12, include=rstr.lowercase(5)),
                 "there are too many uppercase letters",
             ),
         )
@@ -219,7 +220,7 @@ class FamilyMemberFormTests(WebTest):
         with self.subTest(name="first name"):
             form = self._init_form(
                 {
-                    'first_name': Faker(locale='lt').first_name(),
+                    'first_name': LocaleFaker._get_faker(locale='lt').first_name(),
                     'last_name': "",
                 },
                 place=self.place_anon_family)
@@ -228,7 +229,7 @@ class FamilyMemberFormTests(WebTest):
             form = self._init_form(
                 {
                     'first_name': "",
-                    'last_name': Faker(locale='lv').last_name(),
+                    'last_name': LocaleFaker._get_faker(locale='lv').last_name(),
                 },
                 place=self.place_anon_family)
             self.assertTrue(form.is_valid())
@@ -250,8 +251,8 @@ class FamilyMemberFormTests(WebTest):
 
     def test_valid_data(self, for_place=None):
         data = {
-            'first_name': Faker(locale='lt').first_name(),
-            'last_name': Faker(locale='lv').last_name(),
+            'first_name': LocaleFaker._get_faker(locale='lt').first_name(),
+            'last_name': LocaleFaker._get_faker(locale='lv').last_name(),
             'names_inversed': True,
             'birth_date': self.faker.date_between(start_date='-99y', end_date=date.today()),
             'title': self.faker.random_element(elements=[MRS, MR]),
@@ -292,8 +293,8 @@ class FamilyMemberFormTests(WebTest):
                 'place_pk': self.place_with_family.pk}),
             user=self.place_with_family.owner.user,
         )
-        page.form['first_name'] = fname = Faker(locale='et').first_name()
-        page.form['last_name'] = lname = Faker(locale='fi').last_name()
+        page.form['first_name'] = fname = LocaleFaker._get_faker(locale='et').first_name()
+        page.form['last_name'] = lname = LocaleFaker._get_faker(locale='fi').last_name()
         page = page.form.submit()
         self.profile_one.refresh_from_db()
         self.assertRedirects(
@@ -343,8 +344,8 @@ class FamilyMemberCreateFormTests(FamilyMemberFormTests):
                 'place_pk': place_with_family.pk}),
             user=place_with_family.owner.user,
         )
-        page.form['first_name'] = fname = Faker(locale='et').first_name()
-        page.form['last_name'] = lname = Faker(locale='fi').last_name()
+        page.form['first_name'] = fname = LocaleFaker._get_faker(locale='et').first_name()
+        page.form['last_name'] = lname = LocaleFaker._get_faker(locale='fi').last_name()
         page.form['title'] = MR
         page = page.form.submit()
         self.assertRedirects(

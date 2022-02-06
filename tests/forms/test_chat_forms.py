@@ -6,7 +6,7 @@ from django.test import override_settings, tag
 from django.urls import reverse
 
 from django_webtest import WebTest
-from faker import Faker
+from factory import Faker
 from postman.models import Message
 
 from pasportaservo.forms import (
@@ -15,7 +15,7 @@ from pasportaservo.forms import (
 )
 
 from ..assertions import AdditionalAsserts
-from ..factories import UserFactory
+from ..factories import LocaleFaker, UserFactory
 
 
 @tag('forms', 'forms-chat')
@@ -25,7 +25,7 @@ class WriteFormTests(AdditionalAsserts, WebTest):
     def setUpTestData(cls):
         cls.sender = UserFactory()
         cls.recipient = UserFactory(deceased_user=True)
-        cls.faker = Faker()
+        cls.faker = Faker._get_faker()
 
     def test_init(self):
         form_empty = CustomWriteForm()
@@ -128,7 +128,7 @@ class AnonymousWriteFormTests(AdditionalAsserts, WebTest):
         self.assertIsNotNone(form_empty.fields['recipients'].user_filter)
 
     def test_clean_recipients(self):
-        faker = Faker()
+        faker = Faker._get_faker()
 
         # Writing to a deceased user is expected to raise an error.
         form = CustomAnonymousWriteForm(
@@ -182,7 +182,7 @@ class ReplyFormTests(AdditionalAsserts, WebTest):
         cls.sender = UserFactory()
         cls.recipient = rec = UserFactory(deceased_user=True)
         cls.recipient_other = rec_other = UserFactory(profile=None)
-        cls.faker = Faker('el-GR')
+        cls.faker = LocaleFaker._get_faker('el-GR')
         cls.message, cls.message_other = (cls._setup_test_message(u) for u in [rec, rec_other])
 
     @classmethod
