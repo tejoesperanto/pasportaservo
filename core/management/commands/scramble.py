@@ -3,9 +3,11 @@ import operator
 import os
 import re
 import time
+import unicodedata
 from collections import OrderedDict, defaultdict
 from datetime import date
 from functools import partial as partial_func, reduce
+from itertools import chain
 from urllib.request import Request, urlopen
 
 from django.conf import settings
@@ -19,6 +21,7 @@ import rstr
 from faker import Faker
 from faker.providers import BaseProvider
 from postman.models import Message
+from unidecode import unidecode_expect_nonascii
 
 from core.auth import ADMIN, PERM_SUPERVISOR, SUPERVISOR, VISITOR
 from core.templatetags.utils import random_identifier
@@ -75,6 +78,15 @@ class Command(BaseCommand):
             time.sleep(1)
         self.faker = Faker(locale='la')
         self.faker.add_provider(ScrambleProvider)
+        self._faker_cache = {}
+        self._letter_cache = {}
+        basic_latin_range = chain(
+            range(65, 91), range(97, 123), range(192, 215), range(217, 223)
+        )
+        for x in basic_latin_range:
+            self._letter_cache[chr(x)] = True  # Latin letter.
+        for x in range(1024, 1120):
+            self._letter_cache[chr(x)] = False  # Non-latin letter.
         if self.verbosity >= 1:
             self.stdout.write("Loading replacement images...", ending=" ")
             self.stdout.flush()
@@ -267,7 +279,7 @@ class Command(BaseCommand):
                 ])
 
             if self.verbosity >= 2 and is_changed:
-                closest_city = f" ({place.closest_city})" if place.closest_city else ""
+                closest_city = f" ⌈{place.closest_city}⌋" if place.closest_city else ""
                 addr = f", {' '.join(place.address.split())}" if place.address else ""
                 self.stdout.write(
                     f"\t changed to {place.postcode} {place.city}{closest_city} {addr}"
@@ -530,7 +542,34 @@ class Command(BaseCommand):
             return False
         if (closest) and not place.closest_city:
             return False
-        new_city = self.faker.random_city()
+        # Find a suitable address fake provider according to the language
+        # of the place's country.
+        # If none found, fall back to a random, language-neutral, string.
+        lang = COUNTRIES_DATA[place.country]['languages'][0].replace('-', '_')
+        if lang not in self._faker_cache:
+            try:
+                faker = Faker(
+                    locale=lang,
+                    providers=['faker.providers.address', 'faker.providers.person'])
+            except AttributeError:
+                # Locale not available in the Faker library.
+                faker = None
+            else:
+                provider_lang = faker.provider('faker.providers.address').__lang__
+                if not provider_lang.startswith(lang):
+                    faker = None
+            self._faker_cache[lang] = faker
+        faker = self._faker_cache[lang]
+        if faker:
+            new_city = faker.city()
+            if new_city[0] not in self._letter_cache:
+                letter_name = unicodedata.name(new_city[0], '')
+                self._letter_cache[new_city[0]] = letter_name.startswith('LATIN ')
+            if not self._letter_cache[new_city[0]]:
+                # First letter is not a latin one, convert the city name to latin.
+                new_city = f'{unidecode_expect_nonascii(new_city)} ({new_city})'
+        else:
+            new_city = self.faker.random_city()
         setattr(place, 'closest_city' if closest else 'city', new_city)
         return True
 
