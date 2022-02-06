@@ -160,6 +160,13 @@
             {% endasvar %}
             {% include './snippets/faq_item.html' with Question=Question Answer=Answer Answer_Alt1=AnswerAlt only %}
 
+            {% asvar Question %}Sed mi ne emas pagi por esti gastiganto.{% endasvar %}
+            {% asvar Answer %}
+                Registriĝo kiel gastiganto en Pasporta Servo estas libervola kaj senpaga.
+                Ni petos neniun monon de vi, kaj ĝojos vidi vin inter tiuj markitaj oranĝkolore en la serĉrezultoj.
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
+
             {% asvar Question %}Eĉ se mi havas dormlokon, mi ne havas tempon aŭ emon prizorgi gasto(j)n.{% endasvar %}
             {% asvar Answer %}
                 La gastoj devas esti memstaraj. La ideo de Pasporta Servo estas, ke oni helpas pri la tranoktado,
@@ -245,6 +252,27 @@
                 Gastigantoj ne povas (kaj foje eĉ ne rajtas) respondeci pri vi antaŭ la instancoj de sia
                 lando. Ĉiujn oficialajn paperojn necesajn por laŭleĝa restado en la lando, vi devas aranĝi
                 formale, mem.
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
+
+            {% asvar Question %}Ĉu mi mem devas gastigi por povi gasti ĉe aliaj?{% endasvar %}
+            {% asvar Answer %}
+                Ne, esti gastiganto mem ne estas antaŭkondiĉo (paroli Esperanton – jes :)
+            {% endasvar %}
+            {% asvar AnswerAlt %}
+                Se vi iam ekhavos la kondiĉojn por proponi ankaŭ al aliaj tranokteblon,
+                ni ĝojos vidi vin inter la gastigantaro de Pasporta Servo!
+            {% endasvar %}
+            {% include './snippets/faq_item.html' with Question=Question Answer=Answer Answer_Alt1=AnswerAlt only %}
+
+            {% asvar Question %}Kiom mi devas pagi por ĝui la gastigan servon?{% endasvar %}
+            {% asvar Answer %}
+                Neniom. Pro uzado de Pasporta Servo (kun la celo esplori gastigeblojn, gasti, aŭ gastigi),
+                ni petos de vi neniun monon; tio estas tute senpaga. Se vi emas subteni la projekton, ni
+                kompreneble tre ĝojos! (Vi povas fari ĝiron al TEJO indikante kiel celon “subteno por PS”.)
+                <br />
+                Atentu, tamen, ke iuj gastigantoj povas peti partoprenon en elspezoj rilataj al via ĉeesto;
+                ekzemple, repagon de manĝaĵo-kostoj. Nepre interkonsentu kun la gastiganto antaŭ via alveno.
             {% endasvar %}
             {% include './snippets/faq_item.html' with Question=Question Answer=Answer only %}
         </dl>
