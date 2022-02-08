@@ -289,9 +289,13 @@ class Command(BaseCommand):
                 if place.description:
                     self.stdout.write(f"\t \t {self.stdout_long_description(place)}")
                 if place.location:
+                    bounds = (
+                        COUNTRIES_GEO[place.country]['bbox'] if place.country
+                        else "the world"
+                    )
                     self.stdout.write(
                         f"\t \t @ {place.location.x:.6f},{place.location.y:.6f}"
-                        f" of {COUNTRIES_GEO[place.country]['bbox']}"
+                        f" of {bounds}"
                     )
             if is_changed:
                 count_changed += 1
@@ -585,10 +589,11 @@ class Command(BaseCommand):
             place.latitude, place.longitude = None, None
             updated = True
         if place.location:
+            country = place.country or self.faker.random_element(COUNTRIES_GEO.keys())
             place.location = Point(
                 [
                     self.faker.random.uniform(a, b)
-                    for a, b in zip(*COUNTRIES_GEO[place.country]['bbox'].values())
+                    for a, b in zip(*COUNTRIES_GEO[country]['bbox'].values())
                 ],
                 srid=SRID
             )
