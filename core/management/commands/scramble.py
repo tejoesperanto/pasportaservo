@@ -41,6 +41,10 @@ class Command(BaseCommand):
         Usage: ./manage.py scramble
         """
 
+    object_types = (
+        'users', 'profiles', 'places', 'phones', 'websites', 'avatars', 'messages',
+    )
+
     def add_arguments(self, parser):
         parser.add_argument(
             "--dry-run",
@@ -57,13 +61,19 @@ class Command(BaseCommand):
             help="A triple of passwords to use for the regular (REG), "
                  "the supervisor (SV), and the admin (ADM) users.",
         )
-        parser.add_argument(
-            "--no-messagebox",
-            action='store_false',
-            dest='messagebox',
-            default=True,
-            help="Do not scramble any conversations or exchanged messages."
-        )
+        for objtype in self.object_types:
+            parser.add_argument(
+                f"--{objtype}",
+                choices=('y', 'n'),
+                dest=f'scramble_only_{objtype}',
+                help="Scramble only "
+                     + (f"{objtype[:-1].title()} objects" if objtype != 'avatars'
+                        else "profile avatar files")
+                     + " if 'y'; avoid scrambling "
+                     + ("these objects" if objtype != 'messages'
+                        else "any conversations or exchanged messages")
+                     + " if 'n'.",
+            )
 
     def handle(self, *args, **options):
         self.verbosity = options['verbosity']
@@ -71,6 +81,21 @@ class Command(BaseCommand):
         self.password_templates = options['passwords']
         if not self.should_continue():
             return
+
+        include = [
+            objtype for objtype in self.object_types
+            if options[f'scramble_only_{objtype}'] == 'y'
+        ]
+        exclude = [
+            objtype for objtype in self.object_types
+            if options[f'scramble_only_{objtype}'] == 'n'
+        ]
+
+        def should_handle(objtype):
+            return (
+                (include and objtype in include)
+                or (len(include) == 0 and objtype not in exclude)
+            )
 
         if self.verbosity >= 1:
             self.stdout.write("Loading replacement strings...", ending=" ")
@@ -87,24 +112,22 @@ class Command(BaseCommand):
             self._letter_cache[chr(x)] = True  # Latin letter.
         for x in range(1024, 1120):
             self._letter_cache[chr(x)] = False  # Non-latin letter.
-        if self.verbosity >= 1:
-            self.stdout.write("Loading replacement images...", ending=" ")
-            self.stdout.flush()
-            time.sleep(1)
-        preload_images(self.faker.provider('PS.Providers.Scramble'), self)
+
+        if should_handle('avatars'):
+            if self.verbosity >= 1:
+                self.stdout.write("Loading replacement images...", ending=" ")
+                self.stdout.flush()
+                time.sleep(1)
+            preload_images(self.faker.provider('PS.Providers.Scramble'), self)
+
         if self.verbosity >= 1:
             self.stdout.write("Done.")
             self.stdout.flush()
             time.sleep(1)
 
-        self.handle_users()
-        self.handle_profiles()
-        self.handle_places()
-        self.handle_phones()
-        self.handle_websites()
-        self.handle_avatars()
-        if options['messagebox']:
-            self.handle_messages()
+        for objtype in self.object_types:
+            if should_handle(objtype):
+                getattr(self, f'handle_{objtype}')()
 
         if hasattr(self, 'passwords'):
             self.stdout.write(
@@ -148,7 +171,7 @@ class Command(BaseCommand):
         return " ".join(getattr(obj, field_name)[:30].split()) + "..."
 
     def handle_users(self):
-        character_set = 'ABCDEFGHJKLMNPQRSTUWXYZabcdefghjmnpqrstvwxyz23456789-*'
+        character_set = 'ABCDEFGHJKLMNPQRSTUWXYZabcdefghjmnpqrstvwxyz23456789=*'
         if not self.password_templates:
             self.passwords = {
                 VISITOR:    random_hash(8,  allowed_chars=character_set),
@@ -159,7 +182,7 @@ class Command(BaseCommand):
             self.passwords = dict(
                 zip((VISITOR, SUPERVISOR, ADMIN), self.password_templates)
             )
-        self.users, count_changed = {}, 0
+        self.dry_users, count_changed = {}, 0
 
         for user in get_user_model().objects.order_by('id'):
             if self.verbosity >= 2:
@@ -184,7 +207,7 @@ class Command(BaseCommand):
                     f"{{pwd: {scrambled_pwd} }}"
                 )
             if self.dry_run:
-                self.users[user.pk] = user
+                self.dry_users[user.pk] = user
             count_changed += 1
 
         if self.verbosity >= 1:
@@ -194,6 +217,7 @@ class Command(BaseCommand):
 
     def handle_profiles(self):
         count_changed, count_total = 0, 0
+        dry_users = getattr(self, 'dry_users', {})
 
         def stdout_birth_date(profile):
             return profile.birth_date if profile.birth_date else 'yyyy-mm-dd'
@@ -205,8 +229,8 @@ class Command(BaseCommand):
             return f" ⚧ {profile.gender}" if profile.gender else ""
 
         for profile in Profile.all_objects.order_by('-id'):
-            if self.dry_run and profile.user_id:
-                profile.user = self.users[profile.user_id]
+            if self.dry_run and profile.user_id and dry_users:
+                profile.user = dry_users[profile.user_id]
             if self.verbosity >= 2:
                 self.stdout.write(
                     f"{profile!r}, {profile.title}"
