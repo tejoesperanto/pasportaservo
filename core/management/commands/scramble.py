@@ -20,6 +20,7 @@ from django.utils.crypto import get_random_string as random_hash
 import rstr
 from faker import Faker
 from faker.providers import BaseProvider
+from phonenumber_field.phonenumber import PhoneNumber
 from postman.models import Message
 from unidecode import unidecode_expect_nonascii
 
@@ -632,6 +633,10 @@ class Command(BaseCommand):
         return updated
 
     def scramble_phone(self, phone):
+        if not phone.number.is_valid():
+            phone.number = PhoneNumber.from_string(
+                self.faker.numerify('% %## ## ##'), region=phone.country.code)
+            return True
         phone.number.national_number = 0
         while not phone.number.is_valid():
             phone.number.national_number = self.faker.random_int(1000000, 9999999990)
