@@ -639,7 +639,7 @@ class Command(BaseCommand):
             return True
         phone.number.national_number = 0
         while not phone.number.is_valid():
-            phone.number.national_number = self.faker.random_int(1000000, 9999999990)
+            phone.number.national_number = self.faker.random_int(10000, 99999999990)
         return True
 
     def scramble_comment(self, instance, field_name='comments'):
