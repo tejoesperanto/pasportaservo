@@ -287,7 +287,7 @@ class PhoneFactory(DjangoModelFactory):
         # the Faker's phone-number provider is a mess.
         phone = PhoneNumber()
         while not phone.is_valid():
-            phone = PhoneNumber(country_code=randint(1, 999), national_number=randint(10000000, 9999999990))
+            phone = PhoneNumber(country_code=randint(1, 999), national_number=randint(1000000, 9999999990))
         return phone
 
     country = Faker('random_element', elements=COUNTRIES.keys())
