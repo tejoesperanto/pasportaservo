@@ -550,7 +550,10 @@ class Command(BaseCommand):
     def scramble_postcode(self, place):
         if not place.postcode:
             return False
-        regex = COUNTRIES_DATA[place.country]['postcode_regex'] or r'\d{5}'
+        regex = (
+            COUNTRIES_DATA[place.country]['postcode_regex']
+            if place.country else r'\d{5}'
+        )
         # The * repetition qualifier makes the generator go wild,
         # strictly limit to 1 copy.
         regex = regex.replace('*', '{1}')
@@ -573,8 +576,11 @@ class Command(BaseCommand):
         # Find a suitable address fake provider according to the language
         # of the place's country.
         # If none found, fall back to a random, language-neutral, string.
-        lang = COUNTRIES_DATA[place.country]['languages'][0].replace('-', '_')
-        if lang not in self._faker_cache:
+        lang = (
+            COUNTRIES_DATA[place.country]['languages'][0].replace('-', '_')
+            if place.country else None
+        )
+        if lang and (lang not in self._faker_cache):
             try:
                 faker = Faker(
                     locale=lang,
@@ -587,7 +593,7 @@ class Command(BaseCommand):
                 if not provider_lang.startswith(lang):
                     faker = None
             self._faker_cache[lang] = faker
-        faker = self._faker_cache[lang]
+        faker = lang and self._faker_cache[lang]
         if faker:
             new_city = faker.city()
             if new_city[0] not in self._letter_cache:
