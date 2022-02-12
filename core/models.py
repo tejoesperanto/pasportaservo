@@ -140,7 +140,7 @@ class UserBrowser(models.Model):
     os_name = models.CharField(
         _("operating system"),
         blank=True,
-        max_length=15)
+        max_length=30)
     os_version = models.CharField(
         _("operating system version"),
         blank=True,
@@ -148,7 +148,7 @@ class UserBrowser(models.Model):
     browser_name = models.CharField(
         _("browser"),
         blank=True,
-        max_length=15)
+        max_length=30)
     browser_version = models.CharField(
         _("browser version"),
         blank=True,
