@@ -290,6 +290,13 @@ class UserBrowserAdmin(admin.ModelAdmin):
     user_link.short_description = _("user")
     user_link.admin_order_field = 'user__username'
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request).select_related('user')
+        qs = qs.only(
+                *[f.name for f in UserBrowser._meta.fields],
+                'user__id', 'user__username')
+        return qs
+
     def get_fields(self, request, obj=None):
         return (
             ('user' if obj is None else 'user_link',)
