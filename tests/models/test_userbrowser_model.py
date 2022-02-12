@@ -10,9 +10,9 @@ class UserBrowserModelTests(TestCase):
         self.assertEqual(ub._meta.get_field('user_agent_string').max_length, 250)
         self.assertEqual(ub._meta.get_field('user_agent_hash').max_length, 32)
         self.assertEqual(ub._meta.get_field('geolocation').max_length, 50)
-        self.assertEqual(ub._meta.get_field('os_name').max_length, 15)
+        self.assertEqual(ub._meta.get_field('os_name').max_length, 30)
         self.assertEqual(ub._meta.get_field('os_version').max_length, 15)
-        self.assertEqual(ub._meta.get_field('browser_name').max_length, 15)
+        self.assertEqual(ub._meta.get_field('browser_name').max_length, 30)
         self.assertEqual(ub._meta.get_field('browser_version').max_length, 15)
         self.assertEqual(ub._meta.get_field('device_type').max_length, 30)
 
