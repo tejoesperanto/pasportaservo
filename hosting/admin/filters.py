@@ -78,6 +78,51 @@ class VisibilityTargetFilter(admin.SimpleListFilter):
         return queryset.filter(model_type=self.value()) if self.value() else queryset
 
 
+class DependentFieldFilter(admin.SimpleListFilter):
+    @classmethod
+    def configure(cls, field, related_field):
+        return type(
+            ''.join(related_field.split('_')).capitalize()
+            + 'Per' + ''.join(field.split('_')).capitalize()
+            + 'Filter',
+            (cls,),
+            {
+                'origin_field': field,
+                'related_field': related_field,
+                'parameter_name': related_field,
+            }
+        )
+
+    def lookups(self, request, model_admin):
+        qs = (
+            model_admin.model._default_manager.all()
+            .filter(**{self.origin_field: self.dependent_on_value})
+        )
+        for val in qs.values_list(self.related_field, flat=True).distinct():
+            yield (val, str(val))
+
+    def has_output(self):
+        return bool(self.dependent_on_value)
+
+    def value(self):
+        val = self.used_parameters.get(self.parameter_name)
+        if val in (ch[0] for ch in self.lookup_choices):
+            return val
+        else:
+            return None
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(**{self.parameter_name: self.value()})
+        else:
+            return queryset
+
+    def __init__(self, request, params, model, model_admin):
+        self.title = model._meta.get_field(self.related_field).verbose_name
+        self.dependent_on_value = request.GET.get(self.origin_field)
+        super().__init__(request, params, model, model_admin)
+
+
 class SimpleBooleanListFilter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         self.model = model_admin.model
@@ -108,8 +153,9 @@ class EmailValidityFilter(SimpleBooleanListFilter):
     parameter_name = 'email_invalid'
 
     def perform_filter(self, queryset):
+        parent_model = 'user__' if self.model is Profile else ''
         email_filter = {
-            '{0}email__startswith'.format('user__' if self.model is Profile else ''): settings.INVALID_PREFIX,
+            f'{parent_model}email__startswith': settings.INVALID_PREFIX,
         }
         if self.is_no():
             qs = queryset.exclude(**email_filter)

@@ -27,7 +27,7 @@ from ..models import (
 )
 from .filters import (
     ActiveStatusFilter, CountryMentionedOnlyFilter,
-    EmailValidityFilter, PlaceHasLocationFilter,
+    DependentFieldFilter, EmailValidityFilter, PlaceHasLocationFilter,
     ProfileHasUserFilter, SupervisorFilter, VisibilityTargetFilter,
 )
 from .forms import WhereaboutsAdminForm
@@ -271,7 +271,8 @@ class UserBrowserAdmin(admin.ModelAdmin):
     )
     ordering = ('user__username', '-added_on')
     list_filter = (
-        'os_name', 'os_version', 'browser_name', 'browser_version',
+        'os_name', DependentFieldFilter.configure('os_name', 'os_version'),
+        'browser_name', DependentFieldFilter.configure('browser_name', 'browser_version'),
     )
     fields = (
         'user_agent_string', 'user_agent_hash',
