@@ -297,9 +297,15 @@ def user_first_name(user):
     else:
         return name
 
+def postman_params_email(context):
+    return {
+        'reply_to': ['ne-respondu@pasportaservo.org'],
+    }
+
 POSTMAN_I18N_URLS = True
 POSTMAN_AUTO_MODERATE_AS = True
 POSTMAN_MAILER_APP = None
+POSTMAN_PARAMS_EMAIL = postman_params_email
 POSTMAN_SHOW_USER_AS = user_first_name
 POSTMAN_DISALLOW_ANONYMOUS = True
 POSTMAN_DISALLOW_MULTIRECIPIENTS = True
