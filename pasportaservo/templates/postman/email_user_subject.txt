@@ -1,6 +1,6 @@
 {% load i18n %}
 {% autoescape off %}
     {% blocktrans with object.obfuscated_sender as sender and object.subject as subject trimmed %}
-        From {{ sender }}: {{ subject }}
+        Message from {{ sender }}: {{ subject }}
     {% endblocktrans %}
 {% endautoescape %}

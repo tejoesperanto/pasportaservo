@@ -289,16 +289,27 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 def user_first_name(user):
     try:
-        name = user.profile.name
+        name = user.profile.name.strip()
         if not name:
             raise ValueError
     except (ObjectDoesNotExist, ValueError):
-        return user.username
+        return user.username.strip()
     else:
         return name
 
 def postman_params_email(context):
+    # if context['action'] == 'acceptance':
+    #     sender_name = str(gettext_lazy('{name} via Pasporta Servo'))
+    #     user_name = user_first_name(context['object'].sender)
+    #     from_sender = ' '.join([sender_name.format(name=user_name), '<saluton@pasportaservo.org>'])
+    # else:
+    #     from_sender = DEFAULT_FROM_EMAIL
     return {
+        'headers': {
+            # Not supported by SendGrid. Needs to be implemented in Postman, see
+            # https://bitbucket.org/psam/django-postman/issues/126/allow-a-dynamic-postman_from_email
+            # 'From': from_sender,
+        },
         'reply_to': ['ne-respondu@pasportaservo.org'],
     }
 

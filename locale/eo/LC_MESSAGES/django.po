@@ -4331,8 +4331,8 @@ msgstr ""
 
 #: pasportaservo/templates/postman/email_user_subject.txt
 #, python-format
-msgid "From %(sender)s: %(subject)s"
-msgstr "El %(sender)s: %(subject)s"
+msgid "Message from %(sender)s: %(subject)s"
+msgstr "Mesaĝo de %(sender)s: %(subject)s"
 
 #: pasportaservo/templates/postman/email_visitor.txt
 msgid "Dear visitor,"
