@@ -4295,6 +4295,10 @@ msgstr "%(sender)s skribis al vi!"
 msgid "Reply"
 msgstr "Respondi"
 
+#: pasportaservo/templates/postman/email_user.html
+msgid "Answer this message by using the button:"
+msgstr "Respondu tiun ĉi mesaĝon uzante la butonon:"
+
 #: pasportaservo/templates/postman/email_user.txt
 #: pasportaservo/templates/postman/email_visitor.txt
 #, python-format
@@ -4333,7 +4337,7 @@ msgstr ""
 
 #: pasportaservo/templates/postman/email_user.txt
 msgid "To answer this message, follow this link:"
-msgstr "Por respondi tiun ĉi mesaĝon, klaku la ligilon:"
+msgstr "Por respondi tiun ĉi mesaĝon, malfermu la ligilon:"
 
 #: pasportaservo/templates/postman/email_user.txt
 msgid "The sender's profile page:"
