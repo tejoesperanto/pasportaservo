@@ -24,6 +24,11 @@
 {% block call_to_action %}
     {% url 'postman:view' object.pk as url %}
     {% trans "Reply" as text %}
+    {% asvar text_before_button %}
+        <div class="padding" style="font-size: 14px; font-family: Helvetica, Arial, sans-serif; color: #333333; padding-top: 25px;">
+            <i>{% trans "Answer this message by using the button:" %}</i>
+        </div>
+    {% endasvar %}
     {% include 'email/snippets/button.html' %}
 {% endblock %}
 {% block email_action %}
