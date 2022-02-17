@@ -32,6 +32,7 @@
     {% include 'email/snippets/button.html' %}
 {% endblock %}
 {% block email_action %}
+    {% url 'postman:view' object.pk as url %}
     <script type="application/ld+json">
     {
         "@context": "http://schema.org",
@@ -41,6 +42,7 @@
             "name": "{% trans "Reply" %} {% trans "at" %} PS",
             "target": "{% domain url %}",
             "url": "{% domain url %}"
+        },
         "description": "{{ object.subject|escapejs }}"
     }
     </script>
