@@ -46,7 +46,7 @@ def make_visibility_receivers(for_sender, field_name, visibility_model):
         """
         if kwargs['raw'] or getattr(kwargs['instance'], foreign_key) is not None:
             return
-        setattr(kwargs['instance'], field_name, visibility_model.prep())
+        setattr(kwargs['instance'], field_name, visibility_model.prep(kwargs['instance']))
 
     @receiver(signals.post_save, sender=for_sender, weak=False, dispatch_uid=uid)
     def hosting_model_post_save(sender, **kwargs):

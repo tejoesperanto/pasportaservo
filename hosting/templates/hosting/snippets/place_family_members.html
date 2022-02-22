@@ -1,7 +1,6 @@
-{% load i18n expression %}
+{% load i18n variable %}
 {% load next from utils %}
 {% load is_supervisor_of from profile %}
-{% load show_as_family_member show_family_member_link from privacy %}
 
 {% if place.family_is_anonymous %}
     {% if show_anonymously %}
@@ -10,14 +9,22 @@
         </li>
     {% endif %}
 {% else %}
-    {% expr None as global any_family_members_displayed %}
+    {% delvar global any_family_members_displayed %}
     {% for member in place.family_members_cache %}
-        {% if member|show_as_family_member:user_role %}
-            {% expr True as global any_family_members_displayed %}
+        {% asvar show_as_family_member trimmed %}
+            {% if not member.deleted %}
+                True
+            {% endif %}
+            {% if member.deleted and view.role >= roles.SUPERVISOR %}
+                True
+            {% endif %}
+        {% endasvar %}
+        {% if show_as_family_member %}
+            {% asvar global any_family_members_displayed %}True{% endasvar %}
             <li class="family-member">
                 {% spaceless %}
                 {# INFORMATION ABOUT FAMILY MEMBER, AND IF APPLICABLE, LINK TO THE PROFILE #}
-                    {% if member|show_family_member_link:user_role %}
+                    {% if member.user_id %}
                         <a href="{{ member.get_absolute_url }}"
                            data-toggle="popover" data-trigger="hover focus" data-placement="top"
                            data-content="<img src='{{ member.avatar_url }}' height='90'>" data-html="true">
@@ -34,7 +41,7 @@
                                 </del>
                             {% endif %}
                         </span>
-                    {% if member|show_family_member_link:user_role %}
+                    {% if member.user_id %}
                         </a>
                     {% endif %}
                 {% endspaceless %}
