@@ -294,7 +294,7 @@
                     {% if-visible place [family_members] privileged=view.verbose_view store %}
                         <h3>{% trans "Family members" %}</h3>
                         <ul>
-                            {% include './snippets/place_family_members.html' with user_role=view.role show_anonymously=True %}
+                            {% include './snippets/place_family_members.html' with show_anonymously=True %}
                         </ul>
                     {% endif %}
                     {% endif %}
@@ -440,7 +440,7 @@
                     </p>
                     {% if shall_display_family_members and not place.family_is_anonymous %}
                         <ul id="family-panel-small" class="collapse when-scripting">
-                            {% include './snippets/place_family_members.html' with user_role=view.role show_anonymously=False %}
+                            {% include './snippets/place_family_members.html' with show_anonymously=False %}
                         </ul>
                     {% endif %}
                 {% endif %}
