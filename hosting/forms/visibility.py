@@ -168,6 +168,8 @@ class VisibilityForm(forms.ModelForm):
             visibility.save(update_fields=[v.field_name for v in self.venues()])
         return visibility
 
+    save.alters_data = True
+
 
 class VisibilityFormSetBase(forms.BaseModelFormSet):
     """
