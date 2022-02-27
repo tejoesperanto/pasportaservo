@@ -21,7 +21,8 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import (
-    get_language, pgettext_lazy, ugettext_lazy as _,
+    get_language, override as override_translation,
+    pgettext_lazy, ugettext_lazy as _,
 )
 
 from commonmark import commonmark
@@ -155,7 +156,7 @@ class VisibilitySettings(models.Model):
     Contains flags for visibility of objects in various venues: online or in
     the book. Can be linked via a generic foreign key to multiple model types.
     """
-    DEFAULT_TYPE = 'Unknown'
+    DEFAULT_TYPE = pgettext_lazy("Noun", "Unknown")
     model_type = models.CharField(
         _("type"),
         max_length=25, default=DEFAULT_TYPE)
@@ -282,18 +283,19 @@ class VisibilitySettings(models.Model):
         setattr(self, self._PREFIX+venue, value)
 
     def __str__(self):
-        model_name = " ".join(camel_case_split(self.model_type)).lower()
+        model_name = " ".join(camel_case_split(str(self.model_type))).lower()
         return str(_("Settings of visibility for {type}")).format(type=_(model_name))
 
     def __repr__(self):
-        return "<{} {}@{} ~ OP:{},OA:{},B:{}>".format(
-            self.__class__.__name__,
-            "for {}".format(self.model_type) if not self._meta.proxy else "",
-            repr(self.content_object),
-            str(self.visible_online_public)[0],
-            str(self.visible_online_authed)[0],
-            str(self.visible_in_book)[0]
-        )
+        with override_translation(None):
+            return "<{} {}@{} ~ OP:{},OA:{},B:{}>".format(
+                self.__class__.__name__,
+                "for {}".format(self.model_type) if not self._meta.proxy else "",
+                repr(self.content_object),
+                str(self.visible_online_public)[0],
+                str(self.visible_online_authed)[0],
+                str(self.visible_in_book)[0]
+            )
 
 
 class VisibilitySettingsForPlace(VisibilitySettings):
@@ -309,7 +311,11 @@ class VisibilitySettingsForPlace(VisibilitySettings):
 
     @cached_property
     def printable(self):
-        return self.content_object.available and self.content_object.in_book
+        return (
+            self.content_object.available
+            and self.content_object.in_book
+            and not self.content_object.deleted_on
+        )
 
 
 class VisibilitySettingsForFamilyMembers(VisibilitySettings):
@@ -321,7 +327,11 @@ class VisibilitySettingsForFamilyMembers(VisibilitySettings):
 
     @cached_property
     def printable(self):
-        return self.content_object.available and self.content_object.in_book
+        return (
+            self.content_object.available
+            and self.content_object.in_book
+            and not self.content_object.deleted_on
+        )
 
 
 class VisibilitySettingsForPhone(VisibilitySettings):

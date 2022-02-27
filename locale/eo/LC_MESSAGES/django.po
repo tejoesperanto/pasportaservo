@@ -1900,6 +1900,11 @@ msgid "checked on"
 msgstr "kontrolita je"
 
 #: hosting/models.py
+msgctxt "Noun"
+msgid "Unknown"
+msgstr "Nekonataĵo"
+
+#: hosting/models.py
 msgid "content id"
 msgstr "enhava identigilo"
 
