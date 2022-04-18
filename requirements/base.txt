@@ -1,4 +1,4 @@
-Django==2.2.27
+Django==2.2.28
 psycopg2==2.8.6
 Pillow==9.0.1
 
@@ -27,13 +27,14 @@ faker==12.1.0
 fontawesomefree==6.0.0b2
 geocoder==1.38.1
 geojson==2.5.0
+gql[requests]==3.1.0
 itsdangerous==1.1.0
 libsass==0.20.1
 phonenumberslite==8.12.19
-requests==2.25.1
+requests==2.27.1
 rstr==3.0.0
 sendgrid-django==2.0.0
-sentry-sdk==1.5.8
+sentry-sdk==1.5.12
 user_agents==2.2.0
 
 wheel

@@ -18,6 +18,7 @@ from django_countries.fields import Country
 from el_pagination.views import AjaxListView
 
 from core.auth import SUPERVISOR, AuthMixin
+from core.forms import FeedbackForm
 from core.templatetags.utils import compact
 from maps import SRID
 from maps.utils import bufferize_country_boundaries
@@ -278,6 +279,7 @@ class SearchView(PlacePaginatedListView):
                 f for f, v in getattr(form, 'cleaned_data', {}).items() if v)
         ) if form.is_bound else []
         context['queryset_cache_id'] = self._cached_id
+        context['feedback_form'] = FeedbackForm()
 
         if getattr(self, 'country_search', False) and hasattr(self, 'result') and self.result.country_code:
             context['country_advisories'] = TravelAdvice.get_for_country(self.result.country_code.upper())

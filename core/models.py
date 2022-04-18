@@ -1,5 +1,6 @@
 import re
 import warnings
+from collections import namedtuple
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -173,3 +174,10 @@ class UserBrowser(models.Model):
                  f" · OS: {self.os_name} {self.os_version}")
                 + (f" · Device: {self.device_type}" if self.device_type else "")
                 + ">")
+
+
+# TODO: Fetch from feature flags.
+FeedbackType = namedtuple('FeedbackType', 'key, name, esperanto_name, foreign_id, url')
+FEEDBACK_TYPES = {
+    'adv_search': FeedbackType('adv_search', 'advanced search', 'nuancita serĉo', 'D_kwDOAtBdzs4APmhx', ''),
+}

@@ -16,6 +16,7 @@ from .views import (  # isort:skip
     PasswordChangeView, PasswordChangeDoneView, UsernameChangeView,
     EmailUpdateView, EmailVerifyView,
     AccountDeleteView,
+    FeedbackView,
     MassMailView, MassMailSentView,
     HtmlFragmentRetrieveView,
 )
@@ -66,6 +67,8 @@ urlpatterns = [
     ])),
 
     url(_(r'^account/delete/$'), AccountDeleteView.as_view(), name='account_delete'),
+
+    url(_(r'^feedback/$'), FeedbackView.as_view(), name='user_feedback'),
 
     url(_(r'^admin/'), include([
         url(_(r'^mass-mail/'), include([
