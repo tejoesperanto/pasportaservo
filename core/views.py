@@ -1,6 +1,7 @@
 import logging
 from copy import copy
 from datetime import datetime, timedelta
+from traceback import format_exception
 
 from django.conf import settings
 from django.contrib import messages
@@ -13,11 +14,11 @@ from django.contrib.auth.views import (
     PasswordResetView as PasswordResetBuiltinView,
 )
 from django.contrib.flatpages.models import FlatPage
-from django.core.mail import send_mail
+from django.core.mail import mail_admins, send_mail
 from django.db import transaction
 from django.db.models import Q
 from django.http import (
-    Http404, HttpResponse, HttpResponseRedirect, JsonResponse,
+    Http404, HttpResponse, HttpResponseRedirect, JsonResponse, QueryDict,
 )
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
@@ -29,13 +30,19 @@ from django.utils.functional import cached_property
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
-from django.utils.translation import gettext, pgettext_lazy, ugettext_lazy as _
+from django.utils.translation import (
+    get_language, gettext, pgettext_lazy, ugettext_lazy as _,
+)
 from django.views import generic
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.vary import vary_on_headers
 
 from commonmark import commonmark
+from gql import Client as GQLClient, gql
+from gql.transport.exceptions import TransportError, TransportQueryError
+from gql.transport.requests import RequestsHTTPTransport as GQLHttpTransport
+from graphql import GraphQLError
 
 from blog.models import Post
 from core.models import Policy
@@ -49,12 +56,12 @@ from links.utils import create_unique_url
 
 from .auth import ADMIN, OWNER, SUPERVISOR, AuthMixin
 from .forms import (
-    EmailStaffUpdateForm, EmailUpdateForm, MassMailForm,
+    EmailStaffUpdateForm, EmailUpdateForm, FeedbackForm, MassMailForm,
     SystemPasswordChangeForm, UserAuthenticationForm,
     UsernameRemindRequestForm, UsernameUpdateForm, UserRegistrationForm,
 )
 from .mixins import LoginRequiredMixin, UserModifyMixin, flatpages_as_templates
-from .models import Agreement, SiteConfiguration
+from .models import FEEDBACK_TYPES, Agreement, SiteConfiguration
 from .utils import sanitize_next, send_mass_html_mail
 
 User = get_user_model()
@@ -571,6 +578,150 @@ class AccountDeleteView(LoginRequiredMixin, generic.DeleteView):
         request.user.save()
         messages.success(request, _("Farewell !"))
         return HttpResponseRedirect(self.get_success_url())
+
+
+class FeedbackView(generic.View):
+    """
+    Provides the facility to submit feedback on a feature: either publicly to a
+    board visible to others on the internet, or privately to the maintainers only.
+    """
+    template_names = {
+        True: 'core/feedback_sent.html',
+        False: 'core/feedback_form_fail.html',
+    }
+
+    @vary_on_headers('HTTP_X_REQUESTED_WITH')
+    def post(self, request, *args, **kwargs):
+        # Verify the form in the request; if it does not validate correctly,
+        # it was most probably tampered with.
+        form = FeedbackForm(data=QueryDict(request.body))
+        if not form.is_valid():
+            logging.getLogger('PasportaServo.ui.feedback').error(
+                "Feedback form did not validate correctly; This most likely indicates tampering."
+                + "\n\n %(errors)r \n\n Original submission: #%(message)s#.",
+                {'errors': form.errors, 'message': form.data.get('message', "NULL")[:1000]},
+                extra={'request': request},
+            )
+            if request.is_ajax():
+                return JsonResponse({'result': False})
+            else:
+                return TemplateResponse(request, self.template_names[False])
+
+        self.request = request
+        feedback_type = FEEDBACK_TYPES[form.cleaned_data['feedback_on']]
+        message_text = form.cleaned_data['message']
+        method = self.submit_privately if form.cleaned_data['private'] else self.submit_publicly
+        # Submit the feedback.
+        method(feedback_type, message_text)
+        if request.is_ajax():
+            return JsonResponse({'result': True})
+        else:
+            return TemplateResponse(request, self.template_names[True])
+
+    def submit_privately(self, feedback_type, message_text, exception=None):
+        """
+        Sends the feedback privately to the maintainers, including details of exception
+        if occured during the public submission.
+        """
+        subject = gettext(
+            # xgettext:python-brace-format
+            "Feedback on {}."
+        ).format(
+            feedback_type.esperanto_name if str(get_language()).startswith('eo')
+            else feedback_type.name
+        )
+        if self.request.user.is_authenticated:
+            body = f'{gettext("User")} {self.request.user.pk} ({self.request.user.username}):'
+        else:
+            body = f'{Profile.INCOGNITO}:'
+        body += '\n' + '-' * (len(body) - 1) + '\n\n'
+        body += message_text
+        if exception:
+            error_notice = "During public submission, an exception has occured."
+            error_notice += '\n\n'
+            error_notice += '\n'.join(format_exception(None, exception, None))
+
+        mail_admins(
+            subject,
+            body + (f'\n\n====\n{error_notice}' if exception else ''),
+            fail_silently=False)
+
+    def submit_publicly(self, feedback_type, message_text):
+        """
+        Posts the feedback publicly in a dedicated forum thread. In case an exception
+        happens in the process, reverts to posting the feedback and the exception
+        details privately to the maintainers.
+        """
+        transport = GQLHttpTransport(
+            settings.GITHUB_GRAPHQL_HOST, auth=settings.GITHUB_ACCESS_TOKEN)
+        client = GQLClient(transport=transport, fetch_schema_from_transport=True)
+
+        # Attempt fetching the ID of the previous submission from the session.
+        feedback_comment_id = self.request.session.get(f'feedback_{feedback_type.key}_comment_id')
+
+        if feedback_comment_id:
+            # If an ID is available, attempt fetching the contents of the previous
+            # submission from the remote forum. (We do not persist the contents ourselves.)
+            try:
+                comment = client.execute(
+                    gql("""
+                        query($comment_id: ID!) {
+                            node (id: $comment_id) { ... on DiscussionComment {
+                                body
+                            } }
+                        }
+                    """),
+                    variable_values={'comment_id': feedback_comment_id})
+            except (GraphQLError, TransportError, TransportQueryError):
+                # Query failed for some reason, treat this as new submission.
+                feedback_comment_id = None
+                complete_text = message_text
+            else:
+                # Previous contents are available, concatenate them with the new feedback.
+                complete_text = comment['node']['body'] + "\n\n----\n\n" + message_text
+
+            # Perform an update GraphQL mutation.
+            comment_query = gql("""
+                mutation($comment_id: ID!, $body_text: String!) {
+                    updateDiscussionComment (input: {commentId: $comment_id, body: $body_text}) {
+                        comment { id url }
+                    }
+                }
+            """)
+            comment_query.operation = 'updateDiscussionComment'
+            params = {'comment_id': feedback_comment_id, 'body_text': complete_text}
+
+        if not feedback_comment_id:
+            # Previous submission ID is not available, this is new submission.
+            # Perform an insert GraphQL mutation.
+            comment_query = gql("""
+                mutation($disc_id: ID!, $body_text: String!) {
+                    addDiscussionComment (input: {discussionId: $disc_id, body: $body_text}) {
+                        comment { id url }
+                    }
+                }
+            """)
+            comment_query.operation = 'addDiscussionComment'
+            complete_text = (
+                '_`'
+                + gettext("Sent from the website {env} ({user})").format(
+                    env=settings.ENVIRONMENT if settings.ENVIRONMENT != 'PROD' else '',
+                    user=self.request.user.pk or '/')
+                + '`_ \n\n'
+                + message_text
+            )
+            params = {'disc_id': feedback_type.foreign_id, 'body_text': complete_text}
+
+        try:
+            result = client.execute(comment_query, variable_values=params)
+        except (GraphQLError, TransportError, TransportQueryError) as ex:
+            # In case the query fails for some reason, let maintainers know that reason.
+            self.submit_privately(feedback_type, message_text, ex)
+        else:
+            # Store the ID of the submission in the session, for future reuse.
+            self.request.session[f'feedback_{feedback_type.key}_comment_id'] = (
+                result[comment_query.operation]['comment']['id']
+            )
 
 
 class MassMailView(AuthMixin, generic.FormView):

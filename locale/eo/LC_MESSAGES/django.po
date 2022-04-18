@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2022-04-03 18:04+0000\n"
+"POT-Revision-Date: 2022-04-15 17:42+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -150,6 +150,23 @@ msgid ""
 "</a>"
 msgstr ""
 "Ĉu vi ŝatus ĝin reaktivigi? <a href=\"%(url)s\">Informi administranton.</a>"
+
+#: core/forms.py pasportaservo/forms.py
+msgid "Message"
+msgstr "Mesaĝo"
+
+#: core/forms.py
+#, python-brace-format
+msgid ""
+"Your contribution will appear in a discussion thread publicly visible on "
+"{forum_url}, without your name."
+msgstr ""
+"Via kontribuo aperos en diskuta fadeno publike konsultebla ĉe {forum_url}, "
+"sen via nomo."
+
+#: core/forms.py
+msgid "Contribute privately."
+msgstr "Kontribui private."
 
 #: core/forms.py
 msgid "Heading"
@@ -796,6 +813,24 @@ msgstr "Bedaŭrinde la informoj pri tiu ĉi %(object)s ne plu estas disponeblaj.
 msgid "Unfortunately, this information is not available anymore."
 msgstr "Bedaŭrinde tiuj ĉi informoj ne plu estas disponeblaj."
 
+#: core/templates/core/feedback_form_fail.html
+#: core/templates/core/feedback_sent.html
+msgid "Feedback"
+msgstr "Opinio"
+
+#: core/templates/core/feedback_form_fail.html
+msgid "Your feedback could not be registered due to an unexpected error."
+msgstr "Via komento ne povis esti registrita pro neatendita eraro."
+
+#: core/templates/core/feedback_form_fail.html
+msgid "Please go to the previous screen and try submitting the form again."
+msgstr ""
+"Bonvole revenu al la antaŭa ekrano kaj provu sendi la formularon denove."
+
+#: core/templates/core/feedback_sent.html
+msgid "Your feedback was successfully registered. Thank you."
+msgstr "Via komento estis registrita sukcese. Dankon!"
+
 #: core/templates/core/home.html
 msgctxt "URL"
 msgid "whats-new"
@@ -1224,6 +1259,7 @@ msgstr ""
 
 #: core/templates/registration/password_reset_form.html
 #: core/templates/registration/username_remind_form.html
+#: hosting/templates/hosting/place_list.html
 msgid "Send"
 msgstr "Sendi"
 
@@ -1350,6 +1386,10 @@ msgid "^account/delete/$"
 msgstr "^konto/forigi/$"
 
 #: core/urls.py
+msgid "^feedback/$"
+msgstr "^opinio/$"
+
+#: core/urls.py
 msgid "^admin/"
 msgstr "^admin/"
 
@@ -1398,6 +1438,16 @@ msgstr "Vi sukcese konfirmis vian retpoŝtan adreson!"
 #: core/views.py
 msgid "Your email address has been successfully updated!"
 msgstr "Vi sukcese ŝanĝis vian retpoŝtan adreson!"
+
+#: core/views.py
+#, python-brace-format
+msgid "Feedback on {}."
+msgstr "Komento pri {}."
+
+#: core/views.py
+#, python-brace-format
+msgid "Sent from the website {env} ({user})"
+msgstr "Sendita el la retejo {env} ({user})"
 
 #: hosting/admin/admin.py
 msgid "Personal info"
@@ -2913,6 +2963,27 @@ msgid "Advanced Search"
 msgstr "Nuancita Serĉo"
 
 #: hosting/templates/hosting/place_list.html
+msgctxt "URL"
+msgid "feedback"
+msgstr "opinio"
+
+#: hosting/templates/hosting/place_list.html
+msgid ""
+"what do you think about the new search tool? <span class=\"text-nowrap\">let "
+"us know!</span>"
+msgstr ""
+"kion vi opinias pri la nova serĉilo? <span class=\"text-nowrap\">sciigu nin!"
+"</span>"
+
+#: hosting/templates/hosting/place_list.html
+msgid "What do you think about the new search?"
+msgstr "Kion vi opinias pri la nova serĉilo?"
+
+#: hosting/templates/hosting/place_list.html
+msgid "Close"
+msgstr "Fermi"
+
+#: hosting/templates/hosting/place_list.html
 msgid "Open map of the region"
 msgstr "Vidi regionan mapon"
 
@@ -3951,10 +4022,6 @@ msgstr "^oftaj-demandoj/$"
 #: pages/urls.py
 msgid "^supervisors/$"
 msgstr "^landaj-organizantoj/$"
-
-#: pasportaservo/forms.py
-msgid "Message"
-msgstr "Mesaĝo"
 
 #: pasportaservo/forms.py
 msgid "Cannot send the message: This user has passed away."

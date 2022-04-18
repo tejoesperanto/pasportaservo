@@ -313,3 +313,7 @@ MAPBOX_GL_JS = MAPBOX_GL_BASE_STATIC.format(ext='js')
 MAPBOX_GL_JS_INTEGRITY = 'sha256-wnlY/amZnNRLP46AkbAJD/YbtnMnq3XGoGX9+g6unUI='
 del MAPBOX_GL_BASE_STATIC
 MAPBOX_GL_RTL_PLUGIN = 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js'
+
+GITHUB_GRAPHQL_HOST = 'https://api.github.com/graphql'
+GITHUB_ACCESS_TOKEN = ('Bearer', environ.get('GITHUB_ACCESS_TOKEN', "personal.access.token"))
+GITHUB_DISCUSSION_BASE_URL = 'https://github.com/tejoesperanto/pasportaservo/discussions/'

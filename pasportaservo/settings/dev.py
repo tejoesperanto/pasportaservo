@@ -70,3 +70,6 @@ if DEBUG:
 
 EMAIL_SUBJECT_PREFIX = '[PS test] '
 EMAIL_SUBJECT_PREFIX_FULL = '[Pasporta Servo][{}] '.format(ENVIRONMENT)
+
+
+GITHUB_DISABLE_PREFETCH = True

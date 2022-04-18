@@ -1,0 +1,14 @@
+{% extends 'core/base.html' %}
+{% load i18n %}
+
+{% block head_title %}{% trans "Feedback" %}{% endblock %}
+
+{% block page %}
+    <h1 class="text-center">
+        {% trans "Your feedback could not be registered due to an unexpected error." %}
+    </h1>
+    <h3 class="text-center">
+        {% trans "Please go to the previous screen and try submitting the form again." %}
+    </h3>
+
+{% endblock page %}

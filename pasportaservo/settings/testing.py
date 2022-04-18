@@ -18,3 +18,5 @@ DATABASES['default'] = {     # noqa: F405
     'HOST': os.environ.get('POSTGRES_HOST', '127.0.0.1'),
     'PORT': os.environ.get('POSTGRES_PORT', '5432'),
 }
+
+GITHUB_DISABLE_PREFETCH = True

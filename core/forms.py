@@ -13,6 +13,7 @@ from django.core.mail import send_mail
 from django.db.models import Q
 from django.template.loader import get_template
 from django.urls import reverse
+from django.utils.text import format_lazy
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 
 from crispy_forms.helper import FormHelper
@@ -23,7 +24,7 @@ from links.utils import create_unique_url
 
 from .auth import auth_log
 from .mixins import PasswordFormMixin, SystemEmailFormMixin, UsernameFormMixin
-from .models import SiteConfiguration
+from .models import FEEDBACK_TYPES, SiteConfiguration
 
 User = get_user_model()
 
@@ -296,6 +297,37 @@ class SystemPasswordChangeForm(PasswordFormMixin, PasswordChangeForm):
 
 class UsernameRemindRequestForm(SystemPasswordResetRequestForm):
     admin_inactive_user_notification = "User '{u.username}' requested a reminder of the username"
+
+
+class FeedbackForm(forms.Form):
+    message = forms.CharField(
+        label=_("Message"),
+        widget=forms.Textarea(attrs={'rows': 4, 'style': "resize: vertical"}),
+        help_text=_("Your contribution will appear in a discussion thread "
+                    "publicly visible on {forum_url}, without your name."))
+    private = forms.BooleanField(
+        label=_("Contribute privately."),
+        required=False)
+    feedback_on = forms.ChoiceField(
+        choices=[(key, None) for key in FEEDBACK_TYPES.keys()],
+        widget=forms.HiddenInput)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.label_class = 'sr-only'
+
+        self.fields['feedback_on'].initial = next(iter(FEEDBACK_TYPES.keys()))
+        discussion_url = (
+            FEEDBACK_TYPES[self.fields['feedback_on'].initial].url
+            or settings.GITHUB_DISCUSSION_BASE_URL
+        )
+        self.fields['message'].help_text = format_lazy(
+            self.fields['message'].help_text,
+            forum_url=f'<a href="{discussion_url}"'
+                      '  target="_blank" rel="external noreferrer">GitHub</a>'
+        )
 
 
 class MassMailForm(forms.Form):

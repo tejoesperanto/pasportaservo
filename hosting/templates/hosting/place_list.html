@@ -27,6 +27,7 @@
         <script src="{% static 'el-pagination/js/el-pagination.js' %}"></script>
         <script src="{% static 'js/forms.js' %}"></script>
         <script src="{% static 'js/forms-validation.eo.js' %}"></script>
+        <script src="{% static 'js/ajax.js' %}"></script>
 {% endblock %}
 
 {% block content-at %}{% trans "results-start" context "URL" %}{% endblock %}
@@ -77,12 +78,43 @@
                                                  {% endfilter %}">
                     <div class="panel-heading sr-only">{% trans "Advanced Search" %}</div>
                     <div class="panel-body form-horizontal">
+                        <p class="small text-right requires-scripting">
+                            <a href="#{% trans "feedback" context "URL" %}" data-toggle="modal" tabindex="2">
+                                {% blocktrans trimmed %}
+                                    what do you think about the new search tool?
+                                    <span class="text-nowrap">let us know!</span>
+                                {% endblocktrans %}
+                            </a>
+                        </p>
                         {% with tabindex=2 %}
                             {% crispy filter.form %}
                         {% endwith %}
                     </div>
                 </div>
             </form>
+            <div id="{% trans "feedback" context "URL" %}" class="modal fade" role="dialog" tabindex="-1"
+                 aria-labelledby="adv-search-feedback-title">
+                <div class="modal-dialog modal-lg" role="document">
+                    <form class="modal-content" method="POST" action="{% url 'user_feedback' %}">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="adv-search-feedback-title">
+                                {% trans "What do you think about the new search?" %}
+                            </h4>
+                        </div>
+                        <div class="modal-body" style="padding-bottom: 0">
+                            {% crispy feedback_form %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Close" %}</button>
+                            <button type="submit" class="btn btn-primary ajax"
+                                    data-csrf="{{ csrf_token }}"
+                                    data-on-ajax-success="feedbackSuccess">
+                                {% trans "Send" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
             <a name="{% trans "results-start" context "URL" %}" tabindex="-1"></a>
         </div>
     </div>

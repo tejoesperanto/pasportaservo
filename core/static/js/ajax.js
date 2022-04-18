@@ -81,9 +81,10 @@ $(document).ready(function() {
                 var requestType = $this.data('ajaxMethod') || "GET";
                 var requestData = $this.serialize();
                 if (!target) {
-                    target = $this.parents('form').attr('action');
-                    requestType = $this.parents('form').attr('method');
-                    requestData = $this.parents('form').serialize();
+                    var $parentForm = $this.parents('form');
+                    target = $parentForm.attr('action');
+                    requestType = $parentForm.attr('method');
+                    requestData = $parentForm.serialize();
                 }
                 if ($this.data('csrf') === undefined) {
                     $this.data('csrf', $this.parents('form').data('csrf'));
@@ -103,7 +104,7 @@ $(document).ready(function() {
     // basic case of <a> or <button> element with a click event
     $('.ajax').click(function(e) {
         e.preventDefault();
-        var $this = $(this), target, requestType;
+        var $this = $(this), target, requestType, requestData;
         if (ajaxSetup($this) === false)
             return;
         if ($this.is('a')) {
@@ -112,10 +113,12 @@ $(document).ready(function() {
         }
         else {
             // should be a button within a form
-            target = $this.parents('form').attr('action');
-            requestType = $this.parents('form').attr('method');
+            var $parentForm = $this.parents('form');
+            target = $parentForm.attr('action');
+            requestType = $parentForm.attr('method');
+            requestData = $parentForm.serialize();
         }
-        ajaxPerform($this, target, requestType);
+        ajaxPerform($this, target, requestType, requestData);
     });
     $('.ajax').focus(function(e) {
         $(this).popover("destroy");
@@ -243,6 +246,10 @@ $(document).ready(function() {
 
     window.setupMapStyleSuccess = function($this) {
         window.location.reload();
+    };
+
+    window.feedbackSuccess = function($this, response) {
+        $this.parents('.modal').modal('hide');
     };
 
 });
