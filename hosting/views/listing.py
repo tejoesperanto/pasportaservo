@@ -241,7 +241,7 @@ class SearchView(PlacePaginatedListView):
                 self.cache_queryset_query(search_queryset)
                 return search_queryset
         position = geocoder.ip(self.request.META['HTTP_X_REAL_IP']
-                               if settings.ENVIRONMENT != 'DEV'
+                               if settings.ENVIRONMENT not in ('DEV', 'TEST')
                                else "188.166.58.162")
         position.point = Point(position.xy, srid=SRID) if position.xy else None
         logging.getLogger('PasportaServo.geo').debug(

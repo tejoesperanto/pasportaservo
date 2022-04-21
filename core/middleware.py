@@ -157,7 +157,7 @@ class AccountFlagsMiddleware(MiddlewareMixin):
             .order_by('-pk')
         )
         position = geocoder.ip(request.META['HTTP_X_REAL_IP']
-                               if settings.ENVIRONMENT != 'DEV'
+                               if settings.ENVIRONMENT not in ('DEV', 'TEST')
                                else "188.166.58.162")
         current_location = (f'{position.state}, ' if position.state else '') + position.country
 
