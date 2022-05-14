@@ -9,7 +9,7 @@ class PlaceFilter(ABC):
         return self.filter(place)
 
     @abstractmethod
-    def filter(self, place):
+    def filter(self, place):  # pragma: no cover
         pass
 
 
