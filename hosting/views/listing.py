@@ -137,7 +137,7 @@ class SearchView(PlacePaginatedListView):
     display_fair_usage_condition = True
 
     def get(self, request, *args, **kwargs):
-        if 'ps_q' in request.GET:
+        if settings.SEARCH_FIELD_NAME in request.GET:
             return HttpResponseRedirect(self.transpose_query_to_url_kwarg(request.GET))
 
         self.prepare_search(
@@ -147,7 +147,7 @@ class SearchView(PlacePaginatedListView):
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        if not kwargs['query'] and request.POST.get('ps_q'):
+        if not kwargs['query'] and request.POST.get(settings.SEARCH_FIELD_NAME):
             request.session['extended_search_data'] = request.POST
             return HttpResponseRedirect(self.transpose_query_to_url_kwarg(request.POST))
 
@@ -160,7 +160,7 @@ class SearchView(PlacePaginatedListView):
         convert it to a URL-encoded keyword param of the `search` path.
         """
         # Keeping Unicode in URL, replacing space with '+'.
-        query = uri_to_iri(quote_plus(compact(source['ps_q'])))
+        query = uri_to_iri(quote_plus(compact(source[settings.SEARCH_FIELD_NAME])))
         params = {'query': query} if query else None
         return reverse('search', kwargs=params)
 

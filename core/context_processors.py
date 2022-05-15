@@ -7,6 +7,7 @@ def expose_selected_settings(request):
         'CURRENT_COMMIT',
         'SUPPORT_EMAIL',
         'REDIRECT_FIELD_NAME',
+        'SEARCH_FIELD_NAME',
         'INVALID_PREFIX',
         'MAPBOX_GL_CSS',
         'MAPBOX_GL_CSS_INTEGRITY',

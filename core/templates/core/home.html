@@ -13,7 +13,7 @@
                 "url": "{% domain %}",
                 "potentialAction": {
                     "@type": "SearchAction",
-                    "target": "{% domain %}{% url 'search' %}?ps_q={search_term_string}",
+                    "target": "{% domain %}{% url 'search' %}?{{ SEARCH_FIELD_NAME }}={search_term_string}",
                     "query-input": "required name=search_term_string"
                 }
             }

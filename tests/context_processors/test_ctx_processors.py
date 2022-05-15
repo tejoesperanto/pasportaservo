@@ -12,6 +12,7 @@ class CoreContextProcessorTests(WebTest):
                         'MAPBOX_GL_JS_INTEGRITY',
                         'CURRENT_COMMIT',
                         'INVALID_PREFIX',
+                        'SEARCH_FIELD_NAME',
                         'SUPPORT_EMAIL',
                         'REDIRECT_FIELD_NAME',
                         'ENVIRONMENT'):

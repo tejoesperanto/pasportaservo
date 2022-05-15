@@ -80,7 +80,7 @@
                 <div class="form-group form-group-lg" data-nosnippet>
                     <label class="sr-only" for="searchinput">{% trans "Search for a country, a region, or a city…" %}</label>
                     <div class="input-group input-group-lg">
-                        <input class="form-control" type="search" id="searchinput" name="ps_q"
+                        <input class="form-control" type="search" id="searchinput" name="{{ SEARCH_FIELD_NAME }}"
                                placeholder="{% trans "Search for a country, a region, or a city…" %}">
                         <span class="input-group-btn">
                             <button class="btn btn-default" type="submit" id="search">
