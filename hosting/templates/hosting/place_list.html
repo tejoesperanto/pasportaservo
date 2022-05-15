@@ -13,7 +13,7 @@
     {% if True %}
             var anonymizedUri = document.location.origin
                 + document.location.pathname.replace(/^(\/[^\/]+\/).+/, '$1QQQQQQQQ/')
-                + document.location.search.replace(/([?&]ps_q=).+?(&|$)/g, '$1QQQQQQQQ$2');
+                + document.location.search.replace(/([?&]{{ SEARCH_FIELD_NAME }}=).+?(&|$)/g, '$1QQQQQQQQ$2');
             if (typeof ga !== "undefined") {
                 ga('set', 'location', anonymizedUri);
             }
@@ -52,7 +52,7 @@
                     </label>
                     <div class="input-group">
                         <input class="form-control" type="search" id="searchinput"
-                               name="ps_q" value="{{ view.query }}" tabindex="1"
+                               name="{{ SEARCH_FIELD_NAME }}" value="{{ view.query }}" tabindex="1"
                                placeholder="{% trans "Search for a country, a region, or a city…" %}">
                         <span class="input-group-btn">
                             <button data-target="#advanced-filter"
@@ -162,7 +162,7 @@
     {% else %}
         <div class="row place-list">
             <div class="col-xs-12 help-block text-body">
-                {% if request.GET.ps_q or view.query or filtered_by %}
+                {% if view.query or filtered_by %}
                     {% trans "Sorry, no kind hosts found…" %}
                 {% elif queryset_cache_id %}
                     {% trans "The search query has expired. Please run a new search." %}

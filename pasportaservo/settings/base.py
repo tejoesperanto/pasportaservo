@@ -217,6 +217,7 @@ LOGOUT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 
 REDIRECT_FIELD_NAME = "ps_m"
+SEARCH_FIELD_NAME = "ps_q"
 
 DEFAULT_FROM_EMAIL = 'Pasporta Servo <saluton@pasportaservo.org>'
 SERVER_EMAIL = 'teknika@pasportaservo.org'
