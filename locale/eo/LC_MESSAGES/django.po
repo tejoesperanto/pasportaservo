@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2021-12-22 07:06+0000\n"
+"POT-Revision-Date: 2022-04-03 18:04+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1492,7 +1492,8 @@ msgstr "Ĉio"
 msgid "type"
 msgstr "tipo"
 
-#: hosting/admin/filters.py hosting/forms/visibility.py
+#: hosting/admin/filters.py hosting/forms/listing.py
+#: hosting/forms/visibility.py
 msgid "Yes"
 msgstr "Jes"
 
@@ -1650,6 +1651,38 @@ msgid ""
 msgstr ""
 "Nomo ne povas esti nenia, almenaŭ unu el persona aŭ familia nomoj devas esti "
 "indikita."
+
+#: hosting/forms/listing.py
+msgid "First name"
+msgstr "Persona nomo"
+
+#: hosting/forms/listing.py
+msgid "Last name"
+msgstr "Familia nomo"
+
+#: hosting/forms/listing.py
+msgid "At least this many"
+msgstr "Almenaŭ tiom da"
+
+#: hosting/forms/listing.py
+msgid "guests"
+msgstr "gastoj"
+
+#: hosting/forms/listing.py
+msgid "nights"
+msgstr "noktoj"
+
+#: hosting/forms/listing.py
+msgid "Available within"
+msgstr "Disponebla ene de"
+
+#: hosting/forms/listing.py
+msgid "days"
+msgstr "tagoj"
+
+#: hosting/forms/listing.py
+msgid "Don't show hosts with such restriction"
+msgstr "Ne montru gastigantojn kun jena limigo"
 
 #: hosting/forms/phones.py
 msgid "You already have this telephone number."
@@ -2872,6 +2905,14 @@ msgid "Map of hosts"
 msgstr "Mapo de gastigantoj"
 
 #: hosting/templates/hosting/place_list.html
+msgid "Search settings"
+msgstr "Agordoj de serĉado"
+
+#: hosting/templates/hosting/place_list.html
+msgid "Advanced Search"
+msgstr "Nuancita Serĉo"
+
+#: hosting/templates/hosting/place_list.html
 msgid "Open map of the region"
 msgstr "Vidi regionan mapon"
 
@@ -2892,6 +2933,11 @@ msgstr "Neniu rezulto por <i>%(query)s</i>. Jen kelkaj aktivaj gastigantoj!"
 #: hosting/templates/hosting/place_list_supervisor.html
 msgid "Sorry, no kind hosts found…"
 msgstr "Bedaŭrinde ni ne trovis gastigemulojn…"
+
+#: hosting/templates/hosting/place_list.html
+msgid "The search query has expired. Please run a new search."
+msgstr ""
+"La enmemorigitaj parametroj de serĉo eksvalidiĝis. Bonvole serĉu denove."
 
 #: hosting/templates/hosting/place_list_page.html
 #: hosting/templates/hosting/profile_detail.html
@@ -3636,8 +3682,8 @@ msgid "book"
 msgstr "libro"
 
 #: hosting/urls.py
-msgid "^search(?:/(?P<query>.+))?/$"
-msgstr "^esplori(?:/(?P<query>.+))?/$"
+msgid "^search(?:/(?!@@)(?P<query>.+))?(?:/@@(?P<cache>[a-f0-9]+))?/$"
+msgstr "^esplori(?:/(?!@@)(?P<query>.+))?(?:/@@(?P<cache>[a-f0-9]+))?/$"
 
 #: hosting/validators.py
 #, python-format

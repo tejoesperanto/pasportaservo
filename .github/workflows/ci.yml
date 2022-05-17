@@ -68,6 +68,7 @@ jobs:
 
       - name: Set up dependencies
         run: |
+          sudo apt-get update
           sudo apt-get install -y --no-install-recommends libgdal-dev
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements/dev.txt

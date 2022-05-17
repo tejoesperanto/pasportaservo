@@ -136,6 +136,8 @@ ROOT_URLCONF = 'pasportaservo.urls'
 
 WSGI_APPLICATION = 'pasportaservo.wsgi.application'
 
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+
 STATICFILES_FINDERS = global_settings.STATICFILES_FINDERS + [
     'sass_processor.finders.CssFinder',
     'compressor.finders.CompressorFinder',

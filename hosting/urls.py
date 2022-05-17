@@ -100,7 +100,7 @@ urlpatterns = [
             name='staff_place_list'),
     ])),
 
-    url(_(r'^search(?:/(?P<query>.+))?/$'), SearchView.as_view(), name='search'),
+    url(_(r'^search(?:/(?!@@)(?P<query>.+))?(?:/@@(?P<cache>[a-f0-9]+))?/$'), SearchView.as_view(), name='search'),
 ]
 
 if settings.DEBUG:

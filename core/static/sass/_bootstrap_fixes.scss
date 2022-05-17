@@ -197,6 +197,15 @@ blockquote .table.small:before {
     .pull-sm-right {
         float: right !important;
     }
+    .form-horizontal .form-group-sm {
+        .checkbox, .checkbox-inline {
+            padding-top: 6px;
+            font-size: 12px;
+            input[type="checkbox"] {
+                margin-top: 1px;
+            }
+        }
+    }
 }
 /* MD */
 @media (min-width: #{$BOOTSTRAP-MD}) {

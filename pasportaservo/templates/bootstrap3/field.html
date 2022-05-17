@@ -7,7 +7,10 @@
     {% asvar field_is_checkbox trimmed %}
         {% if field|is_checkbox %} True {% endif %}
     {% endasvar %}
-    {% if field_is_checkbox %}
+    {% asvar checkbox_with_regular_label trimmed %}
+        {% if field_is_checkbox and not field.field.extra_label %} True {% endif %}
+    {% endasvar %}
+    {% if checkbox_with_regular_label %}
         <div class="form-group">
         {% if label_class %}
             <div class="controls {% for offset in bootstrap_checkbox_offsets %}{{ offset }} {% endfor %}{{ field_class }}">
@@ -15,14 +18,14 @@
     {% endif %}
     <{% if tag %}{{ tag }}{% else %}div{% endif %} id="{{ field.auto_id }}_form_element"
      class="{% filter compact %}
-                {% if not field_is_checkbox %} form-group {% else %} checkbox {% endif %}
+                {% if not checkbox_with_regular_label %} form-group {% else %} checkbox {% endif %}
                 {% if wrapper_class %} {{ wrapper_class }} {% endif %}
-                {% if form_show_errors %}{% if field.errors %} has-error {% endif %}{% endif %}
+                {% if form_show_errors and field.errors %} has-error {% endif %}
                 {% if field.css_classes %} {{ field.css_classes }} {% endif %}
             {% endfilter %}">
-        {% if field.label and not field_is_checkbox and form_show_labels %}
+        {% if field.label and not checkbox_with_regular_label and form_show_labels %}
             <label for="{{ field.id_for_label }}" class="control-label {{ label_class }}{% if field.field.required %} requiredField{% endif %}">
-                {{ field.label|safe }}
+                {% firstof field.field.extra_label|default_if_none:""|safe field.label|safe %}
             </label>
         {% endif %}
 
@@ -40,20 +43,33 @@
 
         {% if not field_is_checkboxselect_multiple and not field_is_radioselect %}
             {% if field_is_checkbox and form_show_labels %}
-                <label for="{{ field.id_for_label }}" class="{% if field.field.required %}requiredField{% endif %}">
-                    {% crispy_field field %}
-                    {{ field.label|safe }}
-                </label>
-                {% include 'bootstrap3/layout/help_text_and_errors.html' %}
+                {% if not checkbox_with_regular_label %}
+                    <div class="checkbox {{ field_class }}">
+                {% endif %}
+                        <label for="{{ field.id_for_label }}" class="{% if field.field.required %}requiredField{% endif %}">
+                            {% if tabindex %}{% crispy_field field "tabindex" tabindex %}{% else %}{% crispy_field field %}{% endif %}
+                            {{ field.label|safe }}
+                        </label>
+                        {% include 'bootstrap3/layout/help_text_and_errors.html' %}
+                {% if not checkbox_with_regular_label %}
+                    </div>
+                {% endif %}
             {% else %}
-                <div class="controls {{ field_class }}">
-                    {% crispy_field field %}
-                    {% include 'bootstrap3/layout/help_text_and_errors.html' %}
-                </div>
+                {% block controls %}
+                    <div class="controls {{ field_class }}">
+                        {% block controls_field_before %}{% endblock %}
+                        {% block controls_field %}
+                            {% if tabindex %}{% crispy_field field "tabindex" tabindex %}{% else %}{% crispy_field field %}{% endif %}
+                        {% endblock %}
+                        {% block controls_field_after %}{% endblock %}
+
+                        {% include 'bootstrap3/layout/help_text_and_errors.html' %}
+                    </div>
+                {% endblock %}
             {% endif %}
         {% endif %}
     </{% if tag %}{{ tag }}{% else %}div{% endif %}>
-    {% if field_is_checkbox %}
+    {% if checkbox_with_regular_label %}
         {% if label_class %}
             </div>
         {% endif %}

@@ -5,6 +5,7 @@ from urllib.parse import quote_plus, unquote_plus
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
+from django.core.cache import cache
 from django.db.models import BooleanField, Case, Count, Prefetch, Q, When
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -17,9 +18,11 @@ from django_countries.fields import Country
 from el_pagination.views import AjaxListView
 
 from core.auth import SUPERVISOR, AuthMixin
+from core.templatetags.utils import compact
 from maps import SRID
 from maps.utils import bufferize_country_boundaries
 
+from ..filters.search import SearchFilterSet
 from ..models import LocationConfidence, Phone, Place, TravelAdvice
 from ..utils import geocode
 
@@ -37,7 +40,7 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
     A place for supervisors to see an overview of and manage hosts in their
     area of responsibility.
     """
-    template_name = "hosting/place_list_supervisor.html"
+    template_name = 'hosting/place_list_supervisor.html'
     display_fair_usage_condition = True
     minimum_role = SUPERVISOR
 
@@ -67,15 +70,21 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
             qs = qs.filter(owner__user__email__startswith=settings.INVALID_PREFIX)
         qs = qs.annotate(
             location_valid=Case(
-                When(Q(location__isnull=False) & ~Q(location=Point([])), then=True),
+                When(
+                    Q(location__isnull=False) & ~Q(location=Point([])),
+                    then=True),
                 default=False, output_field=BooleanField()
             ),
             location_inaccurate=Case(
-                When(Q(location_valid=True) & Q(location_confidence__lt=LocationConfidence.ACCEPTABLE), then=True),
+                When(
+                    Q(location_valid=True) & Q(location_confidence__lt=LocationConfidence.ACCEPTABLE),
+                    then=True),
                 default=False, output_field=BooleanField()
             ),
             location_accurate=Case(
-                When(Q(location_valid=True) & Q(location_confidence__gte=LocationConfidence.ACCEPTABLE), then=True),
+                When(
+                    Q(location_valid=True) & Q(location_confidence__gte=LocationConfidence.ACCEPTABLE),
+                    then=True),
                 default=False, output_field=BooleanField()
             ),
         )
@@ -119,25 +128,66 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
 
 
 class SearchView(PlacePaginatedListView):
-    queryset = Place.available_objects.filter(visibility__visible_online_public=True, owner__death_date__isnull=True)
+    queryset = Place.available_objects.filter(
+        visibility__visible_online_public=True,
+        owner__death_date__isnull=True)
     paginate_first_by = 25
     paginate_by = 25
     display_fair_usage_condition = True
 
     def get(self, request, *args, **kwargs):
-        def unwhitespace(val):
-            return " ".join(val.split())
         if 'ps_q' in request.GET:
-            # Keeping Unicode in URL, replacing space with '+'.
-            query = uri_to_iri(quote_plus(unwhitespace(request.GET['ps_q'])))
-            params = {'query': query} if query else None
-            return HttpResponseRedirect(reverse('search', kwargs=params))
-        query = kwargs['query'] or ''  # Avoiding query=None
-        self.query = unwhitespace(unquote_plus(query))
+            return HttpResponseRedirect(self.transpose_query_to_url_kwarg(request.GET))
+
+        self.prepare_search(
+            request, kwargs['query'],
+            request.session.pop('extended_search_data', None),
+            kwargs['cache'])
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if not kwargs['query'] and request.POST.get('ps_q'):
+            request.session['extended_search_data'] = request.POST
+            return HttpResponseRedirect(self.transpose_query_to_url_kwarg(request.POST))
+
+        self.prepare_search(request, kwargs['query'], request.POST, kwargs['cache'])
+        return super().get(request, *args, **kwargs)
+
+    def transpose_query_to_url_kwarg(self, source):
+        """
+        If the search query is given via the ps_q request parameter,
+        convert it to a URL-encoded keyword param of the `search` path.
+        """
+        # Keeping Unicode in URL, replacing space with '+'.
+        query = uri_to_iri(quote_plus(compact(source['ps_q'])))
+        params = {'query': query} if query else None
+        return reverse('search', kwargs=params)
+
+    def get_identifier_for_cache(self, request=None):
+        """
+        How the cached results are identified: if the user is authenticated,
+        just use the user's ID; otherwise (user is not authenticated), use
+        # the key of the anonymous session.
+        """
+        request = request or self.request
+        if not request.user.id and not request.session.session_key:
+            # Make sure the session has a key.
+            request.session.cycle_key()
+        return request.user.id or request.session.session_key
+
+    def prepare_search(self, request, query, extended_query=None, cached_id=None):
+        self.query = compact(unquote_plus(query or ''))  # Avoiding query=None.
+        self.extended_query = extended_query
         # Exclude places whose owner blocked unauthenticated viewing.
         if not request.user.is_authenticated:
             self.queryset = self.queryset.exclude(owner__pref__public_listing=False)
-        return super().get(request, *args, **kwargs)
+
+        if cached_id:
+            sess_id = self.get_identifier_for_cache(request)
+            self._cached_db_query = cache.get(f'search-results:{sess_id}:{cached_id}')
+            self._cached_id = cached_id
+
+        self.place_filter = SearchFilterSet(self.extended_query, self.queryset, request=request)
 
     def get_queryset(self):
         most_recent_moniker, most_recent = pgettext("value::plural", "MOST RECENT"), False
@@ -145,27 +195,53 @@ class SearchView(PlacePaginatedListView):
             most_recent = True
             self.query = ''
 
+        # If cached results are available, attempt to use them.
+        if hasattr(self, '_cached_db_query'):
+            if self._cached_db_query:
+                qs = self.queryset.all()  # Clone the existing queryset.
+                qs.query = self._cached_db_query
+                qs = qs.all()  # Refresh the queryset according to the previous query.
+            else:
+                # A previously run query is requested but is no longer in cache.
+                # Or, the requested query does not belong to the current user.
+                qs = self.queryset.none()
+            return qs
+
+        # No cached results: perform the full query.
         qs = (
-            self.queryset
+            self.place_filter.qs
             .select_related('owner', 'owner__user')
-            .defer('address', 'description', 'owner__description')
+            .defer('address', 'description', 'short_description', 'owner__description')
         )
 
         self.result = geocode(self.query)
         if self.query and self.result.point:
-            if any([self.result.country and not self.result.country_code, self.result.state, self.result.city]):
-                return (qs
-                        .annotate(distance=Distance('location', self.result.point))
-                        .order_by('distance'))
-            elif self.result.country:  # We assume it's a country
+            locality_found_flags = [
+                self.result.country and not self.result.country_code,
+                self.result.state,
+                self.result.city
+            ]
+            if any(locality_found_flags):
+                search_queryset = (
+                    qs
+                    .annotate(distance=Distance('location', self.result.point))
+                    .order_by('distance')
+                )
+                self.cache_queryset_query(search_queryset)
+                return search_queryset
+            elif self.result.country:  # We assume it's a country.
                 self.paginate_first_by = 50
                 self.paginate_orphans = 5
                 self.country_search = True
-                return (qs
-                        .filter(country=self.result.country_code.upper())
-                        .order_by('-owner__user__last_login', '-id'))
+                search_queryset = (
+                    qs
+                    .filter(country=self.result.country_code.upper())
+                    .order_by('-owner__user__last_login', '-id')
+                )
+                self.cache_queryset_query(search_queryset)
+                return search_queryset
         position = geocoder.ip(self.request.META['HTTP_X_REAL_IP']
-                               if settings.ENVIRONMENT != 'DEV'
+                               if settings.ENVIRONMENT not in ('DEV', 'TEST')
                                else "188.166.58.162")
         position.point = Point(position.xy, srid=SRID) if position.xy else None
         logging.getLogger('PasportaServo.geo').debug(
@@ -176,25 +252,34 @@ class SearchView(PlacePaginatedListView):
         if position.point and not most_recent:
             # Results are sorted by distance from user's current location, but probably
             # it is better not to creep users out by unexpectedly using their location.
-            qs = qs.annotate(internal_distance=Distance('location', position.point)).order_by('internal_distance')
+            search_queryset = (
+                qs
+                .annotate(internal_distance=Distance('location', position.point))
+                .order_by('internal_distance')
+            )
         else:
-            qs = qs.order_by('-owner__user__last_login', '-id')
-        return qs
+            search_queryset = qs.order_by('-owner__user__last_login', '-id')
 
-    def get_detail_queryset(self):
-        if len(self.query) <= 3:
-            return self.queryset
-        lookup = (
-            Q()
-            | Q(owner__user__username__icontains=self.query)
-            | Q(owner__first_name__icontains=self.query)
-            | Q(owner__last_name__icontains=self.query)
-            | Q(closest_city__icontains=self.query)
-        )
-        return self.queryset.filter(lookup).select_related('owner__user')
+        # Cache the calculated result.
+        self.cache_queryset_query(search_queryset)
+        return search_queryset
+
+    def cache_queryset_query(self, queryset):
+        sess_id = self.get_identifier_for_cache()
+        self._cached_id = hex(id(queryset))[2:]
+        cache.set(f'search-results:{sess_id}:{self._cached_id}', queryset.query, timeout=2*60*60)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['filter'] = self.place_filter
+        form = self.place_filter.form
+        context['filtered_by'] = (
+            set(form.changed_data).intersection(
+                f for f, v in getattr(form, 'cleaned_data', {}).items() if v)
+        ) if form.is_bound else []
+        context['queryset_cache_id'] = self._cached_id
+
         if getattr(self, 'country_search', False) and hasattr(self, 'result') and self.result.country_code:
             context['country_advisories'] = TravelAdvice.get_for_country(self.result.country_code.upper())
+
         return context

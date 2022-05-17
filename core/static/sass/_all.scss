@@ -416,6 +416,16 @@ header:not(.hero) #subtitle {
         max-width: 100%;
     }
 }
+.advanced-filter-panel {
+    background-color: $color-default-bg;
+    box-shadow: 0px 1px 5px 0px darken($color-default-bg, 12%);
+    border-top: 0;
+
+    .form-group:first-of-type {
+        margin-top: 15px;
+    }
+}
+
 .place-list {
     padding-bottom: 0.5em;
     margin-bottom: 0.5em;
@@ -1176,8 +1186,18 @@ p.tip {
 .form-group.has-error .help-block > kbd {
     background-color: $color-danger-bg;
 }
+
 .input-lg {
     font-size: 1.5em;
+}
+.input-group-addon {
+    @for $i from 1 through 5 {
+        .addon-fw-#{$i} {
+            display: inline-block;
+            width: #{$i}em;
+            overflow: visible;
+        }
+    }
 }
 
 :invalid {

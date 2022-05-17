@@ -1,6 +1,6 @@
 {% extends 'core/base.html' %}
-{% load i18n static cache geoformat %}
-{% load mult from utils %}
+{% load i18n static cache crispy_forms_tags geoformat %}
+{% load mult compact from utils %}
 
 {% block head_title %}
     {% trans "Find accommodation" %}
@@ -25,6 +25,8 @@
 
 {% block extra_js %}
         <script src="{% static 'el-pagination/js/el-pagination.js' %}"></script>
+        <script src="{% static 'js/forms.js' %}"></script>
+        <script src="{% static 'js/forms-validation.eo.js' %}"></script>
 {% endblock %}
 
 {% block content-at %}{% trans "results-start" context "URL" %}{% endblock %}
@@ -34,10 +36,10 @@
 {% block page %}
     <div class="row hidden-print">
         <div class="col-xs-12 col-md-offset-2 col-md-8">
-            <form class="search" id="searchform" role="search" method="GET" action="{% url 'search' %}">
+            <form class="search" id="searchform" role="search" method="POST" action="{% url 'search' %}">
                 {% if not view.query or not view.result.point %}
                     <a class="btn btn-default pull-right" href="{% url 'world_map' %}" id="maplink"
-                       title="{% trans "Map of hosts" %}" tabindex="2"
+                       title="{% trans "Map of hosts" %}" tabindex="4"
                        data-toggle="tooltip" data-placement="bottom">
                         <span class="fa fa-map-location-dot fa-lg" aria-hidden="true"></span>
                         <span class="sr-only">{% trans "Map of hosts" %}</span>
@@ -52,12 +54,32 @@
                                name="ps_q" value="{{ view.query }}" tabindex="1"
                                placeholder="{% trans "Search for a country, a region, or a city…" %}">
                         <span class="input-group-btn">
-                            <button class="btn btn-default" type="submit" id="search" tabindex="1"
+                            <button data-target="#advanced-filter"
+                                    class="btn btn-default requires-scripting"
+                                    type="button" data-toggle="collapse" tabindex="2"
+                                    aria-controls="advanced-filter"
+                                    aria-expanded="{{ filtered_by|yesno:'true,false' }}"
+                                    title="{% trans "Search settings" %}">
+                                <span class="fa fa-sliders" aria-hidden="true"></span>
+                                <span class="sr-only">{% trans "Search settings" %}</span>
+                            </button>
+                            <button class="btn btn-primary" type="submit" id="search" tabindex="3"
                                     title="{% trans "Search" %} {% trans "at" %} Pasporta Servo">
-                                <span class="fa fa-search" aria-hidden="true"></span>&nbsp;
-                                <span class="hidden-xs">{% trans "Search" %}</span>
+                                <span class="fa fa-search" aria-hidden="true"></span>
+                                <span class="hidden-xs">&nbsp;{% trans "Search" %}</span>
                             </button>
                         </span>
+                    </div>
+                </div>
+                <div id="advanced-filter" class="{% filter compact %}
+                                                    panel panel-compact panel-default advanced-filter-panel
+                                                    collapse when-scripting {% if filtered_by %} in {% endif %}
+                                                 {% endfilter %}">
+                    <div class="panel-heading sr-only">{% trans "Advanced Search" %}</div>
+                    <div class="panel-body form-horizontal">
+                        {% with tabindex=2 %}
+                            {% crispy filter.form %}
+                        {% endwith %}
                     </div>
                 </div>
             </form>
@@ -108,8 +130,10 @@
     {% else %}
         <div class="row place-list">
             <div class="col-xs-12 help-block text-body">
-                {% if request.GET.ps_q or view.query %}
+                {% if request.GET.ps_q or view.query or filtered_by %}
                     {% trans "Sorry, no kind hosts found…" %}
+                {% elif queryset_cache_id %}
+                    {% trans "The search query has expired. Please run a new search." %}
                 {% else %}
                     &nbsp;
                 {% endif %}
