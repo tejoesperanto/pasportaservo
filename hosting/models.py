@@ -663,6 +663,35 @@ class Profile(TrackingModel, TimeStampedModel):
     mark_valid_emails.do_not_call_in_templates = True
 
 
+class FamilyMember(Profile):
+    class Meta:
+        proxy = True
+
+    @property
+    def owner(self):
+        """
+        The current 'owner' of this profile.
+        When a family member profile is a user on their own, the 'owner' is the
+        user themselves.
+        Otherwise, it is the 'owner' of the place currently being engaged with.
+        """
+        return self if self.user_id else getattr(self, '_current_owner', None)
+
+    @owner.setter
+    def owner(self, value):
+        """
+        Sets the current 'owner' of this profile.
+        A family member profile may be associated with several places.
+        When engaging with a specific place, the 'owner' would be the
+        one of the place.
+        Ignored if the family member is a user on their own.
+        """
+        if not isinstance(value, Profile):
+            raise ValueError("An owner shall be a Profile.")
+        if not self.user_id:
+            setattr(self, '_current_owner', value)
+
+
 class Place(TrackingModel, TimeStampedModel):
     owner = models.ForeignKey(
         'hosting.Profile', verbose_name=_("owner"),

@@ -12,7 +12,7 @@ from core.auth import OWNER
 from core.templatetags.utils import next_link
 from core.utils import sanitize_next
 
-from ..models import LocationConfidence, Phone, Place, Profile
+from ..models import FamilyMember, LocationConfidence, Phone, Place, Profile
 
 
 class ProfileMixin(object):
@@ -56,11 +56,7 @@ class ProfileModifyMixin(object):
             success_url = self.object.get_edit_url()
             success_url_anchor = getattr(self, 'success_with_anchor', None)
         if success_url_anchor:
-            url_pattern = '{url}#{anchor}{obj_id}'
-            return url_pattern.format(
-                url=success_url,
-                anchor=success_url_anchor,
-                obj_id=self.object.pk)
+            return f'{success_url}#{success_url_anchor}{self.object.pk}'
         else:
             return success_url
 
@@ -101,13 +97,18 @@ class ProfileAssociatedObjectCreateMixin(object):
         response = super().form_valid(form)
         if self.role == OWNER:
             url = ''.join((
-                reverse('profile_settings', kwargs={'pk': self.create_for.pk, 'slug': self.create_for.autoslug}),
+                reverse('profile_settings',
+                        kwargs={'pk': self.create_for.pk, 'slug': self.create_for.autoslug}),
                 '#ppv', str(self.object.visibility.pk),
             ))
             msg_affirm = self.get_confirmation_message()
-            msg_remind = _("<a href=\"{url}\">Don't forget to choose</a> where it should be displayed.")
-            messages.info(self.request, extra_tags='eminent',
-                          message=format_html("{}&ensp;{}", msg_affirm, format_html(msg_remind, url=url)))
+            msg_remind = _(
+                "<a href=\"{url}\">Don't forget to choose</a> where it should be displayed."
+            )
+            messages.info(
+                self.request, extra_tags='eminent',
+                message=format_html("{}&ensp;{}", msg_affirm, format_html(msg_remind, url=url))
+            )
         return response
 
 
@@ -134,9 +135,11 @@ class PlaceModifyMixin(object):
         if '_gotomap' in self.request.POST or form.confidence < LocationConfidence.ACCEPTABLE:
             map_url = reverse('place_location_update', kwargs={'pk': self.object.pk})
             redirect_to = sanitize_next(self.request)
-            return HttpResponseRedirect(('{}' if not redirect_to else '{}?{}').format(
-                map_url, next_link(self.request, redirect_to)
-            ))
+            return HttpResponseRedirect(
+                ('{}' if not redirect_to else '{}?{}').format(
+                    map_url, next_link(self.request, redirect_to)
+                )
+            )
         return response
 
 
@@ -148,7 +151,7 @@ class PhoneMixin(object):
 
 
 class FamilyMemberMixin(object):
-    model = Profile
+    model = FamilyMember
 
     def dispatch(self, request, *args, **kwargs):
         self.get_place()
@@ -157,13 +160,17 @@ class FamilyMemberMixin(object):
     def get_object(self, queryset=None):
         profile = super().get_object(queryset)
         if profile in self.place.family_members_cache():
+            profile.owner = self.place.owner
             return profile
         else:
-            raise Http404("Profile {} is not a family member at place {}.".format(profile.pk, self.place.pk))
+            raise Http404(f"Profile {profile.pk} is not a family member at place {self.place.pk}.")
 
     def get_place(self):
         if not hasattr(self, 'place'):
-            self.place = getattr(self, 'create_for', None) or get_object_or_404(Place, pk=self.kwargs['place_pk'])
+            self.place = (
+                getattr(self, 'create_for', None)
+                or get_object_or_404(Place, pk=self.kwargs['place_pk'])
+            )
         return self.place
 
     @cached_property
@@ -175,6 +182,11 @@ class FamilyMemberMixin(object):
 
     def get_location(self, object):
         return self.get_place().country
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['profile'] = self.object
+        return context
 
     def get_success_url(self, *args, **kwargs):
         redirect_to = sanitize_next(self.request)
@@ -202,7 +214,10 @@ class UpdateMixin(object):
     def form_valid(self, form):
         self.object.set_check_status(
             self.request.user,
-            clear_only=getattr(self, 'update_partial', False) or ('_save-only' in self.request.POST),
+            clear_only=(
+                getattr(self, 'update_partial', False)
+                or ('_save-only' in self.request.POST)
+            ),
             commit=False)
         return super().form_valid(form)
 

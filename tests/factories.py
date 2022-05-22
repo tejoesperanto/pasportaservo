@@ -187,10 +187,14 @@ class ProfileFactory(DjangoModelFactory):
     class Params:
         deceased = False
         with_email = False
+        locale = None
 
     user = factory.SubFactory('tests.factories.UserFactory', profile=None)
     title = Faker('random_element', elements=["", MRS, MR])
-    generated_name = LocaleFaker('pystr_format', string_format='{{first_name}}//{{last_name}}')
+    generated_name = factory.LazyAttribute(
+        lambda obj:
+            LocaleFaker._get_faker(obj.locale).pystr_format(string_format='{{first_name}}//{{last_name}}')
+    )
     first_name = factory.LazyAttribute(lambda obj: obj.generated_name.split('//')[0])
     last_name = factory.LazyAttribute(lambda obj: obj.generated_name.split('//')[1])
     names_inversed = False

@@ -550,7 +550,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
     checked_by__name.short_description = _("approved by")
     checked_by__name.admin_order_field = 'checked_by__username'
 
-    class FamilyMember(Profile):
+    class FamilyMemberRepr(Profile):
         class Meta:
             ordering = ['first_name', 'last_name', 'id']
             proxy = True
@@ -573,7 +573,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
 
     def get_field_queryset(self, db, db_field, request):
         if db_field.name == 'family_members':
-            return PlaceAdmin.FamilyMember.objects.select_related('user')
+            return PlaceAdmin.FamilyMemberRepr.objects.select_related('user')
         return super().get_field_queryset(db, db_field, request)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):

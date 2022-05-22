@@ -14,6 +14,7 @@ from .mixins import (
 class FamilyMemberCreateView(
         CreateMixin, AuthMixin, FamilyMemberMixin,
         generic.CreateView):
+    template_name = 'hosting/profile_form.html'
     form_class = FamilyMemberCreateForm
 
     def verify_anonymous_family(self):
@@ -44,6 +45,7 @@ class FamilyMemberCreateView(
 class FamilyMemberUpdateView(
         UpdateMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin,
         generic.UpdateView):
+    template_name = 'hosting/profile_form.html'
     form_class = FamilyMemberForm
     display_fair_usage_condition = True
 
