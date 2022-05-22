@@ -90,7 +90,7 @@ INSTALLED_APPS = (
 SHELL_PLUS_DONT_LOAD = [
     'hosting.CountryGroup',
     'hosting.InstanceApprover',
-    'hosting.FamilyMember',
+    'hosting.FamilyMemberRepr',
 ]
 
 MIDDLEWARE = [
