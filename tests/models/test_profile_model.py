@@ -2,10 +2,9 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import override_settings, tag
+from django.test import TestCase, override_settings, tag
 from django.utils.html import format_html
 
-from django_webtest import WebTest
 from factory import Faker
 
 from hosting.gravatar import email_to_gravatar
@@ -16,7 +15,7 @@ from .test_managers import TrackingManagersTests
 
 
 @tag('models', 'profile')
-class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
+class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
     factory = ProfileFactory
 
     @classmethod
@@ -187,7 +186,7 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
         )
         # Avatar URL for normal profile with invalid email is expected to be gravatar url for email.
         user = UserFactory(invalid_email=True)
-        profile = ProfileFactory(user=user)
+        profile = user.profile
         self.assertEqual(
             profile.avatar_url,
             email_to_gravatar(user._clean_email, settings.DEFAULT_AVATAR_URL)
@@ -230,7 +229,7 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
         self.assertTrue(profile.avatar_exists())
 
     def test_icon(self):
-        profile = ProfileFactory.build()
+        profile = self.basic_profile
         self.assertSurrounding(profile.icon, "<span ", "></span>")
         self.assertIn(" title=", profile.icon)
 
@@ -251,7 +250,7 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
         self.assertEqual(str(profile), "--")
 
     def test_repr(self):
-        profile = ProfileFactory()
+        profile = self.basic_profile
         self.assertSurrounding(repr(profile), f"<Profile #{profile.pk}:", ">")
 
     def test_rawdisplay(self):
@@ -332,4 +331,26 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
         self.assertEqual(
             profile.get_admin_url(),
             '/management/hosting/profile/{}/change/'.format(profile.pk)
+        )
+
+
+@tag('models', 'profile')
+class PreferencesModelTests(AdditionalAsserts, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.profile = ProfileFactory()
+
+    def test_repr(self):
+        self.assertTrue(hasattr(self.profile, 'pref'))
+        self.assertSurrounding(repr(self.profile.pref), "<Preferences", f"|p#{self.profile.pk}>")
+
+    def test_defaults(self):
+        self.assertTrue(hasattr(self.profile, 'pref'))
+        self.assertIs(
+            self.profile.pref._meta.get_field('public_listing').default,
+            True
+        )
+        self.assertIs(
+            self.profile.pref._meta.get_field('site_analytics_consent').default,
+            None
         )

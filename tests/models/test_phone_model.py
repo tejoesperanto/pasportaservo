@@ -13,42 +13,42 @@ from .test_managers import TrackingManagersTests
 class PhoneModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
     factory = PhoneFactory
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.phone = PhoneFactory()
+
     def test_field_max_lengths(self):
-        phone = PhoneFactory()
-        self.assertEqual(phone._meta.get_field('comments').max_length, 255)
-        self.assertEqual(phone._meta.get_field('type').max_length, 3)
+        self.assertEqual(self.phone._meta.get_field('comments').max_length, 255)
+        self.assertEqual(self.phone._meta.get_field('type').max_length, 3)
 
     def test_owner(self):
-        phone = PhoneFactory()
-        self.assertIs(phone.owner, phone.profile)
+        self.assertIs(self.phone.owner, self.phone.profile)
 
     @override_settings(LANGUAGE_CODE='en')
     def test_icon(self):
-        phone = PhoneFactory.build()
+        # SIDE EFFECT: self.phone.type is altered but not saved to database.
         test_data = PHONE_TYPE_CHOICES + (('x', "x"), ('', "type not indicated"))
         for phone_type, phone_type_title in test_data:
             with self.subTest(phone_type=phone_type):
-                phone.type = phone_type
-                self.assertSurrounding(phone.icon, "<span ", "></span>")
+                self.phone.type = phone_type
+                self.assertSurrounding(self.phone.icon, "<span ", "></span>")
                 title = phone_type_title.capitalize() if phone_type else phone_type_title
-                self.assertIn(f" title=\"{title}\" ", phone.icon)
+                self.assertIn(f" title=\"{title}\" ", self.phone.icon)
 
     def test_str(self):
-        phone = PhoneFactory()
-        self.assertEqual(str(phone), phone.number.as_international)
+        self.assertEqual(str(self.phone), self.phone.number.as_international)
 
     def test_repr(self):
-        phone = PhoneFactory()
-        self.assertSurrounding(repr(phone), "<Phone:", f"|p#{phone.profile.pk}>")
+        self.assertSurrounding(repr(self.phone), "<Phone:", f"|p#{self.phone.profile.pk}>")
 
     def test_rawdisplay(self):
-        phone = PhoneFactory.build()
+        # SIDE EFFECT: self.phone.type is altered but not saved to database.
         test_data = [t[0] for t in PHONE_TYPE_CHOICES] + ['x', '', None]
         for phone_type in test_data:
             with self.subTest(phone_type=phone_type):
-                phone.type = phone_type
+                self.phone.type = phone_type
                 expected_type = phone_type or "(?)"
                 self.assertEqual(
-                    phone.rawdisplay(),
-                    f"{expected_type}: {phone.number.as_international}"
+                    self.phone.rawdisplay(),
+                    f"{expected_type}: {self.phone.number.as_international}"
                 )

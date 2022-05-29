@@ -100,7 +100,7 @@ class UserFactory(DjangoModelFactory):
     password = factory.PostGenerationMethodCall('set_password', "adm1n")
     first_name = ""
     last_name = ""
-    email = Faker('email')
+    email = Faker('email', safe=False)
     is_active = True
     is_staff = False
 
@@ -209,7 +209,7 @@ class ProfileFactory(DjangoModelFactory):
     description = Faker('paragraph', nb_sentences=4)
     email = factory.Maybe(
         'with_email',
-        yes_declaration=Faker('email'),
+        yes_declaration=Faker('email', safe=False),
         no_declaration="")
 
     @factory.post_generation

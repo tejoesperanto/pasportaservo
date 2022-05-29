@@ -671,8 +671,8 @@ class ProfileEmailUpdateFormTests(EmailUpdateFormTests):
         self.assertIsInstance(page.context['form'], ProfileEmailUpdateForm)
 
     def form_submission_tests(self, *, lang, obj=None):
-        random_email = Faker._get_faker().email()
-        for new_email in (random_email, " "):
+        random_email = Faker._get_faker().email(safe=False)
+        for new_email in (" ", random_email):
             page = self.app.get(
                 reverse('profile_email_update', kwargs={
                     'pk': self.user.pk,
