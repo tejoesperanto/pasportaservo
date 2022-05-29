@@ -158,11 +158,12 @@ class VisibilityModelTests(AdditionalAsserts, TestCase):
                 )
 
     def test_prep_valid_parent(self):
+        profile = ProfileFactory()
         objects = {
-            'Place': PlaceFactory(),
-            'FamilyMembers': PlaceFactory(),
-            'Phone': PhoneFactory(),
-            'PublicEmail': ProfileFactory(),
+            'Place': PlaceFactory(owner=profile),
+            'FamilyMembers': PlaceFactory(owner=profile),
+            'Phone': PhoneFactory(profile=profile),
+            'PublicEmail': profile,
         }
         # The `prep` method is expected to create a new object in the db, and
         # return it, populated with the correct data.

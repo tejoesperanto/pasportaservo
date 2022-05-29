@@ -590,7 +590,7 @@ class Profile(TrackingModel, TimeStampedModel):
         return "{} ({})".format(self.__str__(), getattr(self.birth_date, 'year', "?"))
 
     def rawdisplay_phones(self):
-        return ", ".join(phone.rawdisplay() for phone in self.phones.all())
+        return ", ".join(phone.rawdisplay() for phone in self.phones.filter(deleted=False))
 
     def get_absolute_url(self):
         return reverse('profile_detail', kwargs={
@@ -628,11 +628,12 @@ class Profile(TrackingModel, TimeStampedModel):
         return qs.get(**kwargs)
 
     @classmethod
-    def mark_invalid_emails(cls, emails=None):
+    def mark_invalid_emails(cls, emails):
         """
         Adds the 'invalid' marker to all email addresses in the given list.
         """
         models = {cls: None, get_user_model(): None}
+        emails = emails or []
         for model in models:
             models[model] = (
                 model.objects
@@ -642,14 +643,14 @@ class Profile(TrackingModel, TimeStampedModel):
                 .update(email=Concat(V(settings.INVALID_PREFIX), F('email')))
             )
         return models
-    mark_invalid_emails.do_not_call_in_templates = True
 
     @classmethod
-    def mark_valid_emails(cls, emails=None):
+    def mark_valid_emails(cls, emails):
         """
         Removes the 'invalid' marker from all email addresses in the given list.
         """
         models = {cls: None, get_user_model(): None}
+        emails = emails or []
         for model in models:
             models[model] = (
                 model.objects
@@ -660,7 +661,6 @@ class Profile(TrackingModel, TimeStampedModel):
                 .update(email=Substr(F('email'), len(settings.INVALID_PREFIX) + 1))
             )
         return models
-    mark_valid_emails.do_not_call_in_templates = True
 
 
 class FamilyMember(Profile):
@@ -852,7 +852,7 @@ class Place(TrackingModel, TimeStampedModel):
             region = CountryRegion.objects.get(country=self.country, iso_code=self.state_province)
         except CountryRegion.DoesNotExist:
             region = CountryRegion(country=self.country, iso_code='X-00', latin_code=self.state_province)
-        region.save = lambda self, **kwargs: None  # Read-only instance.
+        region.save = lambda *args, **kwargs: None  # Read-only instance.
         return region
 
     @property
@@ -980,9 +980,6 @@ class Place(TrackingModel, TimeStampedModel):
 
     def rawdisplay_conditions(self):
         return ", ".join(c.__str__() for c in self.conditions.all())
-
-    def latexdisplay_conditions(self):
-        return r"\, ".join(c.latex for c in self.conditions.all())
 
 
 class Phone(TrackingModel, TimeStampedModel):
@@ -1283,7 +1280,7 @@ class ContactPreference(models.Model):
         verbose_name = _("contact preference")
         verbose_name_plural = _("contact preferences")
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return self.name
 
 
@@ -1308,7 +1305,7 @@ class Preferences(models.Model):
         verbose_name = _("preferences for profile")
         verbose_name_plural = _("preferences for profile")
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return ''
 
     def __repr__(self):
