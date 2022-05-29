@@ -1292,8 +1292,9 @@ class Preferences(models.Model):
     contact_preferences = models.ManyToManyField(
         'hosting.ContactPreference', verbose_name=_("contact preferences"),
         blank=True)
-    site_analytics_consent = models.NullBooleanField(
+    site_analytics_consent = models.BooleanField(
         _("I agree to be included by usage measurement tools."),
+        default=None, null=True,
         help_text=_("These technologies help us to improve Pasporta Servo. Through them "
                     "we collect information about how visitors interact with the "
                     "web site and which changes will make the interaction better."))
