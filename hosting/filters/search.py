@@ -45,6 +45,7 @@ class SearchFilterSet(filters.FilterSet):
         form = SearchForm
         fields = (
             'owner__first_name', 'owner__last_name',
+            'available',
             'max_guest', 'max_night',
             'tour_guide', 'have_a_drink',
             'contact_before',
@@ -88,6 +89,12 @@ class SearchFilterSet(filters.FilterSet):
     conditions = ModelMultipleChoiceExcludeFilter(
         field_name='conditions',
         queryset=Condition.objects.all())
+
+    def __init__(self, data=None, *args, **kwargs):
+        if data is None:
+            # By default, available places are looked up.
+            data = {'available': True}
+        super().__init__(data, *args, **kwargs)
 
     def get_form_class(self):
         # Inject the model reference into the form, because it lacks an

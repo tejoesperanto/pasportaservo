@@ -20,7 +20,7 @@ class SearchFilterSetTests(TestCase):
         # Verify that the expected filters are part of the filterset.
         expected_filters = """
             max_guest max_night contact_before tour_guide have_a_drink
-            owner__first_name owner__last_name conditions
+            owner__first_name owner__last_name available conditions
         """.split()
         self.assertEqual(set(expected_filters), set(filterset.filters))
 
@@ -32,12 +32,17 @@ class SearchFilterSetTests(TestCase):
         self.assertIs(type(filterset.filters['have_a_drink']), BooleanFilter)
         self.assertIs(type(filterset.filters['owner__first_name']), CharFilter)
         self.assertIs(type(filterset.filters['owner__last_name']), CharFilter)
+        self.assertIs(type(filterset.filters['available']), BooleanFilter)
         self.assertIs(type(filterset.filters['conditions']), ModelMultipleChoiceExcludeFilter)
 
         # Verify the comparison operations performed by numeric filters.
         self.assertEqual(filterset.filters['max_guest'].lookup_expr, 'gte')
         self.assertEqual(filterset.filters['max_night'].lookup_expr, 'gte')
         self.assertEqual(filterset.filters['contact_before'].lookup_expr, 'lte')
+
+        # Verify defaults.
+        self.assertIsNotNone(filterset.data)
+        self.assertTrue(filterset.data.get('available', None))
 
     def test_form(self):
         filterset = SearchFilterSet()
@@ -54,12 +59,13 @@ class SearchFilterSetTests(TestCase):
         p2 = PlaceFactory(owner=profile, deleted_on=timezone.now())  # noqa: F841
         p3 = PlaceFactory(owner=profile, max_night=4)
         p4 = PlaceFactory(owner=profile, max_night=None, have_a_drink=True)
+        p5 = PlaceFactory(owner=profile, available=False)
         qs = Place.objects.all()
 
         f = SearchFilterSet(queryset=qs)
         self.assertQuerysetEqual(f.qs, [p1.pk, p3.pk, p4.pk], lambda o: o.pk, ordered=False)
         f = SearchFilterSet({'max_night': 5}, queryset=qs)
-        self.assertQuerysetEqual(f.qs, [p4.pk, p1.pk], lambda o: o.pk, ordered=False)
+        self.assertQuerysetEqual(f.qs, [p4.pk, p5.pk, p1.pk], lambda o: o.pk, ordered=False)
 
 
 @tag('integration')

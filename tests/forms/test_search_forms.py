@@ -23,7 +23,7 @@ class SearchFormTests(WebTest):
         # Verify that the expected fields are part of the form.
         expected_fields = """
             max_guest max_night contact_before tour_guide have_a_drink
-            owner__first_name owner__last_name conditions
+            owner__first_name owner__last_name available conditions
         """.split()
         self.assertEqual(set(expected_fields), set(form.fields))
 
@@ -44,6 +44,9 @@ class SearchFormTests(WebTest):
             "<span class=\"sr-only\">At least this many</span>")
         self.assertEqual(form.fields['contact_before'].label, "Available within")
 
+        self.assertEqual(form.fields['available'].label, "Yes")
+        self.assertTrue(hasattr(form.fields['available'], 'extra_label'))
+        self.assertEqual(form.fields['available'].extra_label, "Place to sleep")
         self.assertEqual(form.fields['tour_guide'].label, "Yes")
         self.assertTrue(hasattr(form.fields['tour_guide'], 'extra_label'))
         self.assertEqual(form.fields['tour_guide'].extra_label, "Tour guide")
@@ -70,6 +73,9 @@ class SearchFormTests(WebTest):
             "<span class=\"sr-only\">Almenaŭ tiom da</span>")
         self.assertEqual(form.fields['contact_before'].label, "Disponebla ene de")
 
+        self.assertEqual(form.fields['available'].label, "Jes")
+        self.assertTrue(hasattr(form.fields['available'], 'extra_label'))
+        self.assertEqual(form.fields['available'].extra_label, "Dormloko")
         self.assertEqual(form.fields['tour_guide'].label, "Jes")
         self.assertTrue(hasattr(form.fields['tour_guide'], 'extra_label'))
         self.assertEqual(form.fields['tour_guide'].extra_label, "Ĉiĉeronado")
@@ -89,11 +95,13 @@ class SearchFormTests(WebTest):
         # 'filter by these conditions' and is expected to
         # include them as True values in the form data.
         form = self.SearchForm(data=QueryDict(
-            'max_guest=5&tour_guide=on&have_a_drink=on'
+            'max_guest=5&tour_guide=on&have_a_drink=on&available=on'
         ))
         self.assertTrue(form.is_valid(), msg=repr(form.errors))
         self.assertIn('max_guest', form.cleaned_data)
         self.assertEqual(form.cleaned_data['max_guest'], 5)
+        self.assertIn('available', form.cleaned_data)
+        self.assertEqual(form.cleaned_data['available'], True)
         self.assertIn('tour_guide', form.cleaned_data)
         self.assertEqual(form.cleaned_data['tour_guide'], True)
         self.assertIn('have_a_drink', form.cleaned_data)
@@ -106,6 +114,8 @@ class SearchFormTests(WebTest):
         self.assertTrue(form.is_valid(), msg=repr(form.errors))
         self.assertIn('contact_before', form.cleaned_data)
         self.assertEqual(form.cleaned_data['contact_before'], 5)
+        self.assertIn('available', form.cleaned_data)
+        self.assertIsNone(form.cleaned_data['available'])
         self.assertIn('tour_guide', form.cleaned_data)
         self.assertIsNone(form.cleaned_data['tour_guide'])
         self.assertIn('have_a_drink', form.cleaned_data)

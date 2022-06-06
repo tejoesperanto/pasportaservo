@@ -39,7 +39,9 @@ class SearchForm(forms.Form):
             format_lazy('<span class="addon-fw-3">{text}</span>', text=_("days")),
             wrapper_class='form-group-sm')
 
-        for bool_field in ('tour_guide', 'have_a_drink'):
+        self.fields['available'].initial = True
+        self.fields['available'].label = _("Place to sleep")
+        for bool_field in ('available', 'tour_guide', 'have_a_drink'):
             self.fields[bool_field].extra_label = self.fields[bool_field].label
             self.fields[bool_field].label = _("Yes")
 
@@ -50,7 +52,7 @@ class SearchForm(forms.Form):
         cleaned_data = super().clean()
         # When a boolean search form field is unchecked, it means
         # "do not filter by this field".
-        for field in ('tour_guide', 'have_a_drink'):
+        for field in ('available', 'tour_guide', 'have_a_drink'):
             if field in cleaned_data and not cleaned_data[field]:
                 cleaned_data[field] = None
         return cleaned_data
