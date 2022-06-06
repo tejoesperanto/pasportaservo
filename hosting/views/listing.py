@@ -129,7 +129,7 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
 
 
 class SearchView(PlacePaginatedListView):
-    queryset = Place.available_objects.filter(
+    queryset = Place.objects.filter(
         visibility__visible_online_public=True,
         owner__death_date__isnull=True)
     paginate_first_by = 25

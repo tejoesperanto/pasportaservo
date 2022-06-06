@@ -1731,6 +1731,10 @@ msgid "days"
 msgstr "tagoj"
 
 #: hosting/forms/listing.py
+msgid "Place to sleep"
+msgstr "Dormloko"
+
+#: hosting/forms/listing.py
 msgid "Don't show hosts with such restriction"
 msgstr "Ne montru gastigantojn kun jena limigo"
 
@@ -3004,6 +3008,12 @@ msgstr "Neniu rezulto por <i>%(query)s</i>. Jen kelkaj aktivaj gastigantoj!"
 #: hosting/templates/hosting/place_list_supervisor.html
 msgid "Sorry, no kind hosts found…"
 msgstr "Bedaŭrinde ni ne trovis gastigemulojn…"
+
+#: hosting/templates/hosting/place_list.html
+msgid ""
+"Sorry, no members of the community fulfilling the search criteria found."
+msgstr ""
+"Bedaŭrinde ni ne trovis membrojn de PS-komunumo laŭ tiaj serĉkriterioj."
 
 #: hosting/templates/hosting/place_list.html
 msgid "The search query has expired. Please run a new search."

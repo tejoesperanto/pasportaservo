@@ -163,7 +163,11 @@
         <div class="row place-list">
             <div class="col-xs-12 help-block text-body">
                 {% if view.query or filtered_by %}
-                    {% trans "Sorry, no kind hosts found…" %}
+                    {% if filter.form.cleaned_data.available %}
+                        {% trans "Sorry, no kind hosts found…" %}
+                    {% else %}
+                        {% trans "Sorry, no members of the community fulfilling the search criteria found." %}
+                    {% endif %}
                 {% elif queryset_cache_id %}
                     {% trans "The search query has expired. Please run a new search." %}
                 {% else %}
