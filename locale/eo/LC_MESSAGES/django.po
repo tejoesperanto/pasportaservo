@@ -1714,11 +1714,11 @@ msgstr "Familia nomo"
 msgid "At least this many"
 msgstr "Almenaŭ tiom da"
 
-#: hosting/forms/listing.py
+#: hosting/forms/listing.py hosting/templates/hosting/place_list_page.html
 msgid "guests"
 msgstr "gastoj"
 
-#: hosting/forms/listing.py
+#: hosting/forms/listing.py hosting/templates/hosting/place_list_page.html
 msgid "nights"
 msgstr "noktoj"
 
@@ -3025,6 +3025,15 @@ msgstr ""
 msgctxt "Title"
 msgid "Notes "
 msgstr "Rimarkoj "
+
+#: hosting/templates/hosting/place_list_page.html
+#, python-format
+msgid "up to %(number)s"
+msgstr "ĝis %(number)s"
+
+#: hosting/templates/hosting/place_list_page.html
+msgid "any number"
+msgstr "kiom ajn"
 
 #: hosting/templates/hosting/place_list_page.html
 #: hosting/templates/hosting/snippets/place_owner_anchors.html
