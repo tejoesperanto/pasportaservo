@@ -17,7 +17,7 @@ import geocoder
 from django_countries.fields import Country
 from el_pagination.views import AjaxListView
 
-from core.auth import SUPERVISOR, AuthMixin
+from core.auth import PERM_SUPERVISOR, SUPERVISOR, AuthMixin
 from core.forms import FeedbackForm
 from core.templatetags.utils import compact
 from maps import SRID
@@ -186,6 +186,10 @@ class SearchView(PlacePaginatedListView):
         # Exclude places whose owner blocked unauthenticated viewing.
         if not request.user.is_authenticated:
             self.queryset = self.queryset.exclude(owner__pref__public_listing=False)
+        # Exclude places whose owner's profile is deleted, unless the
+        # viewing user is a supervisor or an administrator.
+        if not request.user.has_perm(PERM_SUPERVISOR):
+            self.queryset = self.queryset.exclude(owner__deleted_on__isnull=False)
 
         if cached_id:
             sess_id = self.get_identifier_for_cache(request)
