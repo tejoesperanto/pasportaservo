@@ -5,6 +5,9 @@
     {% url 'search' cache=queryset_cache_id as pagination_url %}
     {% lazy_paginate first_page,view.paginate_by place_list with pagination_url %}
 
+    {% expr 'max_guest' in filtered_by as filtered_by_max_guest %}
+    {% expr 'max_night' in filtered_by as filtered_by_max_night %}
+
     {% for place in place_list %}
         <div class="row place-list">
             <div class="sr-only">&#8962;&nbsp; <em>{% trans "place"|upper %}</em></div>
@@ -60,15 +63,37 @@
                 </a>
                 <div class="status anchor-group">
                     {% if user.is_authenticated %}
-                        {% list place.available place.tour_guide place.have_a_drink as offer_details %}
+                        {% list place.available place.tour_guide place.have_a_drink filtered_by_max_guest filtered_by_max_night as offer_details %}
                         {% if offer_details|are_any %}
                             <span class="sr-only">{% trans "Notes " context 'Title' %}:</span>
                         {% endif %}
-                        {% dict icon="ps-home"       class="host"  title=_("I'm hosting")                       as style_house %}
-                        {% dict icon="ps-city-guide" class="guide" title=_("I can guide around the city")       as style_guide %}
-                        {% dict icon="ps-city-drink" class="drink" title=_("I'd like to have a drink together") as style_drink %}
+                        {% asvar desc_max_guests %}
+                            {% trans "guests" %}:
+                            {% if place.max_guest > 1 %}
+                                {% blocktrans with number=place.max_guest %}up to {{ number }}{% endblocktrans %}
+                            {% elif place.max_guest == 1 %}
+                                {{ place.max_guest }}
+                            {% else %}
+                                {% trans "any number" %}
+                            {% endif %}
+                        {% endasvar %}
+                        {% asvar desc_max_nights %}
+                            {% trans "nights" %}:
+                            {% if place.max_night > 1 %}
+                                {% blocktrans with number=place.max_night %}up to {{ number }}{% endblocktrans %}
+                            {% elif place.max_night == 1 %}
+                                {{ place.max_night }}
+                            {% else %}
+                                {% trans "any number" %}
+                            {% endif %}
+                        {% endasvar %}
+                        {% dict icon="ps-home"        class="host"   title=_("I'm hosting")                       as style_house %}
+                        {% dict icon="ps-city-guide"  class="guide"  title=_("I can guide around the city")       as style_guide %}
+                        {% dict icon="ps-city-drink"  class="drink"  title=_("I'd like to have a drink together") as style_drink %}
+                        {% dict icon="fa-street-view" class="guests" title=desc_max_guests|compact                as style_guest %}
+                        {% dict icon="fa-moon"        class="nights" title=desc_max_nights|compact                as style_night %}
 
-                        {% cycle style_house style_guide style_drink as offer_style silent %}
+                        {% cycle style_house style_guide style_drink style_guest style_night as offer_style silent %}
                         {% for proposed_activity in offer_details %}
                             {% if proposed_activity %}
                                 {% spaceless %}
