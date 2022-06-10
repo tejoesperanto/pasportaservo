@@ -50,7 +50,7 @@
       "id": "background",
       "type": "background",
       "paint": {
-        "background-color": "rgb(242,243,240)"
+        "background-color": "rgb(242, 243, 240)"
       }
     },
     {
@@ -68,24 +68,6 @@
       },
       "paint": {
         "fill-color": "rgb(230, 233, 229)"
-      }
-    },
-    {
-      "id": "water",
-      "type": "fill",
-      "source": "openmaptiles",
-      "source-layer": "water",
-      "filter": [
-        "==",
-        "$type",
-        "Polygon"
-      ],
-      "layout": {
-        "visibility": "visible"
-      },
-      "paint": {
-        "fill-color": "rgb(194, 200, 202)",
-        "fill-antialias": true
       }
     },
     {
@@ -179,7 +161,7 @@
       "paint": {
         "fill-color": "rgb(234, 234, 230)",
         "fill-opacity": {
-          "base": 0.6,
+          "base": 0.5,
           "stops": [
             [
               8,
@@ -187,7 +169,7 @@
             ],
             [
               9,
-              0.6
+              0.5
             ]
           ]
         }
@@ -216,7 +198,7 @@
         "visibility": "visible"
       },
       "paint": {
-        "fill-color": "rgb(220,224,220)",
+        "fill-color": "rgb(220, 224, 220)",
         "fill-opacity": {
           "base": 1,
           "stops": [
@@ -230,6 +212,24 @@
             ]
           ]
         }
+      }
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "openmaptiles",
+      "source-layer": "water",
+      "filter": [
+        "==",
+        "$type",
+        "Polygon"
+      ],
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "fill-color": "rgb(194, 200, 202)",
+        "fill-antialias": true
       }
     },
     {
