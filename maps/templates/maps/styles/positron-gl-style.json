@@ -3039,6 +3039,57 @@
           ]
         }
       }
+    },
+    {
+      "id": "place_continent",
+      "type": "symbol",
+      "metadata": {
+        "mapbox:group": "101da9f13b64a08fa4b6ac1168e89e5f"
+      },
+      "source": "openmaptiles",
+      "source-layer": "place",
+      "minzoom": 1,
+      "maxzoom": 3,
+      "filter": [
+        "all",
+        [
+          "==",
+          "class",
+          "continent"
+        ],
+        [
+          "==",
+          "$type",
+          "Point"
+        ]
+      ],
+      "layout": {
+        "text-size": 10,
+        "text-transform": "uppercase",
+        "text-font": [
+          "Klokantech Noto Sans Italic",
+          "Klokantech Noto Sans CJK Regular"
+        ],
+        "text-justify": "center",
+        "visibility": "visible",
+        "text-offset": [
+          0.5,
+          0
+        ],
+        "text-anchor": "center",
+        "text-rotate": -10,
+        "text-field": [
+          "case",
+          ["has", "name:{{ lang }}"], ["get", "name:{{ lang }}"],
+          ["get", "name:la"]
+        ]
+      },
+      "paint": {
+        "text-color": "rgb(117,129,145)",
+        "text-halo-color": "rgb(242,243,240)",
+        "text-halo-width": 1,
+        "text-halo-blur": 1
+      }
     }
   ],
   "id": "ciwf3o3u2008z2pmq7pmvm6xq"
