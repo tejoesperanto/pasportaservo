@@ -1731,6 +1731,9 @@
         [
           "!in",
           "class",
+          "continent",
+          "country",
+          "state",
           "city",
           "suburb",
           "town",
