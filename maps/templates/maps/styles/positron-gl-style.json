@@ -260,27 +260,30 @@
           "==",
           "$type",
           "LineString"
-        ],
-        [
-          "!has",
-          "name:{{ lang }}"
         ]
       ],
       "layout": {
-        "text-field": "{name:latin} {name:nonlatin}",
+        "text-field": [
+          "concat",
+          ["case",
+            ["has", "name:{{ lang }}"], ["get", "name:{{ lang }}"],
+            ["get", "name:latin"]
+          ],
+          "  ",
+          ["get", "name:nonlatin"]
+        ],
         "symbol-placement": "line",
         "text-rotation-alignment": "map",
         "symbol-spacing": 500,
         "text-font": [
-          "Metropolis Medium Italic",
           "Klokantech Noto Sans Italic",
           "Klokantech Noto Sans CJK Regular"
         ],
         "text-size": 12
       },
       "paint": {
-        "text-color": "rgb(157,169,177)",
-        "text-halo-color": "rgb(242,243,240)",
+        "text-color": "rgb(157, 169, 177)",
+        "text-halo-color": "rgb(242, 243, 240)",
         "text-halo-width": 1,
         "text-halo-blur": 1
       }
@@ -481,7 +484,7 @@
         "visibility": "visible"
       },
       "paint": {
-        "line-color": "rgb(234,234,234)",
+        "line-color": "rgb(234, 234, 234)",
         "line-width": {
           "base": 1.4,
           "stops": [
@@ -1480,10 +1483,6 @@
           "==",
           "$type",
           "LineString"
-        ],
-        [
-          "!has",
-          "name:{{ lang }}"
         ]
       ],
       "layout": {
@@ -1499,58 +1498,15 @@
         "visibility": "visible",
         "text-rotation-alignment": "map",
         "text-pitch-alignment": "viewport",
-        "text-field": "{name:latin} {name:nonlatin}"
-      },
-      "paint": {
-        "text-color": "#bbb",
-        "text-halo-color": "#fff",
-        "text-translate": [
-          0,
-          0
-        ],
-        "text-halo-width": 2,
-        "text-halo-blur": 1
-      }
-    },
-    {
-      "id": "highway_name_other-{{ lang }}",
-      "type": "symbol",
-      "metadata": {
-        "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
-      },
-      "source": "openmaptiles",
-      "source-layer": "transportation_name",
-      "filter": [
-        "all",
-        [
-          "!=",
-          "class",
-          "motorway"
-        ],
-        [
-          "==",
-          "$type",
-          "LineString"
-        ],
-        [
-          "has",
-          "name:{{ lang }}"
+        "text-field": [
+          "concat",
+          ["case",
+            ["has", "name:{{ lang }}"], ["get", "name:{{ lang }}"],
+            ["get", "name:latin"]
+          ],
+          " ",
+          ["get", "name:nonlatin"]
         ]
-      ],
-      "layout": {
-        "text-size": 10,
-        "text-max-angle": 30,
-        "text-transform": "uppercase",
-        "symbol-spacing": 350,
-        "text-font": [
-          "Klokantech Noto Sans Regular",
-          "Klokantech Noto Sans CJK Regular"
-        ],
-        "symbol-placement": "line",
-        "visibility": "visible",
-        "text-rotation-alignment": "map",
-        "text-pitch-alignment": "viewport",
-        "text-field": "{name:{{ lang }}} {name:nonlatin}"
       },
       "paint": {
         "text-color": "#bbb",
@@ -1712,58 +1668,6 @@
         [
           "!in",
           "class",
-          "city",
-          "suburb",
-          "town",
-          "village"
-        ],
-        [
-          "==",
-          "$type",
-          "Point"
-        ],
-        [
-          "!has",
-          "name:{{ lang }}"
-        ]
-      ],
-      "layout": {
-        "text-size": 10,
-        "text-transform": "uppercase",
-        "text-font": [
-          "Klokantech Noto Sans Regular",
-          "Klokantech Noto Sans CJK Regular"
-        ],
-        "text-justify": "center",
-        "visibility": "visible",
-        "text-offset": [
-          0.5,
-          0
-        ],
-        "text-anchor": "center",
-        "text-field": "{name:latin}\n{name:nonlatin}"
-      },
-      "paint": {
-        "text-color": "rgb(117, 129, 145)",
-        "text-halo-color": "rgb(242,243,240)",
-        "text-halo-width": 1,
-        "text-halo-blur": 1
-      }
-    },
-    {
-      "id": "place_other-{{ lang }}",
-      "type": "symbol",
-      "metadata": {
-        "mapbox:group": "101da9f13b64a08fa4b6ac1168e89e5f"
-      },
-      "source": "openmaptiles",
-      "source-layer": "place",
-      "maxzoom": 14,
-      "filter": [
-        "all",
-        [
-          "!in",
-          "class",
           "continent",
           "country",
           "state",
@@ -1776,14 +1680,10 @@
           "==",
           "$type",
           "Point"
-        ],
-        [
-          "has",
-          "name:{{ lang }}"
         ]
       ],
       "layout": {
-        "text-size": 10,
+        "text-size": 8,
         "text-transform": "uppercase",
         "text-font": [
           "Klokantech Noto Sans Regular",
@@ -1796,11 +1696,19 @@
           0
         ],
         "text-anchor": "center",
-        "text-field": "{name:{{ lang }}}\n{name:nonlatin}"
+        "text-field": [
+          "concat",
+          ["case",
+            ["has", "name:{{ lang }}"], ["get", "name:{{ lang }}"],
+            ["get", "name:latin"]
+          ],
+          "\n",
+          ["get", "name:nonlatin"]
+        ]
       },
       "paint": {
         "text-color": "rgb(117, 129, 145)",
-        "text-halo-color": "rgb(242,243,240)",
+        "text-halo-color": "rgb(242, 243, 240)",
         "text-halo-width": 1,
         "text-halo-blur": 1
       }
@@ -1825,80 +1733,31 @@
           "==",
           "class",
           "suburb"
-        ],
-        [
-          "!has",
-          "name:{{ lang }}"
         ]
       ],
       "layout": {
         "text-size": 10,
         "text-transform": "uppercase",
         "text-font": [
-          "Klokantech Noto Sans Regular",
+          "Klokantech Noto Sans Italic",
           "Klokantech Noto Sans CJK Regular"
         ],
         "text-justify": "center",
         "visibility": "visible",
-        "text-offset": [
-          0.5,
-          0
-        ],
         "text-anchor": "center",
-        "text-field": "{name:latin}\n{name:nonlatin}"
-      },
-      "paint": {
-        "text-color": "rgb(117, 129, 145)",
-        "text-halo-color": "rgb(242,243,240)",
-        "text-halo-width": 1,
-        "text-halo-blur": 1
-      }
-    },
-    {
-      "id": "place_suburb-{{ lang }}",
-      "type": "symbol",
-      "metadata": {
-        "mapbox:group": "101da9f13b64a08fa4b6ac1168e89e5f"
-      },
-      "source": "openmaptiles",
-      "source-layer": "place",
-      "maxzoom": 15,
-      "filter": [
-        "all",
-        [
-          "==",
-          "$type",
-          "Point"
-        ],
-        [
-          "==",
-          "class",
-          "suburb"
-        ],
-        [
-          "has",
-          "name:{{ lang }}"
+        "text-field": [
+          "format",
+          ["case",
+            ["has", "name:{{ lang }}"], ["get", "name:{{ lang }}"],
+            ["get", "name:latin"]
+          ], {},
+          "\n", {},
+          ["get", "name:nonlatin"], {"font-scale": 0.9}
         ]
-      ],
-      "layout": {
-        "text-size": 10,
-        "text-transform": "uppercase",
-        "text-font": [
-          "Klokantech Noto Sans Regular",
-          "Klokantech Noto Sans CJK Regular"
-        ],
-        "text-justify": "center",
-        "visibility": "visible",
-        "text-offset": [
-          0.5,
-          0
-        ],
-        "text-anchor": "center",
-        "text-field": "{name:{{ lang }}}\n{name:nonlatin}"
       },
       "paint": {
         "text-color": "rgb(117, 129, 145)",
-        "text-halo-color": "rgb(242,243,240)",
+        "text-halo-color": "rgb(242, 243, 240)",
         "text-halo-width": 1,
         "text-halo-blur": 1
       }
@@ -1923,83 +1782,32 @@
           "==",
           "class",
           "village"
-        ],
-        [
-          "!has",
-          "name:{{ lang }}"
         ]
       ],
       "layout": {
         "text-size": 10,
         "text-transform": "uppercase",
         "text-font": [
-          "Klokantech Noto Sans Regular",
+          "Klokantech Noto Sans Italic",
           "Klokantech Noto Sans CJK Regular"
         ],
-        "text-justify": "left",
+        "text-justify": "center",
         "visibility": "visible",
-        "text-offset": [
-          0.5,
-          0.2
-        ],
         "icon-size": 0.4,
-        "text-anchor": "left",
-        "text-field": "{name:latin}\n{name:nonlatin}"
-      },
-      "paint": {
-        "text-color": "rgb(117, 129, 145)",
-        "text-halo-color": "rgb(242,243,240)",
-        "text-halo-width": 1,
-        "text-halo-blur": 1,
-        "icon-opacity": 0.7
-      }
-    },
-    {
-      "id": "place_village-{{ lang }}",
-      "type": "symbol",
-      "metadata": {
-        "mapbox:group": "101da9f13b64a08fa4b6ac1168e89e5f"
-      },
-      "source": "openmaptiles",
-      "source-layer": "place",
-      "maxzoom": 14,
-      "filter": [
-        "all",
-        [
-          "==",
-          "$type",
-          "Point"
-        ],
-        [
-          "==",
-          "class",
-          "village"
-        ],
-        [
-          "has",
-          "name:{{ lang }}"
+        "text-anchor": "center",
+        "text-field": [
+          "format",
+          ["case",
+            ["has", "name:{{ lang }}"], ["get", "name:{{ lang }}"],
+            ["get", "name:latin"]
+          ], {},
+          "\n", {},
+          ["get", "name:nonlatin"], {"font-scale": 0.9}
         ]
-      ],
-      "layout": {
-        "text-size": 10,
-        "text-transform": "uppercase",
-        "text-font": [
-          "Klokantech Noto Sans Regular",
-          "Klokantech Noto Sans CJK Regular"
-        ],
-        "text-justify": "left",
-        "visibility": "visible",
-        "text-offset": [
-          0.5,
-          0.2
-        ],
-        "icon-size": 0.4,
-        "text-anchor": "left",
-        "text-field": "{name:{{ lang }}}\n{name:nonlatin}"
       },
       "paint": {
         "text-color": "rgb(117, 129, 145)",
-        "text-halo-color": "rgb(242,243,240)",
+        "text-halo-color": "rgb(242, 243, 240)",
         "text-halo-width": 1,
         "text-halo-blur": 1,
         "icon-opacity": 0.7
@@ -2025,10 +1833,6 @@
           "==",
           "class",
           "town"
-        ],
-        [
-          "!has",
-          "name:{{ lang }}"
         ]
       ],
       "layout": {
@@ -2051,7 +1855,19 @@
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
-        "text-justify": "left",
+        "text-justify": {
+          "base": 1,
+          "stops": [
+            [
+              0,
+              "left"
+            ],
+            [
+              8,
+              "center"
+            ]
+          ]
+        },
         "visibility": "visible",
         "text-offset": [
           0.5,
@@ -2071,87 +1887,19 @@
             ]
           ]
         },
-        "text-field": "{name:latin}\n{name:nonlatin}"
-      },
-      "paint": {
-        "text-color": "rgb(117, 129, 145)",
-        "text-halo-color": "rgb(242,243,240)",
-        "text-halo-width": 1,
-        "text-halo-blur": 1,
-        "icon-opacity": 0.7
-      }
-    },
-    {
-      "id": "place_town-{{ lang }}",
-      "type": "symbol",
-      "metadata": {
-        "mapbox:group": "101da9f13b64a08fa4b6ac1168e89e5f"
-      },
-      "source": "openmaptiles",
-      "source-layer": "place",
-      "maxzoom": 15,
-      "filter": [
-        "all",
-        [
-          "==",
-          "$type",
-          "Point"
-        ],
-        [
-          "==",
-          "class",
-          "town"
-        ],
-        [
-          "has",
-          "name:{{ lang }}"
+        "text-field": [
+          "format",
+          ["case",
+            ["has", "name:{{ lang }}"], ["get", "name:{{ lang }}"],
+            ["get", "name:latin"]
+          ], {},
+          "\n", {},
+          ["get", "name:nonlatin"], {"font-scale": 0.9}
         ]
-      ],
-      "layout": {
-        "text-size": 10,
-        "icon-image": {
-          "base": 1,
-          "stops": [
-            [
-              0,
-              "circle-11"
-            ],
-            [
-              8,
-              ""
-            ]
-          ]
-        },
-        "text-transform": "uppercase",
-        "text-font": [
-          "Klokantech Noto Sans Regular",
-          "Klokantech Noto Sans CJK Regular"
-        ],
-        "text-justify": "left",
-        "visibility": "visible",
-        "text-offset": [
-          0.5,
-          0.2
-        ],
-        "icon-size": 0.4,
-        "text-anchor": {
-          "base": 1,
-          "stops": [
-            [
-              0,
-              "left"
-            ],
-            [
-              8,
-              "center"
-            ]
-          ]
-        },
-        "text-field": "{name:{{ lang }}}\n{name:nonlatin}"
       },
       "paint": {
         "text-color": "rgb(117, 129, 145)",
-        "text-halo-color": "rgb(242,243,240)",
+        "text-halo-color": "rgb(242, 243, 240)",
         "text-halo-width": 1,
         "text-halo-blur": 1,
         "icon-opacity": 0.7
@@ -2190,14 +1938,13 @@
             "rank",
             3
           ]
-        ],
-        [
-          "!has",
-          "name:{{ lang }}"
         ]
       ],
       "layout": {
-        "text-size": 10,
+        "text-size": [
+          "step", ["zoom"], 10,
+          12, 12
+        ],
         "icon-image": {
           "base": 1,
           "stops": [
@@ -2216,7 +1963,19 @@
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
         ],
-        "text-justify": "left",
+        "text-justify": {
+          "base": 1,
+          "stops": [
+            [
+              0,
+              "left"
+            ],
+            [
+              8,
+              "center"
+            ]
+          ]
+        },
         "visibility": "visible",
         "text-offset": [
           0.5,
@@ -2236,100 +1995,19 @@
             ]
           ]
         },
-        "text-field": "{name:latin}\n{name:nonlatin}"
-      },
-      "paint": {
-        "text-color": "rgb(117, 129, 145)",
-        "text-halo-color": "rgb(242,243,240)",
-        "text-halo-width": 1,
-        "text-halo-blur": 1,
-        "icon-opacity": 0.7
-      }
-    },
-    {
-      "id": "place_city-{{ lang }}",
-      "type": "symbol",
-      "metadata": {
-        "mapbox:group": "101da9f13b64a08fa4b6ac1168e89e5f"
-      },
-      "source": "openmaptiles",
-      "source-layer": "place",
-      "maxzoom": 14,
-      "filter": [
-        "all",
-        [
-          "==",
-          "$type",
-          "Point"
-        ],
-        [
-          "all",
-          [
-            "!=",
-            "capital",
-            2
-          ],
-          [
-            "==",
-            "class",
-            "city"
-          ],
-          [
-            ">",
-            "rank",
-            3
-          ]
-        ],
-        [
-          "has",
-          "name:{{ lang }}"
+        "text-field": [
+          "format",
+          ["case",
+            ["has", "name:{{ lang }}"], ["get", "name:{{ lang }}"],
+            ["get", "name:latin"]
+          ], {},
+          "\n", {},
+          ["get", "name:nonlatin"], {"font-scale": 0.9}
         ]
-      ],
-      "layout": {
-        "text-size": 10,
-        "icon-image": {
-          "base": 1,
-          "stops": [
-            [
-              0,
-              "circle-11"
-            ],
-            [
-              8,
-              ""
-            ]
-          ]
-        },
-        "text-transform": "uppercase",
-        "text-font": [
-          "Klokantech Noto Sans Regular",
-          "Klokantech Noto Sans CJK Regular"
-        ],
-        "text-justify": "left",
-        "visibility": "visible",
-        "text-offset": [
-          0.5,
-          0.2
-        ],
-        "icon-size": 0.4,
-        "text-anchor": {
-          "base": 1,
-          "stops": [
-            [
-              0,
-              "left"
-            ],
-            [
-              8,
-              "center"
-            ]
-          ]
-        },
-        "text-field": "{name:{{ lang }}}\n{name:nonlatin}"
       },
       "paint": {
         "text-color": "rgb(117, 129, 145)",
-        "text-halo-color": "rgb(242,243,240)",
+        "text-halo-color": "rgb(242, 243, 240)",
         "text-halo-width": 1,
         "text-halo-blur": 1,
         "icon-opacity": 0.7
@@ -2363,10 +2041,6 @@
             "class",
             "city"
           ]
-        ],
-        [
-          "!has",
-          "name:{{ lang }}"
         ]
       ],
       "layout": {
@@ -2409,95 +2083,20 @@
             ]
           ]
         },
-        "text-field": "{name:latin}\n{name:nonlatin}"
-      },
-      "paint": {
-        "text-color": "rgb(117, 129, 145)",
-        "text-halo-color": "rgb(242,243,240)",
-        "text-halo-width": 1,
-        "text-halo-blur": 1,
-        "icon-opacity": 0.7
-      }
-    },
-    {
-      "id": "place_capital-{{ lang }}",
-      "type": "symbol",
-      "metadata": {
-        "mapbox:group": "101da9f13b64a08fa4b6ac1168e89e5f"
-      },
-      "source": "openmaptiles",
-      "source-layer": "place",
-      "maxzoom": 12,
-      "filter": [
-        "all",
-        [
-          "==",
-          "$type",
-          "Point"
-        ],
-        [
-          "all",
+        "text-field": [
+          "format",
           [
-            "==",
-            "capital",
-            2
-          ],
-          [
-            "==",
-            "class",
-            "city"
-          ]
-        ],
-        [
-          "has",
-          "name:{{ lang }}"
+            "case",
+            ["has", "name:{{ lang }}"], ["get", "name:{{ lang }}"],
+            ["get", "name:latin"]
+          ], {},
+          "\n", {},
+          ["get", "name:nonlatin"], {"font-scale": 0.8}
         ]
-      ],
-      "layout": {
-        "text-size": 14,
-        "icon-image": {
-          "base": 1,
-          "stops": [
-            [
-              0,
-              "star-11"
-            ],
-            [
-              8,
-              ""
-            ]
-          ]
-        },
-        "text-transform": "uppercase",
-        "text-font": [
-          "Klokantech Noto Sans Regular",
-          "Klokantech Noto Sans CJK Regular"
-        ],
-        "text-justify": "left",
-        "visibility": "visible",
-        "text-offset": [
-          0.5,
-          0.2
-        ],
-        "icon-size": 1,
-        "text-anchor": {
-          "base": 1,
-          "stops": [
-            [
-              0,
-              "left"
-            ],
-            [
-              8,
-              "center"
-            ]
-          ]
-        },
-        "text-field": "{name:{{ lang }}}\n{name:nonlatin}"
       },
       "paint": {
         "text-color": "rgb(117, 129, 145)",
-        "text-halo-color": "rgb(242,243,240)",
+        "text-halo-color": "rgb(242, 243, 240)",
         "text-halo-width": 1,
         "text-halo-blur": 1,
         "icon-opacity": 0.7
@@ -2536,10 +2135,6 @@
             "class",
             "city"
           ]
-        ],
-        [
-          "!has",
-          "name:{{ lang }}"
         ]
       ],
       "layout": {
@@ -2582,100 +2177,20 @@
             ]
           ]
         },
-        "text-field": "{name:latin}\n{name:nonlatin}"
-      },
-      "paint": {
-        "text-color": "rgb(117, 129, 145)",
-        "text-halo-color": "rgb(242,243,240)",
-        "text-halo-width": 1,
-        "text-halo-blur": 1,
-        "icon-opacity": 0.7
-      }
-    },
-    {
-      "id": "place_city_large-{{ lang }}",
-      "type": "symbol",
-      "metadata": {
-        "mapbox:group": "101da9f13b64a08fa4b6ac1168e89e5f"
-      },
-      "source": "openmaptiles",
-      "source-layer": "place",
-      "maxzoom": 12,
-      "filter": [
-        "all",
-        [
-          "==",
-          "$type",
-          "Point"
-        ],
-        [
-          "all",
+        "text-field": [
+          "format",
           [
-            "!=",
-            "capital",
-            2
-          ],
-          [
-            "<=",
-            "rank",
-            3
-          ],
-          [
-            "==",
-            "class",
-            "city"
-          ]
-        ],
-        [
-          "has",
-          "name:{{ lang }}"
+            "case",
+            ["has", "name:{{ lang }}"], ["get", "name:{{ lang }}"],
+            ["get", "name:latin"]
+          ], {},
+          "\n", {},
+          ["get", "name:nonlatin"], {"font-scale": 0.8}
         ]
-      ],
-      "layout": {
-        "text-size": 14,
-        "icon-image": {
-          "base": 1,
-          "stops": [
-            [
-              0,
-              "circle-11"
-            ],
-            [
-              8,
-              ""
-            ]
-          ]
-        },
-        "text-transform": "uppercase",
-        "text-font": [
-          "Klokantech Noto Sans Regular",
-          "Klokantech Noto Sans CJK Regular"
-        ],
-        "text-justify": "left",
-        "visibility": "visible",
-        "text-offset": [
-          0.5,
-          0.2
-        ],
-        "icon-size": 0.4,
-        "text-anchor": {
-          "base": 1,
-          "stops": [
-            [
-              0,
-              "left"
-            ],
-            [
-              8,
-              "center"
-            ]
-          ]
-        },
-        "text-field": "{name:{{ lang }}}\n{name:nonlatin}"
       },
       "paint": {
         "text-color": "rgb(117, 129, 145)",
-        "text-halo-color": "rgb(242,243,240)",
+        "text-halo-color": "rgb(242, 243, 240)",
         "text-halo-width": 1,
         "text-halo-blur": 1,
         "icon-opacity": 0.7
@@ -2701,15 +2216,19 @@
           "==",
           "class",
           "state"
-        ],
-        [
-          "!has",
-          "name:{{ lang }}"
         ]
       ],
       "layout": {
         "visibility": "visible",
-        "text-field": "{name:latin}\n{name:nonlatin}",
+        "text-field": [
+          "concat",
+          ["case",
+            ["has", "name:{{ lang }}"], ["get", "name:{{ lang }}"],
+            ["get", "name:latin"]
+          ],
+          "\n",
+          ["get", "name:nonlatin"]
+        ],
         "text-font": [
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
@@ -2719,50 +2238,7 @@
       },
       "paint": {
         "text-color": "rgb(113, 129, 144)",
-        "text-halo-color": "rgb(242,243,240)",
-        "text-halo-width": 1,
-        "text-halo-blur": 1
-      }
-    },
-    {
-      "id": "place_state-{{ lang }}",
-      "type": "symbol",
-      "metadata": {
-        "mapbox:group": "101da9f13b64a08fa4b6ac1168e89e5f"
-      },
-      "source": "openmaptiles",
-      "source-layer": "place",
-      "maxzoom": 12,
-      "filter": [
-        "all",
-        [
-          "==",
-          "$type",
-          "Point"
-        ],
-        [
-          "==",
-          "class",
-          "state"
-        ],
-        [
-          "has",
-          "name:{{ lang }}"
-        ]
-      ],
-      "layout": {
-        "visibility": "visible",
-        "text-field": "{name:{{ lang }}}\n{name:nonlatin}",
-        "text-font": [
-          "Klokantech Noto Sans Regular",
-          "Klokantech Noto Sans CJK Regular"
-        ],
-        "text-transform": "uppercase",
-        "text-size": 10
-      },
-      "paint": {
-        "text-color": "rgb(113, 129, 144)",
-        "text-halo-color": "rgb(242,243,240)",
+        "text-halo-color": "rgb(242, 243, 240)",
         "text-halo-width": 1,
         "text-halo-blur": 1
       }
@@ -2795,89 +2271,19 @@
             "rank",
             2
           ]
-        ],
-        [
-          "!has",
-          "name:{{ lang }}"
         ]
       ],
       "layout": {
         "visibility": "visible",
-        "text-field": "{name:latin}\n{name:nonlatin}",
-        "text-font": [
-          "Klokantech Noto Sans Regular",
-          "Klokantech Noto Sans CJK Regular"
-        ],
-        "text-transform": "uppercase",
-        "text-size": {
-          "base": 1,
-          "stops": [
-            [
-              0,
-              10
-            ],
-            [
-              6,
-              12
-            ]
-          ]
-        }
-      },
-      "paint": {
-        "text-halo-width": 1.4,
-        "text-halo-color": "rgba(236,236,234,0.7)",
-        "text-color": {
-          "base": 1,
-          "stops": [
-            [
-              3,
-              "rgb(157,169,177)"
-            ],
-            [
-              4,
-              "rgb(153, 153, 153)"
-            ]
-          ]
-        }
-      }
-    },
-    {
-      "id": "place_country_other-{{ lang }}",
-      "type": "symbol",
-      "metadata": {
-        "mapbox:group": "101da9f13b64a08fa4b6ac1168e89e5f"
-      },
-      "source": "openmaptiles",
-      "source-layer": "place",
-      "maxzoom": 8,
-      "filter": [
-        "all",
-        [
-          "==",
-          "$type",
-          "Point"
-        ],
-        [
-          "all",
-          [
-            "==",
-            "class",
-            "country"
+        "text-field": [
+          "concat",
+          ["case",
+            ["has", "name:{{ lang }}"], ["get", "name:{{ lang }}"],
+            ["get", "name:latin"]
           ],
-          [
-            ">=",
-            "rank",
-            2
-          ]
+          "\n",
+          ["get", "name:nonlatin"]
         ],
-        [
-          "has",
-          "name:{{ lang }}"
-        ]
-      ],
-      "layout": {
-        "visibility": "visible",
-        "text-field": "{name:{{ lang }}}\n{name:nonlatin}",
         "text-font": [
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
@@ -2899,13 +2305,13 @@
       },
       "paint": {
         "text-halo-width": 1.4,
-        "text-halo-color": "rgba(236,236,234,0.7)",
+        "text-halo-color": "rgba(236, 236, 234, 0.7)",
         "text-color": {
           "base": 1,
           "stops": [
             [
               3,
-              "rgb(157,169,177)"
+              "rgb(157, 169, 177)"
             ],
             [
               4,
@@ -2943,94 +2349,19 @@
             "class",
             "country"
           ]
-        ],
-        [
-          "!has",
-          "name:{{ lang }}"
         ]
       ],
       "layout": {
         "visibility": "visible",
-        "text-field": "{name:latin}\n{name:nonlatin}",
-        "text-font": [
-          "Klokantech Noto Sans Regular",
-          "Klokantech Noto Sans CJK Regular"
-        ],
-        "text-transform": "uppercase",
-        "text-size": {
-          "base": 1.4,
-          "stops": [
-            [
-              0,
-              10
-            ],
-            [
-              3,
-              12
-            ],
-            [
-              4,
-              14
-            ]
-          ]
-        },
-        "text-anchor": "center"
-      },
-      "paint": {
-        "text-halo-width": 1.4,
-        "text-halo-color": "rgba(236,236,234,0.7)",
-        "text-color": {
-          "base": 1,
-          "stops": [
-            [
-              3,
-              "rgb(157,169,177)"
-            ],
-            [
-              4,
-              "rgb(153, 153, 153)"
-            ]
-          ]
-        }
-      }
-    },
-    {
-      "id": "place_country_major-{{ lang }}",
-      "type": "symbol",
-      "metadata": {
-        "mapbox:group": "101da9f13b64a08fa4b6ac1168e89e5f"
-      },
-      "source": "openmaptiles",
-      "source-layer": "place",
-      "maxzoom": 6,
-      "filter": [
-        "all",
-        [
-          "==",
-          "$type",
-          "Point"
-        ],
-        [
-          "all",
-          [
-            "<=",
-            "rank",
-            1
+        "text-field": [
+          "concat",
+          ["case",
+            ["has", "name:{{ lang }}"], ["get", "name:{{ lang }}"],
+            ["get", "name:latin"]
           ],
-          [
-            "==",
-            "class",
-            "country"
-          ]
+          "\n",
+          ["get", "name:nonlatin"]
         ],
-        [
-          "has",
-          "name:{{ lang }}"
-        ]
-      ],
-      "layout": {
-        "visibility": "visible",
-        "text-field": "{name:{{ lang }}}\n{name:nonlatin}",
         "text-font": [
           "Klokantech Noto Sans Regular",
           "Klokantech Noto Sans CJK Regular"
@@ -3057,13 +2388,13 @@
       },
       "paint": {
         "text-halo-width": 1.4,
-        "text-halo-color": "rgba(236,236,234,0.7)",
+        "text-halo-color": "rgba(236, 236, 234, 0.7)",
         "text-color": {
           "base": 1,
           "stops": [
             [
               3,
-              "rgb(157,169,177)"
+              "rgb(157, 169, 177)"
             ],
             [
               4,
@@ -3118,8 +2449,8 @@
         ]
       },
       "paint": {
-        "text-color": "rgb(117,129,145)",
-        "text-halo-color": "rgb(242,243,240)",
+        "text-color": "rgb(117, 129, 145)",
+        "text-halo-color": "rgb(242, 243, 240)",
         "text-halo-width": 1,
         "text-halo-blur": 1
       }
