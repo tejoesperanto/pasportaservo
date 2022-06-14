@@ -31,6 +31,9 @@ window.addEventListener("load", function() {
         zoom: initial ? 14 : 1.5,
         center: initial || [10, 20]
     });
+    map.dragRotate.disable();
+    map.touchZoomRotate.disableRotation();
+    map.keyboard.disableRotation();
 
     map.on('load', function() {
         var marker = undefined, markerBase = new mapboxgl.Marker({color: '#428bca'});
@@ -75,7 +78,7 @@ window.addEventListener("load", function() {
             }
         });
 
-        var nav = new mapboxgl.NavigationControl();
+        var nav = new mapboxgl.NavigationControl({showCompass: false});
         map.addControl(nav, 'top-left');
         var scr = new mapboxgl.FullscreenControl();
         map.addControl(scr, 'top-right');
