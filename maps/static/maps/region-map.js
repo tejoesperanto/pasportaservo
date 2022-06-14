@@ -31,10 +31,14 @@ window.addEventListener("load", function() {
     }).jumpTo({center: position.center});
     var labels = [];
 
+    map.dragRotate.disable();
+    map.touchZoomRotate.disableRotation();
+    map.keyboard.disableRotation();
+
     map.on('load', function() {
         container.style.backgroundImage = "none";
 
-        map.addControl(new mapboxgl.NavigationControl(), 'top-left');
+        map.addControl(new mapboxgl.NavigationControl({showCompass: false}), 'top-left');
         map.addControl(new mapboxgl.FullscreenControl(), 'top-right');
 
         map.addSource("region_hosts", {
