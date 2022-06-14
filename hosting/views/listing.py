@@ -121,6 +121,10 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
         context['confirmed_count'] = sum(1 for place_status in status if place_status[2])
         context['not_confirmed_count'] = context['place_count'] - context['confirmed_count']
 
+        context.update({
+            f'MAPBOX_GL_{setting}': getattr(settings, f'MAPBOX_GL_{setting}')
+            for setting in ('CSS', 'CSS_INTEGRITY', 'JS', 'JS_INTEGRITY')
+        })
         coords = bufferize_country_boundaries(self.country.code)
         if coords:
             context['country_coordinates'] = json.dumps(coords)

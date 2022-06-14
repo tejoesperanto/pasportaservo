@@ -22,6 +22,12 @@ HOURS = 3600
 class WorldMapView(generic.TemplateView):
     template_name = 'maps/world_map.html'
 
+    def get_context_data(self, **kwargs):
+        return {
+            f'MAPBOX_GL_{setting}': getattr(settings, f'MAPBOX_GL_{setting}')
+            for setting in ('CSS', 'CSS_INTEGRITY', 'JS', 'JS_INTEGRITY')
+        }
+
 
 class MapTypeConfigureView(generic.View):
     """

@@ -6,11 +6,7 @@ from django_webtest import WebTest
 class CoreContextProcessorTests(WebTest):
     def test_settings_exposure(self):
         response = self.app.get('/', status=200)
-        for setting in ('MAPBOX_GL_CSS',
-                        'MAPBOX_GL_JS',
-                        'MAPBOX_GL_CSS_INTEGRITY',
-                        'MAPBOX_GL_JS_INTEGRITY',
-                        'CURRENT_COMMIT',
+        for setting in ('CURRENT_COMMIT',
                         'INVALID_PREFIX',
                         'SEARCH_FIELD_NAME',
                         'SUPPORT_EMAIL',

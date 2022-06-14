@@ -113,6 +113,10 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
         context['place_location'] = self.calculate_position()
         context['blocking'] = self.calculate_blocking(self.object)
         context['simple_map'] = self.request.COOKIES.get('maptype') == '0'
+        context.update({
+            f'MAPBOX_GL_{setting}': getattr(settings, f'MAPBOX_GL_{setting}')
+            for setting in ('CSS', 'CSS_INTEGRITY', 'JS', 'JS_INTEGRITY')
+        })
         context['advisories'] = TravelAdvice.get_for_country(self.object.country.code)
         return context
 
