@@ -2,10 +2,10 @@ from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.urls import reverse_lazy
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import generic
-from django.views.decorators.cache import cache_page
+from django.views.decorators.cache import cache_control, cache_page
 from django.views.decorators.vary import vary_on_headers
 
 from django_countries.fields import Country
@@ -17,6 +17,7 @@ from core.utils import sanitize_next
 from hosting.models import Place
 
 HOURS = 3600
+DAYS = 24 * HOURS
 
 
 class WorldMapView(generic.TemplateView):
@@ -42,7 +43,7 @@ class MapTypeConfigureView(generic.View):
         if request.is_ajax():
             response = JsonResponse({'success': 'map-type-configured'})
         else:
-            response = HttpResponseRedirect(sanitize_next(request, from_post=True) or reverse_lazy('home'))
+            response = HttpResponseRedirect(sanitize_next(request, from_post=True) or reverse('home'))
         response.set_cookie('maptype', map_type, max_age=31557600)
         return response
 
@@ -56,31 +57,32 @@ class EndpointsView(generic.View):
         }
         if type == 'world':
             endpoints.update({
-                'world_map_style': reverse_lazy('map_style', kwargs={'style': 'positron'}),
-                'world_map_data': reverse_lazy('world_map_public_data'),
+                'world_map_style': reverse('map_style', kwargs={'style': 'positron'}),
+                'world_map_data': reverse('world_map_public_data'),
             })
         if type == 'region':
-            # This usage of GET params is safe, because the values are restricted by the URL
-            # regex: country_code can only be 2 capital letters; in_book either 0 or 1 only.
+            # This usage of GET params is safe, because the values are restricted by the
+            # URL regex:
+            # `country_code` can only be 2 capital letters; `in_book` either 0 or 1 only.
             region_kwargs = {'country_code': request.GET['country']}
             if 'in_book' in request.GET:
                 region_kwargs.update({'in_book': request.GET['in_book']})
             endpoints.update({
-                'region_map_style': reverse_lazy('map_style', kwargs={'style': 'klokantech'}),
-                'region_map_data': reverse_lazy('country_map_data', kwargs=region_kwargs),
+                'region_map_style': reverse('map_style', kwargs={'style': 'klokantech'}),
+                'region_map_data': reverse('country_map_data', kwargs=region_kwargs),
             })
         if type == 'place':
             endpoints.update({
-                'place_map_style': reverse_lazy('map_style', kwargs={'style': 'klokantech'}),
+                'place_map_style': reverse('map_style', kwargs={'style': 'klokantech'}),
             })
         if type == 'place-printed':
             endpoints.update({
-                'place_map_style': reverse_lazy('map_style', kwargs={'style': 'toner'}),
+                'place_map_style': reverse('map_style', kwargs={'style': 'toner'}),
                 'place_map_attrib': 0,
             })
         if type == 'widget':
             endpoints.update({
-                'widget_style': reverse_lazy('map_style', kwargs={'style': 'positron'}),
+                'widget_style': reverse('map_style', kwargs={'style': 'positron'}),
             })
         if format == 'js':
             return HttpResponse(
@@ -90,6 +92,10 @@ class EndpointsView(generic.View):
             return JsonResponse(endpoints)
 
 
+@method_decorator(
+    cache_page({'PROD': 365 * DAYS, 'UAT': 183 * DAYS}.get(settings.ENVIRONMENT, 0)),
+    name='dispatch'
+)
 class MapStyleView(generic.TemplateView):
     content_type = 'application/json'
 
@@ -135,7 +141,10 @@ class PlottablePlace(Place):
         return self.owner.avatar_url
 
 
-@method_decorator(cache_page(12 * HOURS), name='genuine_dispatch')
+@method_decorator(
+    [cache_control(private=True, max_age=12 * HOURS), cache_page(12 * HOURS)],
+    name='genuine_dispatch'
+)
 class PublicDataView(GeoJSONLayerView):
     geometry_field = 'location'
     precision = 2  # 0.01
