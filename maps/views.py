@@ -44,7 +44,9 @@ class MapTypeConfigureView(generic.View):
             response = JsonResponse({'success': 'map-type-configured'})
         else:
             response = HttpResponseRedirect(sanitize_next(request, from_post=True) or reverse('home'))
-        response.set_cookie('maptype', map_type, max_age=31557600)
+        response.set_cookie(
+            'maptype', map_type,
+            max_age=365 * DAYS, secure=request.is_secure(), samesite='Lax')
         return response
 
 
