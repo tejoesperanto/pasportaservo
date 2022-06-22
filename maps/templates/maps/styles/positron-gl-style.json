@@ -286,16 +286,18 @@
       }
     },
     {
-      "id": "water_name-{{ lang }}",
+      "id": "water_ocean_name-{{ lang }}",
       "type": "symbol",
       "source": "openmaptiles",
       "source-layer": "water_name",
+      "minzoom": 1,
+      "maxzoom": 3,
       "filter": [
         "all",
         [
           "==",
-          "$type",
-          "LineString"
+          "class",
+          "ocean"
         ],
         [
           "has",
@@ -303,20 +305,51 @@
         ]
       ],
       "layout": {
-        "text-field": "{name:{{ lang }}} {name:nonlatin}",
-        "symbol-placement": "line",
-        "text-rotation-alignment": "map",
+        "text-field": "{name:{{ lang }}}",
+        "text-size": 10.5,
         "symbol-spacing": 500,
         "text-font": [
-          "Metropolis Medium Italic",
-          "Klokantech Noto Sans Italic",
-          "Klokantech Noto Sans CJK Regular"
+          "Klokantech Noto Sans Italic"
+        ],
+        "text-transform": "uppercase",
+        "text-rotate": -10
+      },
+      "paint": {
+        "text-color": "rgb(157, 169, 177)",
+        "text-halo-color": "rgb(242, 243, 240)",
+        "text-halo-width": 1,
+        "text-halo-blur": 1
+      }
+    },
+    {
+      "id": "water_sea_name-{{ lang }}",
+      "type": "symbol",
+      "source": "openmaptiles",
+      "source-layer": "water_name",
+      "minzoom": 3,
+      "filter": [
+        "all",
+        [
+          "==",
+          "class",
+          "sea"
+        ],
+        [
+          "has",
+          "name:{{ lang }}"
+        ]
+      ],
+      "layout": {
+        "text-field": "{name:{{ lang }}}",
+        "symbol-spacing": 500,
+        "text-font": [
+          "Klokantech Noto Sans Italic"
         ],
         "text-size": 12
       },
       "paint": {
-        "text-color": "rgb(157,169,177)",
-        "text-halo-color": "rgb(242,243,240)",
+        "text-color": "rgb(157, 169, 177)",
+        "text-halo-color": "rgb(242, 243, 240)",
         "text-halo-width": 1,
         "text-halo-blur": 1
       }
