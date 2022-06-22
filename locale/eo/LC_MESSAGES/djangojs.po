@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-10-25 16:00+0000\n"
-"POT-Revision-Date: 2021-11-18 23:10+0000\n"
+"POT-Revision-Date: 2022-06-22 23:04+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -55,3 +55,7 @@ msgstr "Vi ne jam konservis la agordojn de privateco."
 #: maps/static/maps/mapbox-gl-widget.js
 msgid "Please zoom in the map to select a point."
 msgstr "Bonvole pliproksimigu la mapon por elekti punkton."
+
+#: maps/static/maps/world-map.js
+msgid " from <strong>[CITY]</strong>"
+msgstr " de <strong>[CITY]</strong>"

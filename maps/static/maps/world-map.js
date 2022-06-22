@@ -119,6 +119,19 @@ window.addEventListener("load", function() {
                 "circle-stroke-color": "#fff"
             }
         });
+        var POPUP_TEMPLATE =
+            '<div class="host same-as-body">' +
+                '<span class="avatar">' +
+                    '<img src="[AVATAR-URL]" [AVATAR-PARAMS]>' +
+                '</span>' +
+                '<img width="0" height="30">' +
+                '<a href="[URL]" class="name">' +
+                    '<span>[NAME]</span>[CITY-TEMPLATE]' +
+                '</a>' +
+                '<div class="clearfix"></div>' +
+            '</div>';
+        var POPUP_TEMPLATE_CITY = gettext(' from <strong>[CITY]</strong>');
+
         map.on('click', 'places', function(e) {
             function htmlEscape(value) {
                 return value.replace(/&/g,  "&amp;")
@@ -126,13 +139,18 @@ window.addEventListener("load", function() {
                             .replace(/</g,  "&lt;") .replace(/>/g,  "&gt;")
                             .replace(/\//g, "&#47;");
             }
-            var TEMPLATE = '<h4><a href="[URL]">[NAME] de <strong>[CITY]</strong></a></h4>';
             var popupHtml = "";
             e.features.forEach(function(feature) {
                 var p = feature.properties;
-                popupHtml += TEMPLATE.replace("[URL]", p.url)
-                                     .replace("[NAME]", htmlEscape(p.owner_name))
-                                     .replace("[CITY]", htmlEscape(p.city));
+                popupHtml += POPUP_TEMPLATE
+                             .replace("[URL]", p.url)
+                             .replace("[NAME]", htmlEscape(p.owner_name))
+                             .replace("[CITY-TEMPLATE]",
+                                      p.city
+                                      ? POPUP_TEMPLATE_CITY.replace("[CITY]", htmlEscape(p.city))
+                                      : "")
+                             .replace("[AVATAR-URL]", p.owner_avatar)
+                             .replace("[AVATAR-PARAMS]", p.owner_avatar_params);
             });
             new mapboxgl.Popup()
                 .setLngLat(e.features[0].geometry.coordinates)

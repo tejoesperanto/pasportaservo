@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.utils.functional import cached_property
 from django.views import generic
 from django.views.decorators.cache import cache_control, cache_page
 from django.views.decorators.vary import vary_on_headers
@@ -15,6 +16,7 @@ from core.auth import SUPERVISOR, AuthMixin
 from core.models import SiteConfiguration
 from core.utils import sanitize_next
 from hosting.models import Place
+from hosting.templatetags.profile import avatar_dimension
 
 HOURS = 3600
 DAYS = 24 * HOURS
@@ -142,6 +144,10 @@ class PlottablePlace(Place):
     def owner_avatar(self):
         return self.owner.avatar_url
 
+    @cached_property
+    def owner_avatar_params(self):
+        return avatar_dimension(self.owner)
+
 
 @method_decorator(
     [cache_control(private=True, max_age=12 * HOURS), cache_page(12 * HOURS)],
@@ -154,6 +160,8 @@ class PublicDataView(GeoJSONLayerView):
         'city',
         'url',
         'owner_name',
+        'owner_avatar',
+        'owner_avatar_params',
     ]
 
     def dispatch(self, request, *args, **kwargs):

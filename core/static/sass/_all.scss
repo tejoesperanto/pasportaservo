@@ -1100,6 +1100,45 @@ html.js-enabled #tasks-header[data-toggle="collapse"] {
     top: 48px;
     bottom: 0;
     width: 100%;
+
+    .mapboxgl-popup {
+        .mapboxgl-popup-content {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        &[class*=" mapboxgl-popup-anchor-top"] {
+            .mapboxgl-popup-content {
+                padding-top: 15px;
+            }
+        }
+        &[class*=" mapboxgl-popup-anchor-bottom"] {
+            .mapboxgl-popup-content {
+                padding-bottom: 15px;
+            }
+        }
+        .mapboxgl-popup-close-button {
+            font-family: $font-stack-hint;
+            font-size: 15px;
+            line-height: 18px;
+        }
+    }
+
+    .host {
+        @extend .authorized-user;
+        margin-bottom: 10px;
+    }
+    .host:last-of-type {
+        margin-bottom: 0;
+    }
+    .host .avatar {
+        float: left;
+        margin-right: 10px;
+    }
+    .host .name {
+        min-width: 60px;
+        max-width: 180px;
+        outline: 0;
+    }
 }
 
 
