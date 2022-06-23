@@ -157,7 +157,6 @@ class PublicDataView(GeoJSONLayerView):
     geometry_field = 'location'
     precision = 2  # 0.01
     properties = [
-        'city',
         'url',
         'owner_name',
         'owner_avatar',
@@ -172,6 +171,8 @@ class PublicDataView(GeoJSONLayerView):
     def genuine_dispatch(self, request, *args, **kwargs):
         # Caching will take into account the header (via the Vary instruction), but
         # it must be added before the cache framework calculates the hashmap key.
+        if request.user.is_authenticated:
+            self.properties = ['city'] + self.properties
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
