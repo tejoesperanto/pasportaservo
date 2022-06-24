@@ -1,13 +1,176 @@
 from django.contrib.auth.models import Group
-from django.test import tag
+from django.core import serializers
+from django.test import TestCase, tag
 from django.urls import reverse
 
 from django_webtest import WebTest
 
+from hosting.models import Preferences, VisibilitySettings
+
+from ..assertions import AdditionalAsserts
 from ..factories import (
     AdminUserFactory, PhoneFactory, PlaceFactory,
     ProfileFactory, ProfileSansAccountFactory, UserFactory,
 )
+
+
+@tag('integration')
+class ModelSignalTests(AdditionalAsserts, TestCase):
+    """
+    Tests for automated management of visibility and preferences objects
+    linked to their respective parent objects, via the Django pre-save,
+    post-save, and post-delete signals.
+    """
+
+    def test_visibility_signals(self):
+        profile = ProfileFactory.build()
+        self.object_linkage_tests(profile, 'email_visibility', 'PublicEmail', save_related='user')
+
+        phone = PhoneFactory.build(profile=profile)
+        self.object_linkage_tests(phone, 'visibility', 'Phone')
+
+        place = PlaceFactory.build(owner=profile)
+        self.object_linkage_tests(place, 'visibility', 'Place')
+
+        place2 = PlaceFactory.build(owner=profile)
+        self.object_linkage_tests(place2, 'family_members_visibility', 'FamilyMembers')
+
+        profile_only_tenant = ProfileSansAccountFactory.build()
+        self.object_linkage_tests(profile_only_tenant, 'email_visibility', 'PublicEmail')
+
+        data = serializers.serialize('json', [profile, phone, place])
+
+        self.object_codeletion_tests(profile_only_tenant, 1)
+        self.object_codeletion_tests(place2, 2)
+        self.object_codeletion_tests(place, 2)
+        self.object_codeletion_tests(phone, 1)
+        self.object_codeletion_tests(profile, 1)
+
+        # When loading data from fixtures, the pre-save and post-save signals
+        # are expected to be a no-op. Meaning, no new visibility objects are
+        # expected to be created in the database.
+        number_existing_vis_objects = VisibilitySettings.objects.count()
+        deserialized_objects = []
+        for obj in serializers.deserialize('json', data):
+            deserialized_objects.append((obj.object._meta.model, obj.object.pk))
+            obj.save()
+        self.assertEqual(VisibilitySettings.objects.count(), number_existing_vis_objects)
+
+        # Clean up the database to avoid violations of constraints.
+        for model, object_pk in reversed(deserialized_objects):
+            model.all_objects.filter(pk=object_pk).delete()
+
+    def test_preferences_signals_full_profile(self):
+        profile_with_account = ProfileFactory.build()
+        number_entities = Preferences.objects.count()
+
+        # Upon saving a new profile object, a preferences object is expected
+        # to be automatically created in the database and linked to the
+        # profile.
+        self.assertIsNone(profile_with_account.pk)
+        self.assertRaises(AttributeError, lambda: profile_with_account.pref)
+        profile_with_account.user.save()
+        profile_with_account.user_id = profile_with_account.user.pk
+        profile_with_account.save()
+        self.assertIsNotNone(profile_with_account.pk)
+        self.assertNotRaises(AttributeError, lambda: profile_with_account.pref)
+        self.assertEqual(profile_with_account.pref.profile_id, profile_with_account.pk)
+        self.assertEqual(Preferences.objects.count(), number_entities + 1)
+
+        # Upon saving an existing profile object, no new preferences object
+        # is expected to be created.
+        profile_with_account.save()
+        profile_with_account.refresh_from_db()
+        self.assertEqual(Preferences.objects.count(), number_entities + 1)
+
+        data = serializers.serialize(
+            'json',
+            [profile_with_account, profile_with_account.pref])
+        profile_pk = profile_with_account.pk
+        pref_pk = profile_with_account.pref.pk
+
+        # Upon deleting a profile object, the deletion is expected to
+        # cascade and the preferences object linked to the profile is
+        # expected to be automatically removed in the database.
+        profile_with_account.delete()
+        self.assertEqual(Preferences.objects.count(), number_entities)
+
+        # When loading data from fixtures, the pre-save and post-save
+        # signals are expected to be a no-op. Meaning, a new preferences
+        # object is not expected to be created; rather, the previously
+        # linked one is expected to be restored.
+        for obj in serializers.deserialize('json', data):
+            obj.save()
+        self.assertEqual(Preferences.objects.count(), number_entities + 1)
+        pref_obj = Preferences.objects.filter(profile_id=profile_pk)
+        self.assertEqual(len(pref_obj), 1)
+        self.assertEqual(pref_obj[0].pk, pref_pk)
+        # Clean up the database to avoid violations of constraints.
+        profile_with_account._meta.model.all_objects.filter(pk=profile_pk).delete()
+
+    def test_preferences_signals_limited_profile(self):
+        profile_only_tenant = ProfileSansAccountFactory.build()
+        number_entities = Preferences.objects.count()
+
+        # Upon saving a new object of a limited profile without an account,
+        # no preferences objects are expected to be created and attempting
+        # to access the preferences of such profile is expected to raise an
+        # AttributeError exception.
+        self.assertIsNone(profile_only_tenant.pk)
+        self.assertRaises(AttributeError, lambda: profile_only_tenant.pref)
+        profile_only_tenant.save()
+        self.assertIsNotNone(profile_only_tenant.pk)
+        self.assertRaises(AttributeError, lambda: profile_only_tenant.pref)
+        self.assertEqual(Preferences.objects.count(), number_entities)
+
+        # Upon saving an existing limited profile object, no other change
+        # in the database is expected.
+        profile_only_tenant.save()
+        profile_only_tenant.refresh_from_db()
+        self.assertEqual(Preferences.objects.count(), number_entities)
+
+        # Upon deleting a limited profile object, no other change in the
+        # database is expected.
+        profile_only_tenant.delete()
+        self.assertEqual(Preferences.objects.count(), number_entities)
+
+    def object_linkage_tests(self, object, linked_visibility_type, object_type, save_related=None):
+        self.assertIsNone(object.pk)
+        self.assertIsNone(getattr(object, f'{linked_visibility_type}_id'))
+        if save_related:
+            getattr(object, save_related).save()
+            setattr(object, f'{save_related}_id', getattr(object, save_related).pk)
+        object.save()
+
+        # Upon saving, a visibility object is expected to be automatically
+        # created in the database with default values (per parent object's
+        # type and the visibility type) and linked to the parent object.
+        self.assertIsNotNone(object.pk)
+        self.assertIsNotNone(getattr(object, f'{linked_visibility_type}_id'))
+        attr = getattr(object, linked_visibility_type)
+        attr.refresh_from_db()
+        self.assertEqual(attr.model_id, object.pk)
+        self.assertEqual(attr.model_type, object_type)
+
+        # Upon saving a second time, no new visibility object is expected
+        # to be created.
+        attr_id = attr.pk
+        number_existing_vis_objects = VisibilitySettings.objects.count()
+        object.save()
+        object.refresh_from_db()
+        self.assertEqual(getattr(object, f'{linked_visibility_type}_id'), attr_id)
+        self.assertEqual(VisibilitySettings.objects.count(), number_existing_vis_objects)
+
+    def object_codeletion_tests(self, object, count_linked_visibility_objects):
+        # Upon deletion, the visibility objects linked to the parent object
+        # are expected to be automatically removed in the database.
+        self.assertIsNotNone(object.pk)
+        number_existing_vis_objects = VisibilitySettings.objects.count()
+        object.delete()
+        self.assertEqual(
+            VisibilitySettings.objects.count(),
+            number_existing_vis_objects - count_linked_visibility_objects
+        )
 
 
 @tag('integration')

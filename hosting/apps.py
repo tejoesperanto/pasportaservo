@@ -54,7 +54,7 @@ def make_visibility_receivers(for_sender, field_name, visibility_model):
         Links the specific visibility object to the newly created model
         instance. If the instance already has linkage, nothing happens.
         """
-        if kwargs['raw']:
+        if kwargs['raw'] or kwargs['created'] is False:
             return
         instance = kwargs['instance']
         visibility_model.objects.filter(
