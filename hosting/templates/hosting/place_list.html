@@ -55,15 +55,17 @@
                                name="{{ SEARCH_FIELD_NAME }}" value="{{ view.query }}" tabindex="1"
                                placeholder="{% trans "Search for a country, a region, or a city…" %}">
                         <span class="input-group-btn">
-                            <button data-target="#advanced-filter"
-                                    class="btn btn-default requires-scripting"
-                                    type="button" data-toggle="collapse" tabindex="2"
-                                    aria-controls="advanced-filter"
-                                    aria-expanded="{{ filtered_by|yesno:'true,false' }}"
-                                    title="{% trans "Search settings" %}">
-                                <span class="fa fa-sliders" aria-hidden="true"></span>
-                                <span class="sr-only">{% trans "Search settings" %}</span>
-                            </button>
+                            {% if user.is_authenticated %}
+                                <button data-target="#advanced-filter"
+                                        class="btn btn-default requires-scripting"
+                                        type="button" data-toggle="collapse" tabindex="2"
+                                        aria-controls="advanced-filter"
+                                        aria-expanded="{{ filtered_by|yesno:'true,false' }}"
+                                        title="{% trans "Search settings" %}">
+                                    <span class="fa fa-sliders" aria-hidden="true"></span>
+                                    <span class="sr-only">{% trans "Search settings" %}</span>
+                                </button>
+                            {% endif %}
                             <button class="btn btn-primary" type="submit" id="search" tabindex="3"
                                     title="{% trans "Search" %} {% trans "at" %} Pasporta Servo">
                                 <span class="fa fa-search" aria-hidden="true"></span>
@@ -72,25 +74,38 @@
                         </span>
                     </div>
                 </div>
-                <div id="advanced-filter" class="{% filter compact %}
-                                                    panel panel-compact panel-default advanced-filter-panel
-                                                    collapse when-scripting {% if filtered_by %} in {% endif %}
-                                                 {% endfilter %}">
-                    <div class="panel-heading sr-only">{% trans "Advanced Search" %}</div>
-                    <div class="panel-body form-horizontal">
-                        <p class="small text-right requires-scripting">
-                            <a href="#{% trans "feedback" context "URL" %}" data-toggle="modal" tabindex="2">
-                                {% blocktrans trimmed %}
-                                    what do you think about the new search tool?
-                                    <span class="text-nowrap">let us know!</span>
-                                {% endblocktrans %}
-                            </a>
-                        </p>
-                        {% with tabindex=2 %}
-                            {% crispy filter.form %}
-                        {% endwith %}
+                {% if user.is_authenticated %}
+                    <div id="advanced-filter" class="{% filter compact %}
+                                                        panel panel-compact panel-default advanced-filter-panel
+                                                        collapse when-scripting {% if filtered_by %} in {% endif %}
+                                                     {% endfilter %}">
+                        <div class="panel-heading sr-only">{% trans "Advanced Search" %}</div>
+                        {% if user.profile or user.is_superuser %}
+                            <div class="panel-body form-horizontal">
+                                <p class="small text-right requires-scripting">
+                                    <a href="#{% trans "feedback" context "URL" %}" data-toggle="modal" tabindex="2">
+                                        {% blocktrans trimmed %}
+                                            what do you think about the new search tool?
+                                            <span class="text-nowrap">let us know!</span>
+                                        {% endblocktrans %}
+                                    </a>
+                                </p>
+                                {% with tabindex=2 %}
+                                    {% crispy filter.form %}
+                                {% endwith %}
+                            </div>
+                        {% else %}
+                            <div class="panel-body">
+                                <div class="help-block text-justify">
+                                    {% blocktrans trimmed %}
+                                        In order to have the option to search for members of the PS community
+                                        according to various criteria, you need to create a profile first.
+                                    {% endblocktrans %}
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
-                </div>
+                {% endif %}
             </form>
             <div id="{% trans "feedback" context "URL" %}" class="modal fade" role="dialog" tabindex="-1"
                  aria-labelledby="adv-search-feedback-title">

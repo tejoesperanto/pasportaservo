@@ -24,7 +24,7 @@ from maps import SRID
 from maps.utils import bufferize_country_boundaries
 
 from ..filters.search import SearchFilterSet
-from ..models import LocationConfidence, Phone, Place, TravelAdvice
+from ..models import LocationConfidence, Phone, Place, Profile, TravelAdvice
 from ..utils import geocode
 
 
@@ -182,7 +182,17 @@ class SearchView(PlacePaginatedListView):
 
     def prepare_search(self, request, query, extended_query=None, cached_id=None):
         self.query = compact(unquote_plus(query or ''))  # Avoiding query=None.
-        self.extended_query = extended_query
+        # Allow extended querying (that is, "advanced search") only to
+        # authenticated users who have a profile and to administrators
+        # regardless of their profile status.
+        try:
+            if not request.user.is_authenticated:
+                raise Profile.DoesNotExist
+            Profile.get_basic_data(user_id=request.user.pk)
+        except Profile.DoesNotExist:
+            self.extended_query = None if not request.user.is_superuser else extended_query
+        else:
+            self.extended_query = extended_query
         # Exclude places whose owner blocked unauthenticated viewing.
         if not request.user.is_authenticated:
             self.queryset = self.queryset.exclude(owner__pref__public_listing=False)
