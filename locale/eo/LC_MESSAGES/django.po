@@ -2980,6 +2980,14 @@ msgstr ""
 "</span>"
 
 #: hosting/templates/hosting/place_list.html
+msgid ""
+"In order to have the option to search for members of the PS community "
+"according to various criteria, you need to create a profile first."
+msgstr ""
+"Por havi la eblecon serĉi PS-anojn laŭ diversaj kriterioj, vi devas krei kaj "
+"agordi vian profilon."
+
+#: hosting/templates/hosting/place_list.html
 msgid "What do you think about the new search?"
 msgstr "Kion vi opinias pri la nova serĉilo?"
 
