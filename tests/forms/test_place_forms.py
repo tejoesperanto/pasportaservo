@@ -181,11 +181,17 @@ class PlaceFormTestingBase:
         # The label for the region field for country without regions is
         # expected to read "state / province".
         form = self._init_empty_form()
-        self.assertEqual(form.fields['state_province'].label, "State / Province")
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form.fields['state_province'].label, "State / Province")
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form.fields['state_province'].label, "Ŝtato / Provinco")
         self.assertFalse(hasattr(form.fields['state_province'], 'localised_label'))
+
         form = self._init_empty_form({'country': 'MO'})
-        self.assertEqual(form.fields['state_province'].label, "State / Province")
-        self.assertFalse(hasattr(form.fields['state_province'], 'localised_label'))
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form.fields['state_province'].label, "State / Province")
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form.fields['state_province'].label, "Ŝtato / Provinco")
 
         # The label for the region field for country with regions is
         # expected to follow the administrative area type in country's data.
@@ -204,7 +210,10 @@ class PlaceFormTestingBase:
         # Empty form is expected to be invalid.
         form = self._init_empty_form({})
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {'country': ["This field is required."]})
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form.errors, {'country': ["This field is required."]})
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form.errors, {'country': ["Ĉi tiu kampo estas deviga."]})
 
         # Empty form for a place in book is expected to be invalid.
         form = self._init_empty_form({'in_book': True})
@@ -212,32 +221,56 @@ class PlaceFormTestingBase:
         self.assertEqual(set(form.errors.keys()), set(self.book_required_fields + [NON_FIELD_ERRORS]))
         for field in self.book_required_fields:
             with self.subTest(condition="in book", field=field):
-                self.assertEqual(
-                    form.errors[field],
-                    ["This field is required to be printed in the book."
-                     if field != 'country' else "This field is required."]
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertEqual(
+                        form.errors[field],
+                        ["This field is required to be printed in the book."
+                         if field != 'country' else "This field is required."]
+                    )
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertEqual(
+                        form.errors[field],
+                        ["Tiu ĉi kampo estas deviga por esti printita en la libreto."
+                         if field != 'country' else "Ĉi tiu kampo estas deviga."]
+                    )
+        assert_content = {
+            'en': "You want to be in the printed edition",
+            'eo': "Vi volas esti en la printita eldonaĵo",
+        }
+        assert_message = (
+            "Form error does not include clarification about book requirements.\n"
+            "\n\tExpected to see: {!r}"
+            "\n\tBut saw instead: {!r}"
+        )
+        for lang in assert_content:
+            with override_settings(LANGUAGE_CODE=lang):
+                assert_localized_message = assert_message.format(
+                    assert_content[lang], form.errors[NON_FIELD_ERRORS])
+                self.assertTrue(
+                    any(assert_content[lang] in error for error in form.errors[NON_FIELD_ERRORS]),
+                    msg=assert_localized_message
                 )
-            assert_content = "You want to be in the printed edition"
-            assert_message = (
-                "Form error does not include clarification about book requirements.\n"
-                f"\n\tExpected to see: {assert_content}"
-                f"\n\tBut saw instead: {form.errors[NON_FIELD_ERRORS]!r}"
-            )
-            self.assertTrue(
-                any(assert_content in error for error in form.errors[NON_FIELD_ERRORS]), msg=assert_message
-            )
 
     def test_invalid_country(self):
         form = self._init_empty_form({'country': ""})
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {'country': ["This field is required."]})
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form.errors, {'country': ["This field is required."]})
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form.errors, {'country': ["Ĉi tiu kampo estas deviga."]})
 
         form = self._init_empty_form({'country': "ZZ"})
         self.assertFalse(form.is_valid())
-        self.assertEqual(
-            form.errors,
-            {'country': ["Select a valid choice. ZZ is not one of the available choices."]}
-        )
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(
+                form.errors,
+                {'country': ["Select a valid choice. ZZ is not one of the available choices."]}
+            )
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(
+                form.errors,
+                {'country': ["Elektu validan elekton. ZZ ne estas el la eblaj elektoj."]}
+            )
 
     @tag('subregions')
     def test_invalid_region(self):
@@ -256,19 +289,50 @@ class PlaceFormTestingBase:
                     self.assertFalse(form.is_valid())
                     self.assertIn('state_province', form.errors)
                     if region:
-                        self.assertEqual(
-                            form.errors,
-                            {'state_province': ["Choose from the list. The name provided by you is not known."]}
-                        )
+                        with override_settings(LANGUAGE_CODE='en'):
+                            self.assertEqual(
+                                form.errors,
+                                {
+                                    'state_province': [
+                                        "Choose from the list. The name provided by you is not known."
+                                    ]
+                                }
+                            )
+                        with override_settings(LANGUAGE_CODE='eo'):
+                            self.assertEqual(
+                                form.errors,
+                                {
+                                    'state_province': [
+                                        "Elektu el la listo. La provizita de vi nomo ne estas inter la konataj."
+                                    ]
+                                }
+                            )
                     else:
                         if hasattr(form.fields['state_province'], 'localised_label'):
-                            expected_error_message = "the name of the {} must be indicated".format(
-                                form.fields['state_province'].label.lower()
-                            )
+                            expected_error_message = {
+                                'en': "the name of the {} must be indicated",
+                                'eo': "devas inkluzivi la nomon de la {}",
+                            }
                         else:
-                            expected_error_message = "the name of the state or province must be indicated"
-                        self.assertTrue(any(expected_error_message in error
-                                            for error in form.errors['state_province']))
+                            expected_error_message = {
+                                'en': "the name of the state or province must be indicated",
+                                'eo': "devas inkluzivi la nomon de la ŝtato aŭ de la provinco",
+                            }
+                        assert_message = (
+                            "Unforeseen form field error.\n"
+                            "\n\tExpected to see: {!r}"
+                            "\n\tBut saw instead: {!r}"
+                        )
+                        for lang in expected_error_message:
+                            with override_settings(LANGUAGE_CODE=lang):
+                                assert_content = expected_error_message[lang].format(
+                                    form.fields['state_province'].label.lower())
+                                assert_localized_message = assert_message.format(
+                                    assert_content, form.errors['state_province'])
+                                self.assertTrue(
+                                    any(assert_content in error for error in form.errors['state_province']),
+                                    msg=assert_localized_message
+                                )
 
     @tag('subregions')
     def test_valid_region(self):
@@ -319,18 +383,32 @@ class PlaceFormTestingBase:
                 form = self._init_empty_form({'country': country, 'postcode': code})
                 self.assertFalse(form.is_valid())
                 self.assertIn('postcode', form.errors)
-                self.assertStartsWith(form.errors['postcode'][0], "Postal code should follow the pattern")
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertStartsWith(
+                        form.errors['postcode'][0], "Postal code should follow the pattern")
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertStartsWith(
+                        form.errors['postcode'][0], "Poŝtkodo devas laŭi la skemon")
         # Form data with postcode exceeding the limit is expected to be invalid.
         test_data = {'country': 'AM', 'postcode': str(self.faker.pyint(100000000001, 2000000000002))}
         with self.subTest(**test_data, length=len(test_data['postcode'])):
             form = self._init_empty_form(test_data)
             self.assertFalse(form.is_valid())
             self.assertIn('postcode', form.errors)
-            self.assertEqual(
-                form.errors['postcode'],
-                [f"Ensure this value has at most {form.fields['postcode'].max_length} characters "
-                 f"(it has {len(test_data['postcode'])})."]
-            )
+            expected_errors = {
+                'en': "Ensure this value has at most {} characters (it has {}).",
+                'eo': "Certigu, ke tiu valoro maksimume havas {} signojn (ĝi havas {}).",
+            }
+            for lang in expected_errors:
+                with override_settings(LANGUAGE_CODE=lang):
+                    self.assertEqual(
+                        form.errors['postcode'],
+                        [
+                            expected_errors[lang].format(
+                                form.fields['postcode'].max_length, len(test_data['postcode'])
+                            )
+                        ]
+                    )
 
     def test_valid_postcode(self):
         # Form data with postcode according to country's postal code format is expected to be valid.
@@ -365,7 +443,10 @@ class PlaceFormTestingBase:
         # but the form is expected to be invalid.
         form = self._init_empty_form({'postcode': self.faker.pystr_format('????##????')})
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {'country': ["This field is required."]})
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form.errors, {'country': ["This field is required."]})
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form.errors, {'country': ["Ĉi tiu kampo estas deviga."]})
 
     def test_invalid_city_when_hosting_meeting(self):
         test_combinations = [
@@ -391,9 +472,27 @@ class PlaceFormTestingBase:
                 self.assertFalse(form.is_valid())
                 self.assertIn('city', form.errors)
                 if 'available' in field_names:
-                    self.assertEqual(form.errors['city'], ["This field is required if you accept guests."])
+                    with override_settings(LANGUAGE_CODE='en'):
+                        self.assertEqual(
+                            form.errors['city'],
+                            ["This field is required if you accept guests."]
+                        )
+                    with override_settings(LANGUAGE_CODE='eo'):
+                        self.assertEqual(
+                            form.errors['city'],
+                            ["Tiu ĉi kampo estas deviga kiam vi akceptas gastojn."]
+                        )
                 else:
-                    self.assertEqual(form.errors['city'], ["This field is required if you meet visitors."])
+                    with override_settings(LANGUAGE_CODE='en'):
+                        self.assertEqual(
+                            form.errors['city'],
+                            ["This field is required if you meet visitors."]
+                        )
+                    with override_settings(LANGUAGE_CODE='eo'):
+                        self.assertEqual(
+                            form.errors['city'],
+                            ["Tiu ĉi kampo estas deviga kiam vi renkontas vizitantojn."]
+                        )
 
     def test_invalid_address_when_hosting(self):
         # Form data with missing nearest city name or address, when user is hosting, is expected to be invalid.
@@ -409,7 +508,16 @@ class PlaceFormTestingBase:
                     owner=self.simple_place.profile)
                 self.assertFalse(form.is_valid())
                 self.assertIn(field_name, form.errors)
-                self.assertEqual(form.errors[field_name], ["This field is required if you accept guests."])
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertEqual(
+                        form.errors[field_name],
+                        ["This field is required if you accept guests."]
+                    )
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertEqual(
+                        form.errors[field_name],
+                        ["Tiu ĉi kampo estas deviga kiam vi akceptas gastojn."]
+                    )
 
     def test_invalid_age(self):
         owner = ProfileFactory(birth_date=self.faker.date_this_decade())
@@ -441,16 +549,22 @@ class PlaceFormTestingBase:
                     self.assertIn('available', form.errors)
                     for field_name in set(field_names) - set(['available']):
                         self.assertNotIn(field_name, form.errors)
-                    error_message = (
-                        f"The minimum age to be allowed hosting is {self.config.host_min_age}."
-                    )
+                    error_message = {
+                        'en': f"The minimum age to be allowed hosting is {self.config.host_min_age}.",
+                        'eo': f"Vi ekpovos gastigi kiam estos {self.config.host_min_age}-jaraĝa.",
+                    }
                 else:
                     for field_name in field_names:
                         self.assertIn(field_name, form.errors)
-                    error_message = (
-                        f"The minimum age to be allowed meeting with visitors is {self.config.meet_min_age}."
-                    )
-                self.assertEqual(form.errors[NON_FIELD_ERRORS], [error_message])
+                    error_message = {
+                        'en': ("The minimum age to be allowed meeting with visitors "
+                               f"is {self.config.meet_min_age}."),
+                        'eo': ("Vi ekpovos renkonti vizitantojn kiam estos "
+                               f"{self.config.meet_min_age}-jaraĝa."),
+                    }
+                for lang in error_message:
+                    with override_settings(LANGUAGE_CODE=lang):
+                        self.assertEqual(form.errors[NON_FIELD_ERRORS], [error_message[lang]])
 
     @tag('subregions')
     def test_country_dependent_errors(self):
@@ -471,19 +585,31 @@ class PlaceFormTestingBase:
         form = self._init_form(data=form_data, instance=self.complete_place, owner=self.complete_place.profile)
         self.assertFalse(form.is_valid())
         self.assertIn('postcode', form.errors)
-        self.assertStartsWith(
-            form.errors['postcode'][0],
-            "Postal code should follow the pattern"
-        )
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertStartsWith(
+                form.errors['postcode'][0],
+                "Postal code should follow the pattern"
+            )
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertStartsWith(
+                form.errors['postcode'][0],
+                "Poŝtkodo devas laŭi la skemon"
+            )
         self.assertIn(
             COUNTRIES_DATA[new_country]['postcode_format'].split('|')[0],
             form.errors['postcode'][0]
         )
         self.assertIn('state_province', form.errors)
-        self.assertEqual(
-            form.errors['state_province'],
-            ["Choose from the list. The name provided by you is not known."]
-        )
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(
+                form.errors['state_province'],
+                ["Choose from the list. The name provided by you is not known."]
+            )
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(
+                form.errors['state_province'],
+                ["Elektu el la listo. La provizita de vi nomo ne estas inter la konataj."]
+            )
 
     def test_invalid_guest_night_limit(self):
         form = self._init_empty_form({
@@ -492,39 +618,28 @@ class PlaceFormTestingBase:
             'max_night': self.faker.pyint(-100, -1),
         })
         self.assertFalse(form.is_valid())
+        expected_errors = {
+            'en': "Ensure this value is greater than or equal to 1.",
+            'eo': "Certigu ke ĉi tiu valoro estas pli ol aŭ egala al 1.",
+        }
         with self.subTest(field='max_guest', condition="negative"):
             self.assertIn('max_guest', form.errors)
-            self.assertEqual(
-                form.errors['max_guest'],
-                ["Ensure this value is greater than or equal to 1."],
-                msg=f"\nDATA : {form.data}",
-            )
+            for lang in expected_errors:
+                with override_settings(LANGUAGE_CODE=lang):
+                    self.assertEqual(
+                        form.errors['max_guest'],
+                        [expected_errors[lang]],
+                        msg=f"\nDATA : {form.data}",
+                    )
         with self.subTest(field='max_night', condition="negative"):
             self.assertIn('max_night', form.errors)
-            self.assertEqual(
-                form.errors['max_night'],
-                ["Ensure this value is greater than or equal to 1."],
-                msg=f"\nDATA : {form.data}",
-            )
-
-        form.data['max_guest'] = self.faker.pyint(51)
-        form.data['max_night'] = self.faker.pyint(181)
-        form.full_clean()
-        self.assertFalse(form.is_valid())
-        with self.subTest(field='max_guest', condition="large positive"):
-            self.assertIn('max_guest', form.errors)
-            self.assertEqual(
-                form.errors['max_guest'],
-                ["Ensure this value is less than or equal to 50."],
-                msg=f"\nDATA : {form.data}",
-            )
-        with self.subTest(field='max_night', condition="large positive"):
-            self.assertIn('max_night', form.errors)
-            self.assertEqual(
-                form.errors['max_night'],
-                ["Ensure this value is less than or equal to 180."],
-                msg=f"\nDATA : {form.data}",
-            )
+            for lang in expected_errors:
+                with override_settings(LANGUAGE_CODE=lang):
+                    self.assertEqual(
+                        form.errors['max_night'],
+                        [expected_errors[lang]],
+                        msg=f"\nDATA : {form.data}",
+                    )
 
         form.data['max_guest'] = 0
         form.data['max_night'] = 0
@@ -532,18 +647,49 @@ class PlaceFormTestingBase:
         self.assertFalse(form.is_valid())
         with self.subTest(field='max_guest', condition="zero"):
             self.assertIn('max_guest', form.errors)
-            self.assertEqual(
-                form.errors['max_guest'],
-                ["Ensure this value is greater than or equal to 1."],
-                msg=f"\nDATA : {form.data}",
-            )
+            for lang in expected_errors:
+                with override_settings(LANGUAGE_CODE=lang):
+                    self.assertEqual(
+                        form.errors['max_guest'],
+                        [expected_errors[lang]],
+                        msg=f"\nDATA : {form.data}",
+                    )
         with self.subTest(field='max_night', condition="zero"):
             self.assertIn('max_night', form.errors)
-            self.assertEqual(
-                form.errors['max_night'],
-                ["Ensure this value is greater than or equal to 1."],
-                msg=f"\nDATA : {form.data}",
-            )
+            for lang in expected_errors:
+                with override_settings(LANGUAGE_CODE=lang):
+                    self.assertEqual(
+                        form.errors['max_night'],
+                        [expected_errors[lang]],
+                        msg=f"\nDATA : {form.data}",
+                    )
+
+        form.data['max_guest'] = self.faker.pyint(51)
+        form.data['max_night'] = self.faker.pyint(181)
+        form.full_clean()
+        self.assertFalse(form.is_valid())
+        expected_errors = {
+            'en': "Ensure this value is less than or equal to {}.",
+            'eo': "Certigu ke ĉi tiu valoro estas malpli ol aŭ egala al {}.",
+        }
+        with self.subTest(field='max_guest', condition="large positive"):
+            self.assertIn('max_guest', form.errors)
+            for lang in expected_errors:
+                with override_settings(LANGUAGE_CODE=lang):
+                    self.assertEqual(
+                        form.errors['max_guest'],
+                        [expected_errors[lang].format(50)],
+                        msg=f"\nDATA : {form.data}",
+                    )
+        with self.subTest(field='max_night', condition="large positive"):
+            self.assertIn('max_night', form.errors)
+            for lang in expected_errors:
+                with override_settings(LANGUAGE_CODE=lang):
+                    self.assertEqual(
+                        form.errors['max_night'],
+                        [expected_errors[lang].format(180)],
+                        msg=f"\nDATA : {form.data}",
+                    )
 
     def test_valid_guest_night_limit(self):
         form = self._init_empty_form({
@@ -802,9 +948,21 @@ class PlaceFormTestingBase:
             form_data['country'] = self.faker.random_element(elements=self.countries_no_predefined_region)
 
         test_data = [
-            ([""], False, "\"\" is not a valid value"),
-            (["abc"], False, "\"abc\" is not a valid value"),
-            ([-3], False, "Select a valid choice. -3 is not one of the available choices."),
+            (
+                [""], False,
+                {'en': "\"\" is not a valid value", 'eo': "\"\" ne estas valida valoro"}
+            ),
+            (
+                ["abc"], False,
+                {'en': "\"abc\" is not a valid value", 'eo': "\"abc\" ne estas valida valoro"}
+            ),
+            (
+                [-3], False,
+                {
+                    'en': "Select a valid choice. -3 is not one of the available choices.",
+                    'eo': "Elektu validan elekton. -3 ne estas el la eblaj elektoj.",
+                }
+            ),
             (None, True, ""),
             (self.faker.random_elements(elements=self.conditions, length=3, unique=True), True, ""),
         ]
@@ -818,7 +976,9 @@ class PlaceFormTestingBase:
                 self.assertIs(form.is_valid(), expected_result, msg=repr(form.errors))
                 if expected_result is False:
                     self.assertIn('conditions', form.errors)
-                    self.assertStartsWith(form.errors['conditions'][0], expected_error)
+                    for lang in expected_error:
+                        with override_settings(LANGUAGE_CODE=lang):
+                            self.assertStartsWith(form.errors['conditions'][0], expected_error[lang])
                 else:
                     form.save(commit=True)
                     place = self._get_altered_place()
@@ -941,7 +1101,6 @@ class PlaceFormTestingBase:
 
 
 @tag('forms', 'forms-place', 'place')
-@override_settings(LANGUAGE_CODE='en')
 class PlaceFormTests(PlaceFormTestingBase, AdditionalAsserts, WebTest):
     form_class = PlaceForm
 
@@ -1022,7 +1181,6 @@ class PlaceFormTests(PlaceFormTestingBase, AdditionalAsserts, WebTest):
 
 
 @tag('forms', 'forms-place', 'place')
-@override_settings(LANGUAGE_CODE='en')
 class PlaceCreateFormTests(PlaceFormTestingBase, AdditionalAsserts, WebTest):
     form_class = PlaceCreateForm
 
@@ -1141,7 +1299,6 @@ class SubregionFormTests(AdditionalAsserts, WebTest):
 
 
 @tag('forms', 'forms-place', 'place')
-@override_settings(LANGUAGE_CODE='en')
 class PlaceLocationFormTests(WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -1175,11 +1332,17 @@ class PlaceLocationFormTests(WebTest):
                               str(self.point_one.coords)):
             form = PlaceLocationForm(data={'location': test_location}, view_role=0)
             self.assertFalse(form.is_valid())
-            self.assertEqual(
-                form.errors,
-                {'location': ["Invalid geometry value."]},
-                msg=f"Location is {test_location!r}"
-            )
+            expected_errors = {
+                'en': "Invalid geometry value.",
+                'eo': "Malvalida geometria valoro.",
+            }
+            for lang in expected_errors:
+                with override_settings(LANGUAGE_CODE=lang):
+                    self.assertEqual(
+                        form.errors,
+                        {'location': [expected_errors[lang]]},
+                        msg=f"Location is {test_location!r}"
+                    )
 
     def test_valid_data(self):
         # Value formatted as geometry is expected to be accepted.
@@ -1244,7 +1407,6 @@ class PlaceLocationFormTests(WebTest):
 
 
 @tag('forms', 'forms-place', 'place')
-@override_settings(LANGUAGE_CODE='en')
 class PlaceBlockFormTests(WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -1271,8 +1433,12 @@ class PlaceBlockFormTests(WebTest):
     def test_labels(self):
         # The quick form is expected to have custom field labels.
         form = PlaceBlockQuickForm()
-        self.assertEqual(form.fields['blocked_from'].label, "commencing on")
-        self.assertEqual(form.fields['blocked_until'].label, "concluding on")
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form.fields['blocked_from'].label, "commencing on")
+            self.assertEqual(form.fields['blocked_until'].label, "concluding on")
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form.fields['blocked_from'].label, "ekde")
+            self.assertEqual(form.fields['blocked_until'].label, "ĝis")
 
     def test_blank_data(self):
         # Empty complete form is expected to be valid.
@@ -1282,7 +1448,10 @@ class PlaceBlockFormTests(WebTest):
         # Empty quick form is expected to be invalid.
         form = PlaceBlockQuickForm(data={}, instance=self.place)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {'dirty': ["This field is required."]})
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form.errors, {'dirty': ["This field is required."]})
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form.errors, {'dirty': ["Ĉi tiu kampo estas deviga."]})
 
         # Quick form with empty dates is expected to be valid.
         form = PlaceBlockQuickForm(data={'dirty': 'blocked_from'}, instance=self.place)
@@ -1294,10 +1463,16 @@ class PlaceBlockFormTests(WebTest):
         # Quick form with unknown field name in 'dirty' param is expected to be invalid.
         form = PlaceBlockQuickForm(data={'dirty': 'qwertyuiop'})
         self.assertFalse(form.is_valid())
-        self.assertEqual(
-            form.errors,
-            {'dirty': ["Select a valid choice. qwertyuiop is not one of the available choices."]}
-        )
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(
+                form.errors,
+                {'dirty': ["Select a valid choice. qwertyuiop is not one of the available choices."]}
+            )
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(
+                form.errors,
+                {'dirty': ["Elektu validan elekton. qwertyuiop ne estas el la eblaj elektoj."]}
+            )
 
     def test_date_in_past(self):
         # A start or end date in the past is expected to be invalid.
@@ -1310,10 +1485,16 @@ class PlaceBlockFormTests(WebTest):
                         instance=self.place)
                     self.place.blocked_from, self.place.blocked_until = None, None
                     self.assertFalse(form.is_valid())
-                    self.assertEqual(
-                        form.errors,
-                        {field: ["Preferably select a date in the future."]}
-                    )
+                    with override_settings(LANGUAGE_CODE='en'):
+                        self.assertEqual(
+                            form.errors,
+                            {field: ["Preferably select a date in the future."]}
+                        )
+                    with override_settings(LANGUAGE_CODE='eo'):
+                        self.assertEqual(
+                            form.errors,
+                            {field: ["Prefere elektu daton en estonteco."]}
+                        )
 
     def test_date_in_future(self):
         # A start date today or in the future (with no end date) is expected to be valid.
@@ -1337,7 +1518,10 @@ class PlaceBlockFormTests(WebTest):
             },
             instance=self.place)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.non_field_errors(), ["Unavailability should finish after it starts."])
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form.non_field_errors(), ["Unavailability should finish after it starts."])
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form.non_field_errors(), ["Maldisponebleco finiĝu post sia komenco."])
         self.assertNotIn('blocked_from', form.errors)
         self.assertNotIn('blocked_until', form.errors)
 
@@ -1349,7 +1533,10 @@ class PlaceBlockFormTests(WebTest):
             instance=self.place)
         # At this point the place is blocked at least 45 days in the future.
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.non_field_errors(), ["Unavailability should finish after it starts."])
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form.non_field_errors(), ["Unavailability should finish after it starts."])
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form.non_field_errors(), ["Maldisponebleco finiĝu post sia komenco."])
         self.assertNotIn('blocked_until', form.errors)
 
         form = PlaceBlockQuickForm(
@@ -1360,7 +1547,10 @@ class PlaceBlockFormTests(WebTest):
             instance=self.place)
         # At this point the place is blocked until at most 29 days in the future.
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.non_field_errors(), ["Unavailability should start before it finishes."])
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form.non_field_errors(), ["Unavailability should start before it finishes."])
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form.non_field_errors(), ["Maldisponebleco komenciĝu antaŭ sia fino."])
         self.assertNotIn('blocked_from', form.errors)
 
     def test_deleted_place(self):
@@ -1369,7 +1559,10 @@ class PlaceBlockFormTests(WebTest):
             with self.subTest(form_class=form_class.__name__):
                 form = form_class(data={}, instance=self.place)
                 self.assertFalse(form.is_valid())
-                self.assertEqual(form.non_field_errors(), ["Deleted place"])
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertEqual(form.non_field_errors(), ["Deleted place"])
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertEqual(form.non_field_errors(), ["Nuligita loĝejo"])
         self.place.deleted_on = None
 
     def test_valid_data(self):
@@ -1460,7 +1653,6 @@ class PlaceBlockFormTests(WebTest):
 
 
 @tag('forms', 'forms-place', 'place')
-@override_settings(LANGUAGE_CODE='en')
 class UserAuthorizeFormTests(WebTest):
     def test_init(self):
         form_empty = UserAuthorizeForm()
@@ -1471,7 +1663,10 @@ class UserAuthorizeFormTests(WebTest):
         self.assertTrue(form_empty.fields['user'].required)
         self.assertFalse(form_empty.fields['remove'].required)
         # Verify the labels and widgets of the fields.
-        self.assertEqual(form_empty.fields['user'].label, "Authorize user")
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form_empty.fields['user'].label, "Authorize user")
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form_empty.fields['user'].label, "Permesi uzanton")
         self.assertIs(type(form_empty.fields['remove'].widget), HiddenInput)
 
         # The widget for 'user' field on authorization form is expected to be
@@ -1490,13 +1685,19 @@ class UserAuthorizeFormTests(WebTest):
             with self.subTest(authorize=authorize):
                 form = UserAuthorizeForm({}, unauthorize=not authorize)
                 self.assertFalse(form.is_valid())
-                self.assertEqual(form.errors, {'user': ["This field is required."]})
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertEqual(form.errors, {'user': ["This field is required."]})
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertEqual(form.errors, {'user': ["Ĉi tiu kampo estas deviga."]})
 
     def test_nonexistent_user(self):
         # Attempting to authorize a non-existent user is expected to result in error.
         form = UserAuthorizeForm({'user': "NOT-FOUND-123", 'remove': 0})
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.non_field_errors(), ["User does not exist"])
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form.non_field_errors(), ["User does not exist"])
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form.non_field_errors(), ["Tiu ĉi uzanto ne ekzistas"])
 
         # Attempting to unauthorize a non-existent user is expected to succeed.
         form = UserAuthorizeForm({'user': "NOT-FOUND-123", 'remove': 1})
@@ -1507,4 +1708,7 @@ class UserAuthorizeFormTests(WebTest):
         user = UserFactory(profile=None)
         form = UserAuthorizeForm({'user': user.username, 'remove': 0})
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.non_field_errors(), ["User has not set up a profile"])
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form.non_field_errors(), ["User has not set up a profile"])
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form.non_field_errors(), ["Uzanto ne agordis profilon"])

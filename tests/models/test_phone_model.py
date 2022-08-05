@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.test import override_settings, tag
+from django.utils.functional import lazy
 
 from django_webtest import WebTest
 
@@ -24,16 +26,21 @@ class PhoneModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
     def test_owner(self):
         self.assertIs(self.phone.owner, self.phone.profile)
 
-    @override_settings(LANGUAGE_CODE='en')
     def test_icon(self):
         # SIDE EFFECT: self.phone.type is altered but not saved to database.
-        test_data = PHONE_TYPE_CHOICES + (('x', "x"), ('', "type not indicated"))
+        mock_translation = lazy(
+            lambda text: "neindikita tipo" if settings.LANGUAGE_CODE == 'eo' else text,
+            str
+        )
+        test_data = PHONE_TYPE_CHOICES + (('x', "x"), ('', mock_translation("type not indicated")))
         for phone_type, phone_type_title in test_data:
             with self.subTest(phone_type=phone_type):
                 self.phone.type = phone_type
-                self.assertSurrounding(self.phone.icon, "<span ", "></span>")
-                title = phone_type_title.capitalize() if phone_type else phone_type_title
-                self.assertIn(f" title=\"{title}\" ", self.phone.icon)
+                for lang in ['en', 'eo']:
+                    with override_settings(LANGUAGE_CODE=lang):
+                        self.assertSurrounding(self.phone.icon, "<span ", "></span>")
+                        title = phone_type_title.capitalize() if phone_type else phone_type_title
+                        self.assertIn(f" title=\"{title}\" ", self.phone.icon)
 
     def test_str(self):
         self.assertEqual(str(self.phone), self.phone.number.as_international)

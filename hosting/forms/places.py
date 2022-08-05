@@ -7,7 +7,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.gis.geos import LineString, Point
 from django.db.models.fields import BLANK_CHOICE_DASH
-from django.utils.functional import keep_lazy_text
+from django.utils.functional import keep_lazy_text, lazy
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
@@ -113,11 +113,17 @@ class PlaceForm(forms.ModelForm):
             else:
                 message = _("For an address in {country}, the name of the "
                             "state or province must be indicated.")
-            raise forms.ValidationError(format_lazy(
-                message,
-                country=Country(country).name.split(' (')[0],
-                region_type=self.fields['state_province'].label.lower()
-            ))
+            raise forms.ValidationError(
+                format_lazy(
+                    message,
+                    country=(
+                        lazy(lambda country_obj: country_obj.name.split(' (')[0], str)(Country(country))
+                    ),
+                    region_type=(
+                        keep_lazy_text(lambda label: label.lower())(self.fields['state_province'].label)
+                    ),
+                )
+            )
         return state_province
 
     def clean_postcode(self):
@@ -195,7 +201,7 @@ class PlaceForm(forms.ModelForm):
                     if not cleaned_data.get(field, False) and not self.has_error(field, cond.field_error.code):
                         self.add_error(field, cond.field_error)
                 if cond.form_error:
-                    message += forms.ValidationError(cond.form_error)
+                    message += [cond.form_error]
         if message:
             raise forms.ValidationError(message)
 

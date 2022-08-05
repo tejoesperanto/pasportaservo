@@ -405,17 +405,31 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
 
     def test_absolute_url(self):
         profile = self.basic_profile
-        self.assertEqual(
-            profile.get_absolute_url(),
-            '/profilo/{}/{}/'.format(profile.pk, profile.first_name.lower())
-        )
+        expected_urls = {
+            'eo': '/profilo/{}/{}/',
+            'en': '/profile/{}/{}/',
+        }
+        for lang in expected_urls:
+            with override_settings(LANGUAGE_CODE=lang):
+                with self.subTest(LANGUAGE_CODE=lang):
+                    self.assertEqual(
+                        profile.get_absolute_url(),
+                        expected_urls[lang].format(profile.pk, profile.first_name.lower())
+                    )
 
     def test_edit_url(self):
         profile = self.basic_profile
-        self.assertEqual(
-            profile.get_edit_url(),
-            '/profilo/{}/{}/aktualigi/'.format(profile.pk, profile.first_name.lower())
-        )
+        expected_urls = {
+            'eo': '/profilo/{}/{}/aktualigi/',
+            'en': '/profile/{}/{}/edit/',
+        }
+        for lang in expected_urls:
+            with override_settings(LANGUAGE_CODE=lang):
+                with self.subTest(LANGUAGE_CODE=lang):
+                    self.assertEqual(
+                        profile.get_edit_url(),
+                        expected_urls[lang].format(profile.pk, profile.first_name.lower())
+                    )
 
     @override_settings(LANGUAGE_CODE='en')
     def test_admin_url(self):

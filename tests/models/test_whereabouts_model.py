@@ -17,18 +17,32 @@ class WhereaboutsModelTests(AdditionalAsserts, WebTest):
         self.assertEqual(loc._meta.get_field('state').max_length, 70)
         self.assertEqual(loc._meta.get_field('name').max_length, 255)
 
-    @override_settings(LANGUAGE_CODE='en')
     def test_str(self):
         loc = WhereaboutsFactory.build(name="Córdoba", state="", country=Country('AR'))
-        self.assertEqual(str(loc), "Location of Córdoba (Argentina)")
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(str(loc), "Location of Córdoba (Argentina)")
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(str(loc), "Lokigo de Córdoba (Argentino)")
+
         loc = WhereaboutsFactory.build(name="Córdoba", state="Córdoba", country=Country('AR'))
-        self.assertEqual(str(loc), "Location of Córdoba (Córdoba, Argentina)")
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(str(loc), "Location of Córdoba (Córdoba, Argentina)")
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(str(loc), "Lokigo de Córdoba (Córdoba, Argentino)")
+
         loc = WhereaboutsFactory.build(
             name=Faker('city', locale='el_GR'), state="", country=Country('GR'))
-        self.assertEqual(str(loc), "Location of {} ({})".format(loc.name, loc.country.name))
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(str(loc), "Location of {} ({})".format(loc.name, loc.country.name))
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(str(loc), "Lokigo de {} ({})".format(loc.name, loc.country.name))
+
         loc = WhereaboutsFactory.build(
             name=Faker('city', locale='el_GR'), state=Faker('region', locale='el_GR'), country=Country('GR'))
-        self.assertEqual(str(loc), "Location of {} ({}, {})".format(loc.name, loc.state, loc.country.name))
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(str(loc), "Location of {} ({}, {})".format(loc.name, loc.state, loc.country.name))
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(str(loc), "Lokigo de {} ({}, {})".format(loc.name, loc.state, loc.country.name))
 
     def test_repr(self):
         loc = WhereaboutsFactory.build()
