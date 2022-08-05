@@ -144,22 +144,61 @@ class ProfileFormTestingBase:
                     self.assertIn('birth_date', form.errors)
                     if violation_type == "too unborn":
                         if profile_tag == "simple" or type(form) is ProfileCreateForm:
-                            self.assertEqual(form.errors, {
-                                'birth_date': ["Ensure this value is less than or equal to {}.".format(today)],
-                            })
+                            expected_errors = {
+                                'en': "Ensure this value is less than or equal to {}.",
+                                'eo': "Certigu ke ĉi tiu valoro estas malpli ol aŭ egala al {}.",
+                            }
+                            for lang in expected_errors:
+                                with override_settings(LANGUAGE_CODE=lang):
+                                    self.assertEqual(
+                                        form.errors,
+                                        {
+                                            'birth_date': [expected_errors[lang].format(today)],
+                                        }
+                                    )
                         elif profile_tag == "deceased":
-                            self.assertEqual(form.errors, {
-                                'birth_date': ["The indicated date of birth is in conflict with the date of death"
-                                               " ({:%Y-%m-%d}).".format(profile.death_date)],
-                            })
+                            expected_errors = {
+                                'en': ("The indicated date of birth is in conflict with the date of death"
+                                       " ({:%Y-%m-%d})."),
+                                'eo': ("La indikita dato de naskiĝo konfliktas kun la dato de forpaso"
+                                       " ({:%Y-%m-%d})."),
+                            }
+                            for lang in expected_errors:
+                                with override_settings(LANGUAGE_CODE=lang):
+                                    self.assertEqual(
+                                        form.errors,
+                                        {
+                                            'birth_date': [expected_errors[lang].format(profile.death_date)],
+                                        }
+                                    )
                         else:
-                            self.assertTrue(any(err.startswith("The minimum age to be allowed ")
-                                                for err in form.errors['birth_date']),
-                                            msg="Form field 'birth_date' error does not indicate minimum age.")
+                            expected_errors = {
+                                'en': ("The minimum age to be allowed ", " is "),
+                                'eo': ("Vi ekpovos ", " kiam estos "),
+                            }
+                            for lang in expected_errors:
+                                with override_settings(LANGUAGE_CODE=lang):
+                                    self.assertTrue(
+                                        any(
+                                            err.startswith(expected_errors[lang][0])
+                                            and (expected_errors[lang][1] in err)
+                                            for err in form.errors['birth_date']
+                                        ),
+                                        msg="Form field 'birth_date' error does not indicate minimum age."
+                                    )
                     if violation_type == "too dead":
-                        self.assertEqual(form.errors, {
-                            'birth_date': ["Ensure this value is greater than or equal to {}.".format(max_past)],
-                        })
+                        expected_errors = {
+                            'en': "Ensure this value is greater than or equal to {}.",
+                            'eo': "Certigu ke ĉi tiu valoro estas pli ol aŭ egala al {}.",
+                        }
+                        for lang in expected_errors:
+                            with override_settings(LANGUAGE_CODE=lang):
+                                self.assertEqual(
+                                    form.errors,
+                                    {
+                                        'birth_date': [expected_errors[lang].format(max_past)],
+                                    }
+                                )
 
     def test_valid_birth_date(self):
         # A very young profile of a user who neither hosts nor meets visitors is expected to be valid.
@@ -188,24 +227,49 @@ class ProfileFormTestingBase:
         id_faker = LocaleFaker._get_faker(locale='id')
         tr_faker = LocaleFaker._get_faker(locale='tr')
         test_data = (
-            ("latin name",
-             lambda: zh_faker.name(),
-             "provide this data in Latin characters"),
-            ("symbols",
-             lambda: rstr.punctuation(2) + rstr.punctuation(6, 10, include=rstr.lowercase(4)),
-             "provide this data in Latin characters"),
-            ("digits",
-             lambda: rstr.lowercase(8, 12, include=set(rstr.digits())),
-             "Digits are not allowed"),
-            ("all caps",
-             lambda: rstr.uppercase(8, 12),
-             "Today is not CapsLock day"),
-            ("many caps",
-             lambda: rstr.uppercase(8, 12, include=rstr.lowercase(5)),
-             "there are too many uppercase letters"),
-            ("many caps w/prefix",
-             lambda: "Mac" + rstr.uppercase(2) + rstr.lowercase(5),
-             "there are too many uppercase letters"),
+            (
+                "latin name",
+                lambda: zh_faker.name(),
+                {
+                    'en': "provide this data in Latin characters",
+                    'eo': "indiku tiun ĉi informon per latinaj literoj",
+                },
+            ), (
+                "symbols",
+                lambda: rstr.punctuation(2) + rstr.punctuation(6, 10, include=rstr.lowercase(4)),
+                {
+                    'en': "provide this data in Latin characters",
+                    'eo': "indiku tiun ĉi informon per latinaj literoj",
+                },
+            ), (
+                "digits",
+                lambda: rstr.lowercase(8, 12, include=set(rstr.digits())),
+                {
+                    'en': "Digits are not allowed",
+                    'eo': "Ciferoj ne estas permesitaj",
+                },
+            ), (
+                "all caps",
+                lambda: rstr.uppercase(8, 12),
+                {
+                    'en': "Today is not CapsLock day",
+                    'eo': "La CapsLock-tago ne estas hodiaŭ",
+                },
+            ), (
+                "many caps",
+                lambda: rstr.uppercase(8, 12, include=rstr.lowercase(5)),
+                {
+                    'en': "there are too many uppercase letters",
+                    'eo': "estas tro da majuskloj",
+                },
+            ), (
+                "many caps w/prefix",
+                lambda: "Mac" + rstr.uppercase(2) + rstr.lowercase(5),
+                {
+                    'en': "there are too many uppercase letters",
+                    'eo': "estas tro da majuskloj",
+                },
+            )
         )
 
         for field_violation, field_value, assert_content in test_data:
@@ -228,13 +292,19 @@ class ProfileFormTestingBase:
                             form = self._init_form(data, instance=profile)
                             self.assertFalse(form.is_valid())
                             self.assertIn(wrong_field, form.errors)
-                            self.assertTrue(
-                                any(assert_content in error for error in form.errors[wrong_field]),
-                                msg=repr(form.errors)
-                            )
+                            for lang in assert_content:
+                                with override_settings(LANGUAGE_CODE=lang):
+                                    self.assertTrue(
+                                        any(
+                                            assert_content[lang] in error
+                                            for error in form.errors[wrong_field]
+                                        ),
+                                        msg=repr(form.errors)
+                                    )
 
     def test_valid_names(self):
-        # A profile with only one of the names of a user who wishes to host or meet visitors is expected to be valid.
+        # A profile with only one of the names of a user who wishes to host or meet visitors
+        # is expected to be valid.
         en_faker = LocaleFaker._get_faker(locale='en')
         for profile, profile_tag in (self.profile_hosting,
                                      self.profile_meeting,
@@ -272,10 +342,22 @@ class ProfileFormTestingBase:
                 form = self._init_form(files={'avatar': data}, instance=self.profile_with_no_places.obj)
                 self.assertFalse(form.is_valid())
                 self.assertIn('avatar', form.errors)
-                self.assertEqual(
-                    form.errors['avatar'],
-                    ["Upload a valid image. The file you uploaded was either not an image or a corrupted image."]
-                )
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertEqual(
+                        form.errors['avatar'],
+                        [
+                            "Upload a valid image. The file you uploaded was "
+                            "either not an image or a corrupted image."
+                        ]
+                    )
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertEqual(
+                        form.errors['avatar'],
+                        [
+                            "Alŝutu validan bildon. La alŝutita dosiero ne estas "
+                            "bildo, aŭ estas difektita bildo."
+                        ]
+                    )
 
         # An invalid file mime type is expected to be rejected.
         with open('tests/assets/c325d34f.mpg', 'rb') as fh:
@@ -284,7 +366,10 @@ class ProfileFormTestingBase:
             form = self._init_form(files={'avatar': data}, instance=self.profile_with_no_places.obj)
             self.assertFalse(form.is_valid())
             self.assertIn('avatar', form.errors)
-            self.assertIn("File type is not supported.", form.errors['avatar'])
+            with override_settings(LANGUAGE_CODE='en'):
+                self.assertIn("File type is not supported.", form.errors['avatar'])
+            with override_settings(LANGUAGE_CODE='eo'):
+                self.assertIn("Dosiertipo ne akceptebla.", form.errors['avatar'])
 
         # An empty image file is expected to be rejected.
         data = SimpleUploadedFile(self.faker.file_name(category='image'), b'', 'image/png')
@@ -292,7 +377,10 @@ class ProfileFormTestingBase:
             form = self._init_form(files={'avatar': data}, instance=self.profile_with_no_places.obj)
             self.assertFalse(form.is_valid())
             self.assertIn('avatar', form.errors)
-            self.assertEqual(form.errors['avatar'], ["The submitted file is empty."])
+            with override_settings(LANGUAGE_CODE='en'):
+                self.assertEqual(form.errors['avatar'], ["The submitted file is empty."])
+            with override_settings(LANGUAGE_CODE='eo'):
+                self.assertEqual(form.errors['avatar'], ["La alŝutita dosiero estas malplena."])
 
         # A too-large file is expected to be rejected.
         with open('tests/assets/b7044568.gif', 'rb') as fh:
@@ -301,7 +389,16 @@ class ProfileFormTestingBase:
             form = self._init_form(files={'avatar': data}, instance=self.profile_with_no_places.obj)
             self.assertFalse(form.is_valid())
             self.assertIn('avatar', form.errors)
-            self.assertStartsWith(form.errors['avatar'][0], "Please keep file size under 100.0 KB.")
+            with override_settings(LANGUAGE_CODE='en'):
+                self.assertStartsWith(
+                    form.errors['avatar'][0],
+                    "Please keep file size under 100.0 KB."
+                )
+            with override_settings(LANGUAGE_CODE='eo'):
+                self.assertStartsWith(
+                    form.errors['avatar'][0],
+                    "Bv. certigu ke dosiergrando estas sub 100,0 KB."
+                )
 
     @tag('avatar')
     def test_valid_avatar(self):
@@ -348,7 +445,8 @@ class ProfileFormTestingBase:
             }
             if dataset_type == "full":
                 avatar_file = SimpleUploadedFile(
-                    self.faker.file_name(extension='pcx'), self.faker.image(size=(10, 10), image_format='pcx'))
+                    self.faker.file_name(extension='pcx'), self.faker.image(size=(10, 10), image_format='pcx')
+                )
                 data.update({
                     'title': self.faker.random_element(elements=[MRS, MR]),
                     'description': self.faker.text(),
@@ -386,7 +484,6 @@ class ProfileFormTestingBase:
 
 
 @tag('forms', 'forms-profile', 'profile')
-@override_settings(LANGUAGE_CODE='en')
 class ProfileFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
     def _init_form(self, data=None, files=None, instance=None, empty=False, save=False, user=None):
         if not empty:
@@ -421,10 +518,22 @@ class ProfileFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
             with self.subTest(condition=profile_tag):
                 form = self._init_form({}, instance=profile)
                 self.assertFalse(form.is_valid())
-                self.assertEqual(form.errors, {
-                    NON_FIELD_ERRORS: ["Please indicate how guests should name you"],
-                    'birth_date': ["This field is required."],
-                })
+                with override_settings(LANGUAGE_CODE='en'):
+                    self.assertEqual(
+                        form.errors,
+                        {
+                            NON_FIELD_ERRORS: ["Please indicate how guests should name you"],
+                            'birth_date': ["This field is required."],
+                        }
+                    )
+                with override_settings(LANGUAGE_CODE='eo'):
+                    self.assertEqual(
+                        form.errors,
+                        {
+                            NON_FIELD_ERRORS: ["Bonvole indiku kiel gastoj nomu vin"],
+                            'birth_date': ["Ĉi tiu kampo estas deviga."],
+                        }
+                    )
         for profile, profile_tag in (self.profile_in_book,
                                      self.profile_in_book_complex):
             with self.subTest(condition=profile_tag):
@@ -433,25 +542,51 @@ class ProfileFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
                 self.assertEqual(set(form.errors.keys()), set(self.book_required_fields + [NON_FIELD_ERRORS]))
                 for field in self.book_required_fields:
                     with self.subTest(field=field):
-                        self.assertEqual(
-                            form.errors[field],
-                            ["This field is required to be printed in the book."]
-                        )
-                assert_content = "You want to be in the printed edition"
+                        with override_settings(LANGUAGE_CODE='en'):
+                            self.assertEqual(
+                                form.errors[field],
+                                ["This field is required to be printed in the book."]
+                            )
+                        with override_settings(LANGUAGE_CODE='eo'):
+                            self.assertEqual(
+                                form.errors[field],
+                                ["Tiu ĉi kampo estas deviga por esti printita en la libreto."]
+                            )
+                assert_content = {
+                    'en': "You want to be in the printed edition",
+                    'eo': "Vi volas esti en la printita eldonaĵo",
+                }
                 assert_message = (
                     "Form error does not include clarification about book requirements.\n"
-                    f"\n\tExpected to see: {assert_content}"
-                    f"\n\tBut saw instead: {form.errors[NON_FIELD_ERRORS]!r}"
+                    "\n\tExpected to see: {!r}"
+                    "\n\tBut saw instead: {!r}"
                 )
-                self.assertTrue(
-                    any(assert_content in error for error in form.errors[NON_FIELD_ERRORS]), msg=assert_message
-                )
+                for lang in assert_content:
+                    with override_settings(LANGUAGE_CODE=lang):
+                        assert_localized_message = assert_message.format(
+                            assert_content[lang], form.errors[NON_FIELD_ERRORS])
+                        self.assertTrue(
+                            any(
+                                assert_content[lang] in error
+                                for error in form.errors[NON_FIELD_ERRORS]
+                            ),
+                            msg=assert_localized_message
+                        )
                 if "complex" in profile_tag:
-                    assert_content = "You are a host in 3 places, of which 1 should be in the printed edition."
+                    assert_content = {
+                        'en': "You are a host in 3 places, of which 1 should be in the printed edition.",
+                        'eo': "Vi estas gastiganto en 3 lokoj, el kiuj 1 estu en la printita eldonaĵo.",
+                    }
                     assert_message = "Form error does not include a mention of nr of host's places."
-                    self.assertTrue(
-                        any(error == assert_content for error in form.errors[NON_FIELD_ERRORS]), msg=assert_message
-                    )
+                    for lang in assert_content:
+                        with override_settings(LANGUAGE_CODE=lang):
+                            self.assertTrue(
+                                any(
+                                    error == assert_content[lang]
+                                    for error in form.errors[NON_FIELD_ERRORS]
+                                ),
+                                msg=assert_message
+                            )
 
     def test_invalid_birth_date_after_death_date(self):
         # A profile with birth date later than death date is expected to be invalid.
@@ -468,10 +603,26 @@ class ProfileFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
             instance=profile)
         self.assertFalse(form.is_valid())
         self.assertIn('birth_date', form.errors)
-        self.assertEqual(form.errors, {
-            'birth_date': ["The indicated date of birth is in conflict with the date of death ({:%Y-%m-%d})."
-                           .format(profile.death_date)],
-        })
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(
+                form.errors,
+                {
+                    'birth_date': [
+                        "The indicated date of birth is in conflict with the date of death ({:%Y-%m-%d})."
+                        .format(profile.death_date)
+                    ],
+                }
+            )
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(
+                form.errors,
+                {
+                    'birth_date': [
+                        "La indikita dato de naskiĝo konfliktas kun la dato de forpaso ({:%Y-%m-%d})."
+                        .format(profile.death_date)
+                    ],
+                }
+            )
 
     def test_invalid_birth_date_for_complex_profile(self):
         # A too young profile of a user who wishes to host or meet visitors is expected to be invalid.
@@ -482,7 +633,10 @@ class ProfileFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
             almost_old_enough = today.replace(year=today.year - self.config.host_min_age, day=today.day - 1)
         finally:
             almost_old_enough += timedelta(days=1)
-        error_message = "The minimum age to be allowed hosting is {}.".format(self.config.host_min_age)
+        error_message = {
+            'en': "The minimum age to be allowed hosting is {}.".format(self.config.host_min_age),
+            'eo': "Vi ekpovos gastigi kiam estos {}-jaraĝa.".format(self.config.host_min_age),
+        }
         hosting_data = (
             self.profile_hosting,
             [self.faker.date_between(start_date='-10y', end_date='-1y'), almost_old_enough],
@@ -491,13 +645,17 @@ class ProfileFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
             self.profile_hosting_and_meeting,
             [self.faker.date_between(start_date='-10y', end_date='-1y'), almost_old_enough],
             error_message)
+
         try:
             almost_old_enough = today.replace(year=today.year - self.config.meet_min_age)
         except ValueError:
             almost_old_enough = today.replace(year=today.year - self.config.meet_min_age, day=today.day - 1)
         finally:
             almost_old_enough += timedelta(days=1)
-        error_message = "The minimum age to be allowed meeting with visitors is {}.".format(self.config.meet_min_age)
+        error_message = {
+            'en': "The minimum age to be allowed meeting with visitors is {}.".format(self.config.meet_min_age),
+            'eo': "Vi ekpovos renkonti vizitantojn kiam estos {}-jaraĝa.".format(self.config.meet_min_age),
+        }
         meeting_data = (
             self.profile_meeting,
             [self.faker.date_between(start_date='-10y', end_date='-1y'), almost_old_enough],
@@ -514,9 +672,11 @@ class ProfileFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
                         },
                         instance=profile)
                     self.assertFalse(form.is_valid())
-                    self.assertEqual(form.errors, {
-                        'birth_date': [assert_content],
-                    })
+                    for lang in assert_content:
+                        with override_settings(LANGUAGE_CODE=lang):
+                            self.assertEqual(
+                                form.errors, {'birth_date': [assert_content[lang]]}
+                            )
 
     def test_invalid_names_for_complex_profile(self):
         # A profile without names of a user who wishes to host or meet visitors is expected to be invalid.
@@ -536,11 +696,31 @@ class ProfileFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
                     instance=profile)
                 self.assertFalse(form.is_valid())
                 if "in book" not in profile_tag:
-                    self.assertEqual(form.errors, {
-                        NON_FIELD_ERRORS: ["Please indicate how guests should name you"],
-                    })
+                    with override_settings(LANGUAGE_CODE='en'):
+                        self.assertEqual(
+                            form.errors,
+                            {
+                                NON_FIELD_ERRORS: ["Please indicate how guests should name you"],
+                            }
+                        )
+                    with override_settings(LANGUAGE_CODE='eo'):
+                        self.assertEqual(
+                            form.errors,
+                            {
+                                NON_FIELD_ERRORS: ["Bonvole indiku kiel gastoj nomu vin"],
+                            }
+                        )
                 else:
-                    self.assertNotIn("Please indicate how guests should name you", form.errors[NON_FIELD_ERRORS])
+                    with override_settings(LANGUAGE_CODE='en'):
+                        self.assertNotIn(
+                            "Please indicate how guests should name you",
+                            form.errors[NON_FIELD_ERRORS]
+                        )
+                    with override_settings(LANGUAGE_CODE='eo'):
+                        self.assertNotIn(
+                            "Bonvole indiku kiel gastoj nomu vin",
+                            form.errors[NON_FIELD_ERRORS]
+                        )
 
     @tag('avatar')
     @override_settings(MEDIA_ROOT='tests/assets/')
@@ -551,10 +731,22 @@ class ProfileFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
         form = self._init_form({}, instance=profile, save=True)
         self.assertFalse(form.is_valid())
         self.assertIn('avatar', form.errors)
-        self.assertEqual(
-            form.errors['avatar'],
-            ["There seems to be a problem with the avatar's file. Please re-upload it or choose 'Clear'."]
-        )
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(
+                form.errors['avatar'],
+                [
+                    "There seems to be a problem with the avatar's file. "
+                    "Please re-upload it or choose 'Clear'."
+                ]
+            )
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(
+                form.errors['avatar'],
+                [
+                    "Ŝajnas ke estas problemo pri la profilbilda dosiero. "
+                    "Bonvole re-alŝutu ĝin aŭ elektu “Vakigi”."
+                ]
+            )
         self.assertRaises(ValueError, form.save)
 
     def test_valid_data(self):
@@ -597,7 +789,6 @@ class ProfileFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
 
 
 @tag('forms', 'forms-profile', 'profile')
-@override_settings(LANGUAGE_CODE='en')
 class ProfileCreateFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
     def _init_form(self, data=None, files=None, instance=None, empty=False, save=False, user=None):
         if not empty:
@@ -637,7 +828,6 @@ class ProfileCreateFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest)
 
 
 @tag('forms', 'forms-profile', 'profile')
-@override_settings(LANGUAGE_CODE='en')
 class ProfileEmailUpdateFormTests(EmailUpdateFormTests):
     empty_is_invalid = False
 
@@ -707,7 +897,6 @@ class ProfileEmailUpdateFormTests(EmailUpdateFormTests):
 
 
 @tag('forms', 'forms-profile', 'profile')
-@override_settings(LANGUAGE_CODE='en')
 class PreferenceOptinsFormTests(WebTest):
     def test_init(self):
         form_empty = PreferenceOptinsForm()

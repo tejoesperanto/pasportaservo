@@ -22,9 +22,20 @@ class AgreementModelTests(WebTest):
         accord = AgreementFactory.build()
         self.assertIs(accord._meta.get_field('withdrawn').default, None)
 
-    @override_settings(LANGUAGE_CODE='en')
     def test_str(self):
+        expected_strings = {
+            'en': 'User .+ agreed to \'{}\' ',
+            'eo': 'Uzanto .+ akceptis \'{}\' ',
+        }
+
         accord = AgreementFactory()
-        self.assertRegex(str(accord), 'User .+ agreed to \'{}\' '.format(re.escape(accord.policy_version)))
+        policy_version_string = re.escape(accord.policy_version)
+        for lang in expected_strings:
+            with override_settings(LANGUAGE_CODE=lang):
+                self.assertRegex(str(accord), expected_strings[lang].format(policy_version_string))
+
         accord = AgreementFactory(withdrawn=timezone.now())
-        self.assertRegex(str(accord), 'User .+ agreed to \'{}\' '.format(re.escape(accord.policy_version)))
+        policy_version_string = re.escape(accord.policy_version)
+        for lang in expected_strings:
+            with override_settings(LANGUAGE_CODE=lang):
+                self.assertRegex(str(accord), expected_strings[lang].format(policy_version_string))

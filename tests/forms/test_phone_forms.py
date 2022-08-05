@@ -14,7 +14,6 @@ from ..factories import LocaleFaker, PhoneFactory, ProfileFactory
 
 
 @tag('forms', 'forms-phone', 'phone')
-@override_settings(LANGUAGE_CODE='en')
 class PhoneFormTests(WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -77,22 +76,47 @@ class PhoneFormTests(WebTest):
         # Empty form is expected to be invalid.
         form = self._init_form(data={}, instance=self.phone1_valid, owner=self.profile_one)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {
-            'country': ["This field is required."],
-            'type': ["This field is required."],
-            'number': ["This field is required."],
-        })
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(
+                form.errors,
+                {
+                    'country': ["This field is required."],
+                    'type': ["This field is required."],
+                    'number': ["This field is required."],
+                }
+            )
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(
+                form.errors,
+                {
+                    'country': ["Ĉi tiu kampo estas deviga."],
+                    'type': ["Ĉi tiu kampo estas deviga."],
+                    'number': ["Ĉi tiu kampo estas deviga."],
+                }
+            )
 
     def test_invalid_country(self):
         form = self._init_form(data={'country': ""}, instance=self.phone2_valid, owner=self.profile_one)
         self.assertFalse(form.is_valid())
         self.assertIn('country', form.errors)
-        self.assertEqual(form.errors['country'], ["This field is required."])
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form.errors['country'], ["This field is required."])
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form.errors['country'], ["Ĉi tiu kampo estas deviga."])
 
         form = self._init_form(data={'country': "ZZ"}, instance=self.phone4_valid, owner=self.profile_two)
         self.assertFalse(form.is_valid())
         self.assertIn('country', form.errors)
-        self.assertEqual(form.errors['country'], ["Select a valid choice. ZZ is not one of the available choices."])
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(
+                form.errors['country'],
+                ["Select a valid choice. ZZ is not one of the available choices."]
+            )
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(
+                form.errors['country'],
+                ["Elektu validan elekton. ZZ ne estas el la eblaj elektoj."]
+            )
 
     def test_invalid_number(self):
         form = self._init_form(
@@ -105,7 +129,10 @@ class PhoneFormTests(WebTest):
             owner=self.profile_one)
         self.assertFalse(form.is_valid())
         self.assertIn('number', form.errors)
-        self.assertEqual(form.errors['number'], ["Enter a valid phone number."])
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(form.errors['number'], ["Enter a valid phone number."])
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(form.errors['number'], ["Bv. enigu ĝustan telefon-numeron."])
 
     def test_unique_number(self):
         # Resaving the same form without change is expected to be valid.
@@ -185,7 +212,16 @@ class PhoneFormTests(WebTest):
                 self.assertEqual(form.is_valid(), expected_valid)
                 if not expected_valid:
                     self.assertIn('number', form.errors)
-                    self.assertEqual(form.errors, {'number': ["You already have this telephone number."]})
+                    with override_settings(LANGUAGE_CODE='en'):
+                        self.assertEqual(
+                            form.errors,
+                            {'number': ["You already have this telephone number."]}
+                        )
+                    with override_settings(LANGUAGE_CODE='eo'):
+                        self.assertEqual(
+                            form.errors,
+                            {'number': ["Vi jam indikis tian telefonnumeron."]}
+                        )
                 else:
                     phone = form.save()
                     initial_phone.refresh_from_db()

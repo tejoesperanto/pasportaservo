@@ -2,7 +2,7 @@ from datetime import date
 from unittest.mock import PropertyMock, patch
 
 from django.core.exceptions import ValidationError
-from django.test import tag
+from django.test import override_settings, tag
 
 from django_countries.fields import Country
 from django_webtest import WebTest
@@ -207,7 +207,14 @@ class PlaceModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
 
     def test_absolute_url(self):
         place = self.basic_place
-        self.assertEqual(
-            place.get_absolute_url(),
-            '/ejo/{}/'.format(place.pk)
-        )
+        expected_urls = {
+            'eo': '/ejo/{}/',
+            'en': '/place/{}/',
+        }
+        for lang in expected_urls:
+            with override_settings(LANGUAGE_CODE=lang):
+                with self.subTest(LANGUAGE_CODE=lang):
+                    self.assertEqual(
+                        place.get_absolute_url(),
+                        expected_urls[lang].format(place.pk)
+                    )

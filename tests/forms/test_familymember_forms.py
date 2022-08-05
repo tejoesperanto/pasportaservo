@@ -16,7 +16,6 @@ from ..factories import LocaleFaker, PlaceFactory, ProfileSansAccountFactory
 
 
 @tag('forms', 'forms-familymembers', 'family-members')
-@override_settings(LANGUAGE_CODE='en')
 class FamilyMemberFormTests(WebTest):
     form_class = FamilyMemberForm
 
@@ -71,11 +70,18 @@ class FamilyMemberFormTests(WebTest):
         # Help text for 'anonymous' family is expected to be non-empty.
         with self.assertNumQueries(0):
             form = self._init_form(place=self.place_anon_family)
-        self.assertEqual(
-            form.fields['first_name'].help_text,
-            "Leave empty if you only want to indicate that "
-            "other people are present in the house."
-        )
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(
+                form.fields['first_name'].help_text,
+                "Leave empty if you only want to indicate that "
+                "other people are present in the house."
+            )
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(
+                form.fields['first_name'].help_text,
+                "Lasu malplena se vi nure volas indiki ke kromaj "
+                "homoj ĉeestas en la loĝejo."
+            )
         # Verify that the form's save method is protected in templates.
         self.assertTrue(
             hasattr(form.save, 'alters_data')
@@ -93,9 +99,22 @@ class FamilyMemberFormTests(WebTest):
         with self.assertNumQueries(0):
             form = self._init_form(data={}, place=self.place_with_family)
             self.assertFalse(form.is_valid())
-        self.assertEqual(form.non_field_errors(), [
-            "The name cannot be empty, at least first name or last name are required."
-        ])
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(
+                form.non_field_errors(),
+                [
+                    "The name cannot be empty, at least first name "
+                    "or last name are required."
+                ]
+            )
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(
+                form.non_field_errors(),
+                [
+                    "Nomo ne povas esti nenia, almenaŭ unu el "
+                    "persona aŭ familia nomoj devas esti indikita."
+                ]
+            )
 
     def test_blank_data_for_regular_big_family(self):
         # Empty form for member of place's 'regular' 2-person family is expected to be invalid.
@@ -105,9 +124,22 @@ class FamilyMemberFormTests(WebTest):
         with self.assertNumQueries(1):
             form = self._init_form(data={}, place=place_with_big_family, member_index=0)
             self.assertFalse(form.is_valid())
-        self.assertEqual(form.non_field_errors(), [
-            "The name cannot be empty, at least first name or last name are required."
-        ])
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(
+                form.non_field_errors(),
+                [
+                    "The name cannot be empty, at least first name "
+                    "or last name are required."
+                ]
+            )
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(
+                form.non_field_errors(),
+                [
+                    "Nomo ne povas esti nenia, almenaŭ unu el "
+                    "persona aŭ familia nomoj devas esti indikita."
+                ]
+            )
 
     def test_blank_data_for_anonymous_family(self):
         # Empty form for member of place's 'anonymous' family is expected to be valid.
@@ -132,9 +164,24 @@ class FamilyMemberFormTests(WebTest):
             place=self.place_with_family)
         self.assertFalse(form.is_valid())
         self.assertIn('birth_date', form.errors)
-        self.assertEqual(form.errors, {
-            'birth_date': [f"Ensure this value is greater than or equal to {max_past}."],
-        })
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(
+                form.errors,
+                {
+                    'birth_date': [
+                        f"Ensure this value is greater than or equal to {max_past}."
+                    ],
+                }
+            )
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(
+                form.errors,
+                {
+                    'birth_date': [
+                        f"Certigu ke ĉi tiu valoro estas pli ol aŭ egala al {max_past}."
+                    ],
+                }
+            )
 
     def test_invalid_birth_date_in_future(self):
         # An overly young (born in future) family member is expected to be invalid.
@@ -149,9 +196,24 @@ class FamilyMemberFormTests(WebTest):
             place=self.place_with_family)
         self.assertFalse(form.is_valid())
         self.assertIn('birth_date', form.errors)
-        self.assertEqual(form.errors, {
-            'birth_date': ["A family member cannot be future-born (even if planned)."],
-        })
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(
+                form.errors,
+                {
+                    'birth_date': [
+                        "A family member cannot be future-born (even if planned)."
+                    ],
+                }
+            )
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(
+                form.errors,
+                {
+                    'birth_date': [
+                        "Kunloĝanto ne povas naskiĝi estontece, eĉ se planita."
+                    ],
+                }
+            )
 
     def test_valid_birth_date(self):
         # A family member of any reasonable age is expected to be valid.
@@ -180,23 +242,38 @@ class FamilyMemberFormTests(WebTest):
             (
                 "latin name",
                 lambda: ja_faker.name(),
-                "provide this data in Latin characters",
+                {
+                    'en': "provide this data in Latin characters",
+                    'eo': "indiku tiun ĉi informon per latinaj literoj",
+                },
             ), (
                 "symbols",
                 lambda: rstr.punctuation(2) + rstr.punctuation(6, 10, include=rstr.lowercase(4)),
-                "provide this data in Latin characters",
+                {
+                    'en': "provide this data in Latin characters",
+                    'eo': "indiku tiun ĉi informon per latinaj literoj",
+                },
             ), (
                 "digits",
                 lambda: rstr.lowercase(8, 12, include=set(rstr.digits())),
-                "Digits are not allowed",
+                {
+                    'en': "Digits are not allowed",
+                    'eo': "Ciferoj ne estas permesitaj",
+                },
             ), (
                 "all caps",
                 lambda: rstr.uppercase(8, 12),
-                "Today is not CapsLock day",
+                {
+                    'en': "Today is not CapsLock day",
+                    'eo': "La CapsLock-tago ne estas hodiaŭ",
+                },
             ), (
                 "many caps",
                 lambda: rstr.uppercase(8, 12, include=rstr.lowercase(5)),
-                "there are too many uppercase letters",
+                {
+                    'en': "there are too many uppercase letters",
+                    'eo': "estas tro da majuskloj",
+                },
             ),
         )
 
@@ -210,10 +287,15 @@ class FamilyMemberFormTests(WebTest):
                         form = self._init_form(data, place=self.place_with_family)
                         self.assertFalse(form.is_valid())
                         self.assertIn(wrong_field, form.errors)
-                        self.assertTrue(
-                            any(assert_content in error for error in form.errors[wrong_field]),
-                            msg=repr(form.errors)
-                        )
+                        for lang in assert_content:
+                            with override_settings(LANGUAGE_CODE=lang):
+                                self.assertTrue(
+                                    any(
+                                        assert_content[lang] in error
+                                        for error in form.errors[wrong_field]
+                                    ),
+                                    msg=repr(form.errors)
+                                )
 
     def test_valid_names(self):
         # A family member with only a first name or a last name is expected to be valid.
@@ -245,9 +327,24 @@ class FamilyMemberFormTests(WebTest):
             place=self.place_with_family)
         self.assertFalse(form.is_valid())
         self.assertIn('title', form.errors)
-        self.assertEqual(form.errors, {
-            'title': ["Select a valid choice. XYZ is not one of the available choices."],
-        })
+        with override_settings(LANGUAGE_CODE='en'):
+            self.assertEqual(
+                form.errors,
+                {
+                    'title': [
+                        "Select a valid choice. XYZ is not one of the available choices."
+                    ],
+                }
+            )
+        with override_settings(LANGUAGE_CODE='eo'):
+            self.assertEqual(
+                form.errors,
+                {
+                    'title': [
+                        "Elektu validan elekton. XYZ ne estas el la eblaj elektoj."
+                    ],
+                }
+            )
 
     def test_valid_data(self, for_place=None):
         data = {

@@ -1,6 +1,6 @@
 from django.contrib.sites.models import Site
 from django.template import Context, Template
-from django.test import RequestFactory, TestCase, override_settings, tag
+from django.test import RequestFactory, TestCase, tag
 
 
 @tag('templatetags')
@@ -60,13 +60,13 @@ class DomainTagTests(TestCase):
         # When no suitable context variables are available, the result is expected to
         # be a fallback, dependent on the DEBUG status (True = dev/test environment,
         # False = acc/prod env).
-        with override_settings(ALLOWED_HOSTS=['mytestsrv', 'testserver']):
+        with self.settings(ALLOWED_HOSTS=['mytestsrv', 'testserver']):
             page = self.template_sans_url.render(Context())
             self.assertEqual(page, "https://mytestsrv")
             page = self.template_with_url.render(Context())
             self.assertEqual(page, "https://mytestsrv/418?I=am&amp;Teapot")
 
-        with override_settings(DEBUG=True):
+        with self.settings(DEBUG=True):
             page = self.template_sans_url.render(Context())
             self.assertEqual(page, "http://localhost:8000")
             page = self.template_with_url.render(Context())
