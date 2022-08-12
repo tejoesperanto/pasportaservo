@@ -196,6 +196,8 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+# Other settings
+
 SITE_ID = 1
 
 ADMINS = (
@@ -224,6 +226,7 @@ SERVER_EMAIL = 'teknika@pasportaservo.org'
 
 CSRF_COOKIE_AGE = None
 CSRF_COOKIE_HTTPONLY = True
+SECURE_REFERRER_POLICY = 'origin-when-cross-origin'
 
 
 # Non-Django settings:

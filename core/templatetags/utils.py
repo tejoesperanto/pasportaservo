@@ -1,11 +1,10 @@
 import random
 from hashlib import sha256
-from urllib.parse import urlencode, urlparse
+from urllib.parse import quote as urlquote, urlencode, urlparse
 
 from django import template
 from django.conf import settings
 from django.http import HttpRequest
-from django.utils.http import urlquote
 from django.utils.safestring import SafeData, mark_safe
 
 from core.utils import sanitize_next

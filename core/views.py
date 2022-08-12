@@ -31,7 +31,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import (
-    get_language, gettext, pgettext_lazy, ugettext_lazy as _,
+    get_language, gettext, gettext_lazy as _, pgettext_lazy,
 )
 from django.views import generic
 from django.views.decorators.cache import never_cache

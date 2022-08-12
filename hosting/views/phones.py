@@ -1,7 +1,7 @@
 import re
 
 from django.http import HttpResponseRedirect, JsonResponse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views import generic
 from django.views.decorators.vary import vary_on_headers
 

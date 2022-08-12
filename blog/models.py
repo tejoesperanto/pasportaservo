@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models import BooleanField, Case, F, Q, When
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from commonmark import commonmark
 from django_extensions.db.models import TimeStampedModel

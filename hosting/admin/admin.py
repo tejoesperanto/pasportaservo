@@ -14,7 +14,7 @@ from django.db import models
 from django.db.models import Q, Value as V, functions as dbf
 from django.urls import reverse
 from django.utils.html import format_html
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_countries.fields import Country
 
