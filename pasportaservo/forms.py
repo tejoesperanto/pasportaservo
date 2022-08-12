@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist as ProfileDoesNotExist
 from django.forms import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from postman.forms import (
     AnonymousWriteForm, FullReplyForm, QuickReplyForm, WriteForm,

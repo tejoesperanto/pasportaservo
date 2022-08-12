@@ -21,8 +21,8 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import (
-    get_language, override as override_translation,
-    pgettext_lazy, ugettext_lazy as _,
+    get_language, gettext_lazy as _,
+    override as override_translation, pgettext_lazy,
 )
 
 from commonmark import commonmark

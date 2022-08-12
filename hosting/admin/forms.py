@@ -1,7 +1,7 @@
 from django.contrib.gis.geos import LineString
 from django.forms import ModelForm
 from django.utils.text import format_lazy
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_countries.fields import Country
 

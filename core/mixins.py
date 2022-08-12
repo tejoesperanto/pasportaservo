@@ -10,7 +10,7 @@ from django.urls import reverse_lazy
 from django.utils.functional import lazy
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from hosting.models import Profile
 from hosting.utils import value_without_invalid_marker

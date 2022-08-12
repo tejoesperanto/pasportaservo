@@ -14,7 +14,7 @@ from django.db.models import Q
 from django.template.loader import get_template
 from django.urls import reverse
 from django.utils.text import format_lazy
-from django.utils.translation import pgettext_lazy, ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from crispy_forms.helper import FormHelper
 

@@ -3,7 +3,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.urls import reverse_lazy
 from django.urls.resolvers import URLPattern
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from .views import (
     ExtendedConversationView, ExtendedMessageView,

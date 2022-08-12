@@ -12,7 +12,7 @@ from django.http import Http404, HttpResponseRedirect, JsonResponse, QueryDict
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views import generic
 from django.views.decorators.vary import vary_on_headers
 

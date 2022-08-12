@@ -4,7 +4,7 @@ from django.db.models import (
 )
 from django.utils.functional import cached_property
 from django.utils.html import format_html
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from ..models import (
     Place, VisibilitySettings, VisibilitySettingsForFamilyMembers,

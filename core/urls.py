@@ -2,7 +2,7 @@ from django.conf.urls import include, url
 from django.contrib.auth.views import (
     LogoutView, PasswordResetCompleteView, PasswordResetDoneView,
 )
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView
 
 from .forms import SystemPasswordResetForm, SystemPasswordResetRequestForm
