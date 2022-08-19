@@ -3,7 +3,7 @@ from os import environ, path
 
 from django.conf import global_settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.translation import gettext_lazy
+from django.utils.translation import gettext, gettext_lazy
 
 
 def get_env_setting(setting):
@@ -297,18 +297,20 @@ def user_first_name(user):
     else:
         return name
 
+def postman_from_email(context):
+    if context['action'] == 'acceptance':
+        sender_name = gettext('{name} via Pasporta Servo')
+        user_name = user_first_name(context['object'].sender).capitalize()
+        from_sender = f'{sender_name.format(name=user_name)} <saluton@pasportaservo.org>'
+    else:
+        from_sender = DEFAULT_FROM_EMAIL
+    return from_sender
+
 def postman_params_email(context):
-    # if context['action'] == 'acceptance':
-    #     sender_name = str(gettext_lazy('{name} via Pasporta Servo'))
-    #     user_name = user_first_name(context['object'].sender)
-    #     from_sender = ' '.join([sender_name.format(name=user_name), '<saluton@pasportaservo.org>'])
-    # else:
-    #     from_sender = DEFAULT_FROM_EMAIL
     return {
         'headers': {
-            # Not supported by SendGrid. Needs to be implemented in Postman, see
-            # https://bitbucket.org/psam/django-postman/issues/126/allow-a-dynamic-postman_from_email
-            # 'From': from_sender,
+            # Not supported by SendGrid. Instead, Postman's dynamic from email is used.
+            # 'From': postman_from_email(context),
         },
         'reply_to': ['ne-respondu@pasportaservo.org'],
     }
@@ -318,6 +320,7 @@ POSTMAN_AUTO_MODERATE_AS = True
 POSTMAN_MAILER_APP = None
 POSTMAN_PARAMS_EMAIL = postman_params_email
 POSTMAN_SHOW_USER_AS = user_first_name
+POSTMAN_FROM_EMAIL = postman_from_email
 POSTMAN_DISALLOW_ANONYMOUS = True
 POSTMAN_DISALLOW_MULTIRECIPIENTS = True
 POSTMAN_DISALLOW_COPIES_ON_REPLY = True
