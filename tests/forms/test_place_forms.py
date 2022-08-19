@@ -28,6 +28,7 @@ from hosting.models import (
     LocationType, Place, Whereabouts,
 )
 from maps import SRID
+from maps.widgets import MapboxGlWidget
 
 from ..assertions import AdditionalAsserts
 from ..factories import (
@@ -1152,6 +1153,8 @@ class PlaceLocationFormTests(WebTest):
         form_empty = PlaceLocationForm(view_role=0)
         # Verify that the expected fields are part of the form.
         self.assertEqual(['location'], list(form_empty.fields))
+        # Verify widgets.
+        self.assertIsInstance(form_empty.fields['location'].widget, MapboxGlWidget)
         # Verify that the expected attributes are set.
         self.assertIn('data-selectable-zoom', form_empty.fields['location'].widget.attrs)
         # Verify that the form's save method is protected in templates.

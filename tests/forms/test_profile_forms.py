@@ -17,6 +17,7 @@ from hosting.forms.profiles import (
     ProfileEmailUpdateForm, ProfileForm,
 )
 from hosting.models import MR, MRS, PRONOUN_CHOICES
+from hosting.widgets import ClearableWithPreviewImageInput
 
 from ..assertions import AdditionalAsserts
 from ..factories import LocaleFaker, PlaceFactory, ProfileFactory, UserFactory
@@ -95,6 +96,9 @@ class ProfileFormTestingBase:
             for field in set(self.host_required_fields) | set(self.book_required_fields):
                 with self.subTest(field=field):
                     self.assertFalse(form.fields[field].required)
+
+        # Verify widgets.
+        self.assertIsInstance(form_empty.fields['avatar'].widget, ClearableWithPreviewImageInput)
 
         # Verify that the form's save method is protected in templates.
         self.assertTrue(
@@ -281,6 +285,14 @@ class ProfileFormTestingBase:
             self.assertFalse(form.is_valid())
             self.assertIn('avatar', form.errors)
             self.assertIn("File type is not supported.", form.errors['avatar'])
+
+        # An empty image file is expected to be rejected.
+        data = SimpleUploadedFile(self.faker.file_name(category='image'), b'', 'image/png')
+        with self.subTest(file=repr(data), violation='empty', size=data.size):
+            form = self._init_form(files={'avatar': data}, instance=self.profile_with_no_places.obj)
+            self.assertFalse(form.is_valid())
+            self.assertIn('avatar', form.errors)
+            self.assertEqual(form.errors['avatar'], ["The submitted file is empty."])
 
         # A too-large file is expected to be rejected.
         with open('tests/assets/b7044568.gif', 'rb') as fh:
