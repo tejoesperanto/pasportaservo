@@ -1,6 +1,8 @@
-{% load i18n %}
+{% load i18n utils %}
+{% filter compact %}
 {% autoescape off %}
     {% blocktrans with object.obfuscated_sender as sender and object.subject as subject trimmed %}
         Message from {{ sender }}: {{ subject }}
     {% endblocktrans %}
 {% endautoescape %}
+{% endfilter %}

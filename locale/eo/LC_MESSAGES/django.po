@@ -4061,6 +4061,11 @@ msgstr "Usona Samoo"
 msgid "Samoa (Eastern - U.S.)"
 msgstr "Samoo Orienta (Usona)"
 
+#: pasportaservo/settings/base.py
+#, python-brace-format
+msgid "{name} via Pasporta Servo"
+msgstr "{name} per Pasporta Servo"
+
 #: pasportaservo/templates/200.html
 msgid "OK"
 msgstr "Enordas"

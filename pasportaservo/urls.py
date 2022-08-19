@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.urls import reverse_lazy
+from django.urls.resolvers import URLPattern
 from django.utils.translation import ugettext_lazy as _
 
 from .views import (
@@ -33,7 +34,10 @@ url_index_maps = reverse_lazy('world_map')
 url_index_debug = '/__debug__/'
 
 for module in (m for m in urlpatterns if m.app_name == 'postman'):
-    for pattern in (p for p in module.url_patterns if p.name in ['write', 'reply', 'view', 'view_conversation']):
+    for pattern in (
+            p for p in module.url_patterns
+            if isinstance(p, URLPattern) and p.name in ['write', 'reply', 'view', 'view_conversation']
+    ):
         # TODO: clean up this quick-and-dirty hack, during the chat overhaul.
         pattern.callback = {
             'write': ExtendedWriteView,
