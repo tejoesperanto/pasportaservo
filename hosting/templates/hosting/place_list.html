@@ -74,6 +74,7 @@
                         </span>
                     </div>
                 </div>
+                {% csrf_token %}
                 {% if user.is_authenticated and ENVIRONMENT != 'PROD' %}
                     <div id="advanced-filter" class="{% filter compact %}
                                                         panel panel-compact panel-default advanced-filter-panel

@@ -15,6 +15,8 @@ class SearchForm(forms.Form):
         self.helper.label_class = 'col-xs-12 col-sm-3'
         self.helper.field_class = 'col-xs-12 col-sm-9'
         self.helper.wrapper_class = 'form-group-sm'
+        # Do not render the CSRF Middleware token hidden input tag.
+        self.helper.disable_csrf = True
 
         self.fields['owner__first_name'].label = _("First name")
         self.fields['owner__last_name'].label = _("Last name")
