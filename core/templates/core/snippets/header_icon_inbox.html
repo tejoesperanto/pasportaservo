@@ -1,10 +1,12 @@
 {% load i18n %}
 {% load compact mult from utils %}
 
-        <a href="{% url 'postman:inbox' %}" class="linkicon">
+    {# Force evaluation of the lazy count and store (memoize) the result. #}
+    {% with postman_unread_count_value=postman_unread_count|add:0 %}
+        <a href="{% url 'postman:inbox' %}" class="linkicon" data-unread-count="{{ postman_unread_count_value }}">
             {% trans "inbox" as title_inbox %}
             <span class="sr-only">&#9993;</span>
-            {% if not postman_unread_count %}
+            {% if not postman_unread_count_value %}
                 <span class="fa fa-regular fa-envelope fa-lg" aria-hidden="true"
                       title="{{ title_inbox|capfirst }}"
                       data-toggle="tooltip" data-placement="bottom"></span>
@@ -13,7 +15,7 @@
                              {% endfilter %}"
                       style="padding-left: 4px">{{ title_inbox }}</span>
             {% else %}
-                {% blocktrans count unread=postman_unread_count trimmed asvar verbose_count_inbox %}
+                {% blocktrans count unread=postman_unread_count_value trimmed asvar verbose_count_inbox %}
                     {{ unread }} new message
                 {% plural %}
                     {{ unread }} new messages
@@ -22,10 +24,10 @@
                       title="{{ title_inbox|capfirst }}: {{ verbose_count_inbox }}"
                       data-toggle="tooltip" data-placement="bottom"></span>
                 <sup class="ticket" aria-hidden="true">
-                    {% if postman_unread_count > 99 %}
+                    {% if postman_unread_count_value > 99 %}
                         {{ "&middot;"|mult:3|safe }}
                     {% else %}
-                        {{ postman_unread_count|default:"" }}
+                        {{ postman_unread_count_value|default:"" }}
                     {% endif %}
                 </sup>
                 <span class="{% filter compact %}
@@ -35,3 +37,4 @@
                 <span class="sr-only">({{ verbose_count_inbox }})</span>
             {% endif %}
         </a>
+    {% endwith %}
