@@ -81,7 +81,7 @@
                                                         collapse when-scripting {% if filtered_by %} in {% endif %}
                                                      {% endfilter %}">
                         <div class="panel-heading sr-only">{% trans "Advanced Search" %}</div>
-                        {% if user.profile or user.is_superuser %}
+                        {% if request.user_has_profile or user.is_superuser %}
                             <div class="panel-body form-horizontal">
                                 <p class="small text-right requires-scripting">
                                     <a href="#{% trans "feedback" context "URL" %}" data-toggle="modal" tabindex="2">

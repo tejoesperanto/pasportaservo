@@ -1,8 +1,9 @@
 from unittest.mock import patch
 
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, override_settings, tag
+from django.test import RequestFactory, TestCase, override_settings, tag
 from django.utils.html import format_html
 
 from factory import Faker
@@ -25,7 +26,7 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
         cls.template_username = '<span class="profile-noname">{name}</span>'
         cls.template_joiner = '&ensp;'
 
-        cls.basic_profile = ProfileFactory(first_name="Aaa", last_name="Bbb")
+        cls.basic_profile = ProfileFactory(first_name="Aaa", last_name="Bbb", with_email=True)
 
     def test_field_max_lengths(self):
         profile = self.basic_profile
@@ -179,7 +180,7 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
     @patch('django.core.files.storage.FileSystemStorage.save')
     def test_avatar_url(self, mock_storage_save, mock_storage_exists):
         # Avatar URL for normal profile is expected to be gravatar url for email.
-        profile = ProfileFactory()
+        profile = ProfileFactory(with_email=True)
         self.assertEqual(
             profile.avatar_url,
             email_to_gravatar(profile.user.email, settings.DEFAULT_AVATAR_URL)
@@ -291,25 +292,116 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
     def test_get_basic_data(self):
         # The get_basic_data function is expected to be a class (only) method.
         self.assertRaises(AttributeError, lambda: self.basic_profile.get_basic_data(pk=1))
+        ProfileModel = self.basic_profile.__class__
 
+        # A DoesNotExist exception is expected for non-existing profiles.
+        with self.assertNumQueries(1):
+            with self.assertRaises(ObjectDoesNotExist):
+                ProfileModel.get_basic_data(pk=-3)
         # The database query is expected to return sufficient data to generate URLs.
         with self.assertNumQueries(1):
-            p = self.basic_profile.__class__.get_basic_data(user=self.basic_profile.user)
+            p = ProfileModel.get_basic_data(user=self.basic_profile.user)
             p.autoslug
             p.get_absolute_url()
             p.get_edit_url()
             p.get_admin_url()
         with self.assertNumQueries(1):
-            p = self.basic_profile.__class__.get_basic_data(pk=self.basic_profile.pk)
+            p = ProfileModel.get_basic_data(pk=self.basic_profile.pk)
             p.autoslug
             p.get_absolute_url()
             p.get_edit_url()
             p.get_admin_url()
         # Additional database queries are expected when further data of profile is used.
         with self.assertNumQueries(5):
-            p = self.basic_profile.__class__.get_basic_data(email=self.basic_profile.email)
+            p = ProfileModel.get_basic_data(email=self.basic_profile.email)
             p.age
             p.email_visibility
+
+    def test_get_basic_data_from_request(self):
+        request = RequestFactory().get('/pro/filo')
+        request.user = self.basic_profile.user  # Simulate a logged-in user.
+        other_profile = ProfileFactory(with_email=True)
+        other_user = UserFactory(profile=None)
+        ProfileModel = self.basic_profile.__class__
+
+        default_200_result = dict.fromkeys((None, True, False), {'queries': 1, 'exists': True})
+        default_404_result = dict.fromkeys((None, True, False), {'queries': 1, 'exists': False})
+        test_config = [
+            {
+                'tag': "same user",
+                'params': {'user': self.basic_profile.user},
+                'result': {
+                    None: {
+                        'queries': 1, 'exists': True,
+                    },
+                    False: {
+                        'queries': 0, 'exists': False,
+                    },
+                    True: {
+                        'queries': 1, 'exists': True,
+                    },
+                },
+            }, {
+                'tag': "same user; user_id",
+                'params': {'user_id': self.basic_profile.user_id},
+                'result': {
+                    None: {
+                        'queries': 1, 'exists': True,
+                    },
+                    False: {
+                        'queries': 0, 'exists': False,
+                    },
+                    True: {
+                        'queries': 1, 'exists': True,
+                    },
+                },
+            }, {
+                'tag': "same profile; email",
+                'params': {'email': self.basic_profile.email},
+                'result': default_200_result,
+            }, {
+                'tag': "other profile; user",
+                'params': {'user': other_profile.user},
+                'result': default_200_result,
+            }, {
+                'tag': "other profile; pk",
+                'params': {'pk': other_profile.pk},
+                'result': default_200_result,
+            }, {
+                'tag': "other user",
+                'params': {'user': other_user},
+                'result': default_404_result,
+            },
+        ]
+
+        def single_case_test(case):
+            for test_data in test_config:
+                with self.subTest(tag=test_data['tag']):
+                    with self.assertNumQueries(test_data['result'][case]['queries']):
+                        assert_exception = (
+                            self.assertNotRaises if test_data['result'][case]['exists']
+                            else self.assertRaises
+                        )
+                        with assert_exception(ObjectDoesNotExist):
+                            ProfileModel.get_basic_data(request, **test_data['params'])
+
+        # When the request does not contain information about the user's profile, the
+        # database is expected to be queried.
+        with self.subTest(case="info missing"):
+            single_case_test(None)
+
+        # When it is already known that the user does not have a profile, the database
+        # is expected to be queried only when a different user's profile is requested,
+        # or the filtering parameters do not include a user identification.
+        request.user_has_profile = False
+        with self.subTest(case="no profile"):
+            single_case_test(False)
+
+        # When it is already known that the user has a profile, the database is
+        # expected to be queried in all cases.
+        request.user_has_profile = True
+        with self.subTest(case="has a profile"):
+            single_case_test(True)
 
     def test_absolute_url(self):
         profile = self.basic_profile

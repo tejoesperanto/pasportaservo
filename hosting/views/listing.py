@@ -186,12 +186,10 @@ class SearchView(PlacePaginatedListView):
         # authenticated users who have a profile and to administrators
         # regardless of their profile status.
         if settings.ENVIRONMENT != 'PROD':
-            try:
-                if not request.user.is_authenticated:
-                    raise Profile.DoesNotExist
-                Profile.get_basic_data(user_id=request.user.pk)
-            except Profile.DoesNotExist:
-                self.extended_query = None if not request.user.is_superuser else extended_query
+            if not request.user.is_authenticated:
+                self.extended_query = None
+            elif not request.user_has_profile and not request.user.is_superuser:
+                self.extended_query = None
             else:
                 self.extended_query = extended_query
         else:

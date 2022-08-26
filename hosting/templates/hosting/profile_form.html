@@ -20,7 +20,7 @@
             {% trans "Update my details" %}
         {% endif %}
     {% else %}
-        {% if user.profile or view.place %}
+        {% if request.user_has_profile or view.place %}
             {# THIS IS A FAMILY MEMBER CREATE FORM #}
             {% trans "Add a family member" %}
         {% else %}
@@ -30,7 +30,7 @@
     {% endif %}
 {% endblock %}
 {% block head_title_separator %}
-    {% if not profile and not user.profile and not view.place %}
+    {% if not profile and not request.user_has_profile and not view.place %}
         {% trans "at" %}
     {% else %}
         {{ block.super }}

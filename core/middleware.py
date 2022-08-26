@@ -63,8 +63,10 @@ class AccountFlagsMiddleware(MiddlewareMixin):
 
         self._update_connection_info(request)
 
-        # Is user's age above the legally required minimum?
         birth_date = profile.values_list('birth_date', flat=True)
+        request.user_has_profile = len(birth_date) > 0
+
+        # Is user's age above the legally required minimum?
         trouble_view = None
         try:
             trouble_view = resolve(request.path)
@@ -116,7 +118,10 @@ class AccountFlagsMiddleware(MiddlewareMixin):
                 # evaluated to spare a superfluous query on the database.
                 request.user.consent_obtained = policy
 
-        if request.path.startswith(url_index_postman) and len(birth_date) == 0 and not request.user.is_superuser:
+        # Is the user trying to use the internal communicator and has a
+        # properly configured profile?
+        if (request.path.startswith(url_index_postman)
+                and not request.user_has_profile and not request.user.is_superuser):
             # We can reuse the birth date query result to avoid an additional
             # query in the DB.  For users with a profile, the result will not
             # be empty and hold some value (either datetime or None).
@@ -124,8 +129,10 @@ class AccountFlagsMiddleware(MiddlewareMixin):
                     request, 'registration/profile_create.html', status=403,
                     context={
                         'function_title': _("Inbox"),
-                        'function_description': _("To be able to communicate with other members of the PS community, "
-                                                  "you need to create a profile."),
+                        'function_description': _(
+                            "To be able to communicate with other members of the PS community, "
+                            "you need to create a profile."
+                        ),
                     })
             t.render()
             return t

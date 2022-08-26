@@ -619,11 +619,20 @@ class Profile(TrackingModel, TimeStampedModel):
     confirm_all_info.alters_data = True
 
     @classonlymethod
-    def get_basic_data(cls, **kwargs):
+    def get_basic_data(cls, request=None, **kwargs):
         """
         Returns only the strictly necessary data for determining if a profile exists and for
         building the profile's URLs. This avoids overly complicated DB queries.
         """
+        if (
+            request and (
+                'user' in kwargs and kwargs['user'] == request.user
+                or 'user_id' in kwargs and kwargs['user_id'] == request.user.pk)
+        ):
+            # When a profile is matched to the current user, attempt reusing the profile's
+            # existence fact if already known.
+            if getattr(request, 'user_has_profile', None) is False:
+                raise cls.DoesNotExist
         qs = cls.all_objects.select_related(None).only('first_name', 'last_name', 'user_id')
         return qs.get(**kwargs)
 

@@ -294,13 +294,13 @@ class AccountSettingsView(LoginRequiredMixin, generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         try:
-            profile = Profile.get_basic_data(user=request.user)
+            profile = Profile.get_basic_data(request, user=request.user)
             return HttpResponseRedirect(
                 reverse_lazy('profile_settings', kwargs={'pk': profile.pk, 'slug': profile.autoslug})
             )
         except Profile.DoesNotExist:
             # Cache the result for the reverse related descriptor, to spare further DB queries.
-            setattr(request.user, request.user._meta.fields_map['profile'].get_cache_name(), None)
+            setattr(request.user, request.user._meta.get_field('profile').get_cache_name(), None)
             return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -384,7 +384,10 @@ class EmailUpdateView(AuthMixin, UserModifyMixin, generic.UpdateView):
 
     def get_owner(self, object):
         try:
-            return self.user.profile
+            if self.request.user_has_profile:
+                return self.user.profile
+            else:
+                raise Profile.DoesNotExist
         except Profile.DoesNotExist:
             # For users without a profile, we must create a dummy one, because AuthMixin
             # expects all owners to be instances of Profile (which is not unreasonable).
