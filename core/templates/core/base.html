@@ -45,7 +45,7 @@
                             <span class="notice_content">
                                 <i>
                                 {% block use_notice %}
-                                    {% if user.is_authenticated and user.profile %}
+                                    {% if user.is_authenticated and request.user_has_profile %}
                                         {% blocktrans with name=user.profile.get_fullname_always_display trimmed %}
                                             For personal use of {{ name }}
                                         {% endblocktrans %}

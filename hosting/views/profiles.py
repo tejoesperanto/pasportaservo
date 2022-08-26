@@ -46,11 +46,11 @@ class ProfileCreateView(
         try:
             # Redirect to profile edit page if user is logged in & profile already exists.
             assert not request.user.is_anonymous
-            profile = Profile.get_basic_data(user=request.user)
+            profile = Profile.get_basic_data(request, user=request.user)
             return HttpResponseRedirect(profile.get_edit_url(), status=301)
         except Profile.DoesNotExist:
             # Cache the result for the reverse related descriptor, to spare further DB queries.
-            setattr(request.user, request.user._meta.fields_map['profile'].get_cache_name(), None)
+            setattr(request.user, request.user._meta.get_field('profile').get_cache_name(), None)
             return super().dispatch(request, *args, **kwargs)
         except AssertionError:
             # Redirect to registration page when user is not authenticated.
@@ -184,7 +184,7 @@ class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
                 raise Http404("Detached profile (probably a family member).")
 
         try:
-            profile = Profile.get_basic_data(user=self.request.user)
+            profile = Profile.get_basic_data(self.request, user=self.request.user)
         except Profile.DoesNotExist:
             return reverse_lazy('profile_create')
         else:
@@ -265,7 +265,7 @@ class ProfileSettingsRedirectView(LoginRequiredMixin, generic.RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         try:
-            profile = Profile.get_basic_data(user=self.request.user)
+            profile = Profile.get_basic_data(self.request, user=self.request.user)
         except Profile.DoesNotExist:
             return reverse_lazy('profile_create')
         else:

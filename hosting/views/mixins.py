@@ -20,7 +20,9 @@ class ProfileMixin(object):
 
     def get_object(self, queryset=None):
         try:
-            current_user_profile_pk = self.request.user.profile.pk
+            current_user_profile_pk = (
+                self.request.user_has_profile and self.request.user.profile.pk
+            )
         except Profile.DoesNotExist:
             current_user_profile_pk = None
         finally:

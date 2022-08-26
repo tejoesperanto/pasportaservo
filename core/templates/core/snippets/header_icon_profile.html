@@ -2,7 +2,7 @@
 {% load compact from utils %}
 {% load avatar_dimension from profile %}
 
-        {% if user.profile %}
+        {% if request.user_has_profile %}
             <a href="{{ user.profile.get_absolute_url }}" class="avatar"
                title="{% trans "My profile" %}"
                data-toggle="tooltip" data-placement="bottom">
