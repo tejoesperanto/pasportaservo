@@ -1,4 +1,5 @@
 import logging
+from copy import copy
 from itertools import chain
 
 from django.contrib import messages
@@ -36,11 +37,12 @@ User = get_user_model()
 
 
 class ProfileCreateView(
-        LoginRequiredMixin, ProfileModifyMixin, FormInvalidMessageMixin,
+        AuthMixin, ProfileModifyMixin, FormInvalidMessageMixin,
         generic.CreateView):
     model = Profile
     form_class = ProfileCreateForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
+    exact_role = OWNER
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -51,6 +53,9 @@ class ProfileCreateView(
         except Profile.DoesNotExist:
             # Cache the result for the reverse related descriptor, to spare further DB queries.
             setattr(request.user, request.user._meta.get_field('profile').get_cache_name(), None)
+            # Make up a dummy profile temporarily linked to the current user,
+            # to ensure a correct authorization check.
+            kwargs['auth_base'] = Profile(user=copy(request.user))
             return super().dispatch(request, *args, **kwargs)
         except AssertionError:
             # Redirect to registration page when user is not authenticated.
