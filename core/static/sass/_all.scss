@@ -1238,6 +1238,18 @@ p.tip {
         }
     }
 }
+textarea {
+    resize: vertical;
+    &.input-sm {
+        min-height: 30px;
+    }
+    &.input-lg {
+        min-height: 46px;
+    }
+    &:not(.input-sm):not(.input-lg) {
+        min-height: 34px;
+    }
+}
 
 :invalid {
     box-shadow: none;
