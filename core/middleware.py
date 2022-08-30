@@ -150,10 +150,15 @@ class AccountFlagsMiddleware(MiddlewareMixin):
         connection_check = timezone.now() - last_connection_check
 
         if timezone.timedelta(0) < connection_check < timezone.timedelta(hours=24):
+            # Only check once in 24 hours.
             return
         if 'HTTP_USER_AGENT' not in getattr(request, 'META', {}):
+            # No information about browser in the request.
             return
 
+        # Decode the UA from the request and retrieve the already known connections
+        # of the user with this browser (database records are filtered by UA's hash
+        # for quicker comparison).
         ua_string = request.META.get('HTTP_USER_AGENT', '')
         if not isinstance(ua_string, str):
             ua_string = ua_string.decode('utf-8', 'ignore')
@@ -163,12 +168,22 @@ class AccountFlagsMiddleware(MiddlewareMixin):
             .filter(user=request.user, user_agent_hash=ua_hash)
             .order_by('-pk')
         )
+        # Attempt retrieving the user's current geographical location. If it can be
+        # found, use it to futher filter the known connections.
         position = geocoder.ip(request.META['HTTP_X_REAL_IP']
                                if settings.ENVIRONMENT not in ('DEV', 'TEST')
                                else "188.166.58.162")
-        current_location = (f'{position.state}, ' if position.state else '') + position.country
+        if position.ok and position.current_result.ok:
+            current_location = (f'{position.state}, ' if position.state else '') + position.country
+            locations = locations.filter(geolocation=current_location)
+        else:
+            # When the IPInfo service is unavailable or information about the user's
+            # IP cannot be retrieved, we proceed as if the location is unknown.
+            current_location = ''
 
-        connection_id = locations.filter(geolocation=current_location).values_list('pk', flat=True).first()
+        # Verify if the user is connecting with a browser and from a geographical
+        # location already known by us.
+        connection_id = locations.values_list('pk', flat=True).first()
         if connection_id is None:
             # Parse the UA (slow) and create new record only if one does not exist yet.
             ua = user_agents.parse(ua_string)
