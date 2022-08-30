@@ -269,6 +269,7 @@ class SearchView(PlacePaginatedListView):
             position.address if position.ok and position.address else "UNKNOWN",
             position.xy if position.ok else position.error
         )
+        position.session.close()
         if position.point and not most_recent:
             # Results are sorted by distance from user's current location, but probably
             # it is better not to creep users out by unexpectedly using their location.
