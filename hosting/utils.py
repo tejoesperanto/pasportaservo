@@ -31,6 +31,7 @@ def geocode(query, country='', private=False, annotations=False, multiple=False)
     logging.getLogger('PasportaServo.geo').debug(
         "Query: %s\n\tResult: %s\n\tConfidence: %d", query, result, result.confidence)
     result.point = Point(result.xy, srid=SRID) if result.xy else None
+    result.session.close()
     return result
 
 

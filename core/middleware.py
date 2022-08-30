@@ -180,6 +180,7 @@ class AccountFlagsMiddleware(MiddlewareMixin):
             # When the IPInfo service is unavailable or information about the user's
             # IP cannot be retrieved, we proceed as if the location is unknown.
             current_location = ''
+        position.session.close()
 
         # Verify if the user is connecting with a browser and from a geographical
         # location already known by us.
