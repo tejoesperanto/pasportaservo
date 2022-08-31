@@ -60,7 +60,7 @@ class FamilyMemberFormTests(WebTest):
         with self.assertNumQueries(0):
             form = self._init_form(place=self.place_with_family)
         # Verify that the expected fields are part of the form.
-        self.assertEquals(set(self.expected_fields), set(form.fields))
+        self.assertEqual(set(self.expected_fields), set(form.fields))
         # Verify that fields are not marked 'required'.
         for field in self.expected_fields:
             with self.subTest(field=field):

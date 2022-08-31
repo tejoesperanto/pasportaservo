@@ -24,7 +24,7 @@ from maps import SRID
 from maps.utils import bufferize_country_boundaries
 
 from ..filters.search import SearchFilterSet
-from ..models import LocationConfidence, Phone, Place, Profile, TravelAdvice
+from ..models import LocationConfidence, Phone, Place, TravelAdvice
 from ..utils import geocode
 
 

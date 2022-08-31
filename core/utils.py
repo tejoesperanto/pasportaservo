@@ -20,7 +20,7 @@ def split(value):
     """
     Improvement of "".split(), with support of apostrophe.
     """
-    return re.split('\W+', value)
+    return re.split(r'\W+', value)
 
 
 def camel_case_split(identifier):

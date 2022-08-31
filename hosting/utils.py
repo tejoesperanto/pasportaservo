@@ -68,7 +68,7 @@ def title_with_particule(value, particules=None):
         value = value.title()
         particules_re = [(part, r'(^|\W)(?i:%s)(\W)' % part) for part in particules]
         for particule, particule_re in particules_re:
-            value = re.sub(particule_re, '\g<1>' + particule + '\g<2>', value)
+            value = re.sub(particule_re, r'\g<1>' + particule + r'\g<2>', value)
     return value
 
 
