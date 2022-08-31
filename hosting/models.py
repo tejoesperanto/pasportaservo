@@ -774,7 +774,7 @@ class Place(TrackingModel, TimeStampedModel):
     available = models.BooleanField(
         _("available"),
         default=True,
-        help_text=_("If this place is searchable. If yes, you will be considered as host."))
+        help_text=_("Is there a place to sleep on offer. If yes, you will be considered as host."))
     in_book = models.BooleanField(
         _("print in book"),
         default=True,

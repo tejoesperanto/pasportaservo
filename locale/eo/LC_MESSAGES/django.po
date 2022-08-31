@@ -2198,10 +2198,11 @@ msgid "available"
 msgstr "disponebla"
 
 #: hosting/models.py
-msgid "If this place is searchable. If yes, you will be considered as host."
+msgid ""
+"Is there a place to sleep on offer. If yes, you will be considered as host."
 msgstr ""
-"Ĉu tiu ĉi loĝejo estas serĉebla? Se jes, vi estos konsiderita kiel "
-"gastiganto."
+"Ĉu en tiu ĉi loĝejo estas dormloko por aliaj? Se jes, vi estos konsiderita "
+"kiel gastiganto."
 
 #: hosting/models.py
 msgid "print in book"
