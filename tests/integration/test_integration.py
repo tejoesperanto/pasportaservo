@@ -1,10 +1,15 @@
-from django.contrib.auth.models import Group
+from django.conf import settings
+from django.contrib.auth.models import AnonymousUser, Group
 from django.core import serializers
-from django.test import TestCase, tag
+from django.core.exceptions import ImproperlyConfigured
+from django.http import JsonResponse
+from django.test import RequestFactory, TestCase, tag
 from django.urls import reverse
+from django.views.generic import CreateView, View
 
 from django_webtest import WebTest
 
+from core.auth import VISITOR, AuthMixin
 from hosting.models import Preferences, VisibilitySettings
 
 from ..assertions import AdditionalAsserts
@@ -269,3 +274,116 @@ class CheckStatusTests(WebTest):
         self.assertIsNone(phone.checked_on)
         self.assertIsNone(phone.checked_by)
         self.object_update_tests(phone, phone_form_url, self.admin)
+
+
+@tag('integration', 'auth')
+class AuthMixinConfigTests(AdditionalAsserts, TestCase):
+    """
+    Tests for correct configuration of the AuthMixin on views (incorrect
+    setup shall alert the developer during execution).
+    """
+
+    def test_missing_auth_check(self):
+        class MyTestView(AuthMixin, View):
+            minimum_role = VISITOR
+
+            def get(self, request, *args, **kwargs):
+                return JsonResponse({})
+
+        class MyAnonymousTestView(AuthMixin, View):
+            allow_anonymous = True
+
+            def get(self, request, *args, **kwargs):
+                return JsonResponse({})
+
+        request = RequestFactory().get('/look-up')
+        expected_message = (
+            "AuthMixin is present on the view {} but no authorization check was performed."
+        )
+
+        # Accessing a misconfigured view as a logged in user is expected to result in
+        # a warning and no authorization check is expected to be performed.
+        request.user = UserFactory(profile=None)  # Simulate a logged-in user.
+        with self.assertWarnsMessage(
+                AuthMixin.MisconfigurationWarning, expected_message.format('MyTestView')):
+            response = MyTestView.as_view()(request)
+        self.assertEqual(response.status_code, 200)
+
+        # Accessing a misconfigured view for which anonymous access is allowed, as a
+        # non-authenticated user, is expected to result in a warning.
+        request.user = AnonymousUser()  # Simulate a non-authenticated user.
+        with self.assertWarnsMessage(
+                AuthMixin.MisconfigurationWarning, expected_message.format('MyAnonymousTestView')):
+            response = MyAnonymousTestView.as_view()(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_missing_auth_base(self):
+        class MyBadCreateTestView(AuthMixin, CreateView):
+            pass
+
+        class MyBadAnonymousCreateTestView(AuthMixin, CreateView):
+            allow_anonymous = True
+
+        class MyGoodCreateTestView(AuthMixin, CreateView):
+            minimum_role = VISITOR
+            allow_anonymous = True
+
+            def dispatch(self, request, *args, **kwargs):
+                kwargs['auth_base'] = None
+                return super().dispatch(request, *args, **kwargs)
+
+            def get(self, request, *args, **kwargs):
+                return JsonResponse({})
+
+        request = RequestFactory().get('/look-up')
+        expected_message = (
+            "Creation base not found. Make sure {}'s auth_base is accessible by AuthMixin "
+            "as a dispatch kwarg."
+        )
+
+        request.user = UserFactory(profile=None)  # Simulate a logged-in user.
+        # Accessing a misconfigured view (which does not define an authorization base)
+        # as a logged in user is expected to result in an exception.
+        with self.assertRaisesMessage(
+                ImproperlyConfigured, expected_message.format('MyBadCreateTestView')):
+            MyBadCreateTestView.as_view()(request)
+        # Accessing (via GET) a properly configured view as a logged in user is not
+        # expected to raise an exception. The view is expected to have the user's role
+        # (in this case, a VISITOR).
+        view = MyGoodCreateTestView()
+        view.setup(request)
+        with self.assertNotRaises(ImproperlyConfigured):
+            response = view.dispatch(request)
+        self.assertTrue(hasattr(view, 'role'))
+        self.assertEqual(view.role, VISITOR)
+        self.assertEqual(response.status_code, 200)
+
+        request.user = AnonymousUser()  # Simulate a non-authenticated user.
+        # Accessing a misconfigured view (which does not define an authorization base)
+        # for which anonymous access is allowed, with a non-authenticated user, is
+        # expected to result in an exception.
+        with self.assertRaisesMessage(
+                ImproperlyConfigured, expected_message.format('MyBadAnonymousCreateTestView')):
+            MyBadAnonymousCreateTestView.as_view()(request)
+        # Accessing a misconfigured view for which anonymous access is NOT allowed,
+        # with a non-authenticated user, is not expected to raise an exception, since
+        # authentication check ought to preceed the authorization check.
+        # The view is expected to have the user's role and redirect the user to the
+        # authentication page.
+        view = MyBadCreateTestView()
+        view.setup(request)
+        with self.assertNotRaises(ImproperlyConfigured):
+            response = view.dispatch(request)
+        self.assertTrue(hasattr(view, 'role'))
+        self.assertEqual(view.role, VISITOR)
+        expected_url = '{}?{}=/look-up'.format(reverse('login'), settings.REDIRECT_FIELD_NAME)
+        self.assertRedirects(response, expected_url, fetch_redirect_response=False)
+        # Accessing (via GET) a properly configured view for which anonymous access is
+        # allowed, as a non-authenticated user, is not expected to raise an exception.
+        view = MyGoodCreateTestView()
+        view.setup(request)
+        with self.assertNotRaises(ImproperlyConfigured):
+            response = view.dispatch(request)
+        self.assertTrue(hasattr(view, 'role'))
+        self.assertEqual(view.role, VISITOR)
+        self.assertEqual(response.status_code, 200)

@@ -250,7 +250,7 @@ class AuthMixin(AccessMixin):
                 self.minimum_role, self.role)
             if self.role >= self.minimum_role:
                 return object
-        if settings.DEBUG:
+        if settings.DEBUG:  # pragma: no cover
             view_name = camel_case_split(self.__class__.__name__)
             raise PermissionDenied(
                 "Not allowed to {action} this {obj}.".format(
