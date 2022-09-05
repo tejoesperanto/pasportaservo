@@ -25,13 +25,13 @@ from django.template.loader import get_template
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.utils.decorators import method_decorator
+from django.utils.decorators import classproperty, method_decorator
 from django.utils.functional import cached_property
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import (
-    get_language, gettext, gettext_lazy as _, pgettext_lazy,
+    get_language, gettext, gettext_lazy as _, pgettext, pgettext_lazy,
 )
 from django.views import generic
 from django.views.decorators.cache import never_cache
@@ -321,7 +321,9 @@ class PasswordResetView(PasswordResetBuiltinView):
 
 
 class PasswordResetConfirmView(PasswordResetConfirmBuiltinView):
-    reset_url_token = pgettext_lazy("URL", "set-password")
+    @classproperty
+    def reset_url_token(self):
+        return pgettext("URL", "set-password")
 
 
 class PasswordChangeView(LoginRequiredMixin, PasswordChangeBuiltinView):

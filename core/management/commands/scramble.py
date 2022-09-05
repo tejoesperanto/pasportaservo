@@ -27,11 +27,11 @@ from unidecode import unidecode_expect_nonascii
 from core.auth import ADMIN, PERM_SUPERVISOR, SUPERVISOR, VISITOR
 from core.templatetags.utils import random_identifier
 from hosting.countries import COUNTRIES_DATA
-from hosting.models import MR, MRS, Gender, Phone, Place, Profile, Website
+from hosting.models import Gender, Phone, Place, Profile, Website
 from maps import SRID
 from maps.data import COUNTRIES_GEO
 
-person_type_mapping = {MRS: 'F', MR: 'M'}
+person_type_mapping = {Profile.Titles.MRS: 'F', Profile.Titles.MR: 'M'}
 
 
 class Command(BaseCommand):

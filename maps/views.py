@@ -200,7 +200,7 @@ class CountryDataView(AuthMixin, GeoJSONLayerView):
 
     def dispatch(self, request, *args, **kwargs):
         self.country = Country(kwargs['country_code'])
-        self.in_book_status = {'0': False, '1': True, None: None}[kwargs['in_book']]
+        self.in_book_status = {'0': False, '1': True, None: None}[kwargs.get('in_book')]
         kwargs['auth_base'] = self.country
         return super().dispatch(request, *args, **kwargs)
 

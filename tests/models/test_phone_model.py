@@ -4,8 +4,6 @@ from django.utils.functional import lazy
 
 from django_webtest import WebTest
 
-from hosting.models import PHONE_TYPE_CHOICES
-
 from ..assertions import AdditionalAsserts
 from ..factories import PhoneFactory
 from .test_managers import TrackingManagersTests
@@ -32,7 +30,8 @@ class PhoneModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
             lambda text: "neindikita tipo" if settings.LANGUAGE_CODE == 'eo' else text,
             str
         )
-        test_data = PHONE_TYPE_CHOICES + (('x', "x"), ('', mock_translation("type not indicated")))
+        test_data = self.phone.PhoneType.choices
+        test_data += [('x', "x"), ('', mock_translation("type not indicated"))]
         for phone_type, phone_type_title in test_data:
             with self.subTest(phone_type=phone_type):
                 self.phone.type = phone_type
@@ -50,7 +49,7 @@ class PhoneModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
 
     def test_rawdisplay(self):
         # SIDE EFFECT: self.phone.type is altered but not saved to database.
-        test_data = [t[0] for t in PHONE_TYPE_CHOICES] + ['x', '', None]
+        test_data = self.phone.PhoneType.values + ['x', '', None]
         for phone_type in test_data:
             with self.subTest(phone_type=phone_type):
                 self.phone.type = phone_type

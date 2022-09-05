@@ -7,7 +7,7 @@ from django.contrib.auth import get_backends
 from django.contrib.auth.models import AnonymousUser, Group
 from django.core.exceptions import FieldDoesNotExist
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.db.models import CharField, Model
+from django.db.models import CharField, Model, TextChoices
 from django.template import Context, Template
 from django.test import TestCase, modify_settings, override_settings, tag
 from django.utils import timezone
@@ -180,8 +180,13 @@ class IconFilterTests(TestCase):
             template.render(Context({'obj': self.DecoratedModel()}))
 
 
+class MockPronounType(TextChoices):
+    NEUTRAL = 'qwqw', "QwQw"
+    ANY = '_any_', "Anyy"
+
+
 @tag('templatetags')
-@patch.multiple('hosting.models.Profile', PRONOUN_NEUTRAL_VALUE='qwqw', PRONOUN_ANY='_any_')
+@patch('hosting.models.Profile.Pronouns', MockPronounType)
 class GetPronounFilterTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -195,7 +200,7 @@ class GetPronounFilterTests(TestCase):
     def test_sanity(self):
         # Sanity check.
         page = self.template.render(Context({'obj': None}))
-        self.assertEqual(page, "[qwqw]")
+        self.assertEqual(page, "[QwQw]")
         with self.assertRaises(AttributeError):
             self.template.render(Context({'obj': object()}))
 
@@ -204,14 +209,14 @@ class GetPronounFilterTests(TestCase):
         # the expected result is the default neutral pronoun.
         self.profile.pronoun = ''
         page = self.template.render(self.context)
-        self.assertEqual(page, "[qwqw]")
+        self.assertEqual(page, "[QwQw]")
 
     def test_any_pronoun(self):
         # For a profile with a pronoun indicated as 'any',
         # the expected result is the default neutral pronoun.
         self.profile.pronoun = '_any_'
         page = self.template.render(self.context)
-        self.assertEqual(page, "[qwqw]")
+        self.assertEqual(page, "[QwQw]")
 
     def test_defined_pronoun(self):
         # For a profile with a defined pronoun, the expected result is the pronoun.

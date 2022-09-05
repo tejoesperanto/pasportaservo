@@ -227,9 +227,9 @@
                                         <span title="{{ phone.get_country_display }}" data-toggle="tooltip" data-placement="bottom">({{ phone.country }})</span>
                                     {% endif %}
                                     {% spaceless %}
-                                        {% if phone.type != phone.FAX %}<a href="tel:{{ phone.number.as_e164 }}" class="contact-details">{% endif %}
+                                        {% if phone.type != phone.PhoneType.FAX %}<a href="tel:{{ phone.number.as_e164 }}" class="contact-details">{% endif %}
                                         <span class="number">{{ phone.number.as_international }}</span>
-                                        {% if phone.type != phone.FAX %}</a>{% endif %}
+                                        {% if phone.type != phone.PhoneType.FAX %}</a>{% endif %}
                                         &nbsp;<br class="visible-xxs-inline" />
                                     {% endspaceless %}
                                     <i class="comment"><small>{{ phone.comments }}</small></i>

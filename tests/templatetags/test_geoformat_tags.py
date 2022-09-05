@@ -114,8 +114,7 @@ class FormatDMSFilterTests(TestCase):
             self.template.render(Context({'location': namedtuple('DummyObject', 'empty')(False)}))
 
     def test_empty_location(self):
-        expected_result = "&8593;&nbsp;&#xFF1F;&deg;, &8594;&nbsp;&#xFF1F;&deg;"
-        # TODO: In Django 3 "&uarr; &#xff1f;&deg;, &larr; &#xff1f;&deg;"
+        expected_result = "&uarr;&nbsp;&#xFF1F;&deg;, &rarr;&nbsp;&#xFF1F;&deg;"
 
         page = self.template.render(Context({'location': None}))
         self.assertHTMLEqual(page, expected_result)
@@ -130,11 +129,11 @@ class FormatDMSFilterTests(TestCase):
 
         tpl = template or self.template
         page = tpl.render(Context({'location': Point(coded_result.lng, coded_result.lat, srid=SRID)}))
-        self.assertHTMLEqual(page, expected_result.format(arrlat="&8593;", letlat="N", arrlng="&8594;", letlng="E"))
+        self.assertHTMLEqual(page, expected_result.format(arrlat="&uarr;", letlat="N", arrlng="&rarr;", letlng="E"))
         page = tpl.render(Context({'location': Point(coded_result.lng, -coded_result.lat, srid=SRID)}))
-        self.assertHTMLEqual(page, expected_result.format(arrlat="&8595;", letlat="S", arrlng="&8594;", letlng="E"))
+        self.assertHTMLEqual(page, expected_result.format(arrlat="&darr;", letlat="S", arrlng="&rarr;", letlng="E"))
         page = tpl.render(Context({'location': Point(-coded_result.lng, coded_result.lat, srid=SRID)}))
-        self.assertHTMLEqual(page, expected_result.format(arrlat="&8593;", letlat="N", arrlng="&8592;", letlng="W"))
+        self.assertHTMLEqual(page, expected_result.format(arrlat="&uarr;", letlat="N", arrlng="&larr;", letlng="W"))
 
     def test_confidence_high(self):
         self.test_given_location(Template(
@@ -151,7 +150,7 @@ class FormatDMSFilterTests(TestCase):
         )
         page = Template("{% load format_dms from geoformat %}{{ location|format_dms:0 }}").render(
             Context({'location': Point(-coded_result.lng, -coded_result.lat, srid=SRID)}))
-        self.assertHTMLEqual(page, expected_result.format(arrlat="&8595;", letlat="S", arrlng="&8592;", letlng="W"))
+        self.assertHTMLEqual(page, expected_result.format(arrlat="&darr;", letlat="S", arrlng="&larr;", letlng="W"))
 
 
 @tag('templatetags')

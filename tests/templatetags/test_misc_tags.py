@@ -96,7 +96,7 @@ class ListTagTests(TestCase):
     def test_list_output(self):
         # A list of parameters is expected to result in a list containing those parameters.
         page = Template("{% load list from utils %}{% list 'aa' +2 'bb' -2 'cc' %}").render(Context())
-        self.assertEqual(page, "[&#39;aa&#39;, 2, &#39;bb&#39;, -2, &#39;cc&#39;]")
+        self.assertHTMLEqual(page, "[&#39;aa&#39;, 2, &#39;bb&#39;, -2, &#39;cc&#39;]")
 
         page = Template(
             "{% load list from utils %}"
@@ -158,7 +158,7 @@ class DictTagTests(TestCase):
     def test_dict_output(self):
         # A list of parameters is expected to result in a dict containing those keys and values.
         page = Template("{% load dict from utils %}{% dict aa=True bb=False cc=None %}").render(Context())
-        self.assertEqual(page, "{&#39;aa&#39;: True, &#39;bb&#39;: False, &#39;cc&#39;: None}")
+        self.assertHTMLEqual(page, "{&#39;aa&#39;: True, &#39;bb&#39;: False, &#39;cc&#39;: None}")
 
         page = Template(
             "{% load dict from utils %}"
