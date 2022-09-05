@@ -55,35 +55,6 @@ from .validators import (
     validate_not_too_many_caps, validate_size,
 )
 
-MRS, MR = 'Mrs', 'Mr'
-TITLE_CHOICES = (
-    (None, ""),
-    (MRS, _("Mrs")),
-    (MR, _("Mr")),
-)
-
-PRONOUN_CHOICES = (  # In Django 3.x: TextChoices enum.
-    (None, ""),
-    ('She', pgettext_lazy("Personal Pronoun", "she")),
-    ('He', pgettext_lazy("Personal Pronoun", "he")),
-    ('They', pgettext_lazy("Personal Pronoun", "they")),
-    ('Ze', pgettext_lazy("Personal Pronoun", "ze")),
-    ('They/She', pgettext_lazy("Personal Pronoun", "they or she")),
-    ('They/He', pgettext_lazy("Personal Pronoun", "they or he")),
-    ('Ze/She', pgettext_lazy("Personal Pronoun", "ze or she")),
-    ('Ze/He', pgettext_lazy("Personal Pronoun", "ze or he")),
-    ('Any', pgettext_lazy("Personal Pronoun", "any")),
-)
-PRONOUN_NEUTRAL_CHOICE = next(p for p in PRONOUN_CHOICES if p[0] == 'They')
-
-MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
-PHONE_TYPE_CHOICES = (
-    (MOBILE, _("mobile")),
-    (HOME, _("home")),
-    (WORK, _("work")),
-    (FAX, _("fax")),
-)
-
 
 class LocationType(Enum):
     CITY = 'C'
@@ -360,9 +331,25 @@ class VisibilitySettingsForPublicEmail(VisibilitySettings):
 
 class Profile(TrackingModel, TimeStampedModel):
     INCOGNITO = pgettext_lazy("Name", "Anonymous")
-    PRONOUN_ANY = PRONOUN_CHOICES[-1][0]
-    PRONOUN_NEUTRAL = PRONOUN_NEUTRAL_CHOICE[0]
-    PRONOUN_NEUTRAL_VALUE = PRONOUN_NEUTRAL_CHOICE[1]
+
+    class Titles(models.TextChoices):
+        MRS = 'Mrs', _("Mrs")
+        MR = 'Mr', _("Mr")
+
+        __empty__ = ""
+
+    class Pronouns(models.TextChoices):
+        FEMININE = 'She', pgettext_lazy("Personal Pronoun", "she")
+        MASCULINE = 'He', pgettext_lazy("Personal Pronoun", "he")
+        NEUTRAL = 'They', pgettext_lazy("Personal Pronoun", "they")
+        NEUTRAL_ALT = 'Ze', pgettext_lazy("Personal Pronoun", "ze")
+        NEUTRAL_OR_F = 'They/She', pgettext_lazy("Personal Pronoun", "they or she")
+        NEUTRAL_OR_M = 'They/He', pgettext_lazy("Personal Pronoun", "they or he")
+        NEUTRAL_ALT_OR_F = 'Ze/She', pgettext_lazy("Personal Pronoun", "ze or she")
+        NEUTRAL_ALT_OR_M = 'Ze/He', pgettext_lazy("Personal Pronoun", "ze or he")
+        ANY = 'Any', pgettext_lazy("Personal Pronoun", "any")
+
+        __empty__ = ""
 
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -370,7 +357,7 @@ class Profile(TrackingModel, TimeStampedModel):
     title = models.CharField(
         _("title"),
         blank=True,
-        max_length=5, choices=TITLE_CHOICES)
+        max_length=5, choices=Titles.choices)
     first_name = models.CharField(
         _("first name"),
         blank=True,
@@ -394,7 +381,7 @@ class Profile(TrackingModel, TimeStampedModel):
     pronoun = models.CharField(
         _("personal pronoun"),
         blank=True,
-        max_length=10, choices=PRONOUN_CHOICES)
+        max_length=10, choices=Pronouns.choices)
     birth_date = models.DateField(
         _("birth date"),
         null=True, blank=True,
@@ -992,8 +979,12 @@ class Place(TrackingModel, TimeStampedModel):
 
 
 class Phone(TrackingModel, TimeStampedModel):
-    PHONE_TYPE_CHOICES = PHONE_TYPE_CHOICES
-    MOBILE, HOME, WORK, FAX = 'm', 'h', 'w', 'f'
+
+    class PhoneType(models.TextChoices):
+        MOBILE = 'm', pgettext_lazy("Phone Type", "mobile")
+        HOME = 'h', pgettext_lazy("Phone Type", "home")
+        WORK = 'w', pgettext_lazy("Phone Type", "work")
+        FAX = 'f', pgettext_lazy("Phone Type", "fax")
 
     profile = models.ForeignKey(
         'hosting.Profile', verbose_name=_("profile"),
@@ -1011,7 +1002,7 @@ class Phone(TrackingModel, TimeStampedModel):
     type = models.CharField(
         _("phone type"),
         max_length=3,
-        choices=PHONE_TYPE_CHOICES, default=MOBILE)
+        choices=PhoneType.choices, default=PhoneType.MOBILE)
     visibility = models.OneToOneField(
         'hosting.VisibilitySettingsForPhone',
         related_name='%(class)s', on_delete=models.PROTECT)
@@ -1028,13 +1019,13 @@ class Phone(TrackingModel, TimeStampedModel):
 
     @property
     def icon(self):
-        if self.type == self.WORK:
+        if self.type == self.PhoneType.WORK:
             cls = "ps-phone"
-        elif self.type == self.MOBILE:
+        elif self.type == self.PhoneType.MOBILE:
             cls = "ps-mobile-phone"
-        elif self.type == self.FAX:
+        elif self.type == self.PhoneType.FAX:
             cls = "ps-fax"
-        else:  # self.HOME or ''
+        else:  # PhoneType.HOME or ''
             cls = "ps-old-phone"
         title = self.get_type_display().capitalize() or _("type not indicated")
         template = ('<span class="fa {cls}" title="{title}" '

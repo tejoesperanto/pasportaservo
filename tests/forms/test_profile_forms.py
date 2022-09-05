@@ -16,7 +16,6 @@ from hosting.forms.profiles import (
     PreferenceOptinsForm, ProfileCreateForm,
     ProfileEmailUpdateForm, ProfileForm,
 )
-from hosting.models import MR, MRS, PRONOUN_CHOICES
 from hosting.widgets import ClearableWithPreviewImageInput
 
 from ..assertions import AdditionalAsserts
@@ -448,10 +447,10 @@ class ProfileFormTestingBase:
                     self.faker.file_name(extension='pcx'), self.faker.image(size=(10, 10), image_format='pcx')
                 )
                 data.update({
-                    'title': self.faker.random_element(elements=[MRS, MR]),
+                    'title': self.faker.random_element(elements=filter(None, profile.Titles.values)),
                     'description': self.faker.text(),
                     'gender': self.faker.word(),
-                    'pronoun': self.faker.random_element(elements=[ch[0] for ch in PRONOUN_CHOICES]),
+                    'pronoun': self.faker.random_element(elements=profile.Pronouns.values),
                     'avatar': avatar_file,
                 })
             with self.subTest(dataset=dataset_type, condition=profile_tag):

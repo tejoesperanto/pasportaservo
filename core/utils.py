@@ -6,7 +6,7 @@ from functools import reduce
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.utils.functional import keep_lazy_text, lazy
-from django.utils.http import is_safe_url
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.safestring import mark_safe
 
 import requests
@@ -76,9 +76,10 @@ def sanitize_next(request, from_post=False, url=None):
         redirect = param_source.get(settings.REDIRECT_FIELD_NAME, default='').strip()
     else:
         redirect = url
-    if redirect and is_safe_url(url=redirect,
-                                allowed_hosts={request.get_host()},
-                                require_https=request.is_secure()):
+    if redirect and url_has_allowed_host_and_scheme(
+                            url=redirect,
+                            allowed_hosts={request.get_host()},
+                            require_https=request.is_secure()):
         return redirect
     else:
         return ''

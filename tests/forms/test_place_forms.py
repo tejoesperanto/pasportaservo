@@ -950,11 +950,11 @@ class PlaceFormTestingBase:
         test_data = [
             (
                 [""], False,
-                {'en': "\"\" is not a valid value", 'eo': "\"\" ne estas valida valoro"}
+                {'en': "“” is not a valid value", 'eo': "“” estas neakceptebla valoro"}
             ),
             (
                 ["abc"], False,
-                {'en': "\"abc\" is not a valid value", 'eo': "\"abc\" ne estas valida valoro"}
+                {'en': "“abc” is not a valid value", 'eo': "“abc” estas neakceptebla valoro"}
             ),
             (
                 [-3], False,

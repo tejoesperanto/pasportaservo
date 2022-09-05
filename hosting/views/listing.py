@@ -48,8 +48,8 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
     def dispatch(self, request, *args, **kwargs):
         self.country = Country(kwargs['country_code'])
         kwargs['auth_base'] = self.country
-        self.in_book_status = {'0': False, '1': True, None: None}[kwargs['in_book']]
-        self.invalid_emails = kwargs['email']
+        self.in_book_status = {'0': False, '1': True, None: None}[kwargs.get('in_book')]
+        self.invalid_emails = kwargs.get('email')
         return super().dispatch(request, *args, **kwargs)
 
     def get_owner(self, object):
@@ -89,7 +89,10 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
                 default=False, output_field=BooleanField()
             ),
         )
-        phones_prefetch = Prefetch('owner__phones', queryset=Phone.objects_raw.select_related('visibility'))
+        phones_prefetch = Prefetch(
+            'owner__phones',
+            queryset=Phone.objects_raw.select_related('visibility')
+        )
         return (qs.select_related('owner', 'owner__user')
                   .prefetch_related(phones_prefetch)
                   .order_by('-confirmed', 'checked', 'owner__last_name'))
@@ -99,9 +102,12 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
 
         in_book_status_filter = Q(in_book=True) & Q(visibility__visible_in_book=True)
         counts_overall = {
-            'in_book_count': Count('pk', filter=in_book_status_filter),
-            'not_in_book_count': Count('pk', filter=~in_book_status_filter),
-            'invalid_emails_count': Count('pk', filter=Q(owner__user__email__startswith=settings.INVALID_PREFIX)),
+            'in_book_count':
+                Count('pk', filter=in_book_status_filter),
+            'not_in_book_count':
+                Count('pk', filter=~in_book_status_filter),
+            'invalid_emails_count':
+                Count('pk', filter=Q(owner__user__email__startswith=settings.INVALID_PREFIX)),
         }
         counts_qs = self.base_qs._clone()
         counts_qs.query.annotations.clear()
@@ -145,17 +151,17 @@ class SearchView(PlacePaginatedListView):
             return HttpResponseRedirect(self.transpose_query_to_url_kwarg(request.GET))
 
         self.prepare_search(
-            request, kwargs['query'],
+            request, kwargs.get('query'),
             request.session.pop('extended_search_data', None),
-            kwargs['cache'])
+            kwargs.get('cache'))
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        if not kwargs['query'] and request.POST.get(settings.SEARCH_FIELD_NAME):
+        if not kwargs.get('query') and request.POST.get(settings.SEARCH_FIELD_NAME):
             request.session['extended_search_data'] = request.POST
             return HttpResponseRedirect(self.transpose_query_to_url_kwarg(request.POST))
 
-        self.prepare_search(request, kwargs['query'], request.POST, kwargs['cache'])
+        self.prepare_search(request, kwargs.get('query'), request.POST, kwargs.get('cache'))
         return super().get(request, *args, **kwargs)
 
     def transpose_query_to_url_kwarg(self, source):

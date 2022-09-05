@@ -61,7 +61,7 @@ class SupervisorsView(generic.TemplateView):
         # and convert back to a True/False status.
         code_from_kwarg = {v: k for k, v in self.book_codes.items()}
         code_from_kwarg.update({None: False})
-        self.in_book_query = code_from_kwarg[kwargs['in_book']]
+        self.in_book_query = code_from_kwarg[kwargs.get('in_book')]
         if self.in_book_query and not request.user.has_perm(PERM_SUPERVISOR):
             # The 'by book status' view is only available to supervisors.
             return HttpResponseRedirect(format_lazy(

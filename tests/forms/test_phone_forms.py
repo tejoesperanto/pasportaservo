@@ -8,7 +8,7 @@ from factory import Faker
 
 from core.models import SiteConfiguration
 from hosting.forms.phones import PhoneCreateForm, PhoneForm
-from hosting.models import PHONE_TYPE_CHOICES, Phone
+from hosting.models import Phone
 
 from ..factories import LocaleFaker, PhoneFactory, ProfileFactory
 
@@ -146,7 +146,7 @@ class PhoneFormTests(WebTest):
         # Resaving the same form with change in non-number related fields is expected to be valid.
         data = form.initial.copy()
         data['country'] = self.faker.random_element(elements=set(self.all_countries) - set([data['country']]))
-        data['type'] = self.faker.random_element(elements=[ch[0] for ch in PHONE_TYPE_CHOICES])
+        data['type'] = self.faker.random_element(elements=Phone.PhoneType.values)
         form = self._init_form(data=data, instance=self.phone1_valid, owner=self.profile_one)
         self.assertTrue(form.is_valid())
         phone = form.save(commit=False)
@@ -203,7 +203,7 @@ class PhoneFormTests(WebTest):
             with self.subTest(tag=case_tag):
                 form_data = {
                     'country': self.faker.random_element(elements=remaining_countries),
-                    'type': self.faker.random_element(elements=[ch[0] for ch in PHONE_TYPE_CHOICES]),
+                    'type': self.faker.random_element(elements=Phone.PhoneType.values),
                     'number': other_phone.number,
                     'comments': self.faker.sentence(),
                 }
@@ -288,7 +288,7 @@ class PhoneCreateFormTests(PhoneFormTests):
         # Form with number not appearing anywhere else is expected to be valid.
         form_data = {
             'country': self.faker.random_element(elements=self.all_countries),
-            'type': self.faker.random_element(elements=[ch[0] for ch in PHONE_TYPE_CHOICES]),
+            'type': self.faker.random_element(elements=Phone.PhoneType.values),
             'number': PhoneFactory.number.evaluate(None, None, None),
             'comments': self.faker.sentence(),
         }
@@ -313,7 +313,7 @@ class PhoneCreateFormTests(PhoneFormTests):
             user=self.profile_two.user,
         )
         page.form['country'] = self.faker.random_element(elements=self.all_countries)
-        page.form['type'] = self.faker.random_element(elements=[ch[0] for ch in PHONE_TYPE_CHOICES])
+        page.form['type'] = self.faker.random_element(elements=Phone.PhoneType.values)
         number = PhoneFactory.number.evaluate(None, None, None)
         page.form['number'] = number.as_international
         page.form['comments'] = comment = (

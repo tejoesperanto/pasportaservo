@@ -1373,7 +1373,6 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
 
     @patch('core.mixins.is_password_compromised')
     @patch('django.contrib.auth.views.default_token_generator.check_token')
-    @override_settings(LANGUAGE_CODE='en')
     def test_form_submit(self, mock_check_token, mock_pwd_check):
         mock_check_token.return_value = True  # Bypass Django's token verification.
         user_id = urlsafe_base64_encode(force_bytes(self.user.pk))

@@ -16,9 +16,7 @@ from phonenumber_field.phonenumber import PhoneNumber
 from slugify import slugify
 
 from hosting.countries import COUNTRIES_DATA, countries_with_mandatory_region
-from hosting.models import (
-    MR, MRS, PHONE_TYPE_CHOICES, PRONOUN_CHOICES, LocationType,
-)
+from hosting.models import LocationType, Phone, Profile
 from maps import SRID
 from maps.data import COUNTRIES_GEO
 
@@ -190,7 +188,7 @@ class ProfileFactory(DjangoModelFactory):
         locale = None
 
     user = factory.SubFactory('tests.factories.UserFactory', profile=None)
-    title = Faker('random_element', elements=["", MRS, MR])
+    title = Faker('random_element', elements=[title or "" for title in Profile.Titles.values])
     generated_name = factory.LazyAttribute(
         lambda obj:
             LocaleFaker._get_faker(obj.locale).pystr_format(string_format='{{first_name}}//{{last_name}}')
@@ -199,7 +197,7 @@ class ProfileFactory(DjangoModelFactory):
     last_name = factory.LazyAttribute(lambda obj: obj.generated_name.split('//')[1])
     names_inversed = False
     pronoun = Faker(
-        'random_element', elements=[ch[0] for ch in PRONOUN_CHOICES if ch[0]]
+        'random_element', elements=list(filter(None, Profile.Pronouns.values))
     )
     birth_date = Faker('date_between', start_date='-100y', end_date='-18y')
     death_date = factory.Maybe(
@@ -296,7 +294,7 @@ class PhoneFactory(DjangoModelFactory):
 
     country = Faker('random_element', elements=COUNTRIES.keys())
     comments = Faker('text', max_nb_chars=20)
-    type = Faker('random_element', elements=[ch[0] for ch in PHONE_TYPE_CHOICES])
+    type = Faker('random_element', elements=Phone.PhoneType.values)
 
 
 class ConditionFactory(DjangoModelFactory):

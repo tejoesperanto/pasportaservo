@@ -10,7 +10,7 @@ from factory import Faker
 from hosting.forms.familymembers import (
     FamilyMemberCreateForm, FamilyMemberForm,
 )
-from hosting.models import MR, MRS
+from hosting.models import FamilyMember
 
 from ..factories import LocaleFaker, PlaceFactory, ProfileSansAccountFactory
 
@@ -351,8 +351,10 @@ class FamilyMemberFormTests(WebTest):
             'first_name': LocaleFaker._get_faker(locale='lt').first_name(),
             'last_name': LocaleFaker._get_faker(locale='lv').last_name(),
             'names_inversed': True,
-            'birth_date': self.faker.date_between(start_date='-99y', end_date=date.today()),
-            'title': self.faker.random_element(elements=[MRS, MR]),
+            'birth_date':
+                self.faker.date_between(start_date='-99y', end_date=date.today()),
+            'title':
+                self.faker.random_element(elements=filter(None, FamilyMember.Titles.values)),
         }
         place = for_place or self.place_with_family
         form = self._init_form(data, place=place)
@@ -443,7 +445,7 @@ class FamilyMemberCreateFormTests(FamilyMemberFormTests):
         )
         page.form['first_name'] = fname = LocaleFaker._get_faker(locale='et').first_name()
         page.form['last_name'] = lname = LocaleFaker._get_faker(locale='fi').last_name()
-        page.form['title'] = MR
+        page.form['title'] = FamilyMember.Titles.MR
         page = page.form.submit()
         self.assertRedirects(
             page,
@@ -457,7 +459,7 @@ class FamilyMemberCreateFormTests(FamilyMemberFormTests):
         self.assertEqual(profile_new.first_name, fname)
         self.assertEqual(profile_new.last_name, lname)
         self.assertEqual(profile_new.birth_date, None)
-        self.assertEqual(profile_new.title, MR)
+        self.assertEqual(profile_new.title, FamilyMember.Titles.MR)
 
     def test_form_submit_anonymous_family(self):
         place_no_family = PlaceFactory()
@@ -467,7 +469,7 @@ class FamilyMemberCreateFormTests(FamilyMemberFormTests):
                 'place_pk': place_no_family.pk}),
             user=place_no_family.owner.user,
         )
-        page.form['title'] = MRS
+        page.form['title'] = FamilyMember.Titles.MRS
         page = page.form.submit()
         self.assertRedirects(
             page,
@@ -481,4 +483,4 @@ class FamilyMemberCreateFormTests(FamilyMemberFormTests):
         self.assertEqual(family[0].first_name, "")
         self.assertEqual(family[0].last_name, "")
         self.assertEqual(family[0].birth_date, None)
-        self.assertEqual(family[0].title, MRS)
+        self.assertEqual(family[0].title, FamilyMember.Titles.MRS)

@@ -74,13 +74,15 @@
         <hr />
         <div role="navigation">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" {% if not view.in_book_status %}class="active"{% endif %}>
-                    <a href="{% url 'supervisors' %}#countries-available" aria-controls="countries-available" role="tab" data-toggle="tab">
+                <li role="presentation" {% if not view.in_book_query %}class="active"{% endif %}>
+                    <a href="{% url 'supervisors' %}#countries-available"
+                       aria-controls="countries-available" role="tab" data-toggle="tab" aria-expanded="{{ view.in_book_query|yesno:"false,true" }}">
                         {% trans "All hosts" %}
                     </a>
                 </li>
-                <li role="presentation" {% if view.in_book_status %}class="active"{% endif %}>
-                    <a href="{% url 'supervisors' in_book=1 %}#countries-in_book" aria-controls="countries-in_book" role="tab" data-toggle="tab">
+                <li role="presentation" {% if view.in_book_query %}class="active"{% endif %}>
+                    <a href="{% url 'supervisors' in_book=1 %}#countries-in_book"
+                       aria-controls="countries-in_book" role="tab" data-toggle="tab" aria-expanded="{{ view.in_book_query|yesno:"true,false" }}">
                         {% trans "In the book" %}
                     </a>
                 </li>

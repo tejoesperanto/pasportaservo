@@ -56,6 +56,11 @@ class PlaceForm(forms.ModelForm):
         widgets = {
             'short_description': forms.Textarea(attrs={'rows': 3}),
         }
+        error_messages = {
+            'conditions': {
+                'invalid_pk_value': _("“%(pk)s” is not a valid value."),
+            },
+        }
 
     class _validation_meta:
         meeting_required_fields = ['city', ]

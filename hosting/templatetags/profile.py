@@ -113,12 +113,12 @@ def format_pronoun(profile, tag=''):
 @register.filter
 def get_pronoun(profile):
     if profile and profile.pronoun:
-        if profile.pronoun == profile.PRONOUN_ANY:
-            return profile.PRONOUN_NEUTRAL_VALUE
+        if profile.pronoun == profile.Pronouns.ANY:
+            return profile.Pronouns.NEUTRAL.label
         else:
             return profile.get_pronoun_parts()[0]
     else:
-        return Profile.PRONOUN_NEUTRAL_VALUE
+        return Profile.Pronouns.NEUTRAL.label
 
 
 @register.filter

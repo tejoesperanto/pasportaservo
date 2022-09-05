@@ -1743,6 +1743,11 @@ msgid "You already have this telephone number."
 msgstr "Vi jam indikis tian telefonnumeron."
 
 #: hosting/forms/places.py
+#, python-format
+msgid "“%(pk)s” is not a valid value."
+msgstr "“%(pk)s” estas neakceptebla valoro."
+
+#: hosting/forms/places.py
 msgid "Choose your conditions..."
 msgstr "Elektu viajn kondiĉojn…"
 
@@ -1910,6 +1915,53 @@ msgid "Email address"
 msgstr "Retpoŝta adreso"
 
 #: hosting/models.py
+msgid "deleted on"
+msgstr "forigita je"
+
+#: hosting/models.py
+msgid "checked on"
+msgstr "kontrolita je"
+
+#: hosting/models.py
+msgctxt "Noun"
+msgid "Unknown"
+msgstr "Nekonataĵo"
+
+#: hosting/models.py
+msgid "content id"
+msgstr "enhava identigilo"
+
+#: hosting/models.py
+msgid "content type"
+msgstr "enhava tipo"
+
+#: hosting/models.py
+msgid "visible online for all"
+msgstr "videbla rete al ĉiuj"
+
+#: hosting/models.py
+msgid "visible online w/authorization"
+msgstr "videbla rete kun permeso"
+
+#: hosting/models.py
+msgid "visible in the book"
+msgstr "videbla en la libreto"
+
+#: hosting/models.py
+msgid "visibility settings"
+msgstr "videbligo-agordoj"
+
+#: hosting/models.py
+#, python-brace-format
+msgid "Settings of visibility for {type}"
+msgstr "Agordoj de videbligo por {type}"
+
+#: hosting/models.py
+msgctxt "Name"
+msgid "Anonymous"
+msgstr "Anonimo"
+
+#: hosting/models.py
 msgid "Mrs"
 msgstr "S-ino"
 
@@ -1961,69 +2013,6 @@ msgstr "ĝi aŭ li"
 msgctxt "Personal Pronoun"
 msgid "any"
 msgstr "ajna"
-
-#: hosting/models.py
-msgid "mobile"
-msgstr "poŝtelefono"
-
-#: hosting/models.py
-msgid "home"
-msgstr "hejma"
-
-#: hosting/models.py
-msgid "work"
-msgstr "laboreja"
-
-#: hosting/models.py
-msgid "fax"
-msgstr "fakso"
-
-#: hosting/models.py
-msgid "deleted on"
-msgstr "forigita je"
-
-#: hosting/models.py
-msgid "checked on"
-msgstr "kontrolita je"
-
-#: hosting/models.py
-msgctxt "Noun"
-msgid "Unknown"
-msgstr "Nekonataĵo"
-
-#: hosting/models.py
-msgid "content id"
-msgstr "enhava identigilo"
-
-#: hosting/models.py
-msgid "content type"
-msgstr "enhava tipo"
-
-#: hosting/models.py
-msgid "visible online for all"
-msgstr "videbla rete al ĉiuj"
-
-#: hosting/models.py
-msgid "visible online w/authorization"
-msgstr "videbla rete kun permeso"
-
-#: hosting/models.py
-msgid "visible in the book"
-msgstr "videbla en la libreto"
-
-#: hosting/models.py
-msgid "visibility settings"
-msgstr "videbligo-agordoj"
-
-#: hosting/models.py
-#, python-brace-format
-msgid "Settings of visibility for {type}"
-msgstr "Agordoj de videbligo por {type}"
-
-#: hosting/models.py
-msgctxt "Name"
-msgid "Anonymous"
-msgstr "Anonimo"
 
 #: hosting/models.py
 msgid "first name"
@@ -2277,6 +2266,26 @@ msgstr "loĝejo"
 #: hosting/models.py
 msgid "places"
 msgstr "loĝejoj"
+
+#: hosting/models.py
+msgctxt "Phone Type"
+msgid "mobile"
+msgstr "poŝtelefono"
+
+#: hosting/models.py
+msgctxt "Phone Type"
+msgid "home"
+msgstr "hejma"
+
+#: hosting/models.py
+msgctxt "Phone Type"
+msgid "work"
+msgstr "laboreja"
+
+#: hosting/models.py
+msgctxt "Phone Type"
+msgid "fax"
+msgstr "fakso"
 
 #: hosting/models.py
 msgid ""

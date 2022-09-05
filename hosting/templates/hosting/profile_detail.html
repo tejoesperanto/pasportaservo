@@ -259,7 +259,7 @@
                         <span>{% if profile.pronoun %}; {% else %}. {% endif %}</span>
                     {% endif %}
                     {% if profile.pronoun %}
-                        {% if profile.pronoun == profile.PRONOUN_ANY %}
+                        {% if profile.pronoun == profile.Pronouns.ANY %}
                             <span>{% trans "Talking about me, you may use any pronoun." %}</span>
                         {% else %}
                             <span>{% blocktrans with pronoun=profile|format_pronoun:"<em>" trimmed %}
