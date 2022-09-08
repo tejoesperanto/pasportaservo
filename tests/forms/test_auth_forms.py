@@ -1,8 +1,6 @@
 import re
-from unittest import skipIf
 from unittest.mock import patch
 
-import django
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.views import INTERNAL_RESET_SESSION_TOKEN
@@ -1367,7 +1365,6 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
         self.assertEqual(len(page.forms), 1)
         self.assertIsInstance(page.context['form'], SystemPasswordResetForm)
 
-    @skipIf(django.VERSION < (3, 0, 0), 'Localisation of reset URL token is in Dj3.0 and later')
     def test_view_page_localised(self):
         self.test_view_page(lang='eo')
 
