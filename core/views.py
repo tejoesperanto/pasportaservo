@@ -25,8 +25,8 @@ from django.template.loader import get_template
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.utils.decorators import classproperty, method_decorator
-from django.utils.functional import cached_property
+from django.utils.decorators import method_decorator
+from django.utils.functional import cached_property, classproperty
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
