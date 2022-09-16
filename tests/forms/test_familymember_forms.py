@@ -34,14 +34,10 @@ class FamilyMemberFormTests(WebTest):
         cls.place_with_family = PlaceFactory()
         cls.profile_one = ProfileSansAccountFactory(pronoun="", description="")
         cls.place_with_family.family_members.add(cls.profile_one)
-        # Verify that family member is stored and force populating cache.
-        assert len(cls.place_with_family.family_members_cache()) == 1
         cls.place_anon_family = PlaceFactory()
         cls.profile_two = ProfileSansAccountFactory(
             first_name="", last_name="", pronoun="", description="")
         cls.place_anon_family.family_members.add(cls.profile_two)
-        # Verify that family member is stored and force populating cache.
-        assert len(cls.place_anon_family.family_members_cache()) == 1
 
     def setUp(self):
         self.profile_one.refresh_from_db()
@@ -56,6 +52,7 @@ class FamilyMemberFormTests(WebTest):
             data=data, instance=place.family_members_cache()[member_index], place=place)
 
     def test_init(self):
+        len(self.place_with_family.family_members_cache())  # Force populating cache.
         with self.assertNumQueries(0):
             form = self._init_form(place=self.place_with_family)
         # Verify that the expected fields are part of the form.
@@ -68,6 +65,7 @@ class FamilyMemberFormTests(WebTest):
         self.assertEqual(form.fields['first_name'].help_text, "")
         self.assertEqual(form.fields['last_name'].help_text, "")
         # Help text for 'anonymous' family is expected to be non-empty.
+        len(self.place_anon_family.family_members_cache())  # Force populating cache.
         with self.assertNumQueries(0):
             form = self._init_form(place=self.place_anon_family)
         with override_settings(LANGUAGE_CODE='en'):
@@ -96,7 +94,7 @@ class FamilyMemberFormTests(WebTest):
 
     def test_blank_data_for_regular_small_family(self):
         # Empty form for member of place's 'regular' 1-person family is expected to be invalid.
-        with self.assertNumQueries(0):
+        with self.assertNumQueries(1):
             form = self._init_form(data={}, place=self.place_with_family)
             self.assertFalse(form.is_valid())
         with override_settings(LANGUAGE_CODE='en'):
@@ -143,6 +141,7 @@ class FamilyMemberFormTests(WebTest):
 
     def test_blank_data_for_anonymous_family(self):
         # Empty form for member of place's 'anonymous' family is expected to be valid.
+        len(self.place_anon_family.family_members_cache())  # Force populating cache.
         with self.assertNumQueries(0):
             form = self._init_form(data={}, place=self.place_anon_family)
             self.assertTrue(form.is_valid(), msg=repr(form.errors))

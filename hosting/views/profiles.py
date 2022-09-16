@@ -19,7 +19,7 @@ from django.views.decorators.vary import vary_on_headers
 from braces.views import FormInvalidMessageMixin
 
 from core.auth import (
-    ADMIN, OWNER, PERM_SUPERVISOR, SUPERVISOR, VISITOR, AuthMixin,
+    ADMIN, ANONYMOUS, OWNER, PERM_SUPERVISOR, SUPERVISOR, VISITOR, AuthMixin,
 )
 from core.mixins import LoginRequiredMixin
 
@@ -49,6 +49,7 @@ class ProfileCreateView(
             # Redirect to profile edit page if user is logged in & profile already exists.
             assert not request.user.is_anonymous
             profile = Profile.get_basic_data(request, user=request.user)
+            self.role = OWNER
             return HttpResponseRedirect(profile.get_edit_url(), status=301)
         except Profile.DoesNotExist:
             # Cache the result for the reverse related descriptor, to spare further DB queries.
@@ -58,6 +59,7 @@ class ProfileCreateView(
             kwargs['auth_base'] = Profile(user=copy(request.user))
             return super().dispatch(request, *args, **kwargs)
         except AssertionError:
+            self.role = ANONYMOUS
             # Redirect to registration page when user is not authenticated.
             return HttpResponseRedirect(reverse_lazy('register'), status=303)
 
@@ -234,7 +236,9 @@ class ProfileDetailView(
 
         display_phones = self.object.phones.filter(deleted=False)
         context['phones'] = display_phones
-        context['phones_public'] = display_phones.filter(visibility__visible_online_public=True).select_related(None)
+        context['phones_public'] = (display_phones
+                                    .filter(visibility__visible_online_public=True)
+                                    .select_related(None))
 
         return context
 
@@ -317,7 +321,7 @@ class ProfilePrivacyUpdateView(AuthMixin, ProfileMixin, generic.View):
                     err['_obj'] = repr(publish_formset[index].instance)
             logging.getLogger('PasportaServo.{module_}.{class_}'.format(
                 module_=__name__, class_=self.__class__.__name__
-            )).error(publish_formset.errors)
+            )).error(f'{publish_formset.non_form_errors()!r}, {publish_formset.errors}')
 
         optins_form = PreferenceOptinsForm(data=data, instance=profile.pref)
         optins_data_correct = optins_form.is_valid()
@@ -328,7 +332,13 @@ class ProfilePrivacyUpdateView(AuthMixin, ProfileMixin, generic.View):
             return JsonResponse({'result': matrix_data_correct and optins_data_correct})
         else:
             if not matrix_data_correct:
-                raise ValueError("Unexpected visibility cofiguration. Ref {}".format(publish_formset.errors))
+                raise ValueError(
+                    "Unexpected visibility configuration. "
+                    f"Ref {publish_formset.non_form_errors() + publish_formset.errors!r}"
+                )
             if not optins_data_correct:
-                raise ValueError("Opt-in/out preference could not be set. Ref {}".format(optins_form.errors))
+                raise ValueError(
+                    "Opt-in/out preference could not be set. "
+                    f"Ref {optins_form.errors!r}"
+                )
             return HttpResponseRedirect('{}#pR'.format(profile.get_edit_url()))

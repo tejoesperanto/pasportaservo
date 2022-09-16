@@ -1019,14 +1019,15 @@ class Phone(TrackingModel, TimeStampedModel):
 
     @property
     def icon(self):
-        if self.type == self.PhoneType.WORK:
-            cls = "ps-phone"
-        elif self.type == self.PhoneType.MOBILE:
-            cls = "ps-mobile-phone"
-        elif self.type == self.PhoneType.FAX:
-            cls = "ps-fax"
-        else:  # PhoneType.HOME or ''
-            cls = "ps-old-phone"
+        match self.type:
+            case self.PhoneType.WORK:
+                cls = "ps-phone"
+            case self.PhoneType.MOBILE:
+                cls = "ps-mobile-phone"
+            case self.PhoneType.FAX:
+                cls = "ps-fax"
+            case _:  # PhoneType.HOME or ''
+                cls = "ps-old-phone"
         title = self.get_type_display().capitalize() or _("type not indicated")
         template = ('<span class="fa {cls}" title="{title}" '
                     '      data-toggle="tooltip" data-placement="left"></span>')

@@ -1,10 +1,11 @@
-from django.test import tag
+from django.test import override_settings, tag
 from django.utils import timezone
 
 from django_webtest import WebTest
 from faker import Faker
 
 from tests.assertions import AdditionalAsserts
+from tests.factories import UserFactory
 
 from ..models import Post, PublishedManager, PublishedQueryset
 from .factories import PostFactory
@@ -15,39 +16,43 @@ class PostModelTests(AdditionalAsserts, WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.faker = Faker()
+        cls.basic_post = PostFactory()
 
     def test_field_max_lengths(self):
-        post = PostFactory.build()
-        self.assertEqual(post._meta.get_field('title').max_length, 200)
+        self.assertEqual(self.basic_post._meta.get_field('title').max_length, 200)
 
     def test_field_blanks(self):
-        post = PostFactory.build()
-        self.assertFalse(post._meta.get_field('title').blank)
-        self.assertFalse(post._meta.get_field('slug').blank)
-        self.assertTrue(post._meta.get_field('body').blank)
-        self.assertTrue(post._meta.get_field('description').blank)
-        self.assertTrue(post._meta.get_field('author').blank)
-        self.assertTrue(post._meta.get_field('pub_date').blank)
+        self.assertFalse(self.basic_post._meta.get_field('title').blank)
+        self.assertFalse(self.basic_post._meta.get_field('slug').blank)
+        self.assertTrue(self.basic_post._meta.get_field('body').blank)
+        self.assertTrue(self.basic_post._meta.get_field('description').blank)
+        self.assertTrue(self.basic_post._meta.get_field('author').blank)
+        self.assertTrue(self.basic_post._meta.get_field('pub_date').blank)
 
     def test_field_uniqueness(self):
-        post = PostFactory.build()
-        self.assertTrue(post._meta.get_field('slug').unique)
+        self.assertTrue(self.basic_post._meta.get_field('slug').unique)
 
     def test_ordering(self):
-        post = PostFactory.build()
-        self.assertEqual(post._meta.ordering, ['-pub_date', '-created'])
+        self.assertEqual(self.basic_post._meta.ordering, ['-pub_date', '-created'])
 
     def test_str(self):
-        post = PostFactory()
-        self.assertEqual(str(post), post.title)
+        self.assertEqual(str(self.basic_post), self.basic_post.title)
 
     def test_repr(self):
-        post = PostFactory()
-        self.assertSurrounding(repr(post), "<Post:", ">")
+        self.assertSurrounding(repr(self.basic_post), "<Post:", ">")
 
     def test_absolute_url(self):
-        post = PostFactory()
-        self.assertEqual(post.get_absolute_url(), f'/blogo/{post.slug}/')
+        expected_urls = {
+            'eo': '/blogo/{}/',
+            'en': '/blog/{}/',
+        }
+        for lang in expected_urls:
+            with override_settings(LANGUAGE_CODE=lang):
+                with self.subTest(LANGUAGE_CODE=lang):
+                    self.assertEqual(
+                        self.basic_post.get_absolute_url(),
+                        expected_urls[lang].format(self.basic_post.slug)
+                    )
 
     def test_save(self):
         SEPARATOR = "----"
@@ -181,10 +186,11 @@ class PublishedManagerTests(WebTest):
                 self.assertEqual(qs[i].has_more, flag)
 
     def test_published(self):
+        author = UserFactory(profile=None)
         Post.objects.bulk_create(
-            PostFactory.build_batch(2)
-            + PostFactory.build_batch(3, is_published=False)
-            + PostFactory.build_batch(3, will_be_published=True)
+            PostFactory.build_batch(2, author=author)
+            + PostFactory.build_batch(3, author=author, is_published=False)
+            + PostFactory.build_batch(3, author=author, will_be_published=True)
         )
         mgr = Post.objects
         posts = mgr.published()
@@ -199,9 +205,10 @@ class PublishedManagerTests(WebTest):
         self.assertEqual(len(mgr.published()), 0)
 
     def test_published_with_future_posts(self):
+        author = UserFactory(profile=None)
         Post.objects.bulk_create(
-            PostFactory.build_batch(3, is_published=False)
-            + PostFactory.build_batch(3, will_be_published=True)
+            PostFactory.build_batch(3, author=author, is_published=False)
+            + PostFactory.build_batch(3, author=author, will_be_published=True)
         )
         mgr = Post.objects
         self.assertEqual(len(mgr.published()), 0)
