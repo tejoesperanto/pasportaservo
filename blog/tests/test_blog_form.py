@@ -18,16 +18,25 @@ class PostFormTests(WebTest):
         # Verify that the expected fields are part of the form.
         self.assertEqual(set(expected_fields), set(form.fields))
 
-    @override_settings(LANGUAGE_CODE='en')
     def test_blank_data(self):
         # Empty form is expected to be invalid.
         form = PostForm({})
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {
-            'title': ["This field is required."],
-            'content': ["This field is required."],
-            'slug': ["This field is required."],
-        })
+        expected_errors = {
+            'en': ["This field is required."],
+            'eo': ["Ĉi tiu kampo estas deviga."],
+        }
+        for lang in expected_errors:
+            with override_settings(LANGUAGE_CODE=lang):
+                with self.subTest(LANGUAGE_CODE=lang):
+                    self.assertEqual(
+                        form.errors,
+                        {
+                            'title': expected_errors[lang],
+                            'content': expected_errors[lang],
+                            'slug': expected_errors[lang],
+                        }
+                    )
 
     def test_valid_data(self):
         stub = PostFactory.stub(author=None)

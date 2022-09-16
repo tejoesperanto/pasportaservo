@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from django.forms import modelformset_factory
 from django.forms.fields import BoundField
 from django.test import TestCase, override_settings, tag
@@ -485,21 +484,18 @@ class VisibilityFormSetTests(AdditionalAsserts, TestCase):
             'test-0-id': -1,
         }
         formset = self.form_set(profile=self.profile, data=data, prefix='block')
+        self.assertFalse(formset.is_valid())
         with override_settings(LANGUAGE_CODE='en'):
-            with self.assertRaises(ValidationError) as cm:
-                formset.is_valid()
             self.assertEqual(
-                str(cm.exception),
-                "['ManagementForm data is missing or has been tampered with']"
+                formset.non_form_errors(),
+                ["Form management data is missing or has been tampered with."]
             )
         with override_settings(LANGUAGE_CODE='eo'):
-            self.skipTest("Esperanto translation is wrong / missing.")
-            with self.assertRaises(ValidationError) as cm:
-                formset.is_valid()
             self.assertEqual(
-                str(cm.exception),
-                "['Datumoj de ManagementForm mankas aŭ estis malice modifitaj']"
+                formset.non_form_errors(),
+                ["Mastrumaj datumoj de formularo mankas aŭ estis malice modifitaj."]
             )
+        self.assertEqual(formset.errors, [])
 
     def test_tampering_too_many_forms(self):
         data = {

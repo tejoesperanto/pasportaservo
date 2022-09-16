@@ -70,7 +70,6 @@ INSTALLED_APPS = (
     'el_pagination',
     'logentry_admin',
     'phonenumber_field',
-    'bootstrapform',
     'postman',
     'sass_processor',
     'simplemde',
@@ -137,6 +136,7 @@ ROOT_URLCONF = 'pasportaservo.urls'
 WSGI_APPLICATION = 'pasportaservo.wsgi.application'
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 STATICFILES_FINDERS = global_settings.STATICFILES_FINDERS + [
     'sass_processor.finders.CssFinder',

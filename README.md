@@ -2,15 +2,15 @@
 
 [![TEJO](https://img.shields.io/badge/Projekto_de-TEJO-orange.svg)](https://tejo.org)
 [![Esperanto](https://img.shields.io/badge/Esperanto-jes-green.svg)](https://eo.wikipedia.org/wiki/Esperanto)
-[![Python 3.7](https://img.shields.io/badge/Python-3.7-blue.svg)](https://docs.python.org/3.7/)
-[![Django 2.2](https://img.shields.io/badge/Django-2.2-0C4B33.svg)](https://docs.djangoproject.com/en/2.2/)
+[![Python 3.10](https://img.shields.io/badge/Python-3.10-blue.svg)](https://docs.python.org/3.10/)
+[![Django 3.2](https://img.shields.io/badge/Django-3.2-0C4B33.svg)](https://docs.djangoproject.com/en/3.2/)
 [![HTTP](https://img.shields.io/badge/HTTP-2-blue.svg)](https://http2.github.io/)
 [![HTTPS](https://img.shields.io/badge/HTTPS-jes-green.svg)](https://www.ssllabs.com/ssltest/analyze.html?d=pasportaservo.org)
 [![GNU AGPLv3](https://img.shields.io/badge/licenco-GNU_AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0.html)
 [![Kontaktu nin en Telegramo https://t.me/joinchat/Bg10skEz3jFXpBk-nZAuiw](https://img.shields.io/badge/babili%20en-Telegramo-179CDE.svg)](https://t.me/joinchat/Bg10skEz3jFXpBk-nZAuiw)
 
 ![CI build](https://github.com/tejoesperanto/pasportaservo/actions/workflows/ci.yml/badge.svg)
-[![Codecov](https://img.shields.io/codecov/c/github/tejoesperanto/pasportaservo.svg)](https://codecov.io/gh/tejoesperanto/pasportaservo)
+[![Codecov](https://img.shields.io/codecov/c/github/tejoesperanto/pasportaservo.svg)](https://codecov.io/github/tejoesperanto/pasportaservo)
 
 
 ### [Pasporta Servo](https://eo.wikipedia.org/wiki/Pasporta_Servo) estas senpaga tutmonda gastiga servo.

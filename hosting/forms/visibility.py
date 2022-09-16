@@ -177,11 +177,18 @@ class VisibilityFormSetBase(forms.BaseModelFormSet):
     a specific profile. The linkage is to all relevant objects, such as places
     and phones, and to fields with selective display-ability.
     """
+
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
         self.read_only = kwargs.pop('read_only', False)
         self.modified_venue = kwargs.pop('dirty', None)
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            *args,
+            error_messages={
+                'missing_management_form':
+                    _("Form management data is missing or has been tampered with."),
+            },
+            **kwargs)
 
         PLACE, FAMILY_MEMBERS, PHONE, PUBLIC_EMAIL = (vis.type() for vis in [
             VisibilitySettingsForPlace, VisibilitySettingsForFamilyMembers,

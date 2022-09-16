@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2022-04-15 17:42+0000\n"
+"POT-Revision-Date: 2022-09-15 02:03+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -785,7 +785,7 @@ msgstr "Tutmonda Esperantista Junulara Organizo"
 msgid "Back to top of page"
 msgstr "Reen al paĝo-supro"
 
-#: core/templates/core/base_crispy_form.html core/templates/core/base_form.html
+#: core/templates/core/base_crispy_form.html
 #: hosting/templates/hosting/model_form.html
 #: hosting/templates/hosting/snippets/confirmed.html
 msgid "Confirm"
@@ -1898,6 +1898,10 @@ msgstr "kunloĝantoj"
 #: hosting/forms/visibility.py hosting/models.py
 msgid "public email"
 msgstr "publika retpoŝta adreso"
+
+#: hosting/forms/visibility.py
+msgid "Form management data is missing or has been tampered with."
+msgstr "Mastrumaj datumoj de formularo mankas aŭ estis malice modifitaj."
 
 #: hosting/forms/visibility.py hosting/templates/email/new_authorization.html
 #: hosting/templates/email/new_authorization.txt
