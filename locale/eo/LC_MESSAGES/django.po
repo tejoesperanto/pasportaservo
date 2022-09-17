@@ -1322,84 +1322,104 @@ msgstr ""
 "Kopiu la suban retpoŝtan adreson kaj sendu retmesaĝon pere de via kesto:"
 
 #: core/urls.py
-msgid "^register/$"
-msgstr "^registrado/$"
+msgctxt "URL"
+msgid "register/"
+msgstr "registrado/"
 
 #: core/urls.py
-msgid "^login/$"
-msgstr "^ensaluti/$"
+msgctxt "URL"
+msgid "login/"
+msgstr "ensaluti/"
 
 #: core/urls.py
-msgid "^login/reactivate/$"
-msgstr "^ensaluti/reaktivigo/$"
+msgctxt "URL"
+msgid "login/reactivate/"
+msgstr "ensaluti/reaktivigo/"
 
 #: core/urls.py
-msgid "^logout/$"
-msgstr "^elsaluti/$"
+msgctxt "URL"
+msgid "logout/"
+msgstr "elsaluti/"
 
 #: core/urls.py
-msgid "^agreement/"
-msgstr "^kontrakto/"
+msgctxt "URL"
+msgid "agreement/"
+msgstr "kontrakto/"
 
 #: core/urls.py
-msgid "^reject/$"
-msgstr "^rifuzi/$"
+msgctxt "URL"
+msgid "reject/"
+msgstr "rifuzi/"
 
 #: core/urls.py
-msgid "^account/settings/$"
-msgstr "^konto/agordoj/$"
+msgctxt "URL"
+msgid "account/settings/"
+msgstr "konto/agordoj/"
 
 #: core/urls.py
-msgid "^password/"
-msgstr "^pasvorto/"
+msgctxt "URL"
+msgid "password/"
+msgstr "pasvorto/"
 
 #: core/urls.py
-msgid "^done/$"
-msgstr "^fino/$"
+msgctxt "URL"
+msgid "done/"
+msgstr "fino/"
 
 #: core/urls.py
-msgid "^reset/"
-msgstr "^nova/"
+msgctxt "URL"
+msgid "reset/"
+msgstr "nova/"
 
 #: core/urls.py
-msgid "^sent/$"
-msgstr "^sukceso/$"
+msgctxt "URL"
+msgid "sent/"
+msgstr "sukceso/"
 
 #: core/urls.py
-msgid "^username/"
-msgstr "^salutnomo/"
+msgctxt "URL"
+msgid "username/"
+msgstr "salutnomo/"
 
 #: core/urls.py
-msgid "^remind/"
-msgstr "^memorigo/"
+msgctxt "URL"
+msgid "remind/"
+msgstr "memorigo/"
 
 #: core/urls.py hosting/urls.py
-msgid "^email/"
-msgstr "^retadreso/"
+msgctxt "URL"
+msgid "email/"
+msgstr "retadreso/"
 
 #: core/urls.py
-msgid "^verify/$"
-msgstr "^kontroli/$"
+msgctxt "URL"
+msgid "verify/"
+msgstr "kontroli/"
 
 #: core/urls.py
-msgid "^account/delete/$"
-msgstr "^konto/forigi/$"
+msgctxt "URL"
+msgid "account/delete/"
+msgstr "konto/forigi/"
 
 #: core/urls.py
-msgid "^feedback/$"
-msgstr "^opinio/$"
+msgctxt "URL"
+msgid "feedback/"
+msgstr "opinio/"
 
 #: core/urls.py
-msgid "^admin/"
-msgstr "^admin/"
+msgctxt "URL"
+msgid "admin/"
+msgstr "admin/"
 
 #: core/urls.py
-msgid "^mass-mail/"
-msgstr "^amassendado/"
+msgctxt "URL"
+msgid "mass-mail/"
+msgstr "amassendado/"
 
 #: core/urls.py
-msgid "^ok$"
-msgstr "^ĉu$"
+msgctxt "URL"
+msgid "ok"
+msgstr "ĉu"
 
 #: core/views.py
 msgid "You are logged in."
@@ -3681,112 +3701,129 @@ msgid "Travel advice"
 msgstr "Vojaĝ-averto"
 
 #: hosting/urls.py
-msgid "^profile/"
-msgstr "^profilo/"
+msgctxt "URL"
+msgid "profile/"
+msgstr "profilo/"
 
 #: hosting/urls.py
-msgid "^create/$"
-msgstr "^krei/$"
+msgctxt "URL"
+msgid "create/"
+msgstr "krei/"
 
 #: hosting/urls.py
-msgid "^edit/$"
-msgstr "^aktualigi/$"
+msgctxt "URL"
+msgid "edit/"
+msgstr "aktualigi/"
 
 #: hosting/urls.py
-msgid "^update/$"
-msgstr "^redakti/$"
+msgctxt "URL"
+msgid "update/"
+msgstr "redakti/"
 
 #: hosting/urls.py
-msgid "^email/$"
-msgstr "^retadreso/$"
+msgctxt "URL"
+msgid "delete/"
+msgstr "forigi/"
 
 #: hosting/urls.py
-msgid "^delete/$"
-msgstr "^forigi/$"
+msgctxt "URL"
+msgid "restore/"
+msgstr "restarigi/"
 
 #: hosting/urls.py
-msgid "^restore/$"
-msgstr "^restarigi/$"
-
-#: hosting/urls.py
-msgid "^settings/"
-msgstr "^agordoj/"
+msgctxt "URL"
+msgid "settings/"
+msgstr "agordoj/"
 
 #: hosting/urls.py pages/urls.py
-msgid "^privacy/$"
-msgstr "^privateco/$"
+msgctxt "URL"
+msgid "privacy/"
+msgstr "privateco/"
 
 #: hosting/urls.py
-msgid "^priority/phones/$"
-msgstr "^prefero-ordo/telefonoj/$"
+msgctxt "URL"
+msgid "priority/phones/"
+msgstr "prefero-ordo/telefonoj/"
 
 #: hosting/urls.py
-msgid "^staff/"
-msgstr "^reviziado/"
+msgctxt "URL"
+msgid "staff/"
+msgstr "reviziado/"
 
 #: hosting/urls.py
-msgid "^mark-invalid/$"
-msgstr "^funkcianta:0/$"
+msgctxt "URL"
+msgid "mark-invalid/"
+msgstr "funkcianta:0/"
 
 #: hosting/urls.py
-msgid "^mark-valid/$"
-msgstr "^funkcianta:1/$"
+msgctxt "URL"
+msgid "mark-valid/"
+msgstr "funkcianta:1/"
 
 #: hosting/urls.py
-msgid "^settings/$"
-msgstr "^agordoj/$"
+msgctxt "URL"
+msgid "place/"
+msgstr "ejo/"
 
 #: hosting/urls.py
-msgid "^place/"
-msgstr "^ejo/"
+msgctxt "URL"
+msgid "phone/"
+msgstr "telefono/"
 
 #: hosting/urls.py
-msgid "^phone/"
-msgstr "^telefono/"
+msgctxt "URL"
+msgid "detailed/"
+msgstr "detale/"
 
 #: hosting/urls.py
-msgid "^detailed/$"
-msgstr "^detale/$"
+msgctxt "URL"
+msgid "map/print/"
+msgstr "mapo/printi/"
 
 #: hosting/urls.py
-msgid "^map/print/$"
-msgstr "^mapo/printi/$"
+msgctxt "URL"
+msgid "location/update/"
+msgstr "lokigo/redakti/"
 
 #: hosting/urls.py
-msgid "^location/update/$"
-msgstr "^lokigo/redakti/$"
+msgctxt "URL"
+msgid "check/"
+msgstr "kontroli/"
 
 #: hosting/urls.py
-msgid "^check/$"
-msgstr "^kontroli/$"
+msgctxt "URL"
+msgid "block/"
+msgstr "bloki/"
 
 #: hosting/urls.py
-msgid "^block/$"
-msgstr "^bloki/$"
+msgctxt "URL"
+msgid "authorize/"
+msgstr "permesi/"
 
 #: hosting/urls.py
-msgid "^authorize/$"
-msgstr "^permesi/$"
+msgctxt "URL"
+msgid "family-member/"
+msgstr "kunloganto/"
 
 #: hosting/urls.py
-msgid "^family-member/"
-msgstr "^kunloganto/"
-
-#: hosting/urls.py
-msgid "^remove/$"
-msgstr "^forpreni/$"
+msgctxt "URL"
+msgid "remove/"
+msgstr "forpreni/"
 
 #: hosting/urls.py links/urls.py
-msgid "^current/"
-msgstr "^aktualigo/"
+msgctxt "URL"
+msgid "current/"
+msgstr "aktualigo/"
 
 #: hosting/urls.py
-msgid "^confirm/$"
-msgstr "^konfirmi/$"
+msgctxt "URL"
+msgid "confirm/"
+msgstr "konfirmi/"
 
 #: hosting/urls.py pages/urls.py
-msgid "^sv/"
-msgstr "^lo/"
+msgctxt "URL"
+msgid "sv/"
+msgstr "lo/"
 
 #: hosting/urls.py maps/urls.py pages/urls.py
 msgctxt "URL"
@@ -3794,8 +3831,9 @@ msgid "book"
 msgstr "libro"
 
 #: hosting/urls.py
-msgid "^search(?:/(?!@@)(?P<query>.+))?(?:/@@(?P<cache>[a-f0-9]+))?/$"
-msgstr "^esplori(?:/(?!@@)(?P<query>.+))?(?:/@@(?P<cache>[a-f0-9]+))?/$"
+msgctxt "URL"
+msgid "search"
+msgstr "esplori"
 
 #: hosting/validators.py
 #, python-format
@@ -3922,16 +3960,19 @@ msgstr ""
 "novan ligilon."
 
 #: links/urls.py
-msgid "^link/(?P<token>[\\w\\.\\-_]+)$"
-msgstr "^ligilo/(?P<token>[\\w\\.\\-_]+)$"
+msgctxt "URL"
+msgid "link/"
+msgstr "ligilo/"
 
 #: links/urls.py
-msgid "^confirmed/$"
-msgstr "^konfirmita/$"
+msgctxt "URL"
+msgid "confirmed/"
+msgstr "konfirmita/"
 
 #: links/urls.py
-msgid "^already_confirmed/$"
-msgstr "^jam_konfirmita/$"
+msgctxt "URL"
+msgid "already_confirmed/"
+msgstr "jam_konfirmita/"
 
 #: links/views.py
 #, python-brace-format
@@ -4049,20 +4090,24 @@ msgstr[0] "adreso konfirmita fare de uzanto"
 msgstr[1] "adresoj konfirmitaj fare de uzanto"
 
 #: pages/urls.py
-msgid "^about/$"
-msgstr "^pri-ni/$"
+msgctxt "URL"
+msgid "about/"
+msgstr "pri-ni/"
 
 #: pages/urls.py
-msgid "^terms-and-conditions/$"
-msgstr "^kond/$"
+msgctxt "URL"
+msgid "terms-and-conditions/"
+msgstr "kond/"
 
 #: pages/urls.py
-msgid "^faq/$"
-msgstr "^oftaj-demandoj/$"
+msgctxt "URL"
+msgid "faq/"
+msgstr "oftaj-demandoj/"
 
 #: pages/urls.py
-msgid "^supervisors/$"
-msgstr "^landaj-organizantoj/$"
+msgctxt "URL"
+msgid "supervisors/"
+msgstr "landaj-organizantoj/"
 
 #: pasportaservo/forms.py
 msgid "Cannot send the message: This user has passed away."
@@ -4482,16 +4527,24 @@ msgid "Write"
 msgstr "Verku"
 
 #: pasportaservo/urls.py
-msgid "^management/"
-msgstr "^administrilo/"
+msgctxt "URL"
+msgid "management/"
+msgstr "administrilo/"
 
 #: pasportaservo/urls.py
-msgid "^messages/"
-msgstr "^leteroj/"
+msgctxt "URL"
+msgid "messages/"
+msgstr "leteroj/"
 
 #: pasportaservo/urls.py
-msgid "^blog/"
-msgstr "^blogo/"
+msgctxt "URL"
+msgid "blog/"
+msgstr "blogo/"
+
+#: pasportaservo/urls.py
+msgctxt "URL"
+msgid "map/"
+msgstr "mapo/"
 
 #: shop/apps.py
 msgid "PS Shop"
@@ -4622,12 +4675,14 @@ msgstr ""
 "mesaĝojn al tiu ĉi adreso. Bv kontrolu ĝin."
 
 #: shop/urls.py
-msgid "^reserve/"
-msgstr "^rezervi/"
+msgctxt "URL"
+msgid "reserve/"
+msgstr "rezervi/"
 
 #: shop/urls.py
-msgid "^reservation/"
-msgstr "^rezervado/"
+msgctxt "URL"
+msgid "reservation/"
+msgstr "rezervado/"
 
 #~ msgid "About Privacy: "
 #~ msgstr "Pri privateco: "
