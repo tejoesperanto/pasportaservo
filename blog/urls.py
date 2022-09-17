@@ -1,11 +1,11 @@
-from django.conf.urls import url
+from django.urls import path
 
 from .views import PostDetailView, PostListView, PostsAtomFeed, PostsFeed
 
 app_name = 'blog'
 urlpatterns = [
-    url(r'^rss.xml$', PostsAtomFeed(), name='rss'),
-    url(r'^atom.xml$', PostsFeed(), name='atom'),
-    url(r'^(?P<slug>[\w-]+)/$', PostDetailView.as_view(), name='post'),
-    url(r'^$', PostListView.as_view(), name='posts'),
+    path('rss.xml', PostsAtomFeed(), name='rss'),
+    path('atom.xml', PostsFeed(), name='atom'),
+    path('<slug:slug>/', PostDetailView.as_view(), name='post'),
+    path('', PostListView.as_view(), name='posts'),
 ]

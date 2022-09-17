@@ -1,9 +1,8 @@
 from django.conf import settings
-from django.conf.urls import include, url
 from django.contrib import admin
-from django.urls import reverse_lazy
+from django.urls import include, path, reverse_lazy
 from django.urls.resolvers import URLPattern
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from .views import (
     ExtendedConversationView, ExtendedMessageView,
@@ -11,14 +10,14 @@ from .views import (
 )
 
 urlpatterns = [
-    url('', include('core.urls')),
-    url(_(r'^management/'), admin.site.urls),
-    url(_(r'^messages/'), include('postman.urls', namespace='postman')),
-    url('', include('hosting.urls')),
-    url('', include('pages.urls')),
-    url('', include('links.urls')),
-    url(_(r'^blog/'), include('blog.urls', namespace='blog')),
-    url(r'^mapo/', include('maps.urls')),
+    path('', include('core.urls')),
+    path(pgettext_lazy("URL", 'management/'), admin.site.urls),
+    path(pgettext_lazy("URL", 'messages/'), include('postman.urls', namespace='postman')),
+    path('', include('hosting.urls')),
+    path('', include('pages.urls')),
+    path('', include('links.urls')),
+    path(pgettext_lazy("URL", 'blog/'), include('blog.urls', namespace='blog')),
+    path(pgettext_lazy("URL", 'map/'), include('maps.urls')),
 ]
 
 handler403 = 'pasportaservo.views.custom_permission_denied_view'
@@ -26,7 +25,7 @@ handler403 = 'pasportaservo.views.custom_permission_denied_view'
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns += [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
+        path('__debug__/', include(debug_toolbar.urls)),
     ]
 
 url_index_postman = '/'.join([reverse_lazy('postman:inbox').rstrip('/').rsplit('/', maxsplit=1)[0], ''])

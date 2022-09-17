@@ -106,7 +106,7 @@ class MapboxGlWidgetTests(AdditionalAsserts, TestCase):
         js_media = str(widget.media['js'])
         self.assertRegex(js_media, r'src=".*?/mapbox-gl\.js"')
         self.assertRegex(js_media, r'src=".*?/mapbox-gl-widget\.js"')
-        self.assertRegex(js_media, r'src=".*?/endpoints\?format=js\&amp;type=widget"')
+        self.assertRegex(js_media, r'src=".*?/endpoints/\?format=js\&amp;type=widget"')
 
     def test_serialize(self):
         widget = self.widget_class()

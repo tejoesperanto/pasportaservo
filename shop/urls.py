@@ -1,14 +1,16 @@
-from django.conf.urls import include, url
-from django.utils.translation import gettext_lazy as _
+from django.urls import include, path
+from django.utils.translation import pgettext_lazy
 
 from .views import ReservationView, ReserveRedirectView, ReserveView
 
 urlpatterns = [
-    url(_(r'^reserve/'), include([
-        url(r'^$', ReserveRedirectView.as_view(), name='reserve'),
-        url(r'^(?P<product_code>\w+)/$', ReserveView.as_view(), name='reserve'),
-    ])),
-    url(_(r'^reservation/'), include([
-        url(r'^(?P<product_code>\w+)/$', ReservationView.as_view(), name='reservation'),
-    ])),
+    path(
+        pgettext_lazy("URL", 'reserve/'), include([
+            path('', ReserveRedirectView.as_view(), name='reserve'),
+            path('<slug:product_code>/', ReserveView.as_view(), name='reserve'),
+        ])),
+    path(
+        pgettext_lazy("URL", 'reservation/'), include([
+            path('<slug:product_code>/', ReservationView.as_view(), name='reservation'),
+        ])),
 ]
