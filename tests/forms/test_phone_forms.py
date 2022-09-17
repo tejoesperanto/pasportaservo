@@ -41,13 +41,6 @@ class PhoneFormTests(WebTest):
             profile=cls.profile_two,
             deleted_on=make_aware(cls.faker.date_time_this_decade()))
 
-    def setUp(self):
-        self.phone1_valid.refresh_from_db()
-        self.phone2_valid.refresh_from_db()
-        self.phone3_deleted.refresh_from_db()
-        self.phone4_valid.refresh_from_db()
-        self.phone5_deleted.refresh_from_db()
-
     def _init_form(self, data=None, instance=None, owner=None):
         assert instance is not None
         return PhoneForm(data=data, instance=instance)

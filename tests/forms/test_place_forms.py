@@ -115,10 +115,6 @@ class PlaceFormTestingBase:
     DummyLocation = namedtuple('Location', 'point')
     DummyLocationWithConfidence = namedtuple('Location', 'point, confidence')
 
-    def setUp(self):
-        self.simple_place.refresh_from_db()
-        self.complete_place.refresh_from_db()
-
     def _init_form(self, data=None, instance=None, owner=None):
         # `instance` should be used for the PlaceForm (modification of an existing place),
         # while `owner` should be used for the PlaceCreateForm (addition of a new place).

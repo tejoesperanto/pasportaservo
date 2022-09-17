@@ -39,12 +39,6 @@ class FamilyMemberFormTests(WebTest):
             first_name="", last_name="", pronoun="", description="")
         cls.place_anon_family.family_members.add(cls.profile_two)
 
-    def setUp(self):
-        self.profile_one.refresh_from_db()
-        self.place_with_family.family_members_cache()[0].refresh_from_db()
-        self.profile_two.refresh_from_db()
-        self.place_anon_family.family_members_cache()[0].refresh_from_db()
-
     def _init_form(self, data=None, place=None, member_index=0):
         assert place is not None
         assert member_index < len(place.family_members_cache())

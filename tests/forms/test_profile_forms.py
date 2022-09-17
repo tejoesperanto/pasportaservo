@@ -65,15 +65,6 @@ class ProfileFormTestingBase:
         PlaceFactory(owner=profile, available=True, in_book=False)
         PlaceFactory(owner=profile, available=False, have_a_drink=True, in_book=False)
 
-    def setUp(self):
-        self.profile_with_no_places.obj.refresh_from_db()
-        self.profile_with_no_places_deceased.obj.refresh_from_db()
-        self.profile_hosting.obj.refresh_from_db()
-        self.profile_meeting.obj.refresh_from_db()
-        self.profile_hosting_and_meeting.obj.refresh_from_db()
-        self.profile_in_book.obj.refresh_from_db()
-        self.profile_in_book_complex.obj.refresh_from_db()
-
     def test_init(self):
         form_empty = self._init_form(empty=True, user=self.profile_with_no_places.obj.user)
         expected_fields = [

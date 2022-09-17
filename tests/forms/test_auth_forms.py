@@ -319,7 +319,6 @@ class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
         session = SessionStore()
         session.create()
         self.dummy_request.session = session
-        self.user.refresh_from_db()
 
     def test_init(self):
         form_empty = UserAuthenticationForm()
@@ -463,9 +462,6 @@ class UsernameUpdateFormTests(AdditionalAsserts, WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.user = UserFactory()
-
-    def setUp(self):
-        self.user.refresh_from_db()
 
     def test_init(self):
         form = UsernameUpdateForm(instance=self.user)
@@ -634,10 +630,6 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
     def setUpTestData(cls):
         cls.user = UserFactory()
         cls.invalid_email_user = UserFactory(invalid_email=True)
-
-    def setUp(self):
-        self.user.refresh_from_db()
-        self.invalid_email_user.refresh_from_db()
 
     def _init_form(self, data=None, instance=None):
         return EmailUpdateForm(data=data, instance=instance)
