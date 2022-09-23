@@ -1,120 +1,152 @@
 # Uzo sur via loka komputilo:
 #
-# pip install fabric3
-# fab deploy  # apriore 'staging'
-# fab prod deploy
+# python3 -m pip install fabric
+# fab -H ps --prompt-for-login-password staging deploy
+# fab -H ps --prompt-for-login-password prod deploy
 #
 # Funkcias se vi havas la jenan sekcion en via .ssh/config:
 #     Host ps
 #     HostName pasportaservo.org
 
-from fabric.api import env, local, prefix, require, run, settings, sudo, task
+import sys
 
-env.hosts = ["ps"]
-env.user = "ps"
-env.use_ssh_config = True
-env.site = "staging"  # default
-env.branch = "master"  # default
+from fabric import task
+
+env = {}
 
 
 @task
-def prod():
-    env.site = "prod"
-    env.branch = "prod"
+def prod(conn):
+    if env:
+        sys.exit(f"Site [{env['site']}] and branch [{env['branch']}] are already configured!")
+    env['site'] = "prod"
+    env['branch'] = "prod"
 
 
 @task
-def staging():
-    env.site = "staging"
-    env.branch = "master"
+def staging(conn):
+    if env:
+        sys.exit(f"Site [{env['site']}] and branch [{env['branch']}] are already configured!")
+    env['site'] = "staging"
+    env['branch'] = "master"
 
 
-@task
-def push(remote="origin", branch="master", runlocal=True):
-    command = f"git push {remote} {branch}"
+def _init_venv_string():
+    return f"source ~/.bash_profile; workon {env['site']}"
+
+
+@task(auto_shortflags=False)
+def pull(conn, remote="origin", branch="master", runlocal=True):
     if runlocal:
-        local(command)
+        conn.local(f"git pull --rebase {remote} {branch}")
     else:
-        run(command)
+        conn.run("git checkout -- locale/*/django*.mo")
+        conn.run("git status")
+        conn.run(f"git pull {remote} {branch}")
 
 
-@task
-def pull(remote="origin", branch="master", runlocal=True):
-    if runlocal:
-        local(f"git pull --rebase {remote} {branch}")
-    else:
-        run("git checkout -- locale/*/django.mo")
-        run(f"git pull {remote} {branch}")
-
-
-@task
-def checkout(remote="origin", branch="master", runlocal=True):
+@task(auto_shortflags=False)
+def checkout(conn, remote="origin", branch="master", runlocal=True):
     command = f"git checkout {remote}/{branch}"
     if runlocal:
-        local(command)
+        conn.local(command)
     else:
-        run(command)
+        conn.run(command)
 
 
-@task
-def requirements():
-    with settings(ok_ret_codes=[0, 1]):
-        run(
-            "pip install -Ur requirements.txt"
-            " | grep -v -e 'Requirement already satisfied' -e 'Requirement already up-to-date'"
-        )
-
-
-@task
-def updatestrings(runlocal=True, _inside_env=False):
-    command = "./manage.py compilemessages"
-    if not runlocal or runlocal == "False":
-        if _inside_env:
-            run(command)
+@task(auto_shortflags=False)
+def requirements(conn, runlocal=False, inside_env=False):
+    command = (
+        f"python3 -m pip install -Ur requirements{'/dev' if runlocal else ''}.txt"
+        " | grep -v -e 'Requirement already satisfied' -e 'Requirement already up-to-date'"
+    )
+    if runlocal:
+        result = conn.local(command, warn=True)
+    else:
+        if not inside_env:
+            if not env:
+                sys.exit("Site not defined, use staging/prod.")
+            with conn.prefix(_init_venv_string()):
+                result = conn.run(command, warn=True)
         else:
-            with prefix(f"workon {env.site}"):
-                run(command)
-            site_ctl(command="restart")
+            result = conn.run(command, warn=True)
+
+    if result.exited not in (0, 1):
+        sys.exit(result.exited)
+    if not runlocal and not inside_env:
+        site_ctl(conn, command="restart")
+        site_ctl(conn, command="status", needs_su=False)
+
+
+@task(auto_shortflags=False)
+def makestrings(conn, locale="eo", runlocal=True):
+    if runlocal:
+        command = (
+            "python3 ./manage.py makemessages"
+            f" --locale {locale} --ignore \"htmlcov/*\" --add-location=file"
+        )
+        conn.local(command)
+    # Remote generation is not supported.
+
+
+@task(auto_shortflags=False)
+def updatestrings(conn, runlocal=True, inside_env=False):
+    command = "python3 ./manage.py compilemessages"
+    if not runlocal:
+        if not inside_env:
+            if not env:
+                sys.exit("Site not defined, use staging/prod.")
+            with conn.prefix(_init_venv_string()):
+                conn.run(command)
+            site_ctl(conn, command="restart")
+            site_ctl(conn, command="status", needs_su=False)
+        else:
+            conn.run(command)
     else:
-        local(command)
+        conn.local(command)
 
 
 @task
-def updatestatic():
-    run("./manage.py compilejsi18n -l eo")
-    run("./manage.py compilescss")
-    extra_args = "--ignore=*.scss" if env.site == "prod" else ""
-    run(
+def updatestatic(conn):
+    conn.run("./manage.py compilejsi18n -l eo")
+    conn.run("./manage.py compilescss")
+    extra_args = "--ignore=*.scss" if env['site'] == "prod" else ""
+    conn.run(
         f"./manage.py collectstatic --verbosity 1 --noinput {extra_args}"
         " | grep -v 'Found another file with the destination path' "
     )
-    run("./manage.py compress --verbosity 0 --force")
+    conn.run("./manage.py compress --verbosity 0 --force")
 
 
 @task
-def migrate():
-    run("./manage.py migrate --noinput")
+def migrate(conn):
+    conn.run("./manage.py migrate --noinput")
 
 
-@task
-def site_ctl(command):
-    require("site", provided_by=[staging, prod])
+@task(auto_shortflags=False)
+def site_ctl(conn, command, needs_su=True):
+    if not env:
+        sys.exit("Site not defined, use staging/prod.")
 
-    sudo(f"systemctl {command} pasportaservo.{env.site}.service")
+    conn.run(
+        ("sudo " if needs_su else "")
+        + f"systemctl {command} pasportaservo.{env['site']}.service",
+        pty=True)
 
 
-@task
-def deploy(mode="full", remote="origin"):
-    require("site", provided_by=[staging, prod])
-    require("branch", provided_by=[staging, prod])
+@task(auto_shortflags=False)
+def deploy(conn, mode="full", remote="origin"):
+    if not env:
+        sys.exit("Site not defined, use staging/prod.")
 
-    with prefix(f"workon {env.site}"):
-        checkout(remote, env.branch, False)
-        pull(remote, env.branch, False)
+    with conn.prefix(_init_venv_string()):
+        checkout(conn, remote, env['branch'], runlocal=False)
+        pull(conn, remote, env['branch'], runlocal=False)
         if mode == "full":
-            requirements()
-            updatestrings(False, _inside_env=True)
-            updatestatic()
-            migrate()
+            requirements(conn, runlocal=False, inside_env=True)
+            updatestrings(conn, runlocal=False, inside_env=True)
+            updatestatic(conn)
+            migrate(conn)
     if mode != "html":
-        site_ctl(command="restart")
+        site_ctl(conn, command="restart")
+        site_ctl(conn, command="status", needs_su=False)
