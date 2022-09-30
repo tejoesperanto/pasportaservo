@@ -18,9 +18,7 @@ from django.views.decorators.vary import vary_on_headers
 
 from braces.views import FormInvalidMessageMixin
 
-from core.auth import (
-    ADMIN, ANONYMOUS, OWNER, PERM_SUPERVISOR, SUPERVISOR, VISITOR, AuthMixin,
-)
+from core.auth import PERM_SUPERVISOR, AuthMixin, AuthRole
 from core.mixins import LoginRequiredMixin
 
 from ..forms import (
@@ -42,14 +40,14 @@ class ProfileCreateView(
     model = Profile
     form_class = ProfileCreateForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
-    exact_role = OWNER
+    exact_role = AuthRole.OWNER
 
     def dispatch(self, request, *args, **kwargs):
         try:
             # Redirect to profile edit page if user is logged in & profile already exists.
             assert not request.user.is_anonymous
             profile = Profile.get_basic_data(request, user=request.user)
-            self.role = OWNER
+            self.role = AuthRole.OWNER
             return HttpResponseRedirect(profile.get_edit_url(), status=301)
         except Profile.DoesNotExist:
             # Cache the result for the reverse related descriptor, to spare further DB queries.
@@ -59,7 +57,7 @@ class ProfileCreateView(
             kwargs['auth_base'] = Profile(user=copy(request.user))
             return super().dispatch(request, *args, **kwargs)
         except AssertionError:
-            self.role = ANONYMOUS
+            self.role = AuthRole.ANONYMOUS
             # Redirect to registration page when user is not authenticated.
             return HttpResponseRedirect(reverse_lazy('register'), status=303)
 
@@ -89,7 +87,7 @@ class ProfileDeleteView(
 
     def get_success_url(self):
         # Administrators will be redirected to the deleted profile's page.
-        if self.role >= SUPERVISOR:
+        if self.role >= AuthRole.SUPERVISOR:
             return self.object.get_absolute_url()
         return self.success_url
 
@@ -115,7 +113,7 @@ class ProfileDeleteView(
             self.object.phones.filter(deleted=False).update(deleted_on=now)
             self.object.user.is_active = False
             self.object.user.save()
-        if self.role == OWNER:
+        if self.role == AuthRole.OWNER:
             messages.success(request, _("Farewell !"))
         return super().delete(request, *args, **kwargs)
 
@@ -125,7 +123,7 @@ class ProfileRestoreView(
         generic.DetailView):
     template_name = 'hosting/profile_confirm_restore.html'
     display_fair_usage_condition = True
-    exact_role = ADMIN
+    exact_role = AuthRole.ADMIN
 
     def get_permission_denied_message(self, *args, **kwargs):
         return _("Only administrators can access this page")
@@ -203,7 +201,7 @@ class ProfileDetailView(
         generic.DetailView):
     display_fair_usage_condition = True
     public_view = True
-    minimum_role = VISITOR
+    minimum_role = AuthRole.VISITOR
 
     def get_queryset(self):
         qs = super().get_queryset().select_related('user', 'email_visibility')
@@ -213,8 +211,9 @@ class ProfileDetailView(
 
     def get_object(self, queryset=None):
         profile = super().get_object(queryset)
-        if profile.deleted and self.role == VISITOR and not self.request.user.has_perm(PERM_SUPERVISOR):
-            raise Http404("Profile was deleted.")
+        if profile.deleted:
+            if self.role == AuthRole.VISITOR and not self.request.user.has_perm(PERM_SUPERVISOR):
+                raise Http404("Profile was deleted.")
         return profile
 
     def get_context_data(self, **kwargs):
@@ -246,12 +245,12 @@ class ProfileDetailView(
 class ProfileEditView(ProfileDetailView):
     template_name = 'hosting/profile_edit.html'
     public_view = False
-    minimum_role = OWNER
+    minimum_role = AuthRole.OWNER
 
 
 class ProfileSettingsView(ProfileDetailView):
     template_name = 'hosting/settings.html'
-    minimum_role = OWNER
+    minimum_role = AuthRole.OWNER
 
     @property
     def profile_email_help_text(self):
@@ -262,7 +261,7 @@ class ProfileSettingsView(ProfileDetailView):
         context['account'] = self.object.user
         context['privacy_matrix'] = ProfilePrivacyUpdateView.VisibilityFormSet(
             profile=self.object,
-            read_only=(self.role > OWNER and self.role < ADMIN),
+            read_only=(self.role > AuthRole.OWNER and self.role < AuthRole.ADMIN),
             prefix=ProfilePrivacyUpdateView.VISIBILITY_FORMSET_PREFIX)
         context['optinouts_form'] = PreferenceOptinsForm(instance=self.object.pref)
         context['optinouts_form'].helper.disable_csrf = True
@@ -289,12 +288,12 @@ class ProfileEmailUpdateView(
     form_class = ProfileEmailUpdateForm
     display_fair_usage_condition = True
     success_with_anchor = 'e'
-    minimum_role = OWNER
+    minimum_role = AuthRole.OWNER
 
 
 class ProfilePrivacyUpdateView(AuthMixin, ProfileMixin, generic.View):
     http_method_names = ['post']
-    exact_role = (OWNER, ADMIN)
+    exact_role = (AuthRole.OWNER, AuthRole.ADMIN)
 
     VisibilityFormSet = modelformset_factory(
         VisibilitySettings,

@@ -1,3 +1,5 @@
+from random import randint
+
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, Group
 from django.core import serializers
@@ -9,7 +11,7 @@ from django.views.generic import CreateView, View
 
 from django_webtest import WebTest
 
-from core.auth import VISITOR, AuthMixin
+from core.auth import AuthMixin, AuthRole
 from hosting.models import Preferences, VisibilitySettings
 
 from ..assertions import AdditionalAsserts
@@ -277,6 +279,152 @@ class CheckStatusTests(WebTest):
 
 
 @tag('integration', 'auth')
+class AuthRoleTests(TestCase):
+    """
+    Tests for correct implementation of the Authorization Role enum.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.root_roles = [role for role in AuthRole if role.parent is None]
+        cls.child_roles = [role for role in AuthRole if role.parent]
+
+    def test_str(self):
+        for role in AuthRole:
+            with self.subTest(role=repr(role)):
+                if not role.parent:
+                    self.assertEqual(str(role), role.name)
+                else:
+                    self.assertEqual(str(role), f"{role.parent.name} ({role.name})")
+
+    def test_repr(self):
+        for role in AuthRole:
+            with self.subTest(role=repr(role)):
+                if not role.parent:
+                    self.assertEqual(repr(role), f"<AuthRole.{role.name}: {role.value}>")
+                else:
+                    self.assertEqual(
+                        repr(role),
+                        f"<AuthRole.{role.name} :: AuthRole.{role.parent.name}>"
+                    )
+
+    def test_equal(self):
+        # Sanity check.
+        for role in self.root_roles + self.child_roles:
+            with self.subTest(role=repr(role)):
+                self.assertTrue(role == role)
+                # Comparison to literals is expected to be unsupported.
+                self.assertFalse(role == role.value)
+        # Child roles are expected to compare equal to their parent roles.
+        for role in self.child_roles:
+            with self.subTest(role=repr(role)):
+                self.assertTrue(role == role.parent)
+                self.assertTrue(role.parent == role)
+        # Child roles are expected to be uncomparable between themselves.
+        for role in self.child_roles:
+            with self.subTest(role=repr(role)):
+                for another_role in set(self.child_roles) - {role}:
+                    with self.assertRaises(NotImplementedError):
+                        role == another_role
+
+    def test_not_equal(self):
+        # Sanity check.
+        for role in self.root_roles:
+            with self.subTest(role=repr(role)):
+                for another_role in set(self.root_roles) - {role}:
+                    self.assertTrue(role != another_role)
+        # Child roles are expected to compare unequal to other non-child
+        # roles except for their own parent role.
+        for role in self.child_roles:
+            with self.subTest(role=repr(role)):
+                for another_role in set(self.root_roles) - {role.parent}:
+                    self.assertTrue(role != another_role)
+                    self.assertTrue(another_role != role)
+        # Child roles are expected to be uncomparable between themselves.
+        for role in self.child_roles:
+            with self.subTest(role=repr(role)):
+                for another_role in set(self.child_roles) - {role}:
+                    with self.assertRaises(NotImplementedError):
+                        role != another_role
+
+    def test_comparison_root_role(self):
+        # Root roles are expected to be comparable between them according
+        # to increasing order.
+        role_index = randint(1, len(self.root_roles) - 1)
+        role = self.root_roles[role_index]
+        for i in range(len(self.root_roles)):
+            another_role = self.root_roles[i]
+            with self.subTest(role=repr(role), another_role=repr(another_role)):
+                if i < role_index:
+                    self.assertTrue(role > another_role)
+                    self.assertTrue(another_role < role)
+                    # Comparison to literals is expected to be unsupported.
+                    self.assertRaises(
+                        TypeError,
+                        lambda literal=another_role.value: role > literal)
+                elif i == role_index:
+                    self.assertTrue(role >= another_role)
+                    self.assertFalse(role > another_role)
+                    self.assertTrue(another_role <= role)
+                    self.assertFalse(another_role < role)
+                    # Comparison to literals is expected to be unsupported.
+                    self.assertRaises(
+                        TypeError,
+                        lambda literal=another_role.value: role >= literal)
+                else:
+                    self.assertTrue(role < another_role)
+                    self.assertTrue(another_role > role)
+                    # Comparison to literals is expected to be unsupported.
+                    self.assertRaises(
+                        TypeError,
+                        lambda literal=another_role.value: role < literal)
+
+    def test_comparison_child_role(self):
+        role_index = randint(1, len(self.child_roles) - 1)
+        role = self.child_roles[role_index]
+        parent_role_index = self.root_roles.index(role.parent)
+
+        # Child roles are expected to be comparable to the root roles,
+        # according to the position of their parent role.
+        for i in range(len(self.root_roles)):
+            another_role = self.root_roles[i]
+            with self.subTest(role=repr(role), another_role=repr(another_role)):
+                if i < parent_role_index:
+                    self.assertTrue(role > another_role)
+                    # Comparison to literals is expected to be unsupported.
+                    self.assertRaises(
+                        TypeError,
+                        lambda literal=another_role.value: role > literal)
+                    self.assertFalse(role <= another_role)
+                elif i == parent_role_index:
+                    self.assertTrue(role >= another_role)
+                    self.assertFalse(role > another_role)
+                    # Comparison to literals is expected to be unsupported.
+                    self.assertRaises(
+                        TypeError,
+                        lambda literal=another_role.value: role >= literal)
+                else:
+                    self.assertTrue(role < another_role)
+                    self.assertFalse(role >= another_role)
+                    # Comparison to literals is expected to be unsupported.
+                    self.assertRaises(
+                        TypeError,
+                        lambda literal=another_role.value: role < literal)
+
+        # Child roles are expected to be uncomparable between themselves.
+        for another_role in self.child_roles:
+            with self.subTest(role=repr(role), another_role=repr(another_role)):
+                with self.assertRaises(NotImplementedError):
+                    role > another_role
+                with self.assertRaises(NotImplementedError):
+                    role >= another_role
+                with self.assertRaises(NotImplementedError):
+                    role < another_role
+                with self.assertRaises(NotImplementedError):
+                    role <= another_role
+
+
+@tag('integration', 'auth')
 class AuthMixinConfigTests(AdditionalAsserts, TestCase):
     """
     Tests for correct configuration of the AuthMixin on views (incorrect
@@ -285,7 +433,7 @@ class AuthMixinConfigTests(AdditionalAsserts, TestCase):
 
     def test_missing_auth_check(self):
         class MyTestView(AuthMixin, View):
-            minimum_role = VISITOR
+            minimum_role = AuthRole.VISITOR
 
             def get(self, request, *args, **kwargs):
                 return JsonResponse({})
@@ -325,7 +473,7 @@ class AuthMixinConfigTests(AdditionalAsserts, TestCase):
             allow_anonymous = True
 
         class MyGoodCreateTestView(AuthMixin, CreateView):
-            minimum_role = VISITOR
+            minimum_role = AuthRole.VISITOR
             allow_anonymous = True
 
             def dispatch(self, request, *args, **kwargs):
@@ -355,7 +503,7 @@ class AuthMixinConfigTests(AdditionalAsserts, TestCase):
         with self.assertNotRaises(ImproperlyConfigured):
             response = view.dispatch(request)
         self.assertTrue(hasattr(view, 'role'))
-        self.assertEqual(view.role, VISITOR)
+        self.assertEqual(view.role, AuthRole.VISITOR)
         self.assertEqual(response.status_code, 200)
 
         request.user = AnonymousUser()  # Simulate a non-authenticated user.
@@ -375,7 +523,7 @@ class AuthMixinConfigTests(AdditionalAsserts, TestCase):
         with self.assertNotRaises(ImproperlyConfigured):
             response = view.dispatch(request)
         self.assertTrue(hasattr(view, 'role'))
-        self.assertEqual(view.role, VISITOR)
+        self.assertEqual(view.role, AuthRole.VISITOR)
         expected_url = '{}?{}=/look-up'.format(reverse('login'), settings.REDIRECT_FIELD_NAME)
         self.assertRedirects(response, expected_url, fetch_redirect_response=False)
         # Accessing (via GET) a properly configured view for which anonymous access is
@@ -385,5 +533,5 @@ class AuthMixinConfigTests(AdditionalAsserts, TestCase):
         with self.assertNotRaises(ImproperlyConfigured):
             response = view.dispatch(request)
         self.assertTrue(hasattr(view, 'role'))
-        self.assertEqual(view.role, VISITOR)
+        self.assertEqual(view.role, AuthRole.VISITOR)
         self.assertEqual(response.status_code, 200)

@@ -2,7 +2,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views import generic
 
-from core.auth import OWNER, AuthMixin
+from core.auth import AuthMixin, AuthRole
 
 from ..forms import FamilyMemberCreateForm, FamilyMemberForm
 from .mixins import (
@@ -63,7 +63,7 @@ class FamilyMemberRemoveView(
     """
     template_name = 'hosting/family_member_confirm_delete.html'
     display_fair_usage_condition = True
-    minimum_role = OWNER
+    minimum_role = AuthRole.OWNER
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()

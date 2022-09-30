@@ -14,7 +14,7 @@ from django_countries import Countries
 from django_webtest import WebTest
 from factory import Faker
 
-from core.auth import OWNER, SUPERVISOR
+from core.auth import AuthRole
 from core.models import SiteConfiguration
 from hosting.countries import (
     COUNTRIES_DATA, SUBREGION_TYPES, countries_with_mandatory_region,
@@ -1346,7 +1346,7 @@ class PlaceLocationFormTests(WebTest):
         self.assertTrue(form.is_valid(), msg=repr(form.errors))
 
     def test_save_blank(self):
-        for role in OWNER, SUPERVISOR:
+        for role in AuthRole.OWNER, AuthRole.SUPERVISOR:
             with self.subTest(view_role=role):
                 self.place.refresh_from_db()
                 self.place.location_confidence = LocationConfidence.LT_25KM
@@ -1357,8 +1357,8 @@ class PlaceLocationFormTests(WebTest):
                 self.assertEqual(place.location_confidence, LocationConfidence.UNDETERMINED)
 
     def test_save_value(self):
-        for role, expected_confidence in ([OWNER, LocationConfidence.EXACT],
-                                          [SUPERVISOR, LocationConfidence.CONFIRMED]):
+        for role, expected_confidence in ([AuthRole.OWNER, LocationConfidence.EXACT],
+                                          [AuthRole.SUPERVISOR, LocationConfidence.CONFIRMED]):
             with self.subTest(view_role=role):
                 self.place.refresh_from_db()
                 self.place.location_confidence = LocationConfidence.LT_25KM
