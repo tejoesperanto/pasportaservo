@@ -16,7 +16,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field
 from django_countries.fields import Country
 
-from core.auth import SUPERVISOR
+from core.auth import AuthRole
 from core.models import SiteConfiguration
 from core.utils import join_lazy, mark_safe_lazy, sort_by
 from maps import SRID
@@ -382,7 +382,7 @@ class PlaceLocationForm(forms.ModelForm):
     def save(self, commit=True):
         place = super().save(commit=False)
         if self.cleaned_data.get('location'):
-            if self.view_role >= SUPERVISOR:
+            if self.view_role >= AuthRole.SUPERVISOR:
                 place.location_confidence = LocationConfidence.CONFIRMED
             else:
                 place.location_confidence = LocationConfidence.EXACT

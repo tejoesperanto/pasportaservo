@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views import generic
 from django.views.decorators.vary import vary_on_headers
 
-from core.auth import SUPERVISOR, AuthMixin
+from core.auth import AuthMixin, AuthRole
 from core.mixins import LoginRequiredMixin
 
 from ..forms import PhoneForm, PlaceForm, ProfileForm
@@ -56,7 +56,7 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
     http_method_names = ['post']
     template_names = {True: '200.html', False: 'hosting/place_check_detail.html'}
     display_fair_usage_condition = True
-    minimum_role = SUPERVISOR
+    minimum_role = AuthRole.SUPERVISOR
 
     class LocationDummyForm(ModelForm):
         class Meta:

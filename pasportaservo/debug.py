@@ -16,15 +16,13 @@ class CustomRequestPanel(RequestPanel):
         view = (getattr(response, 'context_data', None) or {}).get('view', None)
         auth_stats = {'context_role': {}}
         if hasattr(view, 'minimum_role'):
-            from core import auth
-            auth_roles = auth.ALL_ROLES
+            from core.auth import AuthRole
             auth_stats['context_role'].update({
                 'role': view.role,
-                'role_name':
-                    next((name for name, val in auth_roles.items() if val == view.role), None),
                 'role_required':
-                    "= "+str(view.exact_role) if getattr(view, 'exact_role', None) else ">= "+str(view.minimum_role),
-                'is_role_supervisor': view.role >= auth.SUPERVISOR,
+                    f"= {view.exact_role}" if hasattr(view, 'exact_role')
+                    else f">= {view.minimum_role}",
+                'is_role_supervisor': view.role >= AuthRole.SUPERVISOR,
             })
         if hasattr(view, 'get_debug_data'):
             auth_stats['context_role'].update({'extra': view.get_debug_data()})

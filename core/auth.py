@@ -2,6 +2,8 @@ import logging
 import re
 import types
 import warnings
+from enum import Enum
+from functools import total_ordering
 
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend
@@ -9,6 +11,7 @@ from django.contrib.auth.mixins import AccessMixin
 from django.contrib.auth.models import Group
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.http import Http404, HttpResponseNotAllowed
+from django.utils.functional import SimpleLazyObject
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import generic
@@ -19,19 +22,82 @@ from hosting.models import Place, Profile
 
 from .utils import camel_case_split, join_lazy
 
-PERM_SUPERVISOR = 'hosting.can_supervise'
-ADMIN, STAFF, SUPERVISOR, OWNER, VISITOR, ANONYMOUS = 50, 40, 30, 20, 10, 0
-ALL_ROLES = dict(
-    ADMIN=ADMIN,
-    STAFF=STAFF,
-    SUPERVISOR=SUPERVISOR,
-    OWNER=OWNER,
-    VISITOR=VISITOR,
-    ANONYMOUS=ANONYMOUS,
-)
-
-
 auth_log = logging.getLogger('PasportaServo.auth')
+
+
+PERM_SUPERVISOR = 'hosting.can_supervise'
+
+
+@total_ordering
+class AuthRole(Enum):
+    """
+    An enumeration of authorization roles. Users will receive one of these roles
+    on the hosting-related views, according to the context.
+    """
+    ANONYMOUS = 0
+    VISITOR = 10
+    PLACE_GUEST = VISITOR, ...
+    PLACE_FAMILYMEMBER = VISITOR, ...
+    OWNER = 20
+    SUPERVISOR = 30
+    STAFF = 40
+    ADMIN = 50
+
+    def __new__(cls, value, subvalue=None):
+        obj = object.__new__(cls)
+        obj._value_ = (len(cls) + 1, subvalue) if subvalue is not None else value
+        # Late resolution since we want the parent to point to the actual enumeration's member.
+        obj.parent = SimpleLazyObject(lambda: cls(value)) if subvalue is not None else None
+        return obj
+
+    def __gt__(self, other):
+        if self.__class__ is other.__class__:
+            if not other.parent:
+                return (self.value if not self.parent else self.parent.value) > other.value
+            else:
+                raise NotImplementedError(
+                    f'Comparison not supported for subtype of {other.parent}'
+                    ' as right-hand side')
+        return NotImplemented
+
+    def __ge__(self, other):
+        if self.__class__ is other.__class__:
+            if not other.parent:
+                return (self.value if not self.parent else self.parent.value) >= other.value
+            else:
+                raise NotImplementedError(
+                    f'Comparison not supported for subtype of {other.parent}'
+                    ' as right-hand side')
+        return NotImplemented
+
+    def __eq__(self, other):
+        if self.__class__ is other.__class__:
+            if self is other:
+                return True
+            if self.parent and other.parent:
+                raise NotImplementedError(
+                    'Comparison not suported between subtypes')
+            lhs_value = self.value if not self.parent else self.parent.value
+            rhs_value = other.value if not other.parent else other.parent.value
+            return lhs_value == rhs_value
+        return NotImplemented
+
+    __hash__ = Enum.__hash__
+
+    def __repr__(self):
+        self_repr = f'{self.__class__.__name__}.{self.name}'
+        if self.parent:
+            return f'<{self_repr} :: {self.parent.__class__.__name__}.{self.parent.name}>'
+        else:
+            return f'<{self_repr}: {self.value}>'
+
+    def __str__(self):
+        if self.parent:
+            return f'{self.parent.name} ({self.name})'
+        else:
+            return self.name
+
+AuthRole.do_not_call_in_templates = True  # noqa:E305
 
 
 class SupervisorAuthBackend(ModelBackend):
@@ -133,7 +199,9 @@ class SupervisorAuthBackend(ModelBackend):
             cache_name = '_countrygroup_perm_cache'
             if not hasattr(user_obj, cache_name):
                 auth_log.debug("\t\t ... storing in cache %s ... ", cache_name)
-                setattr(user_obj, cache_name, frozenset("%s.%s" % (PERM_SUPERVISOR, g) for g in groups))
+                setattr(
+                    user_obj, cache_name,
+                    frozenset("%s.%s" % (PERM_SUPERVISOR, g) for g in groups))
             if auth_log.getEffectiveLevel() == logging.DEBUG:
                 auth_log.debug("\tUser's group perms:  %s", set(getattr(user_obj, cache_name)))
             if obj is None:
@@ -151,20 +219,20 @@ def get_role_in_context(request, profile=None, place=None, no_obj_context=False)
     user = request.user
     context = place or profile or object
     if profile and user.pk == profile.user_id:
-        return OWNER
+        return AuthRole.OWNER
     if user.is_superuser:
-        return ADMIN
+        return AuthRole.ADMIN
     # Staff users is a dormant feature. Exact role to be decided.
     # Once enabled, the interaction with perms.hosting.can_supervise has to be verified.
     # if user.is_staff:
-    #     return STAFF
+    #     return AuthRole.STAFF
     if user.has_perm(PERM_SUPERVISOR, None if no_obj_context else context):
-        return SUPERVISOR
-    return VISITOR
+        return AuthRole.SUPERVISOR
+    return AuthRole.VISITOR
 
 
 class AuthMixin(AccessMixin):
-    minimum_role = OWNER
+    minimum_role = AuthRole.OWNER
     allow_anonymous = False
     redirect_field_name = settings.REDIRECT_FIELD_NAME
     display_permission_denied = True
@@ -205,10 +273,11 @@ class AuthMixin(AccessMixin):
         to be already retrieved by previous dispatch() methods, and stored in the
         auth_base keyword argument.
         """
-        if getattr(self, 'exact_role', None) == ANONYMOUS or self.minimum_role == ANONYMOUS:
+        if (getattr(self, 'exact_role', None) == AuthRole.ANONYMOUS
+                or self.minimum_role == AuthRole.ANONYMOUS):
             self.allow_anonymous = True
         if not request.user.is_authenticated and not self.allow_anonymous:
-            self.role = VISITOR
+            self.role = AuthRole.VISITOR
             return self.handle_no_permission()  # Authorization implies a logged-in user.
         if 'auth_base' in kwargs:
             object = kwargs['auth_base']
@@ -238,7 +307,8 @@ class AuthMixin(AccessMixin):
                                         place=self.get_location(object),
                                         no_obj_context=context_omitted)
         if getattr(self, 'exact_role', None):
-            roles_allowed = self.exact_role if isinstance(self.exact_role, tuple) else (self.exact_role, )
+            roles_allowed = (self.exact_role if isinstance(self.exact_role, tuple)
+                             else (self.exact_role, ))
             auth_log.info(
                 "exact role allowed: {- %s -} , current role: {- %s -}",
                 " or ".join(str(r) for r in roles_allowed), self.role)
@@ -282,5 +352,5 @@ class AuthMixin(AccessMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['roles'] = ALL_ROLES
+        context['roles'] = AuthRole
         return context

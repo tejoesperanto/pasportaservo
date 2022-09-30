@@ -9,7 +9,7 @@ from django.template.defaultfilters import yesno
 from django.utils.translation import gettext_lazy as _
 from django.views import generic
 
-from core.auth import ADMIN, AuthMixin
+from core.auth import AuthMixin, AuthRole
 from hosting.models import Place
 from links.utils import create_unique_url
 
@@ -18,7 +18,7 @@ class ContactExportView(AuthMixin, generic.ListView):
     response_class = HttpResponse
     content_type = 'text/csv'
     display_permission_denied = False
-    exact_role = ADMIN
+    exact_role = AuthRole.ADMIN
 
     place_fields = [
         'in_book', 'checked', 'city', 'closest_city', 'address',

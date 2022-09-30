@@ -20,9 +20,7 @@ from django.views import generic
 
 from braces.views import FormInvalidMessageMixin
 
-from core.auth import (
-    ANONYMOUS, OWNER, PERM_SUPERVISOR, SUPERVISOR, VISITOR, AuthMixin,
-)
+from core.auth import PERM_SUPERVISOR, AuthMixin, AuthRole
 from core.models import SiteConfiguration
 from core.templatetags.utils import next_link
 from core.utils import sanitize_next
@@ -97,7 +95,7 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
     For such users, the registration form will be displayed.
     """
     display_fair_usage_condition = True
-    minimum_role = ANONYMOUS
+    minimum_role = AuthRole.ANONYMOUS
     verbose_view = False
 
     def get_queryset(self):
@@ -253,7 +251,7 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
                 return self._access_validated
 
         is_authorized = user in place.authorized_users_cache(also_deleted=True, complete=False)
-        is_supervisor = self.role >= SUPERVISOR
+        is_supervisor = self.role >= AuthRole.SUPERVISOR
         is_family_member = getattr(user, 'profile', None) in place.family_members_cache()
         self.__dict__.setdefault('debug', {}).update(
             {'authorized': is_authorized, 'family member': is_family_member}
@@ -263,7 +261,7 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
         # Block access for regular authenticated users in the following cases:
         #   - the place was deleted
         #   - place is not visible to the public.
-        if not is_supervisor and not self.role == OWNER:
+        if not is_supervisor and not self.role == AuthRole.OWNER:
             cases = [place.deleted, not place.visibility.visible_online_public]
             if any(cases):
                 auth_log.debug("One of the conditions satisfied: "
@@ -295,7 +293,7 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
             # Automatically show the user the verbose view if permission granted (in authorized_users list).
             cases = [
                 barrier.is_authorized and not barrier.is_supervisor,
-                getattr(self, 'verbose_when_privileged', False) and self.role >= OWNER,
+                getattr(self, 'verbose_when_privileged', False) and self.role >= AuthRole.OWNER,
             ]
             if any(cases):
                 self.verbose_view = True
@@ -304,25 +302,25 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
             # Non-authenticated user is a special case: we will just show the login/registration snippet,
             # becase we don't want to disclose too much information about the viewing settings.
             cases = [
-                self.role >= OWNER,
+                self.role >= AuthRole.OWNER,
                 not self.request.user.is_authenticated,
                 barrier.is_authorized,
                 barrier.is_family_member,
-                getattr(self, 'verbose_when_privileged', False) and self.role >= OWNER,
+                getattr(self, 'verbose_when_privileged', False) and self.role >= AuthRole.OWNER,
             ]
             if not any(cases):
                 return HttpResponseRedirect(reverse_lazy('place_detail', kwargs={'pk': self.kwargs['pk']}))
         context = self.get_context_data()
         return self.render_to_response(context)
 
-    def get_debug_data(self):
+    def get_debug_data(self):  # pragma: no cover
         return self.debug
 
 
 class PlaceMapPrintView(PlaceDetailView):
     template_name = 'hosting/place_map.html'
     verbose_when_privileged = True
-    minimum_role = VISITOR
+    minimum_role = AuthRole.VISITOR
 
     def get_queryset(self):
         qs = super().get_queryset().select_related(None)
@@ -340,7 +338,7 @@ class PlaceBlockView(AuthMixin, PlaceMixin, generic.UpdateView):
     http_method_names = ['get', 'post', 'put']
     template_name = 'hosting/place_block_form.html'
     form_class = PlaceBlockForm
-    exact_role = OWNER
+    exact_role = AuthRole.OWNER
 
     def get_permission_denied_message(self, *args, **kwargs):
         return _("Only the owner of the place can access this page")
@@ -371,7 +369,7 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
     template_name = 'hosting/place_authorized_users.html'
     form_class = UserAuthorizeForm
     display_fair_usage_condition = True
-    exact_role = OWNER
+    exact_role = AuthRole.OWNER
 
     def dispatch(self, request, *args, **kwargs):
         self.place = get_object_or_404(Place, pk=self.kwargs['pk'])

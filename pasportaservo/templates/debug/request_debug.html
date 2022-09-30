@@ -1,3 +1,5 @@
+{% load compact from utils %}
+
 <h4>Role information</h4>
 <table>
     <thead>
@@ -14,7 +16,18 @@
     <tbody>
         <tr class="djDebugOdd">
             <td>
-                <code>{{ context_role.role }} {% if context_role.role_name %}({{ context_role.role_name }}){% endif %}</code>
+                <code>{% filter compact %}
+                    {{ context_role.role }}
+                    {% if context_role.role %}
+                        [
+                            {% if context_role.role.parent %}
+                                {{ context_role.role.parent.value }}
+                            {% else %}
+                                {{ context_role.role.value }}
+                            {% endif %}
+                        ]
+                    {% endif %}
+                {% endfilter %}</code>
             </td>
             <td>{% if context_role.is_role_supervisor %}&#x2714;{% else %}&#x2718;{% endif %}</td>
             <td><code>{{ context_role.role_required }}</code></td>

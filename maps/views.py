@@ -12,7 +12,7 @@ from django.views.decorators.vary import vary_on_headers
 from django_countries.fields import Country
 from djgeojson.views import GeoJSONLayerView
 
-from core.auth import SUPERVISOR, AuthMixin
+from core.auth import AuthMixin, AuthRole
 from core.models import SiteConfiguration
 from core.utils import sanitize_next
 from hosting.models import Place
@@ -196,7 +196,7 @@ class CountryDataView(AuthMixin, GeoJSONLayerView):
         'checked', 'confirmed',
         'in_book',
     ]
-    minimum_role = SUPERVISOR
+    minimum_role = AuthRole.SUPERVISOR
 
     def dispatch(self, request, *args, **kwargs):
         self.country = Country(kwargs['country_code'])

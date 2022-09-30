@@ -24,7 +24,7 @@ from phonenumber_field.phonenumber import PhoneNumber
 from postman.models import Message
 from unidecode import unidecode_expect_nonascii
 
-from core.auth import ADMIN, PERM_SUPERVISOR, SUPERVISOR, VISITOR
+from core.auth import PERM_SUPERVISOR, AuthRole
 from core.templatetags.utils import random_identifier
 from hosting.countries import COUNTRIES_DATA
 from hosting.models import Gender, Phone, Place, Profile, Website
@@ -133,9 +133,9 @@ class Command(BaseCommand):
         if hasattr(self, 'passwords'):
             self.stdout.write(
                 "User passwords scrambled according to user roles:\n\t"
-                f" administrator (su)    password = {self.passwords[ADMIN]}\n\t"
-                f" supervisor            password = {self.passwords[SUPERVISOR]}\n\t"
-                f" regular user          password = {self.passwords[VISITOR]}\n"
+                f" administrator (su)    password = {self.passwords[AuthRole.ADMIN]}\n\t"
+                f" supervisor            password = {self.passwords[AuthRole.SUPERVISOR]}\n\t"
+                f" regular user          password = {self.passwords[AuthRole.VISITOR]}\n"
             )
 
     def should_continue(self):
@@ -175,13 +175,16 @@ class Command(BaseCommand):
         character_set = 'ABCDEFGHJKLMNPQRSTUWXYZabcdefghjmnpqrstvwxyz23456789=*'
         if not self.password_templates:
             self.passwords = {
-                VISITOR:    random_hash(8,  allowed_chars=character_set),
-                SUPERVISOR: random_hash(12, allowed_chars=character_set),
-                ADMIN:      random_hash(16, allowed_chars=character_set),
+                AuthRole.VISITOR:    random_hash(8,  allowed_chars=character_set),
+                AuthRole.SUPERVISOR: random_hash(12, allowed_chars=character_set),
+                AuthRole.ADMIN:      random_hash(16, allowed_chars=character_set),
             }
         else:
             self.passwords = dict(
-                zip((VISITOR, SUPERVISOR, ADMIN), self.password_templates)
+                zip(
+                    (AuthRole.VISITOR, AuthRole.SUPERVISOR, AuthRole.ADMIN),
+                    self.password_templates
+                )
             )
         self.dry_users, count_changed = {}, 0
 
@@ -194,9 +197,9 @@ class Command(BaseCommand):
             self.scramble_email(
                 user, 'u', mailbox='user', pre_scrambled_value=user.username)
             scrambled_pwd = self.passwords[
-                ADMIN if user.is_superuser else
-                (SUPERVISOR if user.has_perm(PERM_SUPERVISOR) else
-                 VISITOR)
+                AuthRole.ADMIN if user.is_superuser else
+                (AuthRole.SUPERVISOR if user.has_perm(PERM_SUPERVISOR) else
+                 AuthRole.VISITOR)
             ]
             user.set_password(scrambled_pwd)
             if not self.dry_run:

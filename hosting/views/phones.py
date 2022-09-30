@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views import generic
 from django.views.decorators.vary import vary_on_headers
 
-from core.auth import OWNER, AuthMixin
+from core.auth import AuthMixin, AuthRole
 
 from ..forms import PhoneCreateForm, PhoneForm
 from ..models import Phone
@@ -46,7 +46,7 @@ class PhoneDeleteView(
 
 class PhonePriorityChangeView(AuthMixin, ProfileMixin, generic.View):
     http_method_names = ['post']
-    minimum_role = OWNER
+    minimum_role = AuthRole.OWNER
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):

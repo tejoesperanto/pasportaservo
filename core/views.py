@@ -54,7 +54,7 @@ from hosting.views.mixins import (
 )
 from links.utils import create_unique_url
 
-from .auth import ADMIN, OWNER, SUPERVISOR, AuthMixin
+from .auth import AuthMixin, AuthRole
 from .forms import (
     EmailStaffUpdateForm, EmailUpdateForm, FeedbackForm, MassMailForm,
     SystemPasswordChangeForm, UserAuthenticationForm,
@@ -372,7 +372,7 @@ class EmailUpdateView(AuthMixin, UserModifyMixin, generic.UpdateView):
     model = User
     template_name = 'account/system-email_form.html'
     form_class = EmailUpdateForm
-    exact_role = OWNER
+    exact_role = AuthRole.OWNER
 
     def dispatch(self, request, *args, **kwargs):
         if not hasattr(self, 'user'):
@@ -499,7 +499,7 @@ class EmailStaffUpdateView(AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileM
     """
     template_name = 'account/system-email_form.html'
     form_class = EmailStaffUpdateForm
-    minimum_role = SUPERVISOR
+    minimum_role = AuthRole.SUPERVISOR
 
     def get_queryset(self):
         return super().get_queryset().select_related('user')
@@ -518,7 +518,7 @@ class EmailStaffUpdateView(AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileM
 class EmailValidityMarkView(AuthMixin, ProfileIsUserMixin, ProfileMixin, generic.View):
     http_method_names = ['post']
     template_name = '200.html'
-    minimum_role = SUPERVISOR
+    minimum_role = AuthRole.SUPERVISOR
     valid = False
 
     def dispatch(self, request, *args, **kwargs):
@@ -733,7 +733,7 @@ class MassMailView(AuthMixin, generic.FormView):
     template_name = 'core/mass_mail_form.html'
     form_class = MassMailForm
     display_permission_denied = False
-    exact_role = ADMIN
+    exact_role = AuthRole.ADMIN
 
     def dispatch(self, request, *args, **kwargs):
         kwargs['auth_base'] = None
@@ -818,7 +818,7 @@ class MassMailView(AuthMixin, generic.FormView):
 class MassMailSentView(AuthMixin, generic.TemplateView):
     template_name = 'core/mass_mail_sent.html'
     display_permission_denied = False
-    exact_role = ADMIN
+    exact_role = AuthRole.ADMIN
 
     def dispatch(self, request, *args, **kwargs):
         kwargs['auth_base'] = None

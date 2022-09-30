@@ -17,7 +17,7 @@ import geocoder
 from django_countries.fields import Country
 from el_pagination.views import AjaxListView
 
-from core.auth import PERM_SUPERVISOR, SUPERVISOR, AuthMixin
+from core.auth import PERM_SUPERVISOR, AuthMixin, AuthRole
 from core.forms import FeedbackForm
 from core.templatetags.utils import compact
 from maps import SRID
@@ -43,7 +43,7 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
     """
     template_name = 'hosting/place_list_supervisor.html'
     display_fair_usage_condition = True
-    minimum_role = SUPERVISOR
+    minimum_role = AuthRole.SUPERVISOR
 
     def dispatch(self, request, *args, **kwargs):
         self.country = Country(kwargs['country_code'])

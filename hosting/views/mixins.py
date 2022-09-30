@@ -8,7 +8,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import never_cache
 
-from core.auth import OWNER
+from core.auth import AuthRole
 from core.templatetags.utils import next_link
 from core.utils import sanitize_next
 
@@ -80,7 +80,7 @@ class ProfileIsUserMixin(object):
 
 
 class CreateMixin(object):
-    minimum_role = OWNER
+    minimum_role = AuthRole.OWNER
 
     def dispatch(self, request, *args, **kwargs):
         if self.kwargs.get('profile_pk'):
@@ -97,7 +97,7 @@ class CreateMixin(object):
 class ProfileAssociatedObjectCreateMixin(object):
     def form_valid(self, form):
         response = super().form_valid(form)
-        if self.role == OWNER:
+        if self.role == AuthRole.OWNER:
             url = ''.join((
                 reverse('profile_settings',
                         kwargs={'pk': self.create_for.pk, 'slug': self.create_for.autoslug}),
@@ -206,7 +206,7 @@ class FamilyMemberAuthMixin(object):
 
 
 class UpdateMixin(object):
-    minimum_role = OWNER
+    minimum_role = AuthRole.OWNER
     update_partial = False
 
     @never_cache
@@ -225,7 +225,7 @@ class UpdateMixin(object):
 
 
 class DeleteMixin(object):
-    minimum_role = OWNER
+    minimum_role = AuthRole.OWNER
 
     def get_object(self, queryset=None):
         if getattr(self, 'object', None) is not None:
