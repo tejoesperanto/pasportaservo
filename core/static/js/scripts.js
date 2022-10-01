@@ -508,8 +508,8 @@ $(document).ready(function() {
 // Bootstrap tooltips and popovers
 function enableTooltips() {
     function realignTooltip(tip, elem) {
-        placement = getComputedStyle(elem).getPropertyValue('--tooltip-placement').trim()
-                    || elem.getAttribute('data-placement') || 'top';
+        var placement = getComputedStyle(elem).getPropertyValue('--tooltip-placement').trim()
+                        || elem.getAttribute('data-placement') || 'top';
         if (placement == 'left' && elem.getBoundingClientRect().left < 85) {
             return 'bottom';
         }
