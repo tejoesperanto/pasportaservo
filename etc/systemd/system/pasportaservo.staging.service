@@ -1,6 +1,7 @@
 [Unit]
 Description=Pasporta Servo staging (UAT) https://ido.pasportaservo.org
-After=network-online.target
+Wants=memcached-ps.staging.service
+After=network-online.target memcached-ps.staging.service
 
 [Service]
 ExecStart=/opt/envs/staging/bin/python /opt/envs/staging/bin/gunicorn -c /srv/staging/gunicorn_config.py pasportaservo.wsgi
