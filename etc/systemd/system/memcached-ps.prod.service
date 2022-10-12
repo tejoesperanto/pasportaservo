@@ -1,0 +1,13 @@
+[Unit]
+Description=Cache for Pasporta Servo
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+User=pscache
+ExecStart=/usr/local/memcached/bin/memcached -s /tmp/memcached_prod.sock -m 512
+
+[Install]
+WantedBy=multi-user.target

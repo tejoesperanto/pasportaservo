@@ -1,6 +1,7 @@
 [Unit]
 Description=Pasporta Servo https://www.pasportaservo.org
-After=network-online.target
+Wants=memcached-ps.prod.service
+After=network-online.target memcached-ps.prod.service
 
 [Service]
 ExecStart=/opt/envs/prod/bin/python /opt/envs/prod/bin/gunicorn -c /srv/prod/gunicorn_config.py pasportaservo.wsgi

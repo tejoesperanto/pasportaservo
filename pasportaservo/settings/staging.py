@@ -15,6 +15,13 @@ DATABASES = {
     }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+        'LOCATION': 'unix:/tmp/memcached_staging.sock',
+    }
+}
+
 EMAIL_BACKEND = "sgbackend.SendGridBackend"
 SENDGRID_API_KEY = get_env_setting('SENDGRID_API_KEY')
 EMAIL_SUBJECT_PREFIX = '[PS ido] '
