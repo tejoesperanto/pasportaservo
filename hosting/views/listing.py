@@ -242,12 +242,16 @@ class SearchView(PlacePaginatedListView):
 
         self.result = geocode(self.query)
         if self.query and self.result.point:
+            point_category = getattr(self.result, '_components', {}).get('_category')
+            point_type = getattr(self.result, '_components', {}).get('_type')
             locality_found_flags = [
                 self.result.country and not self.result.country_code,
                 self.result.state,
-                self.result.city
+                self.result.city,
+                point_category == 'place' and point_type and point_type != 'country',
             ]
             if any(locality_found_flags):
+                self.inhabited_place_search = point_category == 'place'
                 search_queryset = (
                     qs
                     .annotate(distance=Distance('location', self.result.point))
@@ -258,7 +262,7 @@ class SearchView(PlacePaginatedListView):
             elif self.result.country:  # We assume it's a country.
                 self.paginate_first_by = 50
                 self.paginate_orphans = 5
-                self.country_search = True
+                self.country_search = point_type == 'country' if point_type else True
                 search_queryset = (
                     qs
                     .filter(country=self.result.country_code.upper())

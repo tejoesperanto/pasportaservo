@@ -2984,6 +2984,43 @@ msgid "Nothing found for"
 msgstr "Nenio trovita por"
 
 #: hosting/templates/hosting/place_list.html
+#, python-format
+msgid "Find accommodation in %(where_to_look)s"
+msgstr "Trovu loĝejon en %(where_to_look)s"
+
+#: hosting/templates/hosting/place_list.html
+#, python-format
+msgid "Find accommodation at %(where_to_look)s"
+msgstr "Trovu loĝejon ĉe %(where_to_look)s"
+
+#: hosting/templates/hosting/place_list.html
+#, python-format
+msgid "for %(number)s night"
+msgid_plural "for %(number)s nights"
+msgstr[0] "por %(number)s nokto"
+msgstr[1] "por %(number)s noktoj"
+
+#: hosting/templates/hosting/place_list.html
+#, python-format
+msgid "Find local guides in %(where_to_look)s"
+msgstr "Trovu ĉiĉeronojn en %(where_to_look)s"
+
+#: hosting/templates/hosting/place_list.html
+#, python-format
+msgid "Find people in %(where_to_look)s"
+msgstr "Trovu homojn en %(where_to_look)s"
+
+#: hosting/templates/hosting/place_list.html
+#, python-format
+msgid "Find local guides at %(where_to_look)s"
+msgstr "Trovu ĉiĉeronojn ĉe %(where_to_look)s"
+
+#: hosting/templates/hosting/place_list.html
+#, python-format
+msgid "Find people at %(where_to_look)s"
+msgstr "Trovu homojn ĉe %(where_to_look)s"
+
+#: hosting/templates/hosting/place_list.html
 msgctxt "URL"
 msgid "results-start"
 msgstr "rezulto-komenco"
