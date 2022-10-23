@@ -831,6 +831,10 @@ msgstr ""
 msgid "Your feedback was successfully registered. Thank you."
 msgstr "Via komento estis registrita sukcese. Dankon!"
 
+#: core/templates/core/feedback_sent.html
+msgid "You sent an empty feedback, so we did not register it."
+msgstr "Vi sendis malplenan komenton, do ni ne registris ĝin."
+
 #: core/templates/core/home.html
 msgctxt "URL"
 msgid "whats-new"

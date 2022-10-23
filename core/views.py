@@ -612,16 +612,27 @@ class FeedbackView(generic.View):
             else:
                 return TemplateResponse(request, self.template_names[False])
 
-        self.request = request
-        feedback_type = FEEDBACK_TYPES[form.cleaned_data['feedback_on']]
-        message_text = form.cleaned_data['message']
-        method = self.submit_privately if form.cleaned_data['private'] else self.submit_publicly
-        # Submit the feedback.
-        method(feedback_type, message_text)
+        if form.cleaned_data['message']:
+            self.request = request
+            feedback_type = FEEDBACK_TYPES[form.cleaned_data['feedback_on']]
+            message_text = form.cleaned_data['message']
+            method = (
+                self.submit_privately if form.cleaned_data['private']
+                else self.submit_publicly
+            )
+            # Submit the feedback.
+            method(feedback_type, message_text)
         if request.is_ajax():
-            return JsonResponse({'result': True})
+            return JsonResponse({
+                'result': True,
+                'submitted': bool(form.cleaned_data['message']),
+            })
         else:
-            return TemplateResponse(request, self.template_names[True])
+            return TemplateResponse(
+                request,
+                self.template_names[True],
+                {'submitted': bool(form.cleaned_data['message'])}
+            )
 
     def submit_privately(self, feedback_type, message_text, exception=None):
         """

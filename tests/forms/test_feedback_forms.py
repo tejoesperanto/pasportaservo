@@ -13,7 +13,7 @@ class FeedbackFormTests(AdditionalAsserts, TestCase):
         form = FeedbackForm()
         expected_fields = {
             'feedback_on': True,
-            'message': True,
+            'message': False,
             'private': False,
         }
         # Verify that the expected fields are part of the form.

@@ -4,5 +4,11 @@
 {% block head_title %}{% trans "Feedback" %}{% endblock %}
 
 {% block page %}
-    <h1 class="text-center">{% trans "Your feedback was successfully registered. Thank you." %}</h1>
+    <h1 class="text-center">
+        {% if submitted %}
+            {% trans "Your feedback was successfully registered. Thank you." %}
+        {% else %}
+            {% trans "You sent an empty feedback, so we did not register it." %}
+        {% endif %}
+    </h1>
 {% endblock page %}
