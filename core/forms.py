@@ -302,6 +302,7 @@ class UsernameRemindRequestForm(SystemPasswordResetRequestForm):
 class FeedbackForm(forms.Form):
     message = forms.CharField(
         label=_("Message"),
+        required=False,
         widget=forms.Textarea(attrs={'rows': 4, 'style': "resize: vertical"}),
         help_text=_("Your contribution will appear in a discussion thread "
                     "publicly visible on {forum_url}, without your name."))
