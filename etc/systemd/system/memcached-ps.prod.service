@@ -7,7 +7,7 @@ Type=simple
 Restart=always
 RestartSec=5
 User=pscache
-ExecStart=/usr/local/memcached/bin/memcached -s /tmp/memcached_prod.sock -m 512
+ExecStart=/usr/local/memcached/bin/memcached -s /tmp/memcached_prod.sock -a 760 -m 512
 
 [Install]
 WantedBy=multi-user.target
