@@ -142,24 +142,30 @@
             <div id="{% trans "feedback" context "URL" %}" class="modal fade" role="dialog" tabindex="-1"
                  aria-labelledby="adv-search-feedback-title">
                 <div class="modal-dialog modal-lg" role="document">
-                    <form class="modal-content" method="POST" action="{% url 'user_feedback' %}">
-                        <div class="modal-header">
-                            <h4 class="modal-title" id="adv-search-feedback-title">
-                                {% trans "What do you think about the new search?" %}
-                            </h4>
-                        </div>
-                        <div class="modal-body" style="padding-bottom: 0">
-                            {% crispy feedback_form %}
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Close" %}</button>
-                            <button type="submit" class="btn btn-primary ajax"
-                                    data-csrf="{{ csrf_token }}"
-                                    data-on-ajax-success="feedbackSuccess">
-                                {% trans "Send" %}
-                            </button>
-                        </div>
-                    </form>
+                    {% if request.user_has_profile or user.is_superuser %}
+                    {# This implies that the user is authenticated. #}
+                        <form class="modal-content" method="POST" action="{% url 'user_feedback' %}">
+                            <div class="modal-header">
+                                <h4 class="modal-title" id="adv-search-feedback-title">
+                                    {% trans "What do you think about the new search?" %}
+                                </h4>
+                            </div>
+                            <div class="modal-body" style="padding-bottom: 0">
+                                {% crispy feedback_form %}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default"
+                                        data-dismiss="modal">
+                                    {% trans "Close" %}
+                                </button>
+                                <button type="submit" class="btn btn-primary ajax"
+                                        data-csrf="{{ csrf_token }}"
+                                        data-on-ajax-success="feedbackSuccess">
+                                    {% trans "Send" %}
+                                </button>
+                            </div>
+                        </form>
+                    {% endif %}
                 </div>
             </div>
             <a name="{% trans "results-start" context "URL" %}" tabindex="-1"></a>
