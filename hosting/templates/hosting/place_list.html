@@ -1,11 +1,42 @@
 {% extends 'core/base.html' %}
-{% load i18n static cache crispy_forms_tags geoformat %}
+{% load i18n static variable cache crispy_forms_tags geoformat %}
 {% load mult compact from utils %}
 
 {% block head_title %}
-    {% trans "Find accommodation" %}
     {% if view.query %}
-        {% trans "at" %} {{ view.result|format_geo_result|default:view.query.strip }}
+        {% asvar where_to_look %}
+            {{ view.result|format_geo_result|default:view.query.strip }}
+        {% endasvar %}
+        {% if filter.form.cleaned_data.available %}
+            {% if view.country_search or view.inhabited_place_search %}
+                {% blocktrans %}Find accommodation in {{ where_to_look }}{% endblocktrans %}
+            {% else %}
+                {% blocktrans %}Find accommodation at {{ where_to_look }}{% endblocktrans %}
+            {% endif %}
+            {% if 'max_night' in filtered_by %}
+                {% blocktrans count number=filter.form.cleaned_data.max_night trimmed %}
+                    for {{ number }} night
+                {% plural %}
+                    for {{ number }} nights
+                {% endblocktrans %}
+            {% endif %}
+        {% else %}
+            {% if view.country_search or view.inhabited_place_search %}
+                {% if 'tour_guide' in filtered_by %}
+                    {% blocktrans %}Find local guides in {{ where_to_look }}{% endblocktrans %}
+                {% else %}
+                    {% blocktrans %}Find people in {{ where_to_look }}{% endblocktrans %}
+                {% endif %}
+            {% else %}
+                {% if 'tour_guide' in filtered_by %}
+                    {% blocktrans %}Find local guides at {{ where_to_look }}{% endblocktrans %}
+                {% else %}
+                    {% blocktrans %}Find people at {{ where_to_look }}{% endblocktrans %}
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% else %}
+        {% trans "Find accommodation" %}
     {% endif %}
 {% endblock %}
 
