@@ -124,13 +124,13 @@ def migrate(conn):
 
 
 @task(auto_shortflags=False)
-def site_ctl(conn, command, needs_su=True):
+def site_ctl(conn, command, service_name="pasportaservo", needs_su=True):
     if not env:
         sys.exit("Site not defined, use staging/prod.")
 
     conn.run(
         ("sudo " if needs_su else "")
-        + f"systemctl {command} pasportaservo.{env['site']}.service",
+        + f"systemctl {command} {service_name}.{env['site']}.service",
         pty=True)
 
 
@@ -149,4 +149,5 @@ def deploy(conn, mode="full", remote="origin"):
             migrate(conn)
     if mode != "html":
         site_ctl(conn, command="restart")
+        site_ctl(conn, command="status", service_name="memcached-ps", needs_su=False)
         site_ctl(conn, command="status", needs_su=False)
