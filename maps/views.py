@@ -26,10 +26,12 @@ class WorldMapView(generic.TemplateView):
     template_name = 'maps/world_map.html'
 
     def get_context_data(self, **kwargs):
-        return {
+        context = super().get_context_data(**kwargs)
+        context.update({
             f'MAPBOX_GL_{setting}': getattr(settings, f'MAPBOX_GL_{setting}')
             for setting in ('CSS', 'CSS_INTEGRITY', 'JS', 'JS_INTEGRITY')
-        }
+        })
+        return context
 
 
 class MapTypeConfigureView(generic.View):
