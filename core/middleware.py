@@ -184,8 +184,8 @@ class AccountFlagsMiddleware(MiddlewareMixin):
 
         # Verify if the user is connecting with a browser and from a geographical
         # location already known by us.
-        connection_id = locations.values_list('pk', flat=True).first()
-        if connection_id is None:
+        connection_data = locations.values_list('pk', 'browser_name').first()
+        if connection_data is None:
             # Parse the UA (slow) and create new record only if one does not exist yet.
             ua = user_agents.parse(ua_string)
             conn = UserBrowser(
@@ -201,5 +201,9 @@ class AccountFlagsMiddleware(MiddlewareMixin):
             )
             conn.save()
             connection_id = conn.pk
+            connection_browser = conn.browser_name
+        else:
+            connection_id, connection_browser = connection_data
         request.session['connection_id'] = connection_id
+        request.session['connection_browser'] = connection_browser
         request.session['flag_connection_logged'] = str(timezone.now())
