@@ -8,6 +8,7 @@ from django.contrib.gis.geos import Point
 from django.core.cache import cache
 from django.db.models import BooleanField, Case, Count, Prefetch, Q, When
 from django.http import HttpResponseRedirect
+from django.http.response import HttpResponseRedirectBase
 from django.urls import reverse
 from django.utils.encoding import uri_to_iri
 from django.utils.translation import pgettext
@@ -26,6 +27,14 @@ from maps.utils import bufferize_country_boundaries
 from ..filters.search import SearchFilterSet
 from ..models import LocationConfidence, Phone, Place, TravelAdvice
 from ..utils import geocode
+
+
+class HttpResponseTemporaryRedirect(HttpResponseRedirectBase):
+    """
+        The 307 Temporary Redirect instructs the browser to load
+        a new URL, preserving the request body and method.
+    """
+    status_code = 307
 
 
 class PlaceListView(generic.ListView):
@@ -148,20 +157,24 @@ class SearchView(PlacePaginatedListView):
 
     def get(self, request, *args, **kwargs):
         if settings.SEARCH_FIELD_NAME in request.GET:
-            return HttpResponseRedirect(self.transpose_query_to_url_kwarg(request.GET))
+            return HttpResponseRedirect(
+                self.transpose_query_to_url_kwarg(request.GET))
 
-        self.prepare_search(
-            request, kwargs.get('query'),
-            request.session.pop('extended_search_data', None),
-            kwargs.get('cache'))
+        self.prepare_search(request, kwargs.get('query'), None, kwargs.get('cache'))
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if not kwargs.get('query') and request.POST.get(settings.SEARCH_FIELD_NAME):
-            request.session['extended_search_data'] = request.POST
-            return HttpResponseRedirect(self.transpose_query_to_url_kwarg(request.POST))
+            if request.session.get('connection_browser') == 'Firefox':
+                # Ugly workaround because Firefox forgets the request data.
+                # https://bugzilla.mozilla.org/show_bug.cgi?id=1805182
+                pass
+            else:
+                return HttpResponseTemporaryRedirect(
+                    self.transpose_query_to_url_kwarg(request.POST))
 
-        self.prepare_search(request, kwargs.get('query'), request.POST, kwargs.get('cache'))
+        query = kwargs.get('query') or request.POST.get(settings.SEARCH_FIELD_NAME)
+        self.prepare_search(request, query, request.POST, kwargs.get('cache'))
         return super().get(request, *args, **kwargs)
 
     def transpose_query_to_url_kwarg(self, source):
