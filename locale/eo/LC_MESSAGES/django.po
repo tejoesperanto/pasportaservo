@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2022-09-15 02:03+0000\n"
+"POT-Revision-Date: 2022-12-16 20:16+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -3086,6 +3086,15 @@ msgstr "Detale…"
 #, python-format
 msgid "No results found for <i>%(query)s</i>. Here are some active hosts!"
 msgstr "Neniu rezulto por <i>%(query)s</i>. Jen kelkaj aktivaj gastigantoj!"
+
+#: hosting/templates/hosting/place_list.html
+#, python-format
+msgid "Such place cannot be identified: <i>%(query)s</i>."
+msgstr "Tia loko ne estas rekonebla: <i>%(query)s</i>."
+
+#: hosting/templates/hosting/place_list.html
+msgid "Here are Pasporta Servo members elsewhere."
+msgstr "Jen pasportservanoj aliloke."
 
 #: hosting/templates/hosting/place_list.html
 #: hosting/templates/hosting/place_list_supervisor.html
