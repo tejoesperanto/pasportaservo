@@ -172,6 +172,8 @@
         </div>
     </div>
 
+    {% asvar place_list_not_empty %}{% if place_list.exists %}True{% endif %}{% endasvar %}
+
     <h4 class="text-center" id="georesult">
     {% with result=view.result %}
         {% if result.point %}
@@ -196,9 +198,16 @@
                 {% endif %}
                 <br />
             {% endif %}
-            {% blocktrans with query=view.query trimmed %}
-                No results found for <i>{{ query }}</i>. Here are some active hosts!
-            {% endblocktrans %}
+            {% if not filtered_by %}
+                {% blocktrans with query=view.query trimmed %}
+                    No results found for <i>{{ query }}</i>. Here are some active hosts!
+                {% endblocktrans %}
+            {% elif place_list_not_empty %}
+                {% blocktrans with query=view.query trimmed %}
+                    Such place cannot be identified: <i>{{ query }}</i>.
+                {% endblocktrans %}
+                {% trans "Here are Pasporta Servo members elsewhere." %}
+            {% endif %}
         {% endif %}
     {% endwith %}
     </h4>
@@ -220,6 +229,11 @@
                         {% trans "Sorry, no kind hosts found…" %}
                     {% else %}
                         {% trans "Sorry, no members of the community fulfilling the search criteria found." %}
+                    {% endif %}
+                    {% if not view.result.point and view.query %}
+                        {% blocktrans with query=view.query trimmed %}
+                            Such place cannot be identified: <i>{{ query }}</i>.
+                        {% endblocktrans %}
                     {% endif %}
                 {% elif queryset_cache_id %}
                     {% trans "The search query has expired. Please run a new search." %}
