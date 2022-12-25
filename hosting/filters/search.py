@@ -58,9 +58,10 @@ class SearchFilterSet(filters.FilterSet):
                 },
             },
             models.CharField: {
+                # Applicable to 'first_name' and 'last_name'.
                 'filter_class': filters.CharFilter,
                 'extra': lambda f: {
-                    'lookup_expr': 'icontains',
+                    'lookup_expr': 'unaccent__icontains',
                 },
             },
             models.IntegerField: {
