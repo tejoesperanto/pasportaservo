@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2022-12-16 20:16+0000\n"
+"POT-Revision-Date: 2023-01-10 00:11+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -3034,6 +3034,11 @@ msgid "Map of hosts"
 msgstr "Mapo de gastigantoj"
 
 #: hosting/templates/hosting/place_list.html
+msgctxt "URL"
+msgid "advanced-filter"
+msgstr "detala-filtro"
+
+#: hosting/templates/hosting/place_list.html
 msgid "Search settings"
 msgstr "Agordoj de serĉado"
 
@@ -3095,6 +3100,19 @@ msgstr "Tia loko ne estas rekonebla: <i>%(query)s</i>."
 #: hosting/templates/hosting/place_list.html
 msgid "Here are Pasporta Servo members elsewhere."
 msgstr "Jen pasportservanoj aliloke."
+
+#: hosting/templates/hosting/place_list.html
+#, python-format
+msgid "%(number)s results in total."
+msgstr "%(number)s rezultoj entute."
+
+#: hosting/templates/hosting/place_list.html
+msgid "Too many results?"
+msgstr "Tro da rezultoj?"
+
+#: hosting/templates/hosting/place_list.html
+msgid "Restrict the search"
+msgstr "Pliprecizigu la serĉadon"
 
 #: hosting/templates/hosting/place_list.html
 #: hosting/templates/hosting/place_list_supervisor.html

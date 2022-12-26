@@ -365,6 +365,16 @@ $(document).ready(function() {
         $('[data-target="#map-container"]').toggleClass('active');
     });
 
+    // Advanced search panel
+    $('#advanced-filter-toggle').click(function(event) {
+        $('[data-id="advanced-filter"]').collapse("show");
+        event.preventDefault();
+        document.querySelector('[data-id="advanced-filter"]').querySelector('input').focus();
+    });
+    $('[data-id="advanced-filter"]').on('shown.bs.collapse hidden.bs.collapse', function(event) {
+        document.getElementById('advanced-filter-toggle').setAttribute('aria-expanded', event.type == 'shown');
+    });
+
     // Sortable lists (via drag-and-drop)
     if (typeof Sortable !== "undefined") {
         $('.phone-list').each(function() {

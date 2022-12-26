@@ -325,6 +325,7 @@ class SearchView(PlacePaginatedListView):
         context['feedback_form'] = FeedbackForm()
 
         if getattr(self, 'country_search', False) and hasattr(self, 'result') and self.result.country_code:
+            context['country_results_count'] = context['object_list'].count()
             context['country_advisories'] = TravelAdvice.get_for_country(self.result.country_code.upper())
 
         return context
