@@ -87,10 +87,10 @@
                                placeholder="{% trans "Search for a country, a region, or a city…" %}">
                         <span class="input-group-btn">
                             {% if user.is_authenticated and ENVIRONMENT != 'PROD' %}
-                                <button data-target="#advanced-filter"
+                                <button data-target="#{% trans "advanced-filter" context "URL" %}"
                                         class="btn btn-default requires-scripting"
                                         type="button" data-toggle="collapse" tabindex="2"
-                                        aria-controls="advanced-filter"
+                                        aria-controls="{% trans "advanced-filter" context "URL" %}"
                                         aria-expanded="{{ filtered_by|yesno:'true,false' }}"
                                         title="{% trans "Search settings" %}">
                                     <span class="fa fa-sliders" aria-hidden="true"></span>
@@ -107,10 +107,11 @@
                 </div>
                 {% csrf_token %}
                 {% if user.is_authenticated and ENVIRONMENT != 'PROD' %}
-                    <div id="advanced-filter" class="{% filter compact %}
-                                                        panel panel-compact panel-default advanced-filter-panel
-                                                        collapse when-scripting {% if filtered_by %} in {% endif %}
-                                                     {% endfilter %}">
+                    <div id="{% trans "advanced-filter" context "URL" %}" data-id="advanced-filter"
+                         class="{% filter compact %}
+                                    panel panel-compact panel-default advanced-filter-panel
+                                    collapse when-scripting {% if filtered_by %} in {% endif %}
+                                {% endfilter %}">
                         <div class="panel-heading sr-only">{% trans "Advanced Search" %}</div>
                         {% if request.user_has_profile or user.is_superuser %}
                             <div class="panel-body form-horizontal">
@@ -172,7 +173,13 @@
         </div>
     </div>
 
-    {% asvar place_list_not_empty %}{% if place_list.exists %}True{% endif %}{% endasvar %}
+    {% asvar place_list_not_empty trimmed %}
+        {% if country_results_count is not None %}
+            {{ country_results_count|yesno:'True,' }}
+        {% elif place_list.exists %}
+            True
+        {% endif %}
+    {% endasvar %}
 
     <h4 class="text-center" id="georesult">
     {% with result=view.result %}
@@ -219,7 +226,34 @@
     {% endcache %}
 
     {% if place_list_not_empty %}
-        <div class="row place-list"><div class="col-xs-12">{# SEPARATOR #}</div></div>
+        <div class="row place-list">
+            <div class="col-xs-12 text-right">
+                {% if user.is_authenticated and view.query and view.result.point and country_results_count|default:500 > 6 %}
+                    {% comment %}
+                        The precise number of places is only known for countries. In other cases, we load
+                        additional places dynamically, sorted by distance – thus, we can assume there are
+                        "numerous" results.
+                    {% endcomment %}
+                    <span class="help-block" style="margin: 0">
+                        {% if country_results_count %}
+                            {% blocktrans with number=country_results_count trimmed %}
+                                {{ number }} results in total.
+                            {% endblocktrans %}
+                        {% else %}
+                            {% trans "Too many results?" %}
+                        {% endif %}
+                        {% spaceless %}
+                            <a href="#{% trans "advanced-filter" context "URL" %}" id="advanced-filter-toggle"
+                               aria-controls="{% trans "advanced-filter" context "URL" %}"
+                               aria-expanded="{{ filtered_by|yesno:'true,false' }}">
+                                <span>{% trans "Restrict the search" %}</span>
+                            </a>
+                        {% endspaceless %}.
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        {# SEPARATOR #}
         {% include page_template %}
     {% else %}
         <div class="row place-list">
