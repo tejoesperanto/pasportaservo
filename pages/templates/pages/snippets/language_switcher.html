@@ -1,0 +1,93 @@
+{% load i18n flatpages %}
+{% load variable utils %}
+
+
+    {% get_user_language as user_locale %}
+    {% get_system_language as LANGUAGE_CODE %}
+    {% get_flatpages flatpages_prefix as content_pages %}
+
+    {% if user_locale == 'en' %}
+        {# 'en' is often the default in browsers, that users don't modify... #}
+        {% asvar user_locale %}{{ LANGUAGE_CODE }}{% endasvar %}
+    {% endif %}
+    {% asvar current_page_lang trimmed %}
+        {% if flatpage %}
+            {{ flatpage|content_page_language }}
+        {% else %}
+            {{ LANGUAGE_CODE }}
+        {% endif %}
+    {% endasvar %}
+
+    <div class="language-switcher btn-group"{% if current_page_lang|language_bidi %} dir="rtl"{% endif %}>
+        <button class="btn btn-default dropdown-toggle same-as-body text-brand-aux" type="button"
+                data-toggle="dropdown"
+                aria-haspopup="menu" aria-expanded="false">
+            <span class="{% filter compact %}
+                            fa fa-solid fa-globe fa-lg
+                            fa-spacer-{{ current_page_lang|language_bidi|yesno:"left,right" }}
+                         {% endfilter %}"></span>
+            {% trans "In another language" as default_switcher_label %}
+            {% asvar translated_switcher_label trimmed %}
+                {% if flatpage and "----" in flatpage.content %}
+                    {{ flatpage.content|split:"----"|first|compact }}
+                {% endif %}
+            {% endasvar %}
+            <b class="fa-spacer-{{ current_page_lang|language_bidi|yesno:"left,right" }}"
+               lang="{% if translated_switcher_label %}{{ current_page_lang }}{% else %}{{ LANGUAGE_CODE }}{% endif %}">
+                {{ translated_switcher_label|default:default_switcher_label }}
+            </b>
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-{{ current_page_lang|language_bidi|yesno:"left,right" }}" role="menu">
+        {% language user_locale %}
+            {# List the base (non-localized) content page first. #}
+            {# This will typically be a hard-coded HTML page, not a flatpage. #}
+            {% if flatpage %}
+                <li role="menuitem">
+                    <a href="{{ base_url }}">
+                    {% filter compact|cut:"<i>"|cut:"</i>" %}
+                        {% spaceless %}
+                            <b lang="{{ LANGUAGE_CODE }}">
+                                <i>{{ LANGUAGE_CODE|language_name_local|capfirst }}</i>
+                            </b>
+                            {% if LANGUAGE_CODE|language_name_local|lower != LANGUAGE_CODE|language_name_translated|lower %}
+                                <i>&ensp;&bull;&ensp;</i>
+                                <bdi lang="{{ user_locale }}">{{ LANGUAGE_CODE|language_name_translated }}</bdi>
+                            {% endif %}
+                        {% endspaceless %}
+                    {% endfilter %}
+                    </a>
+                </li>
+            {% endif %}
+            {# List all the localized versions of the page after the base page. #}
+            {% for content_page in content_pages %}
+                {% asvar page_lang trimmed %}
+                    {{ content_page|content_page_language }}
+                {% endasvar %}
+                {% asvar is_suggested_lang trimmed %}
+                    {% if flatpage and flatpage.url == content_page.url %}
+                        True
+                    {% elif not flatpage and page_lang == user_locale %}
+                        True
+                    {% endif %}
+                {% endasvar %}
+                <li role="menuitem">
+                    <a href="{{ content_page.url }}">
+                    {% filter compact|cut:"<i>"|cut:"</i>" %}
+                        {% spaceless %}
+                            <b lang="{{ page_lang }}"{% if is_suggested_lang %} class="text-primary"{% endif %}>
+                                <i>{{ page_lang|language_name_local|capfirst }}</i>
+                            </b>
+                            {% if page_lang|language_name_local|lower != page_lang|language_name_translated|lower %}
+                                <i>&ensp;&bull;&ensp;</i>
+                                <bdi lang="{{ user_locale }}">{{ page_lang|language_name_translated }}</bdi>
+                            {% endif %}
+                        {% endspaceless %}
+                    {% endfilter %}
+                    </a>
+                </li>
+            {% endfor %}
+        {% endlanguage %}
+        </ul>
+    </div>
+    <div class="clearfix"></div>

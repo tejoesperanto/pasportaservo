@@ -1,3 +1,2 @@
 from .account import AccountSettingsPage, RegisterPage
-from .base import PageTemplate
-from .general import AboutPage, HomePage, OkayPage
+from .general import AboutPage, FAQPage, HomePage, OkayPage, TCPage

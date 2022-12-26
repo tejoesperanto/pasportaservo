@@ -194,6 +194,23 @@ ul.dropdown-menu li {
     opacity: 0.3;
 }
 
+.language-switcher {
+    &:not([dir]), &[dir="ltr"] {
+        float: right;
+
+        [role="menuitem"] {
+            text-align: left;
+        }
+    }
+    &[dir="rtl"] {
+        float: left;
+
+        [role="menuitem"] {
+            text-align: right;
+        }
+    }
+}
+
 .debug-only {
     position: absolute;
     left: 0px;

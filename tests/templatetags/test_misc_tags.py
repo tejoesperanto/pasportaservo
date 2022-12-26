@@ -2,9 +2,14 @@ import string
 import sys
 import unittest
 from collections import namedtuple
+from typing import Any
 
+from django.conf import settings
+from django.contrib.flatpages.models import FlatPage
+from django.core.handlers.wsgi import WSGIRequest
 from django.template import Context, Template, TemplateSyntaxError
-from django.test import TestCase, tag
+from django.test import RequestFactory, TestCase, tag
+from django.utils import translation
 from django.utils.functional import SimpleLazyObject
 from django.utils.html import escape
 
@@ -13,7 +18,10 @@ from factory import Faker
 
 @tag('templatetags')
 class RandomIdentifierTagTests(TestCase):
-    template_string = string.Template("{% load random_identifier from utils %}{% random_identifier $LENGTH %}")
+    template_string = string.Template(
+        "{% load random_identifier from utils %}"
+        "{% random_identifier $LENGTH %}"
+    )
     re_default = r'^[A-Za-z1-9_]{16,48}$'
 
     def test_no_length(self):
@@ -54,7 +62,10 @@ class PublicIdFilterTests(TestCase):
         obj = Cls(pk=1023, name="John", date_joined="2011-02-03", date_deleted="2018-07-06")
         with self.subTest(obj=obj):
             page = Template(self.template_string).render(Context({'my_obj': obj}))
-            self.assertEqual(page, "d64d289bce1a4d5a355bf948a58af770842a008d74bd375f57d182375838994c")
+            self.assertEqual(
+                page,
+                "d64d289bce1a4d5a355bf948a58af770842a008d74bd375f57d182375838994c"
+            )
 
         faker = Faker._get_faker()
         first_obj = Cls(
@@ -95,7 +106,10 @@ class ListTagTests(TestCase):
 
     def test_list_output(self):
         # A list of parameters is expected to result in a list containing those parameters.
-        page = Template("{% load list from utils %}{% list 'aa' +2 'bb' -2 'cc' %}").render(Context())
+        page = Template(
+            "{% load list from utils %}"
+            "{% list 'aa' +2 'bb' -2 'cc' %}"
+        ).render(Context())
         self.assertHTMLEqual(page, "[&#39;aa&#39;, 2, &#39;bb&#39;, -2, &#39;cc&#39;]")
 
         page = Template(
@@ -157,7 +171,10 @@ class DictTagTests(TestCase):
     @unittest.skipIf(sys.version_info < (3, 6), 'Order of dict cannot be guaranteed in Py < 3.6')
     def test_dict_output(self):
         # A list of parameters is expected to result in a dict containing those keys and values.
-        page = Template("{% load dict from utils %}{% dict aa=True bb=False cc=None %}").render(Context())
+        page = Template(
+            "{% load dict from utils %}"
+            "{% dict aa=True bb=False cc=None %}"
+        ).render(Context())
         self.assertHTMLEqual(page, "{&#39;aa&#39;: True, &#39;bb&#39;: False, &#39;cc&#39;: None}")
 
         page = Template(
@@ -292,7 +309,8 @@ class AllFilterTests(TestCase):
 class CompactFilterTests(TestCase):
     def test_single_line(self):
         content = "  \t Nam  pretium\vturpis  et\tarcu.   \f"
-        page = Template("{% load compact from utils %}[{{ my_var|compact }}]").render(Context({'my_var': content}))
+        template = Template("{% load compact from utils %}[{{ my_var|compact }}]")
+        page = template.render(Context({'my_var': content}))
         self.assertEqual(page, "[Nam pretium turpis et arcu.]")
 
     def test_multiple_lines(self):
@@ -302,7 +320,8 @@ class CompactFilterTests(TestCase):
             sem quam\rsemper libero,  \r
             sit amet  adipiscing   sem\n\n\nneque sed\xA0ipsum.
         """
-        page = Template("{% load compact from utils %}[{{ my_var|compact }}]").render(Context({'my_var': content}))
+        template = Template("{% load compact from utils %}[{{ my_var|compact }}]")
+        page = template.render(Context({'my_var': content}))
         self.assertEqual(
             page,
             "[Maecenas tempus, tellus eget condimentum rhoncus,"
@@ -322,17 +341,18 @@ class CompactFilterTests(TestCase):
             with self.subTest(autoescape=switch):
                 template = Template(template_string.substitute(SWITCH=switch, CONTENT=content))
                 page = template.render(Context({'my_var': content}))
+                encoding_func = escape if switch == 'on' else lambda x: x
                 self.assertEqual(
                     page.replace(" "*16, "").strip(),
                     "[Praesent <nonummy mi> \"in odio\".]\n"
-                    + (escape if switch == 'on' else lambda x: x)("[Praesent <nonummy mi> \"in odio\".]/") * 2
+                    + encoding_func("[Praesent <nonummy mi> \"in odio\".]/") * 2
                 )
 
 
 @tag('templatetags')
 class SplitFilterTests(TestCase):
     dummy_object = object()
-    test_data = [
+    test_data: list[tuple[Any, dict[str | None, list]]] = [
         ("", {',': [""], None: []}),
         (" \t  ", {',': [" \t  "], None: []}),
         ("xyzqw", {',': ["xyzqw"], None: ["xyzqw"]}),
@@ -369,7 +389,10 @@ class SplitFilterTests(TestCase):
                     page = template.render(Context({'my_var': content}))
                     self.assertEqual(
                         page.strip(),
-                        "".join("#{}#".format(escape(part) if autoescape else part) for part in expected_values[sep])
+                        "".join(
+                            "#{}#".format(escape(part) if autoescape else part)
+                            for part in expected_values[sep]
+                        )
                     )
 
     def test_direct_input(self, autoescape=True, test_data=None):
@@ -389,7 +412,12 @@ class SplitFilterTests(TestCase):
                         CONTENT=content,
                         SEP=':"{}"'.format(sep) if sep else ''))
                     page = template.render(Context())
-                    self.assertEqual(page.strip(), "".join("#{}#".format(part) for part in expected_values[sep]))
+                    self.assertEqual(
+                        page.strip(),
+                        "".join(
+                            "#{}#".format(part) for part in expected_values[sep]
+                        )
+                    )
 
     def test_nonautoescaped_var_input(self):
         self.test_var_input(autoescape=False)
@@ -409,7 +437,10 @@ class SplitFilterTests(TestCase):
         self.test_var_input(test_data=test_data, autoescape=False)
 
     def do_test_with_chunks(self, *, var, autoescape):
-        test_data = "This message;\t<strong>along with the apple</strong>; is sent on behalf of <span>Adam</span>;"
+        test_data = (
+            "This message;\t<strong>along with the apple</strong>;"
+            " is sent on behalf of <span>Adam</span>;"
+        )
         expected = {
             # no separator, no chunk length
             '~': [False, [test_data]],
@@ -475,8 +506,11 @@ class SplitFilterTests(TestCase):
                 page = template.render(Context({'my_var': test_data}))
                 self.assertEqual(
                     page.strip(),
-                    "".join("#{}#".format(escape(part) if autoescape and (var or expected[sep][0]) else part)
-                            for part in expected[sep][1])
+                    "".join(
+                        "#{}#".format(
+                            escape(part) if autoescape and (var or expected[sep][0]) else part)
+                        for part in expected[sep][1]
+                    )
                 )
 
     def test_chunking_var_input_autoescaped(self):
@@ -495,7 +529,7 @@ class SplitFilterTests(TestCase):
 @tag('templatetags')
 class MultFilterTests(TestCase):
     dummy_object = object()
-    test_data = [
+    test_data: list[tuple[Any, dict[Any, str | float]]] = [
         ("", {3: "", -3: "", '3': "", '007': "", '-3': "", '': "", '0.03': '', object(): ''}),
         ("xYz", {3: "xYz"*3, -3: "", '3': "xYz"*3, '007': "xYz"*7, '-3': "", '': "", '0.03': '', object(): ''}),
         (123, {3: 369, -3: -369, '3': 369, '007': 861, '-3': -369, '': "", '0.03': '', object(): ''}),
@@ -518,12 +552,18 @@ class MultFilterTests(TestCase):
                         CONTENT='"{}"'.format(value) if isinstance(value, str)
                                 else 'my_var' if value is self.dummy_object else value
                     ))
-                    page = template.render(Context({'my_var': self.dummy_object, 'by': multiplier}))
+                    page = template.render(
+                        Context({
+                            'my_var': self.dummy_object, 'by': multiplier,
+                        })
+                    )
                     self.assertEqual(page, str(outcome))
 
     def test_unsafe_values(self):
         template_string = string.Template(
-            "{% load mult from utils %}{% autoescape $SWITCH %}{{ my_var|mult:by }}{% endautoescape %}")
+            "{% load mult from utils %}"
+            "{% autoescape $SWITCH %}{{ my_var|mult:by }}{% endautoescape %}"
+        )
         test_data = [
             ("i<j>&k", {2: "i<j>&k"*2, -2: "", '003': "i<j>&k"*3, '0.03': ""}),
         ]
@@ -534,3 +574,149 @@ class MultFilterTests(TestCase):
                         template = Template(template_string.substitute(SWITCH=switch))
                         page = template.render(Context({'my_var': value, 'by': multiplier}))
                         self.assertEqual(page, escape(outcome) if switch == 'on' else outcome)
+
+
+@tag('templatetags')
+class LanguageTagTests(TestCase):
+    def test_get_system_language(self):
+        page = Template(
+            "{% load get_system_language from utils %}"
+            "{% get_system_language %}"
+        ).render(Context())
+        self.assertEqual(page, f"{ settings.LANGUAGE_CODE }")
+
+        page = Template(
+            "{% load get_system_language from utils %}"
+            "{% get_system_language as LANG %}//[{{ LANG }}]"
+        ).render(Context())
+        self.assertEqual(page, f"//[{ settings.LANGUAGE_CODE }]")
+
+        page = Template(
+            "{% load i18n %}{% load get_system_language from utils %}"
+            "{% language 'mn-CN' %}{% get_system_language %}{% endlanguage %}"
+        ).render(Context())
+        self.assertEqual(page, "mn-cn")
+
+        with translation.override('ga'):
+            page = Template(
+                "{% load get_system_language from utils %}"
+                "{% get_system_language %}"
+            ).render(Context())
+        self.assertEqual(page, "ga")
+
+    def test_get_user_language(self):
+        template_direct_output = Template(
+            "{% load get_user_language from utils %}"
+            "{% get_user_language %}"
+        )
+        template_output_via_var = Template(
+            "{% load get_user_language from utils %}"
+            "{% get_user_language as LANG %}//[{{ LANG }}]"
+        )
+        template_forced_locale = Template(
+            "{% load i18n %}{% load get_user_language from utils %}"
+            "{% language 'ga' %}{% get_user_language %}{% endlanguage %}"
+        )
+
+        test_data: list[tuple[WSGIRequest | None, str]] = [
+            # If the request does not indicate a language preference, the system language
+            # is expected to be returned.
+            (RequestFactory().get('/'), "fa"),
+            # If the request indicates a language variant preference not supported by the
+            # system, the base language code is expected to be returned.
+            (RequestFactory().get('/', HTTP_ACCEPT_LANGUAGE='mn-ja'), "mn"),
+            # When the request indicates several preferred languages, the first supported
+            # by the system is expected to be returned.
+            (RequestFactory().get('/', HTTP_ACCEPT_LANGUAGE='xx-cn, yy, az'), "az"),
+            # If the request indicates only unsupported preferred languages, the system
+            # language is expected to be returned.
+            (RequestFactory().get('/', HTTP_ACCEPT_LANGUAGE='xyz'), "fa"),
+            # When no request is present in the context, the system language is expected
+            # to be returned.
+            (None, "fa")
+        ]
+
+        for request, expected_lang_code in test_data:
+            with self.subTest(
+                    request={
+                        k: v for k, v in request.META.items() if k == 'HTTP_ACCEPT_LANGUAGE'
+                    } if request else None
+            ):
+                with self.settings(LANGUAGE_CODE='fa'):
+                    context = Context({'request': request}) if request else Context()
+                    self.assertEqual(
+                        template_direct_output.render(context),
+                        f"{expected_lang_code}"
+                    )
+                    self.assertEqual(
+                        template_output_via_var.render(context),
+                        f"//[{expected_lang_code}]"
+                    )
+                    # The locally activated locale is expected to be ignored in favor of
+                    # the base system language, when user does not indicate a language
+                    # preference or that preferred language is unsupported.
+                    self.assertEqual(
+                        template_forced_locale.render(context),
+                        f"{expected_lang_code}"
+                    )
+
+
+@tag('templatetags')
+class ContentPageLanguageFilterTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.content_page_one = FlatPage(url='/test/cn/one/')
+        cls.content_page_two = FlatPage(url='/test/again/cn/two/')
+
+    def test_filter(self):
+        template = Template(
+            "{% load content_page_language from utils %}"
+            "{{ page|content_page_language }}"
+        )
+        page = template.render(Context({'page': self.content_page_one}))
+        self.assertEqual(page, "cn")
+
+        # When language code is not present in the URL of the content page, the
+        # result is expected to be an empty string.
+        page = template.render(Context({'page': FlatPage(url='/different-block/')}))
+        self.assertEqual(page, "")
+
+        # Sanity check.
+        with self.assertRaises(AttributeError):
+            template.render(Context({'page': None}))
+        with self.assertRaises(AttributeError):
+            template.render(Context({'page': object()}))
+
+    def test_filter_with_prefix(self):
+        template = Template(
+            "{% load content_page_language from utils %}"
+            "{{ page|content_page_language:'/test/again' }}"
+        )
+        page = template.render(Context({'page': self.content_page_two}))
+        self.assertEqual(page, "cn")
+        page = template.render(Context({'page': self.content_page_one}))
+        self.assertEqual(page, "cn")
+
+        template = Template(
+            "{% load content_page_language from utils %}"
+            "{{ page|content_page_language:'/test/again/' }}"
+        )
+        page = template.render(Context({'page': self.content_page_two}))
+        self.assertEqual(page, "cn")
+        page = template.render(Context({'page': self.content_page_one}))
+        self.assertEqual(page, "cn")
+
+        template = Template(
+            "{% load content_page_language from utils %}"
+            "{{ page|content_page_language:'/cadabra/' }}"
+        )
+        page = template.render(Context({'page': self.content_page_two}))
+        self.assertEqual(page, "again")
+        page = template.render(Context({'page': self.content_page_one}))
+        self.assertEqual(page, "cn")
+
+        # Sanity check.
+        with self.assertRaises(AttributeError):
+            template.render(Context({'page': None}))
+        with self.assertRaises(AttributeError):
+            template.render(Context({'page': object()}))

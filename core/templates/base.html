@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 {% load i18n statici18n static cdn compress sass_tags utils %}
 
-<html lang="{{ LANGUAGE_CODE }}"
+<html lang="{% get_system_language %}"
       class="{% if ' MSIE ' in request.META.HTTP_USER_AGENT or 'Trident/' in request.META.HTTP_USER_AGENT %}msie-compat{% endif %}"
       data-env="{{ ENVIRONMENT }}">
     <head>

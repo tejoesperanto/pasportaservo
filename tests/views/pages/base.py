@@ -1,6 +1,5 @@
 from threading import Lock
 from typing import Optional, TypedDict, TypeVar, cast
-from urllib.parse import urlencode
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
@@ -95,9 +94,11 @@ class PageTemplate:
             user: Optional[AbstractUser | UserFactory] = None,
             status: str | int = 200,
             redirect_to: Optional[str] = None,
+            extra_params: Optional[dict[str, str | int | Promise]] = None,
+            extra_headers: Optional[dict[str, str]] = None,
             reuse_for_lang: Optional[str] = None,
     ) -> Page:
-        if reuse_for_lang:
+        if reuse_for_lang and not (extra_params or extra_headers):
             this_page_key = (
                 f'{cls.__name__}.{reuse_for_lang}'
                 f'.{getattr(user, "pk", None)}.{hash(redirect_to)}'
@@ -114,10 +115,13 @@ class PageTemplate:
         page_instance._test_case = test_case
         if user is None:
             test_case.app.reset()
-        complete_url = f'{cls.url}'
+        extra_params = extra_params or {}
         if redirect_to is not None:
-            complete_url += '?' + urlencode({settings.REDIRECT_FIELD_NAME: redirect_to})
-        page_instance._page = test_case.app.get(complete_url, status=status, user=user)
+            extra_params.update({settings.REDIRECT_FIELD_NAME: redirect_to})
+        page_instance._page = test_case.app.get(
+            str(cls.url), params=extra_params, headers=extra_headers,
+            status=status, user=user,
+        )
 
         if reuse_for_lang:
             cls._open_pages_lock.acquire()
@@ -256,3 +260,10 @@ class PageWithFormTemplate(PageTemplate):
                 .get_form()
                 .find(f"form > .form-contents input[name='{field_name}'] ~ [id^='error_']")
             ]
+
+
+class PageWithTitleHeadingTemplate(PageTemplate):
+    page_title: str | dict[str, str]
+
+    def get_heading_text(self) -> str:
+        return cast(str, self.pyquery("[role='main'] > h1").text())

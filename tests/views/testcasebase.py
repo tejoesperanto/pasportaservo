@@ -1,3 +1,4 @@
+from typing import cast
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -9,7 +10,7 @@ from django_webtest import WebTest
 
 from ..assertions import AdditionalAsserts
 from ..factories import UserFactory
-from .pages import PageTemplate
+from .pages.base import PageTemplate
 
 
 class BasicViewTests(AdditionalAsserts, WebTest):
@@ -69,8 +70,14 @@ class BasicViewTests(AdditionalAsserts, WebTest):
                 else:
                     response = self.app.get(expected_url, status='*')
                 self.assertEqual(response.status_code, 200)
-                self.assertTrue('view' in response.context)
-                self.assertIsInstance(response.context['view'], self.view_page.view_class)
+                if self.view_page.view_class is not None:
+                    self.assertTrue('view' in response.context)
+                    self.assertIsInstance(
+                        response.context['view'], self.view_page.view_class)
+                else:
+                    # In some special cases, such as error responses or flat pages,
+                    # there is no `view` variable in the context of the response.
+                    self.assertFalse('view' in response.context)
 
     def test_view_title(self):
         # Verify that the view has the expected <title> element.
@@ -80,14 +87,17 @@ class BasicViewTests(AdditionalAsserts, WebTest):
                 self.subTest(lang=lang)
             ):
                 page = self.view_page.open(
-                    self, user=self.user if self.view_page.redirects_unauthenticated else None)
-                self.assertHTMLEqual(page.pyquery("title").html(), self.view_page.title[lang])
+                    self,
+                    user=self.user if self.view_page.redirects_unauthenticated else None)
+                self.assertHTMLEqual(
+                    cast(str, page.pyquery("title").html()),
+                    self.view_page.title[lang]
+                )
 
     def test_view_header_unauthenticated_user(self):
         if self.view_page.redirects_unauthenticated:
-            self.skipTest(
-                f'{self.view_page.view_class.__name__} is expected to redirect '
-                'non-authenticated users')
+            view_name = getattr(self.view_page.view_class, '__name__ ', 'This view')
+            self.skipTest(f'{view_name} is expected to redirect non-authenticated users')
 
         # When the user is not authenticated, the view's header is expected
         # to have "login" and "register" links, no username or link to profile,
@@ -125,9 +135,8 @@ class BasicViewTests(AdditionalAsserts, WebTest):
 
     def test_view_header_logged_in_user(self):
         if self.view_page.redirects_logged_in:
-            self.skipTest(
-                f'{self.view_page.view_class.__name__} is expected to redirect '
-                'authenticated users')
+            view_name = getattr(self.view_page.view_class, '__name__ ', 'This view')
+            self.skipTest(f'{view_name} is expected to redirect authenticated users')
 
         # When the user is logged in, the view's header is expected to have
         # a "logout" link, a link to profile with the user's avatar, links to

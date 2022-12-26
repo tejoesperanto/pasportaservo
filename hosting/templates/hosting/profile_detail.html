@@ -256,6 +256,7 @@
                 {% filter cut:"<span>"|cut:"</span>" %}{% spaceless %}
                     {% if profile.gender %}
                         {% asvar of_gender trimmed %}
+                            {% get_system_language as LANGUAGE_CODE %}
                             {% if profile.gender.name_en or LANGUAGE_CODE == 'eo' %}
                                 {{ profile.gender }}
                             {% else %}

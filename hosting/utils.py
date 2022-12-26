@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.gis.geos import Point
+from django.utils import translation
 from django.utils.deconstruct import deconstructible
 
 import geocoder
@@ -42,7 +43,7 @@ def geocode(query, country='', private=False, annotations=False, multiple=False)
         OpenCageQuery (with a Geo Point) or None.
     """
     key = SiteConfiguration.get_solo().opencage_api_key
-    lang = settings.LANGUAGE_CODE
+    lang = translation.get_language()
     if not query:
         return
     params = {'language': lang}
