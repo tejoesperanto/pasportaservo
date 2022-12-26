@@ -1,4 +1,4 @@
-from typing import cast
+from abc import ABCMeta, abstractmethod
 
 from django.conf import settings
 from django.urls import reverse_lazy
@@ -8,9 +8,9 @@ from django.views.generic import TemplateView
 from pyquery import PyQuery
 
 from core.views import HomeView
-from pages.views import AboutView
+from pages.views import AboutView, FaqView, TermsAndConditionsView
 
-from .base import PageTemplate
+from .base import PageTemplate, PageWithTitleHeadingTemplate
 
 
 class HomePage(PageTemplate):
@@ -50,7 +50,29 @@ class OkayPage(PageTemplate):
         return self.pyquery("header .search-container")
 
 
-class AboutPage(PageTemplate):
+class PageWithLanguageSwitcher(PageTemplate, metaclass=ABCMeta):
+    @abstractmethod
+    def get_lang_switcher(self) -> PyQuery: ...  # noqa: E704
+
+    @abstractmethod
+    def get_lang_switcher_label(self) -> PyQuery: ...  # noqa: E704
+
+    @abstractmethod
+    def get_lang_switcher_languages(self) -> PyQuery: ...  # noqa: E704
+
+    @abstractmethod
+    def is_localized_page(self) -> bool: ...  # noqa: E704
+
+    @property
+    @abstractmethod
+    def locale(self) -> str: ...  # noqa: E704
+
+    @property
+    def base_url_for_localized_page(self):
+        return self.url
+
+
+class AboutPage(PageWithTitleHeadingTemplate, PageWithLanguageSwitcher):
     view_class = AboutView
     url = reverse_lazy('about')
     explicit_url = {
@@ -64,9 +86,63 @@ class AboutPage(PageTemplate):
         'eo': "Internacia gastiga servo per Esperanto : Pasporta Servo",
     }
     redirects_unauthenticated = False
-
-    def get_heading_text(self) -> str:
-        return cast(str, self.pyquery("[role='main'] > h1").text())
+    page_title = "Pasporta Servo: Internacia gastiga servo per Esperanto"
 
     def get_attribution(self) -> PyQuery:
         return self.pyquery("[role='main'] .attribution")
+
+    def get_lang_switcher(self) -> PyQuery:
+        return self.pyquery(".language-switcher")
+
+    def get_lang_switcher_label(self) -> PyQuery:
+        return self.get_lang_switcher().find("button > b")
+
+    def get_lang_switcher_languages(self) -> PyQuery:
+        return self.get_lang_switcher().find("ul > li > a")
+
+    def is_localized_page(self) -> bool:
+        return False
+
+    @property
+    def locale(self) -> str:
+        return settings.LANGUAGE_CODE
+
+
+class FAQPage(PageWithTitleHeadingTemplate):
+    view_class = FaqView
+    url = reverse_lazy('faq')
+    explicit_url = {
+        'en': '/faq/',
+        'eo': '/oftaj-demandoj/',
+    }
+    template = 'pages/faq.html'
+    title = {
+        # The Questions-and-Answers page is always in Esperanto.
+        'en': "Oftaj demandoj | Pasporta Servo",
+        'eo': "Oftaj demandoj | Pasporta Servo",
+    }
+    redirects_unauthenticated = False
+    page_title = "Oftaj Demandoj"
+
+    def get_section_headings(self) -> PyQuery:
+        return self.pyquery("[role='main'] > section > h3")
+
+
+class TCPage(PageWithTitleHeadingTemplate):
+    view_class = TermsAndConditionsView
+    url = reverse_lazy('terms_conditions')
+    explicit_url = {
+        'en': '/terms-and-conditions/',
+        'eo': '/kond/',
+    }
+    template = 'pages/terms_conditions.html'
+    title = {
+        # The Terms-and-Conditions page is currently always in Esperanto.
+        'en': "Kondiĉoj | Pasporta Servo",
+        'eo': "Kondiĉoj | Pasporta Servo",
+    }
+    redirects_unauthenticated = False
+    page_title = "Kondiĉoj por la uzado de Pasporta Servo"
+
+    def get_terms_items(self) -> PyQuery:
+        return self.pyquery("[role='main'] > blockquote")

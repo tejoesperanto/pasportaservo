@@ -3,6 +3,7 @@ from django.contrib.gis.geos import Point
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
+from django.utils import translation
 from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
 from django.views import generic
@@ -115,7 +116,7 @@ class MapStyleView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         return {
             'key': SiteConfiguration.get_solo().openmaptiles_api_key,
-            'lang': settings.LANGUAGE_CODE,
+            'lang': translation.get_language(),
         }
 
 

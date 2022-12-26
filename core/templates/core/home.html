@@ -119,6 +119,7 @@
     </div>
     <div class="social-support" data-nosnippet>
         <a href="https://buymeacoffee.com/pasportaservo" target="_blank" rel="external noreferrer" class="btn btn-default fullwidth-xxs">
+            {% get_system_language as LANGUAGE_CODE %}
             {% cache HOUR|mult:48 financial-support-button LANGUAGE_CODE user.pk %}
                 {% if not user_donations_count %}
                     <span class="hidden-xxs visible-xs-inline visible-md-inline visible-lg-inline">

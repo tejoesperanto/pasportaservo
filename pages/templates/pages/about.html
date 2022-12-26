@@ -8,6 +8,9 @@
             h1 {
                 margin-bottom: 25px;
             }
+            .language-switcher ~ h1 {
+                margin-top: 35px;
+            }
             p {
                 margin: 0px;
             }
@@ -22,6 +25,17 @@
 {% block head_title_separator %}:{% endblock %}
 
 {% block page %}
+    {% get_user_language as user_locale %}
+    {% get_system_language as LANGUAGE_CODE %}
+    {% cache HOUR|mult:96 about-page-language-switcher LANGUAGE_CODE user_locale %}
+        {% with switch_context=True %}
+            {% language 'eo' %}
+                {% url 'about' as about_flatpages_prefix %}
+            {% endlanguage %}
+            {% include './snippets/language_switcher.html' with flatpages_prefix=about_flatpages_prefix %}
+        {% endwith %}
+    {% endcache %}
+
     <h1>Pasporta Servo: Internacia gastiga servo per Esperanto</h1>
 
     <div class="row vertical-align-not-xxs">

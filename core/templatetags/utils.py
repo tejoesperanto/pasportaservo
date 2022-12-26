@@ -1,10 +1,13 @@
 import random
 from hashlib import sha256
+from typing import Optional, cast
 from urllib.parse import quote as urlquote, urlencode, urlparse
 
 from django import template
 from django.conf import settings
+from django.contrib.flatpages.models import FlatPage
 from django.http import HttpRequest
+from django.utils import translation
 from django.utils.safestring import SafeData, mark_safe
 
 from core.utils import sanitize_next
@@ -104,6 +107,38 @@ def compact(value):
     new lines) are replaced by a space and collapsed.
     """
     return ' '.join(value.split())
+
+
+@register.simple_tag
+def get_system_language():
+    """
+    A template tag that retrieves the currently active system language without reliance on the i18n context
+    processor. The result can optionally be saved in a template variable.
+    """
+    return translation.get_language()
+
+
+@register.simple_tag(takes_context=True)
+def get_user_language(context):
+    """
+    A template tag that retrieves the user's current language preference without reliance on the LocaleMiddleware.
+    """
+    if 'request' not in context:
+        return settings.LANGUAGE_CODE  # Same fallback as for `get_language_from_request`.
+    return translation.get_language_from_request(context['request'])
+
+
+@register.filter
+def content_page_language(content_page: FlatPage, prefix_url: Optional[str] = None):
+    """
+    A template filter to extract the language code from a localized content page (flat page). Each such page
+    should have a URL in the form: /PREFIX/LANG-CODE/local-slug/
+    """
+    if prefix_url and content_page.url.startswith(prefix_url):
+        url = cast(str, content_page.url)[len(prefix_url):].lstrip('/')
+        return url.split('/', maxsplit=1)[0]
+    else:
+        return cast(str, content_page.url).split('/')[2]
 
 
 @register.simple_tag(name='next', takes_context=True)
