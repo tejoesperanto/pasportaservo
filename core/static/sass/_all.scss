@@ -94,6 +94,9 @@ code, kbd, pre, samp {
 .text-brand, a.text-brand:hover {
     color: $color-brand;
 }
+.text-brand-aux {
+    color: $color-brand-aux;
+}
 .text-muted .glyphicon, .text-muted .fa {
     color: lighten($color-gray, 13.5%);
 }

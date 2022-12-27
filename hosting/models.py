@@ -1250,23 +1250,59 @@ class Condition(models.Model):
     """
     Hosting condition in a place (e.g. bringing sleeping bag, no smoking...).
     """
+    class Categories(models.TextChoices):
+        IN_THE_HOUSE = (
+            'in_house',
+            pgettext_lazy("Condition Category", "in the house")
+        )
+        SLEEPING_CONDITIONS = (
+            'sleeping_cond',
+            pgettext_lazy("Condition Category", "sleeping conditions")
+        )
+        ON_THE_OUTSIDE = (
+            'outside_house',
+            pgettext_lazy("Condition Category", "outside the house")
+        )
+
+    category = models.CharField(
+        _("category"),
+        blank=False,
+        max_length=15, choices=Categories.choices)
+    name_en = models.CharField(
+        _("name (in English)"),
+        max_length=255,
+        # Translators: English language example for condition's `name_en`.
+        help_text=_("E.g.: 'Don't smoke'."))
     name = models.CharField(
         _("name"),
         max_length=255,
+        # Translators: Esperanto language example for condition's `name`.
         help_text=_("E.g.: 'Ne fumu'."))
     abbr = models.CharField(
         _("abbreviation"),
         max_length=20,
+        blank=True,
         help_text=_("Official abbreviation as used in the book. E.g.: 'Nef.'"))
-    slug = models.SlugField(
-        _("URL friendly name"))
+    icon = models.TextField(
+        _("icon"))
+    restriction = models.BooleanField(
+        _("is a limitation"),
+        default=True,
+        help_text=_("Marked = limitation for the guests, "
+                    "unmarked = facilitation for the guests."))
 
     class Meta:
         verbose_name = _("condition")
         verbose_name_plural = _("conditions")
 
     def __str__(self):
-        return self.name
+        return (
+            self.name if str(get_language()).startswith('eo')
+            else (self.name_en or self.name)
+        )
+
+    def get_absolute_url(self):
+        return reverse('hosting_condition_detail', kwargs={'pk': self.pk})
 
 
 class ContactPreference(models.Model):

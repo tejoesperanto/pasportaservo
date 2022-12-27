@@ -31,7 +31,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='condition',
             name='slug',
-            field=models.SlugField(verbose_name='URL friendly name'),
+            field=models.SlugField(verbose_name='URL friendly name', default='-', null=True),
+            preserve_default=False,
         ),
         migrations.AlterField(
             model_name='phone',

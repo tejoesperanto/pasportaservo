@@ -8,11 +8,9 @@
 
 @font-face {
     font-family: "PS Signaro";
-    src: url('../fonts/PS-Signaro.eot?v=1.1');
-    src: url('../fonts/PS-Signaro.eot?v=1.1#iefix') format('embedded-opentype'),
-         url('../fonts/PS-Signaro.woff?v=1.1') format('woff'),
-         url('../fonts/PS-Signaro.ttf?v=1.1') format('truetype'),
-         url('../fonts/PS-Signaro.svg?v=1.1#PS-Signaro') format('svg');
+    src: url('../fonts/PS-Signaro.woff?v=1.2') format('woff'),
+         url('../fonts/PS-Signaro.ttf?v=1.2') format('truetype'),
+         url('../fonts/PS-Signaro.svg?v=1.2#PS-Signaro') format('svg');
     font-weight: 900;
     font-style: normal;
     font-display: block;
@@ -48,6 +46,9 @@ $fa-font-path: '../fontawesomefree/webfonts';
     }
     &-users:before {
         content: "\f606";
+    }
+    &-sleeping-bag:before {
+        content: "\f607";
     }
     &-plus-heavy:before {
         content: "\f60a";
