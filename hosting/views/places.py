@@ -21,6 +21,7 @@ from django.views import generic
 from braces.views import FormInvalidMessageMixin
 
 from core.auth import PERM_SUPERVISOR, AuthMixin, AuthRole
+from core.mixins import LoginRequiredMixin
 from core.models import SiteConfiguration
 from core.templatetags.utils import next_link
 from core.utils import sanitize_next
@@ -33,8 +34,8 @@ from ..forms import (
     PlaceForm, PlaceLocationForm, UserAuthorizeForm,
 )
 from ..models import (
-    LocationConfidence, LocationType, Place,
-    Profile, TravelAdvice, Whereabouts,
+    Condition, LocationConfidence, LocationType,
+    Place, Profile, TravelAdvice, Whereabouts,
 )
 from .mixins import (
     CreateMixin, DeleteMixin, PlaceMixin, PlaceModifyMixin,
@@ -448,3 +449,8 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
             html_message=email_template_html.render(email_context),
             fail_silently=False,
         )
+
+
+class ConditionPreviewView(LoginRequiredMixin, generic.DetailView):
+    model = Condition
+    template_name = 'hosting/hosting_condition.html'

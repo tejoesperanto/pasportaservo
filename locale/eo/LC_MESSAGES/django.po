@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2023-01-10 00:11+0000\n"
+"POT-Revision-Date: 2023-01-19 18:18+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1410,7 +1410,7 @@ msgctxt "URL"
 msgid "feedback/"
 msgstr "opinio/"
 
-#: core/urls.py
+#: core/urls.py hosting/urls.py
 msgctxt "URL"
 msgid "admin/"
 msgstr "admin/"
@@ -1541,10 +1541,6 @@ msgstr "numero"
 #: hosting/admin/admin.py
 msgid "country code"
 msgstr "landa kodo"
-
-#: hosting/admin/admin.py
-msgid "image"
-msgstr "bildo"
 
 #: hosting/admin/admin.py hosting/models.py
 msgid "travel advice"
@@ -2439,6 +2435,31 @@ msgid "Location of {landmark} ({state})"
 msgstr "Lokigo de {landmark} ({state})"
 
 #: hosting/models.py
+msgctxt "Condition Category"
+msgid "in the house"
+msgstr "ene de la domo"
+
+#: hosting/models.py
+msgctxt "Condition Category"
+msgid "sleeping conditions"
+msgstr "dormo-kondiĉoj"
+
+#: hosting/models.py
+msgctxt "Condition Category"
+msgid "outside the house"
+msgstr "ekster la domo"
+
+#: hosting/models.py
+msgid "category"
+msgstr "kategorio"
+
+#. Translators: English language example for condition's `name_en`.
+#: hosting/models.py
+msgid "E.g.: 'Don't smoke'."
+msgstr "Ekz.: 'Don't smoke'."
+
+#. Translators: Esperanto language example for condition's `name`.
+#: hosting/models.py
 msgid "E.g.: 'Ne fumu'."
 msgstr "Ekz.: 'Ne fumu'."
 
@@ -2451,10 +2472,19 @@ msgid "Official abbreviation as used in the book. E.g.: 'Nef.'"
 msgstr "Oficiala mallongigo tiel, kiel uzata en la libreto. Ekz: 'Nef.'"
 
 #: hosting/models.py
-msgid "URL friendly name"
-msgstr "URL-amika nomo"
+msgid "icon"
+msgstr "bildeto"
 
 #: hosting/models.py
+msgid "is a limitation"
+msgstr "ĉu limigo"
+
+#: hosting/models.py
+msgid ""
+"Marked = limitation for the guests, unmarked = facilitation for the guests."
+msgstr "Markita = limigo por la gastoj, malmarkita = faciligo por la gastoj."
+
+#: hosting/models.py hosting/templates/hosting/hosting_condition.html
 msgid "condition"
 msgstr "kondiĉo"
 
@@ -3887,6 +3917,11 @@ msgstr "aktualigo/"
 msgctxt "URL"
 msgid "confirm/"
 msgstr "konfirmi/"
+
+#: hosting/urls.py
+msgctxt "URL"
+msgid "condition/"
+msgstr "kond/"
 
 #: hosting/urls.py pages/urls.py
 msgctxt "URL"

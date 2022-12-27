@@ -15,6 +15,7 @@ from .views import (                                                            
     UserAuthorizeView,
     FamilyMemberCreateView, FamilyMemberUpdateView,
     FamilyMemberRemoveView, FamilyMemberDeleteView,
+    ConditionPreviewView,
     PhoneCreateView, PhoneUpdateView, PhoneDeleteView, PhonePriorityChangeView,
     PlaceStaffListView, InfoConfirmView, PlaceCheckView,
     SearchView,
@@ -161,6 +162,16 @@ urlpatterns = [
             path(
                 pgettext_lazy("URL", 'confirm/'),
                 InfoConfirmView.as_view(), name='hosting_info_confirm'),
+        ])),
+
+    path(
+        pgettext_lazy("URL", 'admin/'), include([
+            path(
+                pgettext_lazy("URL", 'condition/'), include([
+                    path(
+                        '<int:pk>/',
+                        ConditionPreviewView.as_view(), name='hosting_condition_detail'),
+                ])),
         ])),
 
     path(

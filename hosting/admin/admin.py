@@ -1,6 +1,5 @@
 from functools import lru_cache
 
-from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.utils import display_for_value
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
@@ -14,9 +13,10 @@ from django.db import models
 from django.db.models import Q, Value as V, functions as dbf
 from django.urls import reverse
 from django.utils.html import format_html
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _
 
 from django_countries.fields import Country
+from djangocodemirror.widgets import CodeMirrorAdminWidget
 
 from core.models import Agreement, UserBrowser
 from maps.widgets import AdminMapboxGlWidget
@@ -657,18 +657,16 @@ class WhereaboutsAdmin(ShowCountryMixin, admin.ModelAdmin):
 
 @admin.register(Condition)
 class ConditionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'abbr')
-    prepopulated_fields = {'slug': ('name',)}
-    fields = ('name', 'abbr', 'slug')
-    readonly_fields = ('icon',)
+    list_display = ('name', 'name_en', 'abbr', 'restriction', 'category')
+    fields = ('category', 'name', 'name_en', 'abbr', 'restriction', 'icon')
+    formfield_overrides = {
+        models.TextField: {'widget': CodeMirrorAdminWidget(config_name='html')},
+    }
 
-    def icon(self, obj):
-        return format_html('<img src="{static}img/cond_{slug}.svg" style="width:4ex; height:4ex;"/>',
-                           static=settings.STATIC_URL, slug=obj.slug)
-    icon.short_description = _("image")
-
-    def get_fields(self, request, obj=None):
-        return self.fields + (('icon',) if obj is not None else ())
+    def get_ordering(self, request):
+        return (
+            ['name'] if str(get_language()).startswith('eo') else ['name_en']
+        )
 
 
 @admin.register(Website)

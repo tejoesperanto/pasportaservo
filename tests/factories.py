@@ -13,10 +13,9 @@ from django_countries.data import COUNTRIES
 from factory import Faker
 from factory.django import DjangoModelFactory
 from phonenumber_field.phonenumber import PhoneNumber
-from slugify import slugify
 
 from hosting.countries import COUNTRIES_DATA, countries_with_mandatory_region
-from hosting.models import LocationType, Phone, Profile
+from hosting.models import Condition, LocationType, Phone, Profile
 from maps import SRID
 from maps.data import COUNTRIES_GEO
 
@@ -303,9 +302,19 @@ class ConditionFactory(DjangoModelFactory):
         exclude = ('word',)
 
     word = Faker('word')
-    name = factory.LazyAttribute(lambda obj: '{} {}.'.format(obj.word.title(), obj.word[::-1]))
+    name_en = factory.LazyAttribute(
+        lambda obj:
+            '{} {} {}.'.format(obj.word.title(), obj.word[::-1], obj.word)
+    )
+    name = factory.LazyAttribute(
+        lambda obj:
+            LocaleFaker._get_faker('la')
+            .pystr_format(string_format='{{word}} {{word}}.')
+            .title()
+    )
     abbr = factory.LazyAttributeSequence(lambda obj, n: 'p/{}/{}'.format(obj.word[:6], n))
-    slug = factory.LazyAttribute(lambda obj: slugify(obj.abbr, to_lower=True, separator='-'))
+    category = Faker('random_element', elements=Condition.Categories.values)
+    restriction = Faker('boolean', chance_of_getting_true=75)
 
 
 class GenderFactory(DjangoModelFactory):

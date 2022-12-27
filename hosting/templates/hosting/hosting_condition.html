@@ -1,0 +1,15 @@
+{% extends 'core/base.html' %}
+{% load i18n %}
+
+{% block head_title %}
+    {% trans "condition"|capfirst %} : {{ condition.get_category_display|capfirst }} : {{ condition }}
+{% endblock %}
+
+{% block page %}
+    <div class="row">
+        <div class="text-nowrap col-xs-6 col-xs-push-3">
+            {{ condition.icon|safe }}
+            <span>{{ condition }}</span>
+        </div>
+    </div>
+{% endblock %}
