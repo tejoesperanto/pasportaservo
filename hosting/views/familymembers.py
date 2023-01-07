@@ -82,6 +82,7 @@ class FamilyMemberDeleteView(
     """
     Removes the family member for the Place and deletes the profile.
     """
+    template_name = 'hosting/profile_confirm_delete.html'
     display_fair_usage_condition = True
 
     def get_object(self, queryset=None):
