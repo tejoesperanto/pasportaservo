@@ -204,15 +204,12 @@ class SearchView(PlacePaginatedListView):
         # Allow extended querying (that is, "advanced search") only to
         # authenticated users who have a profile and to administrators
         # regardless of their profile status.
-        if settings.ENVIRONMENT != 'PROD':
-            if not request.user.is_authenticated:
-                self.extended_query = None
-            elif not request.user_has_profile and not request.user.is_superuser:
-                self.extended_query = None
-            else:
-                self.extended_query = extended_query
-        else:
+        if not request.user.is_authenticated:
             self.extended_query = None
+        elif not request.user_has_profile and not request.user.is_superuser:
+            self.extended_query = None
+        else:
+            self.extended_query = extended_query
         # Exclude places whose owner blocked unauthenticated viewing.
         if not request.user.is_authenticated:
             self.queryset = self.queryset.exclude(owner__pref__public_listing=False)

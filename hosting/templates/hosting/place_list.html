@@ -86,7 +86,7 @@
                                name="{{ SEARCH_FIELD_NAME }}" value="{{ view.query }}" tabindex="1"
                                placeholder="{% trans "Search for a country, a region, or a city…" %}">
                         <span class="input-group-btn">
-                            {% if user.is_authenticated and ENVIRONMENT != 'PROD' %}
+                            {% if user.is_authenticated %}
                                 <button data-target="#{% trans "advanced-filter" context "URL" %}"
                                         class="btn btn-default requires-scripting"
                                         type="button" data-toggle="collapse" tabindex="2"
@@ -106,7 +106,7 @@
                     </div>
                 </div>
                 {% csrf_token %}
-                {% if user.is_authenticated and ENVIRONMENT != 'PROD' %}
+                {% if user.is_authenticated %}
                     <div id="{% trans "advanced-filter" context "URL" %}" data-id="advanced-filter"
                          class="{% filter compact %}
                                     panel panel-compact panel-default advanced-filter-panel
