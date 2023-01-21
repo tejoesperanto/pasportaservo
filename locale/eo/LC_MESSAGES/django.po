@@ -2260,7 +2260,7 @@ msgstr "kondiĉoj"
 #: hosting/models.py
 msgid ""
 "You are welcome to expand on the conditions in your home in the description."
-msgstr "Vi bonvenas plidetaligi la kondiĉojn en via hejmo, en la priskribo."
+msgstr "Vi bonvenas plidetaligi en la priskribo la kondiĉojn ene de via hejmo."
 
 #: hosting/models.py
 msgid "unavailable from"
