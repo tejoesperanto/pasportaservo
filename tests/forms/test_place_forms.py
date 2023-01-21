@@ -166,6 +166,12 @@ class PlaceFormTestingBase:
                 self.assertIn('autocomplete', form_empty.fields[field].widget.attrs)
                 self.assertEqual(form_empty.fields[field].widget.attrs['autocomplete'], markup)
 
+        # Verify that the values in the `conditions` field are grouped.
+        for value in form_empty.fields['conditions'].choices:
+            with self.subTest(condition_choice=value):
+                self.assertIsInstance(value[0], str)
+                self.assertIsInstance(value[1], (tuple, list))
+
         # Verify that the form's save method is protected in templates.
         self.assertTrue(
             hasattr(form_empty.save, 'alters_data')

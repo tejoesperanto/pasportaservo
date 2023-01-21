@@ -13,7 +13,7 @@ from django.db import models
 from django.db.models import Q, Value as V, functions as dbf
 from django.urls import reverse
 from django.utils.html import format_html
-from django.utils.translation import get_language, gettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_countries.fields import Country
 from djangocodemirror.widgets import CodeMirrorAdminWidget
@@ -664,9 +664,7 @@ class ConditionAdmin(admin.ModelAdmin):
     }
 
     def get_ordering(self, request):
-        return (
-            ['name'] if str(get_language()).startswith('eo') else ['name_en']
-        )
+        return [Condition.active_name_field()]
 
 
 @admin.register(Website)

@@ -2,10 +2,12 @@ import logging
 import re
 from collections import namedtuple
 from datetime import date
+from itertools import groupby
 
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.gis.geos import LineString, Point
+from django.db.models import Case, When
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.utils.functional import keep_lazy_text, lazy
 from django.utils.text import format_lazy
@@ -26,7 +28,7 @@ from ..countries import (
     COUNTRIES_DATA, SUBREGION_TYPES, countries_with_mandatory_region,
 )
 from ..models import (
-    CountryRegion, LocationConfidence,
+    Condition, CountryRegion, LocationConfidence,
     LocationType, Place, Profile, Whereabouts,
 )
 from ..utils import geocode, geocode_city
@@ -104,6 +106,27 @@ class PlaceForm(forms.ModelForm):
         self.helper['contact_before'].wrap(Field, wrapper_class='col-xs-12 col-sm-4', css_class='text-center')
         # Placeholder for the multiple-select field of conditions.
         self.fields['conditions'].widget.attrs['data-placeholder'] = _("Choose your conditions...")
+        # Grouping and sorting of condition options.
+        conditions_queryset = (
+            Condition.objects
+            .annotate(
+                category_group=Case(
+                    When(category=Condition.Categories.SLEEPING_CONDITIONS, then=1),
+                    When(category=Condition.Categories.IN_THE_HOUSE, then=2),
+                    When(category=Condition.Categories.ON_THE_OUTSIDE, then=3),
+                    default=4),
+            )
+            .order_by('category_group', 'category', Condition.active_name_field())
+        )
+        conditions_iterator = self.fields['conditions'].iterator(self.fields['conditions'])
+        self.fields['conditions'].choices = [
+            (
+                condition_group,
+                [conditions_iterator.choice(cond) for cond in conditions]
+            )
+            for condition_group, conditions
+            in groupby(conditions_queryset, key=lambda cond: cond.get_category_display())
+        ]
 
     def clean_state_province(self):
         state_province, country = self.cleaned_data['state_province'], self.cleaned_data.get('country')

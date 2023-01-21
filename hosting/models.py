@@ -1295,11 +1295,12 @@ class Condition(models.Model):
         verbose_name = _("condition")
         verbose_name_plural = _("conditions")
 
+    @classmethod
+    def active_name_field(cls):
+        return 'name' if str(get_language()).startswith('eo') else 'name_en'
+
     def __str__(self):
-        return (
-            self.name if str(get_language()).startswith('eo')
-            else (self.name_en or self.name)
-        )
+        return getattr(self, self.active_name_field())
 
     def get_absolute_url(self):
         return reverse('hosting_condition_detail', kwargs={'pk': self.pk})
