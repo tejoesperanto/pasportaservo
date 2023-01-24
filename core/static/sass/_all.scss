@@ -589,6 +589,21 @@ header:not(.hero) #subtitle {
         font-size: 95%;
     }
 }
+.hosting-condition {
+    display: inline-block;
+    position: relative;
+    min-width: 50%;
+    margin-top: 1px;
+    margin-bottom: 1px;
+
+    .description {
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 1.2;
+        margin-left: 7px;
+        margin-right: 5px;
+    }
+}
 .switch[data-target="#family-panel-small"],
 .switch[href="#family-panel-small"] {
     position: relative;
@@ -1300,6 +1315,13 @@ textarea {
     }
     .place-detail .status {
         max-width: 4.25em;
+    }
+    .hosting-condition {
+        width: 100%;
+        .description {
+            width: calc(100% - 2em - 7px);
+            margin-right: 0px;
+        }
     }
 
     .place-supervisor-detail {

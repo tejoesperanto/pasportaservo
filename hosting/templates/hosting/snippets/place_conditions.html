@@ -1,15 +1,16 @@
 {% load i18n static %}
 
 {% get_static_prefix as STATIC %}
+<p><strong>{% trans "Conditions" %}: </strong></p>
 <p>
-    <strong>{% trans "Conditions" %}: </strong>
+    {% spaceless %}
     {% for cond in conditions %}
-        <span class="text-nowrap">
-            <img src="{{ STATIC }}img/cond_{{ cond.slug }}.svg"
-                 onerror="this.onerror = null; this.src = this.src.replace(/\.svg$/, '.png');"
-                 alt="[&nbsp;{{ cond.abbr }}&nbsp;]"
-                 style="width: 2ex; height: 2ex;" />
-            {{ cond.name|lower }}&nbsp;
+        <span class="hosting-condition">
+            {{ cond.icon|safe }}
+            <span class="description">
+                {{ cond }}
+            </span>
         </span>
     {% endfor %}
+    {% endspaceless %}
 </p>

@@ -7,9 +7,15 @@
 
 {% block page %}
     <div class="row">
-        <div class="text-nowrap col-xs-6 col-xs-push-3">
-            {{ condition.icon|safe }}
-            <span>{{ condition }}</span>
+        <div class="col-xs-12 col-md-6 col-md-push-3">
+            <div style="display: flex; justify-content: center;">
+                {% spaceless %}
+                    <span class="hosting-condition" style="border: dotted 1px #f71">
+                        {{ condition.icon|safe }}
+                        <span class="description">{{ condition }}</span>
+                    </span>
+                {% endspaceless %}
+            </div>
         </div>
     </div>
 {% endblock %}
