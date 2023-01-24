@@ -232,7 +232,7 @@ SECURE_REFERRER_POLICY = 'origin-when-cross-origin'
 
 # Non-Django settings:
 
-SYSTEM_LOCALE = f'{LANGUAGE_CODE}.{"UTF-8"}'
+SYSTEM_LOCALE = f'{LANGUAGE_CODE.replace("-", "_")}.{"UTF-8"}'
 try:
     locale.setlocale(locale.LC_ALL, SYSTEM_LOCALE)
 except locale.Error:
