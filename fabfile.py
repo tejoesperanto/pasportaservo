@@ -42,7 +42,7 @@ def pull(conn, remote="origin", branch="master", runlocal=True):
     else:
         conn.run("git checkout -- locale/*/django*.mo")
         conn.run("git status")
-        conn.run(f"git pull {remote} {branch}")
+        conn.run(f"git pull {remote} {branch}", pty=True)
 
 
 @task(auto_shortflags=False)
@@ -67,9 +67,9 @@ def requirements(conn, runlocal=False, inside_env=False):
             if not env:
                 sys.exit("Site not defined, use staging/prod.")
             with conn.prefix(_init_venv_string()):
-                result = conn.run(command, warn=True)
+                result = conn.run(command, warn=True, pty=True)
         else:
-            result = conn.run(command, warn=True)
+            result = conn.run(command, warn=True, pty=True)
 
     if result.exited not in (0, 1):
         sys.exit(result.exited)
