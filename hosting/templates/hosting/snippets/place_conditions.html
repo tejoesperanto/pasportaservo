@@ -1,11 +1,11 @@
-{% load i18n static %}
+{% load i18n %}
 
-{% get_static_prefix as STATIC %}
 <p><strong>{% trans "Conditions" %}: </strong></p>
-<p>
+<p role="list">
     {% spaceless %}
     {% for cond in conditions %}
-        <span class="hosting-condition">
+        <span class="hosting-condition" role="listitem">
+            <span class="sr-only">&#10033;</span>
             {{ cond.icon|safe }}
             <span class="description">
                 {{ cond }}
