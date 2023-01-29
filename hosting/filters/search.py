@@ -80,16 +80,20 @@ class SearchFilterSet(filters.FilterSet):
             },
         }
 
-    # montri gastigantojn kun jena oferto...
-    # conditions = filters.ModelMultipleChoiceFilter(
-    #     field_name='conditions',
-    #     conjoined=True,
-    #     queryset=Condition.objects.all())
-
-    # ne montri gastigantojn kun jena limigo...
-    conditions = ModelMultipleChoiceExcludeFilter(
+    # Include only hosts who offer specific facilitations...
+    facilitations = filters.ModelMultipleChoiceFilter(
         field_name='conditions',
-        queryset=Condition.objects.all())
+        conjoined=True,
+        queryset=(
+            Condition.objects.filter(restriction=False).order_by(Condition.active_name_field())
+        ))
+
+    # Exclude hosts who indicated specific restrictions...
+    restrictions = ModelMultipleChoiceExcludeFilter(
+        field_name='conditions',
+        queryset=(
+            Condition.objects.filter(restriction=True).order_by(Condition.active_name_field())
+        ))
 
     def __init__(self, data=None, *args, **kwargs):
         if data is None:

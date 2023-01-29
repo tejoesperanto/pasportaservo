@@ -23,7 +23,8 @@ class SearchFormTests(WebTest):
         # Verify that the expected fields are part of the form.
         expected_fields = """
             max_guest max_night contact_before tour_guide have_a_drink
-            owner__first_name owner__last_name available conditions
+            owner__first_name owner__last_name available
+            facilitations restrictions
         """.split()
         self.assertEqual(set(expected_fields), set(form.fields))
 
@@ -58,7 +59,10 @@ class SearchFormTests(WebTest):
         self.assertEqual(form.fields['owner__last_name'].label, "Last name")
 
         self.assertEqual(
-            form.fields['conditions'].label,
+            form.fields['facilitations'].label,
+            "Show hosts with such facilitation")
+        self.assertEqual(
+            form.fields['restrictions'].label,
             "Don't show hosts with such restriction")
 
     @override_settings(LANGUAGE_CODE='eo')
@@ -87,7 +91,10 @@ class SearchFormTests(WebTest):
         self.assertEqual(form.fields['owner__last_name'].label, "Familia nomo")
 
         self.assertEqual(
-            form.fields['conditions'].label,
+            form.fields['facilitations'].label,
+            "Montru gastigantojn kun jena faciligo")
+        self.assertEqual(
+            form.fields['restrictions'].label,
             "Ne montru gastigantojn kun jena limigo")
 
     def test_clean(self):
