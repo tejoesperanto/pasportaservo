@@ -47,8 +47,10 @@ class SearchForm(forms.Form):
             self.fields[bool_field].extra_label = self.fields[bool_field].label
             self.fields[bool_field].label = _("Yes")
 
-        self.fields['conditions'].label = _("Don't show hosts with such restriction")
-        self.helper['conditions'].wrap(InlineCheckboxes, wrapper_class='form-group-sm')
+        self.fields['facilitations'].label = _("Show hosts with such facilitation")
+        self.helper['facilitations'].wrap(InlineCheckboxes, wrapper_class='form-group-sm')
+        self.fields['restrictions'].label = _("Don't show hosts with such restriction")
+        self.helper['restrictions'].wrap(InlineCheckboxes, wrapper_class='form-group-sm')
 
     def clean(self):
         cleaned_data = super().clean()

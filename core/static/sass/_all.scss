@@ -1213,6 +1213,12 @@ p.tip {
     width: 100%;
     background-color: $color-gray-light;
 }
+#id_facilitations_form_element, #id_restrictions_form_element {
+    .checkbox-inline {
+        margin-left: 0px;
+        margin-right: 10px;
+    }
+}
 
 *[type="password"] + .progress,
 *[type="password"] + .popover + .progress {
