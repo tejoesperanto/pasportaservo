@@ -372,7 +372,10 @@ $(document).ready(function() {
         document.querySelector('[data-id="advanced-filter"]').querySelector('input').focus();
     });
     $('[data-id="advanced-filter"]').on('shown.bs.collapse hidden.bs.collapse', function(event) {
-        document.getElementById('advanced-filter-toggle').setAttribute('aria-expanded', event.type == 'shown');
+        var toggle = document.getElementById('advanced-filter-toggle');
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', event.type == 'shown');
+        }
     });
 
     // Sortable lists (via drag-and-drop)
