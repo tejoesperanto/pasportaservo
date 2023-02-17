@@ -504,6 +504,24 @@ header:not(.hero) #subtitle {
         width: 0.875em;
     }
 }
+.place-list .status .place-condition {
+    font-size: 75%;
+    > .fa, > .fa-stack {
+        border: solid 1px $color-info;
+        border-radius: 0.25em;
+    }
+    > .fa-stack {
+        > .fa-stack-2x.fa-circle, > .fa-stack-2x.fa-square {
+            display: none;
+        }
+    }
+    .condition-main-color {
+        color: $color-info;
+    }
+    .condition-aux-color {
+        color: $color-brand-aux;
+    }
+}
 .anchor-group {
     margin-top: 3px;
 }
@@ -596,12 +614,23 @@ header:not(.hero) #subtitle {
     margin-top: 1px;
     margin-bottom: 1px;
 
+    .fa.centered-horizontally {
+        &.fa-caravan {
+            left: 0.1em;
+        }
+    }
     .description {
         display: inline-block;
         vertical-align: middle;
         line-height: 1.2;
         margin-left: 7px;
         margin-right: 5px;
+    }
+    .condition-main-color {
+        color: $color-brand-main;
+    }
+    .condition-aux-color {
+        color: $color-brand-aux;
     }
 }
 .switch[data-target="#family-panel-small"],

@@ -16,9 +16,9 @@ def update_existing_conditions(apps, schema_editor):
             'restriction': True,
             'icon': """
                 <span class="fa-stack" aria-hidden="true">
-                    <span class="fa fa-stack-2x fa-regular fa-circle text-brand-aux"></span>
-                    <span class="fa fa-stack-1x fa-smoking text-brand" style="top: -2px"></span>
-                    <span class="fa fa-stack-1x fa-slash text-brand-aux"></span>
+                    <span class="fa fa-stack-2x fa-regular fa-circle condition-aux-color"></span>
+                    <span class="fa fa-stack-1x fa-smoking condition-main-color" style="top: -0.1em"></span>
+                    <span class="fa fa-stack-1x fa-slash condition-aux-color"></span>
                 </span>
             """,
         },
@@ -30,7 +30,7 @@ def update_existing_conditions(apps, schema_editor):
             'restriction': True,
             'icon': """
                 <span class="fa-stack" aria-hidden="true">
-                    <span class="fa fa-stack-1x fa-regular fa-money-bill-1 fa-lg text-brand"></span>
+                    <span class="fa fa-stack-1x fa-regular fa-money-bill-1 fa-lg condition-main-color"></span>
                 </span>
             """,
         },
@@ -42,7 +42,7 @@ def update_existing_conditions(apps, schema_editor):
             'restriction': True,
             'icon': """
                 <span class="fa-stack" aria-hidden="true">
-                    <span class="fa fa-stack-1x ps-sleeping-bag fa-lg text-brand" style="top: -1px"></span>
+                    <span class="fa fa-stack-1x ps-sleeping-bag fa-lg condition-main-color" style="top: -0.07em"></span>
                 </span>
             """,
         },
@@ -68,7 +68,7 @@ def add_new_conditions(apps, schema_editor):
             'restriction': True,
             'icon': """
                 <span class="fa-stack" aria-hidden="true">
-                    <span class="fa fa-stack-1x fa-smoking text-brand" style="top: -4px;"></span>
+                    <span class="fa fa-stack-1x fa-smoking condition-main-color" style="top: -0.25em;"></span>
                 </span>
             """,
         },
@@ -79,9 +79,9 @@ def add_new_conditions(apps, schema_editor):
             'restriction': True,
             'icon': """
                 <span class="fa-stack" aria-hidden="true">
-                    <span class="fa fa-stack-2x fa-regular fa-circle text-brand-aux"></span>
-                    <span class="fa fa-stack-1x fa-cannabis text-brand"></span>
-                    <span class="fa fa-stack-1x fa-slash text-brand-aux"></span>
+                    <span class="fa fa-stack-2x fa-regular fa-circle condition-aux-color"></span>
+                    <span class="fa fa-stack-1x fa-cannabis condition-main-color"></span>
+                    <span class="fa fa-stack-1x fa-slash condition-aux-color"></span>
                 </span>
             """,
         },
@@ -92,9 +92,9 @@ def add_new_conditions(apps, schema_editor):
             'restriction': True,
             'icon': """
                 <span class="fa-stack" aria-hidden="true">
-                    <span class="fa fa-stack-2x fa-regular fa-circle text-brand-aux"></span>
-                    <span class="fa fa-stack-1x fa-wine-bottle text-brand"></span>
-                    <span class="fa fa-stack-1x fa-slash text-brand-aux"></span>
+                    <span class="fa fa-stack-2x fa-regular fa-circle condition-aux-color"></span>
+                    <span class="fa fa-stack-1x fa-wine-bottle condition-main-color"></span>
+                    <span class="fa fa-stack-1x fa-slash condition-aux-color"></span>
                 </span>
             """,
         },
@@ -105,8 +105,8 @@ def add_new_conditions(apps, schema_editor):
             'restriction': True,
             'icon': """
                 <span class="fa-stack" aria-hidden="true">
-                    <span class="fa fa-stack-1x fa-paw text-brand fa-sm" style="left: -6px; top: -6px;"></span>
-                    <span class="fa fa-stack-1x fa-paw text-brand fa-sm" style="right: -7px; bottom: -6px; left: unset; transform: rotate(16deg);"></span>
+                    <span class="fa fa-stack-1x fa-paw condition-main-color fa-sm" style="left: -0.45em; top: -0.45em;"></span>
+                    <span class="fa fa-stack-1x fa-paw condition-main-color fa-sm" style="right: -0.5em; bottom: -0.45em; left: unset; transform: rotate(16deg);"></span>
                 </span>
             """,
         },
@@ -117,7 +117,7 @@ def add_new_conditions(apps, schema_editor):
             'restriction': True,
             'icon': """
                 <span class="fa-stack" aria-hidden="true">
-                    <span class="fa fa-stack-1x fa-spider fa-lg text-brand"></span>
+                    <span class="fa fa-stack-1x fa-spider fa-lg condition-main-color"></span>
                 </span>
             """,
         },
@@ -128,7 +128,7 @@ def add_new_conditions(apps, schema_editor):
             'restriction': True,
             'icon': """
                 <span class="fa-stack" aria-hidden="true">
-                    <span class="fa fa-stack-1x fa-baby fa-lg text-brand"></span>
+                    <span class="fa fa-stack-1x fa-baby fa-lg condition-main-color"></span>
                 </span>
             """,
         },
@@ -139,8 +139,8 @@ def add_new_conditions(apps, schema_editor):
             'restriction': False,
             'icon': """
                 <span class="fa-stack" aria-hidden="true">
-                    <span class="fa fa-stack-1x fa-shield-blank text-brand" style="font-size: 1.5em; top: -2px"></span>
-                    <span class="fa fa-stack-1x fa-child" style="color: #fff; top: -2px"></span>
+                    <span class="fa fa-stack-1x fa-shield-blank condition-main-color" style="font-size: 1.5em; top: -0.07em"></span>
+                    <span class="fa fa-stack-1x fa-child" style="color: #fff; top: -0.1em"></span>
                 </span>
             """,
         },
@@ -151,7 +151,7 @@ def add_new_conditions(apps, schema_editor):
             'restriction': False,
             'icon': """
                 <span class="fa-stack" aria-hidden="true">
-                    <span class="fa fa-stack-1x fa-wheelchair fa-lg text-brand"></span>
+                    <span class="fa fa-stack-1x fa-wheelchair fa-lg condition-main-color"></span>
                 </span>
             """,
         },
@@ -162,7 +162,7 @@ def add_new_conditions(apps, schema_editor):
             'restriction': False,
             'icon': """
                 <span class="fa-stack" aria-hidden="true">
-                    <span class="fa fa-stack-1x fa-elevator fa-lg text-brand" style="top: -2px"></span>
+                    <span class="fa fa-stack-1x fa-elevator fa-lg condition-main-color" style="top: -0.1em"></span>
                 </span>
             """,
         },
@@ -173,7 +173,7 @@ def add_new_conditions(apps, schema_editor):
             'restriction': False,
             'icon': """
                 <span class="fa-stack" aria-hidden="true">
-                    <span class="fa fa-stack-1x fa-caravan fa-lg text-brand" style="left: 2px;"></span>
+                    <span class="fa fa-stack-1x fa-caravan fa-lg centered-horizontally condition-main-color"></span>
                 </span>
             """,
         },
@@ -184,8 +184,8 @@ def add_new_conditions(apps, schema_editor):
             'restriction': False,
             'icon': """
                 <span class="fa-stack" aria-hidden="true">
-                    <span class="fa fa-stack-2x fa-regular fa-square text-brand"></span>
-                    <span class="fa fa-stack-1x fa-bicycle text-brand"></span>
+                    <span class="fa fa-stack-2x fa-regular fa-square condition-main-color"></span>
+                    <span class="fa fa-stack-1x fa-bicycle condition-main-color"></span>
                 </span>
             """,
         },
