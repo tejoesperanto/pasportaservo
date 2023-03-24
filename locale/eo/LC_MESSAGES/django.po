@@ -4179,6 +4179,10 @@ msgid "status"
 msgstr "stato"
 
 #: pages/templates/pages/supervisors.html
+msgid "supervisors"
+msgstr "landaj organizantoj"
+
+#: pages/templates/pages/supervisors.html
 msgid "host"
 msgid_plural "hosts"
 msgstr[0] "gastiganto"
