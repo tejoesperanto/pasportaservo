@@ -155,7 +155,10 @@
                 </div>
                 {% if ENVIRONMENT and ENVIRONMENT != 'PROD' %}
                     <div class="col-md-12 small text-muted hidden-print" style="margin-top: 10px" aria-hidden="true">
-                        {{ ENVIRONMENT }} &bull; {{ CURRENT_COMMIT|join:': '|default:"?" }}
+                        {{ ENVIRONMENT }} &bull; {{ CURRENT_COMMIT|join:' – '|default:"?" }}
+                        {% if user and user.is_authenticated %}
+                            &bull; {% trans "user" %}: {{ user.username }}
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>
