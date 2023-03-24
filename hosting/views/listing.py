@@ -25,7 +25,7 @@ from maps import SRID
 from maps.utils import bufferize_country_boundaries
 
 from ..filters.search import SearchFilterSet
-from ..models import LocationConfidence, Phone, Place, TravelAdvice
+from ..models import Condition, LocationConfidence, Phone, Place, TravelAdvice
 from ..utils import geocode
 
 
@@ -200,7 +200,8 @@ class SearchView(PlacePaginatedListView):
         return request.user.id or request.session.session_key
 
     def prepare_search(self, request, query, extended_query=None, cached_id=None):
-        self.query = compact(unquote_plus(query or ''))  # Avoiding query=None.
+        # URL-decode and trim query, avoiding query=None.
+        self.query = compact(unquote_plus(query or ''))
         # Allow extended querying (that is, "advanced search") only to
         # authenticated users who have a profile and to administrators
         # regardless of their profile status.
@@ -217,6 +218,19 @@ class SearchView(PlacePaginatedListView):
         # viewing user is a supervisor or an administrator.
         if not request.user.has_perm(PERM_SUPERVISOR):
             self.queryset = self.queryset.exclude(owner__deleted_on__isnull=False)
+        # Fetch the hosting conditions for all displayed places in one
+        # batch to reduce trips to the database, when the viewing user
+        # is authenticated. For unauthenticated viewing, no conditions
+        # are shown.
+        if request.user.is_authenticated:
+            conditions_prefetch = Prefetch(
+                'conditions',
+                queryset=Condition.objects.filter(restriction=False)
+            )
+            # Note: We are fetching the same Condition objects for multiple places.
+            #       Probably it would be better to retrieve references to single
+            #       cached instances instead, but this feels like over-engineering.
+            self.queryset = self.queryset.prefetch_related(conditions_prefetch)
 
         if cached_id:
             sess_id = self.get_identifier_for_cache(request)
