@@ -354,8 +354,8 @@ msgstr ""
 msgid "Site Configuration"
 msgstr "Retejaj agordoj"
 
-#: core/models.py core/views.py hosting/admin/admin.py
-#: hosting/templates/hosting/phone_form.html
+#: core/models.py core/templates/core/base.html core/views.py
+#: hosting/admin/admin.py hosting/templates/hosting/phone_form.html
 #: hosting/templates/hosting/place_form.html
 #: hosting/templates/hosting/snippets/checked.html shop/models.py
 msgid "user"

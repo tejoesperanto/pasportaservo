@@ -506,6 +506,7 @@ header:not(.hero) #subtitle {
 }
 .place-list .status .place-condition {
     font-size: 75%;
+    vertical-align: middle;
     > .fa, > .fa-stack {
         border: solid 1px $color-info;
         border-radius: 0.25em;

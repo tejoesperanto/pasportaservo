@@ -10,6 +10,7 @@
 
     {% for place in place_list %}
         <div class="row place-list">
+            <hr class="sr-only" />
             <div class="sr-only">&#8962;&nbsp; <em>{% trans "place"|upper %}</em></div>
             {% comment %}
                 TODO {{ forloop.counter0|add:endless.page.start_index }}
@@ -108,6 +109,19 @@
                             {% cycle offer_style %}
                         {% endfor %}
                         {% resetcycle offer_style %}
+
+                        {% if place.available %}
+                            {% for cond in place.conditions_cache %}
+                                {% if not cond.restriction %}
+                                    {% spaceless %}
+                                    <div class="anchor-group-item anchor-vert-space-even" title="{{ cond }}" data-toggle="tooltip" data-placement="bottom">
+                                        <span class="place-condition hidden-print">{{ cond.icon|safe }}</span>
+                                        <span class="label label-info sr-only">{{ cond|lower }}</span>
+                                    </div>
+                                    {% endspaceless %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>
