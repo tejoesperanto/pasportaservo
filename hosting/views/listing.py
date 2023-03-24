@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
 from django.core.cache import cache
-from django.db.models import BooleanField, Case, Count, Prefetch, Q, When
+from django.db.models import BooleanField, Case, Count, F, Prefetch, Q, When
 from django.http import HttpResponseRedirect
 from django.http.response import HttpResponseRedirectBase
 from django.urls import reverse
@@ -69,7 +69,8 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
 
     def get_queryset(self):
         self.base_qs = self.model.available_objects.filter(country=self.country.code).filter(
-            Q(visibility__visible_online_public=True) | Q(in_book=True, visibility__visible_in_book=True)
+            Q(visibility__visible_online_public=True)
+            | Q(in_book=True, visibility__visible_in_book=True)
         )
         if self.in_book_status is not None:
             narrowing_func = getattr(self.base_qs, 'filter' if self.in_book_status else 'exclude')
@@ -290,7 +291,7 @@ class SearchView(PlacePaginatedListView):
                 search_queryset = (
                     qs
                     .filter(country=self.result.country_code.upper())
-                    .order_by('-owner__user__last_login', '-id')
+                    .order_by(F('owner__user__last_login').desc(nulls_last=True), '-id')
                 )
                 self.cache_queryset_query(search_queryset)
                 return search_queryset
@@ -313,7 +314,8 @@ class SearchView(PlacePaginatedListView):
                 .order_by('internal_distance')
             )
         else:
-            search_queryset = qs.order_by('-owner__user__last_login', '-id')
+            search_queryset = qs.order_by(
+                F('owner__user__last_login').desc(nulls_last=True), '-id')
 
         # Cache the calculated result.
         self.cache_queryset_query(search_queryset)
@@ -335,8 +337,11 @@ class SearchView(PlacePaginatedListView):
         context['queryset_cache_id'] = self._cached_id
         context['feedback_form'] = FeedbackForm()
 
-        if getattr(self, 'country_search', False) and hasattr(self, 'result') and self.result.country_code:
+        if (getattr(self, 'country_search', False)
+                and hasattr(self, 'result') and self.result.country_code):
             context['country_results_count'] = context['object_list'].count()
-            context['country_advisories'] = TravelAdvice.get_for_country(self.result.country_code.upper())
+            context['country_advisories'] = (
+                TravelAdvice.get_for_country(self.result.country_code.upper())
+            )
 
         return context
