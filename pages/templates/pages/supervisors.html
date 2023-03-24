@@ -96,19 +96,20 @@
         <div id="countries-{{ country_list_type }}" role="table"
              class="tab-pane table-like-grid countries-list {{ country_list_type }} fade{% if country_list.active %} in active{% endif %}">
             <div role="row" class="row grid-header">
-                <div role="columnheader" class="col-xxs-8  col-xs-8  col-sm-5 col-lg-4">
+                <div role="columnheader" class="col-xxs-8  col-xs-8  col-sm-5  col-lg-4">
                     <strong>{% trans "code"|capfirst %}</strong>
                     &nbsp;
                     <strong>{% trans "country"|capfirst %}</strong>
                 </div>
-                <div role="columnheader" class="col-xxs-4  col-xs-4  col-sm-4 col-lg-5">
+                <div role="columnheader" class="col-xxs-4  col-xs-4  col-sm-4  col-lg-5">
                     <strong>{% trans "status"|capfirst %}</strong>
                 </div>
-                <div role="columnheader" class="col-xxs-12 col-xs-12 col-sm-3 col-lg-3">
-                    <strong>{% trans "Supervisors" %}</strong>
+                <div role="columnheader" class="col-xxs-12 col-xs-12 col-sm-3  col-lg-3">
+                    <strong>{% trans "supervisors"|capfirst %}</strong>
                 </div>
             </div>
             {% for country in country_list.data %}
+            <div class="sr-only" role="separator">~~~~~~~~~~~~~~~~~~~~</div>
             <div role="row" class="row">
                 <div role="cell" class="col-xxs-12 col-xs-8 col-sm-5 col-lg-4">
                     <div class="btn btn-sm country-code">
@@ -176,6 +177,9 @@
                     </div>
                 </div>
                 <div role="cell" class="col-xxs-12 col-xs-8 col-sm-3 col-lg-3 person-full-name">
+                    {% if country.supervisors %}
+                        <div class="sr-only">{% trans "supervisors" %}:</div>
+                    {% endif %}
                     {% for supervisor in country.supervisors %}
                         {% spaceless %}
                         <a href="{{ supervisor.get_absolute_url }}">
