@@ -1,0 +1,10 @@
+    <div class="row compact">
+        <div class="col-xs-6">
+            <span class="control-label" id="{{ widget.attrs.id }}_label">
+                {% if widget.label_prefix %}{{ widget.label_prefix }}: {% endif %}{{ widget.label }}
+            </span>
+        </div>
+        <div class="col-xs-6">
+            {% include 'django/forms/widgets/select.html' with widget=widget only %}
+        </div>
+    </div>

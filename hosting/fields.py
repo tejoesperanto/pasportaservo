@@ -13,7 +13,7 @@ from phonenumber_field.modelfields import (
     PhoneNumberField as DjangoPhoneNumberField,
 )
 
-from .widgets import TextWithDatalistInput
+from .widgets import MultiNullBooleanSelects, TextWithDatalistInput
 
 
 class StyledEmailField(models.EmailField):
@@ -226,3 +226,43 @@ class ForeigKeyWithSuggestions(models.ForeignKey):
         defaults = {'form_class': SuggestiveModelChoiceFormField}
         defaults.update(kwargs)
         return super().formfield(**defaults)
+
+
+class MultiNullBooleanFormField(forms.MultiValueField):
+    widget = MultiNullBooleanSelects
+
+    def __init__(
+            self, base_field, boolean_choices, *args,
+            label_prefix=lambda choice: None, **kwargs,
+    ):
+        self.choices = list(base_field.choices)
+        if isinstance(base_field.choices, forms.models.ModelChoiceIterator):
+            self._single_choice_value = lambda choice: choice.value
+        else:
+            self._single_choice_value = lambda choice: choice
+        field_labels = {
+            self._single_choice_value(choice_value):
+                (choice_label, label_prefix(choice_value))
+            for choice_value, choice_label in self.choices
+        }
+        fields = [
+            forms.NullBooleanField(label=choice_label, required=False)
+            for _, choice_label in self.choices
+        ]
+        super().__init__(
+            fields,
+            *args,
+            required=base_field.required,
+            require_all_fields=False,
+            widget=self.widget(field_labels, boolean_choices),
+            **kwargs)
+        self.empty_values = list(v for v in self.empty_values if v is not None)
+
+    def compress(self, data_list):
+        if not data_list:
+            data_list = [None] * len(self.choices)
+        # Each value of the data_list corresponds to a field.
+        return zip(
+            [self._single_choice_value(choice_value) for choice_value, _ in self.choices],
+            data_list
+        )

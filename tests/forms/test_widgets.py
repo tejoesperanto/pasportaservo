@@ -11,7 +11,8 @@ from django.test import TestCase, override_settings, tag
 from factory import Faker
 
 from hosting.widgets import (
-    ClearableWithPreviewImageInput, InlineRadios, TextWithDatalistInput,
+    ClearableWithPreviewImageInput, CustomNullBooleanSelect,
+    InlineRadios, MultiNullBooleanSelects, TextWithDatalistInput,
 )
 from maps.widgets import AdminMapboxGlWidget, MapboxGlWidget
 
@@ -68,6 +69,103 @@ class TextWithDatalistInputWidgetTests(TestCase):
             '<input id="id_code_field" name="code_field" type="text" list="id_code_field_options">',
             result)
         self.assertRegex(result, '<datalist [^>]*id="id_code_field_options"')
+
+
+@tag('forms', 'widgets')
+class CustomNullBooleanSelectWidgetTests(TestCase):
+    NULL_BOOLEAN_CHOICES = [('true', "hij"), ('false', "klm"), ('unknown', "nop")]
+
+    def test_render(self):
+        widget = CustomNullBooleanSelect("Pick one", self.NULL_BOOLEAN_CHOICES)
+
+        result = widget.render('null_bool_field', None, attrs={'id': 'id_bool_field'})
+        self.assertInHTML(
+            '<span id="id_bool_field_label" class="control-label">Pick one</span>',
+            result)
+        self.assertInHTML(
+            '''
+            <select id="id_bool_field" name="null_bool_field"
+                    aria-labelledby="id_bool_field_label" class="form-control">
+                <option value="true">hij</option>
+                <option value="false">klm</option>
+                <option value="unknown" selected>nop</option>
+            </select>
+            ''',
+            result)
+
+        result = widget.render('null_bool_field', True, attrs={'id': 'id_bool_field'})
+        self.assertInHTML('<option value="true" selected>hij</option>', result)
+        self.assertInHTML('<option value="unknown">nop</option>', result)
+
+        result = widget.render('null_bool_field', False, attrs={'id': 'id_bool_field'})
+        self.assertInHTML('<option value="false" selected>klm</option>', result)
+        self.assertInHTML('<option value="unknown">nop</option>', result)
+
+    def test_render_with_prefix(self):
+        widget = CustomNullBooleanSelect("Pick another", self.NULL_BOOLEAN_CHOICES, "Here")
+        result = widget.render('null_bool_field', "?", attrs={'id': 'id_bool_field'})
+        self.assertInHTML(
+            '<span id="id_bool_field_label" class="control-label">Here: Pick another</span>',
+            result)
+        self.assertInHTML('<option value="unknown" selected>nop</option>', result)
+
+    def test_css_class(self):
+        widget = CustomNullBooleanSelect("Don't pick", self.NULL_BOOLEAN_CHOICES)
+
+        result = widget.render(
+            'null_bool_field', "X", attrs={'id': 'id_bool_field', 'class': "fancy"})
+        self.assertRegex(
+            result,
+            r'<select [^>]*class="\s*(fancy\s*form-control|form-control\s*fancy)\s*"'
+        )
+
+        result = widget.render(
+            'null_bool_field', "Y", attrs={'id': 'id_bool_field', 'class': "not-fancy"})
+        self.assertRegex(
+            result,
+            r'<select [^>]*class="\s*(not-fancy\s*form-control|form-control\s*not-fancy)\s*"'
+        )
+
+        result = widget.render(
+            'null_bool_field', "Z",
+            attrs={'id': 'id_bool_field', 'class': "first-level form-control required"})
+        self.assertRegex(
+            result,
+            r'<select [^>]*class="\s*(first-level form-control required)\s*"'
+        )
+
+
+@tag('forms', 'widgets')
+class MultiNullBooleanSelectsWidgetTests(TestCase):
+    def test_render_with_numbering(self):
+        widget = MultiNullBooleanSelects(
+            [("First", "Go"), ("Second", "Stop")],
+            [('false', "kP"), ('unknown', "nM"), ('true', "hS")]
+        )
+        result = widget.render('multi_value_field', [], attrs={'id': 'id_multi_value_field'})
+        self.assertRegex(
+            result, '<span [^>]*id="id_multi_value_field_0_label">Go: First</span>')
+        self.assertRegex(
+            result, '<select\s+name="multi_value_field_0"\s+id="id_multi_value_field_0"')
+        self.assertRegex(
+            result, '<span [^>]*id="id_multi_value_field_1_label">Stop: Second</span>')
+        self.assertRegex(
+            result, '<select\s+name="multi_value_field_1"\s+id="id_multi_value_field_1"')
+
+    def test_render_with_naming(self):
+        widget = MultiNullBooleanSelects(
+            {'go': ("First", None), 'stop': ("Second", None)},
+            [('false', "kP"), ('unknown', "nM"), ('true', "hS")]
+        )
+        result = widget.render('multi_value_field', [], attrs={'id': 'id_multi_value_field'})
+        self.assertRegex(
+            result, '<span [^>]*id="id_multi_value_field_0_label">First</span>')
+        self.assertRegex(
+            result, '<select\s+name="multi_value_field_go"\s+id="id_multi_value_field_0"')
+        self.assertRegex(
+            result, '<span [^>]*id="id_multi_value_field_1_label">Second</span>')
+        self.assertRegex(
+            result, '<select\s+name="multi_value_field_stop"\s+id="id_multi_value_field_1"')
 
 
 @tag('forms', 'widgets')
