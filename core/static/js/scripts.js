@@ -523,11 +523,12 @@ function enableTooltips() {
     function realignTooltip(tip, elem) {
         var placement = getComputedStyle(elem).getPropertyValue('--tooltip-placement').trim()
                         || elem.getAttribute('data-placement') || 'top';
+        var alt_placement = elem.getAttribute('data-alt-placement') == 'top' ? 'top' : 'bottom';
         if (placement == 'left' && elem.getBoundingClientRect().left < 85) {
-            return 'bottom';
+            return alt_placement;
         }
         if (placement == 'right' && elem.getBoundingClientRect().right > window.outerWidth - 85) {
-            return 'bottom';
+            return alt_placement;
         }
         return placement;
     }

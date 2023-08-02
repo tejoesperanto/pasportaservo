@@ -56,7 +56,7 @@
                 {% endif %}
             {% else %}
                 {% block controls %}
-                    <div class="controls {{ field_class }}">
+                    <div class="controls {{ field_class }}"{% if field|is_multivalue %} id="{{ field.field.widget.attrs.id|default:field.auto_id }}"{% endif %}>
                         {% block controls_field_before %}{% endblock %}
                         {% block controls_field %}
                             {% if tabindex %}{% crispy_field field "tabindex" tabindex %}{% else %}{% crispy_field field %}{% endif %}

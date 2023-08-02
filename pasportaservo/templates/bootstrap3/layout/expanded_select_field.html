@@ -1,0 +1,61 @@
+{% load crispy_forms_field crispy_forms_filters %}
+{% load expression %}
+{% load compact from utils %}
+
+<div {% filter compact %}
+        id="{{ field.auto_id }}_form_element"
+        {% if field_block_collapsed is not None %}
+            class="collapse when-scripting{% if not field_block_collapsed %} in{% endif %}"
+            aria-expanded="{{ field_block_collapsed|yesno:"false,true" }}"
+        {% endif %}
+     {% endfilter %}>
+    {% for widget in field %}
+    {% for choice in widget.data.subwidgets %}
+        <div id="{{ field.auto_id }}_option_{{ forloop.counter }}_form_element"
+             class="{% filter compact %}
+                        form-group
+                        {% if wrapper_class %} {{ wrapper_class }} {% endif %}
+                        {% if form_show_errors and field.errors %} has-error {% endif %}
+                        {% if field.css_classes %} {{ field.css_classes }} {% endif %}
+                    {% endfilter %}">
+            {% if form_show_labels %}
+                <label id="{{ choice.attrs.id }}_label" for="{{ choice.attrs.id }}"
+                       class="control-label {{ label_class }}{% if field.field.required %} requiredField{% endif %}"
+                       {% if choice.label_prefix %}
+                            title="({{ choice.label_prefix }})"
+                            data-toggle="tooltip" data-placement="left" data-alt-placement="top"
+                       {% endif %}>
+                    {{ choice.label }}
+                </label>
+            {% endif %}
+
+            <div class="controls checkbox {{ field_class }}">
+                <div class="btn-group btn-group-xs btn-group-toggle" id="{{ choice.attrs.id }}" data-toggle="buttons">
+                    {% for group_name, group_choices, group_index in choice.optgroups %}
+                        {% for option in group_choices %}
+                            <label for="{{ choice.attrs.id }}_g{{ group_index }}_v{{ option.index }}"
+                                   class="btn btn-default {% expr option_css_classes[option['value']] %}{% if option.selected %} active{% endif %}"
+                                   data-hover-class="{% expr option_hover_css_classes[option['value']] %}">
+                                {% filter compact %}
+                                   <input type="radio"
+                                          name="{{ option.name }}" id="{{ choice.attrs.id }}_g{{ group_index }}_v{{ option.index }}"
+                                          value="{{ option.value|stringformat:'s' }}"
+                                          {% if option.selected %} checked {% endif %}
+                                          autocomplete="off"
+                                          {% if tabindex %} tabindex="{{ tabindex }}" {% endif %}
+                                          {{ option.attrs|flatatt }}>
+                                {% endfilter %}
+                                {{ option.label }}
+                                <span class="fa fa-solid fa-check select-marker" style="display: none" aria-hidden="true"></span>
+                            </label>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+                {% if forloop.last %}
+                    {% include 'bootstrap3/layout/help_text_and_errors.html' %}
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+    {% endfor %}
+</div>

@@ -1,8 +1,10 @@
 from django import forms
 from django.db import models
+from django.utils.translation import pgettext_lazy
 
 import django_filters as filters
 
+from ..fields import MultiNullBooleanFormField
 from ..forms import SearchForm
 from ..models import Condition, Place
 
@@ -37,6 +39,46 @@ class ModelMultipleChoiceExcludeFilter(filters.ModelMultipleChoiceFilter):
         if not value:
             return qs
         return super().filter(qs, [tuple(value)])
+
+
+class ModelMultipleChoiceIncludeExcludeFilter(filters.ModelMultipleChoiceFilter):
+    def __init__(self, boolean_choices, *args, label_prefix=lambda choice: None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.field_boolean_choices = boolean_choices
+        self.option_label_prefix = label_prefix
+
+    @property
+    def field(self):
+        if not hasattr(self, '_field'):
+            base_field = super().field
+
+            self._field = MultiNullBooleanFormField(
+                base_field=base_field,
+                label=base_field.label,
+                label_prefix=self.option_label_prefix,
+                boolean_choices=self.field_boolean_choices,
+            )
+
+        return self._field
+
+    def filter(self, qs, value):
+        value = list(value)
+        include = tuple(choice_value for choice_value, decision in value if decision is True)
+        exclude = tuple(choice_value for choice_value, decision in value if decision is False)
+        base_lookup_expr = self.lookup_expr
+
+        self.exclude = True
+        self.conjoined = False
+        self.lookup_expr = 'in'
+        if exclude:
+            qs = super().filter(qs, [exclude])
+        self.exclude = False
+        self.conjoined = True
+        self.lookup_expr = base_lookup_expr
+        if include:
+            qs = super().filter(qs, include)
+
+        return qs
 
 
 class SearchFilterSet(filters.FilterSet):
@@ -80,20 +122,22 @@ class SearchFilterSet(filters.FilterSet):
             },
         }
 
-    # Include only hosts who offer specific facilitations...
-    facilitations = filters.ModelMultipleChoiceFilter(
-        field_name='conditions',
-        conjoined=True,
-        queryset=(
-            Condition.objects.filter(restriction=False).order_by(Condition.active_name_field())
-        ))
-
-    # Exclude hosts who indicated specific restrictions...
-    restrictions = ModelMultipleChoiceExcludeFilter(
+    conditions = ModelMultipleChoiceIncludeExcludeFilter(
         field_name='conditions',
         queryset=(
-            Condition.objects.filter(restriction=True).order_by(Condition.active_name_field())
-        ))
+            Condition.objects.order_by('restriction', Condition.active_name_field())
+        ),
+        boolean_choices=(
+            ('false', pgettext_lazy("Imperative", "exclude")),
+            ('unknown', pgettext_lazy("Imperative", "not important")),
+            ('true', pgettext_lazy("Imperative", "include")),
+        ),
+        label_prefix=lambda choice: (
+            pgettext_lazy("Condition type", "Restriction")
+            if choice.instance.restriction
+            else pgettext_lazy("Condition type", "Facilitation")
+        ),
+    )
 
     def __init__(self, data=None, *args, **kwargs):
         if data is None:

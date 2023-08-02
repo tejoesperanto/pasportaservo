@@ -424,7 +424,7 @@ header:not(.hero) #subtitle {
     box-shadow: 0px 1px 5px 0px darken($color-default-bg, 12%);
     border-top: 0;
 
-    .form-group:first-of-type {
+    .form-group:not([id*="option_1"]):first-of-type {
         margin-top: 15px;
     }
 }
@@ -1243,12 +1243,6 @@ p.tip {
     width: 100%;
     background-color: $color-gray-light;
 }
-#id_facilitations_form_element, #id_restrictions_form_element {
-    .checkbox-inline {
-        margin-left: 0px;
-        margin-right: 10px;
-    }
-}
 
 *[type="password"] + .progress,
 *[type="password"] + .popover + .progress {
@@ -1302,6 +1296,14 @@ textarea {
     }
     &:not(.input-sm):not(.input-lg) {
         min-height: 34px;
+    }
+}
+input[type="checkbox"], input[type="radio"] {
+    ~ .select-marker {
+        display: none;
+    }
+    &:checked ~ .select-marker {
+        display: inline-block !important;
     }
 }
 
