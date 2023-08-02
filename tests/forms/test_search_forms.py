@@ -23,8 +23,7 @@ class SearchFormTests(WebTest):
         # Verify that the expected fields are part of the form.
         expected_fields = """
             max_guest max_night contact_before tour_guide have_a_drink
-            owner__first_name owner__last_name available
-            facilitations restrictions
+            owner__first_name owner__last_name available conditions
         """.split()
         self.assertEqual(set(expected_fields), set(form.fields))
 
@@ -54,16 +53,10 @@ class SearchFormTests(WebTest):
         self.assertEqual(form.fields['have_a_drink'].label, "Yes")
         self.assertTrue(hasattr(form.fields['have_a_drink'], 'extra_label'))
         self.assertEqual(form.fields['have_a_drink'].extra_label, "Have a drink")
+        self.assertEqual(form.fields['conditions'].label, "Conditions")
 
         self.assertEqual(form.fields['owner__first_name'].label, "First name")
         self.assertEqual(form.fields['owner__last_name'].label, "Last name")
-
-        self.assertEqual(
-            form.fields['facilitations'].label,
-            "Show hosts with such facilitation")
-        self.assertEqual(
-            form.fields['restrictions'].label,
-            "Don't show hosts with such restriction")
 
     @override_settings(LANGUAGE_CODE='eo')
     def test_labels_eo(self):
@@ -86,16 +79,10 @@ class SearchFormTests(WebTest):
         self.assertEqual(form.fields['have_a_drink'].label, "Jes")
         self.assertTrue(hasattr(form.fields['have_a_drink'], 'extra_label'))
         self.assertEqual(form.fields['have_a_drink'].extra_label, "Trinkejumado")
+        self.assertEqual(form.fields['conditions'].label, "Kondiĉoj")
 
         self.assertEqual(form.fields['owner__first_name'].label, "Persona nomo")
         self.assertEqual(form.fields['owner__last_name'].label, "Familia nomo")
-
-        self.assertEqual(
-            form.fields['facilitations'].label,
-            "Montru gastigantojn kun jena faciligo")
-        self.assertEqual(
-            form.fields['restrictions'].label,
-            "Ne montru gastigantojn kun jena limigo")
 
     def test_clean(self):
         # Checking the boolean fields on the form means

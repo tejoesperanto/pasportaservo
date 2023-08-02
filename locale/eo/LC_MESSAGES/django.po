@@ -1704,6 +1704,31 @@ msgstr "Bv. enigu ĝustan telefon-numeron."
 msgid "Integer within a predefined range"
 msgstr "Entjero ene de antaŭdifinita intervalo"
 
+#: hosting/filters/search.py
+msgctxt "Imperative"
+msgid "exclude"
+msgstr "ekskludu"
+
+#: hosting/filters/search.py
+msgctxt "Imperative"
+msgid "not important"
+msgstr "ne gravas"
+
+#: hosting/filters/search.py
+msgctxt "Imperative"
+msgid "include"
+msgstr "inkludu"
+
+#: hosting/filters/search.py
+msgctxt "Condition type"
+msgid "Restriction"
+msgstr "Limigo"
+
+#: hosting/filters/search.py
+msgctxt "Condition type"
+msgid "Facilitation"
+msgstr "Faciligo"
+
 #: hosting/forms/familymembers.py
 msgid "A family member cannot be future-born (even if planned)."
 msgstr "Kunloĝanto ne povas naskiĝi estontece, eĉ se planita."
@@ -1753,14 +1778,6 @@ msgstr "tagoj"
 #: hosting/forms/listing.py
 msgid "Place to sleep"
 msgstr "Dormloko"
-
-#: hosting/forms/listing.py
-msgid "Show hosts with such facilitation"
-msgstr "Montru gastigantojn kun jena faciligo"
-
-#: hosting/forms/listing.py
-msgid "Don't show hosts with such restriction"
-msgstr "Ne montru gastigantojn kun jena limigo"
 
 #: hosting/forms/phones.py
 msgid "You already have this telephone number."
@@ -2485,7 +2502,7 @@ msgstr "ĉu limigo"
 
 #: hosting/models.py
 msgid ""
-"Marked = limitation for the guests, unmarked = facilitation for the guests."
+"Marked = restriction for the guests, unmarked = facilitation for the guests."
 msgstr "Markita = limigo por la gastoj, malmarkita = faciligo por la gastoj."
 
 #: hosting/models.py hosting/templates/hosting/hosting_condition.html

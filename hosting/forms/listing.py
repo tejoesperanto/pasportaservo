@@ -2,8 +2,10 @@ from django import forms
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
-from crispy_forms.bootstrap import InlineCheckboxes, PrependedText
+from crispy_forms.bootstrap import PrependedText
 from crispy_forms.helper import FormHelper
+
+from ..widgets import ExpandedMultipleChoice
 
 
 class SearchForm(forms.Form):
@@ -25,7 +27,7 @@ class SearchForm(forms.Form):
         self.helper['max_guest'].wrap(
             PrependedText,
             format_lazy('<span class="addon-fw-3">{text}</span>', text=_("guests")),
-            wrapper_class='form-group-sm')
+            wrapper_class=self.helper.wrapper_class)
         self.fields['max_night'].widget.attrs['min'] = 0
         self.fields['max_night'].label = (
             format_lazy('<span class="sr-only">{text}</span>', text=_("At least this many"))
@@ -33,13 +35,13 @@ class SearchForm(forms.Form):
         self.helper['max_night'].wrap(
             PrependedText,
             format_lazy('<span class="addon-fw-3">{text}</span>', text=_("nights")),
-            wrapper_class='form-group-sm')
+            wrapper_class=self.helper.wrapper_class)
         self.fields['contact_before'].widget.attrs['min'] = 1
         self.fields['contact_before'].label = _("Available within")
         self.helper['contact_before'].wrap(
             PrependedText,
             format_lazy('<span class="addon-fw-3">{text}</span>', text=_("days")),
-            wrapper_class='form-group-sm')
+            wrapper_class=self.helper.wrapper_class)
 
         self.fields['available'].initial = True
         self.fields['available'].label = _("Place to sleep")
@@ -47,10 +49,11 @@ class SearchForm(forms.Form):
             self.fields[bool_field].extra_label = self.fields[bool_field].label
             self.fields[bool_field].label = _("Yes")
 
-        self.fields['facilitations'].label = _("Show hosts with such facilitation")
-        self.helper['facilitations'].wrap(InlineCheckboxes, wrapper_class='form-group-sm')
-        self.fields['restrictions'].label = _("Don't show hosts with such restriction")
-        self.helper['restrictions'].wrap(InlineCheckboxes, wrapper_class='form-group-sm')
+        self.helper['conditions'].wrap(
+            ExpandedMultipleChoice,
+            wrapper_class=self.helper.wrapper_class,
+            collapsed=True,
+            option_hover_css_classes={'true': "btn-success", 'false': "btn-danger"})
 
     def clean(self):
         cleaned_data = super().clean()

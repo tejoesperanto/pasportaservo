@@ -4,7 +4,7 @@ from django.forms import widgets as form_widgets
 from django.template.loader import get_template
 from django.utils.safestring import mark_safe
 
-from crispy_forms.layout import Field as CrispyField
+from crispy_forms.layout import Field as CrispyLayoutField
 from crispy_forms.utils import TEMPLATE_PACK
 
 
@@ -105,7 +105,7 @@ class MultiNullBooleanSelects(form_widgets.MultiWidget):
         ]
 
 
-class InlineRadios(CrispyField):
+class InlineRadios(CrispyLayoutField):
     """
     Form Layout object for rendering radio buttons inline.
     """
@@ -123,3 +123,37 @@ class InlineRadios(CrispyField):
             form, form_style, context, template_pack=template_pack,
             extra_context=extra_context
         )
+
+
+class ExpandedMultipleChoice(CrispyLayoutField):
+    """
+    Form Layout object that displays each option of a (Model)MultipleChoiceField
+    as a separate label and a set of buttons corresponding to the choices of that
+    option.
+    """
+    template = '%s/layout/expanded_select_field.html'
+
+    def __init__(
+            self, *args,
+            option_css_classes=None, option_hover_css_classes=None,
+            collapsed=None,
+            **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        if option_css_classes is not None:
+            self.option_css_classes = option_css_classes
+        else:
+            self.option_css_classes = {}
+        if option_hover_css_classes is not None:
+            self.option_hover_css_classes = option_hover_css_classes
+        else:
+            self.option_hover_css_classes = {}
+        self.collapsed_expanded_block = collapsed
+
+    def render(self, *args, extra_context=None, **kwargs):
+        if extra_context is None:
+            extra_context = {}
+        extra_context['option_css_classes'] = self.option_css_classes
+        extra_context['option_hover_css_classes'] = self.option_hover_css_classes
+        extra_context['field_block_collapsed'] = self.collapsed_expanded_block
+        return super().render(*args, extra_context=extra_context, **kwargs)

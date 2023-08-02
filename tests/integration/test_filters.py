@@ -1,10 +1,11 @@
 from django.test import TestCase, tag
 from django.utils import timezone
 
-from django_filters import BooleanFilter, CharFilter, ModelMultipleChoiceFilter
+from django_filters import BooleanFilter, CharFilter
 
 from hosting.filters.search import (
-    ModelMultipleChoiceExcludeFilter, NumberOrNoneFilter, SearchFilterSet,
+    ModelMultipleChoiceIncludeExcludeFilter,
+    NumberOrNoneFilter, SearchFilterSet,
 )
 from hosting.forms.listing import SearchForm
 from hosting.models import Place
@@ -20,8 +21,7 @@ class SearchFilterSetTests(TestCase):
         # Verify that the expected filters are part of the filterset.
         expected_filters = """
             max_guest max_night contact_before tour_guide have_a_drink
-            owner__first_name owner__last_name available
-            facilitations restrictions
+            owner__first_name owner__last_name available conditions
         """.split()
         self.assertEqual(set(expected_filters), set(filterset.filters))
 
@@ -34,8 +34,7 @@ class SearchFilterSetTests(TestCase):
         self.assertIs(type(filterset.filters['owner__first_name']), CharFilter)
         self.assertIs(type(filterset.filters['owner__last_name']), CharFilter)
         self.assertIs(type(filterset.filters['available']), BooleanFilter)
-        self.assertIs(type(filterset.filters['facilitations']), ModelMultipleChoiceFilter)
-        self.assertIs(type(filterset.filters['restrictions']), ModelMultipleChoiceExcludeFilter)
+        self.assertIs(type(filterset.filters['conditions']), ModelMultipleChoiceIncludeExcludeFilter)
 
         # Verify the comparison operations performed by numeric filters.
         self.assertEqual(filterset.filters['max_guest'].lookup_expr, 'gte')

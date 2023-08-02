@@ -231,7 +231,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='condition',
             name='restriction',
-            field=models.BooleanField(default=True, help_text='Marked = limitation for the guests, unmarked = facilitation for the guests.', verbose_name='is a limitation'),
+            field=models.BooleanField(default=True, help_text='Marked = restriction for the guests, unmarked = facilitation for the guests.', verbose_name='is a limitation'),
         ),
 
         migrations.RunPython(update_existing_conditions, revert_existing_conditions),

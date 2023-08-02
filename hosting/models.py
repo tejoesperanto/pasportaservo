@@ -1288,7 +1288,7 @@ class Condition(models.Model):
     restriction = models.BooleanField(
         _("is a limitation"),
         default=True,
-        help_text=_("Marked = limitation for the guests, "
+        help_text=_("Marked = restriction for the guests, "
                     "unmarked = facilitation for the guests."))
 
     class Meta:
