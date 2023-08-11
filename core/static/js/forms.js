@@ -381,6 +381,26 @@ $(function() {
         $('#id_test_email').closest('.form-group').toggle($(this).val() === "test");
     }).change();
 
+    /* dynamic (collapsible) form area management */
+    $('[id$="_form_element"].collapse').each(function() {
+        var $switch = $('[aria-controls='+this.id+']');
+        var toggler = function(state) {
+            $switch.attr('aria-expanded', state).children('.fa').each(function() {
+                var $this = $(this);
+                var label = $this.attr('aria-label');
+                $this.attr('aria-label', $this.data('aria-label-inactive'))
+                     .data('aria-label-inactive', label);
+                if (state)
+                    $this.addClass('fa-rotate-90');
+                else
+                    $this.removeClass('fa-rotate-90');
+                window.setTimeout(function() { $this.parent().removeClass('initial'); }, 100);
+            });
+        };
+        $(this).on('show.bs.collapse hide.bs.collapse',
+                   function(event) { toggler(event.type == 'show') });
+    });
+
     /* form cancel button enhancement */
     $('#id_form_cancel').each(function() {
         this.setAttribute('data-default-href', this.getAttribute('href'));

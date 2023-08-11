@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from crispy_forms.bootstrap import PrependedText
 from crispy_forms.helper import FormHelper
 
-from ..widgets import ExpandedMultipleChoice
+from ..widgets import ExpandedMultipleChoice, FormDivider
 
 
 class SearchForm(forms.Form):
@@ -49,6 +49,15 @@ class SearchForm(forms.Form):
             self.fields[bool_field].extra_label = self.fields[bool_field].label
             self.fields[bool_field].label = _("Yes")
 
+        self.helper.layout.insert(
+            self.helper.layout.fields.index('conditions'),
+            FormDivider(
+                title=self.fields['conditions'].label,
+                collapse_field_name='conditions',
+                collapsed=True,
+                wrapper_class="form-divider-sm",
+            )
+        )
         self.helper['conditions'].wrap(
             ExpandedMultipleChoice,
             wrapper_class=self.helper.wrapper_class,

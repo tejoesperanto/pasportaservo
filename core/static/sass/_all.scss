@@ -1243,6 +1243,53 @@ p.tip {
     width: 100%;
     background-color: $color-gray-light;
 }
+.divider-heading {
+    overflow: hidden;
+    text-align: center;
+    color: lighten($color-text, 15%);
+
+    &::before, &::after {
+        content: "";
+        display: inline-block;
+        position: relative;
+        vertical-align: middle;
+        width: 50%;
+        height: 3px;
+        border-top: 1px #ccc solid;
+        border-bottom: 1px #eee solid;
+    }
+    &.has-content {
+        &::before {
+            right: 1em;
+            margin-left: -50%;
+        }
+        &::after {
+            left: 1em;
+            margin-right: -50%;
+        }
+        &.as-label {
+            font-weight: 700;
+            color: $color-text;
+        }
+    }
+}
+.switch.btn-sm ~ .divider-heading {
+    padding-top: 4px;
+    width: calc(100% - 50px);
+    float: right;
+}
+.switch.btn-xs ~ .divider-heading {
+    padding-top: 2px;
+    width: calc(100% - 40px);
+    float: right;
+}
+.form-divider {
+    margin-bottom: 15px;
+
+    .switch:not(.initial) .fa {
+        transition: all 0.3s ease-in;
+    }
+}
 
 *[type="password"] + .progress,
 *[type="password"] + .popover + .progress {
@@ -1480,6 +1527,16 @@ input[type="checkbox"], input[type="radio"] {
     #page.search #georesult {
         #geoerror + .popover {
             max-width: 60%;
+        }
+    }
+    .form-horizontal .form-divider-sm {
+        font-size: 12px;
+
+        .switch.btn-sm ~ .divider-heading {
+            padding-top: 6px;
+        }
+        .switch.btn-xs ~ .divider-heading {
+            padding-top: 3px;
         }
     }
 }
