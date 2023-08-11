@@ -157,3 +157,50 @@ class ExpandedMultipleChoice(CrispyLayoutField):
         extra_context['option_hover_css_classes'] = self.option_hover_css_classes
         extra_context['field_block_collapsed'] = self.collapsed_expanded_block
         return super().render(*args, extra_context=extra_context, **kwargs)
+
+
+class FormDivider:
+    """
+    Form Layout object for rendering a horizontal divider line on the form, with
+    an optional title. The object cannot wrap other fields and should be used as
+    a standalone element. It can optionally show a button for collapsing and
+    un-collapsing a different form element, either given directly by its id or
+    indirectly via the form field's name if the element corresponds to a field.
+    """
+    template_name = 'ui/widget-form_divider.html'
+
+    def __init__(
+            self, *,
+            title=None, wrapper_class=None,
+            collapse_field_name=None,
+            collapse_field_id=None, collapse_field_label=None,
+            collapsed=None,
+            switch_button_class="btn-sm",
+    ):
+        self.divider_title = title
+        self.wrapper_class = wrapper_class
+        self.next_field = {
+            'name': collapse_field_name,
+            'id': collapse_field_id,
+            'label': collapse_field_label,
+            'collapsed': collapsed,
+        }
+        self.switch_button_class = switch_button_class
+
+    def render(self, form, form_style, context, extra_context=None, **kwargs):
+        if extra_context is None:
+            extra_context = {}
+        if self.next_field['name'] and not self.next_field['id']:
+            self.next_field['id'] = form[self.next_field['name']].auto_id
+            self.next_field['label'] = form[self.next_field['name']].label
+        extra_context.update({
+            'divider_title': self.divider_title,
+            'wrapper_class': self.wrapper_class,
+            'collapse_form_field_id': self.next_field['id'],
+            'collapse_form_field_label': self.next_field['label'],
+            'field_block_collapsed': self.next_field['collapsed'],
+            'switch_button_class': self.switch_button_class,
+        })
+        template = get_template(self.template_name)
+        with context.update(extra_context):
+            return template.render(context.flatten())

@@ -13,7 +13,7 @@ from factory import Faker
 
 from hosting.widgets import (
     ClearableWithPreviewImageInput, CustomNullBooleanSelect,
-    ExpandedMultipleChoice, InlineRadios,
+    ExpandedMultipleChoice, FormDivider, InlineRadios,
     MultiNullBooleanSelects, TextWithDatalistInput,
 )
 from maps.widgets import AdminMapboxGlWidget, MapboxGlWidget
@@ -218,7 +218,7 @@ class InlineRadiosWidgetTests(TestCase):
 
 
 @tag('forms', 'widgets')
-class ExpandedMultipleChoiceWidgetTests(TestCase):
+class ExpandedMultipleChoiceWidgetTests(AdditionalAsserts, TestCase):
     @classmethod
     def setUpTestData(cls):
         class MultiSelects(forms.widgets.MultiWidget):
@@ -256,11 +256,11 @@ class ExpandedMultipleChoiceWidgetTests(TestCase):
         # The form elements are expected to be rendered in a container corresponding
         # to the form's multi-value field.
         container_element = html.select('div#id_the_past_form_element')
-        self.assertEqual(len(container_element), 1)
+        self.assertLength(container_element, 1)
         self.assertNotIn("collapse", container_element[0].attrs.get('class', {}))
         self.assertNotIn('aria-expanded', container_element[0].attrs)
         # No control label is expected to be rendered by default.
-        self.assertEqual(len(html.select('label.control-label')), 0)
+        self.assertLength(html.select('label.control-label'), 0)
         for i, subfield in enumerate(form.fields['the_past'].fields, start=1):
             element_id = f'id_the_past_option_{i}_form_element'
             with self.subTest(container_id=element_id):
@@ -347,9 +347,9 @@ class ExpandedMultipleChoiceWidgetTests(TestCase):
                 # classes are expected to be in use.
                 subelement = element.find('div', id=f'id_the_past_{i-1}')
                 self.assertIsNotNone(subelement)
-                self.assertEqual(
-                    set(subelement.parent.attrs['class']),
-                    set(["controls", "checkbox"]))
+                self.assertCountEqual(
+                    subelement.parent.attrs['class'],
+                    ["controls", "checkbox"])
                 for opt in subfield.choices:
                     optelement = subelement.find(
                         'input',
@@ -389,16 +389,16 @@ class ExpandedMultipleChoiceWidgetTests(TestCase):
         self.assertEqual(container_element.attrs.get('aria-expanded'), 'false')
         # The control labels are expected to be rendered with the specified CSS class.
         label_elements = html.select('label.control-label')
-        self.assertEqual(len(label_elements), 2)
+        self.assertLength(label_elements, 2)
         for label_element in label_elements:
             self.assertIn("custom-label", label_element.attrs['class'])
         for i, subfield in enumerate(form.fields['the_past'].fields, start=1):
             # The specified subfield's CSS class is expected to be used.
             subelement = html.find('div', id=f'id_the_past_{i-1}')
             self.assertIsNotNone(subelement)
-            self.assertEqual(
-                set(subelement.parent.attrs['class']),
-                set(["custom-controls", "controls", "checkbox"]))
+            self.assertCountEqual(
+                subelement.parent.attrs['class'],
+                ["custom-controls", "controls", "checkbox"])
             for opt in subfield.choices:
                 option_element = subelement.find(
                     'input',
@@ -429,12 +429,257 @@ class ExpandedMultipleChoiceWidgetTests(TestCase):
         )
         html = BeautifulSoup(result, HTML_PARSER)
         # No control label is expected to be rendered by default.
-        self.assertEqual(len(html.select('label.control-label')), 0)
-        self.assertEqual(len(html.select('label.custom-label')), 0)
+        self.assertLength(html.select('label.control-label'), 0)
+        self.assertLength(html.select('label.custom-label'), 0)
         # Unknown values in extra rendering context are not supposed to be used.
         self.assertNotIn('inline_class', context)
         self.assertNotIn('inline_class', result)
         self.assertNotIn("select-inline", result)
+
+
+@tag('forms', 'widgets')
+class FormDividerWidgetTests(AdditionalAsserts, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        class DummyForm(forms.Form):
+            all_years = forms.IntegerField(label="All Years")
+
+        cls.DummyForm = DummyForm
+
+    def test_render(self):
+        widget = FormDivider()
+        result = widget.render(self.DummyForm(), 'default', Context({}))
+        html = BeautifulSoup(result, 'html.parser')
+        # The widget is expected to be composed of a container (with no ID)
+        # and a single element for the horizontal divider.
+        element = html.select('.form-divider')
+        self.assertLength(element, 1)
+        element = element[0]
+        self.assertNotIn('id', element.attrs)
+        self.assertEqual(element.attrs['class'], ["form-divider"])
+        subelement = element.select('.divider-heading')
+        self.assertLength(subelement, 1)
+        subelement = subelement[0]
+        self.assertLength(subelement.attrs['class'], 1)
+        # The sub-element is expected to have no content and no ARIA role.
+        self.assertNotIn('aria-role', subelement.attrs)
+        self.assertEqual(subelement.contents, [])
+        self.assertIsNone(element.find('button'))
+        # A specific keyboard tabbing index for the divider form element
+        # is not expected to be set.
+        self.assertNotIn('tabindex', result)
+
+        widget = FormDivider(title="monkeying Around")
+        for show_labels in (False, True):
+            with self.subTest(show_labels=show_labels):
+                context = Context({'form_show_labels': show_labels, 'tabindex': 3})
+                result = widget.render(
+                    self.DummyForm(), 'default', context,
+                    extra_context={'inline_label': "monkeyshines"})
+                html = BeautifulSoup(result, 'html.parser')
+                element = html.find(None, "form-divider")
+                self.assertIsNotNone(element)
+                subelement = element.find(None, "divider-heading", recursive=False)
+                self.assertIsNotNone(subelement)
+                if not show_labels:
+                    # When form labels are turned off, no text is expected to be
+                    # rendered on the horizontal divider sub-element, even if provided.
+                    # The sub-element is expected to have no ARIA role, as it is purely
+                    # decorative.
+                    self.assertLength(subelement.attrs['class'], 1)
+                    self.assertNotIn('aria-role', subelement.attrs)
+                    self.assertEqual(subelement.contents, [])
+                else:
+                    # When form labels are turned on, the given title is expected to be
+                    # rendered on the horizontal divider sub-element, and the
+                    # sub-element is expected to have the suitable ARIA role.
+                    self.assertIn("has-content", subelement.attrs['class'])
+                    self.assertEqual(subelement.attrs.get('aria-role'), 'separator')
+                    self.assertEqual(subelement.string, "monkeying Around")
+                # A specific keyboard tabbing index for the divider form element is not
+                # expected to be set (the element is expected to be unreachable by the
+                # keyboard).
+                self.assertNotIn('tabindex', result)
+                # Unknown values in extra rendering context are not supposed to be used.
+                self.assertNotIn('inline_label', context)
+                self.assertNotIn('inline_label', result)
+                self.assertNotIn("monkeyshines", result)
+
+    def test_css_class(self):
+        widget = FormDivider(wrapper_class="my-container")
+        result = widget.render(self.DummyForm(), 'default', Context({}))
+        html = BeautifulSoup(result, 'html.parser')
+        element = html.select('.my-container')
+        self.assertLength(element, 1)
+        # The given wrapping class is expected for the container element.
+        self.assertCountEqual(element[0].attrs['class'], ["form-divider", "my-container"])
+
+    def switch_rendering_tests(
+            self, render_output, lang,
+            *, expected_field_id, expected_label, collapsed, tabindex=None,
+    ):
+        html = BeautifulSoup(render_output, 'html.parser')
+
+        # The widget which has a collapsing control enabled is expected
+        # to be composed of a container inside of which a switch button
+        # controlling the folding of the other form element and an
+        # element for the horizontal divider.
+        element = html.find(None, "form-divider")
+        self.assertIsNotNone(element)
+        switch_element = element.find('button', recursive=False)
+        self.assertIsNotNone(switch_element)
+        self.assertEqual(switch_element.attrs.get('id'), f'{expected_field_id}_switch')
+        # The switch button is expected to have the default CSS classes.
+        self.assertIn("switch", switch_element.attrs['class'])
+        self.assertIn("btn", switch_element.attrs['class'])
+        self.assertIn("btn-sm", switch_element.attrs['class'])
+        if tabindex is None:
+            # When no explicit keyboard tabbing index is specified, it is
+            # expected to not be set for the switch button.
+            self.assertNotIn('tabindex', switch_element.attrs)
+        else:
+            # When a keyboard tabbing index is specified, it is expected
+            # to be set for the switch button.
+            self.assertIn('tabindex', switch_element.attrs)
+            self.assertEqual(switch_element.attrs['tabindex'], str(tabindex))
+        # The switch button is expected to control the given form element.
+        self.assertEqual(
+            switch_element.attrs.get('aria-controls'),
+            f'{expected_field_id}_form_element'
+        )
+
+        switch_icon_element = switch_element.find(None, "fa", recursive=False)
+        self.assertIsNotNone(switch_icon_element)
+        # The switch button is expected to indicate the ARIA 'expanded'
+        # state of the other form element according to the initial mode.
+        self.assertEqual(
+            switch_element.attrs.get('aria-expanded'),
+            'false' if collapsed else 'true'
+        )
+        self.assertIn("fa-caret-right", switch_icon_element.attrs['class'])
+        if not collapsed:
+            # A visual indicator of the 'expanded' state is expected on
+            # the switch button.
+            self.assertIn("fa-rotate-90", switch_icon_element.attrs['class'])
+
+        # The switch button is expected to have a suitable ARIA label.
+        label_show = {
+            'en': f"{expected_label}: Show" if expected_label else "Show",
+            'eo': f"{expected_label}: Montri" if expected_label else "Montri",
+        }
+        label_hide = {
+            'en': f"{expected_label}: Hide" if expected_label else "Hide",
+            'eo': f"{expected_label}: Kaŝi" if expected_label else "Kaŝi",
+        }
+        self.assertEqual(
+            safe_trim(switch_icon_element.attrs.get('aria-label')),
+            label_show[lang].strip() if collapsed else label_hide[lang].strip()
+        )
+        self.assertEqual(
+            safe_trim(switch_icon_element.attrs.get('data-aria-label-inactive')),
+            label_hide[lang].strip() if collapsed else label_show[lang].strip()
+        )
+
+        # The switch button is expected to be followed by the horizontal
+        # divider element.
+        divider_element = switch_element.find_next_sibling(None, "divider-heading")
+        self.assertIsNotNone(divider_element)
+
+    def test_render_switch_for_field_name(self):
+        # When the collapsible form element is indicated by the corresponding
+        # form field's name, which is not among the form's fields, a KeyError
+        # exception is expected and no widget rendered.
+        with self.assertRaises(KeyError):
+            widget = FormDivider(collapse_field_name='first_year')
+            widget.render(self.DummyForm(), 'default', Context({}))
+
+        for initially_collapsed in (None, False, True):
+            with self.subTest(collapsed=initially_collapsed):
+                with self.assertNotRaises(KeyError):
+                    widget = FormDivider(
+                        title="monKey",
+                        collapse_field_name='all_years', collapse_field_label="Lui",
+                        collapsed=initially_collapsed)
+                    for lang in ['en', 'eo']:
+                        with self.subTest(lang=lang):
+                            with override_settings(LANGUAGE_CODE=lang):
+                                result = widget.render(
+                                    self.DummyForm(), 'default', Context({}))
+                            # The switch button is expected to control the form element
+                            # identified by the ID of the given form field and the
+                            # actual form field's label is expected to override the
+                            # custom label given to the widget.
+                            self.switch_rendering_tests(
+                                result, lang, collapsed=initially_collapsed,
+                                expected_field_id='id_all_years', expected_label="All Years")
+
+    def test_render_switch_for_field_id(self):
+        for initially_collapsed in (None, False, True):
+            with self.subTest(collapsed=initially_collapsed):
+                # Explicit form field ID is expected to take preference over the field
+                # name, if both are given.
+                with self.assertNotRaises(KeyError):
+                    widget = FormDivider(
+                        collapse_field_name='future_years',
+                        collapse_field_id='id_other_years', collapse_field_label="Lui",
+                        collapsed=initially_collapsed)
+                    for lang in ['en', 'eo']:
+                        with self.subTest(lang=lang):
+                            with override_settings(LANGUAGE_CODE=lang):
+                                result = widget.render(
+                                    self.DummyForm(), 'default', Context({}))
+                            # The switch button is expected to control the form element
+                            # identified by the given ID (even if a form field name is
+                            # also given) and the given custom label is expected to be
+                            # used in all cases.
+                            self.switch_rendering_tests(
+                                result, lang, collapsed=initially_collapsed,
+                                expected_field_id='id_other_years', expected_label="Lui")
+
+        # If a custom field label is given (alongside a specific element
+        # ID) it is expected to be used on the switch button; otherwise,
+        # if a title is given, it is expected to be used. If none of these
+        # two are given, the ARIA label of the switch button is expected
+        # to be the default one corresponding to the element's 'expanded'
+        # state.
+        for title in ("monKey", " ", None):
+            for custom_label in ("Lui", " ", None):
+                with self.subTest(
+                        has_title=title is not None,
+                        field_has_label=custom_label is not None,
+                ):
+                    widget = FormDivider(
+                        title=title,
+                        collapse_field_name='all_years',
+                        collapse_field_id='id_other_years', collapse_field_label=custom_label,
+                    )
+                    for lang in ['en', 'eo']:
+                        with self.subTest(lang=lang):
+                            with override_settings(LANGUAGE_CODE=lang):
+                                result = widget.render(
+                                    self.DummyForm(), 'default', Context({'tabindex': 5}))
+                            # The switch button is expected to control the form element
+                            # identified by the given ID and to be reachable via the
+                            # given keyboard tabbing index.
+                            self.switch_rendering_tests(
+                                result, lang, collapsed=None, tabindex=5,
+                                expected_field_id='id_other_years',
+                                expected_label=custom_label or title or None)
+
+    def test_switch_css_class(self):
+        widget = FormDivider(switch_button_class="danger btn-lg", collapse_field_id='id_test')
+        result = widget.render(self.DummyForm(), 'default', Context({}))
+        html = BeautifulSoup(result, 'html.parser')
+        element = html.find(None, "form-divider")
+        self.assertIsNotNone(element)
+        switch_element = element.find('button', recursive=False)
+        self.assertIsNotNone(switch_element)
+        self.assertIn("switch", switch_element.attrs['class'])
+        # The given CSS classes are expected for the switch button.
+        self.assertIn("btn-lg", switch_element.attrs['class'])
+        self.assertIn("danger", switch_element.attrs['class'])
+        # The default CSS class is expected to be not present on the button.
+        self.assertNotIn("btn-sm", switch_element.attrs['class'])
 
 
 @tag('forms', 'widgets')
@@ -473,7 +718,7 @@ class MapboxGlWidgetTests(AdditionalAsserts, TestCase):
             # The template fragment is expected to include the container for the dynamic map.
             map_container_element = dom_tree.find('div', id='map')
             self.assertIsNotNone(map_container_element)
-            self.assertEqual(len(map_container_element.contents), 0)
+            self.assertLength(map_container_element.contents, 0)
             # The template fragment is expected to include a fallback for no JavaScript.
             noscript_element = dom_tree.find('noscript')
             self.assertIsNotNone(noscript_element)

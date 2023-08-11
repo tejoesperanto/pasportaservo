@@ -20,7 +20,7 @@ class MultiNullBooleanFieldTests(AdditionalAsserts, TestCase):
             forms.ChoiceField(choices=self.ROUND_BAKED_GOODS_OFFER),
             self.NULL_BOOLEAN_CHOICES)
         # The number of subfields is expected to be equal to the number of choices.
-        self.assertEqual(len(field.fields), 4)
+        self.assertLength(field.fields, 4)
         # Each subfield is expected to be a NullBooleanField.
         for f in field.fields:
             self.assertIsInstance(f, forms.NullBooleanField)
@@ -111,7 +111,7 @@ class MultiNullBooleanFieldTests(AdditionalAsserts, TestCase):
             # The default form field widget is expected to be MultiNullBooleanSelects.
             self.assertIsInstance(form.fields['extra_order'].widget, MultiNullBooleanSelects)
             # The choices are expected to be split into separate widgets.
-            self.assertEqual(len(form.fields['extra_order'].widget.widgets), 4)
+            self.assertLength(form.fields['extra_order'].widget.widgets, 4)
             # Widget name suffixes are expected to be the choice values.
             self.assertEqual(
                 form.fields['extra_order'].widget.widgets_names,

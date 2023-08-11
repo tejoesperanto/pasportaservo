@@ -905,6 +905,7 @@ msgstr "Vi sendis %(nb)s mesaĝojn. Bonege!"
 #: core/templates/ui/fragment-datalist_fallback.html
 #: hosting/templates/hosting/place_detail.html
 #: hosting/templates/hosting/snippets/travel_advice.html
+#: hosting/templates/ui/widget-form_divider.html
 #: pages/templates/pages/supervisors.html
 msgid "Hide"
 msgstr "Kaŝi"
@@ -2934,6 +2935,7 @@ msgid "Print map"
 msgstr "Printi mapon"
 
 #: hosting/templates/hosting/place_detail.html
+#: hosting/templates/ui/widget-form_divider.html
 msgid "Show"
 msgstr "Montri"
 

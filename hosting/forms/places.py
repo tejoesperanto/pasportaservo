@@ -21,6 +21,7 @@ from django_countries.fields import Country
 from core.auth import AuthRole
 from core.models import SiteConfiguration
 from core.utils import join_lazy, mark_safe_lazy, sort_by
+from hosting.widgets import FormDivider
 from maps import SRID
 from maps.widgets import MapboxGlWidget
 
@@ -94,6 +95,8 @@ class PlaceForm(forms.ModelForm):
         # Bigger input area for the address by default.
         self.fields['address'].widget.attrs['rows'] = 2
         self.fields['address'].widget.attrs['autocomplete'] = 'street-address'
+        # Split address details from the description and conditions.
+        self.helper.layout.insert(self.helper.layout.fields.index('max_guest'), FormDivider())
         # Combine the count fields together in one line (index is shifted because of postcode+city layout change).
         max_guests_field_index = self._meta.fields.index('max_guest')
         self.helper[max_guests_field_index-1:max_guests_field_index+2].wrap_together(Div, css_class='row')
