@@ -86,7 +86,7 @@ class PlaceForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.fields['state_province'].widget.attrs['autocomplete'] = 'region'
         # Combine the postcode and the city fields together in one line.
-        postcode_field_index = self._meta.fields.index('postcode')
+        postcode_field_index = self.helper.layout.fields.index('postcode')
         self.helper[postcode_field_index:postcode_field_index+2].wrap_together(Div, css_class='row')
         self.helper['postcode'].wrap(Field, wrapper_class='col-xxs-12 col-xs-4')
         self.helper['city'].wrap(Field, wrapper_class='col-xxs-12 col-xs-8')
@@ -97,9 +97,9 @@ class PlaceForm(forms.ModelForm):
         self.fields['address'].widget.attrs['autocomplete'] = 'street-address'
         # Split address details from the description and conditions.
         self.helper.layout.insert(self.helper.layout.fields.index('max_guest'), FormDivider())
-        # Combine the count fields together in one line (index is shifted because of postcode+city layout change).
-        max_guests_field_index = self._meta.fields.index('max_guest')
-        self.helper[max_guests_field_index-1:max_guests_field_index+2].wrap_together(Div, css_class='row')
+        # Combine the count fields together in one line.
+        max_guests_field_index = self.helper.layout.fields.index('max_guest')
+        self.helper[max_guests_field_index:max_guests_field_index+3].wrap_together(Div, css_class='row')
         for field, field_icon in {'max_guest': 'fa-street-view', 'max_night': 'fa-regular fa-moon'}.items():
             self.helper[field].wrap(
                 PrependedText,
