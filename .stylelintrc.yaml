@@ -1,0 +1,29 @@
+extends: stylelint-config-standard-scss
+
+rules:
+  rule-empty-line-before: null
+  at-rule-empty-line-before: null
+  comment-empty-line-before: null
+  scss/double-slash-comment-empty-line-before: null
+  custom-property-empty-line-before: null
+  scss/dollar-variable-empty-line-before: null
+  scss/at-if-closing-brace-newline-after: null
+  scss/at-if-closing-brace-space-after: null
+  block-no-empty: null
+  no-descending-specificity: null
+  selector-id-pattern:
+    - "^([a-z][a-z0-9]*)([_-][a-z0-9]+)*$"
+    - message: "Expected \"%s\" to be all lowercase with dash and underscore as separators"
+  length-zero-no-unit: null
+  shorthand-property-no-redundant-values: null
+
+overrides:
+  - files: ["_bootstrap_base.scss", "_colors.scss"]
+    rules:
+      scss/dollar-variable-pattern: "^(([a-z][a-z0-9]*)(-[a-z0-9]+)*|([A-Z][A-Z0-9]*)(-[A-Z0-9]+)*)$"
+      scss/dollar-variable-colon-space-after: "at-least-one-space"
+  - files: ["_fonts.scss"]
+    rules:
+      no-invalid-position-at-import-rule:
+        - true
+        - ignoreAtRules: ["font-face"]
