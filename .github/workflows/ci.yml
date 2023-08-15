@@ -38,18 +38,19 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 2
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
 
       - name: Cache pip
         id: cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements/dev.txt') }}
@@ -88,7 +89,7 @@ jobs:
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           POSTGRES_USERNAME: postgres
           POSTGRES_PASSWORD: pg_master
-        run: coverage run ./manage.py test
+        run: coverage run ./manage.py test && coverage xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3

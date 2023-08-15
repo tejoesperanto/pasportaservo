@@ -1,0 +1,56 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: 'v4.4.0'
+  hooks:
+    - id: check-case-conflict
+    - id: check-merge-conflict
+    - id: check-yaml
+    - id: check-json
+    - id: check-toml
+
+- repo: local
+  hooks:
+    - id: isort
+      name: isort
+      require_serial: true
+      language: system
+      entry: isort --filter-files --check-only
+      types: [python]
+      verbose: true
+
+    - id: flake8
+      name: flake8
+      require_serial: true
+      language: system
+      entry: python3 -m flake8
+      types: [python]
+
+    - id: check-absent-migrations
+      name: check for missed migrations
+      language: system
+      entry: python3 ./manage.py makemigrations --check --dry-run
+      pass_filenames: false
+      verbose: true
+
+# - repo: https://github.com/thibaudcolas/pre-commit-stylelint
+#   rev: 'v15.10.2'
+#   hooks:
+#     - id: stylelint
+#       additional_dependencies:
+#         - stylelint@15.10.2
+#         - stylelint-config-standard-scss@10.0.0
+#         - postcss@8.4.27
+#       files: \.scss$
+
+# - repo: https://github.com/pre-commit/mirrors-eslint
+#   rev: 'v8.47.0'
+#   hooks:
+#     - id: eslint
+
+# - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
+#   rev: 'v1.3.2'
+#   hooks:
+#     - id: python-safety-dependencies-check
+#       args: [--disable-telemetry]
+#       files: requirements/dev.txt
+#       always_run: true

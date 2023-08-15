@@ -5,9 +5,9 @@ django-debug-toolbar==3.6.0
 sqlparse>=0.2.4
 fabric==2.7.1
 django-webtest==1.9.10
-codecov==2.1.11
-coverage==5.5.0
-flake8==3.8.4
-isort==5.7.0
+coverage==7.3.0
+flake8==6.1.0
+isort==5.12.0
 factory-boy==3.2.0
 pyquery==1.4.3
+pre-commit==3.3.3
