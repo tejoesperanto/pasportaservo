@@ -235,7 +235,13 @@ class SearchView(PlacePaginatedListView):
 
         if cached_id:
             sess_id = self.get_identifier_for_cache(request)
-            self._cached_db_query = cache.get(f'search-results:{sess_id}:{cached_id}')
+            cached_search = cache.get(f'search-results:{sess_id}:{cached_id}', default={})
+            if isinstance(cached_search, dict):
+                self._cached_db_query = cached_search.get('query')
+                for paging_setting, how_much in cached_search.get('paging', {}).items():
+                    setattr(self, f'paginate_{paging_setting}', how_much)
+            else:
+                self._cached_db_query = cached_search
             self._cached_id = cached_id
 
         self.place_filter = SearchFilterSet(self.extended_query, self.queryset, request=request)
@@ -324,7 +330,15 @@ class SearchView(PlacePaginatedListView):
     def cache_queryset_query(self, queryset):
         sess_id = self.get_identifier_for_cache()
         self._cached_id = hex(id(queryset))[2:]
-        cache.set(f'search-results:{sess_id}:{self._cached_id}', queryset.query, timeout=2*60*60)
+        cached_search = {
+            'query': queryset.query,
+            'paging': {
+                setting[len('paginate_'):]: getattr(self, setting)
+                for setting in set(self.__dict__.keys()) | set(self.__class__.__dict__.keys())
+                if setting.startswith('paginate_')
+            },
+        }
+        cache.set(f'search-results:{sess_id}:{self._cached_id}', cached_search, timeout=2*60*60)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
