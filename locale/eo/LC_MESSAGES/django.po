@@ -4003,6 +4003,11 @@ msgstr ""
 "Bv. certigu ke dosiergrando estas sub %(limit)s. Nuna grando: "
 "%(current_size)s."
 
+#: hosting/views/listing.py pages/templates/pages/supervisors.html
+msgctxt "URL"
+msgid "countrycode"
+msgstr "landokodo"
+
 #: hosting/views/listing.py
 msgctxt "value::plural"
 msgid "MOST RECENT"

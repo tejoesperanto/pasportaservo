@@ -23,8 +23,8 @@ from core.utils import (
 from hosting.countries import countries_with_mandatory_region
 from hosting.gravatar import email_to_gravatar
 from hosting.utils import (
-    RenameAndPrefixAvatar, geocode, geocode_city,
-    title_with_particule, value_without_invalid_marker,
+    RenameAndPrefixAvatar, emulate_geocode_country, geocode,
+    geocode_city, title_with_particule, value_without_invalid_marker,
 )
 from links.utils import create_unique_url
 from maps import data as geodata
@@ -228,14 +228,14 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
             with self.subTest(pwd=password):
                 result = is_password_compromised(password)
                 self.assertIsInstance(result, tuple)
-                self.assertEqual(len(result), 2)
+                self.assertLength(result, 2)
                 self.assertEqual(result, expected_result)
 
     @tag('external')
     @skipUnless(settings.TEST_EXTERNAL_SERVICES, 'External services are tested only explicitly')
     def test_is_password_compromised_integration_contract(self):
         result = is_password_compromised("esperanto", full_list=True)
-        self.assertEqual(len(result), 3)
+        self.assertLength(result, 3)
         all_hashes = result[2] + ('\n' if not result[2].endswith('\n') else '')
         self.assertRegex(all_hashes, r'^([A-F0-9]{35}:\d+\r?\n)+$')
 
@@ -254,7 +254,7 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
             with self.subTest(payload=payload):
                 result = create_unique_url(payload=payload, salt="bbbb")
                 self.assertIs(type(result), tuple)
-                self.assertEqual(len(result), 2)
+                self.assertLength(result, 2)
                 self.assertStartsWith(result[0], '/ligilo/{}.'.format(token_prefix))
                 self.assertStartsWith(result[1], '{}.'.format(token_prefix))
                 self.assertEqual(result[1].count('.'), 3 if token_prefix.startswith('.') else 2)
@@ -273,7 +273,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
         result = geocode("Roterdamo", annotations=True)
         self.assertIs(type(result), OpenCageQuery)
         self.assertStartsWith(result.status, 'ERROR')
-        self.assertEqual(len(result), 0)
+        self.assertLength(result, 0)
         self.assertIsNone(result.point)
         logging.getLogger('geocoder').removeHandler(null_handler)
 
@@ -315,7 +315,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
         result = geocode("Roterdamo", annotations=True)
         self.assertIs(type(result), OpenCageQuery)
         self.assertEqual(result.status, 'OK')
-        self.assertEqual(len(result), 1)
+        self.assertLength(result, 1)
         self.assertIs(type(result.current_result), OpenCageResult)
         self.assertGreater(len(result.current_result._annotations), 0)
         self.assertIsNotNone(result.point)
@@ -332,7 +332,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
         result = geocode("Roterdamo", 'PL', annotations=True)
         self.assertIs(type(result), OpenCageQuery)
         self.assertEqual(result.status, 'ERROR - No results found')
-        self.assertEqual(len(result), 0)
+        self.assertLength(result, 0)
         self.assertIsNone(result.point)
 
     @patch('geocoder.base.requests.Session.get')
@@ -453,14 +453,14 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
         result = geocode("Paris", multiple=True, private=True)
         self.assertIs(type(result), OpenCageQuery)
         self.assertEqual(result.status, 'OK')
-        self.assertEqual(len(result), 5)
+        self.assertLength(result, 5)
         self.assertIs(type(result.current_result), OpenCageResult)
         self.assertIsNotNone(result.point)
         self.assertIs(type(result.point), GeoPoint)
         for i, r in enumerate(result):
             self.assertIs(type(r), OpenCageResult)
-            self.assertEqual(
-                len(r.xy),
+            self.assertLength(
+                r.xy,
                 2 if 'geometry' in mock_get.return_value.json.return_value['results'][i] else 0)
             self.assertEqual(r._annotations, {})
             self.assertEqual(
@@ -471,7 +471,11 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
     @patch('geocoder.base.requests.Session.get')
     def test_geocode_invalid_api_key_or_limit_reached(self, mock_get):
         test_data = (
-            (401, HTTPError("401 Client Error: Unauthorized"), {}, 'ERROR - 401 Client Error: Unauthorized'),
+            (
+                401, HTTPError("401 Client Error: Unauthorized"),
+                {},
+                'ERROR - 401 Client Error: Unauthorized'
+            ),
             (
                 200, None,
                 {"results": [], "status": {"code": 401, "message": "unknown API key"}, "total_results": 0},
@@ -500,7 +504,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
                 self.assertIs(type(result), OpenCageQuery)
                 self.assertEqual(result.status, expected_status)
                 self.assertFalse(result.ok)
-                self.assertEqual(len(result), 0)
+                self.assertLength(result, 0)
                 self.assertIsNone(result.point)
         logging.getLogger('geocoder').removeHandler(null_handler)
 
@@ -517,7 +521,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
             self.assertEqual(r.callingcode, 1)
             self.assertEqual(r.raw['annotations']['currency']['iso_code'], 'USD')
             self.assertGreaterEqual(r.confidence, 7)
-            self.assertEqual(len(r.xy), 2)
+            self.assertLength(r.xy, 2)
             self.assertIn('northeast', r.bbox)
             self.assertIn('southwest', r.bbox)
 
@@ -704,6 +708,27 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
         self.assertEqual(mock_get.call_count, 2)
         self.assertEqual([result.state, result.city, result.village], ["Cordoba", "Monteria", "Varsovia"])
 
+    @patch('geocoder.base.requests.Session.get')
+    def test_emulate_geocode_country(self, mock_get):
+        result = emulate_geocode_country('HK')
+        mock_get.assert_not_called()
+        self.assertIs(type(result), OpenCageResult)
+        self.assertEqual(result.status, 'OK')
+        self.assertEqual(result.country_code, 'HK')
+        self.assertEqual(result.address, "Honkongo")
+        self.assertEqual(result._annotations, {})
+        self.assertNotEqual(result._components, {})
+        self.assertLength(result.xy, 2)
+        self.assertIsNotNone(result.point)
+        self.assertIs(type(result.point), GeoPoint)
+
+        result = emulate_geocode_country('QQ')
+        mock_get.assert_not_called()
+        self.assertIs(type(result), OpenCageResult)
+        self.assertEqual(result.status, 'ERROR - No results found')
+        self.assertFalse(result.ok)
+        self.assertIsNone(result.point)
+
     @tag('subregions')
     def test_countries_with_mandatory_region(self):
         with self.assertRaises(UserWarning, msg="Result is not iterable."):
@@ -730,9 +755,9 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
         with self.subTest(country=country):
             res = bufferize_country_boundaries(country)
             self.assertIn('northeast', res['bbox'])
-            self.assertEqual(len(res['bbox']['northeast']), 2)
+            self.assertLength(res['bbox']['northeast'], 2)
             self.assertIn('southwest', res['bbox'])
-            self.assertEqual(len(res['bbox']['southwest']), 2)
+            self.assertLength(res['bbox']['southwest'], 2)
             self.assertEqual(res['center'], geodata.COUNTRIES_GEO[country]['center'])
 
 
