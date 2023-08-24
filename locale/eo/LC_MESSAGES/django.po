@@ -1156,6 +1156,8 @@ msgid "Username reminder"
 msgstr "Memorigo pri salutnomo"
 
 #: core/templates/registration/login.html
+#: hosting/templates/hosting/place_list.html
+#: hosting/templates/hosting/place_list_page.html
 msgctxt "Imperative"
 msgid "Log in"
 msgstr "Ensalutu"
@@ -3171,6 +3173,16 @@ msgstr "Pliprecizigu la serĉadon"
 #: hosting/templates/hosting/place_list_supervisor.html
 msgid "Sorry, no kind hosts found…"
 msgstr "Bedaŭrinde ni ne trovis gastigemulojn…"
+
+#: hosting/templates/hosting/place_list.html
+msgid "Sorry, no kind (publicly visible) hosts found…"
+msgstr "Bedaŭrinde ni ne trovis (publike videblajn) gastigemulojn…"
+
+#: hosting/templates/hosting/place_list.html
+#: hosting/templates/hosting/place_list_page.html
+#, python-format
+msgid "%(login_action)s to see more details."
+msgstr "%(login_action)s por vidi pli da detaloj."
 
 #: hosting/templates/hosting/place_list.html
 msgid ""

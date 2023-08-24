@@ -241,6 +241,7 @@ class SearchView(PlacePaginatedListView):
                 self._cached_db_query = cached_search.get('query')
                 for paging_setting, how_much in cached_search.get('paging', {}).items():
                     setattr(self, f'paginate_{paging_setting}', how_much)
+                self.query = cached_search.get('search-text', '')
             else:
                 self._cached_db_query = cached_search
             self._cached_id = cached_id
@@ -363,6 +364,7 @@ class SearchView(PlacePaginatedListView):
                 for setting in set(self.__dict__.keys()) | set(self.__class__.__dict__.keys())
                 if setting.startswith('paginate_')
             },
+            'search-text': self.query,
         }
         cache.set(f'search-results:{sess_id}:{self._cached_id}', cached_search, timeout=2*60*60)
 
