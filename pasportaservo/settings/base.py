@@ -306,6 +306,7 @@ def postman_from_email(context):
     if context['action'] == 'acceptance':
         sender_name = gettext('{name} via Pasporta Servo')
         user_name = user_first_name(context['object'].sender).capitalize()
+        user_name = user_name.translate(str.maketrans({symbol: '_' for symbol in '>@<'}))
         from_sender = f'{sender_name.format(name=user_name)} <saluton@pasportaservo.org>'
     else:
         from_sender = DEFAULT_FROM_EMAIL
