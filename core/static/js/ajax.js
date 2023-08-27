@@ -50,17 +50,26 @@ $(document).ready(function() {
                 }
                 if ($this.is(':hidden'))
                     return;
+                var errorText;
+                if (xhr.getResponseHeader('content-type') == 'text/plain' && xhr.responseText) {
+                    errorText = xhr.responseText;
+                }
+                else {
+                    errorText = interpolate(
+                        gettext(
+                            "Something misfunctioned.<br>" +
+                            "Please retry; if the error repeats itself, please <a href='%(url)s'>contact us</a>."
+                        ),
+                        {'url': "mailto:saluton [cxe] pasportaservo.org".replace(" [cxe] ", "@")}, true
+                     );
+                }
                 $this.popover({
                     trigger: popoverTrigger || "focus",
                     container: 'body',
                     placement: "bottom",
                     html: true,
                     title: gettext("Server error") + " (" + xhr.status + ")",
-                    content: "<span class='help-block'>" +
-                             gettext(
-                                "Something misfunctioned.<br>Please retry; if the error repeats itself, please <a href='{url}'>contact us</a>."
-                             ).replace("{url}", "mailto:saluton [cxe] pasportaservo.org").replace(" [cxe] ", "@") +
-                             "</span>"
+                    content: "<span class='help-block'>" + errorText + "</span>",
                 }).popover("show");
             }
         });

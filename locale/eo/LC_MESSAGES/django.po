@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2023-01-19 18:18+0000\n"
+"POT-Revision-Date: 2023-08-27 06:45+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -4055,6 +4055,14 @@ msgstr "La geografia surmapa lokigo ne estas konata."
 #: hosting/views/verification.py
 msgid "The geographical location on map is imprecise."
 msgstr "La geografia surmapa lokigo estas tro malpreciza."
+
+#: hosting/views/verification.py
+msgid ""
+"You cannot approve your own place. Ask another supervisor or an "
+"administrator to check it."
+msgstr ""
+"Vi ne povas aprobi vian propran loĝejon. Petu alian landan organizanton aŭ "
+"administranton kontroli la datumojn."
 
 #: links/templates/links/already_confirmed.html
 #: links/templates/links/confirmed.html

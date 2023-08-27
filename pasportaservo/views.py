@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from django.http import HttpResponseForbidden
 from django.utils.functional import SimpleLazyObject, cached_property
 from django.views.defaults import ERROR_403_TEMPLATE_NAME, permission_denied
 
@@ -28,7 +29,11 @@ def custom_permission_denied_view(request, exception, template_name=ERROR_403_TE
     It is used, among others, by the Auth mixin to provide data about the offending view to
     the Debug toolbar.
     """
-    response = permission_denied(request, exception.args[0] if exception.args else exception, template_name)
+    exception_object = exception.args[0] if exception.args else exception
+    if request.is_ajax():
+        response = HttpResponseForbidden(str(exception_object), content_type='text/plain')
+    else:
+        response = permission_denied(request, exception_object, template_name)
     try:
         response.context_data = getattr(response, 'context_data', {})
         response.context_data['view'] = exception.args[1]

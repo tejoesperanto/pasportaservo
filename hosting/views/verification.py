@@ -2,7 +2,7 @@ import json
 from collections import OrderedDict
 
 from django.core import serializers
-from django.core.exceptions import NON_FIELD_ERRORS
+from django.core.exceptions import NON_FIELD_ERRORS, PermissionDenied
 from django.forms import ModelForm
 from django.http import (
     HttpResponseBadRequest, HttpResponseRedirect, JsonResponse,
@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views import generic
 from django.views.decorators.vary import vary_on_headers
 
-from core.auth import AuthMixin, AuthRole
+from core.auth import PERM_SUPERVISOR, AuthMixin, AuthRole
 from core.mixins import LoginRequiredMixin
 
 from ..forms import PhoneForm, PlaceForm, ProfileForm
@@ -70,6 +70,19 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
                 self.add_error('location', _("The geographical location on map is imprecise."))
             else:
                 self.cleaned_data = {'location': self.data['location']}
+
+    def get_object(self, queryset=None):
+        try:
+            return super().get_object(queryset)
+        except PermissionDenied:
+            if self.role == AuthRole.OWNER and self.request.user.has_perm(PERM_SUPERVISOR):
+                raise PermissionDenied(
+                    _(
+                        "You cannot approve your own place."
+                        " Ask another supervisor or an administrator to check it."
+                    ), self
+                )
+            raise
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
     def post(self, request, *args, **kwargs):
