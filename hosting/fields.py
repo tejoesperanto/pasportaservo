@@ -1,6 +1,9 @@
 from django import forms
 from django.core import checks
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import (
+    MaxLengthValidator, MaxValueValidator,
+    MinValueValidator, ProhibitNullCharactersValidator,
+)
 from django.db import models
 from django.db.models.fields.related_descriptors import (
     ForwardManyToOneDescriptor,
@@ -209,9 +212,20 @@ class ForeigKeyWithSuggestions(models.ForeignKey):
         class SuggestiveModelChoiceFormField(forms.ModelChoiceField):
             widget = TextWithDatalistInput
 
-            def __init__(self, *args, **kwargs):
+            def __init__(self, *args, max_length=None, **kwargs):
                 super().__init__(*args, **kwargs)
                 self.empty_label = None
+
+                def configure_validator(validator):
+                    return (
+                        lambda value:
+                        validator(getattr(value, self.to_field_name or 'pk'))
+                    )
+                if str(max_length).isdigit():
+                    self.validators.append(
+                        configure_validator(MaxLengthValidator(int(max_length))))
+                self.validators.append(
+                    configure_validator(ProhibitNullCharactersValidator()))
 
             def to_python(self, value):
                 converted_value, is_invalid = _handle_invalid_choice(self, value, function='to_python')
@@ -223,7 +237,10 @@ class ForeigKeyWithSuggestions(models.ForeignKey):
                     converted_value = self.queryset.model(**data)
                 return converted_value
 
-        defaults = {'form_class': SuggestiveModelChoiceFormField}
+        defaults = {
+            'form_class': SuggestiveModelChoiceFormField,
+            'max_length': getattr(self.target_field, 'max_length', None),
+        }
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
