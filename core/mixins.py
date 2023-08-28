@@ -17,7 +17,7 @@ from hosting.utils import value_without_invalid_marker
 from hosting.validators import AccountAttributesSimilarityValidator
 
 from .auth import auth_log
-from .utils import is_password_compromised
+from .utils import is_password_compromised, sanitize_next
 
 User = get_user_model()
 
@@ -33,6 +33,10 @@ class LoginRequiredMixin(AuthenticatedUserRequiredMixin):
 
 class UserModifyMixin(object):
     def get_success_url(self, *args, **kwargs):
+        redirect_to = sanitize_next(self.request)
+        if redirect_to:
+            return redirect_to
+
         try:
             if hasattr(self.object, self.object._meta.get_field('profile').get_cache_name()):
                 profile = self.object.profile

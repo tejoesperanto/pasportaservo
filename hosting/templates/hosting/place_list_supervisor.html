@@ -413,9 +413,17 @@
                             </span>
                         {% else %}
                             <span class="person-email-address">{{ place.profile.user.email|urlize }}</span>
-                            {% include './snippets/email_mark_invalid.html' with profile=place.profile return_url=current_page_position extra_class="control-buttons" %}
+                            {% if place.profile.user != user %}
+                                {# Supervisors cannot mark their own email address. #}
+                                {% include './snippets/email_mark_invalid.html' with profile=place.profile return_url=current_page_position extra_class="control-buttons" %}
+                            {% endif %}
                         {% endif %}
-                        <a href="{% url 'staff_email_update' place.profile.pk place.profile.autoslug %}?{% next current_page_position %}"
+                        {% if place.profile.user != user %}
+                            {% url 'staff_email_update' place.profile.pk place.profile.autoslug as place_profile_email_url %}
+                        {% else %}
+                            {% url 'email_update' as place_profile_email_url %}
+                        {% endif %}
+                        <a href="{{ place_profile_email_url }}?{% next current_page_position %}"
                            class="control-buttons btn btn-default btn-sm">
                             {% trans "Update email" %}
                         </a>
