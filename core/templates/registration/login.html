@@ -8,7 +8,7 @@
 {% block form_block_class %} login{% endblock %}
 
 {% block fields_after %}
-    <p class="pull-left text-left keep-margin">
+    <p class="pull-left text-left keep-margin recovery">
         {% url 'password_reset' as password_reset_url %}{% url 'username_remind' as username_remind_url %}
         {% blocktrans with pwd_url=password_reset_url usr_url=username_remind_url trimmed %}
             I forgot <a href="{{ pwd_url }}">my password</a> or <a href="{{ usr_url }}">my username</a>

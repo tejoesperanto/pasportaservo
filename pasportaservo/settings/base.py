@@ -217,8 +217,8 @@ else:
 AUTH_PROFILE_MODULE = 'hosting.Profile'
 
 LOGIN_URL = 'login'
-LOGOUT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 REDIRECT_FIELD_NAME = "ps_m"
 SEARCH_FIELD_NAME = "ps_q"
