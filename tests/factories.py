@@ -100,6 +100,7 @@ class UserFactory(DjangoModelFactory):
     email = Faker('email', safe=False)
     is_active = True
     is_staff = False
+    is_superuser = False
 
     profile = factory.RelatedFactory(
         'tests.factories.ProfileFactory', 'user', deceased=factory.SelfAttribute('..deceased_user'))

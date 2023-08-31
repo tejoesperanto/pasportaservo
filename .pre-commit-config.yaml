@@ -16,7 +16,6 @@ repos:
       language: system
       entry: isort --filter-files --check-only
       types: [python]
-      verbose: true
 
     - id: flake8
       name: flake8
