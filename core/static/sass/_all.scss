@@ -225,6 +225,15 @@ header {
         box-shadow: 0px 3px 5px 0px #d0d0d0;
     }
 }
+html[data-env="UAT"] header {
+    background-image: repeating-linear-gradient(
+        135deg,
+        transparent 0%,
+        transparent 5%,
+        rgba(255, 255, 0, 0.2) 10%,
+        transparent 15%,
+        transparent 21%);
+}
 header a {
     color: $color-brand-text;
     &:hover {
