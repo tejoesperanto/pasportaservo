@@ -74,6 +74,10 @@
             <script src="{% static 'js/messages.js' %}"></script>
             {% block extra_js %}{% endblock %}
         {% endcompress %}
+
+        {% if ENVIRONMENT and ENVIRONMENT != 'PROD' %}
+            <meta name="robots" content="noindex, noarchive">
+        {% endif %}
         {% block extra_head %}{% endblock %}
     </head>
     <body>{% block body %}{% endblock %}</body>
