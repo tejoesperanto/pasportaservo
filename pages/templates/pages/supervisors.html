@@ -131,7 +131,10 @@
                             href="{% url 'staff_place_list' country_code=country.code in_book=country_list.in_book %}"
                          {% endif %}
                        {% elif not perms.hosting.can_supervise %}
-                            href="{% url 'search' query=country.name %}"
+                            {% asvar country_name_search_query trimmed %}
+                                {% trans "countrycode" context "URL" %}:{{ country.code }}
+                            {% endasvar %}
+                            href="{% url 'search' query=country_name_search_query %}"
                        {% else %}
                             disabled
                        {% endif %}>

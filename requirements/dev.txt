@@ -1,13 +1,14 @@
 -r base.txt
 
+beautifulsoup4==4.12.2
 bpython==0.21
-django-debug-toolbar==3.6.0
-sqlparse>=0.2.4
-fabric==2.7.1
-django-webtest==1.9.10
 coverage==7.3.0
+django-debug-toolbar==3.6.0
+django-webtest==1.9.10
+fabric==2.7.1
+factory-boy==3.2.0
 flake8==6.1.0
 isort==5.12.0
-factory-boy==3.2.0
-pyquery==1.4.3
 pre-commit==3.3.3
+pyquery==1.4.3
+sqlparse>=0.2.4

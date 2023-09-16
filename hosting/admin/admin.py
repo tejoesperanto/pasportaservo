@@ -17,6 +17,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django_countries.fields import Country
 from djangocodemirror.widgets import CodeMirrorAdminWidget
+from packaging import version
 
 from core.models import Agreement, UserBrowser
 from maps.widgets import AdminMapboxGlWidget
@@ -271,8 +272,18 @@ class UserBrowserAdmin(admin.ModelAdmin):
     )
     ordering = ('user__username', '-added_on')
     list_filter = (
-        'os_name', DependentFieldFilter.configure('os_name', 'os_version'),
-        'browser_name', DependentFieldFilter.configure('browser_name', 'browser_version'),
+        'os_name',
+        DependentFieldFilter.configure(
+            'os_name', 'os_version',
+            coerce=lambda version_string: version.parse(version_string),
+            sort=True, sort_reverse=True,
+        ),
+        'browser_name',
+        DependentFieldFilter.configure(
+            'browser_name', 'browser_version',
+            coerce=lambda version_string: version.parse(version_string),
+            sort=True, sort_reverse=True,
+        ),
     )
     fields = (
         'user_agent_string', 'user_agent_hash',

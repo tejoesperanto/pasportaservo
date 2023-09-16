@@ -130,9 +130,14 @@ class SupervisorsView(generic.TemplateView):
                 book_filter if filter_for_book else
                 ((book_filter | online_filter) if filter_for_supervisor else online_filter)
             )
+            .exclude(
+                (Q(owner__deleted_on__isnull=False) | Q(owner__death_date__isnull=False))
+                if not filter_for_supervisor else Q()
+            )
             # QuerySet.values(...).annotate(...).order_by() performs a GROUP BY query,
             # removing the default ordering fields of the model, if any.
-            .select_related(None).values('country')
+            .select_related(None)
+            .values('country')
             .annotate(**counts_filtered)
             .order_by()
         )

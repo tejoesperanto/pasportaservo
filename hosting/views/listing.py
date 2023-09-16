@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from urllib.parse import quote_plus, unquote_plus
 
 from django.conf import settings
@@ -26,7 +27,7 @@ from maps.utils import bufferize_country_boundaries
 
 from ..filters.search import SearchFilterSet
 from ..models import Condition, LocationConfidence, Phone, Place, TravelAdvice
-from ..utils import geocode
+from ..utils import emulate_geocode_country, geocode
 
 
 class HttpResponseTemporaryRedirect(HttpResponseRedirectBase):
@@ -235,10 +236,34 @@ class SearchView(PlacePaginatedListView):
 
         if cached_id:
             sess_id = self.get_identifier_for_cache(request)
-            self._cached_db_query = cache.get(f'search-results:{sess_id}:{cached_id}')
+            cached_search = cache.get(f'search-results:{sess_id}:{cached_id}', default={})
+            if isinstance(cached_search, dict):
+                self._cached_db_query = cached_search.get('query')
+                for paging_setting, how_much in cached_search.get('paging', {}).items():
+                    setattr(self, f'paginate_{paging_setting}', how_much)
+                self.query = cached_search.get('search-text', '')
+            else:
+                self._cached_db_query = cached_search
             self._cached_id = cached_id
 
         self.place_filter = SearchFilterSet(self.extended_query, self.queryset, request=request)
+
+    def parse_user_query(self):
+        parsed_query = {
+            'query': self.query,
+        }
+        if self.query:
+            translated_tag = pgettext("URL", "countrycode")
+            tag = f'countrycode|{translated_tag}'
+            country_code = re.search(rf'(?:^|\W)(?:{tag}):([A-Z]{{2}})(?:\W|$)', self.query)
+            if country_code:
+                country_code = country_code.group(1)
+            remaining_query = re.sub(rf'(^|\W)(?:{tag}):\w*?(?=\W|$)', r'\1', self.query)
+            parsed_query.update({
+                'query': remaining_query.strip(),
+                'country_code': country_code,
+            })
+        return parsed_query
 
     def get_queryset(self):
         most_recent_moniker, most_recent = pgettext("value::plural", "MOST RECENT"), False
@@ -265,7 +290,13 @@ class SearchView(PlacePaginatedListView):
             .defer('address', 'description', 'short_description', 'owner__description')
         )
 
-        self.result = geocode(self.query)
+        parsed_query = self.parse_user_query()
+        if 'country_code' in parsed_query and not parsed_query['query']:
+            self.result = emulate_geocode_country(parsed_query['country_code'])
+        else:
+            self.result = geocode(
+                parsed_query['query'], country=parsed_query.get('country_code'))
+        self.cleaned_query = parsed_query['query']
         if self.query and self.result.point:
             point_category = getattr(self.result, '_components', {}).get('_category')
             point_type = getattr(self.result, '_components', {}).get('_type')
@@ -314,8 +345,10 @@ class SearchView(PlacePaginatedListView):
                 .order_by('internal_distance')
             )
         else:
-            search_queryset = qs.order_by(
-                F('owner__user__last_login').desc(nulls_last=True), '-id')
+            search_queryset = (
+                qs
+                .order_by(F('owner__user__last_login').desc(nulls_last=True), '-id')
+            )
 
         # Cache the calculated result.
         self.cache_queryset_query(search_queryset)
@@ -324,7 +357,16 @@ class SearchView(PlacePaginatedListView):
     def cache_queryset_query(self, queryset):
         sess_id = self.get_identifier_for_cache()
         self._cached_id = hex(id(queryset))[2:]
-        cache.set(f'search-results:{sess_id}:{self._cached_id}', queryset.query, timeout=2*60*60)
+        cached_search = {
+            'query': queryset.query,
+            'paging': {
+                setting[len('paginate_'):]: getattr(self, setting)
+                for setting in set(self.__dict__.keys()) | set(self.__class__.__dict__.keys())
+                if setting.startswith('paginate_')
+            },
+            'search-text': self.query,
+        }
+        cache.set(f'search-results:{sess_id}:{self._cached_id}', cached_search, timeout=2*60*60)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

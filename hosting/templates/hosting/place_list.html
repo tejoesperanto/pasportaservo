@@ -1,11 +1,11 @@
 {% extends 'core/base.html' %}
 {% load i18n static variable cache crispy_forms_tags geoformat %}
-{% load mult compact from utils %}
+{% load mult compact next from utils %}
 
 {% block head_title %}
     {% if view.query %}
         {% asvar where_to_look %}
-            {{ view.result|format_geo_result|default:view.query.strip }}
+            {{ view.result|format_geo_result|default:view.cleaned_query.strip }}
         {% endasvar %}
         {% if filter.form.cleaned_data.available %}
             {% if view.country_search or view.inhabited_place_search %}
@@ -50,7 +50,7 @@
             }
     {% endif %}
     {% if view.query and not view.result.latlng %}
-            return document.title.replace('{{ view.query.strip|escapejs }}', 'XXXXXXXXXX');
+            return document.title.replace('{{ view.cleaned_query.strip|escapejs }}', 'XXXXXXXXXX');
     {% endif %}
 {% endblock %}
 
@@ -191,7 +191,7 @@
                 <a href="{% url 'world_map' %}{{ result|geo_url_hash }}">{% trans "Open map of the region" %}</a>
             </p>
         {% elif view.query %}
-            {% if result.error and view.query|length > 1 %}
+            {% if result.error and view.cleaned_query|length > 1 %}
                 <span class="text-warning">
                     <span class="fa fa-store-slash" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
                     {% trans "&lt;Geosearch service is unreachable&gt;" %}
@@ -260,7 +260,19 @@
             <div class="col-xs-12 help-block text-body">
                 {% if view.query or filtered_by %}
                     {% if filter.form.cleaned_data.available %}
-                        {% trans "Sorry, no kind hosts found…" %}
+                        {% if user.is_authenticated %}
+                            {% trans "Sorry, no kind hosts found…" %}
+                        {% else %}
+                            {% trans "Sorry, no kind (publicly visible) hosts found…" %}
+                            {% asvar login_action trimmed %}
+                                {% spaceless %}
+                                    <a href="{% url 'login' %}?{% next 'this page' %}">
+                                        <span>{% trans "Log in" context "Imperative" %}</span>
+                                    </a>
+                                {% endspaceless %}
+                            {% endasvar %}
+                            {% blocktrans %}{{ login_action }} to see more details.{% endblocktrans %}
+                        {% endif %}
                     {% else %}
                         {% trans "Sorry, no members of the community fulfilling the search criteria found." %}
                     {% endif %}

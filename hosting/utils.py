@@ -8,14 +8,39 @@ from django.contrib.gis.geos import Point
 from django.utils.deconstruct import deconstructible
 
 import geocoder
+from django_countries import Countries
+from geocoder.opencage import OpenCageResult
 
 from core.models import SiteConfiguration
 from maps import SRID
+from maps.data import COUNTRIES_GEO
 
 from .countries import countries_with_mandatory_region
 
 
 def geocode(query, country='', private=False, annotations=False, multiple=False):
+    """
+    Utilizes the API of OpenCage to perform forward geocoding of the provided
+    address.
+
+    Args:
+        `query` (str):
+            The address to attempt geocoding. If the query is empty, nothing
+            is done.
+        `country` (str):
+            Restrict geocoding to a specific country; a 2-letter code.
+        `private` (bool):
+            Whether to instruct OpenCage to not log this request.
+        `annotations` (bool):
+            Whether to include additional information (such as timezone,
+            w3w, sunrise & sunset, currency, etc.) in the result.
+            See https://opencagedata.com/api#annotations.
+        `multiple` (bool):
+            Whether to return just the first result, or several results
+            if OpenCage has multiple hits.
+    Returns:
+        OpenCageQuery (with a Geo Point) or None.
+    """
     key = SiteConfiguration.get_solo().opencage_api_key
     lang = settings.LANGUAGE_CODE
     if not query:
@@ -36,6 +61,22 @@ def geocode(query, country='', private=False, annotations=False, multiple=False)
 
 
 def geocode_city(cityname, country, state_province=None):
+    """
+    Utilizes the API of OpenCage to perform forward geocoding of the provided
+    city name (in an optional state / province).
+
+    Args:
+        `cityname` (str):
+            The name of the city to attempt geocoding.
+        `country` (str):
+            The specific country the city is located in; a 2-letter code.
+        `state_province` (str):
+            Optionally, the state / province the city is located in.
+            If provided, the full identification is attempted; if this yields
+            no results, the utility falls back to just the city name.
+    Returns:
+        OpenCageResult or None.
+    """
     if state_province:
         attempts = (', '.join([cityname, state_province]), )
         if country not in countries_with_mandatory_region():
@@ -52,6 +93,43 @@ def geocode_city(cityname, country, state_province=None):
             result = None
         if result:
             break
+    return result
+
+
+def emulate_geocode_country(country_code):
+    """
+    Returns a manually built result which emulates forward geocoding of
+    a country using OpenCage's API.
+    This is needed because geocoding just the name of the country gives
+    unpredictable results;  while combining the name with the country's
+    code is unreliable (the query cannot be empty in any case).
+
+    Args:
+        `country_code` (str):
+            The 2-letter code of the country.
+    Returns:
+        OpenCageResult (with a Geo Point).
+    """
+    country_code = country_code.upper()
+    country_name = Countries().name(country_code)
+    if country_name and country_code in COUNTRIES_GEO:
+        data = {
+            'components': {
+                '_category': 'place',
+                '_type': 'country',
+                'country': country_name,
+                'country_code': country_code,
+            },
+            'formatted': country_name,
+            'geometry': {
+                'lat': COUNTRIES_GEO[country_code]['center'][1],
+                'lng': COUNTRIES_GEO[country_code]['center'][0],
+            },
+        }
+    else:
+        data = {}
+    result = OpenCageResult(data)
+    result.point = Point(result.xy, srid=SRID) if result.xy else None
     return result
 
 
@@ -73,7 +151,15 @@ def title_with_particule(value, particules=None):
 
 
 def value_without_invalid_marker(value):
-    return (value[len(settings.INVALID_PREFIX):] if value.startswith(settings.INVALID_PREFIX) else value)
+    """
+    Removes the prefix indicating non-validity from the given value.
+    If the value is not invalid, it is returned as-is.
+    """
+    return (
+        value[len(settings.INVALID_PREFIX):]
+        if value.startswith(settings.INVALID_PREFIX)
+        else value
+    )
 
 
 @deconstructible

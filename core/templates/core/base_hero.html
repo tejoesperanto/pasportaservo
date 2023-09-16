@@ -75,7 +75,7 @@
 
     <div class="search-container{% block hero_content_class %}{% endblock %}">
         {% block hero_content %}
-        <form class="search row" id="searchform" role="search form" method="GET" action="{% url 'search' %}">
+        <form class="search row" id="searchform" role="search" method="GET" action="{% url 'search' %}">
             <div class="col-xs-12 col-sm-8 col-sm-offset-2">
                 <div class="form-group form-group-lg" data-nosnippet>
                     <label class="sr-only" for="searchinput">{% trans "Search for a country, a region, or a city…" %}</label>

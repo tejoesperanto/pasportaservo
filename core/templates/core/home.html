@@ -84,7 +84,7 @@
                 {% include './snippets/social_link.html' with url=url title=title outline="fa-square" content="fa-brands fa-twitter" only %}
             {% endwith %}
             {% with local_context=True %}
-                {% asvar url %}https://pasportaservo.telegramo.org{% endasvar %}
+                {% asvar url %}https://pasportaservo.telegramo.org/{% endasvar %}
                 {% trans "Discuss Pasporta Servo on Telegram" as title %}
                 {% include './snippets/social_link.html' with url=url title=title outline="fa-square" content="fa-brands fa-telegram" only %}
             {% endwith %}

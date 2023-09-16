@@ -44,19 +44,35 @@ class CountryMentionedOnlyFilter(admin.SimpleListFilter):
                 current_lookups.remove(lookup)
             else:
                 current_lookups.add(lookup)
-            query_string = changelist.get_query_string(
-                new_params={self.parameter_name: ",".join(current_lookups)} if current_lookups else {},
-                remove=[self.parameter_name] if not current_lookups else [])
-            yield {'selected': item_selected, 'query_string': query_string, 'display': title}
+            if current_lookups:
+                query_string = changelist.get_query_string(
+                    new_params={self.parameter_name: ",".join(current_lookups)},
+                    remove=[])
+            else:
+                query_string = changelist.get_query_string(
+                    new_params={},
+                    remove=[self.parameter_name])
+            yield {
+                'selected': item_selected,
+                'query_string': query_string,
+                'display': title,
+            }
 
     def queryset(self, request, queryset):
-        value_list = set([v.strip() for v in self.values() if len(v.strip()) == 2 and v.strip().isalpha()])
+        value_list = set([
+            v.strip()
+            for v in self.values()
+            if len(v.strip()) == 2 and v.strip().isalpha()
+        ])
         if not self.multicountry:
             lookup = Q(country__in=value_list)
         else:
             # No risk of injection because values are restricted to be 2 letters.
             lookup = Q(countries__regex=r'(^|,)({})(,|$)'.format('|'.join(value_list)))
-        return queryset.filter(lookup) if value_list else (queryset.none() if self.value() else queryset)
+        if value_list:
+            return queryset.filter(lookup)
+        else:
+            return queryset.none() if self.value() else queryset
 
 
 class VisibilityTargetFilter(admin.SimpleListFilter):
@@ -80,7 +96,9 @@ class VisibilityTargetFilter(admin.SimpleListFilter):
 
 class DependentFieldFilter(admin.SimpleListFilter):
     @classmethod
-    def configure(cls, field, related_field):
+    def configure(cls, field, related_field, coerce=None, sort=False, sort_reverse=None):
+        if coerce is None or not callable(coerce):
+            coerce = lambda v: v
         return type(
             ''.join(related_field.split('_')).capitalize()
             + 'Per' + ''.join(field.split('_')).capitalize()
@@ -90,6 +108,11 @@ class DependentFieldFilter(admin.SimpleListFilter):
                 'origin_field': field,
                 'related_field': related_field,
                 'parameter_name': related_field,
+                'coerce_value': lambda filter, value: coerce(value),
+                'sorting': {
+                    'enabled': sort,
+                    'reverse': sort_reverse,
+                },
             }
         )
 
@@ -98,7 +121,12 @@ class DependentFieldFilter(admin.SimpleListFilter):
             model_admin.model._default_manager.all()
             .filter(**{self.origin_field: self.dependent_on_value})
         )
-        for val in qs.values_list(self.related_field, flat=True).distinct():
+        all_values = map(
+            self.coerce_value,
+            qs.values_list(self.related_field, flat=True).distinct())
+        if self.sorting['enabled']:
+            all_values = sorted(all_values, reverse=self.sorting['reverse'])
+        for val in all_values:
             yield (val, str(val))
 
     def has_output(self):

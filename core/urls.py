@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.views import (
     LogoutView, PasswordResetCompleteView, PasswordResetDoneView,
 )
@@ -35,7 +36,10 @@ urlpatterns = [
         AccountRestoreRequestView.as_view(), name='login_restore'),
     path(
         pgettext_lazy("URL", 'logout/'),
-        LogoutView.as_view(next_page='/'), name='logout'),
+        LogoutView.as_view(
+            redirect_field_name=settings.REDIRECT_FIELD_NAME,
+        ),
+        name='logout'),
 
     path(
         pgettext_lazy("URL", 'agreement/'), include([

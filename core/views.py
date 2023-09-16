@@ -100,7 +100,11 @@ class LoginView(LoginBuiltinView):
             self.request.GET = self.request.GET.copy()
             self.request.GET[self.redirect_field_name] = self.request.GET['next']
 
-        return super().get_redirect_url()
+        redirect_to = super().get_redirect_url()
+        if redirect_to == self.request.path:
+            return ''  # Avoid a redirection loop.
+        else:
+            return redirect_to
 
 
 class RegisterView(generic.CreateView):

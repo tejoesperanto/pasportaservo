@@ -138,9 +138,25 @@
     {% endasvar %}
     {% show_more more_template loading_template "control-buttons btn btn-xs btn-default" %}
     {# TODO after loading the next page, (tab) focus should be set to its start #}
-    {% if endless.page.has_previous and not endless.page.has_next %}
+    {% asvar is_last_page trimmed %}
+        {% if endless.page.has_previous and not endless.page.has_next %} True {% endif %}
+    {% endasvar %}
+    {% if is_last_page or not user.is_authenticated and not endless.page.has_other_pages %}
         <hr class="hidden" />
         <small class="text-muted">
-            {% trans "you reached the end of the list" %} &nbsp;<span class="fa fa-cube" aria-hidden="true"></span>
+            {% if not user.is_authenticated %}
+                {% asvar login_action trimmed %}
+                    {% if view.query %}
+                        {% url 'search' query=view.query as initial_page_url %}
+                    {% else %}
+                        {% url 'search' as initial_page_url %}
+                    {% endif %}
+                    <a href="{% url 'login' %}?{% next initial_page_url %}">{% trans "Log in" context "Imperative" %}</a>
+                {% endasvar %}
+                {% blocktrans %}{{ login_action }} to see more details.{% endblocktrans %}
+            {% endif %}
+            {% if is_last_page %}
+                {% trans "you reached the end of the list"|capfirst %} &nbsp;<span class="fa fa-cube" aria-hidden="true"></span>
+            {% endif %}
         </small>
     {% endif %}

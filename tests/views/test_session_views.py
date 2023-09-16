@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
 from django.test import modify_settings, override_settings, tag
 from django.urls import reverse_lazy
 
@@ -29,10 +30,12 @@ class LoginViewTests(AdditionalAsserts, WebTest):
             'eo': '/ensaluti/',
         }
         for lang, expected_url in test_data.items():
-            with self.subTest(lang=lang, attempted=expected_url):
-                with override_settings(LANGUAGE_CODE=lang):
-                    response = self.app.get(expected_url, status='*')
-                    self.assertEqual(response.status_code, 200)
+            with (
+                override_settings(LANGUAGE_CODE=lang),
+                self.subTest(lang=lang, attempted=expected_url)
+            ):
+                response = self.app.get(expected_url, status='*')
+                self.assertEqual(response.status_code, 200)
 
     def test_view_title(self):
         # Verify that the view has the expected <title> element.
@@ -41,10 +44,12 @@ class LoginViewTests(AdditionalAsserts, WebTest):
             'eo': "Ensalutu & Trovu loĝejon | Pasporta Servo",
         }
         for lang in test_data:
-            with self.subTest(lang=lang):
-                with override_settings(LANGUAGE_CODE=lang):
-                    page = self.app.get(self.url, status=200)
-                    self.assertHTMLEqual(page.pyquery("title").html(), test_data[lang])
+            with (
+                override_settings(LANGUAGE_CODE=lang),
+                self.subTest(lang=lang)
+            ):
+                page = self.app.get(self.url, status=200)
+                self.assertHTMLEqual(page.pyquery("title").html(), test_data[lang])
 
     def test_view_header(self):
         # The view's header is expected to have "login" and "register" links,
@@ -54,18 +59,20 @@ class LoginViewTests(AdditionalAsserts, WebTest):
             'eo': {'session': "ensaluti", 'profile': "registriĝi"},
         }
         for lang in test_data:
-            with self.subTest(lang=lang):
-                with override_settings(LANGUAGE_CODE=lang):
-                    page = self.app.get(self.url, status=200)
-                    self.assertEqual(
-                        page.pyquery("header .nav-session").text(),
-                        test_data[lang]['session']
-                    )
-                    self.assertEqual(
-                        page.pyquery("header .nav-profile").text(),
-                        test_data[lang]['profile']
-                    )
-                    self.assertEqual(page.pyquery("header .use-notice").text(), "")
+            with (
+                override_settings(LANGUAGE_CODE=lang),
+                self.subTest(lang=lang)
+            ):
+                page = self.app.get(self.url, status=200)
+                self.assertEqual(
+                    page.pyquery("header .nav-session").text(),
+                    test_data[lang]['session']
+                )
+                self.assertEqual(
+                    page.pyquery("header .nav-profile").text(),
+                    test_data[lang]['profile']
+                )
+                self.assertEqual(page.pyquery("header .use-notice").text(), "")
 
     def test_view_template(self):
         page = self.app.get(self.url, status=200)
@@ -85,7 +92,29 @@ class LoginViewTests(AdditionalAsserts, WebTest):
             page = self.app.get(self.url, status=200)
             self.assertEqual(page.pyquery(form_title_selector).text(), "Ensaluto")
 
-    # TODO: Test "Mi forgesis mian pasvorton aŭ mian salutnomon".
+    def test_recovery_options(self):
+        # The view is expected to provide recovery / reminder options to the
+        # user, for the access password and the username.
+        test_data = {
+            'en': "I forgot my password or my username",
+            'eo': "Mi forgesis mian pasvorton aŭ mian salutnomon",
+        }
+        expected_urls = [reverse_lazy('password_reset'), reverse_lazy('username_remind')]
+        for lang in test_data:
+            with (
+                override_settings(LANGUAGE_CODE=lang),
+                self.subTest(lang=lang)
+            ):
+                page = self.app.get(self.url, status=200)
+                recovery_elem = page.pyquery(".base-form.login form .recovery")
+                self.assertEqual(recovery_elem.text(), test_data[lang])
+                recovery_option_elems = recovery_elem.children("a")
+                for i, expected_recovery_option_url in enumerate(expected_urls):
+                    with self.subTest(option=recovery_option_elems.eq(i).text()):
+                        self.assertEqual(
+                            recovery_option_elems.eq(i).attr("href"),
+                            expected_recovery_option_url
+                        )
 
     def incorrect_credentials_tests(self, expected_error):
         # The view is expected to show a form error when incorrect credentials
@@ -145,6 +174,8 @@ class LoginViewTests(AdditionalAsserts, WebTest):
         # The view is expected to redirect to the provided destination when
         # the correct credentials are supplied and the next page parameter
         # is included.
+        self.app.reset()
+        page = self.app.get(self.url, status=200)
         page = self.app.post(
             self.url,
             {
@@ -158,8 +189,9 @@ class LoginViewTests(AdditionalAsserts, WebTest):
 
         # Verify fallback support for third-party libraries that do not use
         # the customized next page parameter's name. The view is expected to
-        # redirect to the desitnation provided in the 'next' parameter.
-        page = page.follow(status='*')
+        # redirect to the destination provided in the 'next' parameter.
+        self.app.reset()
+        page = self.app.get(self.url, status=200)
         page = self.app.post(
             self.url,
             {
@@ -189,7 +221,7 @@ class LoginViewTests(AdditionalAsserts, WebTest):
 
         # Verify fallback support for third-party libraries that do not use
         # the customized next page parameter's name. The view is expected to
-        # redirect to the desitnation provided in the 'next' parameter.
+        # redirect to the destination provided in the 'next' parameter.
         page = self.app.get(
             f'{self.url}?next=/there-and-beyond',
             user=self.user)
@@ -203,6 +235,47 @@ class LoginViewTests(AdditionalAsserts, WebTest):
             user=self.user)
         self.assertEqual(page.status_code, 302)
         self.assertEqual(page.location, '/')
+
+    def test_redirect_loop(self):
+        login_page_urls = [
+            self.url.rstrip('/'),
+            self.url + ('/' if self.url[-1] != '/' else ''),
+        ]
+
+        # The view is expected to redirect to the default destination (the
+        # home page) when the user is already authenticated and the next page
+        # parameter points to the login view.
+        for redirect_to in login_page_urls:
+            with self.subTest(redirect_url=redirect_to, user="authenticated"):
+                with self.assertNotRaises(Exception):
+                    self.app.reset()
+                    page = self.app.get(
+                        f'{self.url}?{settings.REDIRECT_FIELD_NAME}={redirect_to}',
+                        user=self.user,
+                        auto_follow=True)
+                self.assertEqual(page.status_code, 200)
+                self.assertEqual(page.request.path, '/')
+
+        # The view is expected to redirect to the default destination (the
+        # home page) when an anonymous user successfully authenticates and
+        # the next page parameter points to the login view.
+        for redirect_to in login_page_urls:
+            with self.subTest(redirect_url=redirect_to, user="anonymous"):
+                self.app.reset()
+                page = self.app.get(
+                    f'{self.url}?{settings.REDIRECT_FIELD_NAME}={redirect_to}')
+                self.assertEqual(page.status_code, 200)
+                with self.assertNotRaises(Exception):
+                    page = self.app.post(
+                        page.request.url,
+                        {
+                            'username': self.user.username,
+                            'password': "adm1n",
+                            'csrfmiddlewaretoken': page.context['csrf_token'],
+                        })
+                    page = page.maybe_follow()
+                self.assertEqual(page.status_code, 200)
+                self.assertEqual(page.request.path, '/')
 
     @override_settings(LANGUAGE_CODE='en')
     def test_user_with_deprecated_hash(self):
@@ -235,7 +308,7 @@ class LoginViewTests(AdditionalAsserts, WebTest):
         page = page.form.submit()
         self.assertEqual(page.status_code, 200)
         self.assertTrue('form' in page.context)
-        self.assertEqual(len(page.context['form'].non_field_errors()), 2)
+        self.assertLength(page.context['form'].non_field_errors(), 2)
         self.assertEqual(
             page.context['form'].non_field_errors()[0],
             expected_errors[0]
@@ -248,10 +321,13 @@ class LoginViewTests(AdditionalAsserts, WebTest):
             expected_errors[2],
             page.context['form'].non_field_errors()[1]
         )
-        # TODO test that warning is logged.
-        # TODO the log record should contain the "notification id".
-        # TODO test click on "Informi administranton".
-        # TODO the new email should contain the "notification id".
+        notification_link_target = [
+            elem.attr("href")
+            for elem in page.pyquery(".base-form.login form .alert > a").items()
+            if elem.text() == expected_errors[2]
+        ]
+        self.assertLength(notification_link_target, 1)
+        self.assertEqual(notification_link_target[0], reverse_lazy('login_restore'))
 
     def test_inactive_user(self):
         inactive_user = UserFactory(profile=None, is_active=False)
@@ -279,3 +355,109 @@ class LoginViewTests(AdditionalAsserts, WebTest):
                         "Informi administranton.",
                     )
                 )
+
+
+@tag('views', 'views-session', 'views-logout')
+class LogoutViewTests(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.url = reverse_lazy('logout')
+        cls.user = UserFactory(profile=None)
+
+    def test_view_url(self):
+        # Verify that the view can be found at the expected URL.
+        response = self.app.get(self.url, status='*')
+        self.assertEqual(response.status_code, 302)
+
+        test_data = {
+            'en': '/logout/',
+            'eo': '/elsaluti/',
+        }
+        for lang, expected_url in test_data.items():
+            with (
+                override_settings(LANGUAGE_CODE=lang),
+                self.subTest(lang=lang, attempted=expected_url)
+            ):
+                response = self.app.get(expected_url, status='*')
+                self.assertEqual(response.status_code, 302)
+
+    def test_method(self):
+        # Verify that logging out via a GET request is possible.
+        page = self.app.get(self.url, user=self.user).maybe_follow()
+        self.assertTrue('user' in page.context)
+        self.assertEqual(page.context['user'], AnonymousUser())
+
+        # Verify that logging out via a POST request is possible.
+        page = self.app.get('/', user=self.user)
+        page = self.app.post(
+            self.url,
+            {
+                'csrfmiddlewaretoken': page.context['csrf_token'],
+            },
+            user=self.user)
+        page = page.maybe_follow()
+        self.assertTrue('user' in page.context)
+        self.assertEqual(page.context['user'], AnonymousUser())
+
+    def redirect_tests(self, user):
+        # The view is expected to redirect to the home page.
+        page = self.app.get(self.url, status=302, user=user)
+        self.assertEqual(page.location, '/')
+
+        # The view is expected to redirect to the provided destination when
+        # the next page parameter is included.
+        self.app.reset()
+        page = self.app.get(
+            f'{self.url}?{settings.REDIRECT_FIELD_NAME}=/another/page/',
+            status=302,
+            user=user)
+        self.assertEqual(page.location, '/another/page/')
+
+        # The view is expected to ignore the destination provided in the
+        # 'next' parameter and redirect to the home page.
+        self.app.reset()
+        page = self.app.get(
+            f'{self.url}?next=/another/page/',
+            status=302,
+            user=user)
+        self.assertEqual(page.location, '/')
+
+        # The provided destination is expected to be discarded when it is
+        # not within the website.
+        self.app.reset()
+        page = self.app.get(
+            f'{self.url}?{settings.REDIRECT_FIELD_NAME}=https://far.away/',
+            auto_follow=True,
+            user=user)
+        self.assertEqual(page.request.path, '/')
+        self.assertEqual(page.request.server_name, 'testserver')
+
+    def test_redirect_unauthenticated_user(self):
+        self.redirect_tests(user=None)
+
+    def test_redirect_logged_in_user(self):
+        self.redirect_tests(user=self.user)
+
+    def test_redirect_loop(self):
+        logout_page_urls = [
+            self.url.rstrip('/'),
+            self.url + ('/' if self.url[-1] != '/' else ''),
+        ]
+
+        # The view is expected to redirect to the default destination (the
+        # home page) if the next page parameter points to the logout view and
+        # either an authenticated user is logging out or an anonymous user
+        # accesses the view.
+        for redirect_to in logout_page_urls:
+            for user in (self.user, None):
+                with self.subTest(
+                        redirect_url=redirect_to,
+                        user="authenticated" if user else "anonymous",
+                ):
+                    self.app.reset()
+                    page = self.app.get(
+                        f'{self.url}?{settings.REDIRECT_FIELD_NAME}={redirect_to}',
+                        user=user,
+                        auto_follow=True)
+                    self.assertEqual(page.status_code, 200)
+                    self.assertEqual(page.request.path, '/')

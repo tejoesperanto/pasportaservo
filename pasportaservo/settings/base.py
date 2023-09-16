@@ -94,6 +94,7 @@ SHELL_PLUS_DONT_LOAD = [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -216,8 +217,8 @@ else:
 AUTH_PROFILE_MODULE = 'hosting.Profile'
 
 LOGIN_URL = 'login'
-LOGOUT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 REDIRECT_FIELD_NAME = "ps_m"
 SEARCH_FIELD_NAME = "ps_q"
@@ -305,6 +306,7 @@ def postman_from_email(context):
     if context['action'] == 'acceptance':
         sender_name = gettext('{name} via Pasporta Servo')
         user_name = user_first_name(context['object'].sender).capitalize()
+        user_name = user_name.translate(str.maketrans({symbol: '_' for symbol in '>@<'}))
         from_sender = f'{sender_name.format(name=user_name)} <saluton@pasportaservo.org>'
     else:
         from_sender = DEFAULT_FROM_EMAIL

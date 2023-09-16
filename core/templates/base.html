@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 {% load i18n statici18n static cdn compress sass_tags utils %}
 
-<html lang="eo" class="{% if ' MSIE ' in request.META.HTTP_USER_AGENT or 'Trident/' in request.META.HTTP_USER_AGENT %}msie-compat{% endif %}">
+<html lang="{{ LANGUAGE_CODE }}"
+      class="{% if ' MSIE ' in request.META.HTTP_USER_AGENT or 'Trident/' in request.META.HTTP_USER_AGENT %}msie-compat{% endif %}"
+      data-env="{{ ENVIRONMENT }}">
     <head>
         <meta charset="utf-8">
         <title>{% filter compact %}
@@ -74,6 +76,10 @@
             <script src="{% static 'js/messages.js' %}"></script>
             {% block extra_js %}{% endblock %}
         {% endcompress %}
+
+        {% if ENVIRONMENT and ENVIRONMENT != 'PROD' %}
+            <meta name="robots" content="noindex, noarchive">
+        {% endif %}
         {% block extra_head %}{% endblock %}
     </head>
     <body>{% block body %}{% endblock %}</body>
