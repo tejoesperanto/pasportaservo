@@ -409,6 +409,19 @@ $(function() {
         event.preventDefault();
         history.go(-1);
     });
+    /* form submit buttons double-submission prevention */
+    $('#id_form_submit, #id_form_submit_alt, #id_form_submit_ext').closest('form')
+    .on('submit', function(event) {
+        // if client-side form validation fails, no 'submit' event will fire;
+        // instead, the 'invalid' event will be raised. in addition, AJAX calls
+        // do their own handling (overriding the default form behavior) and no
+        // 'submit' event is raised either.
+        if (event.originalEvent.submitter.id.indexOf('id_form_submit') == 0) {
+            $(event.originalEvent.submitter).addClass('disabled')
+                                            .prop('disabled', true)
+                                            .attr('autocomplete', 'off');
+        }
+    });
     /* form submit/cancel keyboard shortcut key implementation */
     var actionButtonShortcuts = {length: 0};
     ['id_form_submit', 'id_form_submit_alt', 'id_form_cancel'].forEach(function(elementId) {
