@@ -39,6 +39,7 @@
                                 {% filter compact %}
                                    <input type="radio"
                                           name="{{ option.name }}" id="{{ choice.attrs.id }}_g{{ group_index }}_v{{ option.index }}"
+                                          data-parent-id="{{ field.auto_id }}"
                                           value="{{ option.value|stringformat:'s' }}"
                                           {% if option.selected %} checked {% endif %}
                                           autocomplete="off"

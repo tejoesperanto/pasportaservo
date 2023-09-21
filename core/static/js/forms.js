@@ -25,7 +25,7 @@ $(function() {
         var $this = $(this);
         $this.addClass('form-touched');
         if (($this.is('[type="radio"]') || $this.is('[type="checkbox"]')) && !dontPropagate) {
-            // update similarly-named siblings (for radio/checkbox groups)
+            // update similarly-named siblings (for radio/checkbox groups).
             $('[name="'+$this.attr('name')+'"]').not($this).each(function() {
                 $(this).triggerHandler('blur', true);
             });
@@ -162,10 +162,34 @@ $(function() {
             else if (!$this.attr('title')) {
                 $this.attr('title', "");
             }
+            // hide the server-side errors if value is valid, and unmark the
+            // form group. skip for siblings in radio/checkbox groups.
+            // this is not fullproof as client-side validation is weaker and
+            // less complex than the server-side one.
+            if (!dontPropagate) {
+                var parent, container;
+                if (this.type == 'checkbox' && !this.hasAttribute('data-parent-id')) {
+                    parent = '.checkbox';
+                    container = this.hasAttribute('data-extra-label') ? '.form-group' : '.checkbox';
+                }
+                else {
+                    parent = '.controls';
+                    container = '.form-group';
+                }
+                var $controlsBlock = $this.closest(parent),
+                    fieldId = $this.data('parent-id') || this.id,
+                    $siblings = $controlsBlock.closest(container).siblings('[id^="' + fieldId + '_option_"]');
+                if ($siblings.length > 0) {
+                    // support complex controls which consist of multiple groups.
+                    $controlsBlock = $siblings.addBack().find(parent);
+                }
+                $controlsBlock.children('[id^="error_"][id$="' + fieldId + '"]').hide();
+                $controlsBlock.closest(container).removeClass('has-error');
+            }
         }
 
         if (($this.is('[type="radio"]') || $this.is('[type="checkbox"]')) && !dontPropagate) {
-            // update similarly-named siblings (for radio/checkbox groups)
+            // update similarly-named siblings (for radio/checkbox groups).
             $('[name="'+$this.attr('name')+'"]').not($this).each(function() {
                 $(this).triggerHandler('invalid', true);
             });
@@ -173,11 +197,11 @@ $(function() {
         }
     }).each(function() {
         var $this = $(this);
-        // initialize localized error messages for this field
+        // initialize localized error messages for this field (and trigger validation).
         if (typeof this.checkValidity === 'function')
             this.checkValidity();
         $('#id_form_submit, #id_form_submit_alt, #id_form_submit_ext').click(function() {
-            // mark the field as visited on form submit
+            // mark the field as visited on form submit.
             $this.triggerHandler('blur', true);
         });
     });

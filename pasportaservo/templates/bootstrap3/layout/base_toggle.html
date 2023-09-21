@@ -14,8 +14,10 @@
                         {% filter compact %}
                             <input type="{{ toggle_widget_type }}"
                                    name="{{ field.html_name }}" id="id_{{ field.html_name }}_{{ forloop.counter }}"
+                                   data-parent-id="{{ field.auto_id }}"
                                    value="{{ choice.data.value|stringformat:'s' }}"
                                    {% if choice.data.selected %} checked {% endif %}
+                                   {% if field.field.required %} required {% endif %}
                                    {% if field.field.disabled %} disabled {% endif %}
                                    {% if tabindex %} tabindex="{{ tabindex }}" {% endif %}
                                    {{ field.field.widget.attrs|flatatt }}>
