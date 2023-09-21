@@ -192,8 +192,9 @@ $(document).ready(function() {
     }();
 
     // Highlighting elements pointed at via the URL
+    var repositionTarget = function() {};
     if (["fixed", "sticky"].indexOf($('header').css('position')) >= 0) {
-        function repositionTarget(targetEl) {
+        repositionTarget = function (targetEl) {
             var $header = $('header'),
                 positionDiff = targetEl.getBoundingClientRect().top - $header[0].getBoundingClientRect().bottom,
                 margin = $header.outerHeight(true) - $header.outerHeight();
@@ -210,7 +211,7 @@ $(document).ready(function() {
         }
     }
     else {
-        function repositionTarget(targetEl) {
+        repositionTarget = function (targetEl) {
             targetEl.scrollIntoView();
         }
     }
@@ -222,7 +223,7 @@ $(document).ready(function() {
         }, 1200);
         setTimeout(function() {
             $targetEl.removeClass('highlight');
-        }, 2500);
+        }, 2700);
     });
 
     // Profile picture magnifier
