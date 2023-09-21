@@ -304,6 +304,43 @@ $(function() {
         updatePersonNamesExample();
     }();
 
+    /* verification for accidental birth date selection by the user */
+    $('.own-profile-form #id_birth_date').change(function() {
+        if (typeof this.validity !== "undefined" && this.validity.valid) {
+            var birthDate = new Date(this.value);
+            if (!isNaN(birthDate.getTime())) {
+                var today = new Date(),
+                    yearsDiff = Math.floor((today - birthDate) / (365.24 * 24 * 60 * 60 * 1000)),
+                    warningId = 'error_age_' + this.id;
+                if (yearsDiff < 6) {
+                    var warningText = interpolate(
+                        ngettext(
+                            "Are you sure you are %(age)s year old?",
+                            "Are you sure you are %(age)s years old?",
+                            yearsDiff),
+                        {'age': yearsDiff}, true);
+                    var $warning = $(this).siblings('#' + warningId);
+                    if ($warning.length == 0) {
+                        $warning = $(document.createElement('span'))
+                                   .attr('id', warningId)
+                                   .addClass('help-block')
+                                   .append('<span class="text-danger"></span>')
+                                   .hide()
+                                   .insertAfter(this);
+                    }
+                    $warning.animate({ opacity: 0.1 }, 400, function() {
+                        $warning.children().text(warningText).end()
+                                .show()
+                                .animate({ opacity: 1 }, 600);
+                    });
+                }
+                else {
+                    $(this).siblings('#' + warningId).remove();
+                }
+            }
+        }
+    });
+
     /* fallback support for datalist */
     if (!('list' in document.createElement('input') &&
           Boolean(document.createElement('datalist') && window.HTMLDataListElement))) {

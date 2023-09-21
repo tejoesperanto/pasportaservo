@@ -1,6 +1,6 @@
 {% extends 'hosting/model_form.html' %}
 {% load i18n static variable %}
-{% load next from utils %}
+{% load compact next from utils %}
 
 {% block head_title %}
     {% if view.role >= roles.SUPERVISOR and profile %}
@@ -47,7 +47,9 @@
 {% endblock %}
 
 {% block page %}
-    {% asvar admin_submit_condition %}{% if view.role == roles.ADMIN and not view.place %}True{% endif %}{% endasvar %}
+    {% asvar admin_submit_condition trimmed %}
+        {% if view.role == roles.ADMIN and not view.place %} True {% endif %}
+    {% endasvar %}
     {{ block.super }}
 {% endblock %}
 
@@ -57,7 +59,12 @@
     {% endif %}
 {% endblock %}
 
-{% block form_block_class %} profile-form {% endblock %}
+{% block form_block_class %} {% filter compact %}
+    profile-form
+    {% if view.role == roles.OWNER and not view.place %}
+        own-profile-form
+    {% endif %}
+{% endfilter %}{% endblock %}
 
 {% block enctype %}enctype='multipart/form-data'{% endblock %}
 
