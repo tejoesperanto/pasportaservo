@@ -19,18 +19,14 @@ $(function() {
     if (!$().localConstraint.hasOwnProperty(document.documentElement.lang)) {
         $.fn.localConstraint[document.documentElement.lang] = [];
     }
+    var formControlSelectors = [
+        '.form-control', 'input[type="radio"]', 'input[type="checkbox"]', 'input[type="file"]',
+    ].join();
+    var formSubmitSelectors = [
+        '#id_form_submit', '#id_form_submit_alt', '#id_form_submit_ext',
+    ].join();
 
-    $('.form-control, input[type="radio"], input[type="checkbox"], input[type="file"]')
-    .blur(function(event, dontPropagate) {
-        var $this = $(this);
-        $this.addClass('form-touched');
-        if (($this.is('[type="radio"]') || $this.is('[type="checkbox"]')) && !dontPropagate) {
-            // update similarly-named siblings (for radio/checkbox groups).
-            $('[name="'+$this.attr('name')+'"]').not($this).each(function() {
-                $(this).triggerHandler('blur', true);
-            });
-        }
-    }).on('input change invalid', function(event, dontPropagate) {
+    function fieldValueValidationCallback(event, dontPropagate) {
         var $this = $(this);
         var constraint_failed = false;
         var errors = [];
@@ -190,20 +186,44 @@ $(function() {
 
         if (($this.is('[type="radio"]') || $this.is('[type="checkbox"]')) && !dontPropagate) {
             // update similarly-named siblings (for radio/checkbox groups).
-            $('[name="'+$this.attr('name')+'"]').not($this).each(function() {
-                $(this).triggerHandler('invalid', true);
+            $('[name="' + $this.attr('name') + '"]').not($this).each(function() {
+                var sibling = this;
+                $(sibling).triggerHandler('invalid', true);
             });
-            return;
         }
-    }).each(function() {
-        var $this = $(this);
-        // initialize localized error messages for this field (and trigger validation).
+    }
+    function fieldValueValidationInit() {
+        // initialize localized error messages for a field (and trigger validation).
+        // the `invalid` event does not bubble and thus cannot be delegated.
+        $(this).on('invalid', fieldValueValidationCallback);
         if (typeof this.checkValidity === 'function')
             this.checkValidity();
-        $('#id_form_submit, #id_form_submit_alt, #id_form_submit_ext').click(function() {
-            // mark the field as visited on form submit.
-            $this.triggerHandler('blur', true);
-        });
+    }
+
+    $('form')
+    .on('blur', formControlSelectors, function(event, dontPropagate) {
+        var $this = $(this), $form = $(this.form);
+        $this.addClass('form-touched');
+        if (($this.is('[type="radio"]') || $this.is('[type="checkbox"]')) && !dontPropagate) {
+            // update similarly-named siblings (for radio/checkbox groups).
+            $('[name="' + $this.attr('name') + '"]').not($this).each(function() {
+                var sibling = this;
+                $form.triggerHandler($.Event('focusout', {target: sibling}), [true]);
+            });
+        }
+    })
+    .on('input change', formControlSelectors, fieldValueValidationCallback)
+    .find(formControlSelectors).each(fieldValueValidationInit).end()
+    .on('click', formSubmitSelectors, function() {
+        var $form = $(this.form);
+        // mark the fields as visited on a submit button click and before the actual
+        // form submission, which may not happen if some fields are invalid.
+        Array.prototype.forEach.call(
+            this.form.querySelectorAll(formControlSelectors),
+            function(element) {
+                $form.triggerHandler($.Event('focusout', {target: element}), [true]);
+            }
+        );
     });
 
     /* password fields coupling for client-side validation of correctly typed value */
@@ -471,10 +491,10 @@ $(function() {
         history.go(-1);
     });
     /* form submit buttons double-submission prevention */
-    $('#id_form_submit, #id_form_submit_alt, #id_form_submit_ext').closest('form')
+    $(formSubmitSelectors).closest('form')
     .on('submit', function(event) {
         // if client-side form validation fails, no 'submit' event will fire;
-        // instead, the 'invalid' event will be raised. in addition, AJAX calls
+        // instead, the 'invalid' events will be raised. in addition, AJAX calls
         // do their own handling (overriding the default form behavior) and no
         // 'submit' event is raised either.
         if (event.originalEvent.submitter.id.indexOf('id_form_submit') == 0) {
