@@ -64,6 +64,17 @@ a:not([href]) {
     position: relative;
     top: 0.15ex;
 }
+@each $direction in left,right {
+    $base-space: 0.25em;
+    .fa-spacer-#{$direction} {
+        margin-#{$direction}: $base-space;
+    }
+    @for $i from 2 through 2 {
+        .fa-spacer-#{$direction}-#{$i}x {
+            margin-#{$direction}: $base-space * $i;
+        }
+    }
+}
 
 /* Bootstrap hack for tooltip */
 .btn.disabled { pointer-events: auto; }

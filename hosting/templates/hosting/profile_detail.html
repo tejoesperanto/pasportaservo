@@ -171,7 +171,11 @@
                     </span>
                     <a href="{% url 'profile_settings' profile.pk profile.autoslug %}#{% trans "email-addr" context 'URL' %}"
                        class="small hidden-print">
-                        {% trans "Check the settings" %} &rarr;
+                        {% spaceless %}
+                            <span>{% trans "Check the settings" %}</span>
+                            <span class="fa fa-solid fa-long-arrow-alt-right fa-spacer-left-2x" aria-hidden="true"></span>
+                        {% endspaceless %}
+                        <span class="sr-only">&#8594;</span>
                     </a>
                 </p>
             {% endif %}
