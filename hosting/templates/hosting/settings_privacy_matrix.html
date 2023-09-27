@@ -23,7 +23,7 @@
                 <span class="sr-only">{{ asset.hint.value }}</span>
                 <div class="asset-value {% if asset.indent.value %}idented{% endif %}">
                     {% if asset.indent.value %}
-                        <span class="fa fa-reply fa-rotate-180 text-muted" aria-hidden="true"></span>&nbsp;
+                        <span class="fa fa-reply fa-rotate-180 text-muted fa-spacer-right" aria-hidden="true"></span>
                     {% endif %}
                     {{ asset.id }}
                     {{ asset.obj }}
@@ -34,7 +34,7 @@
                 <div style="position: relative"> {# required for correct positioning of floating elements #}
                     <span class="fa fa-check text-label-success visibility-success" style="visibility: hidden"
                           aria-role="status" data-notification="{% trans "saved" %}"></span>
-                    <span class="sr-only">{% cycle _("all visitors") _("guests and hosts") _("in book") %}</span>
+                    <span class="sr-only">&nbsp; {% cycle _("all visitors") _("guests and hosts") _("in book") %}</span>
 
                     {{ venue }}
 

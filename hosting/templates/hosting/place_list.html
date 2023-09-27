@@ -193,7 +193,7 @@
         {% elif view.query %}
             {% if result.error and view.cleaned_query|length > 1 %}
                 <span class="text-warning">
-                    <span class="fa fa-store-slash" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
+                    <span class="fa fa-store-slash fa-spacer-right" aria-label="{% trans "Warning " context 'Title' %}"></span>
                     {% trans "&lt;Geosearch service is unreachable&gt;" %}
                 </span>
                 {% if debug %}

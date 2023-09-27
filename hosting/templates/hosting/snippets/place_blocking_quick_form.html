@@ -2,8 +2,8 @@
 <form class="place-blocking-form form-inline {{ form_class }}" action="{% url 'place_block' place.pk %}" method="PUT"
       id="placeBlockForm{{ place.pk }}" data-csrf="{{ csrf_token }}">
     <div class="form-group">
-        <span class="fa fa-check text-label-success blocking-success" style="visibility: hidden"
-              aria-role="status" data-notification="{% trans "saved" %}"></span>&nbsp;
+        <span class="fa fa-check text-label-success fa-spacer-right-2x blocking-success" style="visibility: hidden"
+              aria-role="status" data-notification="{% trans "saved" %}"></span>
         {% trans "I am not available over here" %}
     </div>
     {% crispy form %}

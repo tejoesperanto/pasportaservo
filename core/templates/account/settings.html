@@ -91,7 +91,7 @@
         {% if view.role == roles.OWNER %}
         <section class="callout callout-warning">
             <h4>{% trans "Agreement" %}</h4>
-            <span class="fa fa-arrow-circle-right text-muted" aria-hidden="true"></span>&nbsp;
+            <span class="fa fa-arrow-circle-right text-muted fa-spacer-right" aria-hidden="true"></span>
             <a href="{% url 'agreement' %}">{% trans "Agreement between You and"|lower %} Pasporta Servo.</a>
         </section>
         {% endif %}
@@ -102,12 +102,12 @@
         <section class="callout callout-warning">
             <h4>{% trans "Pasporta Servo Account" %}</h4>
             <a href="{% url 'profile_create' %}" class="btn btn-success btn-vert-space">
-                <span class="fa fa-user fa-lg" aria-hidden="true"></span>&nbsp;
+                <span class="fa fa-user fa-lg fa-spacer-right" aria-hidden="true"></span>
                 {% trans "Create profile" %}
             </a>
             &nbsp;
             <a href="{% url 'account_delete' %}" class="btn btn-danger btn-vert-space">
-                <span class="fa fa-trash fa-lg" aria-hidden="true"></span>&nbsp;
+                <span class="fa fa-trash fa-lg fa-spacer-right" aria-hidden="true"></span>
                 {% trans "Close account" %}
             </a>
         </section>

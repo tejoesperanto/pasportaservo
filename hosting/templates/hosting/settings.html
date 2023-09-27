@@ -40,7 +40,7 @@
 {% block account_alerts %}
     {% if profile.deleted %}
         <div class="alert alert-small alert-danger">
-            <span class="fa fa-exclamation-circle" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
+            <span class="fa fa-exclamation-circle fa-spacer-right" aria-label="{% trans "Warning " context 'Title' %}"></span>
             {% trans "Deleted profile" %}
         </div>
     {% endif %}
@@ -201,7 +201,7 @@
             <h4>{% if view.role == roles.OWNER %}{% trans "End my membership" %}{% else %}{% trans "End membership" %}{% endif %}</h4>
             <a href="{% url 'profile_delete' profile.pk profile.autoslug %}"
                class="btn btn-danger">
-                <span class="fa fa-trash" aria-hidden="true"></span>&nbsp;
+                <span class="fa fa-trash fa-spacer-right" aria-hidden="true"></span>
                 {% if view.role == roles.OWNER %}{% trans "Close account" %}{% else %}{% trans "Delete profile" %}{% endif %}
             </a>
         </section>
@@ -210,7 +210,7 @@
             <h4>{% trans "Restore membership" %}</h4>
             <a href="{% url 'profile_restore' profile.pk profile.autoslug %}"
                class="btn btn-default">
-                <span class="fa fa-repeat" aria-hidden="true"></span>&nbsp;
+                <span class="fa fa-repeat fa-spacer-right" aria-hidden="true"></span>
                 {% trans "Restore account" %}
             </a>
         </section>
