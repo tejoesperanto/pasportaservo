@@ -303,6 +303,9 @@ $(function() {
                     if (currentValue && nodeSubregion.tagName == 'INPUT') {
                         nodeSubregion.value = currentValue;
                     }
+                    // set up a validation handler for this field.
+                    fieldValueValidationInit.call(nodeSubregion);
+                    // set up the rich selection control for this field.
                     $('select#' + nodeSubregion.id).chosen({
                         no_results_text: gettext("Nothing found for"),
                         disable_search_threshold: nodeSubregion.getAttribute('data-search-threshold'),
