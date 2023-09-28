@@ -17,7 +17,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django_countries.fields import Country
 from djangocodemirror.widgets import CodeMirrorAdminWidget
-from packaging import version
+from packvers import version
 
 from core.models import Agreement, UserBrowser
 from maps.widgets import AdminMapboxGlWidget
