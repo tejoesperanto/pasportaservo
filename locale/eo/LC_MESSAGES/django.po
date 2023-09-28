@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2023-08-27 06:45+0000\n"
+"POT-Revision-Date: 2023-09-28 17:25+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1565,6 +1565,28 @@ msgstr "Ĉio"
 msgid "type"
 msgstr "tipo"
 
+#: hosting/admin/filters.py
+msgid "Any year"
+msgstr "Ajna jaro"
+
+#: hosting/admin/filters.py hosting/templates/hosting/place_detail.html
+#, python-format
+msgid "from %(date)s"
+msgstr "ekde %(date)s"
+
+#: hosting/admin/filters.py hosting/templates/hosting/place_detail.html
+#, python-format
+msgid "until %(date)s"
+msgstr "ĝis %(date)s"
+
+#: hosting/admin/filters.py
+msgid "No date"
+msgstr "Neniu dato"
+
+#: hosting/admin/filters.py
+msgid "Has date"
+msgstr "Havas daton"
+
 #: hosting/admin/filters.py hosting/forms/listing.py
 #: hosting/forms/visibility.py
 msgid "Yes"
@@ -2791,16 +2813,6 @@ msgstr "La gastiganto ne estas disponebla"
 #: hosting/templates/hosting/place_detail.html
 msgid "This member is not available"
 msgstr "Tiu ĉi PS-membro ne estas disponebla"
-
-#: hosting/templates/hosting/place_detail.html
-#, python-format
-msgid "from %(date)s"
-msgstr "ekde %(date)s"
-
-#: hosting/templates/hosting/place_detail.html
-#, python-format
-msgid "until %(date)s"
-msgstr "ĝis %(date)s"
 
 #: hosting/templates/hosting/place_detail.html
 #: hosting/templates/hosting/profile_detail.html
