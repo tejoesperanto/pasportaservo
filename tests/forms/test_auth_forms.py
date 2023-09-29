@@ -467,6 +467,9 @@ class UsernameUpdateFormTests(AdditionalAsserts, WebTest):
         form = UsernameUpdateForm(instance=self.user)
         # Verify that the expected fields are part of the form.
         self.assertEqual(['username'], list(form.fields))
+        # Verify that the `username` field will be auto-focused on load.
+        self.assertIn('autofocus', form.fields['username'].widget.attrs)
+        self.assertTrue(form.fields['username'].widget.attrs['autofocus'])
         # Verify that the form stores the username before a change.
         self.assertTrue(hasattr(form, 'previous_uname'))
         self.assertEqual(form.previous_uname, self.user.username)
@@ -638,6 +641,9 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
         form = self._init_form(instance=self.user)
         # Verify that the expected fields are part of the form.
         self.assertEqual(['email'], list(form.fields))
+        # Verify that the `email` field will be auto-focused on load.
+        self.assertIn('autofocus', form.fields['email'].widget.attrs)
+        self.assertTrue(form.fields['email'].widget.attrs['autofocus'])
         # Verify that the form stores the email address before a change.
         self.assertTrue(hasattr(form, 'previous_email'))
         self.assertEqual(form.previous_email, self.user.email)
@@ -987,6 +993,9 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
         form = self._init_form()
         # Verify that the expected fields are part of the form.
         self.assertEqual(['email'], list(form.fields))
+        # Verify that the `email` field will be auto-focused on load.
+        self.assertIn('autofocus', form.fields['email'].widget.attrs)
+        self.assertTrue(form.fields['email'].widget.attrs['autofocus'])
         # Verify that the form's save method is protected in templates.
         self.assertTrue(
             hasattr(form.save, 'alters_data')

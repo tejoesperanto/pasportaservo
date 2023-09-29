@@ -22,6 +22,9 @@ class FeedbackFormTests(AdditionalAsserts, TestCase):
         for field in expected_fields:
             with self.subTest(field=field):
                 self.assertIs(form.fields[field].required, expected_fields[field])
+        # Verify that the `message` field will be auto-focused on load.
+        self.assertIn('autofocus', form.fields['message'].widget.attrs)
+        self.assertTrue(form.fields['message'].widget.attrs['autofocus'])
 
     @override_settings(GITHUB_DISCUSSION_BASE_URL='http://ps-ci.security/forum/')
     def test_help_text(self):

@@ -143,6 +143,10 @@ class UsernameUpdateForm(UsernameFormMixin, forms.ModelForm):
         fields = ['username']
         error_messages = {'username': UsernameFormMixin.username_error_messages}
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs['autofocus'] = True
+
     def save(self, **kwargs):
         return super().save(**kwargs)
     save.alters_data = True
@@ -156,6 +160,7 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs['autofocus'] = True
         # Displays the clean value of the address in the form.
         self.initial['email'] = self.previous_email
 
@@ -210,6 +215,7 @@ class EmailStaffUpdateForm(SystemEmailFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs['autofocus'] = True
         # Displays the clean value of the address in the form.
         self.initial['email'] = self.previous_email
 
@@ -220,6 +226,10 @@ class EmailStaffUpdateForm(SystemEmailFormMixin, forms.ModelForm):
 
 class SystemPasswordResetRequestForm(PasswordResetForm):
     admin_inactive_user_notification = "User '{u.username}' tried to reset the login password"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs['autofocus'] = True
 
     def get_users(self, email):
         """
@@ -320,6 +330,7 @@ class FeedbackForm(forms.Form):
         self.helper.label_class = 'sr-only'
 
         self.fields['feedback_on'].initial = next(iter(FEEDBACK_TYPES.keys()))
+        self.fields['message'].widget.attrs['autofocus'] = True
         discussion_url = (
             FEEDBACK_TYPES[self.fields['feedback_on'].initial].url
             or settings.GITHUB_DISCUSSION_BASE_URL
