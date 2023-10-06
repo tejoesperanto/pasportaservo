@@ -465,7 +465,10 @@
                         <span hidden class="hidden"> / </span>
                         <span class="visible-xxs-inline">{% trans "Chat" context "Verb" %}</span>
                         {% if place.owner.user.email|is_invalid %}
-                            <sup><span class="fa fa-exclamation-triangle" aria-hidden="true"></span></sup>
+                            <sup>
+                                <span class="hidden" aria-hidden="true">&#9888;</span>
+                                <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
+                            </sup>
                         {% endif %}
                     </a>
                 {% endif %}
@@ -474,15 +477,18 @@
                        class="btn btn-success btn-vert-space"
                        title="{% filter compact %}
                                 {% trans "Update location on map" %}
-                                {% if place_location.unknown %} – {% trans "the location is unknown" %}{% endif %}
-                                {% if place_location.inaccurate %} – {% trans "the location is imprecise" %}{% endif %}
+                                {% if place_location.unknown %} &ndash; {% trans "the location is unknown" %}{% endif %}
+                                {% if place_location.inaccurate %} &ndash; {% trans "the location is imprecise" %}{% endif %}
                               {% endfilter %}"
                        data-toggle="tooltip" data-container=".control-buttons.place-control">
                         <span class="fa fa-location-dot" aria-hidden="true"></span>
                         <span class="hidden-xxs">
                             {% trans "Edit location" %}
                             {% if place_location.unknown or place_location.inaccurate %}
-                                <sup><span class="fa fa-exclamation-triangle" aria-hidden="true"></span></sup>
+                                <sup>
+                                    <span class="hidden" aria-hidden="true">&#9888;</span>
+                                    <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
+                                </sup>
                             {% endif %}
                         </span>
                     </a>

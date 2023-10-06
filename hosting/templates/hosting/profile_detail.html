@@ -95,7 +95,10 @@
                                 <span hidden class="hidden"> / </span>
                                 <span class="visible-xxs-inline">{% trans "Chat" context "Verb" %}</span>
                                 {% if profile.user.email|is_invalid %}
-                                    <sup><span class="fa fa-exclamation-triangle" aria-hidden="true"></span></sup>
+                                    <sup>
+                                        <span class="hidden" aria-hidden="true">&#9888;</span>
+                                        <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
+                                    </sup>
                                 {% endif %}
                             </a>
                         {% endif %}

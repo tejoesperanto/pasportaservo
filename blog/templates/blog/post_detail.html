@@ -51,6 +51,9 @@
                 </a>
             {% endif %}
             {% if next_post %}
+                {% if previous_post %}
+                    <span class="hidden" aria-hidden="true">&bull;</span>
+                {% endif %}
                 <a id="id_next_post" href="{{ next_post.get_absolute_url }}" class="btn btn-default btn-vert-space pull-right">
                     <span class="sr-only">{% trans "Next news" %} :</span>
                     <span class="nav-textual">

@@ -219,6 +219,7 @@
 
 
 {% block navigation %}
+    <hr class="sr-only" />
     <div class="pull-left">
         <a href="{% url 'profile_edit' profile.pk profile.autoslug %}" class="btn btn-default">
             {% url 'profile_detail' profile.pk profile.autoslug as profile_url %}

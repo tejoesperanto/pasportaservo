@@ -6,13 +6,13 @@
     <table class="table table-hover{% if privacy_matrix.read_only %} preview{% endif %}">
     <thead>
         <tr>
-            <th rowspan="2"><small>{% trans "where the following data should be visible?" %}</small></th>
-            <th colspan="2" class="header-online">{% trans "on site" %}</th>
-            <th rowspan="2" class="header-in_book">{% trans "in book" %}</th>
+            <th rowspan="2" scope="row"><small>{% trans "where the following data should be visible?" %}</small></th>
+            <th colspan="2" scope="colgroup" class="header-online">{% trans "on site" %}</th>
+            <th rowspan="2" scope="col" class="header-in_book">{% trans "in book" %}</th>
         </tr>
         <tr>
-            <th width="1%" class="header-public text-nowrap">{% trans "all visitors" %}</th>
-            <th width="1%" class="header-authed text-nowrap">{% trans "guests and hosts" %}</th>
+            <th width="1%" scope="col" class="header-public text-nowrap">{% trans "all visitors" %}</th>
+            <th width="1%" scope="col" class="header-authed text-nowrap">{% trans "guests and hosts" %}</th>
         </tr>
     </thead>
     <tbody>
@@ -24,6 +24,7 @@
                 <div class="asset-value {% if asset.indent.value %}idented{% endif %}">
                     {% if asset.indent.value %}
                         <span class="fa fa-reply fa-rotate-180 text-muted fa-spacer-right" aria-hidden="true"></span>
+                        <span class="hidden" aria-hidden="true">&#x21b3;</span>
                     {% endif %}
                     {{ asset.id }}
                     {{ asset.obj }}
@@ -46,9 +47,10 @@
                         {% else %}
                             {% delvar asterisk_title %}
                         {% endif %}
-                        <span class="fa fa-asterisk text-muted asterisk" tabindex="0"
+                        <span class="fa fa-asterisk text-muted asterisk" tabindex="0" aria-hidden="true"
                               title="{{ asterisk_title }}"
                               data-toggle="tooltip" data-placement="left" data-container="body" data-trigger="hover focus click"></span>
+                        <span class="sr-only"><i>* {% trans "Note " context 'Title' %}: {{ asterisk_title }}</i></span>
                     {% endif %}
                     {% if 'auth' in venue.name and asset.obj.authorized_users_cache.query %}
                         {% asvar id_auth_panel %}authlist-{{ asset.obj.visibility.pk }}{% endasvar %}
