@@ -1,12 +1,13 @@
 {% load i18n utils %}
 <div class="{% filter compact %}
-                container-fluid message {{ message.tags }} {{ level }}
+                container-fluid message {{ message.tags }}
                 {% if daily %}
                     sticky-{% now 'Y-m-d' %}-{{ sticky_class }}
                 {% elif monthly %}
                     sticky-{% now 'Y-m' %}-{{ sticky_class }}
                 {% endif %}
             {% endfilter %}"
+     data-level="{{ message.level_tag }}"
      role="alertdialog" aria-describedby="MSG_{% random_identifier 7 as message_id %}{{ message_id }}">
     <span id="MSG_{{ message_id }}">{{ message }}</span>
     {% spaceless %}

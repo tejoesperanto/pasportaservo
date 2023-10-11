@@ -1287,8 +1287,8 @@ msgstr "Registriĝu"
 
 #: core/templates/registration/register.html
 msgctxt "Title"
-msgid "Registration"
-msgstr "Registrado"
+msgid "New Account"
+msgstr "Nova Konto"
 
 #: core/templates/registration/register.html
 msgid "Register"

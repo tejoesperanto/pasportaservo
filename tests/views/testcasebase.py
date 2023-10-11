@@ -73,6 +73,11 @@ class BasicViewTests(AdditionalAsserts, WebTest):
                 self.assertHTMLEqual(page.pyquery("title").html(), self.view_page.title[lang])
 
     def test_view_header_unauthenticated_user(self):
+        if self.view_page.redirects_unauthenticated:
+            self.skipTest(
+                f'{self.view_page.view_class.__name__} is expected to redirect '
+                'non-authenticated users')
+
         # When the user is not authenticated, the view's header is expected
         # to have "login" and "register" links, no username or link to profile,
         # and no use notice.
@@ -108,6 +113,11 @@ class BasicViewTests(AdditionalAsserts, WebTest):
                     self.assertEqual(page.get_use_notice_text(), "")
 
     def test_view_header_logged_in_user(self):
+        if self.view_page.redirects_logged_in:
+            self.skipTest(
+                f'{self.view_page.view_class.__name__} is expected to redirect '
+                'authenticated users')
+
         # When the user is logged in, the view's header is expected to have
         # a "logout" link, a link to profile with the user's avatar, links to
         # the account settings and the inbox, and a use notice in some cases.
@@ -206,7 +216,13 @@ class BasicViewTests(AdditionalAsserts, WebTest):
             'privacy_policy': {'en': "Privacy", 'eo': "Privateco"},
             'faq': {'en': "FAQ", 'eo': "Oftaj demandoj"},
         }
-        for user in [None, self.user]:
+        test_users = []
+        if not self.view_page.redirects_unauthenticated:
+            test_users.append(None)
+        if not self.view_page.redirects_logged_in:
+            test_users.append(self.user)
+
+        for user in test_users:
             for lang in ['en', 'eo']:
                 with (
                     override_settings(LANGUAGE_CODE=lang),
