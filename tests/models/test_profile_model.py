@@ -20,12 +20,15 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
     factory = ProfileFactory
 
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
         cls.template_first_name = '<span class="first-name">{name}</span>'
         cls.template_last_name = '<span class="last-name">{name}</span>'
         cls.template_username = '<span class="profile-noname">{name}</span>'
         cls.template_joiner = '&ensp;'
 
+    @classmethod
+    def setUpTestData(cls):
         cls.basic_profile = ProfileFactory(first_name="Aaa", last_name="Bbb", with_email=True)
 
     def test_field_max_lengths(self):

@@ -10,6 +10,12 @@ class ExpressionTagTests(TestCase):
     _sentinel = {'T': 'F', 'r': 'R', 'u': 'A', 't': 'U', 'h': 'D'}
 
     @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.logger = logging.getLogger('PasportaServo.expr')
+        cls.logger.setLevel(logging.CRITICAL)
+
+    @classmethod
     def setUpTestData(cls):
         cls.test_data = [
             ("13.7", "13.7", False),
@@ -29,8 +35,6 @@ class ExpressionTagTests(TestCase):
             ("str(type(view))[1:str(type(view)).find(' ')].upper()", "CLASS", False),
             ("[1, 0, 7].express()", "", True),
         ]
-        cls.logger = logging.getLogger('PasportaServo.expr')
-        cls.logger.setLevel(logging.CRITICAL)
 
     @property
     def base_context(self):

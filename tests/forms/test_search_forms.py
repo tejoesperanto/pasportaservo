@@ -11,7 +11,8 @@ from hosting.forms.listing import SearchForm
 @tag('forms', 'forms-search', 'search')
 class SearchFormTests(WebTest):
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
         # The search form is special in that it does not define any fields
         # itself but relies on them being injected via the SearchFilterSet.
         cls.SearchForm = SearchFilterSet().get_form_class()

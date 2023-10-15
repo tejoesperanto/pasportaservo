@@ -23,7 +23,7 @@ class BasicViewTests(AdditionalAsserts, WebTest):
             return super().run(result)
 
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
         cls.users_definition = {
             'basic': {
                 'email': "salutator@test.pasportaservo.org",
@@ -35,6 +35,10 @@ class BasicViewTests(AdditionalAsserts, WebTest):
                               + "96cc8ee60515664247821d27fb6f2867?d=mm&s=140",
             },
         }
+        super().setUpClass()
+
+    @classmethod
+    def setUpTestData(cls):
         basic_user = UserFactory(email=cls.users_definition['basic']['email'], profile=None)
         cls.user = UserFactory(email=cls.users_definition['regular']['email'])
         cls.users = {

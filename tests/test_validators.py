@@ -323,7 +323,9 @@ class ClientSideValidationSetupTests(AdditionalAsserts, TestCase):
     @modify_settings(INSTALLED_APPS={
         'append': 'tests.test_validators',
     })
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
+
         def validate_alpha():
             pass
         validate_alpha.constraint = ('maxlength', 10)
@@ -427,7 +429,8 @@ class ClientSideValidationSetupTests(AdditionalAsserts, TestCase):
 @tag('validators')
 class AccountAttributesSimilarityValidatorTests(AdditionalAsserts, TestCase):
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
         cls.validator_default = AccountAttributesSimilarityValidator()
         cls.validator_default.tag = "default"
         cls.validator_all = AccountAttributesSimilarityValidator(0.0)

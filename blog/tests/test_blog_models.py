@@ -14,8 +14,12 @@ from .factories import PostFactory
 @tag('models', 'blog')
 class PostModelTests(AdditionalAsserts, WebTest):
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
         cls.faker = Faker()
+
+    @classmethod
+    def setUpTestData(cls):
         cls.basic_post = PostFactory()
 
     def test_field_max_lengths(self):

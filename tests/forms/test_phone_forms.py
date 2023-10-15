@@ -16,11 +16,11 @@ from ..factories import LocaleFaker, PhoneFactory, ProfileFactory
 @tag('forms', 'forms-phone', 'phone')
 class PhoneFormTests(WebTest):
     @classmethod
-    def setUpTestData(cls):
-        cls.config = SiteConfiguration.get_solo()
+    def setUpClass(cls):
         cls.faker = Faker._get_faker()
         cls.all_countries = Countries().countries.keys()
-
+        super().setUpClass()
+        cls.config = SiteConfiguration.get_solo()
         cls.expected_fields = [
             'country',
             'type',
@@ -28,6 +28,8 @@ class PhoneFormTests(WebTest):
             'comments',
         ]
 
+    @classmethod
+    def setUpTestData(cls):
         cls.profile_one = ProfileFactory()
         cls.phone1_valid = PhoneFactory(profile=cls.profile_one)
         cls.phone2_valid = PhoneFactory(profile=cls.profile_one)

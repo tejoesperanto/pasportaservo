@@ -39,10 +39,14 @@ from ..factories import (
 
 class PlaceFormTestingBase:
     @classmethod
-    def setUpTestData(cls):
-        cls.config = SiteConfiguration.get_solo()
+    def setUpClass(cls):
         cls.faker = Faker._get_faker(locale='en-GB')
         cls.all_countries = Countries().countries.keys()
+        super().setUpClass()
+        cls.config = SiteConfiguration.get_solo()
+
+    @classmethod
+    def setUpTestData(cls):
         countries_no_mandatory_region = (
             set(cls.all_countries) - set(countries_with_mandatory_region())
             # Avoid countries with a single postcode: tests that depend
@@ -1236,10 +1240,13 @@ class SubregionFormTests(AdditionalAsserts, WebTest):
     @modify_settings(INSTALLED_APPS={
         'append': 'tests.forms.test_place_forms',
     })
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
+
         class DummyLocation(models.Model):
             subregion = models.CharField("country region", blank=True)
         cls.DummyLocationModel = DummyLocation
+
         cls.faker = Faker._get_faker(locale='en-GB')
 
     def test_labels(self):
@@ -1411,10 +1418,14 @@ class PlaceLocationFormTests(WebTest):
 @tag('forms', 'forms-place', 'place')
 class PlaceBlockFormTests(WebTest):
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
         cls.expected_fields = ['blocked_from', 'blocked_until']
-        cls.place = PlaceFactory()
         cls.faker = Faker._get_faker()
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.place = PlaceFactory()
 
     def test_init(self):
         expected_fields = {

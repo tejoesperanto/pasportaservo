@@ -38,7 +38,8 @@ def _snake_str(string):
 @tag('forms', 'forms-auth', 'auth')
 class UserRegistrationFormTests(AdditionalAsserts, WebTest):
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
         cls.expected_fields = [
             'email',
             'password1',
@@ -47,14 +48,17 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
             'realm',
         ]
         cls.honeypot_field = 'realm'
-        cls.user_one = UserFactory(invalid_email=True)
-        cls.user_two = UserFactory(is_active=False)
         cls.test_transforms = [
             lambda v: v,
             lambda v: v.upper(),
             lambda v: _snake_str(v),
         ]
         cls.faker = Faker._get_faker()
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user_one = UserFactory(invalid_email=True)
+        cls.user_two = UserFactory(is_active=False)
 
     def test_init(self):
         form_empty = UserRegistrationForm()
@@ -1268,15 +1272,19 @@ class UsernameRemindRequestFormTests(SystemPasswordResetRequestFormTests):
 @tag('forms', 'forms-auth', 'forms-pwd', 'auth')
 class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
     @classmethod
-    def setUpTestData(cls):
-        cls.user = UserFactory(invalid_email=True)
-        cls.user.profile.email = cls.user.email
-        cls.user.profile.save(update_fields=['email'])
+    def setUpClass(cls):
+        super().setUpClass()
         cls.form_class = SystemPasswordResetForm
         cls.expected_fields = [
             'new_password1',
             'new_password2',
         ]
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserFactory(invalid_email=True)
+        cls.user.profile.email = cls.user.email
+        cls.user.profile.save(update_fields=['email'])
 
     def test_init(self):
         form_empty = self.form_class(self.user)
@@ -1402,8 +1410,8 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
 
 class SystemPasswordChangeFormTests(SystemPasswordResetFormTests):
     @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
+    def setUpClass(cls):
+        super().setUpClass()
         cls.form_class = SystemPasswordChangeForm
         cls.expected_fields = [
             'new_password1',

@@ -20,9 +20,9 @@ class FamilyMemberFormTests(WebTest):
     form_class = FamilyMemberForm
 
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
         cls.faker = Faker._get_faker()
-
         cls.expected_fields = [
             'first_name',
             'last_name',
@@ -31,6 +31,8 @@ class FamilyMemberFormTests(WebTest):
             'birth_date',
         ]
 
+    @classmethod
+    def setUpTestData(cls):
         cls.place_with_family = PlaceFactory()
         cls.profile_one = ProfileSansAccountFactory(pronoun="", description="")
         cls.place_with_family.family_members.add(cls.profile_one)

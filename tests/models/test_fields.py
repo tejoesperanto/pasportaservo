@@ -14,9 +14,12 @@ class StyledEmailFieldTests(AdditionalAsserts, TestCase):
     @modify_settings(INSTALLED_APPS={
         'append': 'tests.models.test_fields',
     })
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
+
         class Guest(Model):
             email = StyledEmailField("contact email", blank=True)
+
         cls.GuestModel = Guest
 
     def test_icon(self):
@@ -34,11 +37,14 @@ class RangeIntegerFieldTests(AdditionalAsserts, TestCase):
     @modify_settings(INSTALLED_APPS={
         'append': 'tests.models.test_fields',
     })
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
+
         class Dummy(Model):
             count_dummies = RangeIntegerField("number of dummies", min_value=1, max_value=9, null=True, blank=True)
             count_shrooms = RangeIntegerField("number of mushrooms", min_value="zero", max_value=100.23)
             count_impossible = RangeIntegerField("m.c. escher", min_value=100, max_value=50, null=True, blank=True)
+
         cls.DummyModel = Dummy
 
     def test_init(self):

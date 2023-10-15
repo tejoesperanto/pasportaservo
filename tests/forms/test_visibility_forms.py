@@ -15,11 +15,15 @@ from ..factories import (
 @tag('forms')
 class VisibilityFormTests(AdditionalAsserts, TestCase):
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
         cls.expected_fields = [
             'visible_online_public', 'visible_online_authed', 'visible_in_book',
             'hint', 'indent',
         ]
+
+    @classmethod
+    def setUpTestData(cls):
         cls.place = PlaceFactory(in_book=False)
         cls.place.visibility.refresh_from_db()
         cls.place.family_members_visibility.refresh_from_db()

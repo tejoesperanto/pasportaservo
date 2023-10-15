@@ -25,7 +25,8 @@ from .test_auth_forms import EmailUpdateFormTests
 
 class ProfileFormTestingBase:
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
         cls.host_required_fields = [
             'birth_date',
         ]
@@ -37,6 +38,9 @@ class ProfileFormTestingBase:
         ]
         cls.config = SiteConfiguration.get_solo()
         cls.faker = Faker._get_faker()
+
+    @classmethod
+    def setUpTestData(cls):
         TaggedProfile = namedtuple('TaggedProfile', 'obj, tag')
 
         cls.profile_with_no_places = TaggedProfile(ProfileFactory(), "simple")
