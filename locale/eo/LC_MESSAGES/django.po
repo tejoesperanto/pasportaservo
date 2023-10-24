@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2023-08-27 06:45+0000\n"
+"POT-Revision-Date: 2023-09-28 17:25+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -601,9 +601,19 @@ msgid "Change"
 msgstr "Ŝanĝi"
 
 #: core/templates/account/settings.html
+msgctxt "URL"
+msgid "password"
+msgstr "pasvorto"
+
+#: core/templates/account/settings.html
 #: core/templates/registration/password_reset_form.html
 msgid "password"
 msgstr "pasvorto"
+
+#: core/templates/account/settings.html
+msgctxt "URL"
+msgid "username"
+msgstr "salutnomo"
 
 #: core/templates/account/settings.html
 #: core/templates/registration/username_remind_form.html
@@ -1287,8 +1297,8 @@ msgstr "Registriĝu"
 
 #: core/templates/registration/register.html
 msgctxt "Title"
-msgid "Registration"
-msgstr "Registrado"
+msgid "New Account"
+msgstr "Nova Konto"
 
 #: core/templates/registration/register.html
 msgid "Register"
@@ -1564,6 +1574,28 @@ msgstr "Ĉio"
 #: hosting/admin/filters.py hosting/models.py
 msgid "type"
 msgstr "tipo"
+
+#: hosting/admin/filters.py
+msgid "Any year"
+msgstr "Ajna jaro"
+
+#: hosting/admin/filters.py hosting/templates/hosting/place_detail.html
+#, python-format
+msgid "from %(date)s"
+msgstr "ekde %(date)s"
+
+#: hosting/admin/filters.py hosting/templates/hosting/place_detail.html
+#, python-format
+msgid "until %(date)s"
+msgstr "ĝis %(date)s"
+
+#: hosting/admin/filters.py
+msgid "No date"
+msgstr "Neniu dato"
+
+#: hosting/admin/filters.py
+msgid "Has date"
+msgstr "Havas daton"
 
 #: hosting/admin/filters.py hosting/forms/listing.py
 #: hosting/forms/visibility.py
@@ -2793,16 +2825,6 @@ msgid "This member is not available"
 msgstr "Tiu ĉi PS-membro ne estas disponebla"
 
 #: hosting/templates/hosting/place_detail.html
-#, python-format
-msgid "from %(date)s"
-msgstr "ekde %(date)s"
-
-#: hosting/templates/hosting/place_detail.html
-#, python-format
-msgid "until %(date)s"
-msgstr "ĝis %(date)s"
-
-#: hosting/templates/hosting/place_detail.html
 #: hosting/templates/hosting/profile_detail.html
 msgid "this member"
 msgstr "tiu ĉi PS-membro"
@@ -2872,6 +2894,7 @@ msgstr "Kunloĝantoj"
 #: hosting/templates/hosting/place_list_supervisor.html
 #: hosting/templates/hosting/profile_confirm_restore.html
 #: hosting/templates/hosting/profile_detail.html
+#: hosting/templates/hosting/settings_privacy_matrix.html
 msgctxt "Title"
 msgid "Note "
 msgstr "Rimarko "

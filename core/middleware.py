@@ -120,7 +120,7 @@ class AccountFlagsMiddleware(MiddlewareMixin):
 
         # Is the user trying to use the internal communicator and has a
         # properly configured profile?
-        if (request.path.startswith(url_index_postman)
+        if (request.path.startswith(str(url_index_postman))
                 and not request.user_has_profile and not request.user.is_superuser):
             # We can reuse the birth date query result to avoid an additional
             # query in the DB.  For users with a profile, the result will not

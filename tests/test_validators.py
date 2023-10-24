@@ -323,7 +323,9 @@ class ClientSideValidationSetupTests(AdditionalAsserts, TestCase):
     @modify_settings(INSTALLED_APPS={
         'append': 'tests.test_validators',
     })
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
+
         def validate_alpha():
             pass
         validate_alpha.constraint = ('maxlength', 10)
@@ -427,7 +429,8 @@ class ClientSideValidationSetupTests(AdditionalAsserts, TestCase):
 @tag('validators')
 class AccountAttributesSimilarityValidatorTests(AdditionalAsserts, TestCase):
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
         cls.validator_default = AccountAttributesSimilarityValidator()
         cls.validator_default.tag = "default"
         cls.validator_all = AccountAttributesSimilarityValidator(0.0)
@@ -452,7 +455,7 @@ class AccountAttributesSimilarityValidatorTests(AdditionalAsserts, TestCase):
         # When no user object is provided, all validators are expected to succeed.
         for v in self.validators:
             with self.subTest(**self._get_spec(v)):
-                self.assertNotRaises(ValidationError, lambda: v("dRakuJo"))
+                self.assertNotRaises(ValidationError, lambda v=v: v("dRakuJo"))
 
     def test_validation(self):
         test_config = [
@@ -541,7 +544,7 @@ class AccountAttributesSimilarityValidatorTests(AdditionalAsserts, TestCase):
                             )
                 for v in [self.validator_exact, self.validator_none]:
                     with self.subTest(**self._get_spec(v)):
-                        self.assertNotRaises(ValidationError, lambda: v("Jennidrake", user))
+                        self.assertNotRaises(ValidationError, lambda v=v: v("Jennidrake", user))
 
     def test_extreme_validation(self):
         user = UserFactory(invalid_email=True, profile__last_name="Dragons Here", profile__with_email=True)
@@ -587,9 +590,9 @@ class AccountAttributesSimilarityValidatorTests(AdditionalAsserts, TestCase):
         for v in self.validators:
             with self.subTest(**self._get_spec(v)):
                 if v is not self.validator_all:
-                    self.assertNotRaises(ValidationError, lambda: v(test_value, user))
+                    self.assertNotRaises(ValidationError, lambda v=v: v(test_value, user))
                 else:
-                    self.assertRaises(ValidationError, lambda: v(test_value, user))
+                    self.assertRaises(ValidationError, lambda v=v: v(test_value, user))
                 mock_matcher.assert_not_called()
                 mock_matcher.reset_mock()
 
@@ -603,4 +606,7 @@ class AccountAttributesSimilarityValidatorTests(AdditionalAsserts, TestCase):
             for v in self.validators:
                 for test_value in ["dragons here!", "!ereh snogard"]:
                     with self.subTest(**self._get_spec(v), test_value=test_value):
-                        self.assertNotRaises(ValidationError, lambda: v(test_value, user))
+                        self.assertNotRaises(
+                            ValidationError,
+                            lambda v=v, value=test_value: v(value, user)
+                        )

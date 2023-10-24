@@ -1,6 +1,9 @@
+from enum import Enum
+
 from django.conf import settings
 from django.contrib import admin
 from django.db.models import Q
+from django.utils.functional import lazy
 from django.utils.translation import gettext_lazy as _
 
 from core.utils import camel_case_split
@@ -92,6 +95,75 @@ class VisibilityTargetFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         return queryset.filter(model_type=self.value()) if self.value() else queryset
+
+
+class YearBracketFilter(admin.DateFieldListFilter):
+    class Brackets(str, Enum):
+        EXACT = 'exact'
+        SINCE = 'since'
+        UNTIL = 'until'
+
+    @classmethod
+    def configure(cls, bracket=Brackets.EXACT):
+        if bracket not in (cls.Brackets.SINCE, cls.Brackets.UNTIL):
+            bracket = cls.Brackets.EXACT
+        return type(
+            f'YearBracket{bracket.capitalize()}Filter',
+            (cls,),
+            {
+                'bracket': bracket,
+            }
+        )
+
+    def __init__(self, field, request, params, model, model_admin, field_path):
+        original_field_path = field_path
+        field_path = f'{field_path}__year'
+        super().__init__(field, request, params, model, model_admin, field_path)
+        qs = (
+            model_admin
+            .get_queryset(request)
+            .select_related(None)
+            .order_by(f'-{original_field_path}')
+            .only(field_path)
+        )
+        qs.query.annotations.clear()
+        all_years = list(dict.fromkeys(qs.values_list(field_path, flat=True)))
+        if not hasattr(self, 'bracket'):
+            self.bracket = self.Brackets.EXACT
+        self.links = (
+            (_('Any year'), {}),
+        )
+        lookup_kwarg = ''
+        if self.bracket is self.Brackets.SINCE:
+            label_string = _("from %(date)s")
+            self.lookup_kwarg_since = self.field_generic + 'gte'
+            lookup_kwarg = self.lookup_kwarg_since
+        if self.bracket is self.Brackets.UNTIL:
+            label_string = _("until %(date)s")
+            self.lookup_kwarg_until = self.field_generic + 'lte'
+            lookup_kwarg = self.lookup_kwarg_until
+        if self.bracket is self.Brackets.EXACT:
+            self.links += tuple(
+                (str(year), {
+                    self.lookup_kwarg_since: str(year),
+                    self.lookup_kwarg_until: str(year + 1),
+                })
+                for year in all_years if year is not None
+            )
+        else:
+            def label(year):
+                return lazy(
+                    lambda date=year: (label_string % {'date': date}).capitalize(),
+                    str)
+            self.links += tuple(
+                (label(year), {lookup_kwarg: str(year)})
+                for year in all_years if year is not None
+            )
+        if field.null:
+            self.links += (
+                (_('No date'), {self.lookup_kwarg_isnull: str(True)}),
+                (_('Has date'), {self.lookup_kwarg_isnull: str(False)}),
+            )
 
 
 class DependentFieldFilter(admin.SimpleListFilter):

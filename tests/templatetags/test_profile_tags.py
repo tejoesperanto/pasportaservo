@@ -136,7 +136,9 @@ class IconFilterTests(TestCase):
     @modify_settings(INSTALLED_APPS={
         'append': 'tests.templatetags.test_profile_tags',
     })
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
+
         class DecoratedField(CharField):
             @property
             def icon(self):
@@ -347,7 +349,8 @@ class AvatarDimensionFilterTests(TestCase):
 @tag('templatetags')
 class GetApproverTagTests(WebTest):
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
         cls.template_single = Template(
             "{% load get_approver from profile %}"
             "{% get_approver model %}"
@@ -363,6 +366,8 @@ class GetApproverTagTests(WebTest):
             pass
         cls.DummyView = DummyView
 
+    @classmethod
+    def setUpTestData(cls):
         cls.profiles = ProfileFactory.create_batch(3)
         cls.approvers = UserFactory.create_batch(2, profile=None)
 

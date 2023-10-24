@@ -8,7 +8,8 @@
 
 {% block confirmation %}
     {% if not profile.deleted %}
-        <span class="fa fa-exclamation-circle" aria-label="{% trans "Note " context 'Title' %}" style="transform: rotate(-10deg)"></span>&nbsp;
+        <span class="fa fa-exclamation-circle fa-spacer-right" style="transform: rotate(-10deg)"
+              aria-label="{% trans "Note " context 'Title' %}"></span>
         {% trans "This profile is active and does not require restoration." %}
     {% else %}
         {% blocktrans trimmed %}

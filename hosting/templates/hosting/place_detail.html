@@ -81,14 +81,14 @@
                 {# ALERT ABOUT A PLACE THAT WAS DELETED OR UNPUBLISHED #}
                     {% if place.deleted and user.is_authenticated %}
                         <div class="alert alert-small alert-danger">
-                            <span class="fa fa-exclamation-circle" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
+                            <span class="fa fa-exclamation-circle fa-spacer-right" aria-label="{% trans "Warning " context 'Title' %}"></span>
                             {% if perms.hosting.can_supervise or view.role == roles.OWNER %}{% trans "Deleted place" %} &ndash; {% endif %}
                             {% trans "The address is obsolete" %}
                         </div>
                     {% elif not place.visibility.visible_online_public %}
                     {% if perms.hosting.can_supervise or view.role == roles.OWNER %}
                         <div class="alert alert-small alert-danger">
-                            <span class="fa fa-exclamation-circle" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
+                            <span class="fa fa-exclamation-circle fa-spacer-right" aria-label="{% trans "Warning " context 'Title' %}"></span>
                             {% trans "Inactive (hidden) place" %}
                             {% if view.role == roles.OWNER %}
                                 &ndash; {% trans "Other users will not have access to these details" %}
@@ -460,12 +460,15 @@
                             data-toggle="tooltip" data-container="body"
                        {% endif %}
                     >
-                        <span class="fa fa-paper-plane" aria-hidden="true"></span>&nbsp;
+                        <span class="fa fa-paper-plane fa-spacer-right" aria-hidden="true"></span>
                         <span class="hidden-xxs">{% trans "Write message" %}</span>
                         <span hidden class="hidden"> / </span>
                         <span class="visible-xxs-inline">{% trans "Chat" context "Verb" %}</span>
                         {% if place.owner.user.email|is_invalid %}
-                            <sup><span class="fa fa-exclamation-triangle" aria-hidden="true"></span></sup>
+                            <sup>
+                                <span class="hidden" aria-hidden="true">&#9888;</span>
+                                <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
+                            </sup>
                         {% endif %}
                     </a>
                 {% endif %}
@@ -474,15 +477,18 @@
                        class="btn btn-success btn-vert-space"
                        title="{% filter compact %}
                                 {% trans "Update location on map" %}
-                                {% if place_location.unknown %} – {% trans "the location is unknown" %}{% endif %}
-                                {% if place_location.inaccurate %} – {% trans "the location is imprecise" %}{% endif %}
+                                {% if place_location.unknown %} &ndash; {% trans "the location is unknown" %}{% endif %}
+                                {% if place_location.inaccurate %} &ndash; {% trans "the location is imprecise" %}{% endif %}
                               {% endfilter %}"
                        data-toggle="tooltip" data-container=".control-buttons.place-control">
                         <span class="fa fa-location-dot" aria-hidden="true"></span>
                         <span class="hidden-xxs">
                             {% trans "Edit location" %}
                             {% if place_location.unknown or place_location.inaccurate %}
-                                <sup><span class="fa fa-exclamation-triangle" aria-hidden="true"></span></sup>
+                                <sup>
+                                    <span class="hidden" aria-hidden="true">&#9888;</span>
+                                    <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
+                                </sup>
                             {% endif %}
                         </span>
                     </a>

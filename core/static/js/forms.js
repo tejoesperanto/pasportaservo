@@ -19,18 +19,14 @@ $(function() {
     if (!$().localConstraint.hasOwnProperty(document.documentElement.lang)) {
         $.fn.localConstraint[document.documentElement.lang] = [];
     }
+    var formControlSelectors = [
+        '.form-control', 'input[type="radio"]', 'input[type="checkbox"]', 'input[type="file"]',
+    ].join();
+    var formSubmitSelectors = [
+        '#id_form_submit', '#id_form_submit_alt', '#id_form_submit_ext',
+    ].join();
 
-    $('.form-control, input[type="radio"], input[type="checkbox"], input[type="file"]')
-    .blur(function(event, dontPropagate) {
-        var $this = $(this);
-        $this.addClass('form-touched');
-        if (($this.is('[type="radio"]') || $this.is('[type="checkbox"]')) && !dontPropagate) {
-            // update similarly-named siblings (for radio/checkbox groups)
-            $('[name="'+$this.attr('name')+'"]').not($this).each(function() {
-                $(this).triggerHandler('blur', true);
-            });
-        }
-    }).on('input change invalid', function(event, dontPropagate) {
+    function fieldValueValidationCallback(event, dontPropagate) {
         var $this = $(this);
         var constraint_failed = false;
         var errors = [];
@@ -162,24 +158,72 @@ $(function() {
             else if (!$this.attr('title')) {
                 $this.attr('title', "");
             }
+            // hide the server-side errors if value is valid, and unmark the
+            // form group. skip for siblings in radio/checkbox groups.
+            // this is not fullproof as client-side validation is weaker and
+            // less complex than the server-side one.
+            if (!dontPropagate) {
+                var parent, container;
+                if (this.type == 'checkbox' && !this.hasAttribute('data-parent-id')) {
+                    parent = '.checkbox';
+                    container = this.hasAttribute('data-extra-label') ? '.form-group' : '.checkbox';
+                }
+                else {
+                    parent = '.controls';
+                    container = '.form-group';
+                }
+                var $controlsBlock = $this.closest(parent),
+                    fieldId = $this.data('parent-id') || this.id,
+                    $siblings = $controlsBlock.closest(container).siblings('[id^="' + fieldId + '_option_"]');
+                if ($siblings.length > 0) {
+                    // support complex controls which consist of multiple groups.
+                    $controlsBlock = $siblings.addBack().find(parent);
+                }
+                $controlsBlock.children('[id^="error_"][id$="' + fieldId + '"]').hide();
+                $controlsBlock.closest(container).removeClass('has-error');
+            }
         }
 
         if (($this.is('[type="radio"]') || $this.is('[type="checkbox"]')) && !dontPropagate) {
-            // update similarly-named siblings (for radio/checkbox groups)
-            $('[name="'+$this.attr('name')+'"]').not($this).each(function() {
-                $(this).triggerHandler('invalid', true);
+            // update similarly-named siblings (for radio/checkbox groups).
+            $('[name="' + $this.attr('name') + '"]').not($this).each(function() {
+                var sibling = this;
+                $(sibling).triggerHandler('invalid', true);
             });
-            return;
         }
-    }).each(function() {
-        var $this = $(this);
-        // initialize localized error messages for this field
+    }
+    function fieldValueValidationInit() {
+        // initialize localized error messages for a field (and trigger validation).
+        // the `invalid` event does not bubble and thus cannot be delegated.
+        $(this).on('invalid', fieldValueValidationCallback);
         if (typeof this.checkValidity === 'function')
             this.checkValidity();
-        $('#id_form_submit, #id_form_submit_alt, #id_form_submit_ext').click(function() {
-            // mark the field as visited on form submit
-            $this.triggerHandler('blur', true);
-        });
+    }
+
+    $('form')
+    .on('blur', formControlSelectors, function(event, dontPropagate) {
+        var $this = $(this), $form = $(this.form);
+        $this.addClass('form-touched');
+        if (($this.is('[type="radio"]') || $this.is('[type="checkbox"]')) && !dontPropagate) {
+            // update similarly-named siblings (for radio/checkbox groups).
+            $('[name="' + $this.attr('name') + '"]').not($this).each(function() {
+                var sibling = this;
+                $form.triggerHandler($.Event('focusout', {target: sibling}), [true]);
+            });
+        }
+    })
+    .on('input change', formControlSelectors, fieldValueValidationCallback)
+    .find(formControlSelectors).each(fieldValueValidationInit).end()
+    .on('click', formSubmitSelectors, function() {
+        var $form = $(this.form);
+        // mark the fields as visited on a submit button click and before the actual
+        // form submission, which may not happen if some fields are invalid.
+        Array.prototype.forEach.call(
+            this.form.querySelectorAll(formControlSelectors),
+            function(element) {
+                $form.triggerHandler($.Event('focusout', {target: element}), [true]);
+            }
+        );
     });
 
     /* password fields coupling for client-side validation of correctly typed value */
@@ -259,6 +303,9 @@ $(function() {
                     if (currentValue && nodeSubregion.tagName == 'INPUT') {
                         nodeSubregion.value = currentValue;
                     }
+                    // set up a validation handler for this field.
+                    fieldValueValidationInit.call(nodeSubregion);
+                    // set up the rich selection control for this field.
                     $('select#' + nodeSubregion.id).chosen({
                         no_results_text: gettext("Nothing found for"),
                         disable_search_threshold: nodeSubregion.getAttribute('data-search-threshold'),
@@ -303,6 +350,43 @@ $(function() {
         });
         updatePersonNamesExample();
     }();
+
+    /* verification for accidental birth date selection by the user */
+    $('.own-profile-form #id_birth_date').change(function() {
+        if (typeof this.validity !== "undefined" && this.validity.valid) {
+            var birthDate = new Date(this.value);
+            if (!isNaN(birthDate.getTime())) {
+                var today = new Date(),
+                    yearsDiff = Math.floor((today - birthDate) / (365.24 * 24 * 60 * 60 * 1000)),
+                    warningId = 'error_age_' + this.id;
+                if (yearsDiff < 6) {
+                    var warningText = interpolate(
+                        ngettext(
+                            "Are you sure you are %(age)s year old?",
+                            "Are you sure you are %(age)s years old?",
+                            yearsDiff),
+                        {'age': yearsDiff}, true);
+                    var $warning = $(this).siblings('#' + warningId);
+                    if ($warning.length == 0) {
+                        $warning = $(document.createElement('span'))
+                                   .attr('id', warningId)
+                                   .addClass('help-block')
+                                   .append('<span class="text-danger"></span>')
+                                   .hide()
+                                   .insertAfter(this);
+                    }
+                    $warning.animate({ opacity: 0.1 }, 400, function() {
+                        $warning.children().text(warningText).end()
+                                .show()
+                                .animate({ opacity: 1 }, 600);
+                    });
+                }
+                else {
+                    $(this).siblings('#' + warningId).remove();
+                }
+            }
+        }
+    });
 
     /* fallback support for datalist */
     if (!('list' in document.createElement('input') &&
@@ -408,6 +492,19 @@ $(function() {
     }).click(function(event) {
         event.preventDefault();
         history.go(-1);
+    });
+    /* form submit buttons double-submission prevention */
+    $(formSubmitSelectors).closest('form')
+    .on('submit', function(event) {
+        // if client-side form validation fails, no 'submit' event will fire;
+        // instead, the 'invalid' events will be raised. in addition, AJAX calls
+        // do their own handling (overriding the default form behavior) and no
+        // 'submit' event is raised either.
+        if (event.originalEvent.submitter.id.indexOf('id_form_submit') == 0) {
+            $(event.originalEvent.submitter).addClass('disabled')
+                                            .prop('disabled', true)
+                                            .attr('autocomplete', 'off');
+        }
     });
     /* form submit/cancel keyboard shortcut key implementation */
     var actionButtonShortcuts = {length: 0};

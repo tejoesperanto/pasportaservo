@@ -3,13 +3,13 @@
 
 {% block head_title %}{% trans "Register" context "Imperative" %} &amp; {% trans "Find accommodation" %}{% endblock %}
 
-{% block form_title %}{% trans "Registration" context "Title" %}{% endblock %}
+{% block form_title %}{% trans "New Account" context "Title" %}{% endblock %}
 {% block form_block_class %} register{% endblock %}
 {% block form_tip %}&nbsp;{% endblock %}
 {% block fields_after %}
     {% for err in form.non_field_errors.as_data %}
         {% if err.code == 'compromised_password' %}
-            <p class="pull-left keep-margin">
+            <p class="pull-left keep-margin password-hint">
                 <a href="{% url 'faq' %}#kiel-elekti-bonan-pasvorton">{% trans "How to choose a good password?" %}</a>
             </p>
         {% endif %}

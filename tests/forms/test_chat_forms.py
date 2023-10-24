@@ -21,10 +21,14 @@ from ..factories import LocaleFaker, UserFactory
 @tag('forms', 'forms-chat')
 class WriteFormTests(AdditionalAsserts, WebTest):
     @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.faker = Faker._get_faker()
+
+    @classmethod
     def setUpTestData(cls):
         cls.sender = UserFactory()
         cls.recipient = UserFactory(deceased_user=True)
-        cls.faker = Faker._get_faker()
 
     def test_init(self):
         form_empty = CustomWriteForm()
@@ -210,11 +214,15 @@ class AnonymousWriteFormTests(AdditionalAsserts, WebTest):
 @tag('forms', 'forms-chat')
 class ReplyFormTests(AdditionalAsserts, WebTest):
     @classmethod
+    def setUpClass(cls):
+        cls.faker = LocaleFaker._get_faker('el-GR')
+        super().setUpClass()
+
+    @classmethod
     def setUpTestData(cls):
         cls.sender = UserFactory()
         cls.recipient = rec = UserFactory(deceased_user=True)
         cls.recipient_other = rec_other = UserFactory(profile=None)
-        cls.faker = LocaleFaker._get_faker('el-GR')
         cls.message, cls.message_other = (cls._setup_test_message(u) for u in [rec, rec_other])
 
     @classmethod

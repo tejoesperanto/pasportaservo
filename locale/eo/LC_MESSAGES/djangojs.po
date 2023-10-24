@@ -33,6 +33,12 @@ msgid "Nothing found for"
 msgstr "Nenio trovita por"
 
 #: core/static/js/forms.js
+msgid "Are you sure you are %(age)s year old?"
+msgid_plural "Are you sure you are %(age)s years old?"
+msgstr[0] "Ĉu vi certas ke vi aĝas %(age)s jaron?"
+msgstr[1] "Ĉu vi certas ke vi aĝas %(age)s jarojn?"
+
+#: core/static/js/forms.js
 msgid "select one of the suggestions"
 msgstr "elektu unu el inter la proponoj"
 

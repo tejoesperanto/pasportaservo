@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path, reverse_lazy
 from django.urls.resolvers import URLPattern
+from django.utils.functional import lazy
 from django.utils.translation import pgettext_lazy
 
 from .views import (
@@ -28,7 +29,11 @@ if settings.DEBUG:
         path('__debug__/', include(debug_toolbar.urls)),
     ]
 
-url_index_postman = '/'.join([reverse_lazy('postman:inbox').rstrip('/').rsplit('/', maxsplit=1)[0], ''])
+url_index_postman = lazy(
+    lambda url: '/'.join([
+        url.rstrip('/').rsplit('/', maxsplit=1)[0], '',
+    ]),
+    str)(reverse_lazy('postman:inbox'))
 url_index_maps = reverse_lazy('world_map')
 url_index_debug = '/__debug__/'
 

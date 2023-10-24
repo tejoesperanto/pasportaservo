@@ -29,13 +29,13 @@ geojson==2.5.0
 gql[requests]==3.1.0
 itsdangerous==1.1.0
 libsass==0.20.1
-packaging==23.1
+packvers==21.5
 pymemcache==3.5.2
 phonenumberslite==8.12.19
 requests==2.27.1
 rstr==3.0.0
 sendgrid-django==4.2.0
-sentry-sdk>=1.12
+sentry-sdk>=1.18
 user_agents==2.2.0
 
 wheel

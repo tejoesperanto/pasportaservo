@@ -15,7 +15,8 @@
         {% trans "this " as kin %}
     {% endif %}
     {% if profile.user_id %}
-        <span class="fa fa-exclamation-circle" aria-label="{% trans "Warning " context 'Title' %}" style="transform: rotate(-10deg)"></span>&nbsp;
+        <span class="fa fa-exclamation-circle fa-spacer-right-2x" style="transform: rotate(-10deg)"
+              aria-label="{% trans "Warning " context 'Title' %}"></span>
         {% blocktrans trimmed %}
             Are you sure you want to delete {{ kin }}profile and all linked data (place, phone…)?
         {% endblocktrans %}

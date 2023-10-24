@@ -40,7 +40,7 @@
                     <button class="btn btn-primary btn-sm push-right ajax" type="submit"
                             data-csrf="{{ csrf_token }}"
                             data-on-ajax-success="confirmInfoSuccess">
-                        <span class="fa fa-check" aria-hidden="true"></span>&nbsp;
+                        <span class="fa fa-check fa-spacer-right" aria-hidden="true"></span>
                         <span class="hidden-xxs">{% trans "I confirm!" %}</span>
                     </button>
                 </form>
@@ -72,7 +72,7 @@
             <div id="pA" class="col-xs-12 col-md-5">
                 {% if profile.deleted %} {# VISITORs are barred from accessing deleted profiles, on View level #}
                     <div class="alert alert-small alert-danger">
-                        <span class="fa fa-exclamation-circle" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
+                        <span class="fa fa-exclamation-circle fa-spacer-right" aria-label="{% trans "Warning " context 'Title' %}"></span>
                         {% trans "Deleted profile" as delete_notice %}
                         {% if view.role == roles.OWNER %}{% trans "Your profile is deleted and does not appear in search results." as delete_notice %}{% endif %}
                         {{ delete_notice }}
@@ -90,12 +90,15 @@
                                     data-toggle="tooltip" data-container="body" data-placement="bottom"
                                 {% endif %}
                             >
-                                <span class="fa fa-paper-plane" aria-hidden="true"></span>&nbsp;
+                                <span class="fa fa-paper-plane fa-spacer-right" aria-hidden="true"></span>
                                 <span class="hidden-xxs">{% trans "Write message" %}</span>
                                 <span hidden class="hidden"> / </span>
                                 <span class="visible-xxs-inline">{% trans "Chat" context "Verb" %}</span>
                                 {% if profile.user.email|is_invalid %}
-                                    <sup><span class="fa fa-exclamation-triangle" aria-hidden="true"></span></sup>
+                                    <sup>
+                                        <span class="hidden" aria-hidden="true">&#9888;</span>
+                                        <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
+                                    </sup>
                                 {% endif %}
                             </a>
                         {% endif %}
@@ -106,7 +109,7 @@
                                class="btn btn-success"
                                title="{{ update_title }}"
                                data-toggle="tooltip" data-container="body" data-placement="bottom">
-                                <span class="fa fa-pencil" aria-hidden="true"></span>&nbsp; {% trans "Modify account" %}
+                                <span class="fa fa-pencil fa-spacer-right" aria-hidden="true"></span> {% trans "Modify account" %}
                             </a>
                         {% endif %}
                     {% endblock %}
@@ -171,7 +174,11 @@
                     </span>
                     <a href="{% url 'profile_settings' profile.pk profile.autoslug %}#{% trans "email-addr" context 'URL' %}"
                        class="small hidden-print">
-                        {% trans "Check the settings" %} &rarr;
+                        {% spaceless %}
+                            <span>{% trans "Check the settings" %}</span>
+                            <span class="fa fa-solid fa-long-arrow-alt-right fa-spacer-left-2x" aria-hidden="true"></span>
+                        {% endspaceless %}
+                        <span class="sr-only">&#8594;</span>
                     </a>
                 </p>
             {% endif %}

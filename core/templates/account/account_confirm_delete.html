@@ -16,7 +16,7 @@
         <button id="id_form_submit" type="submit"
                 class="btn btn-danger"
                 title="{% trans "Close account" %}">
-            <span class="fa fa-trash" aria-hidden="true"></span>&nbsp; {% trans "Close the account" %}
+            <span class="fa fa-trash fa-spacer-right" aria-hidden="true"></span> {% trans "Close the account" %}
         </button>
     </form>
     <div class="text-center" style="margin-top: 30px">
@@ -24,7 +24,7 @@
         <a id="id_form_cancel" href="{% previous default=account_settings_url %}"
            class="btn btn-default"
            title="{% trans "Cancel operation" %}">
-            <span class="fa fa-arrow-left" aria-hidden="true"></span>&nbsp; {% trans "Cancel operation" %}
+            <span class="fa fa-arrow-left fa-spacer-right" aria-hidden="true"></span> {% trans "Cancel operation" %}
         </a>
     </div>
 {% endblock page %}

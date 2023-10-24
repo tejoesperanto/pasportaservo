@@ -18,6 +18,7 @@ class HomePage(PageTemplate):
         'eo': '/',
     }
     template = 'core/home.html'
+    redirects_unauthenticated = False
 
     def get_headings(self) -> PyQuery:
         return self.pyquery("[role='heading']")
@@ -33,6 +34,7 @@ class OkayPage(PageTemplate):
         'eo': r'/%C4%89u',
     }
     template = '200.html'
+    redirects_unauthenticated = False
 
     @classproperty
     def url(cls):

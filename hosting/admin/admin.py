@@ -17,7 +17,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django_countries.fields import Country
 from djangocodemirror.widgets import CodeMirrorAdminWidget
-from packaging import version
+from packvers import version
 
 from core.models import Agreement, UserBrowser
 from maps.widgets import AdminMapboxGlWidget
@@ -27,9 +27,9 @@ from ..models import (
     Profile, TravelAdvice, VisibilitySettings, Website, Whereabouts,
 )
 from .filters import (
-    ActiveStatusFilter, CountryMentionedOnlyFilter,
-    DependentFieldFilter, EmailValidityFilter, PlaceHasLocationFilter,
-    ProfileHasUserFilter, SupervisorFilter, VisibilityTargetFilter,
+    ActiveStatusFilter, CountryMentionedOnlyFilter, DependentFieldFilter,
+    EmailValidityFilter, PlaceHasLocationFilter, ProfileHasUserFilter,
+    SupervisorFilter, VisibilityTargetFilter, YearBracketFilter,
 )
 from .forms import WhereaboutsAdminForm
 from .mixins import ShowConfirmedMixin, ShowCountryMixin, ShowDeletedMixin
@@ -110,6 +110,7 @@ class CustomUserAdmin(UserAdmin):
     list_select_related = ('profile',)
     list_filter = (
         SupervisorFilter, 'is_active', 'is_staff', 'is_superuser', EmailValidityFilter,
+        ('last_login', YearBracketFilter.configure(YearBracketFilter.Brackets.SINCE)),
         ('groups', admin.RelatedOnlyFieldListFilter),
     )
     date_hierarchy = 'date_joined'
@@ -271,6 +272,7 @@ class UserBrowserAdmin(admin.ModelAdmin):
         'user', 'os_name', 'os_version', 'browser_name', 'browser_version', 'added_on',
     )
     ordering = ('user__username', '-added_on')
+    search_fields = ('user__username__exact',)
     list_filter = (
         'os_name',
         DependentFieldFilter.configure(
@@ -284,7 +286,9 @@ class UserBrowserAdmin(admin.ModelAdmin):
             coerce=lambda version_string: version.parse(version_string),
             sort=True, sort_reverse=True,
         ),
+        ('added_on', YearBracketFilter.configure(YearBracketFilter.Brackets.SINCE)),
     )
+    show_full_result_count = False
     fields = (
         'user_agent_string', 'user_agent_hash',
         'os_name', 'os_version', 'browser_name', 'browser_version', 'device_type',
@@ -414,7 +418,8 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     )
     list_filter = (
         'confirmed_on', 'checked_on', 'deleted_on',
-        EmailValidityFilter, ProfileHasUserFilter, 'death_date',
+        EmailValidityFilter, ProfileHasUserFilter,
+        ('death_date', YearBracketFilter),
     )
     date_hierarchy = 'birth_date'
 

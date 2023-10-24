@@ -409,7 +409,9 @@
                         {% if place.profile.user.email|is_invalid %}
                             <span class="person-email-address text-danger" title="{% trans "invalid email" %}" data-toggle="tooltip">
                                 {{ place.profile.user.email|clear_invalid }}
-                                <span class="fa fa-exclamation-triangle" aria-label="{% trans "Warning " context 'Title' %}"></span>&nbsp;
+                                <span class="sr-only">&#9888;</span>
+                                <span class="fa fa-exclamation-triangle fa-spacer-right" aria-label="{% trans "Warning " context 'Title' %}"></span>
+                                <small class="visible-print-inline">&#9001;<i>{% trans "invalid email" %}</i>&#9002;</small>
                             </span>
                         {% else %}
                             <span class="person-email-address">{{ place.profile.user.email|urlize }}</span>

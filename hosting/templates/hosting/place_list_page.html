@@ -156,7 +156,9 @@
                 {% blocktrans %}{{ login_action }} to see more details.{% endblocktrans %}
             {% endif %}
             {% if is_last_page %}
-                {% trans "you reached the end of the list"|capfirst %} &nbsp;<span class="fa fa-cube" aria-hidden="true"></span>
+                {% trans "you reached the end of the list"|capfirst %}
+                <span class="fa fa-cube fa-spacer-left" aria-hidden="true"></span>
+                <span class="hidden" aria-hidden="true">&#9671;</span>
             {% endif %}
         </small>
     {% endif %}

@@ -56,7 +56,7 @@
             {% url 'staff_place_list' place.country.code as supervisor_page_url %}
             <a href="{{ next_page_url|default:supervisor_page_url }}"
                class="control-buttons btn btn-default btn-vert-space" tabindex="1">
-                <span class="fa fa-arrow-left" aria-hidden="true"></span>&nbsp;
+                <span class="fa fa-arrow-left fa-spacer-right" aria-hidden="true"></span>
                 {% if next_page_url %}{% trans "Back to previous page" %}{% else %}{% trans "Back" %}{% endif %}
             </a>
         </div>

@@ -34,7 +34,7 @@
         <div class="row setting">
             <div class="col-xxs-12 col-xs-6">
                 <section class="callout callout-primary">
-                    <h4 id="{% trans "password" %}">{% trans "password"|capfirst %}</h4>
+                    <h4 id="{% trans "password" context 'URL' %}">{% trans "password"|capfirst %}</h4>
                     <a href="{% url 'password_change' %}" class="btn btn-default btn-sm">
                         {% trans "Change password" %}
                     </a>
@@ -42,7 +42,7 @@
             </div>
             <div class="col-xxs-12 col-xs-6">
                 <section class="callout callout-primary">
-                    <h4 id="{% trans "username" %}">{% trans "username"|capfirst %}</h4>
+                    <h4 id="{% trans "username" context 'URL' %}">{% trans "username"|capfirst %}</h4>
                     <samp><small class="person-username">{{ account.username }}</small></samp> &nbsp;
                     <a href="{% url 'username_change' %}" class="btn btn-default btn-sm">
                         {% trans "Change username" %}
@@ -91,7 +91,8 @@
         {% if view.role == roles.OWNER %}
         <section class="callout callout-warning">
             <h4>{% trans "Agreement" %}</h4>
-            <span class="fa fa-arrow-circle-right text-muted" aria-hidden="true"></span>&nbsp;
+            <span class="fa fa-arrow-circle-right text-muted fa-spacer-right" aria-hidden="true"></span>
+            <span class="hidden" aria-hidden="true">&#x2b8a;&nbsp;</span>
             <a href="{% url 'agreement' %}">{% trans "Agreement between You and"|lower %} Pasporta Servo.</a>
         </section>
         {% endif %}
@@ -102,12 +103,12 @@
         <section class="callout callout-warning">
             <h4>{% trans "Pasporta Servo Account" %}</h4>
             <a href="{% url 'profile_create' %}" class="btn btn-success btn-vert-space">
-                <span class="fa fa-user fa-lg" aria-hidden="true"></span>&nbsp;
+                <span class="fa fa-user fa-lg fa-spacer-right" aria-hidden="true"></span>
                 {% trans "Create profile" %}
             </a>
             &nbsp;
             <a href="{% url 'account_delete' %}" class="btn btn-danger btn-vert-space">
-                <span class="fa fa-trash fa-lg" aria-hidden="true"></span>&nbsp;
+                <span class="fa fa-trash fa-lg fa-spacer-right" aria-hidden="true"></span>
                 {% trans "Close account" %}
             </a>
         </section>

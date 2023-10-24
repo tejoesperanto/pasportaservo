@@ -220,7 +220,9 @@ class InlineRadiosWidgetTests(TestCase):
 @tag('forms', 'widgets')
 class ExpandedMultipleChoiceWidgetTests(AdditionalAsserts, TestCase):
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
+
         class MultiSelects(forms.widgets.MultiWidget):
             def decompress(self, value):
                 return value or []
@@ -440,7 +442,9 @@ class ExpandedMultipleChoiceWidgetTests(AdditionalAsserts, TestCase):
 @tag('forms', 'widgets')
 class FormDividerWidgetTests(AdditionalAsserts, TestCase):
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
+        super().setUpClass()
+
         class DummyForm(forms.Form):
             all_years = forms.IntegerField(label="All Years")
 
