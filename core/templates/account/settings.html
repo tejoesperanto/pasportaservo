@@ -34,7 +34,7 @@
         <div class="row setting">
             <div class="col-xxs-12 col-xs-6">
                 <section class="callout callout-primary">
-                    <h4 id="{% trans "password" %}">{% trans "password"|capfirst %}</h4>
+                    <h4 id="{% trans "password" context 'URL' %}">{% trans "password"|capfirst %}</h4>
                     <a href="{% url 'password_change' %}" class="btn btn-default btn-sm">
                         {% trans "Change password" %}
                     </a>
@@ -42,7 +42,7 @@
             </div>
             <div class="col-xxs-12 col-xs-6">
                 <section class="callout callout-primary">
-                    <h4 id="{% trans "username" %}">{% trans "username"|capfirst %}</h4>
+                    <h4 id="{% trans "username" context 'URL' %}">{% trans "username"|capfirst %}</h4>
                     <samp><small class="person-username">{{ account.username }}</small></samp> &nbsp;
                     <a href="{% url 'username_change' %}" class="btn btn-default btn-sm">
                         {% trans "Change username" %}

@@ -601,9 +601,19 @@ msgid "Change"
 msgstr "Ŝanĝi"
 
 #: core/templates/account/settings.html
+msgctxt "URL"
+msgid "password"
+msgstr "pasvorto"
+
+#: core/templates/account/settings.html
 #: core/templates/registration/password_reset_form.html
 msgid "password"
 msgstr "pasvorto"
+
+#: core/templates/account/settings.html
+msgctxt "URL"
+msgid "username"
+msgstr "salutnomo"
 
 #: core/templates/account/settings.html
 #: core/templates/registration/username_remind_form.html
@@ -2884,6 +2894,7 @@ msgstr "Kunloĝantoj"
 #: hosting/templates/hosting/place_list_supervisor.html
 #: hosting/templates/hosting/profile_confirm_restore.html
 #: hosting/templates/hosting/profile_detail.html
+#: hosting/templates/hosting/settings_privacy_matrix.html
 msgctxt "Title"
 msgid "Note "
 msgstr "Rimarko "

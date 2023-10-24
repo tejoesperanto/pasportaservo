@@ -53,7 +53,10 @@ class BasicViewTests(AdditionalAsserts, WebTest):
     def test_view_url(self):
         # Verify that the view can be found at the expected URL.
         if self.url is not None:
-            response = self.app.get(self.url, status='*')
+            if self.view_page.redirects_unauthenticated:
+                response = self.app.get(self.url, status='*', user=self.user)
+            else:
+                response = self.app.get(self.url, status='*')
             self.assertEqual(response.status_code, 200)
 
         for lang, expected_url in self.view_page.explicit_url.items():
@@ -61,7 +64,10 @@ class BasicViewTests(AdditionalAsserts, WebTest):
                 override_settings(LANGUAGE_CODE=lang),
                 self.subTest(lang=lang, attempted=expected_url)
             ):
-                response = self.app.get(expected_url, status='*')
+                if self.view_page.redirects_unauthenticated:
+                    response = self.app.get(expected_url, status='*', user=self.user)
+                else:
+                    response = self.app.get(expected_url, status='*')
                 self.assertEqual(response.status_code, 200)
                 self.assertTrue('view' in response.context)
                 self.assertIsInstance(response.context['view'], self.view_page.view_class)
@@ -73,7 +79,8 @@ class BasicViewTests(AdditionalAsserts, WebTest):
                 override_settings(LANGUAGE_CODE=lang),
                 self.subTest(lang=lang)
             ):
-                page = self.view_page.open(self)
+                page = self.view_page.open(
+                    self, user=self.user if self.view_page.redirects_unauthenticated else None)
                 self.assertHTMLEqual(page.pyquery("title").html(), self.view_page.title[lang])
 
     def test_view_header_unauthenticated_user(self):
@@ -204,9 +211,16 @@ class BasicViewTests(AdditionalAsserts, WebTest):
                     # Verify that the page includes a fair use notice if one is
                     # required.
                     if self.view_page.use_notice:
-                        self.assertStartsWith(
-                            page.get_use_notice_text(),
-                            test_data[lang]['use_notice'])
+                        if user_has_profile:
+                            self.assertStartsWith(
+                                page.get_use_notice_text(),
+                                test_data[lang]['use_notice'][True]
+                            )
+                        else:
+                            self.assertEqual(
+                                page.get_use_notice_text(),
+                                test_data[lang]['use_notice'][False]
+                            )
                     else:
                         self.assertEqual(page.get_use_notice_text(), "")
 
@@ -247,5 +261,6 @@ class BasicViewTests(AdditionalAsserts, WebTest):
 
     def test_view_template(self):
         # Verify that the view uses the expected template.
-        page = self.view_page.open(self)
+        page = self.view_page.open(
+            self, user=self.user if self.view_page.redirects_unauthenticated else None)
         self.assertTemplateUsed(page.response, self.view_page.template)

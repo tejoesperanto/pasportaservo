@@ -42,7 +42,7 @@ class HeroViewTemplateTestsMixin(with_type_hint(BasicViewTests)):
                 override_settings(LANGUAGE_CODE=lang),
                 self.subTest(lang=lang)
             ):
-                page = self.view_page.open(self)
+                page = self.view_page.open(self, reuse_for_lang=lang)
                 container_element = page.get_hero_content()
                 self.assertLength(container_element, 1)
                 # An element with an ARIA role "search" is expected to be present.
@@ -95,7 +95,8 @@ class HeroViewTemplateTestsMixin(with_type_hint(BasicViewTests)):
                     override_settings(LANGUAGE_CODE=lang),
                     self.subTest(user=user_tag, lang=lang)
                 ):
-                    page = self.view_page.open(self, user=self.users[user_tag])
+                    page = self.view_page.open(
+                        self, user=self.users[user_tag], reuse_for_lang=lang)
                     link_elements = page.get_header_links()
                     admin_element = page.get_nav_element('admin')
                     if self.users[user_tag].is_superuser and self.users[user_tag].is_staff:
@@ -121,7 +122,7 @@ class HomeViewTests(HeroViewTemplateTestsMixin, BasicViewTests):
                     override_settings(LANGUAGE_CODE=lang),
                     self.subTest(user="authenticated" if user else "anonymous", lang=lang)
                 ):
-                    page = self.view_page.open(self, user=user)
+                    page = self.view_page.open(self, user=user, reuse_for_lang=lang)
 
                     # The home view is expected to have 2 general headings, followed by
                     # a search box (its more detailed tests are in `test_searchbox`).
@@ -277,7 +278,7 @@ class OkayViewTests(HeroViewTemplateTestsMixin, BasicViewTests):
                 override_settings(LANGUAGE_CODE=lang),
                 self.subTest(lang=lang)
             ):
-                page = self.view_page.open(self)
+                page = self.view_page.open(self, reuse_for_lang=lang)
                 heading_elements = page.get_headings()
                 self.assertLength(heading_elements, 2)
                 self.assertEqual(heading_elements.eq(0).attr("id"), "title")
@@ -302,7 +303,7 @@ class OkayViewTests(HeroViewTemplateTestsMixin, BasicViewTests):
                 override_settings(LANGUAGE_CODE=lang),
                 self.subTest(lang=lang)
             ):
-                page = self.view_page.open(self, redirect_to='sit')
+                page = self.view_page.open(self, redirect_to='sit', reuse_for_lang=lang)
                 container_element = page.get_hero_content()
                 self.assertLength(container_element.find("[role='search']"), 0)
                 link_element = container_element.find("a")
@@ -318,14 +319,14 @@ class OkayViewTests(HeroViewTemplateTestsMixin, BasicViewTests):
 
                 # When no redirection target is provided, the back button is
                 # expected to be not shown.
-                page = self.view_page.open(self, redirect_to='')
+                page = self.view_page.open(self, redirect_to='', reuse_for_lang=lang)
                 container_element = page.get_hero_content()
                 self.assertLength(container_element.find("[role='search']"), 1)
                 self.assertLength(container_element.find("a"), 0)
 
                 # When the provided redirection target is insecure, the back
                 # button is expected to be not shown.
-                page = self.view_page.open(self, redirect_to='//fly')
+                page = self.view_page.open(self, redirect_to='//fly', reuse_for_lang=lang)
                 container_element = page.get_hero_content()
                 self.assertLength(container_element.find("[role='search']"), 1)
                 self.assertLength(container_element.find("a"), 0)

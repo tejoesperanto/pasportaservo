@@ -1,3 +1,4 @@
+from threading import Lock
 from typing import Optional, TypedDict, TypeVar, cast
 from urllib.parse import urlencode
 
@@ -60,7 +61,7 @@ class PageTemplate:
             'inbox': {
                 'text': "inbox",
                 'url': '/messages/inbox/'},
-            'use_notice': "For personal use of ",
+            'use_notice': {True: "For personal use of ", False: "For personal use"},
         },
         'eo': {
             'session': {
@@ -75,7 +76,7 @@ class PageTemplate:
             'inbox': {
                 'text': "poŝtkesto",
                 'url': '/leteroj/kesto/'},
-            'use_notice': "Por persona uzo de ",
+            'use_notice': {True: "Por persona uzo de ", False: "Por persona uzo"},
         },
     }
     redirects_logged_in = False
@@ -84,6 +85,8 @@ class PageTemplate:
     # Private Page instance fields.
     _test_case: WebTest
     _page: DjangoTestApp.response_class
+    _open_pages: dict[str | None, 'PageTemplate'] = {}
+    _open_pages_lock = Lock()
 
     @classmethod
     def open(
@@ -92,7 +95,21 @@ class PageTemplate:
             user: Optional[AbstractUser | UserFactory] = None,
             status: str | int = 200,
             redirect_to: Optional[str] = None,
+            reuse_for_lang: Optional[str] = None,
     ) -> Page:
+        if reuse_for_lang:
+            this_page_key = (
+                f'{cls.__name__}.{reuse_for_lang}'
+                f'.{getattr(user, "pk", None)}.{hash(redirect_to)}'
+            )
+            cls._open_pages_lock.acquire()
+            open_page_instance = cls._open_pages.get(this_page_key)
+            cls._open_pages_lock.release()
+            if open_page_instance:
+                return cast(Page, open_page_instance)
+        else:
+            this_page_key = None
+
         page_instance = cls()
         page_instance._test_case = test_case
         if user is None:
@@ -101,6 +118,11 @@ class PageTemplate:
         if redirect_to is not None:
             complete_url += '?' + urlencode({settings.REDIRECT_FIELD_NAME: redirect_to})
         page_instance._page = test_case.app.get(complete_url, status=status, user=user)
+
+        if reuse_for_lang:
+            cls._open_pages_lock.acquire()
+            cls._open_pages[this_page_key] = page_instance
+            cls._open_pages_lock.release()
         return page_instance
 
     def follow(self, *, once=False, **kwargs):

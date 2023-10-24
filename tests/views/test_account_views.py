@@ -71,7 +71,7 @@ class RegisterViewTests(BasicViewTests):
                 override_settings(LANGUAGE_CODE=lang),
                 self.subTest(lang=lang)
             ):
-                page = self.view_page.open(self)
+                page = self.view_page.open(self, reuse_for_lang=lang)
                 # Verify that the expected form class is in use on the view.
                 self.assertIsNotNone(page.form['object'])
                 self.assertIsInstance(page.form['object'], page.form_class)
