@@ -36,7 +36,7 @@ class ProductAdmin(admin.ModelAdmin):
 class ReservationAdmin(admin.ModelAdmin):
     list_display = ('user', 'amount', 'discount', 'support', 'product', 'created')
     list_display_links = ('user', 'amount')
-    list_filter = ()
+    list_filter = ('product',)
     search_fields = ()
     date_hierarchy = 'created'
     raw_id_fields = ('user',)

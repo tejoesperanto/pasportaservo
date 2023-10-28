@@ -26,7 +26,9 @@ from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.utils.functional import cached_property, classproperty
+from django.utils.functional import (
+    SimpleLazyObject, cached_property, classproperty,
+)
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
@@ -53,6 +55,7 @@ from hosting.views.mixins import (
     ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin,
 )
 from links.utils import create_unique_url
+from shop.models import Reservation
 
 from .auth import AuthMixin, AuthRole
 from .forms import (
@@ -79,6 +82,19 @@ class HomeView(generic.TemplateView):
     def right_block(self):
         block = FlatPage.objects.filter(url='/home-right-block/').values('content').first()
         return self.render_flat_page(block)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            @SimpleLazyObject
+            def donations_count():
+                return sum(
+                    Reservation.objects
+                    .filter(user=self.request.user, product__code='Donation')
+                    .values_list('amount', flat=True)
+                )
+            context['user_donations_count'] = donations_count
+        return context
 
 
 class LoginView(LoginBuiltinView):

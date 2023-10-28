@@ -1,4 +1,6 @@
+import copy
 import logging
+import operator
 import random
 from typing import NamedTuple
 from unittest import skipUnless
@@ -8,7 +10,7 @@ from django.conf import settings
 from django.contrib.gis.geos import Point as GeoPoint
 from django.core import mail
 from django.test import TestCase, override_settings, tag
-from django.utils.functional import lazy, lazystr
+from django.utils.functional import SimpleLazyObject, lazy, lazystr
 
 from factory import Faker
 from geocoder.opencage import OpenCageQuery, OpenCageResult
@@ -153,6 +155,55 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
                 joined = join_lazy(sep, items())
                 self.assertIn('_proxy____cast', dir(joined))
                 self.assertEqual(str(joined), "aa, bb, cc")
+
+    def test_simplelazyobject_patch(self):
+        # The patched Django's SimpleLazyObject is expected to
+        # support integers and arithmetic operations.
+        test_data = (
+            ('isgt', operator.gt, 2),
+            ('iseq', operator.eq, 2),
+            ('cast', int, 1),
+            ('sum',  operator.add, 2),
+            ('mult', operator.mul, 2),
+        )
+        for op_tag, operation, num_params in test_data:
+            x = SimpleLazyObject(lambda: 123)
+            y = copy.deepcopy(x)
+            # The lazy object is expected to be able to compare
+            # to, be added to, and be multiplied by a numeric value.
+            # Also an explicit conversion to integer is expected to
+            # raise no error.
+            with self.subTest(op=op_tag, obj='original'):
+                with self.assertNotRaises(TypeError):
+                    if num_params == 1:
+                        operation(x)
+                    else:
+                        operation(x, 50)
+                self.assertIs(type(x), SimpleLazyObject)
+                self.assertIsNot(type(x), int)
+            # A copy of the lazy object (done prior to evaluation
+            # of the value) is expected to behave similarly.
+            with self.subTest(op=op_tag, obj='copy'):
+                with self.assertNotRaises(TypeError):
+                    if num_params == 1:
+                        operation(y)
+                    else:
+                        operation(y, 150)
+                self.assertIs(type(y), SimpleLazyObject)
+                self.assertIsNot(type(y), int)
+            # A copy of the lazy object, done after evaluation of
+            # the value, is expected to be a real integer and
+            # support the anticipated arithmetic operations as well
+            # as comparisons or conversions.
+            z = copy.copy(x)
+            with self.subTest(op=op_tag, obj='copy after eval'):
+                with self.assertNotRaises(TypeError):
+                    if num_params == 1:
+                        operation(z)
+                    else:
+                        operation(z, 250)
+                self.assertIs(type(z), int)
+                self.assertIsNot(type(z), SimpleLazyObject)
 
     def test_email_to_gravatar(self):
         test_data = (

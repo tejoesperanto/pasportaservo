@@ -162,6 +162,12 @@ header.hero form.search {
 
 /* Social icons on home pages */
 $social-icon-size: 36px;
+.social-links.social-networks {
+    float: left;
+}
+.social-links.social-contact {
+    float: right;
+}
 .social-links a {
     display: inline-block;
     width: $social-icon-size;
@@ -202,6 +208,9 @@ $social-icon-size: 36px;
         color: $color-brand-aux;
     }
 }
+.social-support {
+    text-align: center;
+}
 
 /* XXS */
 @media (max-width: #{$BOOTSTRAP-XS - 1}) {
@@ -229,13 +238,25 @@ $social-icon-size: 36px;
             --tooltip-placement: left;
         }
     }
+    .social-support {
+        clear: both;
+        padding-left: 2px;
+        padding-right: 5px;
+        padding-top: $social-icon-size / 3;
+
+        a {
+            white-space: normal;
+        }
+    }
 }
 /* !XXS */
 @media (min-width: #{$BOOTSTRAP-XS}) {
+    $social-block-height: 80px;
+    $social-block-vertical-spacing: ($social-block-height - $social-icon-size) / 2;
     .social-links {
-        height: 80px;
-        padding-top: (80px - $social-icon-size) / 2;
-        padding-bottom: (80px - $social-icon-size) / 2;
+        height: $social-block-height;
+        padding-top: $social-block-vertical-spacing;
+        padding-bottom: $social-block-vertical-spacing;
 
         &.social-networks, &.social-contact {
             a {
@@ -249,5 +270,21 @@ $social-icon-size: 36px;
     }
     .social-links.social-contact a:last-of-type {
         margin-right: 0;
+    }
+    .social-support {
+        height: $social-block-height;
+        padding-top: $social-block-vertical-spacing + 2px;
+        padding-bottom: $social-block-vertical-spacing;
+
+        a {
+            margin-left: $social-icon-size / 5;
+            margin-right: $social-icon-size / 5;
+        }
+    }
+}
+/* XS (only) */
+@media (min-width: #{$BOOTSTRAP-XS}) and (max-width: #{$BOOTSTRAP-SM - 1}) {
+    .social-support {
+        clear: both;
     }
 }

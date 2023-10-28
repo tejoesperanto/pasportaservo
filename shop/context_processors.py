@@ -5,7 +5,7 @@ def reservation_check(request):
     if getattr(request, 'skip_hosting_checks', False):
         return {}  # Exclude django-admin pages.
     # Slicing the queryset does not execute it and keeps it lazy.
-    latest_offer = Product.objects.order_by('-pk')[0:1]
+    latest_offer = Product.objects.exclude(code='Donation').order_by('-pk')[0:1]
     flag = 'flag_book_reservation'
     if request.user.is_anonymous:
         return {'BOOK_RESERVED': False}

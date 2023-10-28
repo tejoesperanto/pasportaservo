@@ -1,5 +1,5 @@
 {% extends 'core/base_hero.html' %}
-{% load i18n static domain flatpages variable utils %}
+{% load i18n static domain flatpages cache variable utils %}
 
 {% block content-at %}{% if view.news or view.right_block %}{% trans "whats-new" context "URL" %}{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block nav-skip-label %}{% trans "Jump to content" %}{% endblock %}
@@ -71,7 +71,7 @@
 {% block page_role %}toolbar{% endblock %}
 
 {% block page %}
-    <div class="social-links social-networks pull-left" data-nosnippet>
+    <div class="social-links social-networks" data-nosnippet>
         {% spaceless %}
             {% with local_context=True %}
                 {% asvar url %}https://www.facebook.com/pasportaservo{% endasvar %}
@@ -95,7 +95,7 @@
             {% endwith %}
         {% endspaceless %}
     </div>
-    <div class="social-links social-contact pull-right" data-nosnippet>
+    <div class="social-links social-contact" data-nosnippet>
         {% spaceless %}
             {% with local_context=True %}
                 {% asvar url %}mailto:{{ SUPPORT_EMAIL }}{% endasvar %}
@@ -116,5 +116,31 @@
                 {% include './snippets/social_link.html' with url=url title=title outline="fa-square" content="fa-brands fa-github" only %}
             {% endwith %}
         {% endspaceless %}
+    </div>
+    <div class="social-support" data-nosnippet>
+        <a href="https://buymeacoffee.com/pasportaservo" target="_blank" rel="external noreferrer" class="btn btn-default fullwidth-xxs">
+            {% cache HOUR|mult:48 financial-support-button LANGUAGE_CODE user.pk %}
+                {% if not user_donations_count %}
+                    <span class="hidden-xxs visible-xs-inline visible-md-inline visible-lg-inline">
+                        {% trans "Support Pasporta Servo" %} <span class="sr-only">&ndash;</span>
+                    </span>
+                    <span class="fa fa-solid fa-mug-hot fa-lg text-brand fa-spacer-left fa-spacer-right" aria-hidden="true"></span>
+                    <span>{% trans "Buy a cup of coffee for us!" %}</span>
+                {% else %}
+                    <span>{% trans "Thank you for your support!" %}</span>
+                    {% asvar user_thanks trimmed %}
+                        {% if user_donations_count > 3 %}
+                            {{ "*"|mult:3 }}
+                        {% else %}
+                            {{ "*"|mult:user_donations_count }}
+                        {% endif %}
+                    {% endasvar %}
+                    {% for _ in user_thanks %}
+                        <span class="fa fa-solid fa-heart {% cycle "text-brand" "text-success" %} fa-spacer-left"
+                              {% if forloop.first %}aria-label="&#x2764;"{% else %}aria-hidden="true"{% endif %}></span>
+                    {% endfor %}
+                {% endif %}
+            {% endcache %}
+        </a>
     </div>
 {% endblock page %}
