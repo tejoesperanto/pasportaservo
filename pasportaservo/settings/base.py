@@ -189,6 +189,12 @@ LOGGING = {
 
 TEST_EXTERNAL_SERVICES = False
 
+TEST_CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/stable/topics/i18n/
 

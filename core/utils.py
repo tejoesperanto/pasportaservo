@@ -1,11 +1,14 @@
 import hashlib
 import locale
+import operator
 import re
 from functools import reduce
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, get_connection
-from django.utils.functional import keep_lazy_text, lazy
+from django.utils.functional import (
+    SimpleLazyObject, keep_lazy_text, lazy, new_method_proxy,
+)
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.safestring import mark_safe
 
@@ -38,6 +41,12 @@ def _lazy_joiner(sep, items, item_to_string=str):
 join_lazy = lazy(_lazy_joiner, str)  # noqa:E305
 
 mark_safe_lazy = keep_lazy_text(mark_safe)
+
+
+# Monkey-patch Django's SimpleLazyObject to support integers and operations on them.
+setattr(SimpleLazyObject, '__int__', new_method_proxy(int))
+setattr(SimpleLazyObject, '__add__', new_method_proxy(operator.add))
+setattr(SimpleLazyObject, '__mul__', new_method_proxy(operator.mul))
 
 
 def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,

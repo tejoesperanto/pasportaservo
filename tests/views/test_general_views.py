@@ -8,6 +8,8 @@ from django.urls import reverse
 from django_countries.data import COUNTRIES
 from pyquery import PyQuery
 
+from shop.tests.factories import ProductReservationFactory
+
 from .. import with_type_hint
 from ..factories import AdminUserFactory, StaffUserFactory, UserFactory
 from .pages import HomePage, OkayPage
@@ -115,12 +117,22 @@ class HeroViewTemplateTestsMixin(with_type_hint(BasicViewTests)):
 class HomeViewTests(HeroViewTemplateTestsMixin, BasicViewTests):
     view_page = HomePage
 
-    def test_view_structure(self):
-        for user in [None, self.user]:
-            for lang in ['en', 'eo']:
+    @property
+    def params_for_test(self):
+        return {
+            'users': [
+                ("anonymous", None),
+                ("authenticated", self.user),
+            ],
+            'langs': ['en', 'eo'],
+        }
+
+    def test_page_title(self):
+        for user_tag, user in self.params_for_test['users']:
+            for lang in self.params_for_test['langs']:
                 with (
                     override_settings(LANGUAGE_CODE=lang),
-                    self.subTest(user="authenticated" if user else "anonymous", lang=lang)
+                    self.subTest(user=user_tag, lang=lang)
                 ):
                     page = self.view_page.open(self, user=user, reuse_for_lang=lang)
 
@@ -140,7 +152,19 @@ class HomeViewTests(HeroViewTemplateTestsMixin, BasicViewTests):
                             'eo': "La fama gastiga servo por esperantistoj",
                         }[lang]
                     )
-                    self.assertCssClass(heading_elements.parent().next_all(), "search-container")
+                    self.assertCssClass(
+                        heading_elements.parent().next_all(),
+                        "search-container"
+                    )
+
+    def test_page_structure(self):
+        for user_tag, user in self.params_for_test['users']:
+            for lang in self.params_for_test['langs']:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(user=user_tag, lang=lang)
+                ):
+                    page = self.view_page.open(self, user=user, reuse_for_lang=lang)
 
                     # A promo element is expected to be present. We do not verify its
                     # exact contents.
@@ -164,13 +188,36 @@ class HomeViewTests(HeroViewTemplateTestsMixin, BasicViewTests):
                             'eo': "Esploru la mapon de la gastigantoj"
                         }[lang]
                     )
-                    self.assertEqual(explore_element.find("a").attr("href"), reverse('world_map'))
+                    self.assertEqual(
+                        explore_element.find("a").attr("href"),
+                        reverse('world_map')
+                    )
+                    # This link is expected to be placed after the promo element.
+                    self.assertEqual(
+                        promo_element.next().attr("id"),
+                        explore_element.attr("id")
+                    )
 
                     # A container for news and usage is expected to be present and to
                     # be empty by default. More detailed tests are in `test_news_block`
                     # and `test_usage_block`,
                     explain_element = page.pyquery("#home-explain")
                     self.assertEqual(explain_element.text(), "")
+                    # This container is expected to be placed directly after the link
+                    # to the map of hosts.
+                    self.assertEqual(
+                        explore_element.next().attr("id"),
+                        explain_element.attr("id")
+                    )
+
+    def test_social_buttons(self):
+        for user_tag, user in self.params_for_test['users']:
+            for lang in self.params_for_test['langs']:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(user=user_tag, lang=lang)
+                ):
+                    page = self.view_page.open(self, user=user, reuse_for_lang=lang)
 
                     # The home view is expected to include various social links.
                     test_data = {
@@ -256,6 +303,74 @@ class HomeViewTests(HeroViewTemplateTestsMixin, BasicViewTests):
                                     self.assertEqual(link_element.text(), f"[ {expected_title[lang]} ]")
                                     link_element.find(".sr-only").text("")
                                     self.assertEqual(link_element.text(), "")
+
+    @override_settings(CACHES=settings.TEST_CACHES)
+    def test_support_button(self):
+        for user_tag, user in self.params_for_test['users']:
+            for lang in self.params_for_test['langs']:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(user=user_tag, lang=lang)
+                ):
+                    # Do not reuse the cached pages, load clean instances.
+                    page = self.view_page.open(self, user=user)
+
+                    # The home view is expected to include a "support us" link,
+                    # styled as a button.
+                    support_element = page.pyquery(".social-support")
+                    support_link_element = support_element.find("a")
+                    self.assertLength(support_link_element, 1)
+                    self.assertEqual(
+                        support_link_element.attr("href"),
+                        "https://buymeacoffee.com/pasportaservo"
+                    )
+                    self.assertEqual(support_link_element.attr("rel"), "external noreferrer")
+                    self.assertCssClass(support_link_element, "btn")
+                    self.assertCssClass(support_link_element, "btn-default")
+                    self.assertEqual(
+                        support_link_element.text(),
+                        {
+                            'en': "Support Pasporta Servo – Buy a cup of coffee for us!",
+                            'eo': "Subtenu Pasportan Servon – Aĉetu por ni taseton da kafo!",
+                        }[lang]
+                    )
+
+                    # This link is expected to be placed directly after the other
+                    # social buttons.
+                    self.assertCssClass(support_element.prev(), "social-links")
+
+    @override_settings(CACHES=settings.TEST_CACHES)
+    def test_support_button_thanks(self):
+        ProductReservationFactory.create(user=self.user, product_code='Donation')
+        all_donations = (
+            ProductReservationFactory._meta.model.objects
+            .filter(user=self.user, product__code='Donation')
+        )
+
+        for count in [1, 2, 3, 4, 10]:
+            for lang in self.params_for_test['langs']:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(donations_count=count, lang=lang)
+                ):
+                    all_donations.update(amount=count)
+                    # Do not reuse the cached pages, load clean instances.
+                    page = self.view_page.open(self, user=self.user)
+                    support_element = page.pyquery(".social-support")
+                    self.assertLength(support_element, 1)
+                    # After a donation is registered, the support link is
+                    # expected to have a "thank you" text.
+                    self.assertEqual(
+                        support_element.text(),
+                        {
+                            'en': "Thank you for your support!",
+                            'eo': "Dankon por via subteno!",
+                        }[lang]
+                    )
+                    # The support link is expected to include up to 3 "heart"
+                    # elements, depending on the number of "base donations".
+                    heart_elements = support_element.find(".fa-heart")
+                    self.assertLength(heart_elements, min(count, 3))
 
     def test_news_block(self):
         # TODO
