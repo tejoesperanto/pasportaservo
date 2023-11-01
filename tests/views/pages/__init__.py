@@ -1,3 +1,3 @@
 from .account import AccountSettingsPage, RegisterPage
 from .base import PageTemplate
-from .general import HomePage, OkayPage
+from .general import AboutPage, HomePage, OkayPage
