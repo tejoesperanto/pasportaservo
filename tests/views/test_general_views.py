@@ -2,7 +2,10 @@ from random import sample
 
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.core.cache import cache
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.test import override_settings, tag
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
 from django_countries.data import COUNTRIES
@@ -12,7 +15,7 @@ from shop.tests.factories import ProductReservationFactory
 
 from .. import with_type_hint
 from ..factories import AdminUserFactory, StaffUserFactory, UserFactory
-from .pages import HomePage, OkayPage
+from .pages import AboutPage, HomePage, OkayPage
 from .testcasebase import BasicViewTests
 
 
@@ -445,3 +448,79 @@ class OkayViewTests(HeroViewTemplateTestsMixin, BasicViewTests):
                 container_element = page.get_hero_content()
                 self.assertLength(container_element.find("[role='search']"), 1)
                 self.assertLength(container_element.find("a"), 0)
+
+
+@tag('views', 'views-general', 'views-about')
+class AboutViewTests(BasicViewTests):
+    view_page = AboutPage
+
+    @property
+    def params_for_test(self):
+        return {
+            'users': [
+                ("anonymous", None),
+                ("authenticated", self.user),
+            ],
+            'langs': ['en', 'eo'],
+        }
+
+    def test_page_title(self):
+        # Verify the expected title of the page, which should be the same for
+        # all users irrespective of the language.
+        for user_tag, user in self.params_for_test['users']:
+            for lang in self.params_for_test['langs']:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(user=user_tag, lang=lang)
+                ):
+                    page = self.view_page.open(self, user=user, reuse_for_lang=lang)
+                    self.assertEqual(
+                        page.get_heading_text(),
+                        "Pasporta Servo: Internacia gastiga servo per Esperanto"
+                    )
+
+    def test_attribution(self):
+        # The "about us" page is expected to have a section (or sections) with
+        # an author rights attribution text.
+        for user_tag, user in self.params_for_test['users']:
+            for lang in self.params_for_test['langs']:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(user=user_tag, lang=lang)
+                ):
+                    page = self.view_page.open(self, user=user, reuse_for_lang=lang)
+                    attribution_elements = page.get_attribution()
+                    self.assertGreaterEqual(len(attribution_elements), 1)
+                    # The attribution section itself or its container are expected
+                    # to be styled as a help block (lighter and smaller text).
+                    for attrib_element in attribution_elements.items():
+                        self.assertCssClass(
+                            attrib_element.extend(attrib_element.parent()),
+                            "help-block"
+                        )
+
+    def test_statistics_caching(self):
+        # The "about us" page is expected to cache the statistics shown about
+        # the current number of hosts.
+        for user_tag, user in self.params_for_test['users']:
+            with self.subTest(user=user_tag):
+                cache.clear()
+                # Load the root page first, so that session management, loading of site
+                # configuration, etc., do not pollute the results.
+                self.app.get('/', user=user)
+                # Do not reuse the cached pages, load clean instances.
+                with CaptureQueriesContext(connections[DEFAULT_DB_ALIAS]) as ctx:
+                    self.view_page.open(self, user=user)
+                number_of_queries_on_first_load = len(ctx.captured_queries)
+                # Loading the "about us" page again is expected to reuse cached results
+                # and not perform the 3 queries for number of hosts, of countries, and
+                # of cities.
+                with self.assertNumQueries(
+                        number_of_queries_on_first_load - (3 if user is not None else 4)
+                ):
+                    self.view_page.open(self, user=user)
+
+    @override_settings(CACHES=settings.TEST_CACHES)
+    def test_statistics(self):
+        # TODO
+        pass
