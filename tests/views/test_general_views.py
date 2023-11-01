@@ -229,11 +229,11 @@ class HomeViewTests(HeroViewTemplateTestsMixin, BasicViewTests):
                                     'eo': "Pasporta Servo ĉe Facebook",
                                 }
                             ),
-                            "tw": (
-                                "twitter.com",
+                            "ms": (
+                                "esperanto.masto.host",
                                 {
-                                    'en': "Pasporta Servo at Twitter",
-                                    'eo': "Pasporta Servo ĉe Twitter",
+                                    'en': "Pasporta Servo at Mastodon",
+                                    'eo': "Pasporta Servo ĉe Mastodon",
                                 }
                             ),
                             "tg": (

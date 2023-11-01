@@ -79,9 +79,9 @@
                 {% include './snippets/social_link.html' with url=url title=title outline="fa-square" content="fa-brands fa-facebook-f" only %}
             {% endwith %}
             {% with local_context=True %}
-                {% asvar url %}https://twitter.com/pasportaservo{% endasvar %}
-                {% asvar title %}Pasporta Servo {% trans "at" %} Twitter{% endasvar %}
-                {% include './snippets/social_link.html' with url=url title=title outline="fa-square" content="fa-brands fa-twitter" only %}
+                {% asvar url %}https://esperanto.masto.host/@pasportaservo{% endasvar %}
+                {% asvar title %}Pasporta Servo {% trans "at" %} Mastodon{% endasvar %}
+                {% include './snippets/social_link.html' with url=url title=title outline="fa-square" content="fa-brands fa-mastodon" custom_content_size="25px" only %}
             {% endwith %}
             {% with local_context=True %}
                 {% asvar url %}https://pasportaservo.telegramo.org/{% endasvar %}
@@ -89,7 +89,7 @@
                 {% include './snippets/social_link.html' with url=url title=title outline="fa-square" content="fa-brands fa-telegram" only %}
             {% endwith %}
             {% with local_context=True %}
-                {% asvar url %}https://youtu.be/hkQZUI5f_ck{% endasvar %}
+                {% asvar url %}https://youtu.be/2bQnlDNoymg{% endasvar %}
                 {% trans "About Pasporta Servo, on YouTube" as title %}
                 {% include './snippets/social_link.html' with url=url title=title outline="fa-square" content="fa-brands fa-youtube" custom_content_size="22px" only %}
             {% endwith %}
