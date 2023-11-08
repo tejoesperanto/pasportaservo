@@ -288,3 +288,15 @@ $social-icon-size: 36px;
         clear: both;
     }
 }
+/* MD */
+@media (min-width: #{$BOOTSTRAP-MD}) {
+    .social-support {
+        a {
+            // Compensate for one social link icon less on the right, to keep
+            // the support button centered visually.
+            // If the number of icons will change (on the left or on the right),
+            // this value will need to be adjusted correspondingly.
+            margin-right: $social-icon-size + 3 * ($social-icon-size / 5);
+        }
+    }
+}
