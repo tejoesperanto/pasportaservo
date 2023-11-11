@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+from typing import TYPE_CHECKING, Optional, cast
 from uuid import uuid4
 
 from django.conf import settings
@@ -10,7 +11,7 @@ from django.utils.deconstruct import deconstructible
 
 import geocoder
 from django_countries import Countries
-from geocoder.opencage import OpenCageResult
+from geocoder.opencage import OpenCageQuery, OpenCageResult
 
 from core.models import SiteConfiguration
 from maps import SRID
@@ -18,8 +19,14 @@ from maps.data import COUNTRIES_GEO
 
 from .countries import countries_with_mandatory_region
 
+if TYPE_CHECKING:
+    from .models import Profile
 
-def geocode(query, country='', private=False, annotations=False, multiple=False):
+
+def geocode(
+        query: str, country: str = '',
+        private: bool = False, annotations: bool = False, multiple: bool = False,
+) -> OpenCageQuery | None:
     """
     Utilizes the API of OpenCage to perform forward geocoding of the provided
     address.
@@ -46,7 +53,7 @@ def geocode(query, country='', private=False, annotations=False, multiple=False)
     lang = translation.get_language()
     if not query:
         return
-    params = {'language': lang}
+    params: dict[str, str | int] = {'language': lang}
     if not annotations:
         params.update({'no_annotations': int(not annotations)})
     if private:
@@ -61,7 +68,9 @@ def geocode(query, country='', private=False, annotations=False, multiple=False)
     return result
 
 
-def geocode_city(cityname, country, state_province=None):
+def geocode_city(
+        cityname: str, country: str, state_province: Optional[str] = None,
+) -> OpenCageResult | None:
     """
     Utilizes the API of OpenCage to perform forward geocoding of the provided
     city name (in an optional state / province).
@@ -84,9 +93,13 @@ def geocode_city(cityname, country, state_province=None):
             attempts += (cityname, )
     else:
         attempts = (cityname, )
+    result = None
     for query in attempts:
         result_set = geocode(query, country, multiple=True)
-        for result in result_set:
+        if not result_set:
+            continue
+        for single_result in result_set:
+            result = cast(OpenCageResult, single_result)
             if result._components['_type'] in ('city', 'village') and result.bbox:
                 result.remaining_api_calls = result_set.remaining_api_calls
                 break
@@ -97,7 +110,7 @@ def geocode_city(cityname, country, state_province=None):
     return result
 
 
-def emulate_geocode_country(country_code):
+def emulate_geocode_country(country_code: str) -> OpenCageResult:
     """
     Returns a manually built result which emulates forward geocoding of
     a country using OpenCage's API.
@@ -134,7 +147,7 @@ def emulate_geocode_country(country_code):
     return result
 
 
-def title_with_particule(value, particules=None):
+def title_with_particule(value: str, particules: Optional[list[str]] = None) -> str:
     """
     Like string.title(), but do not capitalize surname particules.
     Regex matches a case insensitive (?i) particule
@@ -151,7 +164,7 @@ def title_with_particule(value, particules=None):
     return value
 
 
-def value_without_invalid_marker(value):
+def value_without_invalid_marker(value: str) -> str:
     """
     Removes the prefix indicating non-validity from the given value.
     If the value is not invalid, it is returned as-is.
@@ -165,10 +178,10 @@ def value_without_invalid_marker(value):
 
 @deconstructible
 class RenameAndPrefixAvatar(object):
-    def __init__(self, path):
+    def __init__(self, path: str):
         self.sub_path = path
 
-    def __call__(self, profile_instance, filename):
+    def __call__(self, profile_instance: 'Profile', filename: str) -> str:
         ext = filename.split('.')[-1]
         if profile_instance.pk:
             filename = f'p{profile_instance.pk}_{uuid4().fields[0]:08x}'

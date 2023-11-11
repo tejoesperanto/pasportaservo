@@ -1,3 +1,5 @@
+from typing import TypedDict
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import (
@@ -11,6 +13,7 @@ from django.utils.functional import lazy
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
+from django.views import View
 
 from hosting.models import Profile
 from hosting.utils import value_without_invalid_marker
@@ -47,7 +50,7 @@ class UserModifyMixin(object):
             return reverse_lazy('profile_create')
 
 
-def flatpages_as_templates(cls):
+def flatpages_as_templates(cls: type[View]):
     """
     View decorator:
     Facilitates rendering flat pages as Django templates, including usage of
@@ -63,7 +66,9 @@ def flatpages_as_templates(cls):
             return context
         setattr(cls, context_func_name, _get_context_data_superfunc)
 
-    def render_flat_page(self, page):
+    DictWithContent = TypedDict('HasContent', {'content': str})
+
+    def render_flat_page(self, page: DictWithContent):
         if not page:
             return ''
         from django.template import engines

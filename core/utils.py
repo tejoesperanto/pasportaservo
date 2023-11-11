@@ -19,14 +19,14 @@ def getattr_(obj, path):
     return reduce(getattr, path.split('.') if isinstance(path, str) else path, obj)
 
 
-def split(value):
+def split(value: str) -> list[str]:
     """
     Improvement of "".split(), with support of apostrophe.
     """
     return re.split(r'\W+', value)
 
 
-def camel_case_split(identifier):
+def camel_case_split(identifier: str) -> list[str]:
     """
     Converts AStringInCamelCase to a list of separate words.
     """
@@ -100,11 +100,14 @@ def sort_by(paths, iterable):
     """
     locale.setlocale(locale.LC_ALL, settings.SYSTEM_LOCALE)
     for path in paths:
-        iterable = sorted(iterable, key=lambda obj: locale.strxfrm(str(getattr_(obj, path))))
+        iterable = sorted(
+            iterable,
+            key=lambda obj, attr_path=path: locale.strxfrm(str(getattr_(obj, attr_path)))
+        )
     return iterable
 
 
-def is_password_compromised(pwdvalue, full_list=False):
+def is_password_compromised(pwdvalue: str, full_list: bool = False):
     """
     Uses the Pwned Passwords service of Have I Been Pwned to verify anonymously (using
     k-anonymity) if a password value has been compromised in the past, meaning that the
