@@ -1,6 +1,6 @@
 import random
 from hashlib import sha256
-from typing import Optional, cast
+from typing import Any, Optional, cast
 from urllib.parse import quote as urlquote, urlencode, urlparse
 
 from django import template
@@ -16,7 +16,7 @@ register = template.Library()
 
 
 @register.simple_tag
-def random_identifier(length=None):
+def random_identifier(length: Any = None):
     try:
         length = int(length)
     except Exception:
@@ -24,7 +24,7 @@ def random_identifier(length=None):
     if length is None or length <= 0:
         length = random.randint(16, 48)
     return ''.join(random.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789_')
-                   for n in range(length))
+                   for _ in range(length))
 
 
 @register.filter(is_safe=True)
@@ -58,7 +58,7 @@ def are_all(iterable):
 
 
 @register.filter(is_safe=False)
-def split(value, by=None):
+def split(value: Any, by: Optional[str] = None):
     """
     A template filter to split objects (commonly, strings) by the given argument. A missing argument will split the
     object by any whitespace; if the object cannot be split, it will be wrapped in a list. Strings marked as "safe"
@@ -67,8 +67,8 @@ def split(value, by=None):
     this means that to use a tilde as separator, it must be doubled: '~~'. The chunking will also un-mark the parts
     as "safe" because it might cut HTML tags into several (not-safe-anymore) pieces; Use only for plain text.
     """
+    length = None
     try:
-        length = None
         if by == 'NEWLINE':
             by = '\n'
         if by and isinstance(by, str) and '~' in by:
@@ -100,7 +100,7 @@ def mult(value, by):
 
 @register.filter(is_safe=True)
 @template.defaultfilters.stringfilter
-def compact(value):
+def compact(value: str):
     """
     A template filter that removes all extra whitespace from the value it is applied to, and strips any whitespace
     at the beginning and at the end of the resulting string. Any characters that can role as whitespace (including
