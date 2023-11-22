@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser, Group
 from django.contrib.flatpages.models import FlatPage
 from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models import Q
 from django.test import override_settings, tag
@@ -752,9 +753,10 @@ class AboutViewTests(GeneralViewTestsMixin, LanguageSwitcherTestsMixin, BasicVie
     def test_statistics_caching(self):
         # The "about us" page is expected to cache the statistics shown about
         # the current number of hosts.
+        page_fragment_key = make_template_fragment_key('hosting-service-statistics')
         for user_tag, user in self.params_for_test['users']:
             with self.subTest(user=user_tag):
-                cache.clear()
+                cache.delete(page_fragment_key)
                 # Load the root page first, so that session management, loading of site
                 # configuration, etc., do not pollute the results.
                 self.app.get('/', user=user)
@@ -765,9 +767,7 @@ class AboutViewTests(GeneralViewTestsMixin, LanguageSwitcherTestsMixin, BasicVie
                 # Loading the "about us" page again is expected to reuse cached results
                 # and not perform the 3 queries for number of hosts, of countries, and
                 # of cities.
-                with self.assertNumQueries(
-                        number_of_queries_on_first_load - (3 if user is not None else 4)
-                ):
+                with self.assertNumQueries(number_of_queries_on_first_load - 3):
                     self.view_page.open(self, user=user)
 
     @override_settings(CACHES=settings.TEST_CACHES)
