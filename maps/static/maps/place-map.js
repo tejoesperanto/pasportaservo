@@ -2,7 +2,7 @@
 // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL v3
 
 
-window.addEventListener("load", function() {
+window.addEventListener('load', function() {
 
     var container = document.getElementById('map');
     if (!container) {
@@ -21,6 +21,10 @@ window.addEventListener("load", function() {
 
     mapboxgl.setRTLTextPlugin(GIS_ENDPOINTS['rtl_plugin'], undefined, true);
 
+    // If WebGL is unsupported or disabled, the exception "Failed to initialize WebGL" will
+    // be thrown. This should not impact other code on the page, and only affect this event
+    // handler specifically.
+
     var map = new mapboxgl.Map({
         container: 'map',
         style: GIS_ENDPOINTS['place_map_style'],
@@ -32,7 +36,7 @@ window.addEventListener("load", function() {
         minZoom: 0.5,
         maxZoom: positionType == 'P' ? 17 : 15,
         zoom: position ? 14 : 0.5,
-        center: position && position.geometry.coordinates || [-175, 75]
+        center: position ? position.geometry.coordinates : [-175, 75]
     });
     if (positionType == 'R') {
         try {
