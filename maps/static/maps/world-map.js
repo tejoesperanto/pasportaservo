@@ -7,12 +7,20 @@ window.addEventListener('load', function() {
     // Test for WebGL availability first. Logic based on WebGLReport,
     // https://github.com/AnalyticalGraphicsInc/webglreport/blob/master/webglreport.js
     // (Copyright 2011-2017 Analytical Graphics, Inc. and Contributors)
-    function unhideElement(el) {
+    function unhideElement(el, also_text) {
         el.className = el.className.replace(/\bhidden\b/, '');
+        if (also_text) {
+            var helpBlockElement = el.querySelector('.help-block');
+            if (helpBlockElement && helpBlockElement.hasAttribute('data-content')) {
+                helpBlockElement.innerHTML = helpBlockElement.getAttribute('data-content');
+                helpBlockElement.removeAttribute('data-content');
+            }
+        }
     }
     if (!window.WebGLRenderingContext && !window.WebGL2RenderingContext) {
         unhideElement(document.getElementById('webgl-warning'));
-        unhideElement(document.getElementById('webgl-unavailable'));
+        unhideElement(document.getElementById('webgl-unavailable'), true);
+        unhideElement(document.getElementById('webgl-solution'), true);
         return;
     }
     else {
@@ -30,7 +38,8 @@ window.addEventListener('load', function() {
         document.body.removeChild(canvas);
         if (!gl) {
             unhideElement(document.getElementById('webgl-warning'));
-            unhideElement(document.getElementById('webgl-disabled'));
+            unhideElement(document.getElementById('webgl-disabled'), true);
+            unhideElement(document.getElementById('webgl-solution'), true);
             return;
         }
     }
