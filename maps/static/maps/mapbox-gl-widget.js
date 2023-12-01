@@ -2,16 +2,17 @@
 // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL v3
 
 
-window.addEventListener("load", function() {
+window.addEventListener('load', function() {
 
     var field = document.getElementById('id_location');
     var submit = document.getElementById('id_form_submit');
-    var selectOnlyOnZoom = undefined;
+    var selectOnlyOnZoom,
+        initial;
 
     try {
-        var initial = JSON.parse(field.value).coordinates;
+        initial = JSON.parse(field.value).coordinates;
     } catch (error) {
-        var initial = undefined;
+        initial = undefined;
     }
     if (field.hasAttribute('data-selectable-zoom') && submit != undefined) {
         selectOnlyOnZoom = Number(field.getAttribute('data-selectable-zoom'));
@@ -36,7 +37,7 @@ window.addEventListener("load", function() {
     map.keyboard.disableRotation();
 
     map.on('load', function() {
-        var marker = undefined, markerBase = new mapboxgl.Marker({color: '#428bca'});
+        var marker, markerBase = new mapboxgl.Marker({color: '#428bca'});
 
         if (initial) {
             map.setCenter(initial);
