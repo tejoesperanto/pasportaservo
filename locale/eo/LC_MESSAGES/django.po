@@ -4740,6 +4740,11 @@ msgctxt "URL"
 msgid "map/"
 msgstr "mapo/"
 
+#: pasportaservo/urls.py
+msgctxt "URL"
+msgid "world-map/"
+msgstr "monda-mapo/"
+
 #: shop/apps.py
 msgid "PS Shop"
 msgstr "Butiko"
