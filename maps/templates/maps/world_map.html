@@ -29,28 +29,25 @@
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-8 col-sm-push-2 text-center hidden" id="webgl-unavailable">
-                    <p class="help-block">
-                        {% blocktrans trimmed %}
-                            Your browser does not support the WebGL technology.
-                        {% endblocktrans %}
-                    </p>
+                    {% blocktrans trimmed asvar webgl_unavailable_text %}
+                        Your browser does not support the WebGL technology.
+                    {% endblocktrans %}
+                    <p class="help-block" data-content="{{ webgl_unavailable_text|escape }}"></p>
                 </div>
                 <div class="col-xs-12 col-sm-8 col-sm-push-2 text-center hidden" id="webgl-disabled">
-                    <p class="help-block">
-                        {% blocktrans trimmed %}
-                            Your browser supports the WebGL technology, but it is disabled or cannot be used on this system.
-                            Please check the configuration of your browser.
-                            This could also be caused by incompatible or old video drivers.
-                        {% endblocktrans %}
-                    </p>
+                    {% blocktrans trimmed asvar webgl_disabled_text %}
+                        Your browser supports the WebGL technology, but it is disabled or cannot be used on this system.
+                        Please check the configuration of your browser.
+                        This could also be caused by incompatible or old video drivers.
+                    {% endblocktrans %}
+                    <p class="help-block" data-content="{{ webgl_disabled_text|escape }}"></p>
                 </div>
                 <div class="col-xs-12 col-sm-8 col-sm-push-2 text-center" id="webgl-solution">
-                    <p class="help-block">
-                        {% blocktrans with url="https://get.webgl.org/" trimmed %}
-                            Visit <a href="{{ url }}">Get WebGL</a> to look for a solution,
-                            or try installing the latest version of the browser.
-                        {% endblocktrans %}
-                    </p>
+                    {% blocktrans with url="https://get.webgl.org/" trimmed asvar webgl_solution_text %}
+                        Visit <a href="{{ url }}">Get WebGL</a> to look for a solution,
+                        or try installing the latest version of the browser.
+                    {% endblocktrans %}
+                    <p class="help-block" data-content="{{ webgl_solution_text|escape }}"></p>
                 </div>
             </div>
         </div>
