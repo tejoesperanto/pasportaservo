@@ -1,9 +1,10 @@
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path, reverse_lazy
-from django.urls.resolvers import URLPattern
+from django.urls.resolvers import URLPattern, URLResolver
 from django.utils.functional import lazy
 from django.utils.translation import pgettext_lazy
+from django.views.generic import RedirectView
 
 from .views import (
     ExtendedConversationView, ExtendedMessageView,
@@ -19,6 +20,7 @@ urlpatterns = [
     path('', include('links.urls')),
     path(pgettext_lazy("URL", 'blog/'), include('blog.urls', namespace='blog')),
     path(pgettext_lazy("URL", 'map/'), include('maps.urls')),
+    path(pgettext_lazy("URL", 'world-map/'), RedirectView.as_view(pattern_name='world_map')),
 ]
 
 handler403 = 'pasportaservo.views.custom_permission_denied_view'
@@ -37,7 +39,7 @@ url_index_postman = lazy(
 url_index_maps = reverse_lazy('world_map')
 url_index_debug = '/__debug__/'
 
-for module in (m for m in urlpatterns if m.app_name == 'postman'):
+for module in (m for m in urlpatterns if isinstance(m, URLResolver) and m.app_name == 'postman'):
     for pattern in (
             p for p in module.url_patterns
             if isinstance(p, URLPattern) and p.name in ['write', 'reply', 'view', 'view_conversation']
