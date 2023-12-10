@@ -1,3 +1,5 @@
+from typing import cast
+
 from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.db.models import Q
@@ -37,9 +39,11 @@ class WorldMapView(generic.TemplateView):
 
 class MapTypeConfigureView(generic.View):
     """
-    Allows the current user to configure the type of the maps displayed on the website for the
-    current session, i.e. not persisted for the account and not shared between the sessions.
-    Currently two types are supported: fully-functional (requires WebGL) and basic (static image).
+    Allows the current user to configure the type of the maps displayed on the
+    website for the current session, i.e. not persisted for the account and not
+    shared between the sessions.
+    Currently two types are supported: fully-functional (requires WebGL) and
+    basic (static image).
     """
     http_method_names = ['post']
 
@@ -48,7 +52,9 @@ class MapTypeConfigureView(generic.View):
         if request.is_ajax():
             response = JsonResponse({'success': 'map-type-configured'})
         else:
-            response = HttpResponseRedirect(sanitize_next(request, from_post=True) or reverse('home'))
+            response = HttpResponseRedirect(
+                sanitize_next(request, from_post=True)
+                or reverse('home'))
         response.set_cookie(
             'maptype', map_type,
             max_age=365 * DAYS, secure=request.is_secure(), samesite='Lax')
@@ -57,17 +63,17 @@ class MapTypeConfigureView(generic.View):
 
 class EndpointsView(generic.View):
     def get(self, request, *args, **kwargs):
-        format = request.GET.get('format', None)
-        type = request.GET.get('type', '')
+        data_format = request.GET.get('format', None)
+        map_type = request.GET.get('type', '')
         endpoints = {
             'rtl_plugin': settings.MAPBOX_GL_RTL_PLUGIN,
         }
-        if type == 'world':
+        if map_type == 'world':
             endpoints.update({
                 'world_map_style': reverse('map_style', kwargs={'style': 'positron'}),
                 'world_map_data': reverse('world_map_public_data'),
             })
-        if type == 'region':
+        if map_type == 'region':
             # This usage of GET params is safe, because the values are restricted by the
             # URL regex:
             # `country_code` can only be 2 capital letters; `in_book` either 0 or 1 only.
@@ -78,20 +84,20 @@ class EndpointsView(generic.View):
                 'region_map_style': reverse('map_style', kwargs={'style': 'klokantech'}),
                 'region_map_data': reverse('country_map_data', kwargs=region_kwargs),
             })
-        if type == 'place':
+        if map_type == 'place':
             endpoints.update({
                 'place_map_style': reverse('map_style', kwargs={'style': 'klokantech'}),
             })
-        if type == 'place-printed':
+        if map_type == 'place-printed':
             endpoints.update({
                 'place_map_style': reverse('map_style', kwargs={'style': 'toner'}),
                 'place_map_attrib': 0,
             })
-        if type == 'widget':
+        if map_type == 'widget':
             endpoints.update({
                 'widget_style': reverse('map_style', kwargs={'style': 'positron'}),
             })
-        if format == 'js':
+        if data_format == 'js':
             return HttpResponse(
                 'var GIS_ENDPOINTS = {!s};'.format(endpoints),
                 content_type='application/javascript')
@@ -114,8 +120,9 @@ class MapStyleView(generic.TemplateView):
         return ['maps/styles/{}-gl-style.json'.format(self.style)]
 
     def get_context_data(self, **kwargs):
+        config = cast(SiteConfiguration, SiteConfiguration.get_solo())
         return {
-            'key': SiteConfiguration.get_solo().openmaptiles_api_key,
+            'key': config.mapping_services_api_keys.get('openmaptiles', ''),
             'lang': translation.get_language(),
         }
 
@@ -167,7 +174,9 @@ class PublicDataView(GeoJSONLayerView):
     ]
 
     def dispatch(self, request, *args, **kwargs):
-        request.META['HTTP_X_USER_STATUS'] = 'Authenticated' if request.user.is_authenticated else 'Anonymous'
+        request.META['HTTP_X_USER_STATUS'] = (
+            'Authenticated' if request.user.is_authenticated
+            else 'Anonymous')
         return self.genuine_dispatch(request, *args, **kwargs)
 
     @vary_on_headers('X-User-Status')
@@ -185,7 +194,10 @@ class PublicDataView(GeoJSONLayerView):
         return (
             PlottablePlace.objects_raw
             .filter(available=True)
-            .exclude(Q(location__isnull=True) | Q(location=Point([])) | Q(owner__death_date__isnull=False))
+            .exclude(
+                Q(location__isnull=True)
+                | Q(location=Point([]))
+                | Q(owner__death_date__isnull=False))
             .filter(by_visibility)
             .select_related('owner')
             .defer('address', 'description', 'short_description', 'owner__description')
@@ -218,11 +230,15 @@ class CountryDataView(AuthMixin, GeoJSONLayerView):
             PlottablePlace.available_objects
             .filter(country=self.country.code)
             .filter(
-                Q(visibility__visible_online_public=True) | Q(in_book=True, visibility__visible_in_book=True)
+                Q(visibility__visible_online_public=True)
+                | Q(in_book=True, visibility__visible_in_book=True)
             )
         )
         if self.in_book_status is not None:
-            narrowing_func = getattr(queryset, 'filter' if self.in_book_status else 'exclude')
+            narrowing_func = getattr(
+                queryset,
+                'filter' if self.in_book_status else 'exclude'
+            )
             queryset = narrowing_func(in_book=True, visibility__visible_in_book=True)
         return (
             queryset

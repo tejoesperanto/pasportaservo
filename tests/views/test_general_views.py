@@ -734,10 +734,19 @@ class AboutViewTests(GeneralViewTestsMixin, LanguageSwitcherTestsMixin, BasicVie
                     # The attribution section itself or its container are expected
                     # to be styled as a help block (lighter and smaller text).
                     for attrib_element in attribution_elements.items():
+                        external_link_elements = attrib_element.find("a")
                         self.assertCssClass(
                             attrib_element.extend(attrib_element.parent()),
                             "help-block"
                         )
+                        # Each link within the attribution section is expected to
+                        # be properly marked as external.
+                        for link_element in external_link_elements.items():
+                            with self.subTest(link=link_element.attr("href")):
+                                self.assertEqual(
+                                    link_element.attr("rel"),
+                                    "external noreferrer"
+                                )
 
     @override_settings(CACHES=settings.TEST_CACHES)
     def test_language_switcher(self):
