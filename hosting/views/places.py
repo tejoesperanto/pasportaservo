@@ -6,7 +6,7 @@ from datetime import date
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.gis.geos import LineString, Point
+from django.contrib.gis.geos import LineString, Point, Polygon
 from django.core.mail import send_mail
 from django.http import (
     HttpResponse, HttpResponseRedirect, JsonResponse, QueryDict,
@@ -123,28 +123,42 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
         place = self.object
         is_authenticated = self.request.user.is_authenticated
 
-        location, location_box = None, None
+        location, location_box, location_type = None, None, 'R'
         bounds = None
 
         def location_enclose(loc):
             if not loc or loc.empty:
                 return None
-            lat_buffer = 0.002 if -70 <= loc.y <= 70 else 0.001
+            lat_buffer_1 = 0.002 if -70 <= loc.y <= 70 else 0.001
+            lat_buffer_2 = lat_buffer_1 + 0.001
             precision = decimal.Decimal('0.001')  # Three decimal places.
-            return list(
+            enclosure = list(
                 (
+                    decimal.Decimal(loc.x + dx).quantize(precision),
                     decimal.Decimal(loc.y + dy).quantize(precision),
-                    decimal.Decimal(loc.x + dx).quantize(precision)
                 )
                 for (dy, dx) in [
-                    [+lat_buffer, +0.005], [+lat_buffer, +0.002], [+lat_buffer, -0.002], [+lat_buffer, -0.005],
-                    [+0.000, +0.005], [+0.000, -0.005],
-                    [-lat_buffer, -0.005], [-lat_buffer, -0.002], [-lat_buffer, +0.002], [-lat_buffer, +0.005],
+                    [+0.000, +0.006],
+                    [+lat_buffer_1, +0.005],
+                    [+lat_buffer_2, +0.002],
+                    [+lat_buffer_2, -0.002],
+                    [+lat_buffer_1, -0.005],
+                    [+0.000, -0.006],
+                    [-lat_buffer_1, -0.005],
+                    [-lat_buffer_2, -0.002],
+                    [-lat_buffer_2, +0.002],
+                    [-lat_buffer_1, +0.005],
+                    [+0.000, +0.006],
                 ]
             )
+            return [{'geom': Polygon(enclosure, srid=SRID)}]
 
         def location_truncate(loc):
-            return Point(round(loc.x, 2), round(loc.y, 3), srid=SRID) if loc and not loc.empty else None
+            return (
+                Point(round(loc.x, 2), round(loc.y, 3), srid=SRID)
+                if loc and not loc.empty
+                else None
+            )
 
         if place.available and is_authenticated:
             if self.verbose_view:
@@ -162,14 +176,18 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
                 location_type = 'C'  # = Circle.
         if place.available or place.owner_available:
             not_specified = place.location is None or place.location.empty
-            not_accurate = not not_specified and place.location_confidence < LocationConfidence.ACCEPTABLE
+            not_accurate = (
+                not not_specified
+                and place.location_confidence < LocationConfidence.ACCEPTABLE
+            )
         else:
             not_specified, not_accurate = None, None
 
         if (location is None or location.empty) and is_authenticated:
             location_type = 'R'  # = Region.
             geocities = Whereabouts.objects.filter(
-                type=LocationType.CITY, name=place.city.upper(), country=place.country)
+                type=LocationType.CITY,
+                name=place.city.upper(), country=place.country)
             if place.country in countries_with_mandatory_region():
                 geocities = geocities.filter(state=place.state_province.upper())
             area_location = None
@@ -178,7 +196,8 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
                 area_location = geocities.get()
             except Whereabouts.DoesNotExist:
                 georegions = Whereabouts.objects.filter(
-                    type=LocationType.REGION, state=place.state_province.upper(), country=place.country)
+                    type=LocationType.REGION,
+                    state=place.state_province.upper(), country=place.country)
                 try:
                     # Attempt to use the place region's geocoding.
                     area_location = georegions.get()
@@ -202,8 +221,14 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
                 ]
 
         return {
-            'coords': location, 'box': location_box, 'type': location_type,
-            'bounds': bounds, 'unknown': not_specified, 'inaccurate': not_accurate,
+            'coords': location,          # Point: exact or approximate real position.
+            'box': location_box,         # FeatureCollection:
+                                         #   enclosure of the real position (Polygon).
+            'type': location_type,       # 'P'oint, 'C'ircle, or 'R'egion.
+            'bounds': bounds,            # FeatureCollection:
+                                         #   center of map (Point) & map boundaries (LineString).
+            'unknown': not_specified,    # Bool: Position is unknown.
+            'inaccurate': not_accurate,  # Bool: Position is known but overly imprecise.
         }
 
     @staticmethod

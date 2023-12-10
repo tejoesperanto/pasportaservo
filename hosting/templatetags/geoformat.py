@@ -1,12 +1,19 @@
+import json
+from typing import TYPE_CHECKING, Any, cast
+
 from django import template
-from django.contrib.gis.geos import LineString
-from django.utils.safestring import mark_safe
+from django.contrib.gis.geos import LineString, Point
+from django.utils.safestring import SafeString, mark_safe
 
 from django_countries import Countries
 
 from maps.data import COUNTRIES_GEO
 
 from ..models import LocationConfidence
+
+if TYPE_CHECKING:  # pragma: no cover
+    from ..models import Place
+
 
 register = template.Library()
 
@@ -45,7 +52,7 @@ def geo_result_country(result):
 
 
 @register.filter
-def is_location_in_country(place):
+def is_location_in_country(place: 'Place') -> bool:
     if not place.location or place.location.empty:
         return False
     conf = place.location_confidence
@@ -57,14 +64,14 @@ def is_location_in_country(place):
 
 
 @register.filter
-def format_dms(location, confidence=None):
+def format_dms(location: Point, confidence: LocationConfidence | int | None = None) -> SafeString:
     if not location or location.empty:
         return mark_safe("&#8593;&nbsp;&#xFF1F;&deg;, &#8594;&nbsp;&#xFF1F;&deg;")
     formatting = [
         (location.y, {True: ('N', '&#8593;'), False: ('S', '&#8595;')}),
         (location.x, {True: ('E', '&#8594;'), False: ('W', '&#8592;')}),
     ]
-    dms = []
+    dms: list[str] = []
     for coord, signs in formatting:
         letter, arrow = signs[coord >= 0]
         minutes, seconds = divmod(abs(coord) * 3600, 60)
@@ -92,3 +99,35 @@ def geo_url_hash(result):
     elif result.city:
         zoom = 8  # City or lower
     return f'#{zoom}/{result.lat}/{result.lng}'
+
+
+GeoJsonPart = dict[str, Any]
+
+
+@register.filter
+def geojsonfeature_styling(
+        serialized_geojson: str,
+        params: GeoJsonPart | list[GeoJsonPart],
+) -> str:
+    geojson: GeoJsonPart = json.loads(serialized_geojson) or {}
+    features = None
+    if geojson.get('type') == 'Feature':
+        features = [geojson]
+        if isinstance(params, dict):
+            params = [params]
+    if geojson.get('type') == 'FeatureCollection':
+        features = geojson.get('features', [])
+        if isinstance(params, dict):
+            params = [params] * len(features)
+    if features is None or params is None:
+        return serialized_geojson
+
+    for feature, styling_properties in zip(features, cast(list[GeoJsonPart], params)):
+        feature.setdefault('properties', {})
+        for property, value in styling_properties.items():
+            if property == 'crs':
+                if not value:
+                    geojson.pop('crs', None)
+            else:
+                feature['properties'][property.replace('__', '-')] = value
+    return json.dumps(geojson)

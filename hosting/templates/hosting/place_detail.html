@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n l10n static cache geojson_tags %}
+{% load i18n l10n static cache solo_tags geojson_tags geoformat %}
 {% load profile privacy expression variable utils %}
 
 {% block head_title %}
@@ -364,29 +364,25 @@
                     <style>#map { display: none; }</style>
                     {% comment %} the static map will be displayed when scripting is not possible {% endcomment %}
             {% endif %}
-                <img style="width: 100%" src="{% filter cut:'<>' %}{% spaceless %}{% localize off %}
-                        <>https://stadiamaps.com/static/osm_bright?<>
-                        {% if place_location.coords %}
-                            <>center={{ place_location.coords.y }},{{ place_location.coords.x }}<>
-                            <>&zoom=14<>
-                        {% elif place_location.bounds %}
-                            <>center={{ place_location.bounds.0.geom.y }},{{ place_location.bounds.0.geom.x }}<>
-                            <>&zoom=8<>
-                        {% else %}
-                            <>center=20,10<>
-                            <>&zoom=1<>
+                {% dict fill="#1bf" fill__opacity=0.25 stroke="#eee" crs=False as circle_style %}
+                <img style="width: 100%" src="{% filter compact|cut:" " %}{% localize off %}
+                        https://api.mapbox.com/styles/v1/pasportaservo/clpi3cepm00jy01qt2yyx7aik/static
+                        {% if place_location.type == 'P' %}
+                            /pin-s+F71({{ place_location.coords.x }},{{ place_location.coords.y }})
+                        {% elif place_location.type == 'C' %}
+                            /geojson({{ place_location.box|geojsonfeature|geojsonfeature_styling:circle_style|cut:" "|urlencode }})
                         {% endif %}
-                        <>&markers=<>
-                            {% if place_location.type == 'P' %}
-                                <>{{ place_location.coords.y }},{{ place_location.coords.x }},alidade_smooth<>
-                            {% endif %}
-                            {% if place_location.type == 'C' %}
-                                {% for y, x in place_location.box %}
-                                    <>{{ y }},{{ x }},osm_bright_sm,7f3a08|<>
-                                {% endfor %}
-                            {% endif %}
-                        <>&size=720x400@2x&manual_attribution=true<>
-                        {% endlocalize %}{% endspaceless %}{% endfilter %}"
+                        {% if place_location.coords %}
+                            /{{ place_location.coords.x }},{{ place_location.coords.y }},
+                            {% if place_location.type == 'P' %}17{% else %}14{% endif %}
+                        {% elif place_location.bounds %}
+                            /{{ place_location.bounds.0.geom.x }},{{ place_location.bounds.0.geom.y }},8
+                        {% else %}
+                            /10,20,1
+                        {% endif %}
+                        {% get_solo 'core.SiteConfiguration' as site_config %}
+                        /720x400@2x?attribution=false&amp;access_token={{ site_config.mapping_services_api_keys.mapbox }}
+                     {% endlocalize %}{% endfilter %}"
                      alt="[{% trans "Location on map" %}]" />
             {% if not simple_map %}
                 </noscript>

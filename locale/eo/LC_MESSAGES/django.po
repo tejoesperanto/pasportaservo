@@ -351,6 +351,10 @@ msgstr ""
 "konfirmita."
 
 #: core/models.py
+msgid "API keys for mapping services"
+msgstr "API-ŝlosiloj por mapigaj servoj"
+
+#: core/models.py
 msgid "Site Configuration"
 msgstr "Retejaj agordoj"
 

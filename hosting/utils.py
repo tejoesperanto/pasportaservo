@@ -19,7 +19,7 @@ from maps.data import COUNTRIES_GEO
 
 from .countries import countries_with_mandatory_region
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from .models import Profile
 
 
@@ -49,7 +49,8 @@ def geocode(
     Returns:
         OpenCageQuery (with a Geo Point) or None.
     """
-    key = SiteConfiguration.get_solo().opencage_api_key
+    config = cast(SiteConfiguration, SiteConfiguration.get_solo())
+    key = config.mapping_services_api_keys.get('opencage')
     lang = translation.get_language()
     if not query:
         return

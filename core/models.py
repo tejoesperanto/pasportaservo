@@ -17,6 +17,13 @@ from hosting.fields import RangeIntegerField
 from .managers import PoliciesManager
 
 
+def default_api_keys():
+    return dict(
+        opencage='a27f7e361bdfe11881a987a6e86fb5fd',
+        openmaptiles='iQbjILhp2gs0dgNfTlIV',
+    )
+
+
 class SiteConfiguration(SingletonModel):
     # Legal requirement of GDPR Article 8(1): [...] in relation to the offer
     # of information society services directly to a child, the processing of
@@ -31,7 +38,8 @@ class SiteConfiguration(SingletonModel):
     salt = models.CharField(
         _("encryption salt"),
         max_length=30, default='salo',
-        help_text=_("Salt used for encoded unique links. Change it to invalidate all links."))
+        help_text=_("Salt used for encoded unique links. "
+                    "Change it to invalidate all links."))
 
     token_max_age = models.PositiveIntegerField(
         _("unique link lifetime"),
@@ -49,17 +57,15 @@ class SiteConfiguration(SingletonModel):
     confirmation_validity_period = models.DurationField(
         _("confirmation validity period"),
         default=timedelta(weeks=42),
-        help_text=_("Delay (in days/hours) after which an object is no longer considered as confirmed."))
+        help_text=_("Delay (in days/hours) after which an object is no longer "
+                    "considered as confirmed."))
 
     google_analytics_key = models.CharField(
         max_length=13, default='UA-99737795-1', blank=True)
 
-    opencage_api_key = models.CharField(
-        max_length=32, default='a27f7e361bdfe11881a987a6e86fb5fd', blank=True)
-
-    # https://openmaptiles.com/hosting/
-    openmaptiles_api_key = models.CharField(
-        max_length=32, default='iQbjILhp2gs0dgNfTlIV', blank=True)
+    mapping_services_api_keys = models.JSONField(
+        _("API keys for mapping services"),
+        default=default_api_keys)
 
     def __str__(self):  # pragma: no cover
         return str(_("Site Configuration"))
