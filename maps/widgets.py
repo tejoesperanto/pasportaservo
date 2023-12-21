@@ -1,3 +1,5 @@
+from typing import Iterable, cast
+
 from django import forms
 from django.conf import settings
 from django.contrib.gis.forms.widgets import BaseGeometryWidget
@@ -13,22 +15,28 @@ class MapboxGlWidget(BaseGeometryWidget):
     """
     template_name = 'gis/mapbox-gl.html'
     map_srid = SRID
+    map_height = 400
     default_lon = 5
     default_lat = 47
+    has_input_fallback = False
 
     class Media:
         css = {
-            'all': (
-                settings.MAPBOX_GL_CSS,
-            )
+            'all': cast(
+                Iterable[str], (
+                    settings.MAPBOX_GL_CSS,
+                )
+            ),
         }
-        js = (
-            settings.MAPBOX_GL_JS,
+        js = cast(
+            Iterable[str], (
+                settings.MAPBOX_GL_JS,
+            )
         )
 
     def __init__(self, attrs=None):
         super().__init__()
-        for key in ('default_lon', 'default_lat'):
+        for key in ('default_lon', 'default_lat', 'has_input_fallback'):
             self.attrs[key] = getattr(self, key)
         if attrs:
             self.attrs.update(attrs)

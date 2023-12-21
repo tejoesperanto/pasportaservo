@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-10-25 16:00+0000\n"
-"POT-Revision-Date: 2023-08-26 13:16+0000\n"
+"POT-Revision-Date: 2024-01-02 05:02+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -17,16 +17,16 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: core/static/js/ajax.js
-msgid "Server error"
-msgstr "Servila eraro"
-
-#: core/static/js/ajax.js
 msgid ""
 "Something misfunctioned.<br>Please retry; if the error repeats itself, "
 "please <a href='%(url)s'>contact us</a>."
 msgstr ""
 "Io misfunkciis. Bonvole reprovu; <br class='visible-xxs-inline'>se la eraro "
 "denove okazas, <a href='%(url)s'>kontaktu nin</a>."
+
+#: core/static/js/ajax.js
+msgid "Server error"
+msgstr "Servila eraro"
 
 #: core/static/js/forms.js
 msgid "Nothing found for"
@@ -41,6 +41,14 @@ msgstr[1] "Ĉu vi certas ke vi aĝas %(age)s jarojn?"
 #: core/static/js/forms.js
 msgid "select one of the suggestions"
 msgstr "elektu unu el inter la proponoj"
+
+#: core/static/js/place-location.js
+msgid "Bad or impossible coordinates."
+msgstr "Malbone tajpitaj aŭ neeblaj koordinatoj."
+
+#: core/static/js/place-location.js
+msgid "Alternatively: "
+msgstr "Alternative: "
 
 #: core/static/js/scripts.js
 msgid "Loading ▪ ▪ ▪"

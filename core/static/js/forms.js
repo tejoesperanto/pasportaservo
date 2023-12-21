@@ -140,6 +140,10 @@ $(function() {
                 constraint_failed = true;
             }
         }
+        if ($this.attr('data-complex-validation-failed')) {
+            errors.push($this.attr('data-complex-validation-failed'));
+            constraint_failed = true;
+        }
 
         if (constraint_failed) {
             this.setCustomValidity(errors.join("\n"));

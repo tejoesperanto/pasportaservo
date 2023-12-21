@@ -3,10 +3,12 @@ import re
 from collections import namedtuple
 from datetime import date
 from itertools import groupby
+from typing import cast
 
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.gis.geos import LineString, Point
+from django.contrib.gis.geos import GEOSGeometry, LineString, Point
+from django.core.validators import RegexValidator
 from django.db.models import Case, When
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.utils.functional import keep_lazy_text, lazy
@@ -397,21 +399,96 @@ class PlaceLocationForm(forms.ModelForm):
         model = Place
         fields = ['location']
         widgets = {
-            'location': MapboxGlWidget(),
+            'location': MapboxGlWidget({'has_input_fallback': True}),
         }
+
+    lnglat_pair_re = r'\A\s*-?\d+(\.\d+)?\s*,?\s*-?\d+(\.\d+)?\s*\Z'
+
+    coordinates = forms.CharField(
+        label=_("Coordinates"),
+        required=False,
+        validators=[RegexValidator(lnglat_pair_re)],
+        error_messages={
+            'invalid': _("Improperly formatted or invalid pair of coordinates."),
+        },
+        help_text=_("Type the decimal latitude (horizontal line, <nobr>-90°−90°</nobr>) "
+                    "and longitude (vertical line, <nobr>-180°−180°</nobr>)."))
 
     def __init__(self, *args, **kwargs):
         self.view_role = kwargs.pop('view_role')
         super().__init__(*args, **kwargs)
         self.fields['location'].widget.attrs['data-selectable-zoom'] = 11.5
+        if self.initial.get('location') and not self.initial['location'].empty:
+            self.fields['coordinates'].initial = (
+                '{coords[1]}, {coords[0]}'.format(coords=self.initial['location'].coords)
+            )
+        self.fields['coordinates'].widget.attrs['pattern'] = (
+            # JavaScript's RegExes have more limited functionality compared to Python.
+            self.lnglat_pair_re.replace(r'\A', '^').replace(r'\Z', '$')
+        )
+
+    def clean_coordinates(self):
+        # The coordinates might be empty; in that case there is no data to be
+        # processed further.
+        if not self.cleaned_data['coordinates']:
+            return None
+        # Try splitting the coordinates string into a pair of decimal degrees
+        # for latitude and longitude, and converting to a GEOS Point.
+        # The coordinates might be separated by a comma or a series of spaces.
+        try:
+            coords = re.sub(r'(\s+,?\s*|\s*,?\s+)', ',', self.cleaned_data['coordinates'])
+            coords = coords.split(',')
+            geometry = cast(
+                Point,
+                GEOSGeometry(f'SRID={SRID};POINT({coords[1]} {coords[0]})'))
+        except Exception as e:
+            logging.getLogger('PasportaServo.geo').warning(
+                f"Invalid coordinates \"{self.cleaned_data['coordinates']}\": {e}",
+                exc_info=e)
+            raise forms.ValidationError(
+                self.fields['coordinates'].error_messages['invalid'],
+                code='invalid')
+
+        # The number of decimal places determines the precision of the location
+        # given (see https://en.wikipedia.org/wiki/Decimal_degrees#Precision).
+        def calc_precision(value):
+            if int(value) == value:
+                return 0
+            else:
+                return len(str(value).split('.')[1])
+        setattr(
+            geometry,
+            'decimal_precision',
+            min(calc_precision(geometry.x), calc_precision(geometry.y))
+        )
+
+        # Both latitude (y) and longitude (x) values need manual wrapping,
+        # to ensure that they are in the -90° to 90° and -180° to 180° range,
+        # correspondingly.
+        while geometry.x < -180:
+            geometry.x += 360
+        while geometry.x > 180:
+            geometry.x -= 360
+        while geometry.y < -90:
+            geometry.y = -180 - geometry.y
+        while geometry.y > 90:
+            geometry.y = 180 - geometry.y
+        return geometry
 
     def save(self, commit=True):
         place = super().save(commit=False)
-        if self.cleaned_data.get('location'):
+        place.location = self.cleaned_data.get('coordinates')
+        if place.location:
             if self.view_role >= AuthRole.SUPERVISOR:
                 place.location_confidence = LocationConfidence.CONFIRMED
             else:
-                place.location_confidence = LocationConfidence.EXACT
+                match self.cleaned_data['coordinates'].decimal_precision:
+                    case digits if digits >= 4:
+                        place.location_confidence = LocationConfidence.EXACT
+                    case digits if digits >= 1:
+                        place.location_confidence = LocationConfidence.LT_25KM
+                    case _:
+                        place.location_confidence = LocationConfidence.GT_25KM
         else:
             place.location_confidence = LocationConfidence.UNDETERMINED
         if commit:
