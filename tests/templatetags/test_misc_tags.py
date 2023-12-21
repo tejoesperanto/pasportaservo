@@ -226,6 +226,107 @@ class DictTagTests(TestCase):
 
 
 @tag('templatetags')
+class DictInsertTagTests(TestCase):
+    def test_missing_source(self):
+        # A source dictionary variable not found in context is expected to
+        # result in an exception.
+        template = Template("{% load dict_insert from utils %}{% dict_insert D 'a' 'AA' %}")
+        with self.assertRaises(TypeError):
+            template.render(Context())
+
+    def test_output(self):
+        # An output variable is expected to not be used, even if provided,
+        # and the change performed on the original dictionary.
+        template = Template("""
+            {% load dict_insert from utils %}
+            {% dict_insert D "a" "AA" as D2 %}
+            {% dict_insert D "c" "CC" as D3 %}
+            {{ D2 }} /
+            {{ D3 }} /
+            {{ D }}  /
+        """)
+        page = template.render(Context({'D': {'b': "BB"}}))
+        self.assertHTMLEqual(page, "/ / {'b': 'BB', 'a': 'AA', 'c': 'CC'} /")
+
+    def test_single_insert_result(self):
+        template = Template("""
+            {% load dict_insert from utils %}
+            {{ D }}
+            {% dict_insert D "a" "AA" %}
+            {{ D }}
+        """)
+
+        # A single key is expected to be added to the empty dictionary with the
+        # specified value.
+        page = template.render(Context({'D': {}}))
+        self.assertHTMLEqual(page, "{} {'a': 'AA'}")
+        # A single key is expected to be inserted into the end of the non-empty
+        # dictionary (since Python 3.6), with the specified value.
+        page = template.render(Context({'D': {'b': "BB"}}))
+        self.assertHTMLEqual(page, "{'b': 'BB'} {'b': 'BB', 'a': 'AA'}")
+        # A value for a key that is already present in the non-empty dictionary
+        # is expected to overwrite the existing value.
+        page = template.render(Context({'D': {'a': "CC"}}))
+        self.assertHTMLEqual(page, "{'a': 'CC'} {'a': 'AA'}")
+
+    def test_multiple_insert_result(self):
+        template = Template("""
+            {% load dict_insert from utils %}
+            {{ D }}
+            {% dict_insert D a "AA" %}
+            {% dict_insert D b 22 %}
+            {% dict_insert D c CC %}
+            {{ D }}
+        """)
+
+        # When keys and values are specified as variables and not found in the
+        # context, they are expected to be treated as empty strings. This also
+        # means that later values are expected to overwrite previous values.
+        page = template.render(Context({'D': {}}))
+        self.assertHTMLEqual(page, "{} {'': ''}")
+        # A key variable found in context is expected to be added to the empty
+        # dictionary, with the rest of the keys behaving as previously.
+        page = template.render(Context({'D': {}, 'a': "xx"}))
+        self.assertHTMLEqual(page, "{} {'xx': 'AA', '': ''}")
+        # Key variables found in context are expected to be added to the empty
+        # dictionary in the order and with the values specified via the repeat
+        # usage of the template tag.
+        page = template.render(Context({'D': {}, 'b': "yy", 'a': "xx"}))
+        self.assertHTMLEqual(page, "{} {'xx': 'AA', 'yy': 22, '': ''}")
+        # A key variable missing in context is expected to be treated as empty
+        # string and not affect the other keys of the dictionary.
+        page = template.render(Context({'D': {}, 'c': "yy", 'a': "xx"}))
+        self.assertHTMLEqual(page, "{} {'xx': 'AA', '': 22, 'yy': ''}")
+        # All key and value variables are expected to be substituted for their
+        # actual values in the resulting dictionary, after repeat usage of the
+        # template tag.
+        page = template.render(Context({
+            'D': {},
+            'c': "zz", 'CC': "ZZ", 'b': "yy", 'a': "xx", 'AA': "XX",
+        }))
+        self.assertHTMLEqual(page, "{} {'xx': 'AA', 'yy': 22, 'zz': 'ZZ'}")
+        # Later values (according to usage of the tag) for key variables which
+        # happen to have the same actual value are expected to overwrite the
+        # earlier values in the resulting dictionary.
+        page = template.render(Context({
+            'D': {},
+            'c': "xx", 'CC': 33, 'b': "yy", 'a': "xx",
+        }))
+        self.assertHTMLEqual(page, "{} {'xx': 33, 'yy': 22}")
+
+    def test_parameter_filters(self):
+        # The user of the template tag is expected to be able to apply filters
+        # to both the inserted key and the inserted value.
+        template = Template("""
+            {% load dict_insert from utils %}
+            {% dict_insert D e|lower|slice:":2" EE|add:5 %}
+            {{ D }}
+        """)
+        page = template.render(Context({'D': {}, 'e': "XyZ", 'EE': 28}))
+        self.assertHTMLEqual(page, "{'xy': 33}")
+
+
+@tag('templatetags')
 class AnyFilterTests(TestCase):
     template = Template("{% load are_any from utils %}{{ my_var|are_any }}")
 

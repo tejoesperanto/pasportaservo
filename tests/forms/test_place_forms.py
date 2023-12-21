@@ -1,6 +1,7 @@
 from collections import namedtuple
 from datetime import date, datetime
 from itertools import chain, islice
+from typing import cast
 from unittest.mock import patch
 
 from django.contrib.gis.geos import Point as GeoPoint
@@ -1308,26 +1309,33 @@ class SubregionFormTests(AdditionalAsserts, WebTest):
 
 
 @tag('forms', 'forms-place', 'place')
-class PlaceLocationFormTests(WebTest):
+class PlaceLocationFormTests(AdditionalAsserts, WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.point_one = GeoPoint([-19.624239, 63.627832], srid=SRID)
         cls.point_two = GeoPoint([-22.094971, 64.308326], srid=SRID)
-        cls.place = PlaceFactory()
+        cls.place = cast(Place, PlaceFactory())
 
     def test_init(self):
         form_empty = PlaceLocationForm(view_role=0)
         # Verify that the expected fields are part of the form.
-        self.assertEqual(['location'], list(form_empty.fields))
+        self.assertEqual(['location', 'coordinates'], list(form_empty.fields))
         # Verify widgets.
         self.assertIsInstance(form_empty.fields['location'].widget, MapboxGlWidget)
         # Verify that the expected attributes are set.
         self.assertIn('data-selectable-zoom', form_empty.fields['location'].widget.attrs)
+        self.assertIn('pattern', form_empty.fields['coordinates'].widget.attrs)
+        # Verify that the custom fields have no default initial value.
+        self.assertEqual(form_empty.fields['coordinates'].initial, None)
         # Verify that the form's save method is protected in templates.
         self.assertTrue(
             hasattr(form_empty.save, 'alters_data')
             or hasattr(form_empty.save, 'do_not_call_in_templates')
         )
+
+        # Verify that the custom fields are initialized correctly.
+        form_empty = PlaceLocationForm(initial={'location': self.point_one}, view_role=0)
+        self.assertEqual(form_empty.fields['coordinates'].initial, '63.627832, -19.624239')
 
     def test_blank_data(self):
         # Empty form is expected to be valid.
@@ -1336,9 +1344,12 @@ class PlaceLocationFormTests(WebTest):
 
     def test_invalid_data(self):
         # Value in an unexpected form is expected to result in error.
-        for test_location in ("abc def",
-                              f"{self.point_one.x}, {self.point_one.y}",
-                              str(self.point_one.coords)):
+        test_data = [
+            "abc def",
+            f"{self.point_one.x}, {self.point_one.y}",
+            str(self.point_one.coords),
+        ]
+        for test_location in test_data:
             form = PlaceLocationForm(data={'location': test_location}, view_role=0)
             self.assertFalse(form.is_valid())
             expected_errors = {
@@ -1346,41 +1357,133 @@ class PlaceLocationFormTests(WebTest):
                 'eo': "Malvalida geometria valoro.",
             }
             for lang in expected_errors:
-                with override_settings(LANGUAGE_CODE=lang):
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(location=test_location, lang=lang)
+                ):
                     self.assertEqual(
                         form.errors,
-                        {'location': [expected_errors[lang]]},
-                        msg=f"Location is {test_location!r}"
+                        {'location': [expected_errors[lang]]}
+                    )
+
+        test_data = [
+            "abc def",
+            f"{self.point_one.y}",
+            f"{self.point_one.x} ,, {self.point_one.y}",
+            "-19. +63.",
+            "19,0 63,0",
+            str(self.point_one.coords),
+        ]
+        for test_coordinates in test_data:
+            form = PlaceLocationForm(data={'coordinates': test_coordinates}, view_role=0)
+            self.assertFalse(form.is_valid())
+            expected_errors = {
+                'en': "Improperly formatted or invalid pair of coordinates.",
+                'eo': "Malĝusta-forma aŭ neebla paro de koordinatoj.",
+            }
+            for lang in expected_errors:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(coordinates=test_coordinates, lang=lang)
+                ):
+                    self.assertEqual(
+                        form.errors,
+                        {'coordinates': [expected_errors[lang]]}
                     )
 
     def test_valid_data(self):
-        # Value formatted as geometry is expected to be accepted.
+        # Location value formatted as geometry is expected to be accepted.
         form = PlaceLocationForm(data={'location': str(self.point_two)}, view_role=0)
         self.assertTrue(form.is_valid(), msg=repr(form.errors))
+        form = PlaceLocationForm(data={'location': self.point_two.geojson}, view_role=0)
+        self.assertTrue(form.is_valid(), msg=repr(form.errors))
+
+        # Coordinates value formatted as a pair of decimal numbers is expected
+        # to be accepted.
+        test_data = [
+            f"{self.point_two.y} {self.point_two.x}",
+            f"{self.point_two.y + 360} {self.point_two.x - 360}",
+            f"\t{self.point_two.y} \n {self.point_two.x}\f",
+            f"{self.point_two.y},{self.point_two.x}",
+            f"  {self.point_two.y} ,{self.point_two.x}    ",
+            f"{int(self.point_two.y)} , {int(self.point_two.x)}",
+        ]
+        for test_coordinates in test_data:
+            with self.subTest(coordinates=test_coordinates):
+                form = PlaceLocationForm(data={'coordinates': test_coordinates}, view_role=0)
+                self.assertTrue(form.is_valid(), msg=repr(form.errors))
 
     def test_save_blank(self):
+        # An empty value is expected to reset the location to None and
+        # the confidence to 0.
         for role in AuthRole.OWNER, AuthRole.SUPERVISOR:
             with self.subTest(view_role=role):
                 self.place.refresh_from_db()
                 self.place.location_confidence = LocationConfidence.LT_25KM
-                form = PlaceLocationForm(data={'location': ""}, instance=self.place, view_role=role)
+                form = PlaceLocationForm(
+                    data={
+                        'location': "",
+                        'coordinates': " \t ",
+                    },
+                    instance=self.place, view_role=role)
                 self.assertTrue(form.is_valid(), msg=repr(form.errors))
                 place = form.save(commit=False)
                 self.assertIsNone(place.location)
                 self.assertEqual(place.location_confidence, LocationConfidence.UNDETERMINED)
 
-    def test_save_value(self):
-        for role, expected_confidence in ([AuthRole.OWNER, LocationConfidence.EXACT],
+    def save_values_tests(self, form_data, expected_result):
+        for role, expected_confidence in ([AuthRole.OWNER, expected_result['confidence']],
                                           [AuthRole.SUPERVISOR, LocationConfidence.CONFIRMED]):
             with self.subTest(view_role=role):
                 self.place.refresh_from_db()
                 self.place.location_confidence = LocationConfidence.LT_25KM
                 form = PlaceLocationForm(
-                    data={'location': str(self.point_one)}, instance=self.place, view_role=role)
+                    data=form_data, instance=self.place, view_role=role)
                 self.assertTrue(form.is_valid(), msg=repr(form.errors))
                 place = form.save(commit=False)
-                self.assertEqual(place.location, self.point_one)
-                self.assertEqual(place.location_confidence, expected_confidence)
+                self.assertEqual(place.location, expected_result['location'])
+                with self.subTest(places=place.location.decimal_precision):
+                    self.assertEqual(place.location_confidence, expected_confidence)
+
+    def test_save_value(self):
+        # The value of location is expected to be ignored and only the value of
+        # coordinates used for setting the place's new location.
+        self.save_values_tests(
+            {
+                'location': str(self.point_one),
+                'coordinates': f"{self.point_two.y}, {self.point_two.x}",
+            },
+            {'location': self.point_two, 'confidence': LocationConfidence.EXACT},
+        )
+        self.save_values_tests(
+            {
+                'location': self.point_one.geojson,
+                'coordinates': f"{self.point_two.y}  {self.point_two.x}",
+            },
+            {'location': self.point_two, 'confidence': LocationConfidence.EXACT},
+        )
+
+        # The location confidence is expected to be derived from the decimal
+        # precision of the input (value of coordinates).
+        test_data = [
+            ("64.3083 , -22.0949", GeoPoint(-22.0949, 64.3083, srid=SRID), LocationConfidence.EXACT),
+            ("64.308 , -22.094", GeoPoint(-22.094, 64.308, srid=SRID), LocationConfidence.LT_25KM),
+            ("64.31 , -22.09", GeoPoint(-22.09, 64.31, srid=SRID), LocationConfidence.LT_25KM),
+            ("64.3 , -22.1", GeoPoint(-22.1, 64.3, srid=SRID), LocationConfidence.LT_25KM),
+            ("64 , -22", GeoPoint(-22.0, 64.0, srid=SRID), LocationConfidence.GT_25KM),
+            # Values outside the reasonable range are expected to be wrapped.
+            ("116 , 338", GeoPoint(-22, 64, srid=SRID), LocationConfidence.GT_25KM),
+            ("-244 , -382", GeoPoint(-22, 64, srid=SRID), LocationConfidence.GT_25KM),
+        ]
+        for string_value, result_value, confidence in test_data:
+            with self.subTest(value=string_value):
+                self.save_values_tests(
+                    {
+                        'location': "",
+                        'coordinates': string_value,
+                    },
+                    {'location': result_value, 'confidence': confidence},
+                )
 
     def test_view_page(self):
         page = self.app.get(
@@ -1400,7 +1503,8 @@ class PlaceLocationFormTests(WebTest):
             reverse('place_location_update', kwargs={'pk': self.place.pk}),
             user=user or self.place.owner.user,
         )
-        page.form['location'] = str(self.point_two)
+        page.form['location'] = str(self.point_one)
+        page.form['coordinates'] = "{p.y}\t{p.x}".format(p=self.point_two)
         page = page.form.submit()
         self.place.refresh_from_db()
         self.assertRedirects(

@@ -41,6 +41,12 @@ register.simple_tag(func=lambda *args: list(args), name='list')
 register.simple_tag(func=lambda **kwargs: dict(kwargs), name='dict')
 
 
+@register.simple_tag
+def dict_insert(d: dict, key: Any, value: Any):
+    d[key] = value
+    return ''
+
+
 @register.filter(is_safe=True)
 def are_any(iterable):
     try:

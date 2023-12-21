@@ -4,18 +4,19 @@
 
 window.addEventListener('load', function() {
 
-    var field = document.getElementById('id_location');
+    var fieldLocation = document.getElementById('id_location'),
+        fieldCoordinates = document.getElementById('id_coordinates');
     var submit = document.getElementById('id_form_submit');
     var selectOnlyOnZoom,
         initial;
 
     try {
-        initial = JSON.parse(field.value).coordinates;
+        initial = JSON.parse(fieldLocation.value).coordinates;
     } catch (error) {
         initial = undefined;
     }
-    if (field.hasAttribute('data-selectable-zoom') && submit != undefined) {
-        selectOnlyOnZoom = Number(field.getAttribute('data-selectable-zoom'));
+    if (fieldLocation.hasAttribute('data-selectable-zoom') && submit != undefined) {
+        selectOnlyOnZoom = Number(fieldLocation.getAttribute('data-selectable-zoom'));
         submit.setAttribute('data-initial-title', submit.title);
     }
 
@@ -51,7 +52,7 @@ window.addEventListener('load', function() {
 
         map.getCanvas().style.cursor = "pointer";
 
-        map.on('click', function(e) {
+        var clickListener = function(e, manualUpdate, withZoom) {
             if (marker) {
                 marker.setLngLat(e.lngLat);
             }
@@ -61,23 +62,37 @@ window.addEventListener('load', function() {
                     .addTo(map);
             }
 
-            var zoomLevel = map.getZoom();
+            var zoomLevel = withZoom !== undefined ? withZoom : map.getZoom();
             map.flyTo({
                 center: e.lngLat,
-                zoom: zoomLevel + 2,
+                zoom: zoomLevel + (manualUpdate !== true ? 2 : 0),
             });
 
-            field.value = JSON.stringify({
+            fieldLocation.value = JSON.stringify({
                 type: "Point",
                 coordinates: [e.lngLat.lng, e.lngLat.lat]
             });
+            if (fieldCoordinates && manualUpdate !== true) {
+                fieldCoordinates.value = "[LAT], [LNG]"
+                    .replace("[LNG]", e.lngLat.lng)
+                    .replace("[LAT]", e.lngLat.lat);
+                fieldCoordinates.removeAttribute('data-complex-validation-failed');
+                fieldCoordinates.dispatchEvent(
+                    new Event('change', {bubbles: true, cancelable: true})
+                );
+            }
             if (selectOnlyOnZoom) {
                 submit.disabled = (zoomLevel < selectOnlyOnZoom);
                 submit.title = (!submit.disabled) ?
                     submit.getAttribute('data-initial-title') :
                     gettext("Please zoom in the map to select a point.");
             }
-        });
+        };
+        map.on('click', clickListener);
+        if (fieldCoordinates) {
+            fieldCoordinates.mapref = map;
+            fieldCoordinates.mapClick = clickListener;
+        }
 
         var nav = new mapboxgl.NavigationControl({showCompass: false});
         map.addControl(nav, 'top-left');
@@ -96,6 +111,7 @@ window.addEventListener('load', function() {
         map.addControl(scale, 'bottom-right');
 
         document.getElementById('map').style.backgroundImage = "none";
+        document.getElementById('map').style.backgroundColor = "unset";
     });
 
 });

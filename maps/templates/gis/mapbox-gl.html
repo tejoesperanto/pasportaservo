@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load dict dict_insert from utils %}
 
 <!-- Inline styling for the map container. Note that only 1 map per page is possible. -->
 <style>
@@ -11,7 +12,7 @@
     }
     #map {
         text-align: initial;
-        height: 400px;
+        height: {{ map_height }}px;
     }
     @media (max-width: 479px) {
         #map { height: 250px };
@@ -25,11 +26,18 @@
         */
     }
     {% if not debug %}#{{ id }} { display: none; } {% endif %}
+    {% if admin_site %}
+        form .aligned #{{ id }} {
+            margin-left: 170px;
+        }
+    {% endif %}
 </style>
 
 <div class="map-widget"><div id="map"></div></div>
 <noscript>
-    <style>#map { display: none; }</style>
+    <style>
+        .map-widget { display: none; }
+    </style>
     <br />
     <div class="alert alert-small alert-danger text-center">
         {% trans "The map requires JavaScript and the WebGL technology." %}
@@ -50,7 +58,21 @@
         </span>
     </p>
 {% endif %}
-<textarea id="{{ id }}" class="required {{ widget.attrs.class }} {% if admin_site %}vTextField{% endif %}" cols="54" rows="2" name="{{ name }}"
-          {% for name, value in widget.attrs.items %}{% if name|slice:":5" == "data-" %}{{ name }}="{{ value|stringformat:'s' }}" {% endif %}{% endfor %}>{% spaceless %}
-    {{ serialized }}
-{% endspaceless %}</textarea>
+
+{% dict id=id name=name as input_field_attrs %}
+{% for name, value in widget.attrs.items %}
+    {% if name|slice:":5" == "data-" %}
+        {% dict_insert input_field_attrs name value|stringformat:'s' %}
+    {% endif %}
+{% endfor %}
+{% if has_input_fallback %}
+    {% dict_insert input_field_attrs "type" "hidden" %}
+    <input {% for name, value in input_field_attrs.items %}{{ name }}="{{ value }}" {% endfor %}
+           value="{{ serialized }}" />
+{% else %}
+    {% dict_insert input_field_attrs "cols" 54 %}
+    {% dict_insert input_field_attrs "rows" 2 %}
+    <textarea class="required {{ widget.attrs.class }}{% if admin_site %} vTextField{% endif %}"
+              {% for name, value in input_field_attrs.items %}{{ name }}="{{ value }}" {% endfor %}
+    >{{ serialized }}</textarea>
+{% endif %}
