@@ -153,25 +153,25 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
             )
             return [{'geom': Polygon(enclosure, srid=SRID)}]
 
-        def location_truncate(loc):
-            return (
-                Point(round(loc.x, 2), round(loc.y, 3), srid=SRID)
-                if loc and not loc.empty
-                else None
-            )
+        def location_clamp(loc, also_truncate=True):
+            if not loc or loc.empty:
+                return None
+            x = round(loc.x, 2) if also_truncate else loc.x
+            y = round(loc.y, 3) if also_truncate else loc.y
+            return Point(x, min(max(y, -85.0511), 85.0511), srid=SRID)
 
         if place.available and is_authenticated:
             if self.verbose_view:
-                location = place.location
+                location = location_clamp(place.location, also_truncate=False)
                 location_type = 'P'  # = Point.
             else:
-                location = location_truncate(place.location)
+                location = location_clamp(place.location)
                 location_box = location_enclose(location)
                 location_type = 'C'  # = Circle.
         elif place.owner_available and is_authenticated:
             if self.verbose_view and place.location and \
                     place.location_confidence >= LocationConfidence.ACCEPTABLE:
-                location = location_truncate(place.location)
+                location = location_clamp(place.location)
                 location_box = location_enclose(location)
                 location_type = 'C'  # = Circle.
         if place.available or place.owner_available:
@@ -210,7 +210,7 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
             location_type = 'R'  # = Region.
             if place.location and not place.location.empty and is_authenticated:
                 bounds = [
-                    {'geom': location_truncate(place.location)},
+                    {'geom': location_clamp(place.location)},
                 ]
             else:
                 coords = bufferize_country_boundaries(place.country)
