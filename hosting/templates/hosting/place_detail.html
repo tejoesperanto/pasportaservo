@@ -375,8 +375,10 @@
                         {% if place_location.coords %}
                             /{{ place_location.coords.x }},{{ place_location.coords.y }},
                             {% if place_location.type == 'P' %}17{% else %}14{% endif %}
-                        {% elif place_location.bounds %}
-                            /{{ place_location.bounds.0.geom.x }},{{ place_location.bounds.0.geom.y }},8
+                        {% elif place_location.bounds|length == 2 %}
+                            /[{{ place_location.bounds.1.geom.extent|cut:"("|cut:")" }}]
+                        {% elif place_location.bounds|length == 1 %}
+                            /{{ place_location.bounds.0.geom.coords|cut:"("|cut:")" }},8
                         {% else %}
                             /10,20,1
                         {% endif %}
