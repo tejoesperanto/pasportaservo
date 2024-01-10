@@ -344,7 +344,7 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
 
 
 class PlaceMapPrintView(PlaceDetailView):
-    template_name = 'hosting/place_map.html'
+    template_name = 'hosting/place_printable_map.html'
     verbose_when_privileged = True
     minimum_role = AuthRole.VISITOR
 

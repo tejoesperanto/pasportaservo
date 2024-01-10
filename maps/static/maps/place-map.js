@@ -23,13 +23,18 @@ window.addEventListener('load', function() {
     mapboxgl.setRTLTextPlugin(GIS_ENDPOINTS['rtl_plugin'], undefined, true);
 
     if (staticUseNoticeNode) {
-        if (!mapboxgl.supported() && staticUseNoticeNode.getAttribute('data-notification')) {
+        if (!mapboxgl.supported()) {
             var staticFallback = container.parentElement.querySelector('noscript');
             staticFallback.outerHTML = staticFallback.innerHTML;
-            staticUseNoticeNode.textContent = staticUseNoticeNode.getAttribute('data-notification');
-            staticUseNoticeNode.removeAttribute('data-notification');
-            staticUseNoticeNode.classList.remove("empty");
-            staticUseNoticeNode.classList.add("has-content");
+            if (staticUseNoticeNode.getAttribute('data-notification')) {
+                staticUseNoticeNode.textContent = staticUseNoticeNode.getAttribute('data-notification');
+                staticUseNoticeNode.removeAttribute('data-notification');
+                staticUseNoticeNode.classList.remove("empty");
+                staticUseNoticeNode.classList.add("has-content");
+            }
+            else {
+                staticUseNoticeNode.remove();
+            }
             return;
         }
         else {
