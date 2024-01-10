@@ -18,8 +18,24 @@ window.addEventListener('load', function() {
     }
     var mediaPrint = container.hasAttribute('data-for-print');
     var attrib = GIS_ENDPOINTS['place_map_attrib'];
+    var staticUseNoticeNode = document.querySelector('#map ~ .static-map-auto-switch');
 
     mapboxgl.setRTLTextPlugin(GIS_ENDPOINTS['rtl_plugin'], undefined, true);
+
+    if (staticUseNoticeNode) {
+        if (!mapboxgl.supported() && staticUseNoticeNode.getAttribute('data-notification')) {
+            var staticFallback = container.parentElement.querySelector('noscript');
+            staticFallback.outerHTML = staticFallback.innerHTML;
+            staticUseNoticeNode.textContent = staticUseNoticeNode.getAttribute('data-notification');
+            staticUseNoticeNode.removeAttribute('data-notification');
+            staticUseNoticeNode.classList.remove("empty");
+            staticUseNoticeNode.classList.add("has-content");
+            return;
+        }
+        else {
+            staticUseNoticeNode.remove();
+        }
+    }
 
     // If WebGL is unsupported or disabled, the exception "Failed to initialize WebGL" will
     // be thrown. This should not impact other code on the page, and only affect this event

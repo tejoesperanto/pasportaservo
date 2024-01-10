@@ -388,6 +388,14 @@
                      alt="[{% trans "Location on map" %}]" />
             {% if not simple_map %}
                 </noscript>
+                {% if user.is_authenticated %}
+                    <mark class="help-block static-map-auto-switch empty hidden-print"
+                          data-notification="{% blocktrans trimmed %}
+                                                Simple map is shown: the WebGL technology, needed for the fully capable map,
+                                                is not available in your browser.
+                                             {% endblocktrans %}">
+                    </mark>
+                {% endif %}
             {% endif %}
             <form action="{% url 'map_type_setup' simple_map|yesno:'3,0' %}" method="POST"
                   class="btn-toolbar pull-right requires-scripting hidden-print" data-nosnippet>
