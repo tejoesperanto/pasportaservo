@@ -1,5 +1,5 @@
 {% extends 'hosting/place_detail.html' %}
-{% load i18n static geojson_tags variable utils %}
+{% load i18n static variable utils %}
 
 {% block extra_css %}{% endblock %}
 {% block extra_js %}
@@ -74,26 +74,10 @@
             {# END OF OWNER'S DETAILS #}
 
             {# LOCATION ON WORLD MAP #}
-                <div class="embed-responsive embed-responsive-16by9" id="map" data-for-print
-                     {% if place_location.coords %}
-                        data-marker="{{ place_location.coords|geojsonfeature }}"
-                     {% endif %}
-                     {% if place_location.bounds %}
-                        data-bounds="{{ place_location.bounds|geojsonfeature }}"
-                     {% endif %}
-                     data-marker-type="{{ place_location.type }}">
-                {% comment %} responsive map height with constant ratio to map width {% endcomment %}
+                {% include './snippets/place_map.html' with static_style='clqz4ixmi011j01r5c63y97b6' printed_map=True %}
+                <div class="static-map-auto-switch empty hidden-print">
+                    {# Needed to enable automatic switching to a static map in case WebGL cannot be used. #}
                 </div>
-                <noscript>
-                    <style>#map { display: none; }</style>
-                    <br />
-                    <div class="alert alert-small alert-danger text-center">
-                        <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
-                        <span class="sr-only">{% trans "Warning " context "Title" %}:</span>
-                        {% trans "The map requires JavaScript and the WebGL technology." %}
-                    </div>
-                    <br />
-                </noscript>
             {# END OF LOCATION'S MAP #}
         </div>
     </div>

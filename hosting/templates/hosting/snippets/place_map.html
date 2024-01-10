@@ -1,0 +1,47 @@
+{% load i18n l10n solo_tags geojson_tags geoformat utils %}
+
+    {% if not simple_map %}
+        <div class="embed-responsive embed-responsive-16by9" id="map" {% if printed_map %}data-for-print{% endif %}
+            {% if place_location.coords %}
+                data-marker="{{ place_location.coords|geojsonfeature }}"
+            {% endif %}
+            {% if place_location.bounds %}
+                data-bounds="{{ place_location.bounds|geojsonfeature }}"
+            {% endif %}
+            data-marker-type="{{ place_location.type }}">
+        {% comment %} Responsive map height with constant ratio to map width. {% endcomment %}
+        </div>
+        <noscript>
+            <style>#map { display: none; }</style>
+            {% comment %} The static map will be displayed when scripting is not possible. {% endcomment %}
+    {% endif %}
+            <img style="width: 100%" id="static_map"
+                 src="{% filter compact|cut:" " %}{% localize off %}
+                    https://api.mapbox.com/styles/v1/pasportaservo/{{ static_style }}/static
+                    {% if place_location.type == 'P' %}
+                        /pin-s+F71({{ place_location.coords.x }},{{ place_location.coords.y }})
+                    {% elif place_location.type == 'C' %}
+                        {% dict fill="#1bf" fill__opacity=0.25 stroke="#eee" crs=False as circle_style %}
+                        {% if printed_map %}
+                            {% dict_insert circle_style "stroke" "#1bf" %}
+                            {% dict_insert circle_style "stroke-opacity" 0.15 %}
+                        {% endif %}
+                        /geojson({{ place_location.box|geojsonfeature|geojsonfeature_styling:circle_style|cut:" "|urlencode }})
+                    {% endif %}
+                    {% if place_location.coords %}
+                        /{{ place_location.coords.x }},{{ place_location.coords.y }},
+                        {% if place_location.type == 'P' %}17{% else %}14{% endif %}
+                    {% elif place_location.bounds|length == 2 %}
+                        /[{{ place_location.bounds.1.geom.extent|cut:"("|cut:")" }}]
+                    {% elif place_location.bounds|length == 1 %}
+                        /{{ place_location.bounds.0.geom.coords|cut:"("|cut:")" }},8
+                    {% else %}
+                        /10,20,1
+                    {% endif %}
+                    {% get_solo 'core.SiteConfiguration' as site_config %}
+                    /720x400@2x?attribution=false&amp;access_token={{ site_config.mapping_services_api_keys.mapbox }}
+                 {% endlocalize %}{% endfilter %}"
+                 alt="[{% trans "Location on map" %}]" />
+    {% if not simple_map %}
+        </noscript>
+    {% endif %}

@@ -655,7 +655,7 @@ msgstr "nefunkcianta adreso"
 #: hosting/templates/hosting/place_detail.html
 #: hosting/templates/hosting/place_list.html
 #: hosting/templates/hosting/place_list_supervisor.html
-#: hosting/templates/hosting/place_map.html
+#: hosting/templates/hosting/place_printable_map.html
 #: hosting/templates/hosting/profile_confirm_delete.html
 #: hosting/templates/hosting/profile_detail.html
 #: hosting/templates/hosting/settings.html
@@ -2831,7 +2831,7 @@ msgid "Important information"
 msgstr "Gravaj informoj"
 
 #: hosting/templates/hosting/place_detail.html
-#: hosting/templates/hosting/place_map.html
+#: hosting/templates/hosting/place_printable_map.html
 msgid "The address is obsolete"
 msgstr "La adreso estas neaktuala"
 
@@ -2892,7 +2892,7 @@ msgstr "maldisponebla"
 
 #: hosting/templates/hosting/place_detail.html
 #: hosting/templates/hosting/place_list_supervisor.html
-#: hosting/templates/hosting/place_map.html
+#: hosting/templates/hosting/place_printable_map.html
 #: hosting/templates/hosting/profile_detail.html
 msgid "Deceased member"
 msgstr "Forpasinta PS-membro"
@@ -2950,6 +2950,7 @@ msgstr ""
 "vidi tiun ĉi loĝejon."
 
 #: hosting/templates/hosting/place_detail.html
+#: hosting/templates/hosting/snippets/place_map.html
 msgid "Location on map"
 msgstr "Pozicio sur la mapo"
 
@@ -3092,7 +3093,7 @@ msgid "the owner passed away"
 msgstr "la posedanto forpasis"
 
 #: hosting/templates/hosting/place_form.html
-#: hosting/templates/hosting/place_map.html
+#: hosting/templates/hosting/place_printable_map.html
 #, python-format
 msgid "Place of %(name)s"
 msgstr "Loĝejo de %(name)s"
@@ -3412,19 +3413,14 @@ msgstr ""
 "La priskribo de la loĝejo aŭ la rimarkigo pri telefona numero ŝajne enhavas "
 "ne-normajn Esperanto-literojn (anstataŭ ĉapelitajn). Ĉu akcepti tian tekston?"
 
-#: hosting/templates/hosting/place_map.html
+#: hosting/templates/hosting/place_printable_map.html
 msgid "Print"
 msgstr "Printi"
 
-#: hosting/templates/hosting/place_map.html
+#: hosting/templates/hosting/place_printable_map.html
 #, python-format
 msgid "Habitat of %(name)s"
 msgstr "Loĝloko de %(name)s"
-
-#: hosting/templates/hosting/place_map.html maps/templates/gis/mapbox-gl.html
-#: maps/templates/maps/world_map.html
-msgid "The map requires JavaScript and the WebGL technology."
-msgstr "La mapo necesigas JavaSkripton kaj la teĥnologion WebGL."
 
 #: hosting/templates/hosting/profile-email_form.html
 msgid "Change user's public email"
@@ -4199,6 +4195,10 @@ msgstr ""
 #: links/views.py
 msgid "You've been automatically logged in. Happy editing!"
 msgstr "Vi estas aŭtomate ensalutita. Bonan redaktadon!"
+
+#: maps/templates/gis/mapbox-gl.html maps/templates/maps/world_map.html
+msgid "The map requires JavaScript and the WebGL technology."
+msgstr "La mapo necesigas JavaSkripton kaj la teĥnologion WebGL."
 
 #: maps/templates/gis/mapbox-gl.html
 msgid "Select manually the most suitable point on the map."

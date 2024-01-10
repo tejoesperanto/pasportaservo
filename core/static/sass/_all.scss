@@ -748,7 +748,7 @@ html:not(.msie-compat) .mapboxgl-canvas[tabindex="0"]:focus {
     outline-offset: -1px;
     outline-color: #0096ff;
 }
-#page.place-print #map {
+#page.place-print #map, #page.place-print #static_map {
     border: solid 1px $color-gray-light;
     border-radius: 5px;
 }
