@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2024-01-02 05:01+0000\n"
+"POT-Revision-Date: 2024-01-10 19:56+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -2978,6 +2978,14 @@ msgstr "Redakti surmapan pozicion"
 #: hosting/templates/hosting/place_list_supervisor.html
 msgid "Edit location"
 msgstr "Redakti lokigon"
+
+#: hosting/templates/hosting/place_detail.html
+msgid ""
+"Simple map is shown: the WebGL technology, needed for the fully capable map, "
+"is not available in your browser."
+msgstr ""
+"Simpla mapo montrita: la teĥnologio WebGL, necesa por la plen-kapabla mapo, "
+"estas nehavebla en via retumilo."
 
 #: hosting/templates/hosting/place_detail.html
 msgid "Use a simple map"
