@@ -726,12 +726,6 @@ class Place(TrackingModel, TimeStampedModel):
     location_confidence = models.PositiveSmallIntegerField(
         _("confidence"),
         default=0)
-    latitude = models.FloatField(
-        _("latitude"),
-        null=True, blank=True)
-    longitude = models.FloatField(
-        _("longitude"),
-        null=True, blank=True)
     max_guest = RangeIntegerField(
         _("maximum number of guests"),
         min_value=1, max_value=50,
@@ -816,31 +810,6 @@ class Place(TrackingModel, TimeStampedModel):
     def profile(self):
         """Proxy for self.owner. Rename 'owner' to 'profile' if/as possible."""
         return self.owner
-
-    @property
-    def lat(self):
-        if not self.location or self.location.empty:
-            return 0
-        return round(self.location.y, 2)
-
-    @property
-    def lng(self):
-        if not self.location or self.location.empty:
-            return 0
-        return round(self.location.x, 2)
-
-    @property
-    def bbox(self):
-        """
-        Returns an OpenStreetMap-formatted bounding box.
-        See http://wiki.osm.org/wiki/Bounding_Box
-        """
-        dx, dy = 0.007, 0.003  # Delta lng and delta lat around position
-        if self.location and not self.location.empty:
-            boundingbox = (self.lng - dx, self.lat - dy, self.lng + dx, self.lat + dy)
-            return ",".join([str(coord) for coord in boundingbox])
-        else:
-            return ""
 
     @cached_property
     def subregion(self):

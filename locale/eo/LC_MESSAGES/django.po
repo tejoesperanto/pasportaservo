@@ -2249,14 +2249,6 @@ msgid "confidence"
 msgstr "certeco"
 
 #: hosting/models.py
-msgid "latitude"
-msgstr "latitudo"
-
-#: hosting/models.py
-msgid "longitude"
-msgstr "longitudo"
-
-#: hosting/models.py
 msgid "maximum number of guests"
 msgstr "maksimuma nombro de gastoj"
 
