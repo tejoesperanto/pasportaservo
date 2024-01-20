@@ -46,6 +46,11 @@ COMPRESS_FILTERS = {
 }
 COMPRESS_OFFLINE = True
 COMPRESS_OFFLINE_MANIFEST = 'static_cache.json'
+COMPRESS_OFFLINE_CONTEXT = [
+    {},
+    # Needed for the extra JS in `place_form` template.
+    {'form': {'location': True}},
+]
 
 # Application definition
 
