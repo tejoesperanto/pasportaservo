@@ -27,6 +27,14 @@
                         read the document, understand it, and agree to the conditions herein.
                     {% endblocktrans %}
                 </p>
+            {% elif consent_obtained.given_for != consent_obtained.current.first.version %}
+                <p>
+                    {% blocktrans trimmed %}
+                        You have already indicated your consent to be bound by the policy, published
+                        earlier. An updated text of that policy as of {{ effective_date }} (below)
+                        includes some adjustments but does not introduce any changes in the substance.
+                    {% endblocktrans %}
+                </p>
             {% else %}
                 <p>
                     {% blocktrans trimmed %}
@@ -38,6 +46,8 @@
         </div>
     </div>
     {# TODO: Add navigation to the previous versions (stored separately). They should be accessible but not actionable. #}
+
+    {# TODO: Add conditions of use. #}
 
     <div id="user-agreement-panel" class="panel {% if consent_required %}panel-warning{% else %}panel-default{% endif %}">
         <div class="panel-body">

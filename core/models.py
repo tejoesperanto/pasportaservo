@@ -1,13 +1,9 @@
-import re
-import warnings
 from collections import namedtuple
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.conf import settings
-from django.contrib.flatpages.models import FlatPage
 from django.db import models
-from django.utils.functional import cached_property
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext, gettext_lazy as _
 
 from django_extensions.db.models import TimeStampedModel
 from solo.models import SingletonModel
@@ -17,7 +13,7 @@ from hosting.fields import RangeIntegerField
 from .managers import PoliciesManager
 
 
-def default_api_keys():
+def default_api_keys():  # pragma: no cover
     return dict(
         opencage='a27f7e361bdfe11881a987a6e86fb5fd',
         openmaptiles='iQbjILhp2gs0dgNfTlIV',
@@ -74,30 +70,38 @@ class SiteConfiguration(SingletonModel):
         verbose_name = _("Site Configuration")
 
 
-class Policy(FlatPage):
-    EFFECTIVE_DATE_PATTERN = r'^{#\s+([0-9-]+)\s+'
-    EFFECTIVE_DATE_FORMAT = '%Y-%m-%d'
+class Policy(models.Model):
+    version = models.SlugField(
+        _("version of policy"),
+        max_length=50, unique=True,
+        help_text=_("Avoid modifying already-existing versions."))
+    effective_date = models.DateField(
+        _("in effect from date"),
+        unique=True)
+    changes_summary = models.TextField(
+        _("summary of changes"),
+        blank=True)
+    content = models.TextField(
+        _("content"))
+    requires_consent = models.BooleanField(
+        _("consent is required"),
+        default=True)
 
     objects = PoliciesManager()
 
     class Meta:
-        proxy = True
+        verbose_name = _("policy")
+        verbose_name_plural = _("policies")
+        get_latest_by = 'effective_date'
 
-    @cached_property
-    def effective_date(self):
-        return self.get_effective_date_for_policy(self.content)
-
-    @classmethod
-    def get_effective_date_for_policy(cls, policy_content):
-        try:
-            date = re.match(cls.EFFECTIVE_DATE_PATTERN, policy_content).group(1)
-            return datetime.strptime(date, cls.EFFECTIVE_DATE_FORMAT).date()
-        except AttributeError:
-            warnings.warn("Policy does not indicate a date it takes effect on!")
-            return None
-        except ValueError as err:
-            warnings.warn("Policy effective date '{}' is invalid; {}".format(date, err))
-            return None
+    def __str__(self):
+        if self.requires_consent:
+            # xgettext:python-brace-format
+            description = gettext("Policy {version} binding from {date:%Y-%m-%d}")
+        else:
+            # xgettext:python-brace-format
+            description = gettext("Policy {version} effective from {date:%Y-%m-%d}")
+        return description.format(version=self.version, date=self.effective_date)
 
 
 class Agreement(TimeStampedModel):
@@ -119,10 +123,10 @@ class Agreement(TimeStampedModel):
 
     def __str__(self):
         # xgettext:python-brace-format
-        return str(_("User {user} agreed to '{policy}' on {date:%Y-%m-%d}")).format(
+        return gettext("User {user} agreed to '{policy}' on {date:%Y-%m-%d}").format(
             user=self.user,
             policy=self.policy_version,
-            date=self.created
+            date=self.created,
         )
 
 

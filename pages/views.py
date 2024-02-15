@@ -9,7 +9,7 @@ from django.views import generic
 from django_countries.fields import Country
 
 from core.auth import PERM_SUPERVISOR
-from core.mixins import flatpages_as_templates
+from core.mixins import FlatpageAsTemplateMixin, flatpages_as_templates
 from core.models import Policy
 from core.utils import sort_by
 from hosting.models import Place, Profile
@@ -38,24 +38,29 @@ class TermsAndConditionsView(generic.TemplateView):
 
 
 @flatpages_as_templates
-class PrivacyPolicyView(generic.TemplateView):
+class PrivacyPolicyView(FlatpageAsTemplateMixin, generic.TemplateView):
     template_name = 'pages/privacy.html'
     standalone_policy_view = True
 
     def get(self, request, *args, **kwargs):
         try:
-            self._policy = Policy.objects.order_by('-id').values('content')[0]
-        except IndexError as ierr:
-            raise RuntimeError("Service misconfigured: No privacy policy is defined.") from ierr
+            self._policy = Policy.objects.latest_efective()
+        except Policy.DoesNotExist:
+            try:
+                self._policy = Policy.objects.latest()
+            except Policy.DoesNotExist as err:
+                exception_message = "Service misconfigured: No privacy policy is defined."
+                raise RuntimeError(exception_message) from err
         return super().get(request, *args, **kwargs)
 
     @cached_property
     def policy_content(self):
         return self.render_flat_page(self._policy)
 
-    @cached_property
-    def effective_date(self):
-        return Policy.get_effective_date_for_policy(self._policy['content'])
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['effective_date'] = self._policy.effective_date
+        return context
 
 
 class SupervisorsView(generic.TemplateView):

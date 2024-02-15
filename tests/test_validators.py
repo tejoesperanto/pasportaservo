@@ -439,7 +439,12 @@ class AccountAttributesSimilarityValidatorTests(AdditionalAsserts, TestCase):
         cls.validator_exact.tag = "exact"
         cls.validator_none = AccountAttributesSimilarityValidator(1.1)
         cls.validator_none.tag = "none"
-        cls.validators = [cls.validator_default, cls.validator_all, cls.validator_exact, cls.validator_none]
+        cls.validators = [
+            cls.validator_default,
+            cls.validator_all,
+            cls.validator_exact,
+            cls.validator_none,
+        ]
 
     def test_operators(self):
         self.assertNotEqual(self.validator_default, None)
@@ -598,9 +603,10 @@ class AccountAttributesSimilarityValidatorTests(AdditionalAsserts, TestCase):
 
     def test_non_validation(self):
         # For profile attributes not inspected by the validators, no violation is expected.
+        gender = GenderFactory(name="DraGonS HeRe!")
         user = UserFactory(
             email="", profile__first_name="", profile__last_name="", profile__email="",
-            profile__description="Dragons here!", profile__gender=GenderFactory(name="DraGonS HeRe!"))
+            profile__description="Dragons here!", profile__gender=gender)
         user.username = ""
         with self.subTest(attributes=('description', 'gender')):
             for v in self.validators:

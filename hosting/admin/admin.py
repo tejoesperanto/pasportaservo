@@ -5,7 +5,6 @@ from django.contrib.admin.utils import display_for_value
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.admin import GenericTabularInline
-from django.contrib.flatpages.models import FlatPage
 # from django.contrib.gis import admin as gis_admin
 from django.contrib.gis.db.models import LineStringField, PointField
 from django.contrib.gis.forms import OSMWidget
@@ -19,7 +18,7 @@ from django_countries.fields import Country
 from djangocodemirror.widgets import CodeMirrorAdminWidget
 from packvers import version
 
-from core.models import Agreement, UserBrowser
+from core.models import Agreement, Policy, UserBrowser
 from maps.widgets import AdminMapboxGlWidget
 
 from ..models import (
@@ -237,18 +236,16 @@ class AgreementAdmin(admin.ModelAdmin):
             cache = self._policies_cache = {}
         if obj.policy_version in cache:
             return cache[obj.policy_version]
+        value = obj.policy_version
         try:
-            policy = (
-                FlatPage.objects
-                .values_list('id', flat=True)
-                .get(url='/privacy-policy-{}/'.format(obj.policy_version)))
-            link = reverse('admin:flatpages_flatpage_change', args=[policy])
+            policy = Policy.objects.get(version=obj.policy_version)
+            link = reverse('admin:core_policy_change', args=[policy.pk])
             value = format_html('<a href="{url}">{policy}</a>', url=link, policy=obj.policy_version)
-        except FlatPage.DoesNotExist:
-            value = obj.policy_version
+        except Policy.DoesNotExist:
+            pass
         finally:
             cache[obj.policy_version] = value
-            return value
+        return value
     policy_link.short_description = _("version of policy")
     policy_link.admin_order_field = 'policy_version'
 
