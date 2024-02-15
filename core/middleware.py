@@ -97,26 +97,41 @@ class AccountFlagsMiddleware(MiddlewareMixin):
                 ))
 
         # Has the user consented to the most up-to-date usage policy?
-        policy = (Policy.objects.order_by('-id').values('version', 'content'))[0:1]
+        policy_versions, policies = Policy.objects.all_effective()
         if trouble_view is not None:
-            agreement = Agreement.objects.filter(
-                user=request.user, policy_version__in=policy.values_list('version'), withdrawn__isnull=True)
-            if not agreement.exists():
-                # Policy will be needed to display the following page anyway,
-                # so it is immediately fetched from the database.
-                request.user.consent_required = [policy.first()]
-                if request.user.consent_required[0] is None:
-                    raise RuntimeError("Service misconfigured: No user agreement was defined.")
+            agreement = (
+                Agreement.objects
+                .filter(
+                    user=request.user,
+                    policy_version__in=policy_versions,
+                    withdrawn__isnull=True,
+                )
+                .order_by('-created')
+                .values('policy_version')
+            )
+            if not agreement:
                 if trouble_view.func.view_class != AgreementView:
                     return redirect_to_intercept(
                         request.get_full_path(),
                         reverse('agreement'),
                         redirect_field_name=settings.REDIRECT_FIELD_NAME
                     )
+                # Policy will be needed to display the Agreement page anyway,
+                # so it is immediately fetched from the database.
+                request.user.consent_required = {
+                    'given_for': None,
+                    'current': [policies.first()],
+                    # TODO: Combine the summaries of changes.
+                }
+                if request.user.consent_required['current'][0] is None:
+                    raise RuntimeError("Service misconfigured: No user agreement was defined.")
             else:
                 # Policy most probably will not be needed, so it is lazily
                 # evaluated to spare a superfluous query on the database.
-                request.user.consent_obtained = policy
+                request.user.consent_obtained = {
+                    'given_for': agreement[0]['policy_version'],
+                    'current': policies[0:1],
+                }
 
         # Is the user trying to use the internal communicator and has a
         # properly configured profile?

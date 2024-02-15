@@ -2,10 +2,11 @@ import logging
 from copy import copy
 from datetime import datetime, timedelta
 from traceback import format_exception
+from typing import cast
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import authenticate, get_user_model, login
+from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.views import (
     LoginView as LoginBuiltinView,
     PasswordChangeDoneView as PasswordChangeDoneBuiltinView,
@@ -63,7 +64,10 @@ from .forms import (
     SystemPasswordChangeForm, UserAuthenticationForm,
     UsernameRemindRequestForm, UsernameUpdateForm, UserRegistrationForm,
 )
-from .mixins import LoginRequiredMixin, UserModifyMixin, flatpages_as_templates
+from .mixins import (
+    FlatpageAsTemplateMixin, LoginRequiredMixin,
+    UserModifyMixin, flatpages_as_templates,
+)
 from .models import FEEDBACK_TYPES, Agreement, SiteConfiguration
 from .utils import sanitize_next, send_mass_html_mail
 
@@ -71,7 +75,7 @@ User = get_user_model()
 
 
 @flatpages_as_templates
-class HomeView(generic.TemplateView):
+class HomeView(FlatpageAsTemplateMixin, generic.TemplateView):
     template_name = 'core/home.html'
 
     @cached_property
@@ -81,7 +85,7 @@ class HomeView(generic.TemplateView):
     @cached_property
     def right_block(self):
         block = FlatPage.objects.filter(url='/home-right-block/').values('content').first()
-        return self.render_flat_page(block)
+        return self.render_flat_page(cast(FlatpageAsTemplateMixin.DictWithContent, block))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -218,42 +222,41 @@ class AccountRestoreRequestView(generic.TemplateView):
 
 
 @flatpages_as_templates
-class AgreementView(LoginRequiredMixin, generic.TemplateView):
+class AgreementView(LoginRequiredMixin, FlatpageAsTemplateMixin, generic.TemplateView):
     http_method_names = ['get', 'post']
     template_name = 'account/consent.html'
     standalone_policy_view = False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['consent_required'] = getattr(self.request.user, 'consent_required', [None])[0]
-        context['effective_date'], __ = self._agreement
+        context['consent_required'] = hasattr(self.request.user, 'consent_required')
+        context['consent_obtained'] = getattr(self.request.user, 'consent_obtained', False)
+        context['effective_date'] = self._agreement.effective_date
         return context
 
     @cached_property
-    def _agreement(self):
+    def _agreement(self) -> Policy:
         policy = (
-            getattr(self.request.user, 'consent_required', None)
-            or getattr(self.request.user, 'consent_obtained', None)
-        )[0]  # Fetch the policy from the lazy collection.
-        effective_date = Policy.get_effective_date_for_policy(policy['content'])
-        return (effective_date, policy)
+            getattr(self.request.user, 'consent_required', {})
+            or getattr(self.request.user, 'consent_obtained', {})
+        ).get('current', [])[0]  # Fetch the policy from the lazy collection.
+        return policy
 
     @cached_property
     def agreement(self):
-        __, policy = self._agreement
-        return self.render_flat_page(policy)
+        return self.render_flat_page(self._agreement)
 
     def post(self, request, *args, **kwargs):
         action = request.POST.get('action', 'unknown')
         if action == 'approve':
-            if getattr(request.user, 'consent_required', False):
+            if hasattr(request.user, 'consent_required'):
                 Agreement.objects.create(
                     user=request.user,
-                    policy_version=request.user.consent_required[0]['version'])
+                    policy_version=request.user.consent_required['current'][0].version)
             target_page = sanitize_next(request)
             return HttpResponseRedirect(target_page or reverse_lazy('home'))
         elif action == 'reject':
-            request.session['agreement_rejected'] = self._agreement[1]['version']
+            request.session['agreement_rejected'] = self._agreement.version
             return HttpResponseRedirect(reverse_lazy('agreement_reject'))
         else:
             return HttpResponseRedirect(reverse_lazy('agreement'))
@@ -304,6 +307,7 @@ class AgreementRejectView(LoginRequiredMixin, generic.TemplateView):
             agreement = Agreement.objects.filter(
                 user=request.user, policy_version=agreement, withdrawn__isnull=True)
             agreement.update(withdrawn=now)
+        logout(request)
         messages.info(request, _("Farewell !"))
         return HttpResponseRedirect(reverse_lazy('home'))
 

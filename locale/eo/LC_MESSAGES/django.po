@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2024-01-10 19:56+0000\n"
+"POT-Revision-Date: 2024-02-16 19:25+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -358,16 +358,54 @@ msgstr "API-ŝlosiloj por mapigaj servoj"
 msgid "Site Configuration"
 msgstr "Retejaj agordoj"
 
+#: core/models.py hosting/admin/admin.py
+msgid "version of policy"
+msgstr "versio de regularo"
+
+#: core/models.py
+msgid "Avoid modifying already-existing versions."
+msgstr "Evitu ŝanĝi jam ekzistantajn versiojn."
+
+#: core/models.py
+msgid "in effect from date"
+msgstr "efikas ekde dato"
+
+#: core/models.py
+msgid "summary of changes"
+msgstr "resumo de ŝanĝoj"
+
+#: core/models.py
+msgid "content"
+msgstr "enhavo"
+
+#: core/models.py
+msgid "consent is required"
+msgstr "akcepto bezonata"
+
+#: core/models.py
+msgid "policy"
+msgstr "regularo"
+
+#: core/models.py
+msgid "policies"
+msgstr "regularoj"
+
+#: core/models.py
+#, python-brace-format
+msgid "Policy {version} binding from {date:%Y-%m-%d}"
+msgstr "Regularo {version} deviga ekde {date:%Y-%m-%d}"
+
+#: core/models.py
+#, python-brace-format
+msgid "Policy {version} effective from {date:%Y-%m-%d}"
+msgstr "Regularo {version} en efiko ekde {date:%Y-%m-%d}"
+
 #: core/models.py core/templates/core/base.html core/views.py
 #: hosting/admin/admin.py hosting/templates/hosting/phone_form.html
 #: hosting/templates/hosting/place_form.html
 #: hosting/templates/hosting/snippets/checked.html shop/models.py
 msgid "user"
 msgstr "uzanto"
-
-#: core/models.py hosting/admin/admin.py
-msgid "version of policy"
-msgstr "versio de regularo"
 
 #: core/models.py
 msgid "withdrawn on"
@@ -497,7 +535,20 @@ msgstr ""
 "kolektataj kaj traktataj, kaj <em>kiuj</em> informoj estas bezonataj de vi "
 "por esti parto de la komunumo. La dokumento rolas kiel kontrakto inter "
 "Pasporta Servo kaj vi, la uzanto. Daŭre uzante Pasportan Servon vi konfirmas "
-"ke vi legis la dokumenton, komprenas ĝin, kaj konsentas je tiuj kondiĉoj."
+"ke vi legis la dokumenton, komprenas ĝin, kaj konsentas je tiuj ĉi kondiĉoj."
+
+#: core/templates/account/consent.html
+#, python-format
+msgid ""
+"You have already indicated your consent to be bound by the policy, published "
+"earlier. An updated text of that policy as of %(effective_date)s (below) "
+"includes some adjustments but does not introduce any changes in the "
+"substance."
+msgstr ""
+"Vi jam indikis vian konsenton pri la rajtoj kaj la obligacioj detaligitaj en "
+"antaŭe publikigita regularo. La ĝisdatigita je %(effective_date)s teksto de "
+"tiu regularo (ĉi-sube) enhavas iomajn alĝustigojn sed enkondukas neniujn "
+"ŝanĝojn de la esenco."
 
 #: core/templates/account/consent.html
 #, python-format

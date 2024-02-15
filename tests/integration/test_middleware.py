@@ -21,7 +21,11 @@ class MiddlewareTests(WebTest):
                 RuntimeError,
                 "Service misconfigured: No user agreement was defined."
         ):
-            self.app.get(reverse('account_settings'), user=UserFactory(profile=None))
+            self.app.get(
+                reverse('account_settings'),
+                user=UserFactory(profile=None),
+                auto_follow=True,
+            )
 
 
 @tag('integration', 'middleware')

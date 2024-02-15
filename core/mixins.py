@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import Protocol, TypedDict
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -50,12 +50,24 @@ class UserModifyMixin(object):
             return reverse_lazy('profile_create')
 
 
+class FlatpageAsTemplateMixin:
+    class DictWithContent(TypedDict):
+        content: str
+
+    class HasContent(Protocol):
+        content: str
+
+    def render_flat_page(self, page: DictWithContent | HasContent) -> str:
+        ...
+
+
 def flatpages_as_templates(cls: type[View]):
     """
     View decorator:
     Facilitates rendering flat pages as Django templates, including usage of
     tags and the view's context. Performs some magic to capture the specific
     view's custom context and provides a helper function `render_flat_page`.
+    This helper function shouldn't be called from within get_context_data()!
     """
     context_func_name = 'get_context_data'
     context_func = getattr(cls, context_func_name, None)
@@ -66,18 +78,20 @@ def flatpages_as_templates(cls: type[View]):
             return context
         setattr(cls, context_func_name, _get_context_data_superfunc)
 
-    DictWithContent = TypedDict('HasContent', {'content': str})
-
-    def render_flat_page(self, page: DictWithContent):
+    def render_flat_page(
+            self,
+            page: FlatpageAsTemplateMixin.DictWithContent | FlatpageAsTemplateMixin.HasContent,
+    ):
         if not page:
             return ''
         from django.template import engines
-        template = engines.all()[0].from_string(page['content'])
+        content = page['content'] if isinstance(page, dict) else page.content
+        template = engines.all()[0].from_string(content)
         return template.render(
             getattr(self, '_flat_page_context', render_flat_page._view_context),
             self.request)
-    cls.render_flat_page = render_flat_page
-    cls.render_flat_page._view_context = {}
+    setattr(cls, 'render_flat_page',  render_flat_page)
+    getattr(cls, 'render_flat_page')._view_context = {}
 
     return cls
 

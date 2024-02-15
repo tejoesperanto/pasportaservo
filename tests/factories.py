@@ -5,6 +5,7 @@ from hashlib import md5
 from random import choice, randint, random, uniform as uniform_random
 
 from django.contrib.gis.geos import LineString, Point
+from django.utils import timezone
 
 import factory
 import faker
@@ -63,25 +64,62 @@ class PolicyFactory(DjangoModelFactory):
         model = 'core.Policy'
 
     class Params:
-        from_date = None
+        from_past_date, from_future_date = None, None
+        with_summary = True
 
-    url = factory.Sequence(lambda n: "/policy-{:08d}/".format(n))
-    title = Faker('sentence')
+    @classmethod
+    def _setup_next_sequence(cls):
+        return 1
 
-    @factory.lazy_attribute_sequence
-    def content(obj, n):
+    version = factory.Sequence(lambda n: f"{n:08d}")
+
+    @factory.lazy_attribute
+    def effective_date(self):
+        faker = Faker._get_faker()
+        if self.from_past_date:
+            faked_date = faker.date_between(start_date='-10y', end_date='-1y')
+        elif self.from_future_date:
+            faked_date = faker.date_between(start_date='+1y', end_date='+10y')
+        else:
+            faked_date = faker.date_this_decade(before_today=True, after_today=True)
+        return faked_date
+
+    @factory.lazy_attribute
+    def content(self):
         faker = Faker._get_faker(locale='la')
-        policy_date = faker.date(pattern='%Y-%m-%d') if obj.from_date is None else obj.from_date
         policy_text = faker.text()
-        return f"{{# {policy_date} #}}<p>Policy {n:03d}</p>\n{policy_text}"
+        return f"<p>Policy {self.version}</p>\n{policy_text}"
+
+    @factory.lazy_attribute
+    def changes_summary(self):
+        faker = Faker._get_faker(locale='la')
+        if self.with_summary is None:
+            return faker.optional_value('paragraph')
+        elif self.with_summary:
+            return faker.paragraph()
+        else:
+            return ""
 
 
 class AgreementFactory(DjangoModelFactory):
     class Meta:
         model = 'core.Agreement'
 
-    user = factory.SubFactory('tests.factories.UserFactory', agreement=None)
-    policy_version = "2018-001"
+    user = factory.SubFactory('tests.factories.UserFactory', agreement=None, profile=None)
+
+    @factory.lazy_attribute
+    def policy_version(self):
+        # By default, set the latest effective policy's version
+        # (future policies are not yet effective).
+        return (
+            PolicyFactory._meta.get_model_class().objects
+            .filter(effective_date__lte=timezone.now())
+            .order_by('-effective_date')
+            .values_list('version', flat=True)
+            .first()
+            or "UNKNOWN"
+        )
+
     withdrawn = None
 
 
@@ -103,8 +141,9 @@ class UserFactory(DjangoModelFactory):
     is_superuser = False
 
     profile = factory.RelatedFactory(
-        'tests.factories.ProfileFactory', 'user', deceased=factory.SelfAttribute('..deceased_user'))
-    agreement = factory.RelatedFactory(AgreementFactory, 'user')
+        'tests.factories.ProfileFactory', 'user',
+        deceased=factory.SelfAttribute('..deceased_user'))
+    agreement = factory.RelatedFactory('tests.factories.AgreementFactory', 'user')
 
     @factory.post_generation
     def invalid_email(instance, create, value, **kwargs):
@@ -324,8 +363,19 @@ class GenderFactory(DjangoModelFactory):
         django_get_or_create = ('name_en', 'name')
         strategy = factory.BUILD_STRATEGY
 
-    id = factory.Sequence(
-        lambda n: GenderFactory._meta.get_model_class().objects.values('id').last()['id'] + n + 1)
+    @classmethod
+    def _setup_next_sequence(cls):
+        last_existing_id = (
+            GenderFactory._meta.get_model_class().objects
+            .order_by('id').values('id').last()
+        )
+        return last_existing_id['id'] + 2 if last_existing_id is not None else 1
+
+    # When a custom gender (not present in DB) is provided by the user, a fake
+    # `Gender` object is created but not saved to the database. Its ID must be
+    # explicitely set to avoid the "save() prohibited, unsaved related object"
+    # errors for other models.
+    id = factory.Sequence(lambda n: n)
     name_en = Faker('word')
     name = Faker('pystr_format', string_format='{{word}} {{word}}', locale='la')
 

@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load i18n %}
+{% load next from utils %}
 {% load is_invalid clear_invalid from profile %}
 
 {% block head_title %}
@@ -59,7 +60,8 @@
             <samp><small>
                 {% if account.email|is_invalid %}
                     <span class="person-email-address text-danger" data-toggle="tooltip"
-                          title="{% trans "invalid email" %}" aria-label="{% trans "Warning " context 'Title' %}: {% trans "invalid email" %}">
+                          title="{% trans "invalid email" %}"
+                          aria-label="{% trans "Warning " context 'Title' %}: {% trans "invalid email" %}">
                         {{ account.email|clear_invalid }}
                         <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
                     </span>
@@ -93,7 +95,9 @@
             <h4>{% trans "Agreement" %}</h4>
             <span class="fa fa-arrow-circle-right text-muted fa-spacer-right" aria-hidden="true"></span>
             <span class="hidden" aria-hidden="true">&#x2b8a;&nbsp;</span>
-            <a href="{% url 'agreement' %}">{% trans "Agreement between You and"|lower %} Pasporta Servo.</a>
+            <a href="{% url 'agreement' %}?{% next 'this page' %}">
+                {% trans "Agreement between You and"|lower %} Pasporta Servo.
+            </a>
         </section>
         {% endif %}
     {% endblock %}

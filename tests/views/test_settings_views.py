@@ -268,9 +268,12 @@ class AccountSettingsViewTests(BasicViewTests):
                 self.subTest(lang=lang, section=expected_text[lang][0])
             ):
                 page = self.view_page.open(self, self.user, reuse_for_lang=lang)
+                expected_full_url = f'{expected_url}?' + urlencode({
+                    settings.REDIRECT_FIELD_NAME: self.view_page.explicit_url[lang],
+                })
                 self.basic_section_tests(
                     page, expected_text[lang][0],
-                    [expected_url], [expected_text[lang][1]],
+                    [expected_full_url], [expected_text[lang][1]],
                     [],
                 )
 
