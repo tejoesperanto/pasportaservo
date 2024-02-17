@@ -56,6 +56,13 @@ from .validators import (
 )
 
 
+class PasportaServoUser(get_user_model()):
+    class Meta:
+        proxy = True
+
+    profile: 'Profile'
+
+
 class LocationType(Enum):
     CITY = 'C'
     REGION = 'R'

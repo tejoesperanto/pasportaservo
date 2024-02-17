@@ -4,6 +4,7 @@ import types
 import warnings
 from enum import Enum
 from functools import total_ordering
+from typing import Literal, Union
 
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend
@@ -42,6 +43,9 @@ class AuthRole(Enum):
     SUPERVISOR = 30
     STAFF = 40
     ADMIN = 50
+
+    parent: Union['AuthRole', None]
+    do_not_call_in_templates: Literal[True]
 
     def __new__(cls, value, subvalue=None):
         obj = object.__new__(cls)
@@ -233,6 +237,7 @@ def get_role_in_context(request, profile=None, place=None, no_obj_context=False)
 
 class AuthMixin(AccessMixin):
     minimum_role = AuthRole.OWNER
+    exact_role: AuthRole | tuple[AuthRole]
     allow_anonymous = False
     redirect_field_name = settings.REDIRECT_FIELD_NAME
     display_permission_denied = True
@@ -328,7 +333,9 @@ class AuthMixin(AccessMixin):
                 ), self
             )
         elif self.display_permission_denied and self.request.user.has_perm(PERM_SUPERVISOR):
-            raise PermissionDenied(self.get_permission_denied_message(object, context_omitted), self)
+            raise PermissionDenied(
+                self.get_permission_denied_message(object, context_omitted),
+                self)
         else:
             raise Http404("Operation not allowed.")
 
