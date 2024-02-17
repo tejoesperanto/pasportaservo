@@ -113,6 +113,47 @@ msgstr "Aboni"
 msgid "yes,no"
 msgstr "jes,ne"
 
+#: core/admin/admin.py core/models.py core/templates/core/base.html
+#: core/views.py hosting/admin/admin.py
+#: hosting/templates/hosting/phone_form.html
+#: hosting/templates/hosting/place_form.html
+#: hosting/templates/hosting/snippets/checked.html shop/models.py
+msgid "user"
+msgstr "uzanto"
+
+#: core/admin/admin.py hosting/admin/admin.py hosting/models.py
+#: hosting/templates/hosting/place_list_page.html
+#: hosting/templates/hosting/profile_detail.html
+#: hosting/templates/hosting/settings.html
+msgid "profile"
+msgstr "profilo"
+
+#: core/admin/admin.py core/models.py
+msgid "version of policy"
+msgstr "versio de regularo"
+
+#: core/admin/filters.py
+msgid "Any year"
+msgstr "Ajna jaro"
+
+#: core/admin/filters.py hosting/templates/hosting/place_detail.html
+#, python-format
+msgid "from %(date)s"
+msgstr "ekde %(date)s"
+
+#: core/admin/filters.py hosting/templates/hosting/place_detail.html
+#, python-format
+msgid "until %(date)s"
+msgstr "ĝis %(date)s"
+
+#: core/admin/filters.py
+msgid "No date"
+msgstr "Neniu dato"
+
+#: core/admin/filters.py
+msgid "Has date"
+msgstr "Havas daton"
+
 #: core/apps.py
 msgid "Hosting Service Core"
 msgstr "Kerno"
@@ -358,10 +399,6 @@ msgstr "API-ŝlosiloj por mapigaj servoj"
 msgid "Site Configuration"
 msgstr "Retejaj agordoj"
 
-#: core/models.py hosting/admin/admin.py
-msgid "version of policy"
-msgstr "versio de regularo"
-
 #: core/models.py
 msgid "Avoid modifying already-existing versions."
 msgstr "Evitu ŝanĝi jam ekzistantajn versiojn."
@@ -399,13 +436,6 @@ msgstr "Regularo {version} deviga ekde {date:%Y-%m-%d}"
 #, python-brace-format
 msgid "Policy {version} effective from {date:%Y-%m-%d}"
 msgstr "Regularo {version} en efiko ekde {date:%Y-%m-%d}"
-
-#: core/models.py core/templates/core/base.html core/views.py
-#: hosting/admin/admin.py hosting/templates/hosting/phone_form.html
-#: hosting/templates/hosting/place_form.html
-#: hosting/templates/hosting/snippets/checked.html shop/models.py
-msgid "user"
-msgstr "uzanto"
 
 #: core/models.py
 msgid "withdrawn on"
@@ -1566,19 +1596,12 @@ msgid "Important dates"
 msgstr "Gravaj datoj"
 
 #: hosting/admin/admin.py
-msgid "MD5 (weak)"
-msgstr "MD5 (malforta)"
-
-#: hosting/admin/admin.py
 msgid "Password algorithm"
 msgstr "Pasvorta algoritmo"
 
-#: hosting/admin/admin.py hosting/models.py
-#: hosting/templates/hosting/place_list_page.html
-#: hosting/templates/hosting/profile_detail.html
-#: hosting/templates/hosting/settings.html
-msgid "profile"
-msgstr "profilo"
+#: hosting/admin/admin.py
+msgid "MD5 (weak)"
+msgstr "MD5 (malforta)"
 
 #: hosting/admin/admin.py hosting/admin/filters.py
 msgid "supervisor status"
@@ -1641,28 +1664,6 @@ msgstr "Ĉio"
 #: hosting/admin/filters.py hosting/models.py
 msgid "type"
 msgstr "tipo"
-
-#: hosting/admin/filters.py
-msgid "Any year"
-msgstr "Ajna jaro"
-
-#: hosting/admin/filters.py hosting/templates/hosting/place_detail.html
-#, python-format
-msgid "from %(date)s"
-msgstr "ekde %(date)s"
-
-#: hosting/admin/filters.py hosting/templates/hosting/place_detail.html
-#, python-format
-msgid "until %(date)s"
-msgstr "ĝis %(date)s"
-
-#: hosting/admin/filters.py
-msgid "No date"
-msgstr "Neniu dato"
-
-#: hosting/admin/filters.py
-msgid "Has date"
-msgstr "Havas daton"
 
 #: hosting/admin/filters.py hosting/forms/listing.py
 #: hosting/forms/visibility.py

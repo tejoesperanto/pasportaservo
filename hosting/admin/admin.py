@@ -1,7 +1,7 @@
 from functools import lru_cache
+from typing import cast
 
 from django.contrib import admin
-from django.contrib.admin.utils import display_for_value
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.admin import GenericTabularInline
@@ -16,26 +16,23 @@ from django.utils.translation import gettext_lazy as _
 
 from django_countries.fields import Country
 from djangocodemirror.widgets import CodeMirrorAdminWidget
-from packvers import version
 
-from core.models import Agreement, Policy, UserBrowser
+from core.admin.filters import YearBracketFilter
 from maps.widgets import AdminMapboxGlWidget
 
 from ..models import (
-    Condition, ContactPreference, CountryRegion, Phone, Place, Preferences,
-    Profile, TravelAdvice, VisibilitySettings, Website, Whereabouts,
+    Condition, ContactPreference, CountryRegion,
+    PasportaServoUser, Phone, Place, Preferences, Profile,
+    TravelAdvice, VisibilitySettings, Website, Whereabouts,
 )
 from .filters import (
-    ActiveStatusFilter, CountryMentionedOnlyFilter, DependentFieldFilter,
-    EmailValidityFilter, PlaceHasLocationFilter, ProfileHasUserFilter,
-    SupervisorFilter, VisibilityTargetFilter, YearBracketFilter,
+    ActiveStatusFilter, CountryMentionedOnlyFilter,
+    EmailValidityFilter, PlaceHasLocationFilter,
+    ProfileHasUserFilter, SupervisorFilter, VisibilityTargetFilter,
 )
 from .forms import WhereaboutsAdminForm
 from .mixins import ShowConfirmedMixin, ShowCountryMixin, ShowDeletedMixin
 from .widgets import AdminImageWithPreviewWidget
-
-admin.site.index_template = 'admin/custom_index.html'
-admin.site.disable_action('delete_selected')
 
 admin.site.unregister(User)
 admin.site.unregister(Group)
@@ -123,25 +120,34 @@ class CustomUserAdmin(UserAdmin):
     )
     readonly_fields = ('date_joined',)
 
-    def password_algorithm(self, obj):
+    @admin.display(
+        description=_("Password algorithm"),
+    )
+    def password_algorithm(self, obj: PasportaServoUser):
         if len(obj.password) == 32:
             return _("MD5 (weak)")
-        if obj.password[:13] == 'pbkdf2_sha256':
+        if obj.password.startswith('pbkdf2_sha256'):
             return 'PBKDF2 SHA256'
-    password_algorithm.short_description = _("Password algorithm")
 
-    def profile_link(self, obj):
+    @admin.display(
+        description=_("profile"),
+    )
+    def profile_link(self, obj: PasportaServoUser):
         try:
             fullname = obj.profile if (obj.profile.first_name or obj.profile.last_name) else "--."
-            return format_html('<a href="{url}">{name}</a>', url=obj.profile.get_admin_url(), name=fullname)
+            return format_html(
+                '<a href="{url}">{name}</a>',
+                url=obj.profile.get_admin_url(), name=fullname)
         except AttributeError:
             return '[ - ]'
-    profile_link.short_description = _("profile")
 
-    def is_supervisor(self, obj):
+    @admin.display(
+        description=_("supervisor status"),
+        boolean=True,
+    )
+    def is_supervisor(self, obj: PasportaServoUser):
         value = any(g for g in obj.groups.all() if len(g.name) == 2)
-        return display_for_value(value, None, boolean=True)
-    is_supervisor.short_description = _("supervisor status")
+        return value
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('groups')
@@ -160,13 +166,18 @@ class CustomGroupAdmin(GroupAdmin):
     list_display = ('name', 'country', 'supervisors')
     list_per_page = 50
 
-    def country(self, obj):
+    @admin.display(
+        description=_("country"),
+    )
+    def country(self, obj: Group):
         return Country(obj.name).name if len(obj.name) == 2 else "-"
-    country.short_description = _("country")
 
-    def supervisors(self, obj):
+    @admin.display(
+        description=_("Supervisors"),
+    )
+    def supervisors(self, obj: Group):
         def get_formatted_list():
-            for u in obj.user_set.all():
+            for u in cast(list[PasportaServoUser], obj.user_set.all()):
                 link = reverse('admin:auth_user_change', args=[u.pk])
                 account_link = '<a href="{url}">{username}</a>'.format(url=link, username=u)
                 is_deleted = not u.is_active
@@ -180,7 +191,6 @@ class CustomGroupAdmin(GroupAdmin):
                 indicator = '<span style="color:#dd4646">&#x2718;!</span>' if is_deleted else ''
                 yield " ".join([indicator, account_link, profile_link])
         return format_html(", ".join(get_formatted_list())) if len(obj.name) == 2 else "-"
-    supervisors.short_description = _("Supervisors")
 
     class CountryGroup(Group):
         class Meta:
@@ -199,149 +209,21 @@ class CustomGroupAdmin(GroupAdmin):
         return super().get_queryset(request).prefetch_related('user_set__profile')
 
 
-@admin.register(Agreement)
-class AgreementAdmin(admin.ModelAdmin):
-    list_display = (
-        'id', 'policy_link', 'user_link', 'created', 'modified', 'withdrawn',
-    )
-    ordering = ('-policy_version', '-modified', 'user__username')
-    search_fields = ('user__username',)
-    list_filter = ('policy_version',)
-    date_hierarchy = 'created'
-    fields = (
-        'user_link', 'policy_link',
-        'created', 'modified', 'withdrawn',
-    )
-    readonly_fields = [f.name for f in Agreement._meta.fields] + ['user_link', 'policy_link']
-
-    def user_link(self, obj):
-        try:
-            link = reverse('admin:auth_user_change', args=[obj.user.pk])
-            account_link = f'<a href="{link}">{obj.user}</a>'
-            try:
-                profile_link = '&nbsp;(<a href="{url}">{name}</a>)</sup>'.format(
-                    url=obj.user.profile.get_admin_url(), name=_("profile"))
-            except Profile.DoesNotExist:
-                profile_link = ''
-            return format_html(" ".join([account_link, profile_link]))
-        except AttributeError:
-            return format_html('{userid} <sup>?</sup>', userid=obj.user_id)
-    user_link.short_description = _("user")
-    user_link.admin_order_field = 'user__username'
-
-    def policy_link(self, obj):
-        try:
-            cache = self._policies_cache
-        except AttributeError:
-            cache = self._policies_cache = {}
-        if obj.policy_version in cache:
-            return cache[obj.policy_version]
-        value = obj.policy_version
-        try:
-            policy = Policy.objects.get(version=obj.policy_version)
-            link = reverse('admin:core_policy_change', args=[policy.pk])
-            value = format_html('<a href="{url}">{policy}</a>', url=link, policy=obj.policy_version)
-        except Policy.DoesNotExist:
-            pass
-        finally:
-            cache[obj.policy_version] = value
-        return value
-    policy_link.short_description = _("version of policy")
-    policy_link.admin_order_field = 'policy_version'
-
-    def get_queryset(self, request):
-        qs = super().get_queryset(request).select_related('user', 'user__profile')
-        qs = qs.only(
-                *[f.name for f in Agreement._meta.fields],
-                'user__id', 'user__username', 'user__profile__id')
-        return qs
-
-    def has_add_permission(self, request):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return False
-
-
-@admin.register(UserBrowser)
-class UserBrowserAdmin(admin.ModelAdmin):
-    list_display = (
-        'user', 'os_name', 'os_version', 'browser_name', 'browser_version', 'added_on',
-    )
-    ordering = ('user__username', '-added_on')
-    search_fields = ('user__username__exact',)
-    list_filter = (
-        'os_name',
-        DependentFieldFilter.configure(
-            'os_name', 'os_version',
-            coerce=lambda version_string: version.parse(version_string),
-            sort=True, sort_reverse=True,
-        ),
-        'browser_name',
-        DependentFieldFilter.configure(
-            'browser_name', 'browser_version',
-            coerce=lambda version_string: version.parse(version_string),
-            sort=True, sort_reverse=True,
-        ),
-        ('added_on', YearBracketFilter.configure(YearBracketFilter.Brackets.SINCE)),
-    )
-    show_full_result_count = False
-    fields = (
-        'user_agent_string', 'user_agent_hash',
-        'os_name', 'os_version', 'browser_name', 'browser_version', 'device_type',
-        'geolocation',
-    )
-    raw_id_fields = ('user',)
-    readonly_fields = ('added_on',)
-
-    def user_link(self, obj):
-        try:
-            link = reverse('admin:auth_user_change', args=[obj.user.pk])
-            return format_html('<a href="{link}">{user}</a>', link=link, user=obj.user)
-        except AttributeError:
-            return format_html('{userid} <sup>?</sup>', userid=obj.user_id)
-    user_link.short_description = _("user")
-    user_link.admin_order_field = 'user__username'
-
-    def get_queryset(self, request):
-        qs = super().get_queryset(request).select_related('user')
-        qs = qs.only(
-                *[f.name for f in UserBrowser._meta.fields],
-                'user__id', 'user__username')
-        return qs
-
-    def get_fields(self, request, obj=None):
-        return (
-            ('user' if obj is None else 'user_link',)
-            + self.fields
-            + (('added_on',) if obj is not None else ())
-        )
-
-    def has_change_permission(self, request, obj=None):
-        return False
-
-    def get_form(self, request, *args, **kwargs):
-        form = super().get_form(request, *args, **kwargs)
-        if form.base_fields:
-            form.base_fields['user_agent_string'].widget.attrs['style'] = "width: 50em;"
-        return form
-
-
 class TrackingModelAdmin(ShowConfirmedMixin):
     fields = (
         ('checked_on', 'checked_by'), 'display_confirmed', 'deleted_on',
     )
     readonly_fields = ('display_confirmed',)
 
-    class InstanceApprover(User):
+    class InstanceApprover(PasportaServoUser):
         class Meta:
             proxy = True
 
         def __str__(self):
             try:
-                fullname = " : ".join([self.username, str(self.profile)])
+                fullname = " : ".join([self.get_username(), str(self.profile)])
             except Profile.DoesNotExist:
-                fullname = self.username
+                fullname = self.get_username()
             return " ".join([fullname, "[N/A]" if not self.is_active else ""])
 
     def get_field_queryset(self, db, db_field, request):
@@ -374,19 +256,22 @@ class VisibilityAdmin(admin.ModelAdmin):
     ) + visibility_fields
     readonly_fields = fields
 
-    def content_object_link(self, obj):
+    @admin.display(
+        description=_("object"),
+        ordering='model_id',
+    )
+    def content_object_link(self, obj: VisibilitySettings):
         try:
-            link = reverse('admin:{content.app_label}_{content.model}_change'.format(content=obj.content_type),
+            link = reverse('admin:{content.app_label}_{content.model}_change'
+                           .format(content=obj.content_type),
                            args=[obj.model_id])
             return format_html(
                 '{pk}: <a href="{url}">{content}</a>',
                 url=link,
-                pk=obj.content_object.pk, content=obj.content_object
+                pk=obj.content_object.pk, content=obj.content_object,
             )
         except AttributeError:
             return '-'
-    content_object_link.short_description = _("object")
-    content_object_link.admin_order_field = 'model_id'
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('content_object')
@@ -440,7 +325,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
 
     inlines = [VisibilityInLine, PreferencesInLine, PlaceInLine, PhoneInLine]
 
-    def user__email(self, obj):
+    def user__email(self, obj: Profile):
         try:
             return obj.user.email
         except AttributeError:
@@ -448,7 +333,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     user__email.short_description = _("email address")
     user__email.admin_order_field = 'user__email'
 
-    def user_link(self, obj):
+    def user_link(self, obj: Profile):
         try:
             link = reverse('admin:auth_user_change', args=[obj.user.pk])
             return format_html('<a href="{url}">{username}</a>', url=link, username=obj.user)
@@ -457,15 +342,15 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
     user_link.short_description = _("user")
     user_link.admin_order_field = 'user__username'
 
-    def checked_by__name(self, obj):
+    def checked_by__name(self, obj: Profile):
         try:
-            return obj.checked_by.username
+            return obj.checked_by.get_username()
         except AttributeError:
             return '-'
     checked_by__name.short_description = _("approved by")
     checked_by__name.admin_order_field = 'checked_by__username'
 
-    def supervisor(self, obj):
+    def supervisor(self, obj: Profile):
         country_list = CustomGroupAdmin.CountryGroup.objects.filter(
             name__regex=r'^[A-Z]{2}$',
             user__pk=obj.user_id if obj.user_id else -1)
@@ -540,7 +425,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
 
     inlines = [VisibilityInLine, ]
 
-    def display_location(self, obj):
+    def display_location(self, obj: Place):
         return (
             ' '.join([
                 '{point.y:.4f} {point.x:.4f}'.format(point=obj.location),
@@ -551,16 +436,16 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
         )
     display_location.short_description = _("location")
 
-    def owner_link(self, obj):
+    def owner_link(self, obj: Place):
         return format_html('<a href="{url}">{name}</a>', url=obj.owner.get_admin_url(), name=obj.owner)
     owner_link.short_description = _("owner")
     owner_link.admin_order_field = dbf.Concat(
         'owner__first_name', V(","), 'owner__last_name', V(","), 'owner__user__username'
     )
 
-    def checked_by__name(self, obj):
+    def checked_by__name(self, obj: Place):
         try:
-            return obj.checked_by.username
+            return obj.checked_by.get_username()
         except AttributeError:
             return '-'
     checked_by__name.short_description = _("approved by")
@@ -623,19 +508,19 @@ class PhoneAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
     radio_fields = {'type': admin.VERTICAL}
     inlines = [VisibilityInLine, ]
 
-    def number_intl(self, obj):
+    def number_intl(self, obj: Phone):
         return obj.number.as_international
     number_intl.short_description = _("number")
     number_intl.admin_order_field = 'number'
 
-    def profile_link(self, obj):
+    def profile_link(self, obj: Phone):
         return format_html('<a href="{url}">{name}</a>', url=obj.profile.get_admin_url(), name=obj.profile)
     profile_link.short_description = _("profile")
     profile_link.admin_order_field = dbf.Concat(
         'profile__first_name', V(","), 'profile__last_name', V(","), 'profile__user__username'
     )
 
-    def country_code(self, obj):
+    def country_code(self, obj: Phone):
         return obj.number.country_code
     country_code.short_description = _("country code")
 
@@ -712,16 +597,16 @@ class TravelAdviceAdmin(admin.ModelAdmin):
     save_as = True
     save_as_continue = False
 
-    def advice(self, obj):
+    def advice(self, obj: TravelAdvice):
         return obj.trimmed_content()
     advice.short_description = _("travel advice")
     advice.admin_order_field = 'content'
 
-    def countries_list(self, obj):
+    def countries_list(self, obj: TravelAdvice):
         return obj.applicable_countries(code=False)
     countries_list.short_description = _("countries")
 
-    def active_status(self, obj):
+    def active_status(self, obj: TravelAdvice):
         # The status is a calculated field (QuerySet annotation).
         return obj.is_active
     active_status.short_description = _("active")
