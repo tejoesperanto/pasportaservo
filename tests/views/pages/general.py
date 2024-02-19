@@ -137,12 +137,17 @@ class TCPage(PageWithTitleHeadingTemplate):
     }
     template = 'pages/terms_conditions.html'
     title = {
-        # The Terms-and-Conditions page is currently always in Esperanto.
-        'en': "Kondiĉoj | Pasporta Servo",
+        'en': "Terms | Pasporta Servo",
         'eo': "Kondiĉoj | Pasporta Servo",
     }
     redirects_unauthenticated = False
-    page_title = "Kondiĉoj por la uzado de Pasporta Servo"
+    page_title = {
+        'en': "Conditions of Usage of Pasporta Servo",
+        'eo': "Kondiĉoj por la uzado de Pasporta Servo",
+    }
 
     def get_terms_items(self) -> PyQuery:
         return self.pyquery("[role='main'] > blockquote")
+
+    def get_404_headings(self) -> PyQuery:
+        return self.pyquery("[role='heading']")

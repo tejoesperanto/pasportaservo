@@ -1,5 +1,8 @@
+import re
+
+from django.contrib.flatpages.models import FlatPage
 from django.db.models import Count, Q
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils.functional import SimpleLazyObject, cached_property
 from django.utils.text import format_lazy
@@ -33,8 +36,20 @@ class AboutView(generic.TemplateView):
         return context
 
 
-class TermsAndConditionsView(generic.TemplateView):
+@flatpages_as_templates
+class TermsAndConditionsView(FlatpageAsTemplateMixin, generic.TemplateView):
     template_name = 'pages/terms_conditions.html'
+
+    @cached_property
+    def content(self):
+        try:
+            tcpage = FlatPage.objects.only('content').get(url='/terms-conditions/')
+        except FlatPage.DoesNotExist:
+            raise Http404
+        terms = self.render_flat_page(tcpage).rstrip()
+        if not terms:
+            return []
+        return re.split(r'\r?\n\r?\n', terms.lstrip('\n\r'))
 
 
 @flatpages_as_templates

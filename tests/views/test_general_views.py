@@ -14,6 +14,8 @@ from django.urls import reverse, reverse_lazy
 from django.utils.functional import classproperty
 
 from django_countries.data import COUNTRIES
+from faker import Faker
+from lxml.html import HtmlComment, HtmlElement
 from pyquery import PyQuery
 
 from shop.tests.factories import ProductReservationFactory
@@ -484,7 +486,11 @@ class GeneralViewTestsMixin(with_type_hint(BasicViewTests)):
                     self.subTest(user=user_tag, lang=lang)
                 ):
                     page = self.view_page.open(self, user=user, reuse_for_lang=lang)
-                    self.assertEqual(page.get_heading_text(), page.page_title)
+                    if isinstance(page.page_title, dict):
+                        expected_title = page.page_title[lang]
+                    else:
+                        expected_title = page.page_title
+                    self.assertEqual(page.get_heading_text(), expected_title)
 
 
 class LanguageSwitcherTestsMixin(with_type_hint(BasicViewTests)):
@@ -915,16 +921,103 @@ class FAQViewTests(GeneralViewTestsMixin, BasicViewTests):
 @tag('views', 'views-general')
 class TermsAndConditionsViewTests(GeneralViewTestsMixin, BasicViewTests):
     view_page: type[TCPage] = TCPage
+    terms_page_filter = Q(url='/terms-conditions/')
 
     def test_terms_structure(self):
+        faker = Faker(locale='la')
+        terms_count = faker.pyint(3, 10)
+        FlatPage.objects.filter(self.terms_page_filter).update_or_create({
+            'content': "\n\n".join(
+                faker.sentence(nb_words=12) for _ in range(terms_count)
+            ),
+        })
         for user_tag, user in self.params_for_test['users']:
             for lang in self.params_for_test['langs']:
                 with (
                     override_settings(LANGUAGE_CODE=lang),
                     self.subTest(user=user_tag, lang=lang)
                 ):
-                    page = self.view_page.open(self, user=user, reuse_for_lang=lang)
+                    page = self.view_page.open(self, user=user)
                     items = page.get_terms_items()
-                    self.assertGreaterEqual(len(items), 2)
+                    self.assertLength(items, terms_count)
                     for terms_item in items.items():
+                        self.assertEqual(terms_item[0].tag, 'blockquote')
                         self.assertNotEqual(terms_item.text(), "")
+
+    def test_terms_encoding(self):
+        faker = Faker(locale='la')
+        FlatPage.objects.filter(self.terms_page_filter).update_or_create({
+            'content': "\r\n\r\n".join([
+                f"{faker.sentence()} <em>{faker.sentence()}</em> {faker.sentence()}",
+                f"<!-- {faker.sentence()} --> \t <u>{faker.word()}</u>"
+                + f"<span>{faker.word()}</span>",
+            ]),
+        })
+        expected_nodes = [
+            [str, (HtmlElement, 'em'), str],
+            [str, HtmlComment, str, (HtmlElement, 'u'), (HtmlElement, 'span'), str]
+        ]
+        for user_tag, user in self.params_for_test['users']:
+            for lang in self.params_for_test['langs']:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(user=user_tag, lang=lang)
+                ):
+                    page = self.view_page.open(self, user=user)
+                    items = page.get_terms_items()
+                    self.assertLength(items, 2)
+                    for i, item in enumerate(items):
+                        with self.subTest(term=i + 1):
+                            item_child_nodes = item.xpath('child::node()')
+                            self.assertLength(item_child_nodes, len(expected_nodes[i]))
+                            for j, child_node in enumerate(item_child_nodes):
+                                if isinstance(expected_nodes[i][j], tuple):
+                                    expected_type, expected_tag = expected_nodes[i][j]
+                                else:
+                                    expected_type = expected_nodes[i][j]
+                                    expected_tag = None
+                                with self.subTest(
+                                        node=child_node.__class__.__name__,
+                                        position=j + 1,
+                                ):
+                                    self.assertIsInstance(child_node, expected_type)
+                                    if expected_tag is not None:
+                                        self.assertEqual(child_node.tag, expected_tag)
+
+    def test_missing_content(self):
+        FlatPage.objects.filter(self.terms_page_filter).delete()
+        for user_tag, user in self.params_for_test['users']:
+            for lang in self.params_for_test['langs']:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(user=user_tag, lang=lang)
+                ):
+                    page = self.view_page.open(self, user=user, status=404)
+                    heading_elements = page.get_404_headings()
+                    self.assertLength(heading_elements, 2)
+                    self.assertEqual(
+                        heading_elements.eq(1).text(),
+                        {'en': "Page not found", 'eo': "Paĝo ne trovita"}[lang]
+                    )
+
+    def test_empty_content(self):
+        dummy_content = " \t" * 3 + "\n" * 3 + "\f" * 2 + "\r\n" * 2 + "  " * 5
+        FlatPage.objects.filter(self.terms_page_filter).update_or_create({
+            'content': dummy_content,
+        })
+        for user_tag, user in self.params_for_test['users']:
+            for lang in self.params_for_test['langs']:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(user=user_tag, lang=lang)
+                ):
+                    page = self.view_page.open(self, user=user)
+                    # When the T&C flatpage does not have any content, no terms
+                    # are expected to be shown on the page visible to the users.
+                    self.assertLength(page.get_terms_items(), 0)
+                    # The page's title is still expected to be displayed.
+                    if isinstance(page.page_title, dict):
+                        expected_title = page.page_title[lang]
+                    else:
+                        expected_title = page.page_title
+                    self.assertEqual(page.get_heading_text(), expected_title)
