@@ -1,4 +1,5 @@
 import logging
+import re
 from copy import copy
 from datetime import datetime, timedelta
 from traceback import format_exception
@@ -243,8 +244,17 @@ class AgreementView(LoginRequiredMixin, FlatpageAsTemplateMixin, generic.Templat
         return policy
 
     @cached_property
-    def agreement(self):
+    def agreement(self) -> str:
         return self.render_flat_page(self._agreement)
+
+    @cached_property
+    def terms(self) -> list[str]:
+        tcpage = FlatPage.objects.filter(url='/terms-conditions/').values('content').first()
+        terms = self.render_flat_page(cast(FlatpageAsTemplateMixin.DictWithContent, tcpage))
+        terms = terms.rstrip()
+        if not terms:
+            return []
+        return re.split(r'\r?\n\r?\n', terms.lstrip('\n\r'))
 
     def post(self, request, *args, **kwargs):
         action = request.POST.get('action', 'unknown')

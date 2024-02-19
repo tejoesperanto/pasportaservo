@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2024-02-16 19:25+0000\n"
+"POT-Revision-Date: 2024-02-19 20:05+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -590,6 +590,11 @@ msgstr ""
 "la plej ĝisdata regularo, kiu efikas ekde %(effective_date)s."
 
 #: core/templates/account/consent.html
+#: pages/templates/pages/terms_conditions.html
+msgid "Conditions of Usage of Pasporta Servo"
+msgstr "Kondiĉoj por la uzado de Pasporta Servo"
+
+#: core/templates/account/consent.html
 msgid "Policy of Privacy within Pasporta Servo"
 msgstr "Politiko pri privateco ĉe Pasporta Servo"
 
@@ -859,7 +864,7 @@ msgstr "Pri ni"
 msgid "FAQ"
 msgstr "Oftaj demandoj"
 
-#: core/templates/core/base.html
+#: core/templates/core/base.html pages/templates/pages/terms_conditions.html
 msgid "Terms"
 msgstr "Kondiĉoj"
 

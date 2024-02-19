@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n %}
+{% load i18n utils %}
 
 {% block head_title %}{% trans "Agreement between You and" %}{% endblock %}
 {% block head_title_separator %}{% endblock %}
@@ -47,7 +47,25 @@
     </div>
     {# TODO: Add navigation to the previous versions (stored separately). They should be accessible but not actionable. #}
 
-    {# TODO: Add conditions of use. #}
+    {% if view.terms %}
+        <div id="user-terms-panel" class="panel {% if consent_required %}panel-warning{% else %}panel-default{% endif %}">
+            <div class="panel-body">
+                <h1>{% trans "Conditions of Usage of Pasporta Servo" %}</h1><br />
+                <blockquote>
+                    <ul>
+                        {% for terms_condition in view.terms %}
+                            {% if terms_condition.strip %}
+                                <li>
+                                    <b>{{ terms_condition.strip|split|slice:':4'|safeseq|join:" " }}</b>
+                                    {{ terms_condition.strip|split|slice:'4:'|safeseq|join:" " }}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </blockquote>
+            </div>
+        </div>
+    {% endif %}
 
     <div id="user-agreement-panel" class="panel {% if consent_required %}panel-warning{% else %}panel-default{% endif %}">
         <div class="panel-body">
