@@ -5,12 +5,14 @@ from django.contrib.auth.views import (
     LoginView, LogoutView, redirect_to_login as redirect_to_intercept,
 )
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.http import HttpRequest
 from django.template.response import TemplateResponse
 from django.urls import Resolver404, resolve, reverse
 from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
+from django.views import View
 
 import geocoder
 import user_agents
@@ -97,41 +99,12 @@ class AccountFlagsMiddleware(MiddlewareMixin):
                 ))
 
         # Has the user consented to the most up-to-date usage policy?
-        policy_versions, policies = Policy.objects.all_effective()
         if trouble_view is not None:
-            agreement = (
-                Agreement.objects
-                .filter(
-                    user=request.user,
-                    policy_version__in=policy_versions,
-                    withdrawn__isnull=True,
-                )
-                .order_by('-created')
-                .values('policy_version')
+            redirect_response = (
+                self._verify_usage_policy_consent(request, trouble_view.func.view_class)
             )
-            if not agreement:
-                if trouble_view.func.view_class != AgreementView:
-                    return redirect_to_intercept(
-                        request.get_full_path(),
-                        reverse('agreement'),
-                        redirect_field_name=settings.REDIRECT_FIELD_NAME
-                    )
-                # Policy will be needed to display the Agreement page anyway,
-                # so it is immediately fetched from the database.
-                request.user.consent_required = {
-                    'given_for': None,
-                    'current': [policies.first()],
-                    # TODO: Combine the summaries of changes.
-                }
-                if request.user.consent_required['current'][0] is None:
-                    raise RuntimeError("Service misconfigured: No user agreement was defined.")
-            else:
-                # Policy most probably will not be needed, so it is lazily
-                # evaluated to spare a superfluous query on the database.
-                request.user.consent_obtained = {
-                    'given_for': agreement[0]['policy_version'],
-                    'current': policies[0:1],
-                }
+            if redirect_response is not None:
+                return redirect_response
 
         # Is the user trying to use the internal communicator and has a
         # properly configured profile?
@@ -152,7 +125,45 @@ class AccountFlagsMiddleware(MiddlewareMixin):
             t.render()
             return t
 
-    def _update_connection_info(self, request):
+    def _verify_usage_policy_consent(self, request: HttpRequest, requested_view: type[View]):
+        policy_versions, policies = Policy.objects.all_effective()
+        agreement = (
+            Agreement.objects
+            .filter(
+                user=request.user,
+                policy_version__in=policy_versions,
+                withdrawn__isnull=True,
+            )
+            .order_by('-created')
+            .values('policy_version')
+        )
+
+        if not agreement:
+            if requested_view != AgreementView:
+                return redirect_to_intercept(
+                    request.get_full_path(),
+                    reverse('agreement'),
+                    redirect_field_name=settings.REDIRECT_FIELD_NAME,
+                )
+            # Policy will be needed to display the Agreement page anyway,
+            # so it is immediately fetched from the database.
+            current_policy = policies.first()
+            setattr(request.user, 'consent_required', {
+                'given_for': None,
+                'current': [current_policy],
+                # TODO: Combine the summaries of changes.
+            })
+            if current_policy is None:
+                raise RuntimeError("Service misconfigured: No user agreement was defined.")
+        else:
+            # Policy most probably will not be needed, so it is lazily
+            # evaluated to spare a superfluous query on the database.
+            setattr(request.user, 'consent_obtained', {
+                'given_for': agreement[0]['policy_version'],
+                'current': policies[0:1],
+            })
+
+    def _update_connection_info(self, request: HttpRequest):
         """
         Store information about the browser and device the user is employing and
         where the user is connecting from.
