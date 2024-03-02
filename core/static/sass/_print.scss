@@ -185,6 +185,11 @@ blockquote {
     }
 }
 
+#policy-changes.collapse {
+    display: block;
+    height: auto !important;
+}
+
 .mapboxgl-ctrl-group > button + button {
     border-top: 0 !important;
 }

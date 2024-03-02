@@ -333,6 +333,62 @@ $(document).ready(function() {
         }
         window.setTimeout(function() { $container.show(); }, 1750);
     });
+    $('[aria-controls="policy-changes"]').on('keydown', function(event) {
+        if (!/(13|32|40|38)/.test(event.which))
+            return;
+        var $this = $(this);
+        var $changesPanel = $('#policy-changes');
+        // In transition: do nothing.
+        if ($changesPanel.hasClass('collapsing')) {
+            event.preventDefault();
+            event.stopPropagation();
+            return;
+        }
+        // Enter and Space keys are handled as arrow keys,
+        // depending on whether the panel is collapsed or not.
+        if (event.which == 13 || event.which == 32) {
+            if ($changesPanel.hasClass('in'))
+                event.which = 38;
+            else
+                event.which = 40;
+        }
+        // Down arrow key.
+        if (event.which == 40) {
+            var aboveViewportBottom =
+                this.getBoundingClientRect().bottom < document.documentElement.clientHeight;
+            if (!$changesPanel.hasClass('in') && aboveViewportBottom) {
+                event.preventDefault();
+                event.stopPropagation();
+                $this.trigger('click');
+            }
+            else {
+                return;  // Let the page scroll down normally.
+            }
+        }
+        // Up arrow key.
+        if (event.which == 38) {
+            var header = document.getElementsByTagName('header')[0];
+            var belowHeader =
+                this.getBoundingClientRect().top > header.getBoundingClientRect().bottom;
+            if ($changesPanel.hasClass('in') && belowHeader) {
+                event.preventDefault();
+                event.stopPropagation();
+                $this.trigger('click');
+            }
+            else {
+                return;  // Let the page scroll up normally.
+            }
+        }
+    });
+    $('#policy-changes').on('show.bs.collapse hide.bs.collapse', function(event) {
+        var $changesSwitch = $('[aria-controls='+this.id+'] .switch');
+        if ($changesSwitch.length == 0)
+            return;
+        var label = $changesSwitch.attr('aria-label');
+        $changesSwitch.attr('aria-label', $changesSwitch.data('aria-label-inactive'))
+                      .data('aria-label-inactive', label);
+        $changesSwitch[0].classList.toggle('fa-rotate-90', event.type == 'show');
+    });
     $('#family-panel-small').each(function() {
         var familyKey = 'place.ID.family-members.expanded';
         familyKey = familyKey.replace('ID', $('.place-detail').data('id'));

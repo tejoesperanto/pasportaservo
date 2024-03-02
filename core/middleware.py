@@ -10,6 +10,7 @@ from django.template.response import TemplateResponse
 from django.urls import Resolver404, resolve, reverse
 from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
+from django.utils.functional import SimpleLazyObject
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import View
@@ -131,14 +132,13 @@ class AccountFlagsMiddleware(MiddlewareMixin):
             Agreement.objects
             .filter(
                 user=request.user,
-                policy_version__in=policy_versions,
                 withdrawn__isnull=True,
             )
             .order_by('-created')
-            .values('policy_version')
+            .values_list('policy_version', flat=True)
         )
 
-        if not agreement:
+        if not set(agreement) & set(policy_versions):
             if requested_view != AgreementView:
                 return redirect_to_intercept(
                     request.get_full_path(),
@@ -146,21 +146,30 @@ class AccountFlagsMiddleware(MiddlewareMixin):
                     redirect_field_name=settings.REDIRECT_FIELD_NAME,
                 )
             # Policy will be needed to display the Agreement page anyway,
-            # so it is immediately fetched from the database.
-            current_policy = policies.first()
+            # so the currently effective policies are immediately fetched
+            # from the database.
+            current_policy = list(policies)[0]
             setattr(request.user, 'consent_required', {
-                'given_for': None,
+                'given_for': agreement.first(),
                 'current': [current_policy],
-                # TODO: Combine the summaries of changes.
+                'summary': [
+                    (p.effective_date, p.changes_summary)
+                    for p in policies if p.changes_summary
+                ],
             })
             if current_policy is None:
                 raise RuntimeError("Service misconfigured: No user agreement was defined.")
         else:
             # Policy most probably will not be needed, so it is lazily
             # evaluated to spare a superfluous query on the database.
+            current_policy = policies[0:1]
             setattr(request.user, 'consent_obtained', {
-                'given_for': agreement[0]['policy_version'],
-                'current': policies[0:1],
+                'given_for': agreement.first(),
+                'current': current_policy,
+                'summary': SimpleLazyObject(lambda: [
+                    (p.effective_date, p.changes_summary)
+                    for p in current_policy if p.changes_summary
+                ]),
             })
 
     def _update_connection_info(self, request: HttpRequest):
