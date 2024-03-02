@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load i18n %}
 
 {% block head_title %}Politiko pri privateco{% endblock %}
 
@@ -7,9 +8,30 @@
 {% block page %}
     <h1>Politiko pri privateco ĉe Pasporta Servo</h1>
     <h2>
-        <small class="pull-right">En efiko ekde {{ effective_date }}</small>
+        <small class="pull-right">{% blocktrans %}Effective from {{ effective_date }}{% endblocktrans %}</small>
     </h2>
     <p class="clearfix"></p>
+
+    {% if changes_summary %}
+        <div class="panel panel-info">
+            <div class="panel-heading" id="policy-changes-header" role="button" tabindex="0"
+                 data-toggle="collapse" data-target="#policy-changes" aria-controls="policy-changes"
+                 aria-expanded="false">
+                <div class="panel-title">
+                    {% trans "Summary of the changes" %}
+                    <span class="switch requires-scripting fa fa-caret-right fa-spacer-left-2x hidden-print"
+                          aria-label="{% trans "Show" %}" data-aria-label-inactive="{% trans "Hide" %}"></span>
+                </div>
+            </div>
+            <div class="panel-collapse collapse when-scripting" id="policy-changes"
+                 aria-labelledby="policy-changes-header" aria-live="off">
+                <div class="panel-body">
+                    {{ changes_summary|safe }}
+                </div>
+            </div>
+        </div>
+        <hr class="sr-only" />
+    {% endif %}
 
     <br />
     {{ view.policy_content }}

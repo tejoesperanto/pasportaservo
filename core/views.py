@@ -230,17 +230,18 @@ class AgreementView(LoginRequiredMixin, FlatpageAsTemplateMixin, generic.Templat
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['consent_required'] = hasattr(self.request.user, 'consent_required')
+        context['consent_required'] = getattr(self.request.user, 'consent_required', False)
         context['consent_obtained'] = getattr(self.request.user, 'consent_obtained', False)
         context['effective_date'] = self._agreement.effective_date
         return context
 
     @cached_property
     def _agreement(self) -> Policy:
-        policy = (
+        policy_source = (
             getattr(self.request.user, 'consent_required', {})
             or getattr(self.request.user, 'consent_obtained', {})
-        ).get('current', [])[0]  # Fetch the policy from the lazy collection.
+        ).get('current', [])
+        policy = list(policy_source)[0]  # Fetch the policy from the lazy collection.
         return policy
 
     @cached_property

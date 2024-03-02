@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2024-02-19 20:05+0000\n"
+"POT-Revision-Date: 2024-03-04 19:31+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -554,6 +554,14 @@ msgstr ""
 
 #: core/templates/account/consent.html
 msgid ""
+"Dear member of the PS-community, your attention to the policy and conditions "
+"of use is required."
+msgstr ""
+"Kara pasportservano, via atento pri la politiko kaj kondiĉoj de uzo estas "
+"bezonata."
+
+#: core/templates/account/consent.html
+msgid ""
 "This policy details the ways in which your information is being collected "
 "and treated, and <em>what</em> information you are required to provide to be "
 "part of the community. This document acts as a contract between Pasporta "
@@ -597,6 +605,15 @@ msgstr "Kondiĉoj por la uzado de Pasporta Servo"
 #: core/templates/account/consent.html
 msgid "Policy of Privacy within Pasporta Servo"
 msgstr "Politiko pri privateco ĉe Pasporta Servo"
+
+#: core/templates/account/consent.html pages/templates/pages/privacy.html
+msgid "Summary of the changes"
+msgstr "Resumo de la ŝanĝoj"
+
+#: core/templates/account/consent.html
+#, python-format
+msgid "On %(date)s :"
+msgstr "Je %(date)s :"
 
 #: core/templates/account/consent.html
 msgid "I agree"
@@ -1018,7 +1035,7 @@ msgstr "Vi sendis %(nb)s mesaĝojn. Bonege!"
 #: hosting/templates/hosting/place_detail.html
 #: hosting/templates/hosting/snippets/travel_advice.html
 #: hosting/templates/ui/widget-form_divider.html
-#: pages/templates/pages/supervisors.html
+#: pages/templates/pages/privacy.html pages/templates/pages/supervisors.html
 msgid "Hide"
 msgstr "Kaŝi"
 
@@ -3051,6 +3068,7 @@ msgstr "Printi mapon"
 
 #: hosting/templates/hosting/place_detail.html
 #: hosting/templates/ui/widget-form_divider.html
+#: pages/templates/pages/privacy.html
 msgid "Show"
 msgstr "Montri"
 
@@ -4297,6 +4315,11 @@ msgstr "lokoj"
 msgctxt "URL"
 msgid "type"
 msgstr "speco"
+
+#: pages/templates/pages/privacy.html
+#, python-format
+msgid "Effective from %(effective_date)s"
+msgstr "En efiko ekde %(effective_date)s"
 
 #: pages/templates/pages/snippets/language_switcher.html
 msgid "In another language"

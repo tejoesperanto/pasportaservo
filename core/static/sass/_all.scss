@@ -1101,6 +1101,15 @@ a.contact-details:not(:hover) {
 }
 
 
+/* Policy & Agreement */
+html.js-enabled #policy-changes-header[data-toggle="collapse"] {
+    cursor: pointer;
+    .switch {
+        transition: all 0.3s ease-in;
+    }
+}
+
+
 /* Supervisors */
 .staff.label .fa.fa-lg {
     vertical-align: -20%;

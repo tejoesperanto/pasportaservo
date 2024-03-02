@@ -75,6 +75,7 @@ class PrivacyPolicyView(FlatpageAsTemplateMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['effective_date'] = self._policy.effective_date
+        context['changes_summary'] = self._policy.changes_summary
         return context
 
 

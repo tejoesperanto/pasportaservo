@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n utils %}
+{% load i18n utils expression %}
 
 {% block head_title %}{% trans "Agreement between You and" %}{% endblock %}
 {% block head_title_separator %}{% endblock %}
@@ -10,10 +10,17 @@
             {% if consent_required %}
                 <p>
                     <strong>
-                    {% blocktrans trimmed %}
-                        Dear member of the PS-community, your attention is required.
-                        Since {{ effective_date }} a new policy and conditions of use are in effect.
-                    {% endblocktrans %}
+                        {% if consent_required.given_for %}
+                            {% blocktrans trimmed %}
+                                Dear member of the PS-community, your attention is required. Since
+                                {{ effective_date }} a new policy and conditions of use are in effect.
+                            {% endblocktrans %}
+                        {% else %}
+                            {% blocktrans trimmed %}
+                                Dear member of the PS-community, your attention to the policy and
+                                conditions of use is required.
+                            {% endblocktrans %}
+                        {% endif %}
                     </strong>
                 </p>
                 <br />
@@ -70,6 +77,38 @@
     <div id="user-agreement-panel" class="panel {% if consent_required %}panel-warning{% else %}panel-default{% endif %}">
         <div class="panel-body">
             <h1>{% trans "Policy of Privacy within Pasporta Servo" %}</h1><br />
+            {% if consent_required and consent_required.given_for or consent_obtained %}
+                {% expr consent_required or consent_obtained as presented_policy %}
+                {% if presented_policy.summary %}
+                    <div class="panel panel-info">
+                        <div class="panel-heading" id="policy-changes-header" role="button"
+                             data-toggle="collapse" data-target="#policy-changes" aria-controls="policy-changes"
+                             aria-expanded="true">
+                            <div class="panel-title">
+                                {% trans "Summary of the changes" %}
+                            </div>
+                        </div>
+                        <div class="panel-collapse collapse in" id="policy-changes"
+                             aria-labelledby="policy-changes-header" aria-live="off">
+                            <div class="list-group" role="list">
+                            {% for specific_policy_date, specific_policy_changes in presented_policy.summary %}
+                                <div class="list-group-item" role="listitem">
+                                    {% if presented_policy.summary|length > 1 %}
+                                        <p>
+                                            {% blocktrans with date=specific_policy_date trimmed %}
+                                                On {{ date }} :
+                                            {% endblocktrans %}
+                                        </p>
+                                    {% endif %}
+                                    {{ specific_policy_changes|safe }}
+                                </div>
+                            {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                {% endif %}
+            {% endif %}
             {{ view.agreement }}
         </div>
         <div class="panel-footer text-center clearfix hidden-print">
