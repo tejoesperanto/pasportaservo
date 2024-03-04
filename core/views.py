@@ -349,7 +349,7 @@ class PasswordResetView(PasswordResetBuiltinView):
     """
     This extension of Django's built-in view allows to send a different
     email depending on whether the user is active (True) or no (False).
-    See also the companion SystemPasswordResetRequestForm.
+    See also the companion `SystemPasswordResetRequestForm`.
     """
     html_email_template_name = {True: 'email/password_reset.html', False: 'email/password_reset_activate.html'}
     email_template_name = {True: 'email/password_reset.txt', False: 'email/password_reset_activate.txt'}
@@ -461,6 +461,7 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
         context = {
             'site_name': config.site_name,
             'ENV': settings.ENVIRONMENT,
+            'RICH_ENVELOPE': getattr(settings, 'EMAIL_RICH_ENVELOPES', None),
             'subject_prefix': settings.EMAIL_SUBJECT_PREFIX_FULL,
             'url': url,
             'url_first': url[:url.rindex('/')+1],
@@ -781,10 +782,18 @@ class MassMailView(AuthMixin, generic.FormView):
     form_class = MassMailForm
     display_permission_denied = False
     exact_role = AuthRole.ADMIN
+    # Keep the email address separate from the one used for transactional
+    # emails, for better email sender reputation.
+    mailing_address = 'anoncoj@pasportaservo.org'
 
     def dispatch(self, request, *args, **kwargs):
         kwargs['auth_base'] = None
         return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['mailing_address'] = self.mailing_address
+        return context
 
     def get_success_url(self):
         return format_lazy(
@@ -800,7 +809,7 @@ class MassMailView(AuthMixin, generic.FormView):
         preheader = form.cleaned_data['preheader']
         heading = form.cleaned_data['heading']
         category = form.cleaned_data['categories']
-        default_from = settings.DEFAULT_FROM_EMAIL
+        default_from = f'Pasporta Servo <{self.mailing_address}>'
         template = get_template('email/mass_email.html')
 
         opening = make_aware(datetime(2014, 11, 24))

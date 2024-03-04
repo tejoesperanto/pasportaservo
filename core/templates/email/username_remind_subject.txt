@@ -1,5 +1,7 @@
 {% load i18n %}{% autoescape off %}
 
+{% if RICH_ENVELOPE %}[[ACCOUNT]]{% endif %}
+
 {{ subject_prefix }}{% trans "Username reminder" context "Email subject" %}
 
 {% endautoescape %}

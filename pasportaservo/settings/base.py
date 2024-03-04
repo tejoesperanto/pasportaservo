@@ -67,6 +67,7 @@ INSTALLED_APPS = (
     'django.contrib.gis',
 
     'fontawesomefree',
+    'anymail',
     'compressor',
     'crispy_forms',
     'django_extensions',
@@ -84,6 +85,7 @@ INSTALLED_APPS = (
 
     'blog',
     'book',
+    'chat',
     'core',
     'hosting',
     'links',
@@ -197,6 +199,17 @@ TEST_EXTERNAL_SERVICES = False
 TEST_CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
+TEST_EMAIL_BACKENDS = {
+    'dummy': {
+        'EMAIL_BACKEND': 'anymail.backends.test.EmailBackend',
+        'EMAIL_RICH_ENVELOPES': True,
+    },
+    'live': {
+        'EMAIL_BACKEND': 'anymail.backends.postmark.EmailBackend',
+        'POSTMARK_SERVER_TOKEN': 'POSTMARK_API_TEST',
+        'EMAIL_RICH_ENVELOPES': True,
     }
 }
 

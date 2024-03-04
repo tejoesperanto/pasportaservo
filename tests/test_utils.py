@@ -2,7 +2,7 @@ import copy
 import logging
 import operator
 import random
-from typing import NamedTuple
+from typing import NamedTuple, cast
 from unittest import skipUnless
 from unittest.mock import patch
 
@@ -12,6 +12,8 @@ from django.core import mail
 from django.test import TestCase, override_settings, tag
 from django.utils.functional import SimpleLazyObject, lazy, lazystr
 
+from anymail.message import AnymailMessage
+from anymail.utils import UNSET
 from factory import Faker
 from geocoder.opencage import OpenCageQuery, OpenCageResult
 from requests.exceptions import (
@@ -818,16 +820,25 @@ class MassMailTests(AdditionalAsserts, TestCase):
         self.assertEqual(send_mass_html_mail(tuple()), 0)
 
     def test_mass_html_mail(self):
-        test_data = list()
+        test_data: list[tuple[str, str, str, str | None, list[str]]] = []
+        test_subjects: list[tuple[str | None, str]] = []
         faker = Faker._get_faker()
         for i in range(random.randint(3, 7)):
+            test_subjects.append((
+                faker.optional_value(
+                    'pystr_format', ratio=0.2 if i else 1.0,
+                    string_format='{{word}}-{{random_int}}'),
+                faker.sentence(),
+            ))
             test_data.append((
                 # subject line
-                faker.sentence(),
+                test_subjects[i][1]
+                if not test_subjects[i][0]
+                else f"[[{test_subjects[i][0]}]] \t {test_subjects[i][1]}",
                 # content: plain text & html
-                faker.word(), "<strong>{}</strong>".format(faker.word()),
-                # author email (ignored) & emails of recipients
-                "test@ps", [],
+                faker.word(), f"<hr /><strong>{faker.word()}</strong>",
+                # author email & emails of recipients
+                "test@ps" if i else None, [],
             ))
             for _ in range(random.randint(1, 3)):
                 test_data[i][4].append(faker.company_email())
@@ -836,9 +847,26 @@ class MassMailTests(AdditionalAsserts, TestCase):
         self.assertEqual(result, len(test_data))
         self.assertLength(mail.outbox, len(test_data))
         for i in range(len(test_data)):
-            self.assertEqual(mail.outbox[i].subject, test_data[i][0])
-            self.assertEqual(mail.outbox[i].from_email, settings.DEFAULT_FROM_EMAIL)
+            self.assertEqual(mail.outbox[i].subject, test_subjects[i][1])
+            if i == 0:
+                self.assertEqual(mail.outbox[i].from_email, settings.DEFAULT_FROM_EMAIL)
+            else:
+                self.assertEqual(mail.outbox[i].from_email, "test@ps")
             self.assertEqual(mail.outbox[i].to, test_data[i][4])
+
+        mail.outbox = []
+        with override_settings(**settings.TEST_EMAIL_BACKENDS['dummy']):
+            result = send_mass_html_mail(test_data)
+        self.assertEqual(result, len(test_data))
+        self.assertLength(mail.outbox, len(test_data))
+        for i in range(len(test_data)):
+            outbox_item = cast(AnymailMessage, mail.outbox[i])
+            if test_subjects[i][0]:
+                self.assertEqual(outbox_item.tags, [test_subjects[i][0]])
+            else:
+                self.assertEqual(outbox_item.tags, UNSET)
+            self.assertTrue(outbox_item.anymail_test_params.get('is_batch_send'))
+            self.assertFalse(outbox_item.anymail_test_params.get('track_opens'))
 
     def test_invalid_values(self):
         faker = Faker._get_faker()

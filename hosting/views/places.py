@@ -461,6 +461,7 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
         email_context = {
             'site_name': config.site_name,
             'ENV': settings.ENVIRONMENT,
+            'RICH_ENVELOPE': getattr(settings, 'EMAIL_RICH_ENVELOPES', None),
             'subject_prefix': settings.EMAIL_SUBJECT_PREFIX_FULL,
             'user': user,
             'place': place,

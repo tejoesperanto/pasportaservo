@@ -5,6 +5,7 @@ Pillow==10.3.0
 awesome-slugify==1.6.5
 commonmark==0.9.1
 csscompressor==0.9.5
+django-anymail[postmark]==10.3
 django-braces==1.14.0
 djangocodemirror==2.1.0
 django-compressor==2.4
@@ -34,7 +35,6 @@ pymemcache==3.5.2
 phonenumberslite==8.12.19
 requests==2.27.1
 rstr==3.0.0
-sendgrid-django==4.2.0
 sentry-sdk>=1.18
 user_agents==2.2.0
 

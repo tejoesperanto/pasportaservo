@@ -3,9 +3,11 @@ import locale
 import operator
 import re
 from functools import reduce
+from typing import Optional, Sequence, Tuple
 
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives, get_connection
+from django.core.mail import EmailMessage, get_connection
+from django.core.mail.backends.base import BaseEmailBackend
 from django.utils.functional import (
     SimpleLazyObject, keep_lazy_text, lazy, new_method_proxy,
 )
@@ -13,6 +15,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.safestring import mark_safe
 
 import requests
+from anymail.message import AnymailMessage
 
 
 def getattr_(obj, path):
@@ -49,8 +52,12 @@ setattr(SimpleLazyObject, '__add__', new_method_proxy(operator.add))
 setattr(SimpleLazyObject, '__mul__', new_method_proxy(operator.mul))
 
 
-def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,
-                        connection=None):
+def send_mass_html_mail(
+        datatuple: Sequence[Tuple[str, str, str, Optional[str], Sequence[str] | None]],
+        fail_silently: bool = False,
+        auth_user: Optional[str] = None, auth_password: Optional[str] = None,
+        connection: Optional[BaseEmailBackend] = None,
+) -> int:
     """
     Given a datatuple of (subject, text_content, html_content, from_email,
     recipient_list), sends each message to each recipient list. Returns the
@@ -62,16 +69,23 @@ def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None
     If auth_password is None, the EMAIL_HOST_PASSWORD setting is used.
     """
     connection = connection or get_connection(
-        username=user, password=password, fail_silently=fail_silently)
-    messages = []
+        username=auth_user, password=auth_password, fail_silently=fail_silently)
+    messages: Sequence[EmailMessage] = []
     default_from = settings.DEFAULT_FROM_EMAIL
     for subject, text, html, from_email, recipients in datatuple:
         subject = ''.join(subject.splitlines())
-        recipients = [r.strip() for r in recipients]
-        message = EmailMultiAlternatives(
-            subject, text, default_from, recipients,
+        recipients = [r.strip() for r in recipients] if recipients else []
+        message = AnymailMessage(
+            subject, text, from_email or default_from, recipients,
             headers={'Reply-To': 'Pasporta Servo <saluton@pasportaservo.org>'})
         message.attach_alternative(html, 'text/html')
+        # TODO: Implement custom one-click unsubscribe.
+        message.esp_extra = {'MessageStream': 'broadcast'}
+        if tag_match := re.match(r'\[\[([a-zA-Z0-9_-]+)\]\]', subject):
+            message.tags = [tag_match.group(1)]
+            message.subject = subject.removeprefix(tag_match.group()).strip()
+        message.merge_data = {}  # Enable batch sending mode.
+        setattr(message, 'mass_mail', True)
         messages.append(message)
     return connection.send_messages(messages) or 0
 

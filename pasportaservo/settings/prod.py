@@ -20,8 +20,9 @@ CACHES = {
     }
 }
 
-EMAIL_BACKEND = "sgbackend.SendGridBackend"
-SENDGRID_API_KEY = get_env_setting('SENDGRID_API_KEY')
+EMAIL_BACKEND = 'anymail.backends.postmark.EmailBackend'
+POSTMARK_SERVER_TOKEN = get_env_setting('POSTMARK_SERVER_TOKEN')
+EMAIL_RICH_ENVELOPES = True
 EMAIL_SUBJECT_PREFIX = '[PS] '
 EMAIL_SUBJECT_PREFIX_FULL = '[Pasporta Servo] '
 
