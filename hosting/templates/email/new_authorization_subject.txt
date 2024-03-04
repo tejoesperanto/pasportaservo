@@ -1,5 +1,7 @@
 {% load i18n %}{% autoescape off %}
 
+{% if RICH_ENVELOPE %}[[PLACE-DETAILS]]{% endif %}
+
 {{ subject_prefix }}{% trans "You received an Authorization" context "Email subject" %}
 
 {% endautoescape %}

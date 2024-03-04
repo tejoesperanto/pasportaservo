@@ -1,10 +1,13 @@
+from typing import cast
 from unittest import expectedFailure
 
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.core import mail
 from django.test import override_settings, tag
 from django.urls import reverse
 
+from anymail.message import AnymailMessage
 from django_webtest import WebTest
 from factory import Faker
 from postman.models import Message
@@ -88,7 +91,7 @@ class WriteFormTests(AdditionalAsserts, WebTest):
 
     def test_view_page(self):
         page = self.app.get(reverse('postman:write'), user=self.sender)
-        self.assertEqual(page.status_int, 200)
+        self.assertEqual(page.status_code, 200)
         self.assertEqual(len(page.forms), 1)
         self.assertIsInstance(page.context['form'], CustomWriteForm)
 
@@ -102,7 +105,7 @@ class WriteFormTests(AdditionalAsserts, WebTest):
             page_result = page.form.submit()
 
             if deceased:
-                self.assertEqual(page_result.status_int, 200)
+                self.assertEqual(page_result.status_code, 200)
                 expected_form_errors = {
                     'en': "Cannot send the message: This user has passed away.",
                     'eo': "Ne eblas sendi la mesaĝon: Tiu ĉi uzanto forpasis.",
@@ -111,16 +114,25 @@ class WriteFormTests(AdditionalAsserts, WebTest):
                     page_result,
                     'form', 'recipients',
                     expected_form_errors[lang])
-                self.assertEqual(len(mail.outbox), 0)
+                self.assertLength(mail.outbox, 0)
             else:
-                self.assertEqual(page_result.status_int, 302)
+                self.assertEqual(page_result.status_code, 302)
                 self.assertRedirects(page_result, '/origin', fetch_redirect_response=False)
                 if invalid_email:
-                    self.assertEqual(len(mail.outbox), 0)
+                    self.assertLength(mail.outbox, 0)
                 else:
-                    self.assertEqual(len(mail.outbox), 1)
+                    self.assertLength(mail.outbox, 1)
                     self.assertEqual(mail.outbox[0].to, [self.sender.email])
                     self.assertEndsWith(mail.outbox[0].subject, page.form['subject'].value)
+                    with override_settings(**settings.TEST_EMAIL_BACKENDS['dummy']):
+                        page_result = page.form.submit()
+                        self.assertEqual(page_result.status_code, 302)
+                        self.assertLength(mail.outbox, 2)
+                        self.assertEqual(
+                            cast(AnymailMessage, mail.outbox[1]).tags,
+                            ['notification:chat'])
+                        self.assertFalse(mail.outbox[1].anymail_test_params.get('is_batch_send'))
+                        self.assertTrue(mail.outbox[1].anymail_test_params.get('track_opens'))
 
     def test_form_submit_living(self):
         self.do_test_form_submit(recipient=self.sender, deceased=False, lang='en')
@@ -301,7 +313,7 @@ class ReplyFormTests(AdditionalAsserts, WebTest):
             page = self.app.get(
                 reverse(view_name, kwargs={'message_id': self.message.pk}),
                 user=self.sender)
-            self.assertEqual(page.status_int, 200)
+            self.assertEqual(page.status_code, 200)
             self.assertEqual(len(page.forms), 1)
             self.assertIsInstance(page.context['form'], form_class)
 
@@ -323,7 +335,7 @@ class ReplyFormTests(AdditionalAsserts, WebTest):
                     page_result = page.form.submit()
 
                     if deceased:
-                        self.assertEqual(page_result.status_int, 200)
+                        self.assertEqual(page_result.status_code, 200)
                         expected_form_errors = {
                             'en': "Cannot send the message: This user has passed away.",
                             'eo': "Ne eblas sendi la mesaĝon: Tiu ĉi uzanto forpasis.",
@@ -332,16 +344,25 @@ class ReplyFormTests(AdditionalAsserts, WebTest):
                             page_result,
                             'form', None,
                             expected_form_errors[lang])
-                        self.assertEqual(len(mail.outbox), 0)
+                        self.assertLength(mail.outbox, 0)
                     else:
-                        self.assertEqual(page_result.status_int, 302)
+                        self.assertEqual(page_result.status_code, 302)
                         self.assertRedirects(page_result, '/origin', fetch_redirect_response=False)
                         if invalid_email:
-                            self.assertEqual(len(mail.outbox), 0)
+                            self.assertLength(mail.outbox, 0)
                         else:
-                            self.assertEqual(len(mail.outbox), 1)
+                            self.assertLength(mail.outbox, 1)
                             self.assertEqual(mail.outbox[0].to, [orig_message.sender.email])
                             self.assertEndsWith(mail.outbox[0].subject, page.form['subject'].value)
+                            with override_settings(**settings.TEST_EMAIL_BACKENDS['dummy']):
+                                page_result = page.form.submit()
+                                self.assertEqual(page_result.status_code, 302)
+                                self.assertLength(mail.outbox, 2)
+                                self.assertEqual(
+                                    cast(AnymailMessage, mail.outbox[1]).tags,
+                                    ['notification:chat'])
+                                self.assertFalse(mail.outbox[1].anymail_test_params.get('is_batch_send'))
+                                self.assertTrue(mail.outbox[1].anymail_test_params.get('track_opens'))
 
     def test_form_submit_living(self):
         self.do_test_form_submit(orig_message=self.message_other, deceased=False, lang='en')

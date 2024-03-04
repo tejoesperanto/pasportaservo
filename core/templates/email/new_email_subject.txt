@@ -1,5 +1,7 @@
 {% load i18n %}{% autoescape off %}
 
+{% if RICH_ENVELOPE %}[[ACCOUNT-EMAIL]]{% endif %}
+
 {{ subject_prefix }}{% trans "Change of email address" context "Email subject" %}
 
 {% endautoescape %}

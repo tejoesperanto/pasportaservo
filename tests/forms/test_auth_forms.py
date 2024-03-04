@@ -1,4 +1,5 @@
 import re
+from typing import Optional, cast
 from unittest.mock import patch
 
 from django.conf import settings
@@ -13,10 +14,10 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
+from anymail.message import AnymailMessage
 from django_webtest import WebTest
 from factory import Faker
 
-from core.auth import auth_log
 from core.forms import (
     EmailStaffUpdateForm, EmailUpdateForm, SystemPasswordChangeForm,
     SystemPasswordResetForm, SystemPasswordResetRequestForm,
@@ -26,12 +27,13 @@ from core.forms import (
 from core.views import (
     PasswordResetConfirmView, PasswordResetView, UsernameRemindView,
 )
+from hosting.models import PasportaServoUser
 
 from ..assertions import AdditionalAsserts
 from ..factories import UserFactory
 
 
-def _snake_str(string):
+def _snake_str(string: str) -> str:
     return ''.join([c if i % 2 else c.upper() for i, c in enumerate(string)])
 
 
@@ -265,7 +267,7 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
                     self.assertFalse(form.is_valid())
                 self.assertIn(self.honeypot_field, form.errors)
                 self.assertEqual(form.errors[self.honeypot_field], [""])
-                self.assertEqual(len(log.records), 1)
+                self.assertLength(log.records, 1)
                 self.assertEqual(
                     log.records[0].message,
                     "Registration failed, flies found in honeypot."
@@ -316,7 +318,7 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
 class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserFactory()
+        cls.user = UserFactory.create()
 
     def setUp(self):
         self.dummy_request = HttpRequest()
@@ -384,7 +386,7 @@ class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
         self.assertIn('restore_request_id', self.dummy_request.session)
         self.assertIs(type(self.dummy_request.session['restore_request_id']), tuple)
         self.assertEqual(len(self.dummy_request.session['restore_request_id']), 2)
-        self.assertEqual(len(log.records), 1)
+        self.assertLength(log.records, 1)
         self.assertIn("the account is deactivated", log.output[0])
 
     def test_active_user_login(self):
@@ -465,7 +467,7 @@ class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
 class UsernameUpdateFormTests(AdditionalAsserts, WebTest):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserFactory()
+        cls.user = UserFactory.create()
 
     def test_init(self):
         form = UsernameUpdateForm(instance=self.user)
@@ -583,7 +585,7 @@ class UsernameUpdateFormTests(AdditionalAsserts, WebTest):
             )
 
     def test_nonunique_username(self):
-        other_user = UserFactory()
+        other_user = UserFactory.create()
         for new_username in (other_user.username,
                              other_user.username.capitalize(),
                              _snake_str(other_user.username)):
@@ -635,8 +637,8 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserFactory()
-        cls.invalid_email_user = UserFactory(invalid_email=True)
+        cls.user = UserFactory.create()
+        cls.invalid_email_user = UserFactory.create(invalid_email=True)
 
     def _init_form(self, data=None, instance=None):
         return EmailUpdateForm(data=data, instance=instance)
@@ -772,7 +774,7 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
         self.assertTrue(form.is_valid())
         form.save(commit=False)
         # Since no change is done in the address, no email is expected to be sent.
-        self.assertEqual(len(mail.outbox), 0)
+        self.assertLength(mail.outbox, 0)
 
         form = self._init_form(
             data={'email': self.invalid_email_user._clean_email},
@@ -780,7 +782,7 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
         self.assertTrue(form.is_valid())
         form.save(commit=False)
         # Since no change is done in the address, no email is expected to be sent.
-        self.assertEqual(len(mail.outbox), 0)
+        self.assertLength(mail.outbox, 0)
 
     def test_case_modified_email(self):
         test_transforms = [
@@ -802,7 +804,7 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
                 self.assertTrue(form.is_valid(), msg=repr(form.errors))
 
     def test_nonunique_email(self):
-        normal_email_user = UserFactory()
+        normal_email_user = UserFactory.create()
         test_transforms = [
             lambda e: e,
             lambda e: _snake_str(e),
@@ -882,13 +884,13 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
         self.assertIsInstance(page.context['form'], EmailUpdateForm)
 
     @override_settings(EMAIL_SUBJECT_PREFIX_FULL="TEST ")
-    def form_submission_tests(self, *, lang, obj=None):
+    def form_submission_tests(self, *, lang: str, obj: Optional[PasportaServoUser] = None):
         obj = self.user if obj is None else obj
         old_email = obj._clean_email
         new_email = '{}@ps.org'.format(_snake_str(obj.username))
         unchanged_email = obj.email
 
-        with override_settings(LANGUAGE_CODE=lang):
+        def submit_form_and_assert():
             page = self.app.get(reverse('email_update'), user=obj)
             page.form['email'] = new_email
             page = page.form.submit()
@@ -898,8 +900,11 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
                 reverse('profile_edit', kwargs={
                     'pk': obj.profile.pk, 'slug': obj.profile.autoslug})
             )
-        self.assertEqual(obj.email, unchanged_email)
-        self.assertEqual(len(mail.outbox), 2)
+            self.assertEqual(obj.email, unchanged_email)
+
+        with override_settings(LANGUAGE_CODE=lang):
+            submit_form_and_assert()
+        self.assertLength(mail.outbox, 2)
         test_subject = {
             'en': "TEST Change of email address",
             'eo': "TEST Retpoŝtadreso ĉe retejo ŝanĝita",
@@ -924,6 +929,19 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
             self.assertEqual(mail.outbox[i].to, [recipient])
             for content in test_contents[recipient][lang]:
                 self.assertIn(content, mail.outbox[i].body)
+
+        with override_settings(
+                **settings.TEST_EMAIL_BACKENDS['dummy'],
+                LANGUAGE_CODE=lang,
+        ):
+            submit_form_and_assert()
+        self.assertLength(mail.outbox, 4)
+        for i, recipient in enumerate([old_email, new_email], start=2):
+            self.assertEqual(mail.outbox[i].subject, test_subject[lang])
+            self.assertEqual(mail.outbox[i].to, [recipient])
+            self.assertEqual(cast(AnymailMessage, mail.outbox[i]).tags, ['notification:email'])
+            self.assertFalse(mail.outbox[i].anymail_test_params.get('is_batch_send'))
+            self.assertFalse(mail.outbox[i].anymail_test_params.get('track_opens'))
 
     def test_form_submit(self):
         mail.outbox = []
@@ -972,7 +990,7 @@ class EmailStaffUpdateFormTests(EmailUpdateFormTests):
                 'pk': obj.profile.pk, 'slug': obj.profile.autoslug})
         )
         self.assertEqual(obj.email, new_email)
-        self.assertEqual(len(mail.outbox), 0)
+        self.assertLength(mail.outbox, 0)
 
 
 @tag('forms', 'forms-auth', 'auth')
@@ -1123,7 +1141,7 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                 with override_settings(LANGUAGE_CODE=lang):
                     with self.subTest(tag=user_tag, lang=lang):
                         # No warnings are expected on the auth log.
-                        with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
+                        with self.assertNoLogs('PasportaServo.auth', level='WARNING'):
                             form = self._init_form({'email': user._clean_email})
                             self.assertTrue(form.is_valid())
                             form.save(
@@ -1131,13 +1149,9 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                                 email_template_name=self._related_view.email_template_name,
                                 html_email_template_name=self._related_view.html_email_template_name,
                             )
-                            # Workaround for lack of assertNotLogs.
-                            auth_log.warning("No warning emitted.")
-                        self.assertEqual(len(log.records), 1)
-                        self.assertEqual(log.records[0].message, "No warning emitted.")
                         # The email message is expected to describe the password reset procedure.
                         title, expected_content, not_expected_content = self._get_email_content(True, lang)
-                        self.assertEqual(len(mail.outbox), 1)
+                        self.assertLength(mail.outbox, 1)
                         self.assertEqual(mail.outbox[0].subject, title)
                         self.assertEqual(mail.outbox[0].from_email, settings.DEFAULT_FROM_EMAIL)
                         self.assertEqual(mail.outbox[0].to, [user._clean_email])
@@ -1145,6 +1159,23 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                             self.assertIn(content, mail.outbox[0].body)
                         for content in not_expected_content:
                             self.assertNotIn(content, mail.outbox[0].body)
+
+                        # Verify that when dispatched via an email backend, the email message's
+                        # subject and ESP parameters are the expected ones.
+                        with override_settings(**settings.TEST_EMAIL_BACKENDS['dummy']):
+                            form.save(
+                                subject_template_name=self._related_view.subject_template_name,
+                                email_template_name=self._related_view.email_template_name,
+                                html_email_template_name=self._related_view.html_email_template_name,
+                            )
+                        self.assertLength(mail.outbox, 2)
+                        self.assertEqual(mail.outbox[1].subject, title)
+                        self.assertEqual(
+                            cast(AnymailMessage, mail.outbox[1]).tags,
+                            ['notification:account'])
+                        self.assertFalse(mail.outbox[1].anymail_test_params.get('is_batch_send'))
+                        self.assertFalse(mail.outbox[1].anymail_test_params.get('track_opens'))
+
                     mail.outbox = []
 
     @override_settings(EMAIL_SUBJECT_PREFIX_FULL="TEST ")
@@ -1157,6 +1188,9 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                 with override_settings(LANGUAGE_CODE=lang):
                     with self.subTest(tag=user_tag, lang=lang):
                         # A warning about a deactivated account is expected on the auth log.
+                        # Note: AssertLogs Context Manager disables all existing handlers of
+                        #       the logger, resulting in no emails being dispatched to the
+                        #       admins, if configured.
                         with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
                             form = self._init_form({'email': user._clean_email})
                             self.assertTrue(form.is_valid())
@@ -1165,15 +1199,16 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                                 email_template_name=self._related_view.email_template_name,
                                 html_email_template_name=self._related_view.html_email_template_name,
                             )
-                        self.assertEqual(len(log.records), 1)
+                        self.assertLength(log.records, 1)
                         self.assertStartsWith(log.records[0].message, self._get_admin_message(user))
                         # The warning is expected to include a reference number.
                         code = re.search(r'\[([A-F0-9-]+)\]', log.records[0].message)
                         self.assertIsNotNone(code)
                         code = code.group(1)
+
                         # The email message is expected to describe the account reactivation procedure.
                         title, expected_content, not_expected_content = self._get_email_content(False, lang)
-                        self.assertEqual(len(mail.outbox), 1)
+                        self.assertLength(mail.outbox, 1)
                         self.assertEqual(mail.outbox[0].subject, title)
                         self.assertEqual(mail.outbox[0].from_email, settings.DEFAULT_FROM_EMAIL)
                         self.assertEqual(mail.outbox[0].to, [user._clean_email])
@@ -1183,6 +1218,26 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                             self.assertNotIn(content, mail.outbox[0].body)
                         # The email message is expected to include the reference number.
                         self.assertIn(code, mail.outbox[0].body)
+
+                        # Verify that when dispatched via an email backend, the email message's
+                        # subject and ESP parameters are the expected ones.
+                        # Note: AssertLogs Context Manager disables all existing handlers of
+                        #       the logger, resulting in no emails being dispatched to admins.
+                        with override_settings(**settings.TEST_EMAIL_BACKENDS['dummy']):
+                            with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
+                                form.save(
+                                    subject_template_name=self._related_view.subject_template_name,
+                                    email_template_name=self._related_view.email_template_name,
+                                    html_email_template_name=self._related_view.html_email_template_name,
+                                )
+                        self.assertLength(mail.outbox, 2)
+                        self.assertEqual(mail.outbox[1].subject, title)
+                        self.assertEqual(
+                            cast(AnymailMessage, mail.outbox[1]).tags,
+                            ['notification:account'])
+                        self.assertFalse(mail.outbox[1].anymail_test_params.get('is_batch_send'))
+                        self.assertFalse(mail.outbox[1].anymail_test_params.get('track_opens'))
+
                     mail.outbox = []
 
     def test_view_page(self):
@@ -1282,7 +1337,7 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserFactory(invalid_email=True)
+        cls.user = UserFactory.create(invalid_email=True)
         cls.user.profile.email = cls.user.email
         cls.user.profile.save(update_fields=['email'])
 

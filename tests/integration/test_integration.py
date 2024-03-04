@@ -1,14 +1,17 @@
 from random import randint
+from unittest import skipUnless
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, Group
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured
 from django.http import JsonResponse
-from django.test import RequestFactory, TestCase, tag
+from django.test import RequestFactory, TestCase, override_settings, tag
 from django.urls import reverse
 from django.views.generic import CreateView, View
 
+from anymail.exceptions import AnymailAPIError, AnymailRecipientsRefused
+from anymail.message import AnymailMessage
 from django_webtest import WebTest
 
 from core.auth import AuthMixin, AuthRole
@@ -19,6 +22,51 @@ from ..factories import (
     AdminUserFactory, PhoneFactory, PlaceFactory,
     ProfileFactory, ProfileSansAccountFactory, UserFactory,
 )
+
+
+@tag('integration', 'mailing')
+class MailingTests(AdditionalAsserts, TestCase):
+    """
+    Tests for the mailing functionalities and integration with an external
+    provider.
+    """
+
+    @tag('external')
+    @override_settings(**settings.TEST_EMAIL_BACKENDS['live'])
+    @skipUnless(settings.TEST_EXTERNAL_SERVICES, 'External services are tested only explicitly')
+    def test_mail_backend_integration_contract(self):
+        message = AnymailMessage(
+            "Single message test",
+            to=["abcd@example.org"],
+            body="Fusce felis lectus, dapibus ut velit non, pharetra molestie tellus.")
+        with self.assertNotRaises(AnymailAPIError):
+            message.send()
+        status = message.anymail_status
+        self.assertEqual(status.status, {'sent'})
+        self.assertIsNotNone(status.message_id)
+        self.assertEqual(list(status.recipients.keys()), ["abcd@example.org"])
+
+        message = AnymailMessage(
+            "Broadcast message test",
+            to=["efgh@example.org"],
+            body="Mauris purus sapien, aliquam id viverra ut, bibendum sed metus.")
+        message.esp_extra = {'MessageStream': 'broadcast'}
+        with self.assertNotRaises(AnymailAPIError):
+            message.send()
+        status = message.anymail_status
+        self.assertEqual(status.status, {'sent'})
+        self.assertIsNotNone(status.message_id)
+        self.assertEqual(list(status.recipients.keys()), ["efgh@example.org"])
+
+        message = AnymailMessage(
+            "Invalid recipient test",
+            to=["pqrs@localhost"],
+            body="Curabitur elit massa, elementum id consectetur at, semper a odio.")
+        with self.assertRaises(AnymailRecipientsRefused):
+            message.send()
+        status = message.anymail_status
+        self.assertEqual(status.status, {'invalid'})
+        self.assertIsNone(status.message_id)
 
 
 @tag('integration')

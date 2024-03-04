@@ -113,6 +113,10 @@ msgstr "Aboni"
 msgid "yes,no"
 msgstr "jes,ne"
 
+#: chat/apps.py
+msgid "Communicator"
+msgstr "Komunikilo"
+
 #: core/admin/admin.py core/models.py core/templates/core/base.html
 #: core/views.py hosting/admin/admin.py
 #: hosting/templates/hosting/phone_form.html
