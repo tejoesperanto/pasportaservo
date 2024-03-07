@@ -1,7 +1,11 @@
 {% extends 'core/base.html' %}
 {% load i18n %}
+{% load compact from utils %}
 
-{% block head_title %}Politiko pri privateco{% endblock %}
+{% block head_title %}
+    Politiko pri privateco
+    {% if requested_version %} (ekde {{ effective_date|date:"Y-m-d" }}) {% endif %}
+{% endblock %}
 
 {% block page_class %} page{% endblock %}
 
@@ -11,6 +15,48 @@
         <small class="pull-right">{% blocktrans %}Effective from {{ effective_date }}{% endblocktrans %}</small>
     </h2>
     <p class="clearfix"></p>
+    {% if all_policies|length > 1 %}
+        <div class="policy-switcher btn-group fullwidth-xxs pull-right" hidden>
+            <button class="btn btn-default dropdown-toggle fullwidth-xxs text-brand-aux" type="button"
+                    data-toggle="dropdown"
+                    aria-haspopup="menu" aria-expanded="false">
+                <b class="fa-spacer-right">{% trans "Other versions" %}</b>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                {% for another_policy in all_policies %}
+                    <li class="{% filter compact %}
+                                    text-center
+                                    {% if effective_date == another_policy.effective_date %}active{% endif %}
+                               {% endfilter %}" role="menuitem">
+                        <a href="{% url 'privacy_policy_version' policy_version=another_policy.version %}">
+                            {{ another_policy.effective_date }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <p class="clearfix"></p>
+        <noscript class="policy-switcher-container">
+            <form method="GET" action="{% url 'privacy_policy' %}" class="policy-switcher text-right">
+                <label for="id_policy_version" class="control-label sr-only">
+                    {% trans "Other versions" %}
+                </label>
+                <select name="{% trans "policy" context "URL" %}" id="id_policy_version"
+                        class="form-control btn-vert-space-even" autocomplete="off">
+                    <option value="" selected>{% trans "Other versions" %}</option>
+                    <option value="">---------</option>
+                    {% for another_policy in all_policies %}
+                        <option value="{{ another_policy.version }}"
+                                {% if effective_date == another_policy.effective_date %}disabled{% endif %}>
+                            {{ another_policy.effective_date }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <input type="submit" class="btn btn-primary btn-vert-space-even" value="{% trans "Show" %}" />
+            </form>
+        </noscript>
+    {% endif %}
 
     {% if changes_summary %}
         <div class="panel panel-info">

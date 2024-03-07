@@ -1,8 +1,10 @@
 import re
 
 from django.contrib.flatpages.models import FlatPage
+from django.core.cache import cache
 from django.db.models import Count, Q
 from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.functional import SimpleLazyObject, cached_property
 from django.utils.text import format_lazy
@@ -58,14 +60,27 @@ class PrivacyPolicyView(FlatpageAsTemplateMixin, generic.TemplateView):
     standalone_policy_view = True
 
     def get(self, request, *args, **kwargs):
-        try:
-            self._policy = Policy.objects.latest_efective()
-        except Policy.DoesNotExist:
+        policy_version_url_param = pgettext_lazy("URL", "policy")
+        if request.GET.get(policy_version_url_param):
+            requested_version = request.GET[policy_version_url_param]
+        elif kwargs.get('policy_version'):
+            requested_version = kwargs['policy_version']
+        else:
+            requested_version = None
+
+        if requested_version:
+            self._requested_version = requested_version
+            self._policy = get_object_or_404(Policy, version=requested_version)
+        else:
             try:
-                self._policy = Policy.objects.latest()
-            except Policy.DoesNotExist as err:
-                exception_message = "Service misconfigured: No privacy policy is defined."
-                raise RuntimeError(exception_message) from err
+                self._policy = Policy.objects.latest_efective()
+            except Policy.DoesNotExist:
+                try:
+                    self._policy = Policy.objects.latest()
+                except Policy.DoesNotExist as err:
+                    raise RuntimeError(
+                        "Service misconfigured: No privacy policy is defined."
+                    ) from err
         return super().get(request, *args, **kwargs)
 
     @cached_property
@@ -74,8 +89,18 @@ class PrivacyPolicyView(FlatpageAsTemplateMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['requested_version'] = getattr(self, '_requested_version', None)
         context['effective_date'] = self._policy.effective_date
         context['changes_summary'] = self._policy.changes_summary
+        all_policies = cache.get('all-policies')
+        if not all_policies:
+            all_policies = (
+                Policy.objects
+                .order_by('-effective_date')
+                .values('version', 'effective_date')
+            )
+            cache.set('all-policies', all_policies, timeout=None)
+        context['all_policies'] = all_policies
         return context
 
 
