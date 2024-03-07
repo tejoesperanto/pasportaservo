@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2024-03-04 19:31+0000\n"
+"POT-Revision-Date: 2024-03-08 19:10+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -574,6 +574,15 @@ msgstr ""
 "por esti parto de la komunumo. La dokumento rolas kiel kontrakto inter "
 "Pasporta Servo kaj vi, la uzanto. Daŭre uzante Pasportan Servon vi konfirmas "
 "ke vi legis la dokumenton, komprenas ĝin, kaj konsentas je tiuj ĉi kondiĉoj."
+
+#: core/templates/account/consent.html
+#, python-format
+msgid ""
+"Earlier versions can be reviewed at the %(privacy_link)sprivacy policy"
+"%(end_privacy_link)s page."
+msgstr ""
+"Pli fruaj versioj estas konsulteblaj ĉe la paĝo “%(privacy_link)sPrivateco"
+"%(end_privacy_link)s”."
 
 #: core/templates/account/consent.html
 #, python-format
@@ -4320,6 +4329,15 @@ msgstr "speco"
 #, python-format
 msgid "Effective from %(effective_date)s"
 msgstr "En efiko ekde %(effective_date)s"
+
+#: pages/templates/pages/privacy.html
+msgid "Other versions"
+msgstr "Aliaj versioj"
+
+#: pages/templates/pages/privacy.html pages/urls.py pages/views.py
+msgctxt "URL"
+msgid "policy"
+msgstr "regularo"
 
 #: pages/templates/pages/snippets/language_switcher.html
 msgid "In another language"

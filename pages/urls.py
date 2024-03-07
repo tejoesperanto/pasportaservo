@@ -16,15 +16,24 @@ urlpatterns = [
         pgettext_lazy("URL", 'terms-and-conditions/'),
         TermsAndConditionsView.as_view(), name='terms_conditions'),
     path(
-        pgettext_lazy("URL", 'privacy/'),
-        PrivacyPolicyView.as_view(), name='privacy_policy'),
+        pgettext_lazy("URL", 'privacy/'), include([
+            path(
+                '', PrivacyPolicyView.as_view(), name='privacy_policy'),
+            path(
+                format_lazy(
+                    '{policy}:<slug:policy_version>/',
+                    policy=pgettext_lazy("URL", 'policy')),
+                PrivacyPolicyView.as_view(), name='privacy_policy_version'),
+        ])),
     path(
         pgettext_lazy("URL", 'faq/'),
         FaqView.as_view(), name='faq'),
     path(
         pgettext_lazy("URL", 'sv/'), include([
             re_path(
-                format_lazy(r'^(?:{book}\:(?P<in_book>1)/)?$', book=pgettext_lazy("URL", 'book')),
+                format_lazy(
+                    r'^(?:{book}\:(?P<in_book>1)/)?$',
+                    book=pgettext_lazy("URL", 'book')),
                 SupervisorsView.as_view(), name='supervisors'),
         ])),
     path(

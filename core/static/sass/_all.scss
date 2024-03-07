@@ -1108,6 +1108,36 @@ html.js-enabled #policy-changes-header[data-toggle="collapse"] {
         transition: all 0.3s ease-in;
     }
 }
+html:not(.js-enabled) .policy-switcher {
+    &[hidden] {
+        display: none !important;
+    }
+    .control-label {
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+    .form-control {
+        display: inline-block;
+        @media (max-width: #{$BOOTSTRAP-XS - 1}) {
+            width: 100%;
+        }
+        @media (min-width: #{$BOOTSTRAP-XS}) {
+            width: auto;
+        }
+        vertical-align: middle;
+    }
+}
+html:not(.js-enabled) noscript.policy-switcher-container + .panel {
+    margin-top: 20px;
+}
+html.js-enabled .policy-switcher {
+    &[hidden] {
+        display: block;
+    }
+    &:not([hidden]) {
+        display: none;
+    }
+}
 
 
 /* Supervisors */

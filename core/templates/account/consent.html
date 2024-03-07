@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n utils expression %}
+{% load i18n utils expression variable %}
 
 {% block head_title %}{% trans "Agreement between You and" %}{% endblock %}
 {% block head_title_separator %}{% endblock %}
@@ -33,6 +33,24 @@
                         Your continuous use of Pasporta Servo indicates your confirmation that you
                         read the document, understand it, and agree to the conditions herein.
                     {% endblocktrans %}
+                    {% if consent_required.given_for %}
+                        {% asvar privacy_link trimmed %}
+                            {% spaceless %}
+                                <a href="{% url 'privacy_policy' %}" class="text-warning">
+                                    <u>
+                            {% endspaceless %}
+                        {% endasvar %}
+                        {% asvar end_privacy_link trimmed %}
+                            {% spaceless %}
+                                    </u>
+                                </a>
+                            {% endspaceless %}
+                        {% endasvar %}
+                        {% blocktrans trimmed %}
+                            Earlier versions can be reviewed at the
+                            {{ privacy_link }}privacy policy{{ end_privacy_link }} page.
+                        {% endblocktrans %}
+                    {% endif %}
                 </p>
             {% elif consent_obtained.given_for != consent_obtained.current.first.version %}
                 <p>
@@ -52,7 +70,6 @@
             {% endif %}
         </div>
     </div>
-    {# TODO: Add navigation to the previous versions (stored separately). They should be accessible but not actionable. #}
 
     {% if view.terms %}
         <div id="user-terms-panel" class="panel {% if consent_required %}panel-warning{% else %}panel-default{% endif %}">

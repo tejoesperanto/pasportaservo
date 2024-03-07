@@ -3,6 +3,7 @@ from typing import cast
 from django.contrib import admin
 from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
+from django.core.cache import cache
 from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html
@@ -43,6 +44,13 @@ class PolicyAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if 'version' in form.changed_data or 'effective_date' in form.changed_data:
+            # Bust the cache of references to all policies;
+            # these references are cached indefinitely otherwise.
+            cache.delete('all-policies')
 
 
 @admin.register(Agreement)
