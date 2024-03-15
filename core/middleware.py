@@ -1,4 +1,5 @@
 from hashlib import md5
+from typing import cast
 
 from django.conf import settings
 from django.contrib.auth.views import (
@@ -148,7 +149,7 @@ class AccountFlagsMiddleware(MiddlewareMixin):
             # Policy will be needed to display the Agreement page anyway,
             # so the currently effective policies are immediately fetched
             # from the database.
-            current_policy = list(policies)[0]
+            current_policy = list(policies)[0] if policies else None
             setattr(request.user, 'consent_required', {
                 'given_for': agreement.first(),
                 'current': [current_policy],
@@ -163,13 +164,15 @@ class AccountFlagsMiddleware(MiddlewareMixin):
             # Policy most probably will not be needed, so it is lazily
             # evaluated to spare a superfluous query on the database.
             current_policy = policies[0:1]
+            policy_summary = SimpleLazyObject(lambda: [  # pragma: no branch
+                (p.effective_date, p.changes_summary)
+                for p in cast(Policy.objects.__class__, current_policy)
+                if p.changes_summary
+            ]),
             setattr(request.user, 'consent_obtained', {
                 'given_for': agreement.first(),
                 'current': current_policy,
-                'summary': SimpleLazyObject(lambda: [
-                    (p.effective_date, p.changes_summary)
-                    for p in current_policy if p.changes_summary
-                ]),
+                'summary': policy_summary,
             })
 
     def _update_connection_info(self, request: HttpRequest):

@@ -8,7 +8,9 @@ from django.views.generic import TemplateView
 from pyquery import PyQuery
 
 from core.views import HomeView
-from pages.views import AboutView, FaqView, TermsAndConditionsView
+from pages.views import (
+    AboutView, FaqView, PrivacyPolicyView, TermsAndConditionsView,
+)
 
 from .base import PageTemplate, PageWithTitleHeadingTemplate
 
@@ -151,3 +153,59 @@ class TCPage(PageWithTitleHeadingTemplate):
 
     def get_404_headings(self) -> PyQuery:
         return self.pyquery("[role='heading']")
+
+
+class PrivacyPage(PageWithTitleHeadingTemplate):
+    view_class = PrivacyPolicyView
+    url = reverse_lazy('privacy_policy')
+    explicit_url = {
+        'en': '/privacy/',
+        'eo': '/privateco/',
+    }
+    template = 'pages/privacy.html'
+    title = {
+        # The Privacy Policy page is always in Esperanto.
+        'en': "Politiko pri privateco | Pasporta Servo",
+        'eo': "Politiko pri privateco | Pasporta Servo",
+    }
+    redirects_unauthenticated = False
+    page_title = {
+        'en': "Policy of Privacy within Pasporta Servo",
+        'eo': "Politiko pri privateco ĉe Pasporta Servo",
+    }
+
+    def get_effective_date(self) -> PyQuery:
+        return self.pyquery("[role='main'] > h1 + h2")
+
+    def get_validity_note(self) -> PyQuery:
+        return self.pyquery("#policy-validity-note")
+
+    def get_summary_id(self) -> str:
+        return "policy-changes"
+
+    def get_summary(self) -> PyQuery:
+        return self.pyquery(f"#{self.get_summary_id()}").parent()
+
+    def get_policy_switcher(self) -> PyQuery:
+        return self.pyquery(".policy-switcher")
+
+    def get_policy_swither_label(self, js: bool) -> PyQuery:
+        switch_elements = self.get_policy_switcher()
+        if js:
+            return switch_elements.eq(0).find("button > b")
+        else:
+            return switch_elements.eq(1).find("label")
+
+    def get_policy_switcher_items(self, js: bool) -> PyQuery:
+        switch_elements = self.get_policy_switcher()
+        if js:
+            return switch_elements.eq(0).find("ul > li > a")
+        else:
+            return switch_elements.eq(1).find("select > option")
+
+    def get_policy_switcher_submit(self, js: bool) -> PyQuery:
+        switch_elements = self.get_policy_switcher()
+        if js:
+            return switch_elements.eq(0)("")
+        else:
+            return switch_elements.eq(1).find("[type='submit']")

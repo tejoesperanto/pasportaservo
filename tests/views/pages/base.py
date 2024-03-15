@@ -129,6 +129,17 @@ class PageTemplate:
             cls._open_pages_lock.release()
         return page_instance
 
+    @classmethod
+    def wrap_response(
+            cls: type[Page],
+            test_case: WebTest,
+            response: DjangoTestApp.response_class,
+    ) -> Page:
+        page_instance = cls()
+        page_instance._test_case = test_case
+        page_instance._page = response
+        return page_instance
+
     def follow(self, *, once=False, **kwargs):
         """
         If this page is a redirect, follow that redirect and others.

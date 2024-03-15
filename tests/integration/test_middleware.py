@@ -1,8 +1,9 @@
 import time
 from unittest.mock import patch
 
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
-from django.test import tag
+from django.test import override_settings, tag
 from django.urls import reverse
 from django.utils import timezone
 
@@ -10,11 +11,18 @@ from django_webtest import WebTest
 
 from core.models import Policy, UserBrowser
 
-from ..factories import UserFactory
+from ..assertions import AdditionalAsserts
+from ..factories import PolicyFactory, UserFactory
 
 
 @tag('integration', 'middleware')
-class MiddlewareTests(WebTest):
+class MiddlewareTests(AdditionalAsserts, WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserFactory(profile=None)
+        cls.protected_url = reverse('account_settings')
+
+    @override_settings(CACHES=settings.TEST_CACHES)
     def test_missing_usage_policies(self):
         Policy.objects.all().delete()
         with self.assertRaisesMessage(
@@ -22,10 +30,46 @@ class MiddlewareTests(WebTest):
                 "Service misconfigured: No user agreement was defined."
         ):
             self.app.get(
-                reverse('account_settings'),
-                user=UserFactory(profile=None),
+                self.protected_url,
+                user=self.user,
                 auto_follow=True,
             )
+
+    @override_settings(CACHES=settings.TEST_CACHES)
+    def test_redirect_to_agreement(self):
+        Policy.objects.all().delete()
+        PolicyFactory.create(from_past_date=True, with_summary=False)
+        user = UserFactory(profile=None)
+
+        # Accessing a non-general page is expected to be possible when a policy
+        # was already accepted by the user.
+        page = self.app.get(self.protected_url, user=user, status='*')
+        self.assertEqual(page.status_code, 200)
+
+        # A policy becoming effective in the future is not expected to hinder
+        # the user, who should still be able to access the non-general page.
+        PolicyFactory.create(from_future_date=True, with_summary=False)
+        page = self.app.get(self.protected_url, user=user, status='*')
+        self.assertEqual(page.status_code, 200)
+
+        # A non-binding policy (requiring no additional agreement from the
+        # user) is not expected to hinder that user, who should still be able
+        # to access the non-general page.
+        PolicyFactory.create(
+            effective_date=timezone.now() - timezone.timedelta(days=45),
+            with_summary=False, requires_consent=False)
+        page = self.app.get(self.protected_url, user=user, status='*')
+        self.assertEqual(page.status_code, 200)
+
+        # A new binding policy, which the user is yet to accept, is expected to
+        # redirect that user to the agreement screen - instead of the accessed
+        # non-general page.
+        PolicyFactory.create(
+            effective_date=timezone.now() - timezone.timedelta(days=10),
+            with_summary=False, requires_consent=True)
+        page = self.app.get(self.protected_url, user=user, status='*')
+        self.assertEqual(page.status_code, 302)
+        self.assertStartsWith(page.location, reverse('agreement'))
 
 
 @tag('integration', 'middleware')

@@ -1,3 +1,4 @@
+from datetime import date
 from random import sample
 from typing import Literal, Optional, TypedDict, cast
 
@@ -11,18 +12,24 @@ from django.db.models import Q
 from django.test import override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse, reverse_lazy
+from django.utils import translation
+from django.utils.formats import localize
 from django.utils.functional import classproperty
 
 from django_countries.data import COUNTRIES
 from faker import Faker
 from lxml.html import HtmlComment, HtmlElement
 from pyquery import PyQuery
+from webtest.forms import Form as HtmlForm
 
+from core.models import Policy
 from shop.tests.factories import ProductReservationFactory
 
 from .. import with_type_hint
-from ..factories import AdminUserFactory, StaffUserFactory, UserFactory
-from .pages import AboutPage, FAQPage, HomePage, OkayPage, TCPage
+from ..factories import (
+    AdminUserFactory, PolicyFactory, StaffUserFactory, UserFactory,
+)
+from .pages import AboutPage, FAQPage, HomePage, OkayPage, PrivacyPage, TCPage
 from .pages.base import PageWithTitleHeadingTemplate
 from .pages.general import PageWithLanguageSwitcher
 from .testcasebase import BasicViewTests
@@ -491,6 +498,27 @@ class GeneralViewTestsMixin(with_type_hint(BasicViewTests)):
                     else:
                         expected_title = page.page_title
                     self.assertEqual(page.get_heading_text(), expected_title)
+
+
+class CollapseControlTestsMixin(with_type_hint(BasicViewTests)):
+    def collapse_control_tests(
+            self,
+            control_element: PyQuery,
+            target_element: PyQuery,
+            initially_expanded: bool,
+    ):
+        target_id = target_element.attr("id")
+        self.assertEqual(control_element.attr("role"), "button")
+        self.assertEqual(control_element.attr("data-toggle"), "collapse")
+        self.assertEqual(control_element.attr("data-target"), f"#{target_id}")
+        self.assertEqual(control_element.attr("aria-controls"), target_id)
+        self.assertCssClass(target_element, "collapse")
+        if initially_expanded:
+            self.assertEqual(control_element.attr("aria-expanded"), "true")
+            self.assertCssClass(target_element, "in")
+        else:
+            self.assertEqual(control_element.attr("aria-expanded"), "false")
+            self.assertFalse(target_element.has_class("in"))
 
 
 class LanguageSwitcherTestsMixin(with_type_hint(BasicViewTests)):
@@ -1021,3 +1049,393 @@ class TermsAndConditionsViewTests(GeneralViewTestsMixin, BasicViewTests):
                     else:
                         expected_title = page.page_title
                     self.assertEqual(page.get_heading_text(), expected_title)
+
+
+@tag('views', 'views-general')
+class PrivacyViewTests(GeneralViewTestsMixin, CollapseControlTestsMixin, BasicViewTests):
+    view_page: type[PrivacyPage] = PrivacyPage
+
+    def test_policy_display(self):
+        # The view is expected to display the latest policy already in effect
+        # (that is, already binding), otherwise the available future policy.
+        Policy.objects.all().delete()
+        policy = PolicyFactory(version='XYZ', from_future_date=True, with_summary=False)
+        for current_policy in [False, True]:
+            if current_policy:
+                policy = PolicyFactory(
+                    version='ABCD', from_past_date=True, with_summary=False)
+            for user_tag, user in self.params_for_test['users']:
+                for lang in self.params_for_test['langs']:
+                    with (
+                        override_settings(LANGUAGE_CODE=lang),
+                        self.subTest(future_policy=not current_policy,
+                                     user=user_tag, lang=lang)
+                    ):
+                        page = self.view_page.open(self, user=user)
+                        # Verify that the expected policy is displayed on the page.
+                        # The policy should be rendered as HTML.
+                        if not current_policy:
+                            self.assertContains(page.response, "Policy XYZ")
+                            self.assertContains(
+                                page.response, "<p>Policy XYZ</p>", html=True)
+                        else:
+                            self.assertContains(page.response, "Policy ABCD")
+                            self.assertContains(
+                                page.response, "<p>Policy ABCD</p>", html=True)
+                            self.assertNotContains(page.response, "Policy XYZ")
+                        # The page is expected to display the date from which the
+                        # policy is in effect.
+                        localized_effective_date = localize(policy.effective_date)
+                        with translation.override('eo'):
+                            esperanto_effective_date = localize(policy.effective_date)
+                        effective_element = page.get_effective_date()
+                        self.assertLength(effective_element, 1)
+                        self.assertEqual(
+                            effective_element.text(),
+                            {
+                                'en': f"Effective from {localized_effective_date}",
+                                'eo': f"En efiko ekde {localized_effective_date}",
+                            }[lang]
+                        )
+                        # The page is expected to include a note about policy validity.
+                        effective_element = page.get_validity_note()
+                        self.assertLength(effective_element, 1)
+                        self.assertEqual(effective_element.attr("role"), "note")
+                        self.assertEqual(
+                            effective_element.text(),
+                            f"Tiu ĉi politiko estas en efiko ekde {esperanto_effective_date}."
+                        )
+                        # The note should be the last element of the page -- after the
+                        # policy and before the footer.
+                        effective_element_container = effective_element.parents("blockquote")
+                        self.assertLength(effective_element_container, 1)
+                        self.assertLength(effective_element_container.next(), 0)
+
+    def test_policy_summary_display(self):
+        # The view is expected to display no summary if it is not defined or empty.
+        Policy.objects.all().delete()
+        PolicyFactory(with_summary=False)
+        for user_tag, user in self.params_for_test['users']:
+            for lang in self.params_for_test['langs']:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(user=user_tag, lang=lang)
+                ):
+                    page = self.view_page.open(self, user=user)
+                    self.assertLength(page.get_summary(), 0)
+
+        # The view is expected to display the summary of the shown policy, when
+        # defined. The summary should be contained in an interactive container,
+        # and rendered as HTML.
+        Policy.objects.all().delete()
+        policy = PolicyFactory(with_summary=True)
+        policy.changes_summary += "<br />\n" + "<em>\n\t Sentinel Element \n\t</em>"
+        policy.save()
+        for user_tag, user in self.params_for_test['users']:
+            for lang in self.params_for_test['langs']:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(user=user_tag, lang=lang)
+                ):
+                    page = self.view_page.open(self, user=user)
+                    summary_element = page.get_summary()
+                    self.assertLength(summary_element, 1)
+                    self.assertCssClass(summary_element, "panel")
+                    self.assertCssClass(summary_element, "panel-info")
+                    # The element containing the summary is expected to be collapsible
+                    # and folded by default.
+                    panel_heading_element = summary_element.children(".panel-heading")
+                    panel_body_element = summary_element.children(f"#{page.get_summary_id()}")
+                    self.assertLength(panel_heading_element, 1)
+                    self.collapse_control_tests(
+                        panel_heading_element, panel_body_element, False)
+                    self.assertEqual(
+                        panel_heading_element.text(),
+                        {
+                            'en': "Summary of the changes",
+                            'eo': "Resumo de la ŝanĝoj",
+                        }[lang]
+                    )
+                    # Verify that the content is properly labeled.
+                    self.assertEqual(
+                        panel_body_element.attr("aria-labelledby"),
+                        panel_heading_element.attr("id"))
+                    # Verify that the content is not HTML-encoded on output.
+                    self.assertNotEqual(panel_body_element.text(), "")
+                    self.assertInHTML("<em>Sentinel Element</em>", panel_body_element.html())
+
+    def test_missing_policy(self):
+        # When no privacy policies are defined at all, the view is expected
+        # to raise a RuntimeError.
+        Policy.objects.all().delete()
+        for user_tag, user in self.params_for_test['users']:
+            for lang in self.params_for_test['langs']:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(user=user_tag, lang=lang)
+                ):
+                    with self.assertRaisesMessage(
+                            RuntimeError,
+                            "Service misconfigured: No privacy policy is defined."
+                    ):
+                        self.view_page.open(self, user=user)
+
+    @override_settings(CACHES=settings.TEST_CACHES)
+    def test_list_of_policies(self):
+        # The view is expected to include no drop-down for selecting other
+        # policies if only a single policy is defined.
+        Policy.objects.all().delete()
+        PolicyFactory(with_summary=False)
+        for user_tag, user in self.params_for_test['users']:
+            for lang in self.params_for_test['langs']:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(user=user_tag, lang=lang)
+                ):
+                    page = self.view_page.open(self, user=user)
+                    self.assertLength(page.get_policy_switcher(), 0)
+
+        # The view is expected to have a drop-down for selecting other policies
+        # to review, and to enable navigation to these policies.
+        PolicyFactory.create_batch(
+            3, from_past_date=True, with_summary=False, requires_consent=False)
+        PolicyFactory.create_batch(
+            2, from_future_date=True, with_summary=False)
+        # The list of policies is expected to be sorted in descending order
+        # by date of validity (newest policy on top, oldest on bottom).
+        expected_policies = (
+            Policy.objects
+            .order_by('-effective_date')
+            .values('version', 'effective_date')
+        )
+        expected_label = {
+            'en': "Other versions",
+            'eo': "Aliaj versioj",
+        }
+        for user_tag, user in self.params_for_test['users']:
+            for lang in self.params_for_test['langs']:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(user=user_tag, lang=lang)
+                ):
+                    page = self.view_page.open(self, user=user)
+                    switch_elements = page.get_policy_switcher()
+                    self.assertLength(switch_elements, 2)
+
+                    # Verify that all policies are included in the interactive drop-
+                    # down (JavaScript) and can be accessed by clicking the items in
+                    # the list.
+                    js_switch = switch_elements.eq(0)
+                    # The two strings representing the outer HTML of the element are
+                    # expected to be exactly the same if it is the same HTML element;
+                    # therefore, there is no need to test for HTML equality.
+                    self.assertEqual(
+                        js_switch.prev_all("*:not(p.clearfix)").eq(-1).outer_html(),
+                        page.get_effective_date().outer_html()
+                    )
+                    self.interactive_switch_tests(
+                        page, expected_policies, expected_label[lang],
+                    )
+
+                    # Verify that all policies are included in the static drop-down
+                    # (simple <select> not requiring JavaScript) and can be accessed
+                    # by selecting an item and submitting the form.
+                    static_switch = switch_elements.eq(1)
+                    self.assertTrue(static_switch.parent().is_("noscript"))
+                    self.static_switch_tests(
+                        page, lang, expected_policies, expected_label[lang],
+                    )
+
+    def interactive_switch_tests(
+            self,
+            page: PrivacyPage, expected_policies, expected_label: str,
+    ):
+        # Verify the expected text and styling of the switcher.
+        self.interactive_switch_label_styling_tests(page, expected_label)
+
+        # The number of items in the drop-down menu is expected
+        # to correlate with the number of available policies.
+        switch_items = page.get_policy_switcher_items(js=True)
+        self.assertLength(switch_items, len(expected_policies))
+
+        # Each menu item is expected to be a link to the specific
+        # policy version with its label being the effective date
+        # of that policy.
+        for i in range(len(expected_policies)):
+            switch_item_element = switch_items.eq(i)
+            expected_item_label = localize(expected_policies[i]['effective_date'])
+            expected_item_url = reverse(
+                'privacy_policy_version',
+                kwargs={'policy_version': expected_policies[i]['version']})
+            with self.subTest(switch_item=i + 1):
+                self.interactive_switch_item_tests(
+                    page, switch_item_element, expected_policies[i]['effective_date'],
+                    expected_item_label, expected_item_url,
+                )
+
+    def interactive_switch_label_styling_tests(
+            self,
+            page: PrivacyPage, expected_label: str,
+    ):
+        switch_label = page.get_policy_swither_label(js=True)
+        self.assertEqual(switch_label.text(), expected_label)
+        # The switcher label is expected to by styled as a button
+        # and have the secondary brand color.
+        switch_label_container = switch_label.parent()
+        self.assertCssClass(switch_label_container, "btn")
+        self.assertCssClass(switch_label_container, "btn-default")
+        self.assertCssClass(switch_label_container, "text-brand-aux")
+
+    def interactive_switch_item_tests(
+            self,
+            page: PrivacyPage, policy_element: PyQuery, policy_date: date,
+            expected_label: str, expected_url: str,
+    ):
+        # Verify the expected label.
+        self.assertEqual(policy_element.text(), expected_label)
+        # The switch element is expected to be an <a> directly linking to the
+        # policy page.
+        self.assertTrue(policy_element.is_("a"))
+        self.assertEqual(policy_element.attr("href"), expected_url)
+        # The switch element is expected to be contained in an element with
+        # ARIA role of 'menu item', whose parent in turn is expected to have
+        # the ARIA 'menu' role. The menu item container is expected to be
+        # marked as active if the switch item corresponds to the policy shown
+        # on the page.
+        policy_element_container = policy_element.parent()
+        self.assertEqual(policy_element_container.attr("role"), "menuitem")
+        self.assertCssClass(policy_element_container, "text-center")
+        localized_policy_date = localize(policy_date)
+        if page.get_effective_date().text().endswith(localized_policy_date):
+            self.assertCssClass(policy_element_container, "active")
+        else:
+            self.assertFalse(policy_element_container.has_class("active"))
+        self.assertEqual(policy_element_container.parent().attr("role"), "menu")
+
+        # Verify that it is possible to navigate to the correct policy page;
+        # correctness is asserted using the content of the page.
+        new_page = PrivacyPage.wrap_response(
+            self, page.response.goto(policy_element.attr("href"), status='*'))
+        effective_element = new_page.get_validity_note()
+        with translation.override('eo'):
+            esperanto_policy_date = localize(policy_date)
+        self.assertEqual(
+            effective_element.text(),
+            f"Tiu ĉi politiko estas en efiko ekde {esperanto_policy_date}."
+        )
+
+    def static_switch_tests(
+            self,
+            page: PrivacyPage, current_lang: str, expected_policies, expected_label: str,
+    ):
+        # Verify the expected text and styling of the switcher's label.
+        switch_label = page.get_policy_swither_label(js=False)
+        self.assertEqual(switch_label.text(), expected_label)
+        # The switcher label is expected to by visible only to screen readers.
+        self.assertCssClass(switch_label, "sr-only")
+
+        # The number of items in the <select> element is expected to correlate
+        # with the number of available policies.
+        switch_items = page.get_policy_switcher_items(js=False)
+        self.assertLength(switch_items, len(expected_policies) + 2)
+        # The <select> element is expected to be described by the label.
+        self.assertEqual(switch_label.attr("for"), switch_items.parent().attr("id"))
+
+        # Verify the expected test and styling of the submit button for
+        # the switcher form.
+        submit_button = page.get_policy_switcher_submit(js=False)
+        self.assertEqual(
+            submit_button.attr("value"),
+            {'en': "Show", 'eo': "Montri"}[current_lang]
+        )
+        self.assertEqual(submit_button.text(), "")
+        self.assertCssClass(submit_button, "btn")
+        self.assertCssClass(submit_button, "btn-primary")
+        self.assertLength(submit_button.parents("form"), 1)
+
+        form_element = switch_items.parents("form")
+        self.assertIsNotNone(form_element.attr("id"))
+        form = cast(dict[int | str, HtmlForm], page.response.forms)[
+            cast(str, form_element.attr("id"))
+        ]
+        # The first two items of the <select> are expected to be a label
+        # and a separator, both pointing to no specific policy.
+        skip = 0
+        with self.subTest(switch_item=skip + 1):
+            self.static_switch_item_tests(
+                page, form, current_lang, switch_items.eq(skip), None,
+                expected_label, "", is_list_label=True,
+            )
+        skip += 1
+        with self.subTest(switch_item=skip + 1):
+            self.static_switch_item_tests(
+                page, form, current_lang, switch_items.eq(skip), None,
+                "---------", "", is_list_label=False,
+            )
+        skip += 1
+        # Each other item of the <select> is expected to point to a specific
+        # policy version with its text being the effective date of that policy.
+        for i in range(len(expected_policies)):
+            switch_item_element = switch_items.eq(i + skip)
+            expected_item_text = localize(expected_policies[i]['effective_date'])
+            expected_item_value = expected_policies[i]['version']
+            with self.subTest(switch_item=i + skip + 1):
+                self.static_switch_item_tests(
+                    page, form, current_lang, switch_item_element,
+                    expected_policies[i]['effective_date'],
+                    expected_item_text, expected_item_value,
+                )
+        # Submitting an unexpected / invalid value as the policy version is
+        # expected to be handled gracefully and result in a "Not Found" page.
+        form[switch_items.parent().attr("name")].force_value("NotExistent")
+        response = form.submit(status='*')
+        self.assertEqual(response.status_code, 404)
+
+    def static_switch_item_tests(
+            self,
+            page: PrivacyPage, form: HtmlForm, current_lang: str,
+            policy_element: PyQuery, policy_date: date | None,
+            expected_text: str, expected_value: str, is_list_label: bool = False,
+    ):
+        # Verify the expected text and value of the <option>.
+        self.assertEqual(policy_element.text(), expected_text)
+        self.assertEqual(policy_element.attr("value"), expected_value)
+        if is_list_label:
+            self.assertIsNotNone(policy_element.attr("selected"))
+        else:
+            self.assertIsNone(policy_element.attr("selected"))
+        localized_policy_date = localize(policy_date)
+        if (
+                policy_date is not None
+                and page.get_effective_date().text().endswith(localized_policy_date)
+        ):
+            self.assertIsNotNone(policy_element.attr("disabled"))
+        else:
+            self.assertIsNone(policy_element.attr("disabled"))
+
+        # Verify that it is possible to navigate to the correct policy page;
+        # correctness is asserted using the content of the page and it title.
+        form.select(policy_element.parent().attr("name"), expected_value)
+        new_page = PrivacyPage.wrap_response(self, form.submit(status='*'))
+        self.assertEqual(new_page.response.status_code, 200)
+        effective_element = new_page.get_validity_note()
+        if policy_date is not None:
+            with translation.override('eo'):
+                esperanto_policy_date = localize(policy_date)
+            self.assertEqual(
+                effective_element.text(),
+                f"Tiu ĉi politiko estas en efiko ekde {esperanto_policy_date}."
+            )
+            self.assertStartsWith(
+                new_page.pyquery("title").text(),
+                "Politiko pri privateco (ekde "
+            )
+        else:
+            # When policy version is not given, navigation is expected to
+            # occur to the most up-to-date already-valid policy.
+            self.assertEqual(
+                new_page.pyquery("title").text(),
+                PrivacyPage.title[current_lang]
+            )
+
+    # TODO: Test specific policy view (by version).
