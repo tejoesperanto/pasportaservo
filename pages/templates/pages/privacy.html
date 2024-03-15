@@ -10,7 +10,7 @@
 {% block page_class %} page{% endblock %}
 
 {% block page %}
-    <h1>Politiko pri privateco ĉe Pasporta Servo</h1>
+    <h1>{% trans "Policy of Privacy within Pasporta Servo" %}</h1>
     <h2>
         <small class="pull-right">{% blocktrans %}Effective from {{ effective_date }}{% endblocktrans %}</small>
     </h2>
@@ -38,7 +38,8 @@
         </div>
         <p class="clearfix"></p>
         <noscript class="policy-switcher-container">
-            <form method="GET" action="{% url 'privacy_policy' %}" class="policy-switcher text-right">
+            <form id="policy_swicher_form" method="GET" action="{% url 'privacy_policy' %}"
+                  class="policy-switcher text-right">
                 <label for="id_policy_version" class="control-label sr-only">
                     {% trans "Other versions" %}
                 </label>
@@ -84,7 +85,11 @@
 
     <blockquote>
         <p class="clearfix"></p>
-        <small class="pull-right" role="note">Tiu ĉi politiko estas en efiko ekde {{ effective_date }}.</small>
+        <small id="policy-validity-note" class="pull-right" role="note">
+            {% language 'eo' %}
+                Tiu ĉi politiko estas en efiko ekde {{ effective_date }}.
+            {% endlanguage %}
+        </small>
         <p class="clearfix"></p>
     </blockquote>
 {% endblock page %}
