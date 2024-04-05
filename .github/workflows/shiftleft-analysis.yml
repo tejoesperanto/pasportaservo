@@ -1,7 +1,8 @@
-# This workflow integrates Scan with GitHub's code scanning feature
-# Scan is a free open-source security tool for modern DevOps teams from ShiftLeft
-# Visit https://slscan.io/en/latest/integrations/code-scan for help
-name: ShiftLeft Code Scan
+# This workflow integrates SAST Scan with GitHub's code scanning feature.
+# Scan is a free open-source security tool for modern DevOps teams.
+# See https://scan.appthreat.dev/en/latest/integrations/code-scan/
+# and https://github.com/ShiftLeftSecurity/sast-scan.
+name: ShiftLeft SAST Scan
 
 on:
   pull_request:
@@ -46,6 +47,7 @@ jobs:
           WORKSPACE: ""
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SCAN_AUTO_BUILD: true
+          SCAN_ANNOTATE_PR: false
         with:
           output: reports
           type: "python,credscan,depscan"
