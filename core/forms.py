@@ -343,6 +343,8 @@ class FeedbackForm(forms.Form):
 
 
 class MassMailForm(forms.Form):
+    prefix = "massmail"
+
     heading = forms.CharField(
         label=_("Heading"), initial=_("Announcement"))
     body = forms.CharField(
