@@ -454,19 +454,33 @@ $(function() {
     }
 
     /* for mass mail form */
-    $('#id_body').keyup(function() {
-        $('#preview_body').html(marked($(this).val()));
-        $('#id_preheader').val($(this).val().replace(/(\r\n|\n|\r)/gm,' ').slice(0,99)).keyup();
+    $('#id_massmail-body').keyup(function() {
+        $('#preview_body').html(marked(this.value));
+        var $preheader = $('#id_massmail-preheader');
+        if (!$preheader.val().trim() || typeof $preheader.data('manual-input') === "undefined") {
+            $preheader.removeData('manual-input')
+                      .val(this.value.replace(/(\r\n|\n|\r)/gm,' ').slice(0,99))
+                      .data('previous-value', $preheader.val())
+                      .keyup();
+        }
     }).keyup();
 
     $.each(['heading', 'subject', 'preheader'], function(i, element) {
-        $('#id_'+element).keyup(function() {
-            $('#preview_'+element).html($(this).val());
+        $('#id_massmail-'+element).keyup(function(event) {
+            if (event && event.which) {
+                // manual usage of keyboard, not triggered via script.
+                var $this = $(this);
+                if (this.value != $this.data('previous-value')) {
+                    $this.data('manual-input', true);
+                    $this.data('previous-value', this.value);
+                }
+            }
+            $('#preview_'+element).html(this.value);
         }).keyup();
     });
 
-    $('#id_categories').change(function() {
-        $('#id_test_email').closest('.form-group').toggle($(this).val() === "test");
+    $('#id_massmail-categories').change(function() {
+        $('#id_massmail-test_email').closest('.form-group').toggle(this.value === "test");
     }).change();
 
     /* dynamic (collapsible) form area management */
