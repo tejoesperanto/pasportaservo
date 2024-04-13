@@ -34,6 +34,7 @@ from django.utils.functional import (
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
+from django.utils.timezone import make_aware
 from django.utils.translation import (
     get_language, gettext, gettext_lazy as _, pgettext, pgettext_lazy,
 )
@@ -802,31 +803,41 @@ class MassMailView(AuthMixin, generic.FormView):
         default_from = settings.DEFAULT_FROM_EMAIL
         template = get_template('email/mass_email.html')
 
-        opening = datetime(2014, 11, 24)
-        profiles = []
+        opening = make_aware(datetime(2014, 11, 24))
+        profiles = Profile.objects.none()
 
-        if category in ("test", "just_user"):
+        if category == "not_hosts":
             # only active profiles, linked to existing user accounts
-            profiles = Profile.objects.filter(user__isnull=False)
+            profiles = Profile.objects.filter(user__isnull=False, user__last_login__isnull=False)
             # exclude completely those who have at least one active available place
             profiles = profiles.exclude(owned_places__in=Place.objects.filter(available=True))
             # remove profiles with places available in the past, that is deleted
             profiles = profiles.filter(Q(owned_places__available=False) | Q(owned_places__isnull=True))
-            # finally remove duplicates
-            profiles = profiles.distinct()
         elif category == "old_system":
             # those who logged in before the opening date; essentially, never used the new system
-            profiles = Profile.objects.filter(user__last_login__lte=opening).distinct()
-        else:
+            profiles = Profile.objects.filter(user__last_login__lte=opening)
+        elif category in ("in_book", "not_in_book"):
             # those who logged in after the opening date
             profiles = Profile.objects.filter(user__last_login__gt=opening)
             # filter by active places according to 'in-book?' selection
+            not_deleted_places = Q(owned_places__deleted_on__isnull=True)
             if category == "in_book":
-                profiles = profiles.filter(owned_places__in_book=True)
+                profiles = profiles.filter(
+                    not_deleted_places, owned_places__in_book=True,
+                )
             elif category == "not_in_book":
-                profiles = profiles.filter(owned_places__in_book=False, owned_places__available=True)
-            # finally remove duplicates
-            profiles = profiles.distinct()
+                profiles = profiles.filter(
+                    not_deleted_places, owned_places__in_book=False, owned_places__available=True,
+                )
+        elif category in ("users_active_1y", "users_active_2y"):
+            # profiles active in the last 1 or 2 years (and linked to existing user accounts)
+            cutoff = make_aware(datetime.today())
+            cutoff = cutoff - timedelta(days=365 if category == "users_active_1y" else 730)
+            profiles = Profile.objects.filter(user__last_login__gte=cutoff)
+        # ensure that the account is still active and the person is not deceased
+        profiles = profiles.filter(user__is_active=True, death_date__isnull=True)
+        # finally remove duplicates
+        profiles = profiles.distinct()
 
         if category == 'test':
             test_email = form.cleaned_data['test_email']
@@ -855,7 +866,7 @@ class MassMailView(AuthMixin, generic.FormView):
                 }),
                 default_from,
                 [value_without_invalid_marker(profile.user.email)],
-            ) for profile in profiles] if profiles else []
+            ) for profile in profiles]
 
         self.nb_sent = send_mass_html_mail(messages)
         return super().form_valid(form)

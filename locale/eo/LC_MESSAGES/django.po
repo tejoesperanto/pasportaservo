@@ -250,22 +250,32 @@ msgstr "Provo (sendas al: )"
 #: core/forms.py
 msgctxt "Mass mailing category"
 msgid "old system"
-msgstr "Gastigantoj: neniam ensalutis en la nova retejo"
+msgstr "Uzantoj: neniam ensalutis en PS.3"
 
 #: core/forms.py
 msgctxt "Mass mailing category"
 msgid "not in book"
-msgstr "Nova retejo: ne en la libreto"
+msgstr "Gastigantoj: PS.3, ne en la libreto"
 
 #: core/forms.py
 msgctxt "Mass mailing category"
 msgid "in book"
-msgstr "Nova retejo: EN la libreto"
+msgstr "Gastigantoj: PS.3, EN la libreto"
 
 #: core/forms.py
 msgctxt "Mass mailing category"
-msgid "just user"
-msgstr "Ne gastigantoj (malnova aŭ nova retejo)"
+msgid "not hosts"
+msgstr "Ne gastigantoj: malnova aŭ nova retejo (PS.3)"
+
+#: core/forms.py
+msgctxt "Mass mailing category"
+msgid "active users (1 year)"
+msgstr "Uzantoj: aktivaj en PS.3 (lasta jaro)"
+
+#: core/forms.py
+msgctxt "Mass mailing category"
+msgid "active users (2 years)"
+msgstr "Uzantoj: aktivaj en PS.3 (lastaj 2 jaroj)"
 
 #: core/forms.py
 msgid "Your email for test"
@@ -611,7 +621,7 @@ msgstr ""
 msgid "Conditions of Usage of Pasporta Servo"
 msgstr "Kondiĉoj por la uzado de Pasporta Servo"
 
-#: core/templates/account/consent.html
+#: core/templates/account/consent.html pages/templates/pages/privacy.html
 msgid "Policy of Privacy within Pasporta Servo"
 msgstr "Politiko pri privateco ĉe Pasporta Servo"
 

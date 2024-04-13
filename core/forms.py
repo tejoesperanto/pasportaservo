@@ -363,7 +363,9 @@ class MassMailForm(forms.Form):
             ('old_system', pgettext_lazy("Mass mailing category", "old system")),
             ('not_in_book', pgettext_lazy("Mass mailing category", "not in book")),
             ('in_book', pgettext_lazy("Mass mailing category", "in book")),
-            ('just_user', pgettext_lazy("Mass mailing category", "just user")),
+            ('not_hosts', pgettext_lazy("Mass mailing category", "not hosts")),
+            ('users_active_1y', pgettext_lazy("Mass mailing category", "active users (1 year)")),
+            ('users_active_2y', pgettext_lazy("Mass mailing category", "active users (2 years)")),
         )
     )
     test_email = forms.EmailField(
