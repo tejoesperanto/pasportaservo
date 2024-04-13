@@ -66,6 +66,8 @@ def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None
     messages = []
     default_from = settings.DEFAULT_FROM_EMAIL
     for subject, text, html, from_email, recipients in datatuple:
+        subject = ''.join(subject.splitlines())
+        recipients = [r.strip() for r in recipients]
         message = EmailMultiAlternatives(
             subject, text, default_from, recipients,
             headers={'Reply-To': 'Pasporta Servo <saluton@pasportaservo.org>'})
