@@ -454,34 +454,44 @@ $(function() {
     }
 
     /* for mass mail form */
-    $('#id_massmail-body').keyup(function() {
-        $('#preview_body').html(marked(this.value));
-        var $preheader = $('#id_massmail-preheader');
-        if (!$preheader.val().trim() || typeof $preheader.data('manual-input') === "undefined") {
-            $preheader.removeData('manual-input')
-                      .val(this.value.replace(/(\r\n|\n|\r)/gm,' ').slice(0,99))
-                      .data('previous-value', $preheader.val())
-                      .keyup();
-        }
-    }).keyup();
-
-    $.each(['heading', 'subject', 'preheader'], function(i, element) {
-        $('#id_massmail-'+element).keyup(function(event) {
-            if (event && event.which) {
-                // manual usage of keyboard, not triggered via script.
-                var $this = $(this);
-                if (this.value != $this.data('previous-value')) {
-                    $this.data('manual-input', true);
-                    $this.data('previous-value', this.value);
+    (function() {
+        var frameElement = document.querySelector('iframe#massmail_preview');
+        var frameContext = frameElement.contentDocument;
+        frameContext.open();
+        frameContext.write(frameElement.getAttribute('data-content'));
+        frameContext.close();
+        frameElement.removeAttribute('data-content');
+        $(frameContext).ready(function() {
+            $('#id_massmail-body').keyup(function() {
+                $('#preview_body', frameContext).html(marked(this.value));
+                var $preheader = $('#id_massmail-preheader');
+                if (!$preheader.val().trim() || typeof $preheader.data('manual-input') === "undefined") {
+                    $preheader.removeData('manual-input')
+                              .val(this.value.replace(/(\r\n|\n|\r)/gm,' ').slice(0,99))
+                              .data('previous-value', $preheader.val())
+                              .keyup();
                 }
-            }
-            $('#preview_'+element).html(this.value);
-        }).keyup();
-    });
+            }).keyup();
 
-    $('#id_massmail-categories').change(function() {
-        $('#id_massmail-test_email').closest('.form-group').toggle(this.value === "test");
-    }).change();
+            $.each(['heading', 'subject', 'preheader'], function(i, element) {
+                $('#id_massmail-'+element).keyup(function(event) {
+                    if (event && event.which) {
+                        // manual usage of keyboard, not triggered via script.
+                        var $this = $(this);
+                        if (this.value != $this.data('previous-value')) {
+                            $this.data('manual-input', true);
+                            $this.data('previous-value', this.value);
+                        }
+                    }
+                    $('#preview_'+element, element == 'heading' ? frameContext : null).html(this.value);
+                }).keyup();
+            });
+
+            $('#id_massmail-categories').change(function() {
+                $('#id_massmail-test_email').closest('.form-group').toggle(this.value === "test");
+            }).change();
+        });
+    })();
 
     /* dynamic (collapsible) form area management */
     $('[id$="_form_element"].collapse').each(function() {
