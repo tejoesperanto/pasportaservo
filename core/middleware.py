@@ -43,19 +43,20 @@ class AccountFlagsMiddleware(MiddlewareMixin):
             settings.STATIC_URL,
             settings.MEDIA_URL,
             '/favicon.ico',
+            '/fragment/',
             url_index_maps,
         ]
         self.exclude_urls = tuple(str(url) for url in exclude_urls)
 
     def process_request(self, request):
-        if not request.user.is_authenticated:
-            # Only relevant to logged in users.
-            return
         if request.path.startswith(self.exclude_urls):
             # Only relevant when using the website itself (not Django-Admin or debug tools),
-            # when the file requested is not a static one,
+            # when the file requested is not a static one or a fragment,
             # and when the request is not for resources or configurations related to maps.
             request.skip_hosting_checks = True
+            return
+        if not request.user.is_authenticated:
+            # Only relevant to logged in users.
             return
         profile = Profile.all_objects.filter(user=request.user)[0:1]
         if 'flag_analytics_setup' not in request.session:

@@ -1,5 +1,5 @@
 {% extends 'core/base_crispy_form.html' %}
-{% load static %}
+{% load static i18n %}
 
 {% block extra_js %}
     {{ block.super }}
@@ -13,6 +13,12 @@
 {% block form_after %}
     <div class="col-xs-12 col-md-7">
         {% include 'email/snippets/preview_header.html' %}
-        {% include 'email/base_email.html' %}
+        <div class="row">
+            <div class="embed-responsive" style="padding-bottom: calc(100% - 20px)">
+                <iframe id="massmail_preview" title="{% trans "Preview" context 'Title' %}"
+                        data-content="{% filter force_escape %}{% include 'email/base_email.html' %}{% endfilter %}"
+                ></iframe>
+            </div>
+        </div>
     </div>
 {% endblock form_after %}
