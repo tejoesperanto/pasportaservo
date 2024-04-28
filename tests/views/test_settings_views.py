@@ -26,37 +26,6 @@ class AccountSettingsViewTests(BasicViewTests):
         del cls.users['regular']
         cls.users['invalid_email'] = UserFactory(profile=None, invalid_email=True)
 
-    def test_redirect_if_logged_out(self):
-        expected_url = reverse_lazy('login')
-        for lang in self.view_page.explicit_url:
-            with (
-                override_settings(LANGUAGE_CODE=lang),
-                self.subTest(lang=lang)
-            ):
-                # The view is expected to redirect unauthenticated users to
-                # the login page.
-                page = self.view_page.open(self, status='*')
-                self.assertEqual(page.response.status_code, 302)
-                self.assertURLEqual(
-                    page.response.location,
-                    f'{expected_url}?' + urlencode({
-                        settings.REDIRECT_FIELD_NAME: self.view_page.explicit_url[lang],
-                    })
-                )
-
-                # The view is expected to redirect unauthenticated users to
-                # the login page also when a redirection target is provided.
-                page = self.view_page.open(self, redirect_to='/and-then', status='*')
-                self.assertEqual(page.response.status_code, 302)
-                self.assertURLEqual(
-                    page.response.location,
-                    f'{expected_url}?' + urlencode({
-                        settings.REDIRECT_FIELD_NAME:
-                            f'{self.view_page.explicit_url[lang]}?'
-                            + urlencode({settings.REDIRECT_FIELD_NAME: '/and-then'}),
-                    })
-                )
-
     def test_redirect_if_has_profile(self):
         # The view is expected to redirected authenticated users who already
         # have a profile to the profile settings page.

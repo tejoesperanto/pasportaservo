@@ -217,8 +217,15 @@ class PageTemplate:
 
 
 class PageWithFormTemplate(PageTemplate):
+    class _RenderedFormDefinitionBase(TypedDict):
+        selector: str
+        title: dict[str, str]
+
+    class RenderedFormDefinition(_RenderedFormDefinitionBase, total=False):
+        object: type[Form] | type[ModelForm] | None
+
     form_class: type[Form] | type[ModelForm]
-    form = {
+    form: RenderedFormDefinition = {
         'selector': "",
         'title': {
             'en': "", 'eo': "",
@@ -262,14 +269,14 @@ class PageWithFormTemplate(PageTemplate):
 
     def get_form_errors(self, field_name: Optional[str] = None) -> str | list[str]:
         if field_name is None:
-            return self.get_form().find("form > .form-contents > .alert").text()
+            return self.get_form().find("form > * > .alert").text()
         else:
             return [
                 cast(str, PyQuery(error_element).text())
                 for error_element in
                 self
                 .get_form()
-                .find(f"form > .form-contents input[name='{field_name}'] ~ [id^='error_']")
+                .find(f"form > * .form-control[name='{field_name}'] ~ [id^='error_']")
             ]
 
 

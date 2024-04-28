@@ -1040,14 +1040,39 @@ msgstr "Aĉetu por ni taseton da kafo!"
 msgid "Thank you for your support!"
 msgstr "Dankon por via subteno!"
 
+#: core/templates/core/mass_mail_form.html
+#: core/templates/core/mass_mail_sent.html
+msgid "Announcement to users"
+msgstr "Anonco al uzantoj"
+
+#: core/templates/core/mass_mail_form.html
+#: hosting/templates/hosting/settings.html
+msgctxt "Title"
+msgid "Preview"
+msgstr "Antaŭrigardo"
+
 #: core/templates/core/mass_mail_sent.html
 msgid "Emails sent"
 msgstr "Retmesaĝoj senditaj"
 
 #: core/templates/core/mass_mail_sent.html
+msgid "Emails not sent"
+msgstr "Retmesaĝoj ne senditaj"
+
+#: core/templates/core/mass_mail_sent.html
 #, python-format
-msgid "You sent %(nb)s emails. Well done!"
-msgstr "Vi sendis %(nb)s mesaĝojn. Bonege!"
+msgid "You sent 1 email."
+msgid_plural "You sent %(nb)s emails."
+msgstr[0] "Vi sendis 1 mesaĝon."
+msgstr[1] "Vi sendis %(nb)s mesaĝojn."
+
+#: core/templates/core/mass_mail_sent.html
+msgid "You sent the emails."
+msgstr "Vi sendis la mesaĝojn."
+
+#: core/templates/core/mass_mail_sent.html
+msgid "Well done!"
+msgstr "Bonege!"
 
 #: core/templates/core/message.html
 #: core/templates/ui/fragment-datalist_fallback.html
@@ -3776,11 +3801,6 @@ msgstr "Publika retadreso?"
 #: hosting/templates/hosting/settings.html
 msgid "[no email address]"
 msgstr "[neniu retpoŝta adreso]"
-
-#: hosting/templates/hosting/settings.html
-msgctxt "Title"
-msgid "Preview"
-msgstr "Antaŭrigardo"
 
 #: hosting/templates/hosting/settings.html
 msgid ""

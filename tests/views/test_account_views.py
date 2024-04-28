@@ -9,6 +9,7 @@ from factory import Faker
 
 from core.utils import join_lazy
 
+from .mixins import FormViewTestsMixin
 from .pages import RegisterPage
 from .testcasebase import BasicViewTests
 
@@ -18,7 +19,7 @@ def _snake_str(string: str) -> str:
 
 
 @tag('views', 'views-account', 'views-register')
-class RegisterViewTests(BasicViewTests):
+class RegisterViewTests(FormViewTestsMixin, BasicViewTests):
     view_page = RegisterPage
 
     @classmethod
@@ -64,19 +65,6 @@ class RegisterViewTests(BasicViewTests):
                         self, redirect_to='https://faraway/', status='*', user=self.users[user_tag])
                     self.assertEqual(page.response.status_code, 302)
                     self.assertStartsWith(page.response.location, expected_url[lang][0])
-
-    def test_register_form(self):
-        for lang in self.view_page.form['title']:
-            with (
-                override_settings(LANGUAGE_CODE=lang),
-                self.subTest(lang=lang)
-            ):
-                page = self.view_page.open(self, reuse_for_lang=lang)
-                # Verify that the expected form class is in use on the view.
-                self.assertIsNotNone(page.form['object'])
-                self.assertIsInstance(page.form['object'], page.form_class)
-                # Verify the expected title of the form.
-                self.assertEqual(page.get_form_title(), page.form['title'][lang])
 
     def _prepare_registration_values(self, **pre_set_values):
         password_value = self.faker.password()

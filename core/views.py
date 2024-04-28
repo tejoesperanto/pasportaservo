@@ -18,7 +18,7 @@ from django.contrib.auth.views import (
 from django.contrib.flatpages.models import FlatPage
 from django.core.mail import mail_admins, send_mail
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Exists, OuterRef, Q
 from django.http import (
     Http404, HttpResponse, HttpResponseRedirect, JsonResponse, QueryDict,
 )
@@ -804,40 +804,43 @@ class MassMailView(AuthMixin, generic.FormView):
         template = get_template('email/mass_email.html')
 
         opening = make_aware(datetime(2014, 11, 24))
-        profiles = Profile.objects.none()
+        profiles = Profile.objects_raw.none()
 
         if category == "not_hosts":
             # only active profiles, linked to existing user accounts
-            profiles = Profile.objects.filter(user__isnull=False, user__last_login__isnull=False)
+            profiles = Profile.objects_raw.filter(user__isnull=False, user__last_login__isnull=False)
             # exclude completely those who have at least one active available place
-            profiles = profiles.exclude(owned_places__in=Place.objects.filter(available=True))
+            profiles = profiles.exclude(owned_places__in=Place.objects_raw.filter(available=True))
             # remove profiles with places available in the past, that is deleted
             profiles = profiles.filter(Q(owned_places__available=False) | Q(owned_places__isnull=True))
         elif category == "old_system":
             # those who logged in before the opening date; essentially, never used the new system
-            profiles = Profile.objects.filter(user__last_login__lte=opening)
+            profiles = Profile.objects_raw.filter(user__last_login__lte=opening)
         elif category in ("in_book", "not_in_book"):
             # those who logged in after the opening date
-            profiles = Profile.objects.filter(user__last_login__gt=opening)
-            # filter by active places according to 'in-book?' selection
-            not_deleted_places = Q(owned_places__deleted_on__isnull=True)
+            profiles = Profile.objects_raw.filter(user__last_login__gt=opening)
+            # filter by active & available places according to 'in-book?' selection
+            places_in_book = Place.objects_raw.filter(
+                owner=OuterRef('pk'), in_book=True, available=True)
+            places_not_in_book = Place.objects_raw.filter(
+                owner=OuterRef('pk'), in_book=False, available=True)
             if category == "in_book":
-                profiles = profiles.filter(
-                    not_deleted_places, owned_places__in_book=True,
-                )
-            elif category == "not_in_book":
-                profiles = profiles.filter(
-                    not_deleted_places, owned_places__in_book=False, owned_places__available=True,
-                )
+                profiles = profiles.filter(Exists(places_in_book))
+            elif category == "not_in_book":  # pragma: no branch
+                profiles = profiles.filter(Exists(places_not_in_book) & ~Exists(places_in_book))
         elif category in ("users_active_1y", "users_active_2y"):
             # profiles active in the last 1 or 2 years (and linked to existing user accounts)
             cutoff = make_aware(datetime.today())
             cutoff = cutoff - timedelta(days=365 if category == "users_active_1y" else 730)
-            profiles = Profile.objects.filter(user__last_login__gte=cutoff)
+            profiles = Profile.objects_raw.filter(user__last_login__gte=cutoff)
         # ensure that the account is still active and the person is not deceased
         profiles = profiles.filter(user__is_active=True, death_date__isnull=True)
         # finally remove duplicates
         profiles = profiles.distinct()
+        # leave only the needed fields
+        profiles = profiles.select_related('user').only(
+            'first_name', 'last_name', 'user__username', 'user__email',
+        )
 
         if category == 'test':
             test_email = form.cleaned_data['test_email']
@@ -883,7 +886,11 @@ class MassMailSentView(AuthMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['nb'] = int(self.request.GET['nb']) if self.request.GET.get('nb', '').isdigit() else '??'
+        context['nb'] = (
+            int(self.request.GET['nb'])
+            if self.request.GET.get('nb', '').isdigit()
+            else None
+        )
         return context
 
 

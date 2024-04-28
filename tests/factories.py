@@ -130,6 +130,7 @@ class UserFactory(DjangoModelFactory):
 
     class Params:
         deceased_user = False
+        deleted_profile = False
 
     username = Faker('user_name')
     password = factory.PostGenerationMethodCall('set_password', "adm1n")
@@ -142,7 +143,8 @@ class UserFactory(DjangoModelFactory):
 
     profile = factory.RelatedFactory(
         'tests.factories.ProfileFactory', 'user',
-        deceased=factory.SelfAttribute('..deceased_user'))
+        deceased=factory.SelfAttribute('..deceased_user'),
+        deleted=factory.SelfAttribute('..deleted_profile'))
     agreement = factory.RelatedFactory('tests.factories.AgreementFactory', 'user')
 
     @factory.post_generation
@@ -150,6 +152,12 @@ class UserFactory(DjangoModelFactory):
         instance._clean_email = instance.email
         if value:
             instance.email = f'INVALID_{instance.email}'
+
+    @factory.post_generation
+    def places(instance, create, value, **kwargs):
+        if not create or not value or not hasattr(instance, 'profile'):
+            return
+        ProfileFactory.generate_places(instance.profile, value, **kwargs)
 
 
 class StaffUserFactory(UserFactory):
@@ -222,6 +230,7 @@ class ProfileFactory(DjangoModelFactory):
         exclude = ('generated_name',)
 
     class Params:
+        deleted = False
         deceased = False
         with_email = False
         locale = None
@@ -248,12 +257,37 @@ class ProfileFactory(DjangoModelFactory):
         'with_email',
         yes_declaration=Faker('email', safe=False),
         no_declaration="")
+    deleted_on = factory.Maybe(
+        'deleted',
+        yes_declaration=timezone.now(),
+        no_declaration=None)
 
     @factory.post_generation
     def invalid_email(instance, create, value, **kwargs):
         instance._clean_email = instance.email
         if value and instance.email:
             instance.email = f'INVALID_{instance.email}'
+
+    @staticmethod
+    def generate_places(instance, value, **kwargs):
+        try:
+            values_iterator = iter(value)
+        except TypeError:
+            if isinstance(value, int):
+                values_iterator = PlaceFactory.build_batch(value, owner=None, **kwargs)
+            else:
+                values_iterator = []
+        for place in values_iterator:
+            if isinstance(place, dict):
+                place = PlaceFactory.build(owner=None, **(kwargs | place))
+            place.owner = instance
+            place.save()
+
+    @factory.post_generation
+    def places(instance, create, value, **kwargs):
+        if not create or not value or instance.user is None:
+            return
+        ProfileFactory.generate_places(instance, value, **kwargs)
 
 
 class ProfileSansAccountFactory(ProfileFactory):
@@ -267,8 +301,16 @@ class PlaceFactory(DjangoModelFactory):
     class Meta:
         model = 'hosting.Place'
 
-    owner = factory.SubFactory('tests.factories.ProfileFactory')
+    class Params:
+        deleted = False
+        deleted_profile = False
+
+    owner = factory.SubFactory(
+        'tests.factories.ProfileFactory',
+        deleted=factory.SelfAttribute('..deleted_profile'))
     country = Faker('random_element', elements=COUNTRIES.keys())
+    city = Faker('city')
+    address = Faker('address')
 
     @factory.lazy_attribute
     def state_province(self):
@@ -277,9 +319,6 @@ class PlaceFactory(DjangoModelFactory):
             return region.iso_code
         else:
             return ""
-
-    city = Faker('city')
-    address = Faker('address')
 
     @factory.lazy_attribute
     def location(self):
@@ -291,6 +330,10 @@ class PlaceFactory(DjangoModelFactory):
     description = Faker('paragraph', nb_sentences=4)
     short_description = Faker('text', max_nb_chars=140)
     in_book = False
+    deleted_on = factory.Maybe(
+        'deleted',
+        yes_declaration=timezone.now(),
+        no_declaration=None)
 
     @staticmethod
     def generate_postcode(country):

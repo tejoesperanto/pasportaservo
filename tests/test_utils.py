@@ -813,7 +813,7 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
 
 
 @tag('utils')
-class MassMailTests(TestCase):
+class MassMailTests(AdditionalAsserts, TestCase):
     def test_empty_list(self):
         self.assertEqual(send_mass_html_mail(tuple()), 0)
 
@@ -829,14 +829,31 @@ class MassMailTests(TestCase):
                 # author email (ignored) & emails of recipients
                 "test@ps", [],
             ))
-            for j in range(random.randint(1, 3)):
+            for _ in range(random.randint(1, 3)):
                 test_data[i][4].append(faker.company_email())
 
         result = send_mass_html_mail(test_data)
         self.assertEqual(result, len(test_data))
-        self.assertEqual(len(mail.outbox), len(test_data))
+        self.assertLength(mail.outbox, len(test_data))
         for i in range(len(test_data)):
-            for j in range(len(test_data[i][4])):
-                self.assertEqual(mail.outbox[i].subject, test_data[i][0])
-                self.assertEqual(mail.outbox[i].from_email, settings.DEFAULT_FROM_EMAIL)
-                self.assertEqual(mail.outbox[i].to, test_data[i][4])
+            self.assertEqual(mail.outbox[i].subject, test_data[i][0])
+            self.assertEqual(mail.outbox[i].from_email, settings.DEFAULT_FROM_EMAIL)
+            self.assertEqual(mail.outbox[i].to, test_data[i][4])
+
+    def test_invalid_values(self):
+        faker = Faker._get_faker()
+        expected_subject = faker.sentence()
+        test_data = [(
+            # subject line
+            "\n".join(expected_subject.split()),
+            # content: plain text & html; author email
+            "", "", "test@ps",
+            # emails of recipients
+            [f'{faker.email()}  ', f'  {faker.email()}', f'   {faker.email()} '],
+        )]
+
+        result = send_mass_html_mail(test_data)
+        self.assertEqual(result, 1)
+        self.assertLength(mail.outbox, 1)
+        self.assertEqual(mail.outbox[0].subject, expected_subject.replace(" ", ""))
+        self.assertEqual(mail.outbox[0].to, [email.strip() for email in test_data[0][-1]])
