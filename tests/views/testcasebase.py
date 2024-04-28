@@ -2,8 +2,8 @@ from typing import cast
 from urllib.parse import urlencode
 
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.test import override_settings
+from django.urls import reverse_lazy
 from django.utils.functional import Promise
 
 from django_webtest import WebTest
@@ -149,12 +149,7 @@ class BasicViewTests(AdditionalAsserts, WebTest):
                     self.subTest(user=user_tag, lang=lang)
                 ):
                     page = self.view_page.open(self, user=self.users[user_tag])
-                    try:
-                        self.users[user_tag].profile
-                    except ObjectDoesNotExist:
-                        user_has_profile = False
-                    else:
-                        user_has_profile = True
+                    user_has_profile = hasattr(self.users[user_tag], 'profile')
 
                     for nav_part in test_data[lang].keys() - {'profile', 'use_notice'}:
                         with self.subTest(navigation=nav_part):
@@ -273,3 +268,55 @@ class BasicViewTests(AdditionalAsserts, WebTest):
         page = self.view_page.open(
             self, user=self.user if self.view_page.redirects_unauthenticated else None)
         self.assertTemplateUsed(page.response, self.view_page.template)
+
+    def test_redirect_if_logged_out(self):
+        view_name = getattr(self.view_page.view_class, '__name__ ', 'This view')
+
+        expected_url = reverse_lazy('login')
+        for lang in self.view_page.explicit_url:
+            with (
+                override_settings(LANGUAGE_CODE=lang),
+                self.subTest(lang=lang)
+            ):
+                # Verify that the view redirects unauthenticated users to the
+                # login page if required.
+                page = self.view_page.open(self, status='*')
+                if self.view_page.redirects_unauthenticated:
+                    self.assertEqual(
+                        page.response.status_code, 302,
+                        msg=f"{view_name} is expected to redirect non-authenticated users"
+                    )
+                    self.assertURLEqual(
+                        page.response.location,
+                        f'{expected_url}?' + urlencode({
+                            settings.REDIRECT_FIELD_NAME: self.view_page.explicit_url[lang],
+                        })
+                    )
+                else:
+                    self.assertEqual(
+                        page.response.status_code, 200,
+                        msg=f"{view_name} is expected to be accessible to non-authenticated users"
+                    )
+
+                # Verify that if required, the view redirects unauthenticated
+                # users to the login page also when an explicit redirection
+                # target is provided.
+                page = self.view_page.open(self, redirect_to='/and-then', status='*')
+                if self.view_page.redirects_unauthenticated:
+                    self.assertEqual(
+                        page.response.status_code, 302,
+                        msg=f"{view_name} is expected to redirect non-authenticated users"
+                    )
+                    self.assertURLEqual(
+                        page.response.location,
+                        f'{expected_url}?' + urlencode({
+                            settings.REDIRECT_FIELD_NAME:
+                                f'{self.view_page.explicit_url[lang]}?'
+                                + urlencode({settings.REDIRECT_FIELD_NAME: '/and-then'}),
+                        })
+                    )
+                else:
+                    self.assertEqual(
+                        page.response.status_code, 200,
+                        msg=f"{view_name} is expected to be accessible to non-authenticated users"
+                    )

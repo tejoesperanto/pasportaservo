@@ -1,11 +1,28 @@
 {% extends 'core/base.html' %}
 {% load i18n %}
 
+{% block head_title %}{% trans "Announcement to users" %}{% endblock %}
+
 {% block page %}
-    <h1>{% trans "Emails sent" %}</h1>
-    <h3 class="text-success well">
-        {% blocktrans with nb=nb trimmed %}
-            You sent {{ nb }} emails. Well done!
-        {% endblocktrans %}
+    <h1>
+        {% if nb != 0 %}
+            {% trans "Emails sent" %}
+        {% else %}
+            {% trans "Emails not sent" %}
+        {% endif %}
+    </h1>
+    <h3 class="{% if nb != 0 %}text-success {% endif %}well">
+        {% if nb is not None %}
+            {% blocktrans count nb=nb trimmed %}
+                You sent 1 email.
+            {% plural %}
+                You sent {{ nb }} emails.
+            {% endblocktrans %}
+        {% else %}
+            {% trans "You sent the emails." %}
+        {% endif %}
+        {% if nb != 0 %}
+            {% trans "Well done!" %}
+        {% endif %}
     </h3>
 {% endblock %}

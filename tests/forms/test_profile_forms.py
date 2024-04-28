@@ -1,9 +1,9 @@
-from collections import namedtuple
 from datetime import date, timedelta
+from typing import Any, NamedTuple, Optional, cast
 from unittest.mock import patch
 
 from django.core.exceptions import NON_FIELD_ERRORS
-from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.files.uploadedfile import SimpleUploadedFile, UploadedFile
 from django.test import override_settings, tag
 from django.urls import reverse
 
@@ -16,14 +16,16 @@ from hosting.forms.profiles import (
     PreferenceOptinsForm, ProfileCreateForm,
     ProfileEmailUpdateForm, ProfileForm,
 )
+from hosting.models import PasportaServoUser, Profile
 from hosting.widgets import ClearableWithPreviewImageInput
 
+from .. import with_type_hint
 from ..assertions import AdditionalAsserts
-from ..factories import LocaleFaker, PlaceFactory, ProfileFactory, UserFactory
+from ..factories import LocaleFaker, ProfileFactory, UserFactory
 from .test_auth_forms import EmailUpdateFormTests
 
 
-class ProfileFormTestingBase:
+class ProfileFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -36,38 +38,48 @@ class ProfileFormTestingBase:
             'first_name',
             'last_name',
         ]
-        cls.config = SiteConfiguration.get_solo()
+        cls.config = cast(SiteConfiguration, SiteConfiguration.get_solo())
         cls.faker = Faker._get_faker()
 
     @classmethod
     def setUpTestData(cls):
-        TaggedProfile = namedtuple('TaggedProfile', 'obj, tag')
+        TaggedProfile = NamedTuple('TaggedProfile', [('obj', Profile), ('tag', str)])
 
         cls.profile_with_no_places = TaggedProfile(ProfileFactory(), "simple")
         cls.profile_with_no_places_deceased = TaggedProfile(ProfileFactory(deceased=True), "deceased")
 
-        profile = ProfileFactory()
+        profile = ProfileFactory(places=[{'available': True}])
         cls.profile_hosting = TaggedProfile(profile, "hosting")
-        PlaceFactory(owner=profile, available=True)
 
-        profile = ProfileFactory()
+        profile = ProfileFactory(places=[{'available': False, 'have_a_drink': True}])
         cls.profile_meeting = TaggedProfile(profile, "meeting")
-        PlaceFactory(owner=profile, available=False, have_a_drink=True)
 
-        profile = ProfileFactory()
+        profile = ProfileFactory(places=[
+            {'available': True},
+            {'available': False, 'tour_guide': True},
+        ])
         cls.profile_hosting_and_meeting = TaggedProfile(profile, "hosting & meeting")
-        PlaceFactory(owner=profile, available=True)
-        PlaceFactory(owner=profile, available=False, tour_guide=True)
 
-        profile = ProfileFactory()
+        profile = ProfileFactory(places=[{'available': True, 'in_book': True}])
         cls.profile_in_book = TaggedProfile(profile, "in book (simple)")
-        PlaceFactory(owner=profile, available=True, in_book=True)
 
-        profile = ProfileFactory()
+        profile = ProfileFactory(places=[
+            {'available': True, 'in_book': True},
+            {'available': True, 'in_book': False},
+            {'available': False, 'have_a_drink': True, 'in_book': False},
+        ])
         cls.profile_in_book_complex = TaggedProfile(profile, "in book (complex)")
-        PlaceFactory(owner=profile, available=True, in_book=True)
-        PlaceFactory(owner=profile, available=True, in_book=False)
-        PlaceFactory(owner=profile, available=False, have_a_drink=True, in_book=False)
+
+    def _init_form(
+            self,
+            data: Optional[dict[str, Any]] = None,
+            files: Optional[dict[str, UploadedFile | None]] = None,
+            instance: Optional[Profile] = None,
+            empty: bool = False,
+            save: bool = False,
+            user: Optional[PasportaServoUser] = None,
+    ) -> ProfileForm:
+        ...
 
     def test_init(self):
         form_empty = self._init_form(empty=True, user=self.profile_with_no_places.obj.user)
@@ -478,7 +490,7 @@ class ProfileFormTestingBase:
 
 
 @tag('forms', 'forms-profile', 'profile')
-class ProfileFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
+class ProfileFormTests(ProfileFormTestingBase, WebTest):
     def _init_form(self, data=None, files=None, instance=None, empty=False, save=False, user=None):
         if not empty:
             assert instance is not None
@@ -625,8 +637,7 @@ class ProfileFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
             almost_old_enough = today.replace(year=today.year - self.config.host_min_age)
         except ValueError:
             almost_old_enough = today.replace(year=today.year - self.config.host_min_age, day=today.day - 1)
-        finally:
-            almost_old_enough += timedelta(days=1)
+        almost_old_enough += timedelta(days=1)
         error_message = {
             'en': "The minimum age to be allowed hosting is {}.".format(self.config.host_min_age),
             'eo': "Vi ekpovos gastigi kiam estos {}-jaraĝa.".format(self.config.host_min_age),
@@ -783,7 +794,7 @@ class ProfileFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
 
 
 @tag('forms', 'forms-profile', 'profile')
-class ProfileCreateFormTests(AdditionalAsserts, ProfileFormTestingBase, WebTest):
+class ProfileCreateFormTests(ProfileFormTestingBase, WebTest):
     def _init_form(self, data=None, files=None, instance=None, empty=False, save=False, user=None):
         if not empty:
             assert instance is not None
