@@ -1,8 +1,9 @@
 import re
 from collections import namedtuple
-from datetime import date
+from datetime import date, datetime
 from enum import Enum, IntEnum
 from functools import partial, partialmethod
+from typing import TYPE_CHECKING, Iterable, Optional, TypedDict
 
 from django.apps import apps
 from django.conf import settings
@@ -13,6 +14,7 @@ from django.contrib.gis.db.models import LineStringField, PointField
 from django.db import models, transaction
 from django.db.models import F, Q, Value as V
 from django.db.models.functions import Concat, Substr
+from django.http import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import classonlymethod
@@ -55,12 +57,20 @@ from .validators import (
     validate_not_too_many_caps, validate_size,
 )
 
+if TYPE_CHECKING:
+    from django.db.models import (
+        ForeignKey, ManyToManyField as M2MField, OneToOneField as S2SField,
+    )
+    from django.db.models.manager import RelatedManager
+
 
 class PasportaServoUser(get_user_model()):
     class Meta:
         proxy = True
 
     profile: 'Profile'
+    username: str
+    email: str
 
 
 class LocationType(Enum):
@@ -89,16 +99,20 @@ class TrackingModel(models.Model):
     An abstract model that adds fields allowing tracking of activity related to
     the child model's instances, such as deletion or confirmation of the data.
     """
+    owner: 'ForeignKey[Profile]'
     deleted_on = models.DateTimeField(
         _("deleted on"),
         default=None, blank=True, null=True)
+    deleted: bool
     confirmed_on = models.DateTimeField(
         _("confirmed on"),
         default=None, blank=True, null=True)
+    confirmed: bool
     checked_on = models.DateTimeField(
         _("checked on"),
         default=None, blank=True, null=True)
-    checked_by = models.ForeignKey(
+    checked: bool
+    checked_by: 'ForeignKey[PasportaServoUser | None]' = models.ForeignKey(
         settings.AUTH_USER_MODEL, verbose_name=_("approved by"),
         blank=True, null=True,
         related_name='+', on_delete=models.SET_NULL)
@@ -111,7 +125,10 @@ class TrackingModel(models.Model):
         abstract = True
         base_manager_name = 'all_objects'
 
-    def set_check_status(self, set_by_user, clear_only=False, commit=True):
+    def set_check_status(
+            self, set_by_user: PasportaServoUser,
+            clear_only: bool = False, commit: bool = True,
+    ) -> tuple[datetime | None, PasportaServoUser | None]:
         """
         Updates the confirmation status. When set by the owner, clears the
         confirmation since this indicates update of data. Otherwise, sets
@@ -135,6 +152,7 @@ class VisibilitySettings(models.Model):
     the book. Can be linked via a generic foreign key to multiple model types.
     """
     DEFAULT_TYPE = pgettext_lazy("Noun", "Unknown")
+    _CONTAINER_MODEL: str
     model_type = models.CharField(
         _("type"),
         max_length=25, default=DEFAULT_TYPE)
@@ -146,6 +164,27 @@ class VisibilitySettings(models.Model):
         on_delete=models.CASCADE)
     content_object = GenericForeignKey(
         'content_type', 'model_id', for_concrete_model=False)
+
+    # Defaults contain the presets of visibility prior to user's customization.
+    # Changes to the defaults must be reflected in a data migration.
+    class Defaults(TypedDict):
+        online_public: bool
+        online_authed: bool
+        in_book: bool
+
+    defaults: Defaults
+
+    # Rules define what can be customized by the user. Tied online means an object
+    # hidden for public will necessarily be hidden also for authorized users.
+    class RulesBase(TypedDict):
+        online_public: bool
+        online_authed: bool
+        in_book: bool
+
+    class Rules(RulesBase, total=False):
+        tied_online: bool
+
+    rules: Rules
 
     # The object should be viewable by any authenticated user.
     visible_online_public = models.BooleanField(_("visible online for all"))
@@ -280,12 +319,11 @@ class VisibilitySettingsForPlace(VisibilitySettings):
     class Meta:
         proxy = True
     _CONTAINER_MODEL = 'hosting.Place'
-    # Defaults contain the presets of visibility prior to user's customization.
-    # Changes to the defaults must be reflected in a data migration.
-    defaults = dict(online_public=True, online_authed=True, in_book=True)
-    # Rules define what can be customized by the user. Tied online means an object
-    # hidden for public will necessarily be hidden also for authorized users.
-    rules = dict(online_public=True, online_authed=False, in_book=True, tied_online=True)
+    content_object: 'Place'
+    defaults = VisibilitySettings.Defaults(
+        online_public=True, online_authed=True, in_book=True)
+    rules = VisibilitySettings.Rules(
+        online_public=True, online_authed=False, in_book=True, tied_online=True)
 
     @cached_property
     def printable(self):
@@ -300,8 +338,11 @@ class VisibilitySettingsForFamilyMembers(VisibilitySettings):
     class Meta:
         proxy = True
     _CONTAINER_MODEL = 'hosting.Place'
-    defaults = dict(online_public=False, online_authed=True, in_book=True)
-    rules = dict(online_public=True, online_authed=False, in_book=False)
+    content_object: 'Place'
+    defaults = VisibilitySettings.Defaults(
+        online_public=False, online_authed=True, in_book=True)
+    rules = VisibilitySettings.Rules(
+        online_public=True, online_authed=False, in_book=False)
 
     @cached_property
     def printable(self):
@@ -316,8 +357,11 @@ class VisibilitySettingsForPhone(VisibilitySettings):
     class Meta:
         proxy = True
     _CONTAINER_MODEL = 'hosting.Phone'
-    defaults = dict(online_public=False, online_authed=True, in_book=True)
-    rules = dict(online_public=True, online_authed=True, in_book=True)
+    content_object: 'Phone'
+    defaults = VisibilitySettings.Defaults(
+        online_public=False, online_authed=True, in_book=True)
+    rules = VisibilitySettings.Rules(
+        online_public=True, online_authed=True, in_book=True)
 
     @cached_property
     def printable(self):
@@ -328,8 +372,11 @@ class VisibilitySettingsForPublicEmail(VisibilitySettings):
     class Meta:
         proxy = True
     _CONTAINER_MODEL = 'hosting.Profile'
-    defaults = dict(online_public=False, online_authed=False, in_book=True)
-    rules = dict(online_public=True, online_authed=True, in_book=False)
+    content_object: 'Profile'
+    defaults = VisibilitySettings.Defaults(
+        online_public=False, online_authed=False, in_book=True)
+    rules = VisibilitySettings.Rules(
+        online_public=True, online_authed=True, in_book=False)
 
     @cached_property
     def printable(self):
@@ -358,9 +405,10 @@ class Profile(TrackingModel, TimeStampedModel):
 
         __empty__ = ""
 
-    user = models.OneToOneField(
+    user: 'S2SField[PasportaServoUser | None]' = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         null=True, blank=True, on_delete=models.SET_NULL)
+    user_id: int | None
     title = models.CharField(
         _("title"),
         blank=True,
@@ -422,6 +470,11 @@ class Profile(TrackingModel, TimeStampedModel):
         upload_to=RenameAndPrefixAvatar("avatars"),
         validators=[validate_image, validate_size],
         help_text=_("Small image under 100kB. Ideal size: 140x140 px."))
+
+    if TYPE_CHECKING:
+        pref: 'Preferences'
+        owned_places: RelatedManager['Place']
+        phones: RelatedManager['Phone']
 
     class Meta:
         verbose_name = _("profile")
@@ -501,7 +554,9 @@ class Profile(TrackingModel, TimeStampedModel):
 
     @property
     def autoslug(self):
-        slugify = Slugify(to_lower=True, pretranslate={'ĉ': 'ch', 'ĝ': 'gh', 'ĥ': 'hh', 'ĵ': 'jh', 'ŝ': 'sh'})
+        slugify = Slugify(
+            to_lower=True,
+            pretranslate={'ĉ': 'ch', 'ĝ': 'gh', 'ĥ': 'hh', 'ĵ': 'jh', 'ŝ': 'sh'})
         return slugify(self.name) or '--'
 
     @cached_property
@@ -518,7 +573,9 @@ class Profile(TrackingModel, TimeStampedModel):
             'confirmed', 'checked',
         )
         objects = self.owned_places.filter(deleted=False).values(*fields)
-        return tuple(namedtuple('SimplePlaceContainer', place.keys())(*place.values()) for place in objects)
+        return tuple(namedtuple('SimplePlaceContainer', place.keys())(
+            *place.values()) for place in objects
+        )
 
     def _count_listed_places(self, attr, query, restrained_search, **kwargs):
         cached = self.__dict__.setdefault('_host_offer_cache', {}).get(attr) if not len(kwargs) else None
@@ -613,7 +670,7 @@ class Profile(TrackingModel, TimeStampedModel):
     confirm_all_info.alters_data = True
 
     @classonlymethod
-    def get_basic_data(cls, request=None, **kwargs):
+    def get_basic_data(cls, request: Optional[HttpRequest] = None, **kwargs):
         """
         Returns only the strictly necessary data for determining if a profile exists and for
         building the profile's URLs. This avoids overly complicated DB queries.
@@ -631,39 +688,43 @@ class Profile(TrackingModel, TimeStampedModel):
         return qs.get(**kwargs)
 
     @classmethod
-    def mark_invalid_emails(cls, emails):
+    def mark_invalid_emails(cls, emails: Iterable[str]):
         """
         Adds the 'invalid' marker to all email addresses in the given list.
         """
-        models = {cls: None, get_user_model(): None}
+        updated_models: dict[type[models.Model], Optional[int]] = {
+            cls: None, get_user_model(): None,
+        }
         emails = emails or []
-        for model in models:
-            models[model] = (
+        for model in updated_models:
+            updated_models[model] = (
                 model.objects
                 .filter(email__in=emails)
                 .exclude(email='')
                 .exclude(email__startswith=settings.INVALID_PREFIX)
                 .update(email=Concat(V(settings.INVALID_PREFIX), F('email')))
             )
-        return models
+        return updated_models
 
     @classmethod
-    def mark_valid_emails(cls, emails):
+    def mark_valid_emails(cls, emails: Iterable[str]):
         """
         Removes the 'invalid' marker from all email addresses in the given list.
         """
-        models = {cls: None, get_user_model(): None}
+        updated_models: dict[type[models.Model], Optional[int]] = {
+            cls: None, get_user_model(): None,
+        }
         emails = emails or []
-        for model in models:
-            models[model] = (
+        for model in updated_models:
+            updated_models[model] = (
                 model.objects
                 .filter(
                     email__in=emails,
                     email__startswith=settings.INVALID_PREFIX
                 )
-                .update(email=Substr(F('email'), len(settings.INVALID_PREFIX) + 1))
+                .update(email=Substr('email', len(settings.INVALID_PREFIX) + 1))
             )
-        return models
+        return updated_models
 
 
 class FamilyMember(Profile):
@@ -696,9 +757,10 @@ class FamilyMember(Profile):
 
 
 class Place(TrackingModel, TimeStampedModel):
-    owner = models.ForeignKey(
+    owner: 'ForeignKey[Profile]' = models.ForeignKey(
         'hosting.Profile', verbose_name=_("owner"),
         related_name="owned_places", on_delete=models.CASCADE)
+    owner_id: int
     address = models.TextField(
         _("address"),
         blank=True,
@@ -779,12 +841,12 @@ class Place(TrackingModel, TimeStampedModel):
         _("irregularly present"),
         default=False,
         help_text=_("If you are not often at this address and need an advance notification."))
-    conditions = models.ManyToManyField(
+    conditions: 'M2MField[Condition, models.Model]' = models.ManyToManyField(
         'hosting.Condition', verbose_name=_("conditions"),
         blank=True,
         help_text=_("You are welcome to expand on the conditions "
                     "in your home in the description."))
-    family_members = models.ManyToManyField(
+    family_members: 'M2MField[Profile, models.Model]' = models.ManyToManyField(
         'hosting.Profile', verbose_name=_("family members"),
         blank=True)
     family_members_visibility = models.OneToOneField(
@@ -798,7 +860,7 @@ class Place(TrackingModel, TimeStampedModel):
         _("unavailable until"),
         null=True, blank=True,
         help_text=_("In the format year(4 digits)-month(2 digits)-day(2 digits)."))
-    authorized_users = models.ManyToManyField(
+    authorized_users: 'M2MField[PasportaServoUser, models.Model]' = models.ManyToManyField(
         settings.AUTH_USER_MODEL, verbose_name=_("authorized users"),
         blank=True,
         help_text=_("List of users authorized to view most of data of this accommodation."))
@@ -847,8 +909,7 @@ class Place(TrackingModel, TimeStampedModel):
             except (AttributeError, KeyError):
                 cached_qs = self.family_members.order_by('birth_date').select_related('user')
             self.__dict__[cache_name] = cached_qs
-        finally:
-            return cached_qs
+        return cached_qs
 
     @property
     def family_is_anonymous(self):
@@ -879,8 +940,7 @@ class Place(TrackingModel, TimeStampedModel):
             if complete:
                 cached_qs = cached_qs.select_related('profile').defer('profile__description')
             self.__dict__[cache_name] = cached_qs
-        finally:
-            return cached_qs
+        return cached_qs
 
     def conditions_cache(self):
         """
@@ -962,9 +1022,10 @@ class Phone(TrackingModel, TimeStampedModel):
         WORK = 'w', pgettext_lazy("Phone Type", "work")
         FAX = 'f', pgettext_lazy("Phone Type", "fax")
 
-    profile = models.ForeignKey(
+    profile: 'ForeignKey[Profile]' = models.ForeignKey(
         'hosting.Profile', verbose_name=_("profile"),
         related_name="phones", on_delete=models.CASCADE)
+    profile_id: int
     number = PhoneNumberField(
         _("number"),
         help_text=_("International number format begining with the plus sign "
@@ -1020,7 +1081,7 @@ class Phone(TrackingModel, TimeStampedModel):
     def __repr__(self):
         return "<{}: {}{} |p#{}>".format(
             self.__class__.__name__,
-            "("+self.type+") " if self.type else "", self.__str__(),
+            f"({self.type}) " if self.type else "", self.__str__(),
             self.profile_id
         )
 
@@ -1300,12 +1361,15 @@ class ContactPreference(models.Model):
 
 class Preferences(models.Model):
     """Profile's various general preferences, that relate to the account as a whole."""
-    profile = models.OneToOneField(
+    profile: 'S2SField[Profile]' = models.OneToOneField(
         'hosting.Profile', verbose_name=_("profile"),
         related_name="pref", on_delete=models.CASCADE)
-    contact_preferences = models.ManyToManyField(
-        'hosting.ContactPreference', verbose_name=_("contact preferences"),
-        blank=True)
+    profile_id: int
+    contact_preferences: 'M2MField[ContactPreference, models.Model]' = (
+        models.ManyToManyField(
+            'hosting.ContactPreference', verbose_name=_("contact preferences"),
+            blank=True)
+    )
     site_analytics_consent = models.BooleanField(
         _("I agree to be included by usage measurement tools."),
         default=None, null=True,

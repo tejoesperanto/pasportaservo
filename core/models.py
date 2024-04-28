@@ -1,5 +1,6 @@
 from collections import namedtuple
 from datetime import timedelta
+from typing import TYPE_CHECKING, cast
 
 from django.conf import settings
 from django.db import models
@@ -11,6 +12,11 @@ from solo.models import SingletonModel
 from hosting.fields import RangeIntegerField
 
 from .managers import PoliciesManager
+
+if TYPE_CHECKING:
+    from django.db.models import ForeignKey
+
+    from hosting.models import PasportaServoUser
 
 
 def default_api_keys():  # pragma: no cover
@@ -63,11 +69,15 @@ class SiteConfiguration(SingletonModel):
         _("API keys for mapping services"),
         default=default_api_keys)
 
+    class Meta:
+        verbose_name = _("Site Configuration")
+
     def __str__(self):  # pragma: no cover
         return str(_("Site Configuration"))
 
-    class Meta:
-        verbose_name = _("Site Configuration")
+    @classmethod
+    def get_solo(cls):
+        return cast(SiteConfiguration, super().get_solo())
 
 
 class Policy(models.Model):
@@ -105,7 +115,7 @@ class Policy(models.Model):
 
 
 class Agreement(TimeStampedModel):
-    user = models.ForeignKey(
+    user: 'ForeignKey[PasportaServoUser]' = models.ForeignKey(
         settings.AUTH_USER_MODEL, verbose_name=_("user"),
         related_name='+', on_delete=models.CASCADE)
     policy_version = models.CharField(
@@ -131,7 +141,7 @@ class Agreement(TimeStampedModel):
 
 
 class UserBrowser(models.Model):
-    user = models.ForeignKey(
+    user: 'ForeignKey[PasportaServoUser | None]' = models.ForeignKey(
         settings.AUTH_USER_MODEL, verbose_name=_("user"),
         related_name='+', null=True, on_delete=models.SET_NULL)
     user_agent_string = models.CharField(
@@ -174,12 +184,12 @@ class UserBrowser(models.Model):
         verbose_name_plural = _("user browsers")
 
     def __str__(self):
-        return (f'{self.user.username}: '
+        return (f'{self.user.username if self.user else _("user")}: '
                 f'{self.browser_name or "?"} {self.browser_version} '
                 f'{_("at")} {self.os_name or "?"} {self.os_version}')
 
     def __repr__(self):
-        return ((f"<User: {self.user.username}"
+        return ((f"<User: {self.user.username if self.user else '[DELETED]'}"
                  f" · Browser: {self.browser_name} {self.browser_version}"
                  f" · OS: {self.os_name} {self.os_version}")
                 + (f" · Device: {self.device_type}" if self.device_type else "")

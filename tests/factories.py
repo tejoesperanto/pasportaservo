@@ -3,8 +3,10 @@ import re
 from datetime import timedelta
 from hashlib import md5
 from random import choice, randint, random, uniform as uniform_random
+from typing import Generic, TypeVar
 
 from django.contrib.gis.geos import LineString, Point
+from django.db.models import Model
 from django.utils import timezone
 
 import factory
@@ -15,8 +17,12 @@ from factory import Faker
 from factory.django import DjangoModelFactory
 from phonenumber_field.phonenumber import PhoneNumber
 
+from core.models import Agreement, Policy, UserBrowser
 from hosting.countries import COUNTRIES_DATA, countries_with_mandatory_region
-from hosting.models import Condition, LocationType, Phone, Profile
+from hosting.models import (
+    Condition, CountryRegion, Gender, LocationType, PasportaServoUser,
+    Phone, Place, Profile, TravelAdvice, Whereabouts,
+)
 from maps import SRID
 from maps.data import COUNTRIES_GEO
 
@@ -59,7 +65,28 @@ def fake_providers(*providers):
 Faker.add_provider(OptionalProvider)
 
 
-class PolicyFactory(DjangoModelFactory):
+ModelType = TypeVar('ModelType', bound=Model)
+
+
+class TypedDjangoModelFactory(DjangoModelFactory, Generic[ModelType]):
+    @classmethod
+    def build(cls, **kwargs) -> ModelType:
+        return super().build(**kwargs)
+
+    @classmethod
+    def build_batch(cls, size: int, **kwargs) -> list[ModelType]:
+        return super().build_batch(size, **kwargs)
+
+    @classmethod
+    def create(cls, **kwargs) -> ModelType:
+        return super().create(**kwargs)
+
+    @classmethod
+    def create_batch(cls, size: int, **kwargs) -> list[ModelType]:
+        return super().create_batch(size, **kwargs)
+
+
+class PolicyFactory(TypedDjangoModelFactory[Policy]):
     class Meta:
         model = 'core.Policy'
 
@@ -101,7 +128,7 @@ class PolicyFactory(DjangoModelFactory):
             return ""
 
 
-class AgreementFactory(DjangoModelFactory):
+class AgreementFactory(TypedDjangoModelFactory[Agreement]):
     class Meta:
         model = 'core.Agreement'
 
@@ -123,7 +150,7 @@ class AgreementFactory(DjangoModelFactory):
     withdrawn = None
 
 
-class UserFactory(DjangoModelFactory):
+class UserFactory(TypedDjangoModelFactory[PasportaServoUser]):
     class Meta:
         model = 'auth.User'
         django_get_or_create = ('username',)
@@ -168,7 +195,7 @@ class AdminUserFactory(StaffUserFactory):
     is_superuser = True
 
 
-class UserBrowserFactory(DjangoModelFactory):
+class UserBrowserFactory(TypedDjangoModelFactory[UserBrowser]):
     class Meta:
         model = 'core.UserBrowser'
         exclude = ('BROWSERS', 'browser', 'PLATFORMS', 'platform', 'platform_token')
@@ -223,7 +250,7 @@ class UserBrowserFactory(DjangoModelFactory):
         )
 
 
-class ProfileFactory(DjangoModelFactory):
+class ProfileFactory(TypedDjangoModelFactory[Profile]):
     class Meta:
         model = 'hosting.Profile'
         django_get_or_create = ('user',)
@@ -297,7 +324,7 @@ class ProfileSansAccountFactory(ProfileFactory):
     user = None
 
 
-class PlaceFactory(DjangoModelFactory):
+class PlaceFactory(TypedDjangoModelFactory[Place]):
     class Meta:
         model = 'hosting.Place'
 
@@ -360,7 +387,7 @@ class PlaceFactory(DjangoModelFactory):
             instance.postcode = value
 
 
-class PhoneFactory(DjangoModelFactory):
+class PhoneFactory(TypedDjangoModelFactory[Phone]):
     class Meta:
         model = 'hosting.Phone'
 
@@ -379,7 +406,7 @@ class PhoneFactory(DjangoModelFactory):
     type = Faker('random_element', elements=Phone.PhoneType.values)
 
 
-class ConditionFactory(DjangoModelFactory):
+class ConditionFactory(TypedDjangoModelFactory['Condition']):
     class Meta:
         model = 'hosting.Condition'
         exclude = ('word',)
@@ -400,7 +427,7 @@ class ConditionFactory(DjangoModelFactory):
     restriction = Faker('boolean', chance_of_getting_true=75)
 
 
-class GenderFactory(DjangoModelFactory):
+class GenderFactory(TypedDjangoModelFactory[Gender]):
     class Meta:
         model = 'hosting.Gender'
         django_get_or_create = ('name_en', 'name')
@@ -423,7 +450,7 @@ class GenderFactory(DjangoModelFactory):
     name = Faker('pystr_format', string_format='{{word}} {{word}}', locale='la')
 
 
-class CountryRegionFactory(DjangoModelFactory):
+class CountryRegionFactory(TypedDjangoModelFactory[CountryRegion]):
     class Meta:
         model = 'hosting.CountryRegion'
 
@@ -459,7 +486,7 @@ class CountryRegionFactory(DjangoModelFactory):
         return latin_region
 
 
-class WhereaboutsFactory(DjangoModelFactory):
+class WhereaboutsFactory(TypedDjangoModelFactory[Whereabouts]):
     class Meta:
         model = 'hosting.Whereabouts'
 
@@ -491,7 +518,7 @@ class WhereaboutsFactory(DjangoModelFactory):
             srid=SRID)
 
 
-class TravelAdviceFactory(DjangoModelFactory):
+class TravelAdviceFactory(TypedDjangoModelFactory[TravelAdvice]):
     class Meta:
         model = 'hosting.TravelAdvice'
 

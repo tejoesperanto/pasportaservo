@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from typing import Any, NamedTuple, Optional, cast
+from typing import Any, NamedTuple, Optional
 from unittest.mock import patch
 
 from django.core.exceptions import NON_FIELD_ERRORS
@@ -38,32 +38,39 @@ class ProfileFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
             'first_name',
             'last_name',
         ]
-        cls.config = cast(SiteConfiguration, SiteConfiguration.get_solo())
+        cls.config = SiteConfiguration.get_solo()
         cls.faker = Faker._get_faker()
 
     @classmethod
     def setUpTestData(cls):
         TaggedProfile = NamedTuple('TaggedProfile', [('obj', Profile), ('tag', str)])
 
-        cls.profile_with_no_places = TaggedProfile(ProfileFactory(), "simple")
-        cls.profile_with_no_places_deceased = TaggedProfile(ProfileFactory(deceased=True), "deceased")
+        cls.profile_with_no_places = TaggedProfile(ProfileFactory.create(), "simple")
+        profile = ProfileFactory.create(deceased=True)
+        cls.profile_with_no_places_deceased = TaggedProfile(profile, "deceased")
 
-        profile = ProfileFactory(places=[{'available': True}])
+        profile = ProfileFactory.create(places=[
+            {'available': True},
+        ])
         cls.profile_hosting = TaggedProfile(profile, "hosting")
 
-        profile = ProfileFactory(places=[{'available': False, 'have_a_drink': True}])
+        profile = ProfileFactory.create(places=[
+            {'available': False, 'have_a_drink': True},
+        ])
         cls.profile_meeting = TaggedProfile(profile, "meeting")
 
-        profile = ProfileFactory(places=[
+        profile = ProfileFactory.create(places=[
             {'available': True},
             {'available': False, 'tour_guide': True},
         ])
         cls.profile_hosting_and_meeting = TaggedProfile(profile, "hosting & meeting")
 
-        profile = ProfileFactory(places=[{'available': True, 'in_book': True}])
+        profile = ProfileFactory.create(places=[
+            {'available': True, 'in_book': True},
+        ])
         cls.profile_in_book = TaggedProfile(profile, "in book (simple)")
 
-        profile = ProfileFactory(places=[
+        profile = ProfileFactory.create(places=[
             {'available': True, 'in_book': True},
             {'available': True, 'in_book': False},
             {'available': False, 'have_a_drink': True, 'in_book': False},
