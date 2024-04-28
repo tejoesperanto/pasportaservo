@@ -298,7 +298,7 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
             ],
         }
 
-        def not_in_book_condition(user):
+        def not_in_book_condition(user: PasportaServoUser):
             available_places = user.profile.owned_places.filter(deleted=False, available=True)
             return (
                 len(available_places) > 0
