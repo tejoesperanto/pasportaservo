@@ -169,7 +169,7 @@ class AccountFlagsMiddleware(MiddlewareMixin):
                 (p.effective_date, p.changes_summary)
                 for p in cast(Policy.objects.__class__, current_policy)
                 if p.changes_summary
-            ]),
+            ])
             setattr(request.user, 'consent_obtained', {
                 'given_for': agreement.first(),
                 'current': current_policy,
