@@ -9,7 +9,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.views import (
-    LoginView as LoginBuiltinView,
+    LoginView as LoginBuiltinView, LogoutView as LogoutBuiltinView,
     PasswordChangeDoneView as PasswordChangeDoneBuiltinView,
     PasswordChangeView as PasswordChangeBuiltinView,
     PasswordResetConfirmView as PasswordResetConfirmBuiltinView,
@@ -127,6 +127,42 @@ class LoginView(LoginBuiltinView):
             return ''  # Avoid a redirection loop.
         else:
             return redirect_to
+
+    def render_to_response(self, context, **response_kwargs) -> HttpResponse:
+        # The view is rendered, which means that the user is not logged in.
+        response = super().render_to_response(context, **response_kwargs)
+        response.delete_cookie(
+            'seen_at',
+            domain=settings.SESSION_COOKIE_DOMAIN, path=settings.SESSION_COOKIE_PATH,
+        )
+        return response
+
+    def form_valid(self, form) -> HttpResponse:
+        # User successfully logged in.
+        response = super().form_valid(form)
+        response.set_cookie(
+            'seen_at', str(int(datetime.now().timestamp())),
+            max_age=(
+                settings.SESSION_COOKIE_AGE
+                if not settings.SESSION_EXPIRE_AT_BROWSER_CLOSE
+                else None
+            ),
+            domain=settings.SESSION_COOKIE_DOMAIN, path=settings.SESSION_COOKIE_PATH,
+            secure=settings.SESSION_COOKIE_SECURE, httponly=True, samesite='Lax',
+        )
+        return response
+
+
+class LogoutView(LogoutBuiltinView):
+    redirect_field_name = settings.REDIRECT_FIELD_NAME
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        response.delete_cookie(
+            'seen_at',
+            domain=settings.SESSION_COOKIE_DOMAIN, path=settings.SESSION_COOKIE_PATH,
+        )
+        return response
 
 
 class RegisterView(generic.CreateView):

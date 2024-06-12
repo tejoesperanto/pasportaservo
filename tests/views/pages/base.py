@@ -222,7 +222,7 @@ class PageWithFormTemplate(PageTemplate):
         title: dict[str, str]
 
     class RenderedFormDefinition(_RenderedFormDefinitionBase, total=False):
-        object: type[Form] | type[ModelForm] | None
+        object: Form | ModelForm | None
 
     form_class: type[Form] | type[ModelForm]
     form: RenderedFormDefinition = {

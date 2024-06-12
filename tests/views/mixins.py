@@ -18,6 +18,7 @@ class FormViewTestsMixin(with_type_hint(BasicViewTests)):
                     self,
                     user=self.user if self.view_page.redirects_unauthenticated else None,
                     reuse_for_lang=lang)
+                assert 'object' in page.form
                 # Verify that the expected form class is in use on the view.
                 self.assertIsNotNone(page.form['object'])
                 self.assertIsInstance(page.form['object'], page.form_class)

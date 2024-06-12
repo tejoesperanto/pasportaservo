@@ -5,8 +5,8 @@ from django.urls import reverse_lazy
 from lxml.html import HtmlElement
 from pyquery import PyQuery
 
-from core.forms import UserRegistrationForm
-from core.views import AccountSettingsView, RegisterView
+from core.forms import UserAuthenticationForm, UserRegistrationForm
+from core.views import AccountSettingsView, LoginView, RegisterView
 
 from .base import PageTemplate, PageWithFormTemplate
 
@@ -31,6 +31,30 @@ class RegisterPage(PageWithFormTemplate):
         'title': {
             'en': "New Account",
             'eo': "Nova Konto",
+        },
+    }
+
+
+class LoginPage(PageWithFormTemplate):
+    view_class = LoginView
+    form_class = UserAuthenticationForm
+    url = reverse_lazy('login')
+    explicit_url = {
+        'en': '/login/',
+        'eo': '/ensaluti/',
+    }
+    template = 'registration/login.html'
+    title = {
+        'en': "Log in & Find accommodation | Pasporta Servo",
+        'eo': "Ensalutu & Trovu loĝejon | Pasporta Servo",
+    }
+    redirects_unauthenticated = False
+    redirects_logged_in = True
+    form = {
+        'selector': ".login",
+        'title': {
+            'en': "Log In",
+            'eo': "Ensaluto",
         },
     }
 
