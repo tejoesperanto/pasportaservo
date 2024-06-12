@@ -1,6 +1,5 @@
-from django.conf import settings
 from django.contrib.auth.views import (
-    LogoutView, PasswordResetCompleteView, PasswordResetDoneView,
+    PasswordResetCompleteView, PasswordResetDoneView,
 )
 from django.urls import include, path, re_path
 from django.utils.translation import pgettext_lazy
@@ -9,7 +8,8 @@ from django.views.generic import TemplateView
 from .forms import SystemPasswordResetForm, SystemPasswordResetRequestForm
 
 from .views import (  # isort:skip
-    HomeView, RegisterView, LoginView, AccountRestoreRequestView,
+    HomeView,
+    RegisterView, LoginView, AccountRestoreRequestView, LogoutView,
     PasswordResetView, PasswordResetConfirmView,
     UsernameRemindView, UsernameRemindDoneView,
     AgreementView, AgreementRejectView,
@@ -36,10 +36,7 @@ urlpatterns = [
         AccountRestoreRequestView.as_view(), name='login_restore'),
     path(
         pgettext_lazy("URL", 'logout/'),
-        LogoutView.as_view(
-            redirect_field_name=settings.REDIRECT_FIELD_NAME,
-        ),
-        name='logout'),
+        LogoutView.as_view(), name='logout'),
 
     path(
         pgettext_lazy("URL", 'agreement/'), include([

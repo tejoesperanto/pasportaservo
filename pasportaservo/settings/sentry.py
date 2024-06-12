@@ -38,12 +38,13 @@ class TracesSampler:
         + r'|facebookexternalhit|feedfetcher|feedburner',
         re.IGNORECASE
     )
+    authenticated_user_cookie_re = re.compile(r'\bseen_at=[A-Za-z0-9]')
 
     def __call__(self, sampling_context: SamplingContext) -> float:
         if sampling_context['parent_sampled'] is not None:
             return sampling_context['parent_sampled']
 
-        request_info = (
+        request_info: tuple[str, str] = (
             sampling_context['wsgi_environ'].get('PATH_INFO', ''),
             sampling_context['wsgi_environ'].get('REQUEST_METHOD'),
         )
@@ -51,12 +52,17 @@ class TracesSampler:
         bot_match = re.search(
             self.robot_crawler_re,
             sampling_context['wsgi_environ'].get('HTTP_USER_AGENT', ''))
-        if bot_match or request_info[0].startswith((STATIC_URL, MEDIA_URL)):
+        if (
+            bot_match
+            or request_info[0].startswith((STATIC_URL, MEDIA_URL))
+            or not request_info[0].endswith('/')
+        ):
             return 0
 
         if not hasattr(self, 'paths'):
             self.configure_paths()
         sampling_rate = 0
+        reduced_sampling_if_anonymous = False
 
         match request_info:
             case (path, method) \
@@ -65,12 +71,21 @@ class TracesSampler:
             case (path, _) \
                     if path.startswith(self.paths['exploration']):
                 sampling_rate = 0.75
+                reduced_sampling_if_anonymous = True
             case (path, method) \
                     if path.startswith(self.paths['interesting']):
                 sampling_rate = 0.50 if method == 'POST' else 0.40
+                reduced_sampling_if_anonymous = True
             case (path, _) \
                     if path.startswith(self.paths['action_link']):
                 sampling_rate = 1.00
+
+        if reduced_sampling_if_anonymous and sampling_rate > 0:
+            user_match = re.search(
+                self.authenticated_user_cookie_re,
+                sampling_context['wsgi_environ'].get('HTTP_COOKIE', ''))
+            if not user_match:
+                sampling_rate *= 0.25
 
         return sampling_rate
 
