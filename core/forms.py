@@ -51,8 +51,11 @@ class UserRegistrationForm(UsernameFormMixin, PasswordFormMixin, SystemEmailForm
         super().__init__(*args, **kwargs)
 
         self.fields['email'].required = True
-        for fieldname in ['username', 'password1', 'password2', 'email']:
+        for fieldname in ['password1', 'password2', 'email']:
             self.fields[fieldname].help_text = None
+        self.fields['username'].help_text = _(
+            "Capital and small letters are treated as different. Do not use spaces."
+        )
         self.fields['username'].widget.attrs['autocomplete'] = 'username'
         self.fields['password1'].widget.attrs['autocomplete'] = 'new-password'
         self.fields['password2'].widget.attrs['autocomplete'] = 'new-password'
