@@ -180,6 +180,12 @@ msgstr ""
 "tute malplena."
 
 #: core/forms.py
+msgid "Capital and small letters are treated as different. Do not use spaces."
+msgstr ""
+"Majusklaj kaj minusklaj literoj estas traktataj kiel malsamaj. Ne uzu "
+"spacojn."
+
+#: core/forms.py
 msgid ""
 "Please enter the correct username and password. Note that both fields are "
 "case-sensitive ('aBc' is different from 'abc')."
@@ -1466,6 +1472,10 @@ msgstr "Registriĝu"
 msgctxt "Title"
 msgid "New Account"
 msgstr "Nova Konto"
+
+#: core/templates/registration/register.html
+msgid "Welcome to Pasporta Servo!"
+msgstr "Bonvenon en Pasporta Servo!"
 
 #: core/templates/registration/register.html
 msgid "Register"

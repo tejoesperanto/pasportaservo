@@ -4,8 +4,9 @@
 {% block head_title %}{% trans "Register" context "Imperative" %} &amp; {% trans "Find accommodation" %}{% endblock %}
 
 {% block form_title %}{% trans "New Account" context "Title" %}{% endblock %}
+{% block form_tip %}{% trans "Welcome to Pasporta Servo!" %} <hr />{% endblock %}
 {% block form_block_class %} register{% endblock %}
-{% block form_tip %}&nbsp;{% endblock %}
+
 {% block fields_after %}
     {% for err in form.non_field_errors.as_data %}
         {% if err.code == 'compromised_password' %}
