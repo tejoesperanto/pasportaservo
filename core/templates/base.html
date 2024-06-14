@@ -10,7 +10,9 @@
             {% block head_title %}{% trans "Find accommodation" %}{% endblock %}
             {% block head_title_separator %}|{% endblock %} Pasporta Servo
         {% endfilter %}</title>
-        <meta name="description" content="{% block head_description %}{% trans "Esperanto-hosts around the world" %}{% endblock %}">
+        <meta name="description" content="{% filter compact %}
+                                            {% block head_description %}{% trans "Esperanto-hosts around the world" %}{% endblock %}
+                                          {% endfilter %}">
 
         <link rel="shortcut icon"                           href="{% static 'img/marker/PS_favicon.ico' %}?v=1">
         <link rel="icon" type="image/png"                   href="{% static 'img/marker/PS_favicon-32.png' %}"  sizes="32x32">
@@ -20,8 +22,16 @@
         <link rel="mask-icon"                               href="{% static 'img/marker/PS_safari.svg' %}"      color="#ee6600">
         <meta name="application-name"                       content="Pasporta Servo">
         <meta name="msapplication-config"                   content="{% static 'img/marker/ms-browser-config.xml' %}?v=1">
-        <meta name="msapplication-task"                     content="name={% trans "My profile" %}; action-uri={% url 'profile_redirect' %}?utm_source=ms-pinned-site; icon-uri={% static 'img/marker/avatar.ico' %}" />
-        <meta name="msapplication-task"                     content="name={% trans "Search" %}; action-uri={% url 'search' %}?utm_source=ms-pinned-site; icon-uri={% static 'img/marker/search.ico' %}" />
+        <meta name="msapplication-task"                     content="{% filter compact %}
+                                                                        name={% trans "My profile" %};
+                                                                        action-uri={% url 'profile_redirect' %}?utm_source=ms-pinned-site;
+                                                                        icon-uri={% static 'img/marker/avatar.ico' %}
+                                                                     {% endfilter %}" />
+        <meta name="msapplication-task"                     content="{% filter compact %}
+                                                                        name={% trans "Search" %};
+                                                                        action-uri={% url 'search' %}?utm_source=ms-pinned-site;
+                                                                        icon-uri={% static 'img/marker/search.ico' %}
+                                                                     {% endfilter %}" />
         <meta name="viewport"                               content="width=device-width">
         <meta name="apple-mobile-web-app-capable"           content="yes">
         <meta name="apple-mobile-web-app-status-bar-style"  content="black">

@@ -1,8 +1,19 @@
 {% extends 'core/base.html' %}
-{% load i18n utils %}
+{% load i18n variable utils %}
 
 {% block head_title %}{{ flatpage.title }}{% endblock %}
 {% block head_title_separator %}:{% endblock %}
+{% block head_description %}
+    {% asvar all_content_lines %}
+        {% if "----" in flatpage.content %}
+            {{ flatpage.content|striptags|split:"----"|slice:'1:'|join:"" }}
+        {% else %}
+            {{ flatpage.content|striptags }}
+        {% endif %}
+    {% endasvar %}
+    {# Use the first heading as <meta description>. #}
+    {{ all_content_lines.strip|split:"NEWLINE"|slice:':1'|join:"" }}
+{% endblock %}
 
 {% block page_class %} page{% endblock %}
 
