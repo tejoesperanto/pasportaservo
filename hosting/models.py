@@ -529,9 +529,9 @@ class Profile(TrackingModel, TimeStampedModel):
         HTML pages. The `non_empty` flag ensures that something is output also
         for profiles without a user account (i.e., family members).
         """
-        template_first_name = '<span class={q}first-name{q}>{name}</span>'
-        template_last_name = '<span class={q}last-name{q}>{name}</span>'
-        template_username = '<span class={q}profile-noname{q}>{name}</span>'
+        template_first_name = '<bdi class={q}first-name{q}>{name}</bdi>'
+        template_last_name = '<bdi class={q}last-name{q}>{name}</bdi>'
+        template_username = '<bdi class={q}profile-noname{q}>{name}</bdi>'
         template = []
         if self.first_name.strip():
             template.append((template_first_name, self.first_name))

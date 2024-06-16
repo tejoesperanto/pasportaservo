@@ -35,7 +35,7 @@
                             {% endif %}
                                 <span class="member">{{ member.get_fullname_always_display }}</span>
                                 {% if member.birth_date %}
-                                    <span class="comment">&ensp;&lrm;({{ member.age }})</span>
+                                    <span class="comment">&ensp;({{ member.age }})</span>
                                 {% endif %}
                             {% if not member.user_id and member.deleted %}
                                 </del>

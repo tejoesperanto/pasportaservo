@@ -243,7 +243,6 @@
                                 <small>{{ place.profile.get_title_display }}</small>
                                 {{ place.profile.get_fullname_display }}
                                 {% if place.profile.birth_date %}
-                                    &lrm;
                                     <small>
                                         {{ place.profile.birth_date|date:"Y-m-d" }}
                                         {% if place.profile.death_date %}
@@ -252,7 +251,6 @@
                                         ({% blocktrans with age=place.profile.age %}{{ age }} y.o.{% endblocktrans %})
                                     </small>
                                 {% elif place.profile.death_date %}
-                                    &lrm;
                                     <small>
                                         &#x2722; {{ place.profile.death_date|date:"M. Y" }}
                                     </small>
