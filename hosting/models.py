@@ -822,25 +822,30 @@ class Place(TrackingModel, TimeStampedModel):
         max_length=140,
         help_text=_("Used in the book and on profile, 140 characters maximum."))
     available = models.BooleanField(
-        _("available"),
+        _("willing to host"),
         default=True,
-        help_text=_("Is there a place to sleep on offer. If yes, you will be considered as host."))
+        help_text=_("If there is a space to sleep on offer, you will be considered as a "
+                    "host.  You do not have to have a separate guestroom or even a bed. "
+                    "Detail your conditions in the description and via the 'conditions' "
+                    "dropdown list."))
     in_book = models.BooleanField(
         _("print in book"),
         default=True,
-        help_text=_("If you want this place to be in the printed book. Must be available."))
+        help_text=_("If you want this place to be in the printed book. It must have an "
+                    "available sleeping space for guests."))
     tour_guide = models.BooleanField(
-        _("tour guide"),
+        _("happy to guide around"),
         default=False,
         help_text=_("If you are ready to show your area to visitors."))
     have_a_drink = models.BooleanField(
-        _("have a drink"),
+        _("happy to have a drink"),
         default=False,
         help_text=_("If you are ready to have a coffee or beer with visitors."))
     sporadic_presence = models.BooleanField(
         _("irregularly present"),
         default=False,
-        help_text=_("If you are not often at this address and need an advance notification."))
+        help_text=_("If you are not often at this address "
+                    "and need an advance notification."))
     conditions: 'M2MField[Condition, models.Model]' = models.ManyToManyField(
         'hosting.Condition', verbose_name=_("conditions"),
         blank=True,
