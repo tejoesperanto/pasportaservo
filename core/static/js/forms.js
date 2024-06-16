@@ -456,6 +456,8 @@ $(function() {
     /* for mass mail form */
     (function() {
         var frameElement = document.querySelector('iframe#massmail_preview');
+        if (!frameElement)
+            return;
         var frameContext = frameElement.contentDocument;
         frameContext.open();
         frameContext.write(frameElement.getAttribute('data-content'));
