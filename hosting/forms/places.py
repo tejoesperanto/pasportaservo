@@ -86,6 +86,7 @@ class PlaceForm(forms.ModelForm):
         self.country_regions = getattr(subregion_form, 'country_regions', None)
 
         self.helper = FormHelper(self)
+
         self.fields['state_province'].widget.attrs['autocomplete'] = 'region'
         # Combine the postcode and the city fields together in one line.
         postcode_field_index = self.helper.layout.fields.index('postcode')
@@ -99,16 +100,39 @@ class PlaceForm(forms.ModelForm):
         self.fields['address'].widget.attrs['autocomplete'] = 'street-address'
         # Split address details from the description and conditions.
         self.helper.layout.insert(self.helper.layout.fields.index('max_guest'), FormDivider())
+
         # Combine the count fields together in one line.
         max_guests_field_index = self.helper.layout.fields.index('max_guest')
         self.helper[max_guests_field_index:max_guests_field_index+3].wrap_together(Div, css_class='row')
-        for field, field_icon in {'max_guest': 'fa-street-view', 'max_night': 'fa-regular fa-moon'}.items():
+        styling = {
+            'max_guest': {
+                'column': 'col-xxs-12 col-xs-6 col-sm-4',
+                'icon': 'fa-street-view',
+            },
+            'max_night': {
+                'column': 'col-xxs-12 col-xs-6 col-sm-4',
+                'icon': 'fa-regular fa-moon',
+            },
+            'contact_before': {
+                'column': 'col-xs-12 col-sm-4',
+                'icon': 'fa-regular fa-calendar',
+            },
+        }
+        for field, field_styling in styling.items():
             self.helper[field].wrap(
                 PrependedText,
-                f'<span class="fa {field_icon}"></span>',
-                wrapper_class='col-xxs-12 col-xs-6 col-sm-4',
+                f'<span class="fa {field_styling["icon"]} fa-fw"></span>',
+                wrapper_class=field_styling['column'],
                 css_class='text-center')
-        self.helper['contact_before'].wrap(Field, wrapper_class='col-xs-12 col-sm-4', css_class='text-center')
+        # Split description from the conditions.
+        self.helper.layout.insert(self.helper.layout.fields.index('available'), FormDivider())
+
+        # Set left-aligned and justified text for the checkboxes of offer options.
+        option_checkboxes = (
+            'available', 'tour_guide', 'have_a_drink', 'sporadic_presence', 'in_book',
+        )
+        for field in option_checkboxes:
+            self.helper[field].wrap(Field, wrapper_class='text-justify')
         # Placeholder for the multiple-select field of conditions.
         self.fields['conditions'].widget.attrs['data-placeholder'] = _("Choose your conditions...")
         # Grouping and sorting of condition options.

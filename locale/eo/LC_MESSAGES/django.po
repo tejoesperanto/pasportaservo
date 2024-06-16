@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2024-03-08 19:10+0000\n"
+"POT-Revision-Date: 2024-07-17 04:45+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -2419,37 +2419,42 @@ msgid "Used in the book and on profile, 140 characters maximum."
 msgstr "Uzita en la libreto kaj ĉe profilo, 140 signoj maksimume."
 
 #: hosting/models.py
-msgid "available"
-msgstr "disponebla"
+msgid "willing to host"
+msgstr "pretas gastigi"
 
 #: hosting/models.py
 msgid ""
-"Is there a place to sleep on offer. If yes, you will be considered as host."
+"If there is a space to sleep on offer, you will be considered as a host.  "
+"You do not have to have a separate guestroom or even a bed. Detail your "
+"conditions in the description and via the 'conditions' dropdown list."
 msgstr ""
-"Ĉu en tiu ĉi loĝejo estas dormloko por aliaj? Se jes, vi estos konsiderita "
-"kiel gastiganto."
+"Se en tiu ĉi loĝejo estas dormloko por aliaj personoj, vi estos konsiderita "
+"kiel gastiganto. Vi ne devas havi apartan gasto&shy;ĉambron aŭ eĉ liton. "
+"Detaligu viajn kondiĉojn en la priskribo kaj per la elektolisto “kondiĉoj”."
 
 #: hosting/models.py
 msgid "print in book"
 msgstr "printu en la PS-libreto"
 
 #: hosting/models.py
-msgid "If you want this place to be in the printed book. Must be available."
+msgid ""
+"If you want this place to be in the printed book. It must have an available "
+"sleeping space for guests."
 msgstr ""
-"Se vi deziras ke tiu ĉi loĝejo estu printita en la libreto. Ĝi devas esti "
-"disponebla."
+"Se vi deziras ke tiu ĉi loĝejo estu printita en la libreto. Ĝi devas havi "
+"disponeblan dorm&shy;lokon por gastoj."
 
 #: hosting/models.py
-msgid "tour guide"
-msgstr "ĉiĉeronado"
+msgid "happy to guide around"
+msgstr "pretas ĉiĉeroni"
 
 #: hosting/models.py
 msgid "If you are ready to show your area to visitors."
 msgstr "Se vi volonte montros vian ĉirkaŭaĵon al vizitantoj."
 
 #: hosting/models.py
-msgid "have a drink"
-msgstr "trinkejumado"
+msgid "happy to have a drink"
+msgstr "pretas trinkejumi"
 
 #: hosting/models.py
 msgid "If you are ready to have a coffee or beer with visitors."
