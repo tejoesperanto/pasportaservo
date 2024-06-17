@@ -534,6 +534,10 @@ $(function() {
             $(event.originalEvent.submitter).addClass('disabled')
                                             .prop('disabled', true)
                                             .attr('autocomplete', 'off');
+            $(window).one('pagehide', function() {
+                $(event.originalEvent.submitter).removeClass('disabled')
+                                                .prop('disabled', false);
+            });
         }
     });
     /* form submit/cancel keyboard shortcut key implementation */
