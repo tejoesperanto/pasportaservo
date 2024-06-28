@@ -11,6 +11,7 @@ from django.test import TestCase, override_settings, tag
 from bs4 import BeautifulSoup
 from factory import Faker
 
+from core.widgets import PasswordWithToggleInput
 from hosting.widgets import (
     ClearableWithPreviewImageInput, CustomNullBooleanSelect,
     ExpandedMultipleChoice, FormDivider, InlineRadios,
@@ -25,6 +26,60 @@ HTML_PARSER = 'html.parser'
 
 def safe_trim(value):
     return value.strip() if isinstance(value, str) else value
+
+
+@tag('forms', 'widgets')
+class PasswordWithToggleInputWidgetTests(AdditionalAsserts, TestCase):
+    def test_render(self):
+        widget_params = {
+            'name': 'password_field',
+            'value': "PA55w0rT",
+            'attrs': {'id': 'id_password_field'},
+        }
+
+        widget = PasswordWithToggleInput(attrs={'autocomplete': 'current-password'})
+        with override_settings(LANGUAGE_CODE='en'):
+            result = widget.render(**widget_params)
+        html = BeautifulSoup(result, HTML_PARSER)
+        self.assertEqual(html.contents[0]['class'], ["input-group"])
+        input_element = html.contents[0].input
+        self.assertIsNotNone(input_element)
+        self.assertNotIn('value', input_element.attrs)
+        self.assertEqual(
+            input_element.attrs,
+            {
+                'id': "id_password_field", 'name': "password_field",
+                'type': "password", 'autocomplete': "current-password",
+            }
+        )
+        button_element = html.find('button')
+        self.assertIsNotNone(button_element)
+        self.assertEqual(button_element.attrs.get('id'), "id_password_field_toggle")
+        self.assertEqual(button_element.attrs.get('type'), "button")
+        self.assertEqual(button_element.attrs.get('aria-pressed'), "false")
+        self.assertEqual(''.join(button_element.stripped_strings), "Show")
+        button_text_element = button_element.find_all('span', class_="password-toggle-text")
+        self.assertLength(button_text_element, 1)
+        self.assertEqual(button_text_element[0].attrs.get('data-label-inactive'), "Hide")
+        self.assertCountEqual(
+            button_element.parent.attrs['class'],
+            ["password-toggle", "input-group-btn", "requires-scripting"]
+        )
+
+        widget = PasswordWithToggleInput(render_value=True)
+        with override_settings(LANGUAGE_CODE='eo'):
+            result = widget.render(**widget_params)
+        html = BeautifulSoup(result, HTML_PARSER)
+        input_element = html.contents[0].input
+        self.assertIsNotNone(input_element)
+        self.assertIn('value', input_element.attrs)
+        self.assertEqual(input_element.attrs['value'], "PA55w0rT")
+        button_element = html.find('button')
+        self.assertIsNotNone(button_element)
+        self.assertEqual(''.join(button_element.stripped_strings), "Montri")
+        button_text_element = button_element.find_all('span', class_="password-toggle-text")
+        self.assertLength(button_text_element, 1)
+        self.assertEqual(button_text_element[0].attrs.get('data-label-inactive'), "Kaŝi")
 
 
 @tag('forms', 'widgets')
@@ -453,7 +508,7 @@ class FormDividerWidgetTests(AdditionalAsserts, TestCase):
     def test_render(self):
         widget = FormDivider()
         result = widget.render(self.DummyForm(), 'default', Context({}))
-        html = BeautifulSoup(result, 'html.parser')
+        html = BeautifulSoup(result, HTML_PARSER)
         # The widget is expected to be composed of a container (with no ID)
         # and a single element for the horizontal divider.
         element = html.select('.form-divider')
@@ -480,7 +535,7 @@ class FormDividerWidgetTests(AdditionalAsserts, TestCase):
                 result = widget.render(
                     self.DummyForm(), 'default', context,
                     extra_context={'inline_label': "monkeyshines"})
-                html = BeautifulSoup(result, 'html.parser')
+                html = BeautifulSoup(result, HTML_PARSER)
                 element = html.find(None, "form-divider")
                 self.assertIsNotNone(element)
                 subelement = element.find(None, "divider-heading", recursive=False)
@@ -512,7 +567,7 @@ class FormDividerWidgetTests(AdditionalAsserts, TestCase):
     def test_css_class(self):
         widget = FormDivider(wrapper_class="my-container")
         result = widget.render(self.DummyForm(), 'default', Context({}))
-        html = BeautifulSoup(result, 'html.parser')
+        html = BeautifulSoup(result, HTML_PARSER)
         element = html.select('.my-container')
         self.assertLength(element, 1)
         # The given wrapping class is expected for the container element.
@@ -522,7 +577,7 @@ class FormDividerWidgetTests(AdditionalAsserts, TestCase):
             self, render_output, lang,
             *, expected_field_id, expected_label, collapsed, tabindex=None,
     ):
-        html = BeautifulSoup(render_output, 'html.parser')
+        html = BeautifulSoup(render_output, HTML_PARSER)
 
         # The widget which has a collapsing control enabled is expected
         # to be composed of a container inside of which a switch button
@@ -673,7 +728,7 @@ class FormDividerWidgetTests(AdditionalAsserts, TestCase):
     def test_switch_css_class(self):
         widget = FormDivider(switch_button_class="danger btn-lg", collapse_field_id='id_test')
         result = widget.render(self.DummyForm(), 'default', Context({}))
-        html = BeautifulSoup(result, 'html.parser')
+        html = BeautifulSoup(result, HTML_PARSER)
         element = html.find(None, "form-divider")
         self.assertIsNotNone(element)
         switch_element = element.find('button', recursive=False)

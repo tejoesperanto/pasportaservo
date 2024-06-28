@@ -25,6 +25,7 @@ from links.utils import create_unique_url
 from .auth import auth_log
 from .mixins import PasswordFormMixin, SystemEmailFormMixin, UsernameFormMixin
 from .models import FEEDBACK_TYPES, SiteConfiguration
+from .widgets import PasswordWithToggleInput
 
 User = get_user_model()
 
@@ -57,8 +58,12 @@ class UserRegistrationForm(UsernameFormMixin, PasswordFormMixin, SystemEmailForm
             "Capital and small letters are treated as different. Do not use spaces."
         )
         self.fields['username'].widget.attrs['autocomplete'] = 'username'
-        self.fields['password1'].widget.attrs['autocomplete'] = 'new-password'
-        self.fields['password2'].widget.attrs['autocomplete'] = 'new-password'
+        self.fields['password1'].widget = PasswordWithToggleInput(
+            attrs=self.fields['password1'].widget.attrs | {'autocomplete': 'new-password'},
+        )
+        self.fields['password2'].widget = PasswordWithToggleInput(
+            attrs=self.fields['password2'].widget.attrs | {'autocomplete': 'new-password'},
+        )
 
     def clean_realm(self):
         """
@@ -113,7 +118,9 @@ class UserAuthenticationForm(AuthenticationForm):
         # The form errors should be rendered in small font.
         self.helper.form_error_class = 'small'
         self.fields['username'].widget.attrs['autocomplete'] = 'username'
-        self.fields['password'].widget.attrs['autocomplete'] = 'current-password'
+        self.fields['password'].widget = PasswordWithToggleInput(
+            attrs=self.fields['password'].widget.attrs | {'autocomplete': 'current-password'},
+        )
 
     def confirm_login_allowed(self, user):
         """
@@ -288,8 +295,12 @@ class SystemPasswordResetForm(PasswordFormMixin, SetPasswordForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['new_password1'].widget.attrs['autocomplete'] = 'new-password'
-        self.fields['new_password2'].widget.attrs['autocomplete'] = 'new-password'
+        self.fields['new_password1'].widget = PasswordWithToggleInput(
+            attrs=self.fields['new_password1'].widget.attrs | {'autocomplete': 'new-password'},
+        )
+        self.fields['new_password2'].widget = PasswordWithToggleInput(
+            attrs=self.fields['new_password2'].widget.attrs | {'autocomplete': 'new-password'},
+        )
 
     def save(self, commit=True):
         super().save(commit)
@@ -304,9 +315,15 @@ class SystemPasswordChangeForm(PasswordFormMixin, PasswordChangeForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['old_password'].widget.attrs['autocomplete'] = 'current-password'
-        self.fields['new_password1'].widget.attrs['autocomplete'] = 'new-password'
-        self.fields['new_password2'].widget.attrs['autocomplete'] = 'new-password'
+        self.fields['old_password'].widget = PasswordWithToggleInput(
+            attrs=self.fields['old_password'].widget.attrs | {'autocomplete': 'current-password'},
+        )
+        self.fields['new_password1'].widget = PasswordWithToggleInput(
+            attrs=self.fields['new_password1'].widget.attrs | {'autocomplete': 'new-password'},
+        )
+        self.fields['new_password2'].widget = PasswordWithToggleInput(
+            attrs=self.fields['new_password2'].widget.attrs | {'autocomplete': 'new-password'},
+        )
 
     def save(self, **kwargs):
         return super().save(**kwargs)

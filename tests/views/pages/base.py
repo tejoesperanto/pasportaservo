@@ -271,12 +271,15 @@ class PageWithFormTemplate(PageTemplate):
         if field_name is None:
             return self.get_form().find("form > * > .alert").text()
         else:
+            single_control_errors = self.get_form().find(
+                f"form > * .form-control[name='{field_name}'] ~ [id^='error_']")
+            input_group_errors = self.get_form().find(
+                f"form > * .input-group:has(\".form-control[name='{field_name}']\")"
+                + " ~ [id^='error_']")
             return [
                 cast(str, PyQuery(error_element).text())
                 for error_element in
-                self
-                .get_form()
-                .find(f"form > * .form-control[name='{field_name}'] ~ [id^='error_']")
+                single_control_errors.extend(input_group_errors)
             ]
 
 

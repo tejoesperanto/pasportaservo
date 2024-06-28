@@ -1086,6 +1086,7 @@ msgstr "Bonege!"
 
 #: core/templates/core/message.html
 #: core/templates/ui/fragment-datalist_fallback.html
+#: core/templates/ui/widget-password+toggle.html
 #: hosting/templates/hosting/place_detail.html
 #: hosting/templates/hosting/snippets/travel_advice.html
 #: hosting/templates/ui/widget-form_divider.html
@@ -1514,6 +1515,23 @@ msgstr "Kopiu la retpoŝtan adreson kaj sendu retmesaĝon pere de via kesto."
 msgid "Copy the email address below and send an email via your mailbox:"
 msgstr ""
 "Kopiu la suban retpoŝtan adreson kaj sendu retmesaĝon pere de via kesto:"
+
+#: core/templates/ui/widget-password+toggle.html
+msgid ""
+"Show the password. Note that your password will become visible on the screen."
+msgstr ""
+"Montri la pasvorton. Atentu ke via pasvorto iĝos legebla sur la ekrano."
+
+#: core/templates/ui/widget-password+toggle.html
+msgid "Hide (mask) the password."
+msgstr "Kaŝi (maski) la pasvorton."
+
+#: core/templates/ui/widget-password+toggle.html
+#: hosting/templates/hosting/place_detail.html
+#: hosting/templates/ui/widget-form_divider.html
+#: pages/templates/pages/privacy.html
+msgid "Show"
+msgstr "Montri"
 
 #: core/urls.py
 msgctxt "URL"
@@ -3128,12 +3146,6 @@ msgstr "Uzi plene kapablan mapon"
 #: hosting/templates/hosting/place_detail.html
 msgid "Print map"
 msgstr "Printi mapon"
-
-#: hosting/templates/hosting/place_detail.html
-#: hosting/templates/ui/widget-form_divider.html
-#: pages/templates/pages/privacy.html
-msgid "Show"
-msgstr "Montri"
 
 #: hosting/templates/hosting/place_detail.html
 #: hosting/templates/hosting/profile_detail.html

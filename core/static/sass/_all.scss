@@ -84,6 +84,11 @@ html:not(.js-enabled) {
         display: block;
     }
 }
+html.js-enabled {
+    .no-scripting-fallback {
+        display: none;
+    }
+}
 
 code, kbd, pre, samp {
     font-family: "Fira Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
@@ -1367,25 +1372,28 @@ p.tip {
     }
 }
 
+html.js-enabled *[type="password"]::-ms-reveal {
+    display: none;
+}
+.password-toggle > button {
+    width: 6em;
+}
 *[type="password"] + .progress,
-*[type="password"] + .popover + .progress {
-    margin-top: 2px;
+*[type="password"] + .popover + .progress,
+.password-strength-meter {
+    margin-top: 3px;
     .progress-bar {
         min-width: 0;
         transition: min-width 0.6s ease, width 0.6s ease;
     }
-}
-*[type="password"] + .progress .password-verdict,
-*[type="password"] + .popover + .progress .password-verdict {
-    float: right;
-    margin-right: 1ex;
-}
-.help-block,
-*[type="password"] + .progress .password-verdict,
-*[type="password"] + .popover + .progress .password-verdict {
-    font-family: $font-stack-hint;
+    .password-verdict {
+        font-family: $font-stack-hint;
+        float: right;
+        margin-right: 1ex;
+    }
 }
 .help-block {
+    font-family: $font-stack-hint;
     font-size: 0.9em;
     & > kbd {
         background-color: rgba(darken($color-default-bg, 75%), 0.75);
@@ -1499,6 +1507,9 @@ input[type="checkbox"], input[type="radio"] {
         }
     }
 
+    .password-toggle > button {
+        width: 3em;
+    }
     #id_form_submit_ext, #id_form_submit_ext + #id_form_submit,
     #id_form_submit_alt, #id_form_submit_alt + #id_form_submit {
         width: 100%;
