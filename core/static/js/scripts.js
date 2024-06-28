@@ -7,6 +7,9 @@ document.getElementsByTagName('html')[0].className += ' js-enabled ';
 
 $(document).ready(function() {
 
+    // Fallback elements for when JavaScript is not available or not enabled
+    $('.no-scripting-fallback').remove();
+
     // Antispam and fallback for unhandled mail links
     function openMailtoPopover($mailLink, htmlHasAddress, emailAddress) {
         var assistHtml = window.mailto_fallback && window.mailto_fallback[htmlHasAddress];

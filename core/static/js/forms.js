@@ -19,10 +19,10 @@ $(function() {
     if (!$().localConstraint.hasOwnProperty(document.documentElement.lang)) {
         $.fn.localConstraint[document.documentElement.lang] = [];
     }
-    var formControlSelectors = [
+    const formControlSelectors = [
         '.form-control', 'input[type="radio"]', 'input[type="checkbox"]', 'input[type="file"]',
     ].join();
-    var formSubmitSelectors = [
+    const formSubmitSelectors = [
         '#id_form_submit', '#id_form_submit_alt', '#id_form_submit_ext',
     ].join();
 
@@ -234,6 +234,69 @@ $(function() {
     $('#id_password2').data('coupling', '#id_password1');
     $('#id_new_password2').data('coupling', '#id_new_password1');
 
+    /* password field value toggling */
+    const passwordToggleElements = document.querySelectorAll(
+        'input[type="password"] + .password-toggle > button'
+    );
+    Array.prototype.forEach.call(passwordToggleElements, function(toggleButton) {
+        var passwordField = toggleButton.parentElement.previousElementSibling,
+            $toggleButton = $(toggleButton),
+            toggleIconNode = toggleButton.querySelector('.fa'),
+            $toggleTextNode = $(toggleButton.querySelector('.password-toggle-text'));
+        var inactivityTimeoutID;
+
+        function scheduleStateReset() {
+            if (inactivityTimeoutID) {
+                clearTimeout(inactivityTimeoutID);
+            }
+            inactivityTimeoutID = setTimeout(function() {
+                $toggleButton.trigger('click', [false]);
+                $toggleButton.prop('disabled', true);
+            }, 1000 * 60 * 5);
+        }
+
+        $toggleButton.on('click', function(event, toggleState) {
+            event.preventDefault();
+            if (toggleState == undefined) {
+                scheduleStateReset();
+            }
+            if (toggleState == $toggleButton.hasClass('active')) {
+                // when we want to reveal the value but it is already shown,
+                // or when we want to obscure the value but it is already hidden,
+                // do nothing.
+                return;
+            }
+            if ($toggleButton.prop('disabled')) {
+                return;
+            }
+            $toggleButton.button("toggle");
+
+            var currentFieldType = passwordField.getAttribute('type');
+            passwordField.setAttribute('type', currentFieldType === "password" ? "text" : "password");
+
+            var currentLabel = $toggleButton.attr('aria-label');
+            $toggleButton.attr('aria-label', $toggleButton.data('aria-label-inactive'))
+                         .data('aria-label-inactive', currentLabel);
+            toggleIconNode.classList.toggle(toggleIconNode.getAttribute('data-icon-on'));
+            toggleIconNode.classList.toggle(toggleIconNode.getAttribute('data-icon-off'));
+            var currentText = $toggleTextNode.text();
+            $toggleTextNode.text($toggleTextNode.data('label-inactive'))
+                           .data('label-inactive', currentText);
+        })
+
+        $(passwordField)
+        .on('keydown', function(event) {
+            if (event.isCommandKey() && event.which == 32) {
+                event.preventDefault();
+                $toggleButton.trigger('click');
+            };
+        })
+        .on('input', function() {
+            $toggleButton.prop('disabled', false);
+            scheduleStateReset();
+        });
+    });
+
     /* password strength meter for password input fields (registration, password change) */
     if (typeof $().pwstrength !== "undefined") {
         $.fn.pwstrength.localui = $.fn.pwstrength.localui || {};
@@ -257,6 +320,12 @@ $(function() {
             },
             ui: {
                 bootstrap3: true,
+                container: pwd_elements.parents('.controls').first()
+                           .append('<div class="password-strength-meter"></div')
+                           .end(),
+                viewports: {
+                    progress: '.password-strength-meter'
+                },
                 showVerdictsInsideProgressBar: true,
                 progressBarMinWidth: 55,
                 progressBarMinPercentage: 17,
@@ -519,7 +588,7 @@ $(function() {
     $('#id_form_cancel').each(function() {
         this.setAttribute('data-default-href', this.getAttribute('href'));
         this.setAttribute('href', '#!');
-    }).click(function(event) {
+    }).on('click', function(event) {
         event.preventDefault();
         history.go(-1);
     });
@@ -553,12 +622,12 @@ $(function() {
         actionButtonShortcuts.length++;
     });
     if (actionButtonShortcuts.length) {
-        $(window).bind('keydown', function(event) {
+        $(window).on('keydown', function(event) {
             if (event.isCommandKey()) {
                 var pressedKey = String.fromCharCode(event.which).toLowerCase();
                 if (actionButtonShortcuts[pressedKey] !== undefined) {
                     event.preventDefault();
-                    actionButtonShortcuts[pressedKey].click();
+                    actionButtonShortcuts[pressedKey].trigger('click');
                 }
             };
         });
