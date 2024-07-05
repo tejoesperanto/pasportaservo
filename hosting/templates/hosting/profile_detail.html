@@ -349,10 +349,10 @@
                     </a>
                 </div>
                 {% if view.public_view %}
-                    <p class="pull-right" style="margin-right: 10px">{% include './snippets/checked.html' with object=place %}</p>
+                    <p class="pull-right" style="margin: 0px 10px 10px">{% include './snippets/checked.html' with object=place %}</p>
                     <div class="place-overview{% if profile.death_date %} deceased-owner{% endif %}">
                         {% if place.available and not profile.death_date %}
-                            <span class="label label-info status">&nbsp;{% trans "I'm hosting in:" %}&nbsp;</span>
+                            <span class="label label-info">&nbsp;{% trans "I'm hosting in:" %}&nbsp;</span>
                         {% endif %}
 
                         {% if place.city %}
