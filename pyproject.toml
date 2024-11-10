@@ -1,0 +1,44 @@
+[project]
+name = "pasportaservo"
+version = "0.1.0"
+description = 'Pasporta Servo estas senpaga tutmonda gastiga servo.'
+requires-python = ">=3.10"
+license.file = "LICENSE"
+readme = "README.md"
+urls.documentation = "https://github.com/tejoesperanto/pasportaservo/blob/master/README.md"
+urls.issues = "https://github.com/tejoesperanto/pasportaservo/issues"
+urls.source = "https://github.com/tejoesperanto/pasportaservo"
+
+keywords = [
+    "django", "postgresql", "saas", "pasporta", "servo", "esperanto", "tejo", "zamenhof",
+    "tutmonda", "junulara", "organizo", "lingvo", "interparolo", "internacia", "loĝado", "vojaĝi", "gastigo", "mapo", "retejo",
+    "passport", "service", "global", "youth", "orginization", "language", "exchange", "international", "lodging", "travel", "hospitality", "map", "website", "online",
+    # TODO:FAROTE: Ĉu pli da lingvaj tradukoj aldonendas? Ebla nur la denaskaj lingvoj de niaj kontribuantoj, aŭ eble nur la plej vidataj je GitHub.
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+
+authors = [
+    { name = "TEJO Esperanto", email = "oficejo@tejo.org" },
+]
+
+maintainers = [
+    { name = "Meir", email = "interDist@users.noreply.github.com" },
+    { name = "Baptiste Darthenay", email = "baptiste@darthenay.fr" },
+    { name = "Etenil", email = "dev@etenil.net" },
+    { name = "Chloe Shetreet", email = "CourteousCoder@gmail.com" },
+    { name = "Salman Mohammadi", email = "salman@ubuntu.ir" },
+]
+
+dependencies = [
+
+]
+
+optional-dependencies.dev = [
+
+]
