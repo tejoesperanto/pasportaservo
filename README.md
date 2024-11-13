@@ -93,6 +93,7 @@ uv venv
 uv sync --all-extras
 uv run ./manage.py migrate
 uv run ./manage.py createsuperuser # Nur la uzantnomo kaj pasvorto estas deviga
+pre-commit install --install-hooks --overwrite
 ```
 
 # Servi
@@ -195,7 +196,48 @@ git checkout -b {nomo-de-nova-branĉo}
 * `flake8` certigas ke la kodo estas bonkvalite strukturita kaj ne ĉeestas “mortaj” sekcioj
   (`uvx flake8`)
 
-## Verku testojn
+### Ŝanĝi devigajn program-partojn
+**Ne rekte ŝanĝu** _iujn ajn_ de la `requirements*.txt`  dosieroj. Se vi volas ŝanĝi la devigajn program-partojn, redaktu la dosieron `pyproject.toml` anstataŭe.
+
+Vi povas rekte redakti tiun dosieron, aŭ plej facile, mi rekomendas uzi iu de la malsupraj komandoj.
+
+#### Aldoni
+
+```bash 
+# Aldoni al la baza grupo de pyproject.toml
+# project.dependencies[...]
+uv add '{aldonotajn pip-pakaĵojn}'
+
+# Aldoni al la programista grupo de pyproject.toml
+# dependency-groups.dev[...]
+uv add --dev '{aldonotajn pip-pakaĵojn nur por "dev"}'
+```
+#### Forigi
+
+```bash 
+# Forigi de la baza grupo de pyproject.toml
+# project.dependencies[...]
+uv remove '{forigotajn pip-pakaĵojn}'
+
+# Forigi de la programista grupo de pyproject.toml
+# dependency-groups.dev[...]
+uv remove --dev '{forigotajn pip-pakaĵojn nur de "dev"}'
+````
+
+#### Konservi la ŝanĝojn
+Post ajna ŝanĝo al `pyproject.toml`, konservi la ŝanĝojn per:
+```bash
+
+# Instali ilin kaj ŝlosi la precizajn versiojn de ili en la uv.lock dosieron
+uv sync
+
+# En ./pre-commit-commit-config.yaml, estas hokoj por elporti 
+# la enhavojn de `uv.lock` al la `requirements*txt` dosierojn 
+# ĉar  CI kaj disponigoj ankoraŭ atendas `requirements*txt`.
+uv run pre-commit run --all-files
+```
+
+### Verku testojn
 
 Testoj estas gravaj por certigi ke partoj de la retejo funkcias tiele kiel oni planis, kaj kapti cimojn
 antaŭ ol ili trafos uzantojn. Testoj ankaŭ helpas certiĝi ke novenkondukitaj ŝanĝoj ne rompas ekzistantajn

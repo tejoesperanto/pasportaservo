@@ -32,6 +32,7 @@ function setup_pyproject {
   echo 'from .dev import *' >pasportaservo/settings/__init__.py
   uv run ./manage.py migrate
   uv run ./manage.py createsuperuser # Nur la uzantnomo kaj pasvorto estas deviga
+  pre-commit install --install-hooks --overwrite
 }
 
 # Sistema pakaĝilo
