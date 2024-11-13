@@ -74,10 +74,16 @@ dependencies = [
     "rstr==3.0.0",
     "sentry-sdk>=1.18",
     "user-agents==2.2.0",
-    "wheel>=0.44.0",
+    "wheel==0.44.0",
 ]
 
-optional-dependencies.dev = [
+optional-dependencies.mail = [
+    # TODO:FAROTE: Testi tion ĉi.
+    "maildump>=1.0",
+]
+
+[dependency-groups]
+dev = [
     "beautifulsoup4==4.12.2",
     "bpython==0.21",
     "coverage==7.3.0",
@@ -90,4 +96,7 @@ optional-dependencies.dev = [
     "pre-commit==3.3.3",
     "pyquery==2.0.0",
     "sqlparse>=0.2.4",
+    "uv>=0.5.1",
 ]
+
+# TODO:FAROTE Konsideri kiel unuigi la agordojn kaj skriptojn de setup.cfg kaj al ĉi tiun pyproject.toml
