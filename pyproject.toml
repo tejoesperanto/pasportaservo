@@ -99,4 +99,4 @@ dev = [
     "uv>=0.5.1",
 ]
 
-# TODO:FAROTE Konsideri kiel unuigi la agordojn kaj skriptojn de setup.cfg kaj al ĉi tiun pyproject.toml
+# TODO:FAROTE Konsideri kiel unuigi la agordojn kaj skriptojn de setup.cf, fabfile.py, kaj pyproject.toml ĉi tien.
