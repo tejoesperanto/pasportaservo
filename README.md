@@ -70,8 +70,8 @@ sudo -u postgres createuser --interactive  # Enigu vian uzantnomon kaj poste 'y'
 createdb via-uzantnomo
 createdb pasportaservo
 ````
-### Certiĝu, la Esperanta lokaĵaro haveblas:
-Ĉi tiu komando indikas al vi ĉu la Esperanta lokaĵaro jam estas ŝaltata, kaj se ne, ĝin estas ŝaltos.
+### Certiĝu, ke la Esperanta lokaĵaro haveblas:
+Ĉi tiu komando indikas al vi ĉu la Esperanta lokaĵaro jam estas ŝaltata, kaj se ne, ĝin ŝaltotas.
 
 ```bash
 locale -a | grep -iq 'eo.utf8' && echo 'Lokaĵaro: En ordo' || sudo locale-gen eo.utf8
@@ -109,10 +109,9 @@ uv run ./manage.py runserver
 ## Retmesaĝoj
 
 Dum disvolvigo, estas praktika uzi *MailDump* por provadi sendi retmesaĝojn.
-Ekster la *env* virtuala medio, kun `uv`:
+Ekster la *env* virtuala medio, kun `uvx`:
 ```bash
 uvx maildump
-maildump
 ```
 La mesaĝoj estos kolektataj en ĉion-kaptan poŝtkeston videblan ĉe http://localhost:1080.
 
