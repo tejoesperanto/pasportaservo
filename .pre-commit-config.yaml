@@ -10,6 +10,24 @@ repos:
 
 - repo: local
   hooks:
+    # Por daŭrigi, ke nia aktuala disponiga sistemon ankoraŭ povas legi de requirements.txt
+    # TODO:FAROTE Decidi ĉu ŝanĝindas tio.
+    - id: export-requirements-base
+      name: export-requirements-base
+      require_serial: true
+      language: system
+      entry: uv export --locked --no-dev -o requirements/base.txt
+      pass_filenames: false
+      verbose: false
+
+    - id: export-requirements-dev
+      name: export-requirements-dev
+      require_serial: true
+      language: system
+      entry: bash -c '( echo "-r base.txt"; uv export --only-dev --locked ) > requirements/dev.txt'
+      pass_filenames: false
+      verbose: false
+
     - id: isort
       name: isort
       require_serial: true

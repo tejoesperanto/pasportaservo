@@ -21,6 +21,7 @@
 
 - [Kontribui](#kontribui)
 - [Instali](#instali)
+- [Servi](#servi)
 - [Kunlabori](#kunlabori)
 - [Licenco](#licenco)
 
@@ -37,85 +38,104 @@ se ne, komencu [novan fadenon](https://github.com/tejoesperanto/pasportaservo/di
 
 # Instali
 
-Ubuntu 16.10 / Debian Stretch:
+## Aŭtomate
 
-    sudo apt install git python3-dev python3-pip python3-venv libjpeg-dev zlib1g-dev \
-      postgresql-contrib postgresql-server-dev-all postgresql-10-postgis libgdal-dev gcc-c++ gdal
+1. Iru al la projektpaĝo ĉe GitHub kaj forku la deponejon.
+2. Klonu vian forkon, ekz. `git clone https://github.com/{via-uzantnomo}/pasportaservo.git`
+3. Uzu la instalilon: `cd pasportaservo && ./setup.sh`
 
-Fedora 27:
+## Paŝon post paŝo
 
-    sudo dnf install git python3-devel python3-crypto redhat-rpm-config zlib-devel libjpeg-devel libzip-devel \
-      postgresql-server postgresql-contrib postgresql-devel gcc-c++ gdal
+### *Sistemaj devigaĵoj*
 
+#### Ubuntu 22.04:
+```bash
+sudo apt install git postgresql-server-dev-all postgresql-contrib postgis postgresql-postgis build-essential gcc libjpeg-dev zlib1g-dev libgdal-dev
+```
 
-#### PostgreSQL
+#### Fedora 27:
+```bash
+sudo dnf install git python3-devel python3-crypto redhat-rpm-config zlib-devel libjpeg-devel libzip-devel postgresql-server postgresql-contrib postgresql-devel gcc-c++ gdal
+```
 
-Se vi estas sub Fedora:
+### *PostgreSQL*
 
-    sudo postgresql-setup --initdb --unit postgresql
-    sudo systemctl enable postgresql
-    sudo systemctl start postgresql
+#### Se vi estas sub Fedora:
+```bash
+sudo postgresql-setup --initdb --unit postgresql
+sudo systemctl enable postgresql
+sudo systemctl start postgresql
+```
 
-Por ĉiuj:
+#### Por ĉiuj:
+```bash
+sudo -u postgres createuser --interactive  # Enigu vian uzantnomon kaj poste 'y'
+createdb via-uzantnomo
+createdb pasportaservo
+```
 
-    sudo -u postgres createuser --interactive  # Enigu vian uzantnomon kaj poste 'y'
-    createdb via-uzantnomo
-    createdb pasportaservo
+### *Certiĝu, ke la Esperanta lokaĵaro haveblas*
+Ĉi tiu komando indikas al vi ĉu la Esperanta lokaĵaro jam estas agordita, kaj se ne, agordas ĝin.
 
+```bash
+locale -a | grep -iq 'eo.utf8' && echo 'Lokaĵaro: En ordo' || sudo locale-gen eo.UTF-8
+```
 
-#### Fontkodo
+### *Fontkodo*
 
 Iru al la [projektpaĝo ĉe GitHub](https://github.com/tejoesperanto/pasportaservo)
 kaj forku la deponejon. Poste, vi povas kloni ĝin:
-
-    git clone https://github.com/{via-uzantnomo}/pasportaservo.git
-
+```bash
+git clone https://github.com/{via-uzantnomo}/pasportaservo.git
+```
 Instalu ĉiujn necesajn pakaĵojn kaj pretigu la datumbazon (ne forgesu tion fari ene de virtuala medio):
 
-    cd pasportaservo
-    pip install wheel
-    pip install -r requirements/dev.txt
-    echo 'from .dev import *' > pasportaservo/settings/__init__.py
-    ./manage.py migrate
-    ./manage.py createsuperuser  # Nur la uzantnomo kaj pasvorto estas deviga
+```bash
+echo 'from .dev import *' > pasportaservo/settings/__init__.py
+which uv || curl -LsSf https://astral.sh/uv/0.5.1/install.sh | sh
+uv venv
+uv sync --all-extras
+uv run ./manage.py migrate
+uv run ./manage.py createsuperuser  # Nur la uzantnomo kaj pasvorto estas deviga
+pre-commit install --install-hooks --overwrite
+```
+
+# Servi
 
 Fine, kurigu la lokan WSGI-servilon:
 
-    ./manage.py runserver
+```bash
+uv run ./manage.py runserver
+```
 
 Ĉu bone? Vidu http://localhost:8000.
 
 
-#### Retmesaĝoj
+### Retmesaĝoj
 
 Dum disvolvigo, estas praktika uzi *MailDump* por provadi sendi retmesaĝojn.
-Ekster la *env* virtuala medio, kun Pitono:
-
-    pip install --user maildump
-    maildump
-
+Ekster la virtuala medio, kun `uvx`:
+```bash
+uvx maildump
+```
 La mesaĝoj estos kolektataj en ĉion-kaptan poŝtkeston videblan ĉe http://localhost:1080.
 
+## Problem-solvado
 
-----
-
-
-### Problem-solvado
-
-#### PostgreSQL: `unrecognized option --interactive`
+### PostgreSQL: `unrecognized option --interactive`
 Se la komando `sudo -u postgres createuser --interactive` malsukcesas
 (ekz., vi ricevas eraron "unrecognized option --interactive"), provu:
 
     $ sudo -u postgres psql
-    psql (9.6.6)
+    psql (16.6)
     Type "help" for help.
     postgres=# CREATE ROLE {via-uzantonomo} WITH LOGIN CREATEDB CREATEROLE;
     postgres=# \q
 
-#### PostgreSQL: Ĉu mi bone kreis la datumbazojn?
+### PostgreSQL: Ĉu mi bone kreis la datumbazojn?
 
     $ sudo -u postgres psql
-    psql (9.5.4)
+    psql (16.6)
     Type "help" for help.
     postgres=# \l
                                         List of databases
@@ -131,79 +151,135 @@ Se la komando `sudo -u postgres createuser --interactive` malsukcesas
 
 Se vi vidas tabelon kiel ĉi-supre, ĉio glate paŝis.
 
-#### Lokaĵaro: `Could not set locale eo.UTF-8: make sure that it is enabled on the system`
+### Lokaĵaro: `Could not set locale eo.UTF-8: make sure that it is enabled on the system`
 Tia eraro indikas ke la Esperanta lokaĵaro ne estas aktivigita. Uzu la jenajn komandojn:
 
-    sudo locale-gen eo.UTF-8
-    sudo update-locale
-    locale -a
+```bash
+sudo locale-gen eo.UTF-8
+sudo update-locale
+locale -a
+```
 
 Se vi vidas `eo.utf8` en la listo, la ĝusta lokaĵaro estas nun aktiva.
+
+### uv: ``VIRTUAL_ENV does not match the project environment path `.venv` and will be ignored``
+Se vi havas jam antaŭe agorditan virtualan medion, vi devas ligi al ĝi per `.venv` uzata fare de
+`uv` tiel ke ĝi ne plendu. Ene de la virtuala medio kaj la dosierujo de la projekto:
+
+```bash
+ln -s "$VIRTUAL_ENV" .venv
+```
 
 
 # Kunlabori
 
-### Komprenu la strukturon de la kodo
+## Komprenu la strukturon de la kodo
 
-- **pasportaservo/**: ĝenerala dosierujo kun konfiguro, baz-nivelaj URL-oj, bibliotekoj, ktp
-- **core/**: bazaj ŝablonoj kaj ĉio rilata al aŭtentigo kaj (rolbazita) rajtigado
-- **hosting/**: la ĉefa programo por gastiga servo
+- `pasportaservo/`: ĝenerala dosierujo kun konfiguro, baz-nivelaj URL-oj, bibliotekoj, ktp
+- `core/`: bazaj ŝablonoj kaj ĉio rilata al aŭtentigo kaj (rolbazita) rajtigado
+- `hosting/`: la ĉefa programo por gastiga servo
 
 Kaj ene de la diversaj *Dĵango-aplikaĵoj* (ekz. `hosting`, `pages`, `links`…):
 
-- models.py: strukturo de la datumoj, kaj bazaj operacioj por ĉiu modelo
-- forms.py: formularoj por enigi kaj modifi datumojn
-- urls.py: ligoj inter URL-oj kaj paĝo-vidoj
-- views.py: difino de vidoj, paĝoj por prezentado
-- templates/: pseŭdo-HTML dosieroj (ŝablonoj)
-- templatetags/: ebligas pli kompleksajn operaciojn en la ŝablonoj
+- `models.py`: strukturo de la datumoj, kaj bazaj operacioj por ĉiu modelo
+- `forms.py`: formularoj por enigi kaj modifi datumojn
+- `urls.py`: ligoj inter URL-oj kaj paĝo-vidoj
+- `views.py`: difino de vidoj, paĝoj por prezentado
+- `templates/`: pseŭdo-HTML dosieroj (ŝablonoj)
+- `templatetags/`: ebligas pli kompleksajn operaciojn en la ŝablonoj
 
+## Disvolvigu
 
-### Disvolvigu
-
-*Laboru en branĉoj:*
+### *Laboru en branĉoj*
 
 Efektivigu viajn ŝanĝojn en tiucelaj, laŭtemaj branĉoj:
 
-    git checkout master
-    git checkout -b {nomo-de-nova-branĉo}
+```bash
+git checkout master
+git checkout -b {nomo-de-nova-branĉo}
+```
 
 Ĉefa risurco por lerni ***git*** (la versiadministra sistemo): https://git-scm.com/docs/git.
 
-*Utiligu helpilojn por kod-kvalito:*
+### *Utiligu helpilojn por kod-kvalito*
 
-* *isort* aŭtomate ordigas ĉiujn importojn en la Pitonaj dosieroj, por ke vi ne devu pensi pri tio
-  (`isort -rc .`)
-* *flake8* certigas ke la kodo estas bonkvalite strukturita kaj ne ĉeestas “mortaj” sekcioj
-  (`python -m flake8`)
+* ***isort*** aŭtomate ordigas ĉiujn importojn en la Pitonaj dosieroj, por ke vi ne devu pensi pri tio
+  (`uvx isort .`)
+* ***flake8*** certigas ke la kodo estas bonkvalite strukturita kaj ne ĉeestas “mortaj” sekcioj
+  (`uvx flake8`)
 
-*Verku testojn:*
+### *Ŝanĝu devigajn program-partojn*
+
+**Ne rekte ŝanĝu** iujn ajn de la `requirements/*.txt` dosieroj.
+Se vi volas ŝanĝi la devigajn program-partojn, redaktu la dosieron `pyproject.toml` anstataŭe.
+
+Vi povas rekte redakti tiun dosieron, aŭ uzi la rekomendatajn malsuprajn komandojn, kio estas pli facila.
+
+#### Aldoni
+
+```bash
+# Aldoni al la baza grupo de pyproject.toml
+# project.dependencies[...]
+uv add '{aldonotaj pip-pakaĵoj}'
+
+# Aldoni al la disvolviga grupo de pyproject.toml
+# dependency-groups.dev[...]
+uv add --dev '{aldonotaj pip-pakaĵoj nur al "dev"}'
+```
+
+#### Forigi
+
+```bash
+# Forigi de la baza grupo de pyproject.toml
+# project.dependencies[...]
+uv remove '{forigotaj pip-pakaĵoj}'
+
+# Forigi de la disvolviga grupo de pyproject.toml
+# dependency-groups.dev[...]
+uv remove --dev '{forigotaj pip-pakaĵoj nur el "dev"}'
+```
+
+#### Konservi la ŝanĝojn
+
+Post ajna ŝanĝo al `pyproject.toml`, konservu la ŝanĝojn per:
+```bash
+# Instali ilin kaj ŝlosi la precizajn versiojn de ili en la dosiero uv.lock
+uv sync
+
+# En ./pre-commit-commit-config.yaml, estas hokoj por elporti
+# la enhavojn de `uv.lock` al la `requirements/*txt` dosieroj
+# ĉar CI kaj disponigoj ankoraŭ atendas `requirements/*txt`.
+uv run pre-commit run --all-files
+```
+
+### *Verku testojn*
 
 Testoj estas gravaj por certigi ke partoj de la retejo funkcias tiele kiel oni planis, kaj kapti cimojn
 antaŭ ol ili trafos uzantojn. Testoj ankaŭ helpas certiĝi ke novenkondukitaj ŝanĝoj ne rompas ekzistantajn
-funkciojn. La testoj kolektiĝas sub **tests/**. Risurcoj:
+funkciojn. La testoj kolektiĝas sub `tests/`. Risurcoj:
 - https://docs.djangoproject.com/en/stable/topics/testing/overview
 - https://docs.python.org/3/library/unittest.html
 - https://docs.pylonsproject.org/projects/webtest/en/latest
 - https://test-driven-django-development.readthedocs.io/en/latest
 
-*Testu sur realaj aparatoj:*
+### *Testu sur realaj aparatoj*
 
 Laŭdefaŭlte, la disvolviga WSGI-servilo estas kurigita izolite sur via maŝino kaj atingeblas nur per la
-loka inverscikla adreso 127.0.0.1 (aŭ ĝia sinonimo http://localhost). Tiam vi povas uzi la retumilojn
-haveblajn sur via maŝino por testadi la retejon. Tamen, Dĵango efektive subtenas kurigon sur ajna reta
-interfaco; uzante la komandon
+loka inverscikla adreso [127.0.0.1](http://127.0.0.1) (aŭ ĝia sinonimo http://localhost). Tiam vi povas
+uzi la retumilojn haveblajn sur via maŝino por testadi la retejon. Tamen, Dĵango efektive subtenas kurigon
+sur ajna reta interfaco; uzante la komandon
 
-    python ./manage.py runserver {IP-adreso-en-loka-reto}:8000
+```bash
+uv run ./manage.py runserver {IP-adreso-en-loka-reto}:8000
+```
 
 vi povas videbligi la retejon ene de via loka reto (LAN / Wifi) kaj aliri ĝin per ajna aparato konektita
 al la sama reto. Tiamaniere vi povas testi la ĝustan funkciadon de la retejo sur pli diversaj aparatoj
 (ekz., ankaŭ per poŝtelefonoj).
-Tion ebligas agordo *settings/dev.py/*`ALLOWED_HOSTS` – dum lanĉo, la servilo provas eltrovi la lokaretan
+Tion ebligas agordo `ALLOWED_HOSTS` de `settings/dev.py` – dum lanĉo, la servilo provas eltrovi la lokaretan
 IP-adreson de la maŝino kaj permesi ties uzon.
 
-
-### Lernu Dĵangon
+## Lernu Dĵangon
 
 - https://tutorial.djangogirls.org/
 - https://docs.djangoproject.com/en/stable/intro/tutorial01/
