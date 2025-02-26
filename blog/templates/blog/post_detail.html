@@ -3,6 +3,16 @@
 
 {% block head_title %}{{ post.title }} | {% trans "News" %}{% endblock %}
 
+{% block extra_ogp_namespace %}  article: https://ogp.me/ns/article#{% endblock %}
+{% block ogp_title %}{{ post.title }}{% endblock %}
+{% block ogp_description %}{% trans "News" %} {% trans "at" %} Pasporta Servo{% endblock %}
+{% block ogp_type %}article{% endblock %}
+{% block extra_ogp_properties %}
+    {% if post.pub_date %}
+        <meta property="article:published_time"             content="{{ post.pub_date|date:"Y-m-d" }}">
+    {% endif %}
+{% endblock %}
+
 {% block extra_js %}
         <script src="{% static 'js/pep.min.js' %}"></script>
         <script src="{% static 'js/gestures.js' %}"></script>

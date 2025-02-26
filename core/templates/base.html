@@ -1,15 +1,19 @@
 <!DOCTYPE html>
-{% load i18n statici18n static cdn compress sass_tags utils %}
+{% load i18n statici18n static cdn compress sass_tags domain variable utils %}
 
 <html lang="{% get_system_language %}"
       class="{% if ' MSIE ' in request.META.HTTP_USER_AGENT or 'Trident/' in request.META.HTTP_USER_AGENT %}msie-compat{% endif %}"
+      prefix="og: https://ogp.me/ns#{% block extra_ogp_namespace %}{% endblock %}"
       data-env="{{ ENVIRONMENT }}">
     <head>
         <meta charset="utf-8">
-        <title>{% filter compact %}
-            {% block head_title %}{% trans "Find accommodation" %}{% endblock %}
-            {% block head_title_separator %}|{% endblock %} Pasporta Servo
-        {% endfilter %}</title>
+        {% asvar page_head_title trimmed %}
+            {% filter compact %}
+                {% block head_title %}{% trans "Find accommodation" %}{% endblock %}
+                {% block head_title_separator %}|{% endblock %} Pasporta Servo
+            {% endfilter %}
+        {% endasvar %}
+        <title>{{ page_head_title }}</title>
         <meta name="description" content="{% filter compact %}
                                             {% block head_description %}{% trans "Esperanto-hosts around the world" %}{% endblock %}
                                           {% endfilter %}">
@@ -21,6 +25,32 @@
         <link rel="apple-touch-icon"                        href="{% static 'img/marker/PS_apple.png' %}"       sizes="180x180">
         <link rel="mask-icon"                               href="{% static 'img/marker/PS_safari.svg' %}"      color="#ee6600">
         <meta name="application-name"                       content="Pasporta Servo">
+        <meta property="og:title"                           content="{% filter compact %}
+                                                                        {% block ogp_title %}
+                                                                            {{ page_head_title }}
+                                                                        {% endblock %}
+                                                                     {% endfilter %}">
+        <meta property="og:description"                     content="{% filter compact %}
+                                                                        {% block ogp_description %}
+                                                                            {% trans "Esperanto-hosts around the world" %}
+                                                                        {% endblock %}
+                                                                     {% endfilter %}">
+        <meta property="og:locale"                          content="{% get_system_language %}">
+        <meta property="og:type"                            content="{% filter compact %}
+                                                                        {% block ogp_type %}website{% endblock %}
+                                                                     {% endfilter %}">
+        <meta property="og:url"                             content="{% filter compact %}
+                                                                        {% block ogp_canonical_url %}
+                                                                            {% domain request.path|urlencode %}
+                                                                        {% endblock %}
+                                                                     {% endfilter %}">
+        <meta property="og:image"                           content="{% filter compact %}
+                                                                        {% block ogp_image %}
+                                                                            {% domain %}{% static 'img/social_media_thumbnail_main.png' %}?v=1
+                                                                        {% endblock %}
+                                                                     {% endfilter %}">
+        {% block extra_ogp_properties %}
+        {% endblock %}
         <meta name="msapplication-config"                   content="{% static 'img/marker/ms-browser-config.xml' %}?v=1">
         <meta name="msapplication-task"                     content="{% filter compact %}
                                                                         name={% trans "My profile" %};

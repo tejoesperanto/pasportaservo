@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2024-07-17 04:45+0000\n"
+"POT-Revision-Date: 2025-02-21 09:45+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -74,6 +74,25 @@ msgstr "legi pli"
 #: core/templates/base.html core/templates/core/home.html
 msgid "News"
 msgstr "Novaĵoj"
+
+#: blog/templates/blog/post_detail.html
+#: core/templates/account/account_confirm_delete.html
+#: core/templates/account/password_change_done.html
+#: core/templates/account/password_change_form.html
+#: core/templates/account/username_change_form.html core/templates/base.html
+#: core/templates/core/home.html core/templates/registration/login.html
+#: core/templates/registration/password_reset_done.html
+#: core/templates/registration/password_reset_form.html
+#: core/templates/registration/username_remind_done.html
+#: core/templates/registration/username_remind_form.html
+#: hosting/templates/hosting/place_list.html
+#: hosting/templates/hosting/profile_detail.html
+#: hosting/templates/hosting/profile_form.html
+#: links/templates/links/already_confirmed.html
+#: links/templates/links/confirmed.html
+#: pasportaservo/templates/postman/email_user.html
+msgid "at"
+msgstr "ĉe"
 
 #: blog/templates/blog/post_detail.html
 #: hosting/templates/hosting/place_detail.html
@@ -528,23 +547,6 @@ msgid "Close account"
 msgstr "Fermi konton"
 
 #: core/templates/account/account_confirm_delete.html
-#: core/templates/account/password_change_done.html
-#: core/templates/account/password_change_form.html
-#: core/templates/account/username_change_form.html core/templates/base.html
-#: core/templates/core/home.html
-#: core/templates/registration/password_reset_done.html
-#: core/templates/registration/password_reset_form.html
-#: core/templates/registration/username_remind_done.html
-#: core/templates/registration/username_remind_form.html
-#: hosting/templates/hosting/place_list.html
-#: hosting/templates/hosting/profile_form.html
-#: links/templates/links/already_confirmed.html
-#: links/templates/links/confirmed.html
-#: pasportaservo/templates/postman/email_user.html
-msgid "at"
-msgstr "ĉe"
-
-#: core/templates/account/account_confirm_delete.html
 msgid "Press the button here below to confirm closing your account."
 msgstr "Premu la butonon ĉi-sube por konfirmi la malaktivigon de via konto."
 
@@ -598,11 +600,11 @@ msgstr ""
 #: core/templates/account/consent.html
 #, python-format
 msgid ""
-"Earlier versions can be reviewed at the %(privacy_link)sprivacy policy"
-"%(end_privacy_link)s page."
+"Earlier versions can be reviewed at the %(privacy_link)sprivacy "
+"policy%(end_privacy_link)s page."
 msgstr ""
-"Pli fruaj versioj estas konsulteblaj ĉe la paĝo “%(privacy_link)sPrivateco"
-"%(end_privacy_link)s”."
+"Pli fruaj versioj estas konsulteblaj ĉe la paĝo "
+"“%(privacy_link)sPrivateco%(end_privacy_link)s”."
 
 #: core/templates/account/consent.html
 #, python-format
@@ -1358,11 +1360,11 @@ msgstr "Ensalutu per via uzanto-nomo kaj pasvorto"
 #: core/templates/registration/login.html
 #, python-format
 msgid ""
-"I forgot <a href=\"%(pwd_url)s\">my password</a> or <a href=\"%(usr_url)s"
-"\">my username</a>"
+"I forgot <a href=\"%(pwd_url)s\">my password</a> or <a "
+"href=\"%(usr_url)s\">my username</a>"
 msgstr ""
-"Mi forgesis <a href=\"%(pwd_url)s\">mian pasvorton</a> aŭ <a href="
-"\"%(usr_url)s\">mian salutnomon</a>"
+"Mi forgesis <a href=\"%(pwd_url)s\">mian pasvorton</a> aŭ <a "
+"href=\"%(usr_url)s\">mian salutnomon</a>"
 
 #: core/templates/registration/password_reset_complete.html
 msgid "Password reset complete"
@@ -2551,8 +2553,8 @@ msgid ""
 "International number format begining with the plus sign (e.g.: +31 10 436 "
 "1044)"
 msgstr ""
-"En formato de internacia numero, komencu per pluso (ekz:&nbsp; <span style="
-"\"white-space: nowrap\">+31 10 436 1044</span>)"
+"En formato de internacia numero, komencu per pluso (ekz:&nbsp; <span "
+"style=\"white-space: nowrap\">+31 10 436 1044</span>)"
 
 #: hosting/models.py
 msgid "comments"
