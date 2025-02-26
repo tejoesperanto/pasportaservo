@@ -25,6 +25,9 @@
     {% endif %}
 {% endblock %}
 
+{% block ogp_title %}{% trans "A place in" %} {{ place.get_country_display }} | Pasporta Servo{% endblock %}
+{% block ogp_description %}{% endblock %}
+
 {% block extra_css %}
         <link rel="stylesheet" href="{% static 'datepicker/css/datepicker3.min.css' %}">
 {% endblock extra_css %}

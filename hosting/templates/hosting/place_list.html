@@ -213,7 +213,9 @@
                 {% blocktrans with query=view.query trimmed %}
                     Such place cannot be identified: <i>{{ query }}</i>.
                 {% endblocktrans %}
-                {% trans "Here are Pasporta Servo members elsewhere." %}
+                {% blocktrans trimmed %}
+                    Here are Pasporta Servo members elsewhere.
+                {% endblocktrans %}
             {% endif %}
         {% endif %}
     {% endwith %}
@@ -240,7 +242,9 @@
                                 {{ number }} results in total.
                             {% endblocktrans %}
                         {% else %}
-                            {% trans "Too many results?" %}
+                            {% blocktrans trimmed %}
+                                Too many results?
+                            {% endblocktrans %}
                         {% endif %}
                         {% spaceless %}
                             <a href="#{% trans "advanced-filter" context "URL" %}" id="advanced-filter-toggle"

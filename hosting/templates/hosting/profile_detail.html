@@ -9,6 +9,16 @@
     {% endif %}
 {% endblock %}
 
+{% block extra_ogp_namespace %}  profile: https://ogp.me/ns/profile#{% endblock %}
+{% block ogp_title %}{{ profile.name|default:profile.INCOGNITO }} {% trans "at" %} Pasporta Servo{% endblock %}
+{% block ogp_description %}{% endblock %}
+{% block ogp_type %}profile{% endblock %}
+{% block extra_ogp_properties %}
+    {% if profile.name %}
+        <meta property="profile:first_name"                 content="{{ profile.name }}">
+    {% endif %}
+{% endblock %}
+
 {% block extra_css %}
         <link rel="stylesheet" href="{% static 'popup/magnific-popup.min.css' %}">
 {% endblock %}

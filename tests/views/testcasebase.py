@@ -2,6 +2,7 @@ from typing import cast
 from urllib.parse import urlencode
 
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.test import override_settings
 from django.urls import reverse_lazy
 from django.utils.functional import Promise
@@ -40,8 +41,8 @@ class BasicViewTests(AdditionalAsserts, WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        basic_user = UserFactory(email=cls.users_definition['basic']['email'], profile=None)
-        cls.user = UserFactory(email=cls.users_definition['regular']['email'])
+        basic_user = UserFactory.create(email=cls.users_definition['basic']['email'], profile=None)
+        cls.user = UserFactory.create(email=cls.users_definition['regular']['email'])
         cls.users = {
             'basic': basic_user,
             'regular': cls.user,
@@ -88,11 +89,45 @@ class BasicViewTests(AdditionalAsserts, WebTest):
             ):
                 page = self.view_page.open(
                     self,
-                    user=self.user if self.view_page.redirects_unauthenticated else None)
+                    user=self.user if self.view_page.redirects_unauthenticated else None,
+                    reuse_for_lang=lang)
                 self.assertHTMLEqual(
                     cast(str, page.pyquery("title").html()),
                     self.view_page.title[lang]
                 )
+
+    def test_view_open_graph_tags(self, url_tag='base', url_params=None, **customizations):
+        # Verify that the view has the expected OGP meta tags.
+        first_site = Site.objects.get(id=1)
+        first_site.name, first_site.domain = 'OGPTestServer', 'test.domain'
+        first_site.save(update_fields=['name', 'domain'])
+        for lang in self.view_page.explicit_url:
+            with (
+                override_settings(LANGUAGE_CODE=lang),
+                self.subTest(lang=lang)
+            ):
+                page = self.view_page.open(
+                    self,
+                    user=self.user if self.view_page.redirects_unauthenticated else None,
+                    url_tag=url_tag, url_params=url_params)
+                self.assertEqual(
+                    page.pyquery("meta[property='og:title']").attr("content"),
+                    customizations.get('title', self.view_page.title)[lang])
+                self.assertEqual(
+                    page.pyquery("meta[property='og:type']").attr("content"),
+                    customizations.get('type', "website"))
+                self.assertEqual(
+                    page.pyquery("meta[property='og:url']").attr("content"),
+                    f'http://test.domain'
+                    f'{customizations.get('page_url', self.view_page.explicit_url)[lang]}')
+                self.assertEqual(
+                    page.pyquery("meta[property='og:locale']").attr("content"),
+                    lang)
+                image_url = customizations.get(
+                    'image', '/static/img/social_media_thumbnail_main.png')
+                self.assertStartsWith(
+                    page.pyquery("meta[property='og:image']").attr("content"),
+                    f'http://test.domain{image_url}' if image_url.startswith('/') else image_url)
 
     def test_view_header_unauthenticated_user(self):
         if self.view_page.redirects_unauthenticated:
@@ -250,7 +285,7 @@ class BasicViewTests(AdditionalAsserts, WebTest):
                     override_settings(LANGUAGE_CODE=lang),
                     self.subTest(user=user, lang=lang)
                 ):
-                    page = self.view_page.open(self, user=user)
+                    page = self.view_page.open(self, user=user, reuse_for_lang=lang)
                     for url in test_data:
                         with self.subTest(url=url):
                             general_link_element = page.get_footer_element(url)
