@@ -220,7 +220,7 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
                 url = email_to_gravatar("ehxo.sxangxo@cxiu.jxauxde.org", **params)
                 self.assertStartsWith(url, "https://")
                 self.assertIn("gravatar.com", url)
-                self.assertIn("dcfd20df1a72567cbe06c4bce058f513", url)
+                self.assertIn("cf456da1bdb85ddf9b5073e9792eec59c221c5ffd4fe4d13082cad973107d3e9", url)
                 self.assertNotIn("None", url)
 
     @tag('avatar')

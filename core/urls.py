@@ -2,6 +2,7 @@ from django.contrib.auth.views import (
     PasswordResetCompleteView, PasswordResetDoneView,
 )
 from django.urls import include, path, re_path
+from django.utils.text import format_lazy
 from django.utils.translation import pgettext_lazy
 from django.views.generic import TemplateView
 
@@ -29,7 +30,12 @@ urlpatterns = [
         pgettext_lazy("URL", 'register/'),
         RegisterView.as_view(), name='register'),
     path(
-        pgettext_lazy("URL", 'login/'),
+        format_lazy('{login}/', login=pgettext_lazy("URL", 'login')),
+        LoginView.as_view(), name='login'),
+    path(
+        format_lazy(
+            '{login};<str:model_type>=<int:model_id>/',
+            login=pgettext_lazy("URL", 'login')),
         LoginView.as_view(), name='login'),
     path(
         pgettext_lazy("URL", 'login/reactivate/'),

@@ -1,10 +1,10 @@
 from threading import Lock
-from typing import Optional, TypedDict, TypeVar, cast
+from typing import Any, NamedTuple, Optional, TypedDict, TypeVar, cast
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.forms import Form, ModelForm
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.functional import Promise
 from django.views import View
 
@@ -19,9 +19,14 @@ PageWithForm = TypeVar('PageWithForm', bound='PageWithFormTemplate')
 
 
 class PageTemplate:
+    _RequiresReverseURL = NamedTuple(
+        'PathSpec',
+        [('viewname', str), ('kwargs', dict[str, Any])])
+
     # To be overridden in extending Page classes.
     view_class: type[View]
-    url: Promise
+    url: Promise | _RequiresReverseURL
+    alternative_urls: Optional[dict[str, Promise | _RequiresReverseURL]] = None
     explicit_url = {
         'en': '',
         'eo': '',
@@ -88,11 +93,34 @@ class PageTemplate:
     _open_pages_lock = Lock()
 
     @classmethod
+    def get_complete_url(
+            cls: type[Page],
+            url_tag: str = 'base',
+            url_kwargs: Optional[dict[str, Any]] = None,
+    ) -> Promise:
+        if url_tag != 'base' and cls.alternative_urls is not None:
+            url = cls.alternative_urls[url_tag]
+        else:
+            url = cls.url
+        if isinstance(url, cls._RequiresReverseURL):
+            if url_kwargs is not None:
+                view_kwargs = url.kwargs.copy()
+                view_kwargs.update(url_kwargs)
+            else:
+                view_kwargs = url.kwargs
+            return reverse_lazy(url.viewname, kwargs=view_kwargs)
+        else:
+            return url
+
+    @classmethod
     def open(
             cls: type[Page],
             test_case: WebTest,
             user: Optional[AbstractUser | UserFactory] = None,
+            *,
+            url_tag: str = 'base',
             status: str | int = 200,
+            url_params: Optional[dict[str, Any]] = None,
             redirect_to: Optional[str] = None,
             extra_params: Optional[dict[str, str | int | Promise]] = None,
             extra_headers: Optional[dict[str, str]] = None,
@@ -100,7 +128,9 @@ class PageTemplate:
     ) -> Page:
         if reuse_for_lang and not (extra_params or extra_headers):
             this_page_key = (
-                f'{cls.__name__}.{reuse_for_lang}'
+                f'{cls.__name__}{f".{url_tag}" if url_tag != "base" else ""}'
+                f'.{reuse_for_lang}'
+                f'.{";".join(f"{k}={v}" for k, v in (url_params or {}).items())}'
                 f'.{getattr(user, "pk", None)}.{hash(redirect_to)}'
             )
             cls._open_pages_lock.acquire()
@@ -115,11 +145,12 @@ class PageTemplate:
         page_instance._test_case = test_case
         if user is None:
             test_case.app.reset()
+        page_url = cls.get_complete_url(url_tag, url_params)
         extra_params = extra_params or {}
         if redirect_to is not None:
             extra_params.update({settings.REDIRECT_FIELD_NAME: redirect_to})
         page_instance._page = test_case.app.get(
-            str(cls.url), params=extra_params, headers=extra_headers,
+            str(page_url), params=extra_params, headers=extra_headers,
             status=status, user=user,
         )
 

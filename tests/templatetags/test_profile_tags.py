@@ -93,18 +93,19 @@ class IsEsperantoSurrogateFilterTests(TestCase):
     )
 
     def test_negative(self):
-        # The filter returns a Match object. When no Esperanto surrogate letters
-        # are present, a None object is expected.
+        # When no Esperanto surrogate letters are present, a False value is expected.
         page = self.template.render(Context({'value': ""}))
-        self.assertEqual(page, str(None))
+        self.assertEqual(page, str(False))
         page = self.template.render(Context({'value': "eĥoŜANĝo"}))
-        self.assertEqual(page, str(None))
+        self.assertEqual(page, str(False))
         page = self.template.render(Context({'value': "c'iuj'au'de"}))
-        self.assertEqual(page, str(None))
+        self.assertEqual(page, str(False))
         page = self.template.render(Context({'value': "ExoW^anThouh"}))
-        self.assertEqual(page, str(None))
+        self.assertEqual(page, str(False))
 
     def test_positive(self):
+        # When an Esperanto surrogate letter is present (such as Sh, Sx, S^, ^S,
+        # Ux, U~, U^, ^U), a True value is expected.
         for pre in product('ab', 'cCgGhHjJsSuU'):
             for post in product('hHxX^', 'QW'):
                 if pre[1].lower() == 'u' and post[0].lower() == 'h':
@@ -112,15 +113,13 @@ class IsEsperantoSurrogateFilterTests(TestCase):
                 v = ''.join(pre) + ''.join(post)
                 with self.subTest(value=v):
                     page = self.template.render(Context({'value': v}))
-                    self.assertNotEqual(page, str(None))
-                    self.assertIn("re.Match object", page)
+                    self.assertEqual(page, str(True))
         for letter in 'cghjsu':
             for transform in ('lower', 'upper'):
                 v = getattr('^' + letter + 'Yc', transform)()
                 with self.subTest(value=v):
                     page = self.template.render(Context({'value': v}))
-                    self.assertNotEqual(page, str(None))
-                    self.assertIn("re.Match object", page)
+                    self.assertEqual(page, str(True))
 
     def test_ambiguous(self):
         # Since the filter is very simple, a few false positives are expected.
@@ -344,6 +343,118 @@ class AvatarDimensionFilterTests(TestCase):
         self.assertEqual(page, "[width=\"100.00%\" data-tall]")
         page = self.template_with_size.render(context)
         self.assertEqual(page, "[width=\"76.54%\" data-tall]")
+
+
+@tag('templatetags')
+@override_settings(INVALID_PREFIX='NULL_', DEFAULT_AVATAR_URL='xyz')
+class GravatarFilterTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        template_string = string.Template(
+            "{% load gravatar from profile %}"
+            "[{{ obj|gravatar$FALLBACK }}]"
+        )
+        cls.template = Template(template_string.substitute(FALLBACK=''))
+        cls.template_with_code = Template(
+            template_string.substitute(FALLBACK=':"42"')
+        )
+        cls.template_with_url = Template(
+            template_string.substitute(FALLBACK=':"http://here.nu/image.jpeg"')
+        )
+        cls.expected_parameter = [
+            ('default fallback', cls.template, "d=xyz"),
+            ('code fallback', cls.template_with_code, "d=42"),
+            ('url fallback', cls.template_with_url, "d=http%3A%2F%2Fhere.nu%2Fimage.jpeg"),
+        ]
+
+    def test_profile(self):
+        test_data = [
+            (
+                # The expected result for a profile with an account (user) is the
+                # Gravatar URL with the hash of the user's email.
+                'normal email',
+                ProfileFactory.create(
+                    with_email=True, user__email="ehxo.sxangxo@cxiu.jxauxde.org"),
+                "cf456da1bdb85ddf9b5073e9792eec59c221c5ffd4fe4d13082cad973107d3e9",
+            ),
+            (
+                # The expected result for a profile with an account (user) is the
+                # Gravatar URL with the hash of the user's clean email, that is,
+                # without the invalidify marker.
+                'invalid email',
+                ProfileFactory.create(
+                    user=UserFactory.create(email="ehxo.sxangxo@cxiu.jxauxde.org",
+                                            invalid_email=True)),
+                "cf456da1bdb85ddf9b5073e9792eec59c221c5ffd4fe4d13082cad973107d3e9",
+            ),
+            (
+                # The expected result for a profile without an account is the
+                # Gravatar URL with the hash of the empty string.
+                'without account',
+                ProfileSansAccountFactory.create(with_email=True),
+                "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            ),
+        ]
+        for profile_tag, profile, email_hash in test_data:
+            context = Context({'obj': profile})
+            for fallback_tag, template, expected_param in self.expected_parameter:
+                with self.subTest(tag=profile_tag, fallback_tag=fallback_tag):
+                    page = template.render(context)
+                    self.assertIn("gravatar.com/", page)
+                    self.assertIn(email_hash, page)
+                    self.assertIn(expected_param, page)
+
+    def test_string(self):
+        test_data = [
+            (
+                # The expected result for a string that looks like an email is the
+                # Gravatar URL with the hash of that string (lowercased).
+                'normal email', "Zamenhof@PasportaServo.org",
+                "f03f4c1138abc28a4530fe338af39535eb161bd0f63bce17b34cab46fe7f9587",
+            ),
+            (
+                # The expected result for a string that looks like an email with
+                # invalidity marker is the Gravatar URL with the hash of that full
+                # string (lowercased).
+                'invalid email', "NULL_Zamenhof@PasportaServo.org",
+                "008aea9da9838c39e947fb3ba308da1a8ac63259cbf79f2a61dd386c4b8c855a",
+            ),
+            (
+                # The expected result for a string that does not look like an email
+                # is the Gravatar URL with the hash of that string (lowercased).
+                'not an email', "abcdEfgXyz",
+                "ecdf45784cb95a52d6f761e2ea62801d82d9ba9e2d4a87ee0d27d3ad54ad0d21",
+            ),
+            (
+                # The expected result for an empty string is the Gravatar URL with
+                # the hash of the empty string.
+                'empty string', "",
+                "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            ),
+        ]
+        for email_tag, email, email_hash in test_data:
+            context = Context({'obj': email})
+            for fallback_tag, template, expected_param in self.expected_parameter:
+                with self.subTest(tag=email_tag, fallback_tag=fallback_tag):
+                    page = template.render(context)
+                    self.assertIn("gravatar.com/", page)
+                    self.assertIn(email_hash, page)
+                    self.assertIn(expected_param, page)
+
+    def test_sanity(self):
+        # Sanity check: when the object is missing, the expected result is the
+        # Gravatar URL with the hash of the empty string.
+        test_data = [
+            ('object is None', Context({'obj': None})),
+            ('no object', Context()),
+        ]
+        empty_hash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        for object_tag, context in test_data:
+            for fallback_tag, template, expected_param in self.expected_parameter:
+                with self.subTest(obj=object_tag, fallback_tag=fallback_tag):
+                    page = template.render(context)
+                    self.assertIn(empty_hash, page)
+                    self.assertIn(expected_param, page)
 
 
 @tag('templatetags')

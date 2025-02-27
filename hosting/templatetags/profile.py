@@ -5,19 +5,21 @@ from django import template
 from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import AnonymousUser
+from django.db.models import Model
 from django.template.defaultfilters import stringfilter
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
+from django.utils.safestring import SafeString, mark_safe
 
 from core.auth import PERM_SUPERVISOR, auth_log
+from hosting.gravatar import email_to_gravatar
 
-from ..models import Profile
+from ..models import PasportaServoUser, Profile
 from ..utils import value_without_invalid_marker
 
 register = template.Library()
 
 
-def _convert_profile_to_user(profile_obj):
+def _convert_profile_to_user(profile_obj: Profile | PasportaServoUser):
     if isinstance(profile_obj, Profile):
         return profile_obj.user or AnonymousUser()
     else:
@@ -102,7 +104,7 @@ def get_approver(context, model_instance):
 
 
 @register.filter
-def format_pronoun(profile, tag=''):
+def format_pronoun(profile: Profile, tag: str = '') -> SafeString:
     tag = tag.lstrip('<').rstrip('>')
     return mark_safe(" ".join(
         format_html("<{tag}>{part}</{tag}>", tag=tag, part=part.capitalize()) if index % 2 else part
@@ -111,7 +113,7 @@ def format_pronoun(profile, tag=''):
 
 
 @register.filter
-def get_pronoun(profile):
+def get_pronoun(profile: Profile) -> str:
     if profile and profile.pronoun:
         if profile.pronoun == profile.Pronouns.ANY:
             return profile.Pronouns.NEUTRAL.label
@@ -122,7 +124,7 @@ def get_pronoun(profile):
 
 
 @register.filter
-def avatar_dimension(profile, size_percent=100):
+def avatar_dimension(profile: Profile, size_percent: float = 100) -> SafeString:
     if profile and profile.avatar_exists():
         if profile.avatar.width < profile.avatar.height:
             dimension = ["width"]
@@ -139,28 +141,46 @@ def avatar_dimension(profile, size_percent=100):
     ))
 
 
+@register.filter()
+def gravatar(
+        profile_or_email: Profile | str,
+        fallback: str = '',
+) -> SafeString:
+    if isinstance(profile_or_email, Profile):
+        if profile_or_email.user:
+            email_address = value_without_invalid_marker(profile_or_email.user.email)
+        else:
+            email_address = None
+    else:
+        email_address = profile_or_email
+    return mark_safe(email_to_gravatar(
+        str(email_address or ''),
+        fallback or settings.DEFAULT_AVATAR_URL,
+    ))
+
+
 @register.filter
-def icon(model_instance, field=''):
+def icon(model_instance: Model, field: str = '') -> SafeString:
     obj = model_instance if not field else model_instance._meta.get_field(field)
-    return getattr(obj, 'icon', '')
+    return getattr(obj, 'icon', mark_safe(''))
 
 
 @register.filter(is_safe=True)
 @stringfilter
-def is_invalid(value):
+def is_invalid(value: str) -> bool:
     return str(value).startswith(settings.INVALID_PREFIX)
 
 
 @register.filter(is_safe=True)
 @stringfilter
-def clear_invalid(value):
+def clear_invalid(value: str) -> str:
     return value_without_invalid_marker(value)
 
 
 @register.filter(is_safe=True)
 @stringfilter
-def is_esperanto_surrogate(value):
-    return re_esperanto.search(value)
+def is_esperanto_surrogate(value: str) -> bool:
+    return bool(re_esperanto.search(value))
 
 
 re_esperanto = re.compile(r'cx|gx|hx|jx|sx|ux|ch|gh|hh|jh|sh|'

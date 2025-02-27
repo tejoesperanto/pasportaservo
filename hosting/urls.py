@@ -27,9 +27,10 @@ urlpatterns = [
             path(
                 pgettext_lazy("URL", 'create/'),
                 ProfileCreateView.as_view(), name='profile_create'),
-            re_path(
-                r'^((?P<pk>\d+)/)?$',
-                ProfileRedirectView.as_view(), name='profile_redirect'),
+            path(
+                '', ProfileRedirectView.as_view(), name='profile_redirect'),
+            path(
+                '<int:pk>/', ProfileRedirectView.as_view(), name='profile_redirect'),
             path(
                 '<int:pk>/<slug:slug>/', include([
                     path(

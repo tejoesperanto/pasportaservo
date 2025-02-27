@@ -3,7 +3,7 @@ import re
 from copy import copy
 from datetime import datetime, timedelta
 from traceback import format_exception
-from typing import cast
+from typing import Any, cast
 
 from django.conf import settings
 from django.contrib import messages
@@ -52,7 +52,7 @@ from graphql import GraphQLError
 from blog.models import Post
 from core.models import Policy
 from hosting.forms import SubregionForm
-from hosting.models import Phone, Place, Profile
+from hosting.models import Phone, Place, Profile, ViewableTrackingModel
 from hosting.utils import value_without_invalid_marker
 from hosting.views.mixins import (
     ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin,
@@ -151,6 +151,36 @@ class LoginView(LoginBuiltinView):
             secure=settings.SESSION_COOKIE_SECURE, httponly=True, samesite='Lax',
         )
         return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if 'model_type' in self.kwargs:
+            origin_model = cast(
+                dict[str, type[ViewableTrackingModel]],
+                {
+                    pgettext("URL", "profile"): Profile,
+                }
+            ).get(self.kwargs['model_type'])
+            if origin_model:
+                context['origin_object'] = cast(
+                    dict[str, Any],
+                    {
+                        'type': origin_model.__name__.lower(),
+                        'canonical_url':
+                            origin_model.get_absolute_anonymous_url_for_instance(
+                                self.kwargs['model_id']),
+                    }
+                )
+                try:
+                    origin_object = origin_model.all_objects.get(pk=self.kwargs['model_id'])
+                except origin_model.DoesNotExist:
+                    pass
+                else:
+                    context['origin_object']['object'] = origin_object
+                    context['origin_object']['visible_externally'] = (
+                        cast(ViewableTrackingModel, origin_object).is_visible_externally()[0]
+                    )
+        return context
 
 
 class LogoutView(LogoutBuiltinView):

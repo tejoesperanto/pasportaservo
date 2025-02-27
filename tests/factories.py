@@ -5,6 +5,7 @@ from hashlib import md5
 from random import choice, randint, random, uniform as uniform_random
 from typing import Generic, TypeVar
 
+from django.conf import settings
 from django.contrib.gis.geos import LineString, Point
 from django.db.models import Model
 from django.utils import timezone
@@ -178,7 +179,7 @@ class UserFactory(TypedDjangoModelFactory[PasportaServoUser]):
     def invalid_email(instance, create, value, **kwargs):
         instance._clean_email = instance.email
         if value:
-            instance.email = f'INVALID_{instance.email}'
+            instance.email = f'{settings.INVALID_PREFIX}{instance.email}'
 
     @factory.post_generation
     def places(instance, create, value, **kwargs):
@@ -293,7 +294,7 @@ class ProfileFactory(TypedDjangoModelFactory[Profile]):
     def invalid_email(instance, create, value, **kwargs):
         instance._clean_email = instance.email
         if value and instance.email:
-            instance.email = f'INVALID_{instance.email}'
+            instance.email = f'{settings.INVALID_PREFIX}{instance.email}'
 
     @staticmethod
     def generate_places(instance, value, **kwargs):

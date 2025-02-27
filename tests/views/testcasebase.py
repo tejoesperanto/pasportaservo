@@ -34,7 +34,8 @@ class BasicViewTests(AdditionalAsserts, WebTest):
             'regular': {
                 'email': "mediastinus@test.pasportaservo.org",
                 'avatar_url': "https://www.gravatar.com/avatar/"
-                              + "96cc8ee60515664247821d27fb6f2867?d=mm&s=140",
+                              + "7d19d453edd2945c82f1be4a753f3b53abcc5b685edc749fd484b3bd7effee77"
+                              + "?d=mp&s=140",
             },
         }
         super().setUpClass()
@@ -50,7 +51,7 @@ class BasicViewTests(AdditionalAsserts, WebTest):
 
     @property
     def url(self) -> Promise:
-        return self.view_page.url
+        return self.view_page.get_complete_url()
 
     def test_view_url(self):
         # Verify that the view can be found at the expected URL.
@@ -60,6 +61,16 @@ class BasicViewTests(AdditionalAsserts, WebTest):
             else:
                 response = self.app.get(self.url, status='*')
             self.assertEqual(response.status_code, 200)
+
+        if self.view_page.alternative_urls is not None:
+            for url_tag in self.view_page.alternative_urls:
+                expected_url = self.view_page.get_complete_url(url_tag)
+                with self.subTest(tag=url_tag, attempted=expected_url):
+                    if self.view_page.redirects_unauthenticated:
+                        response = self.app.get(expected_url, status='*', user=self.user)
+                    else:
+                        response = self.app.get(expected_url, status='*')
+                    self.assertEqual(response.status_code, 200)
 
         for lang, expected_url in self.view_page.explicit_url.items():
             with (
@@ -125,6 +136,7 @@ class BasicViewTests(AdditionalAsserts, WebTest):
                     lang)
                 image_url = customizations.get(
                     'image', '/static/img/social_media_thumbnail_main.png')
+                image_url = image_url.replace('[DOMAIN]', 'test.domain')
                 self.assertStartsWith(
                     page.pyquery("meta[property='og:image']").attr("content"),
                     f'http://test.domain{image_url}' if image_url.startswith('/') else image_url)
