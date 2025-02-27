@@ -1,13 +1,15 @@
+from urllib.parse import quote
 from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.test import modify_settings, override_settings, tag
 from django.urls import reverse_lazy
+from django.utils.timezone import now
 
 from django_webtest import WebTest
 
-from ..factories import UserFactory
+from ..factories import ProfileFactory, ProfileSansAccountFactory, UserFactory
 from .mixins import FormViewTestsMixin
 from .pages import LoginPage
 from .testcasebase import BasicViewTests
@@ -40,6 +42,105 @@ class LoginViewTests(FormViewTestsMixin, BasicViewTests):
                             recovery_option_elems.eq(i).attr("href"),
                             expected_recovery_option_url
                         )
+
+    def test_open_graph_tags_after_redirect(self):
+        profile_with_account = ProfileFactory.create(
+            first_name="Daisy McDuck",
+            user__email=self.users_definition['regular']['email'],
+            places=[
+                {'available': True, 'deleted': True},
+                {'available': False, 'country': 'AQ'},
+            ])
+        profile_only_tenant = ProfileSansAccountFactory.create(first_name="Donald McDuck")
+
+        # After redirection from a not supported page, the login view is expected to keep
+        # the standard OGP tags.
+        with self.subTest(redirect='Unsupported'):
+            self.test_view_open_graph_tags(
+                'redirect_from_profile',
+                {'model_type': "qwerty", 'model_id': 12345},
+            )
+
+        # After redirection from the profile page, the login view's OGP tags are expected
+        # to include the name and avatar URL of the full profile (with an account).
+        with self.subTest(redirect='Profile', type='full'):
+            profile_gravatar_url = (
+                self.users_definition['regular']['avatar_url'].replace(
+                    f'd={settings.DEFAULT_AVATAR_URL}',
+                    f'd={quote('http://[DOMAIN]/static/img/avatar.png', safe='[]')}'
+                )
+            )
+            self.test_view_open_graph_tags(
+                'redirect_from_profile',
+                {'model_id': profile_with_account.pk},
+                title={
+                    'en': "Daisy McDuck at Pasporta Servo",
+                    'eo': "Daisy McDuck ĉe Pasporta Servo",
+                },
+                type="profile",
+                page_url={
+                    'en': f'/profile/{profile_with_account.pk}/',
+                    'eo': f'/profilo/{profile_with_account.pk}/',
+                },
+                image=profile_gravatar_url,
+            )
+
+        # After redirection from the profile page, the login view's OGP tags are expected
+        # to include no identifying details of the limited profile (without an account),
+        # point to the generic profile avatar, and not disclose the type of the profile.
+        with self.subTest(redirect='Profile', type='limited'):
+            self.test_view_open_graph_tags(
+                'redirect_from_profile',
+                {'model_id': profile_only_tenant.pk},
+                title={
+                    'en': "Profile at Pasporta Servo",
+                    'eo': "Profilo ĉe Pasporta Servo",
+                },
+                type="profile",
+                page_url={
+                    'en': f'/profile/{profile_only_tenant.pk}/',
+                    'eo': f'/profilo/{profile_only_tenant.pk}/',
+                },
+                image='/static/img/avatar.png',
+            )
+
+        # After redirection from the profile page, the login view's OGP tags are expected
+        # to not disclose the fact that a profile does not exist.
+        with self.subTest(redirect='Profile', type='nonexistent'):
+            self.test_view_open_graph_tags(
+                'redirect_from_profile',
+                {'model_id': profile_only_tenant.pk + 20},
+                title={
+                    'en': "Profile at Pasporta Servo",
+                    'eo': "Profilo ĉe Pasporta Servo",
+                },
+                type="profile",
+                page_url={
+                    'en': f'/profile/{profile_only_tenant.pk + 20}/',
+                    'eo': f'/profilo/{profile_only_tenant.pk + 20}/',
+                },
+                image='/static/img/avatar.png',
+            )
+
+        # After redirection from the profile page, the login view's OGP tags are expected
+        # to not disclose the fact that the profile is deleted.
+        profile_with_account.deleted_on = now()
+        profile_with_account.save()
+        with self.subTest(redirect='Profile', type='full', status='deleted'):
+            self.test_view_open_graph_tags(
+                'redirect_from_profile',
+                {'model_id': profile_with_account.pk},
+                title={
+                    'en': "Profile at Pasporta Servo",
+                    'eo': "Profilo ĉe Pasporta Servo",
+                },
+                type="profile",
+                page_url={
+                    'en': f'/profile/{profile_with_account.pk}/',
+                    'eo': f'/profilo/{profile_with_account.pk}/',
+                },
+                image='/static/img/avatar.png',
+            )
 
     def incorrect_credentials_tests(self, expected_error):
         # The view is expected to show a form error when incorrect credentials

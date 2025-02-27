@@ -12,7 +12,7 @@ from django.http import Http404, HttpResponseRedirect, JsonResponse, QueryDict
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.functional import cached_property
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from django.views import generic
 from django.views.decorators.vary import vary_on_headers
 
@@ -177,6 +177,16 @@ class ProfileRestoreView(
 class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
     permanent = False
 
+    def get_login_url(self):
+        if self.kwargs.get('pk'):
+            login_kwargs = {
+                'model_type': pgettext_lazy("URL", "profile"),
+                'model_id': self.kwargs['pk'],
+            }
+        else:
+            login_kwargs = {}
+        return reverse_lazy('login', kwargs=login_kwargs)
+
     def get_redirect_url(self, *args, **kwargs):
         if kwargs.get('pk'):
             try:
@@ -202,6 +212,13 @@ class ProfileDetailView(
     display_fair_usage_condition = True
     public_view = True
     minimum_role = AuthRole.VISITOR
+    object: Profile
+
+    def get_login_url(self):
+        return reverse_lazy(
+            'login',
+            kwargs={'model_type': pgettext_lazy("URL", "profile"), 'model_id': self.kwargs['pk']}
+        )
 
     def get_queryset(self):
         qs = super().get_queryset().select_related('user', 'email_visibility')

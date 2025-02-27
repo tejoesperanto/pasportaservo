@@ -144,7 +144,8 @@ msgstr "Komunikilo"
 msgid "user"
 msgstr "uzanto"
 
-#: core/admin/admin.py hosting/admin/admin.py hosting/models.py
+#: core/admin/admin.py core/templates/registration/login.html
+#: hosting/admin/admin.py hosting/models.py
 #: hosting/templates/hosting/place_list_page.html
 #: hosting/templates/hosting/profile_detail.html
 #: hosting/templates/hosting/settings.html
@@ -1542,8 +1543,8 @@ msgstr "registrado/"
 
 #: core/urls.py
 msgctxt "URL"
-msgid "login/"
-msgstr "ensaluti/"
+msgid "login"
+msgstr "ensaluti"
 
 #: core/urls.py
 msgctxt "URL"
@@ -1634,6 +1635,11 @@ msgstr "amassendado/"
 msgctxt "URL"
 msgid "ok"
 msgstr "ĉu"
+
+#: core/views.py hosting/views/profiles.py tests/views/pages/account.py
+msgctxt "URL"
+msgid "profile"
+msgstr "profilo"
 
 #: core/views.py
 msgid "You are logged in."

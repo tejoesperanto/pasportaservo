@@ -1,11 +1,17 @@
+from typing import TYPE_CHECKING, TypeVar
+
 from django.db import DatabaseError, models
 from django.db.models import BooleanField, Case, When
 from django.utils import timezone
 
 from core.models import SiteConfiguration
 
+if TYPE_CHECKING:
+    from hosting.models import TrackingModel
+    TrackingModelT = TypeVar('TrackingModelT', bound=TrackingModel)
 
-class TrackingManager(models.Manager):
+
+class TrackingManager(models.Manager['TrackingModelT']):
     """
     Adds the following boolean fields from their datetime counterparts:
     'deleted', 'confirmed' and 'checked'
@@ -36,17 +42,17 @@ class TrackingManager(models.Manager):
         ).select_related()
 
 
-class NotDeletedManager(TrackingManager):
+class NotDeletedManager(TrackingManager['TrackingModelT']):
     def get_queryset(self):
         return super().get_queryset().exclude(deleted=True)
 
 
-class AvailableManager(NotDeletedManager):
+class AvailableManager(NotDeletedManager['TrackingModelT']):
     def get_queryset(self):
         return super().get_queryset().filter(available=True)
 
 
-class NotDeletedRawManager(models.Manager):
+class NotDeletedRawManager(models.Manager['TrackingModelT']):
     def get_queryset(self):
         return super().get_queryset().filter(deleted_on__isnull=True)
 

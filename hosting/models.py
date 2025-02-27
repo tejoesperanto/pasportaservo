@@ -1,9 +1,10 @@
 import re
+from abc import abstractmethod
 from collections import namedtuple
 from datetime import date, datetime
 from enum import Enum, IntEnum
 from functools import partial, partialmethod
-from typing import TYPE_CHECKING, Iterable, Optional, TypedDict
+from typing import TYPE_CHECKING, Iterable, Optional, Self, TypedDict
 
 from django.apps import apps
 from django.conf import settings
@@ -117,9 +118,9 @@ class TrackingModel(models.Model):
         blank=True, null=True,
         related_name='+', on_delete=models.SET_NULL)
 
-    all_objects = TrackingManager()
-    objects = NotDeletedManager()
-    objects_raw = NotDeletedRawManager()
+    all_objects = TrackingManager[Self]()
+    objects = NotDeletedManager[Self]()
+    objects_raw = NotDeletedRawManager[Self]()
 
     class Meta:
         abstract = True
@@ -144,6 +145,23 @@ class TrackingModel(models.Model):
         if commit:
             self.save(update_fields=['checked_on', 'checked_by'])
         return self.checked_on, self.checked_by
+
+
+class ViewableModel:
+    @abstractmethod
+    def is_visible_externally(self) -> tuple[bool, dict[str, bool]]: ...  # noqa: E704
+
+    @abstractmethod
+    def get_absolute_anonymous_url(self) -> str: ...  # noqa: E704
+
+    @classmethod
+    @abstractmethod
+    def get_absolute_anonymous_url_for_instance(cls, object_id: int) -> str: ...  # noqa: E704
+
+
+class ViewableTrackingModel(ViewableModel, TrackingModel):
+    class Meta(TrackingModel.Meta):
+        abstract = True
 
 
 class VisibilitySettings(models.Model):
@@ -383,7 +401,7 @@ class VisibilitySettingsForPublicEmail(VisibilitySettings):
         return self.content_object.has_places_for_hosting
 
 
-class Profile(TrackingModel, TimeStampedModel):
+class Profile(ViewableModel, TrackingModel, TimeStampedModel):
     INCOGNITO = pgettext_lazy("Name", "Anonymous")
 
     class Titles(models.TextChoices):
@@ -559,6 +577,21 @@ class Profile(TrackingModel, TimeStampedModel):
             pretranslate={'ĉ': 'ch', 'ĝ': 'gh', 'ĥ': 'hh', 'ĵ': 'jh', 'ŝ': 'sh'})
         return slugify(self.name) or '--'
 
+    def is_visible_externally(self):
+        """
+        Returns whether this profile is visible to non-authenticated visitors,
+        and the reasons why it might be not visible.
+        """
+        cases = {
+            "not a standalone account": not self.user_id,
+            "deleted": bool(self.deleted_on),
+            "deceased": bool(self.death_date),
+            "not accessible by visitors": (
+                hasattr(self, 'pref') and not self.pref.public_listing
+            ),
+        }
+        return all(v == False for v in cases.values()), cases  # noqa: E712
+
     @cached_property
     def _listed_places(self):
         fields = (
@@ -648,6 +681,13 @@ class Profile(TrackingModel, TimeStampedModel):
             'pk': self.pk,
             'slug': getattr(self, 'slug', self.autoslug)})
 
+    def get_absolute_anonymous_url(self):
+        return self.__class__.get_absolute_anonymous_url_for_instance(self.pk)
+
+    @classmethod
+    def get_absolute_anonymous_url_for_instance(cls, object_id: int) -> str:
+        return reverse('profile_redirect', kwargs={'pk': object_id})
+
     def get_edit_url(self):
         return reverse('profile_edit', kwargs={
             'pk': self.pk,
@@ -732,7 +772,7 @@ class FamilyMember(Profile):
         proxy = True
 
     @property
-    def owner(self):
+    def owner(self) -> Profile | None:
         """
         The current 'owner' of this profile.
         When a family member profile is a user on their own, the 'owner' is the
@@ -742,7 +782,7 @@ class FamilyMember(Profile):
         return self if self.user_id else getattr(self, '_current_owner', None)
 
     @owner.setter
-    def owner(self, value):
+    def owner(self, value: Profile):
         """
         Sets the current 'owner' of this profile.
         A family member profile may be associated with several places.
@@ -873,7 +913,7 @@ class Place(TrackingModel, TimeStampedModel):
         'hosting.VisibilitySettingsForPlace',
         related_name='%(class)s', on_delete=models.PROTECT)
 
-    available_objects = AvailableManager()
+    available_objects = AvailableManager[Self]()
 
     class Meta:
         verbose_name = _("place")

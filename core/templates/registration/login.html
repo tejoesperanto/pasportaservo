@@ -1,7 +1,56 @@
 {% extends 'core/base_crispy_form.html' %}
-{% load i18n %}
+{% load i18n static domain variable %}
+{% load gravatar from profile %}
 
 {% block head_title %}{% trans "Log in" context "Imperative" %} &amp; {% trans "Find accommodation" %}{% endblock %}
+
+{% block ogp_title %}
+    {% if origin_object.type == "profile" %}
+        {% if origin_object.visible_externally and origin_object.object.name %}
+            {{ origin_object.object.name }}
+        {% else %}
+            {% trans "profile"|title %}
+        {% endif %}
+        {% trans "at" %} Pasporta Servo
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}
+{% block ogp_description %}{% endblock %}
+{% block ogp_type %}
+    {% if origin_object.type == "profile" %}profile{% else %}{{ block.super }}{% endif %}
+{% endblock %}
+{% block ogp_canonical_url %}
+    {% comment %}
+        The redirection URL (in the query parameter) is not tightly coupled with the object,
+        and theoretically could point to a different page. This is not a significant concern.
+    {% endcomment %}
+    {% url 'login' as default_canonical_url %}
+    {% if origin_object %}
+        {% domain origin_object.canonical_url|default:request.path|urlencode %}
+    {% else %}
+        {% domain default_canonical_url %}
+    {% endif %}
+{% endblock  %}
+{% block ogp_image %}
+    {% if origin_object.type == "profile" %}
+        {% asvar fallback_avatar_url %}{% domain %}{% get_static_prefix %}img/avatar.png{% endasvar %}
+        {% if origin_object.visible_externally %}
+            {% if origin_object.object.avatar_exists %}
+                {# Uploaded profile image. #}
+                {% domain origin_object.object.avatar_url %}
+            {% else %}
+                {# Gravatar URL. #}
+                {{ origin_object.object|gravatar:fallback_avatar_url }}
+            {% endif %}
+        {% else %}
+            {# Default profile image. #}
+            {{ fallback_avatar_url }}
+        {% endif %}
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}
 
 {% block form_title %}{% trans "Log In" context "Title" %}{% endblock %}
 {% block form_tip %}{% trans "Log in with your username and password" %}{% endblock %}

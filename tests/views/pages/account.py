@@ -1,6 +1,7 @@
 from typing import cast
 
 from django.urls import reverse_lazy
+from django.utils.translation import pgettext_lazy
 
 from lxml.html import HtmlElement
 from pyquery import PyQuery
@@ -39,6 +40,13 @@ class LoginPage(PageWithFormTemplate):
     view_class = LoginView
     form_class = UserAuthenticationForm
     url = reverse_lazy('login')
+    alternative_urls = {
+        'redirect_from_profile':
+            PageWithFormTemplate._RequiresReverseURL(viewname='login', kwargs={
+                'model_type': pgettext_lazy("URL", "profile"),
+                'model_id': 0,
+            }),
+    }
     explicit_url = {
         'en': '/login/',
         'eo': '/ensaluti/',
