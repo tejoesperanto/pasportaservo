@@ -1,6 +1,6 @@
 {% extends 'core/base.html' %}
 {% load i18n static cache %}
-{% load profile privacy expression variable utils %}
+{% load profile privacy expression variable domain utils %}
 
 {% block head_title %}
     {% if view.role == roles.OWNER %}
@@ -25,8 +25,13 @@
     {% endif %}
 {% endblock %}
 
-{% block ogp_title %}{% trans "A place in" %} {{ place.get_country_display }} | Pasporta Servo{% endblock %}
+{% block ogp_title %}
+    {% trans "A place in" %} {{ place.get_country_display }} | Pasporta Servo
+{% endblock %}
 {% block ogp_description %}{% endblock %}
+{% block ogp_image %}
+    {% domain %}{% get_static_prefix %}img/countries/{{ place.country.code.upper }}_outline.png
+{% endblock %}
 
 {% block extra_css %}
         <link rel="stylesheet" href="{% static 'datepicker/css/datepicker3.min.css' %}">
@@ -318,7 +323,8 @@
                 <div class="col-xs-12">
                     <div class="well">
                         {% asvar login_action %}
-                            <a href="{% url 'login' %}?{% next 'this page' %}" class="btn btn-primary btn-sm">
+                            {% trans "place" context "URL" as model %}
+                            <a href="{% url 'login' model_type=model model_id=place.pk %}?{% next 'this page' %}" class="btn btn-primary btn-sm">
                                 {% trans "log in" %}
                             </a>
                         {% endasvar %}

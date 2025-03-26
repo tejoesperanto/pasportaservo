@@ -15,7 +15,7 @@ from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.urls import reverse_lazy
 from django.utils.text import format_lazy
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from django.views import generic
 
 from braces.views import FormInvalidMessageMixin
@@ -98,6 +98,7 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
     display_fair_usage_condition = True
     minimum_role = AuthRole.ANONYMOUS
     verbose_view = False
+    object: Place
 
     def get_queryset(self):
         related = ['owner', 'owner__user', 'visibility', 'family_members_visibility', 'owner__email_visibility']
@@ -262,17 +263,12 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
         #   - place is not visible to the public
         #   - place owner has passed away.
         if not user.is_authenticated:
-            cases = [
-                place.deleted,
-                bool(place.owner.death_date),
-                not place.owner.pref.public_listing,
-                not place.visibility.visible_online_public
-            ]
-            if any(cases):
-                auth_log.debug("One of the conditions satisfied: "
-                               "[deleted = %s, owner's death = %s,"
-                               " not accessible by visitors = %s, not accessible by users = %s]",
-                               *cases)
+            is_visible, reasons = place.is_visible_externally()
+            if not is_visible:
+                auth_log.debug(
+                    "One of the conditions satisfied: "
+                    + (', '.join([f'{k} = {v}' for k, v in reasons.items()]))
+                )
                 self._access_validated = result(self.handle_no_permission(), None, None, None)
                 return self._access_validated
 
@@ -288,15 +284,25 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
         #   - the place was deleted
         #   - place is not visible to the public.
         if not is_supervisor and not self.role == AuthRole.OWNER:
-            cases = [place.deleted, not place.visibility.visible_online_public]
-            if any(cases):
-                auth_log.debug("One of the conditions satisfied: "
-                               "[deleted = %s, not accessible by users = %s]",
-                               *cases)
+            cases = {
+                "deleted": place.deleted,
+                "not accessible by users": not place.visibility.visible_online_public,
+            }
+            if any(cases.values()):
+                auth_log.debug(
+                    "One of the conditions satisfied: "
+                    + (', '.join([f'{k} = {v}' for k, v in cases.items()]))
+                )
                 content_unavailable = True
 
         self._access_validated = result(content_unavailable, is_authorized, is_supervisor, is_family_member)
         return self._access_validated
+
+    def get_login_url(self):
+        return reverse_lazy(
+            'login',
+            kwargs={'model_type': pgettext_lazy("URL", "place"), 'model_id': self.kwargs['pk']}
+        )
 
     def get_template_names(self):
         if getattr(self, '_access_validated', None) and self._access_validated.redirect:

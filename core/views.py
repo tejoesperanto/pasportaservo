@@ -159,6 +159,7 @@ class LoginView(LoginBuiltinView):
                 dict[str, type[ViewableTrackingModel]],
                 {
                     pgettext("URL", "profile"): Profile,
+                    pgettext("URL", "place"): Place,
                 }
             ).get(self.kwargs['model_type'])
             if origin_model:

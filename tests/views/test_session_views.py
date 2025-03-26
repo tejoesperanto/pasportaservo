@@ -122,6 +122,59 @@ class LoginViewTests(FormViewTestsMixin, BasicViewTests):
                 image='/static/img/avatar.png',
             )
 
+        # After redirection from the place page, the login view's OGP tags are expected
+        # to include the name and image URL of the country where the regular place is
+        # located.
+        not_deleted_place_pk = profile_with_account.owned_places.order_by('-id')[0].pk
+        with self.subTest(redirect='Place', status='accessible'):
+            self.test_view_open_graph_tags(
+                'redirect_from_place',
+                {'model_id': not_deleted_place_pk},
+                title={
+                    'en': "A place in Antarctica at Pasporta Servo",
+                    'eo': "Loĝejo en Antarkto ĉe Pasporta Servo",
+                },
+                page_url={
+                    'en': f'/place/{not_deleted_place_pk}/',
+                    'eo': f'/ejo/{not_deleted_place_pk}/',
+                },
+                image='/static/img/countries/AQ_outline.png',
+            )
+
+        # After redirection from the place page, the login view's OGP tags are expected
+        # to include no identifying details of the deleted place and not disclose the
+        # fact that it is deleted.
+        deleted_place_pk = profile_with_account.owned_places.order_by('id')[0].pk
+        with self.subTest(redirect='Place', status='deleted'):
+            self.test_view_open_graph_tags(
+                'redirect_from_place',
+                {'model_id': deleted_place_pk},
+                title={
+                    'en': "Place at Pasporta Servo",
+                    'eo': "Loĝejo ĉe Pasporta Servo",
+                },
+                page_url={
+                    'en': f'/place/{deleted_place_pk}/',
+                    'eo': f'/ejo/{deleted_place_pk}/',
+                },
+            )
+
+        # After redirection from the place page, the login view's OGP tags are expected
+        # to not disclose the fact that a place does not exist.
+        with self.subTest(redirect='Place', status='nonexistent'):
+            self.test_view_open_graph_tags(
+                'redirect_from_place',
+                {'model_id': deleted_place_pk + 20},
+                title={
+                    'en': "Place at Pasporta Servo",
+                    'eo': "Loĝejo ĉe Pasporta Servo",
+                },
+                page_url={
+                    'en': f'/place/{deleted_place_pk + 20}/',
+                    'eo': f'/ejo/{deleted_place_pk + 20}/',
+                },
+            )
+
         # After redirection from the profile page, the login view's OGP tags are expected
         # to not disclose the fact that the profile is deleted.
         profile_with_account.deleted_on = now()
@@ -140,6 +193,22 @@ class LoginViewTests(FormViewTestsMixin, BasicViewTests):
                     'eo': f'/profilo/{profile_with_account.pk}/',
                 },
                 image='/static/img/avatar.png',
+            )
+
+        # After redirection from the place page, the login view's OGP tags are expected
+        # to include no identifying details of the place of which the owner is deleted.
+        with self.subTest(redirect='Place', status='accessible; owner deleted'):
+            self.test_view_open_graph_tags(
+                'redirect_from_place',
+                {'model_id': not_deleted_place_pk},
+                title={
+                    'en': "Place at Pasporta Servo",
+                    'eo': "Loĝejo ĉe Pasporta Servo",
+                },
+                page_url={
+                    'en': f'/place/{not_deleted_place_pk}/',
+                    'eo': f'/ejo/{not_deleted_place_pk}/',
+                },
             )
 
     def incorrect_credentials_tests(self, expected_error):
