@@ -46,6 +46,11 @@ class LoginPage(PageWithFormTemplate):
                 'model_type': pgettext_lazy("URL", "profile"),
                 'model_id': 0,
             }),
+        'redirect_from_place':
+            PageWithFormTemplate._RequiresReverseURL(viewname='login', kwargs={
+                'model_type': pgettext_lazy("URL", "place"),
+                'model_id': 0,
+            }),
     }
     explicit_url = {
         'en': '/login/',

@@ -5,7 +5,14 @@
 {% block head_title %}{% trans "Log in" context "Imperative" %} &amp; {% trans "Find accommodation" %}{% endblock %}
 
 {% block ogp_title %}
-    {% if origin_object.type == "profile" %}
+    {% if origin_object.type == "place" %}
+        {% if origin_object.visible_externally %}
+            {% trans "A place in" %} {{ origin_object.object.get_country_display }}
+        {% else %}
+            {% trans "place"|title %}
+        {% endif %}
+        {% trans "at" %} Pasporta Servo
+    {% elif origin_object.type == "profile" %}
         {% if origin_object.visible_externally and origin_object.object.name %}
             {{ origin_object.object.name }}
         {% else %}
@@ -33,7 +40,13 @@
     {% endif %}
 {% endblock  %}
 {% block ogp_image %}
-    {% if origin_object.type == "profile" %}
+    {% if origin_object.type == "place" %}
+        {% if origin_object.visible_externally %}
+            {% domain %}{% get_static_prefix %}img/countries/{{ origin_object.object.country.code.upper }}_outline.png
+        {% else %}
+            {{ block.super }}
+        {% endif %}
+    {% elif origin_object.type == "profile" %}
         {% asvar fallback_avatar_url %}{% domain %}{% get_static_prefix %}img/avatar.png{% endasvar %}
         {% if origin_object.visible_externally %}
             {% if origin_object.object.avatar_exists %}

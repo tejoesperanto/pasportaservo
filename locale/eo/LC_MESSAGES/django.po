@@ -1349,6 +1349,23 @@ msgctxt "Imperative"
 msgid "Log in"
 msgstr "Ensalutu"
 
+#: core/templates/registration/login.html hosting/forms/visibility.py
+#: hosting/templates/email/new_authorization.html
+#: hosting/templates/email/new_authorization.txt
+#: hosting/templates/hosting/family_member_confirm_delete.html
+#: hosting/templates/hosting/place_detail.html
+msgid "A place in"
+msgstr "Loĝejo en"
+
+#: core/templates/registration/login.html hosting/models.py
+#: hosting/templates/hosting/place_form.html
+#: hosting/templates/hosting/place_list_page.html
+#: hosting/templates/hosting/place_list_supervisor.html
+#: hosting/templates/hosting/profile_detail.html
+#: hosting/templates/hosting/snippets/place_availability_icon.html
+msgid "place"
+msgstr "loĝejo"
+
 #: core/templates/registration/login.html
 msgctxt "Title"
 msgid "Log In"
@@ -1640,6 +1657,12 @@ msgstr "ĉu"
 msgctxt "URL"
 msgid "profile"
 msgstr "profilo"
+
+#: core/views.py hosting/templates/hosting/place_detail.html
+#: hosting/views/places.py tests/views/pages/account.py
+msgctxt "URL"
+msgid "place"
+msgstr "ejo"
 
 #: core/views.py
 msgid "You are logged in."
@@ -2169,13 +2192,6 @@ msgstr "publika retpoŝta adreso"
 msgid "Form management data is missing or has been tampered with."
 msgstr "Mastrumaj datumoj de formularo mankas aŭ estis malice modifitaj."
 
-#: hosting/forms/visibility.py hosting/templates/email/new_authorization.html
-#: hosting/templates/email/new_authorization.txt
-#: hosting/templates/hosting/family_member_confirm_delete.html
-#: hosting/templates/hosting/place_detail.html
-msgid "A place in"
-msgstr "Loĝejo en"
-
 #: hosting/forms/visibility.py hosting/templates/hosting/phone_form.html
 msgid "Phone number"
 msgstr "Telefonnumero"
@@ -2521,14 +2537,6 @@ msgstr "permesitaj uzantoj"
 msgid "List of users authorized to view most of data of this accommodation."
 msgstr ""
 "Listo de uzantoj kiuj estis permesitaj vidi la detalojn de tiu ĉi loĝejo."
-
-#: hosting/models.py hosting/templates/hosting/place_form.html
-#: hosting/templates/hosting/place_list_page.html
-#: hosting/templates/hosting/place_list_supervisor.html
-#: hosting/templates/hosting/profile_detail.html
-#: hosting/templates/hosting/snippets/place_availability_icon.html
-msgid "place"
-msgstr "loĝejo"
 
 #: hosting/models.py
 msgid "places"

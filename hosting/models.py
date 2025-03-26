@@ -796,7 +796,7 @@ class FamilyMember(Profile):
             setattr(self, '_current_owner', value)
 
 
-class Place(TrackingModel, TimeStampedModel):
+class Place(ViewableModel, TrackingModel, TimeStampedModel):
     owner: 'ForeignKey[Profile]' = models.ForeignKey(
         'hosting.Profile', verbose_name=_("owner"),
         related_name="owned_places", on_delete=models.CASCADE)
@@ -1003,8 +1003,29 @@ class Place(TrackingModel, TimeStampedModel):
         return any([self.blocked_until and self.blocked_until >= date.today(),
                     self.blocked_from and not self.blocked_until])
 
+    def is_visible_externally(self):
+        """
+        Returns whether this place is visible to non-authenticated visitors,
+        and the reasons why it might be not visible.
+        """
+        cases = {
+            "deleted": bool(self.deleted_on),
+            "not accessible by visitors": not self.owner.pref.public_listing,
+            "not accessible by users": not self.visibility.visible_online_public,
+        }
+        owner_cases = self.owner.is_visible_externally()[1]
+        cases.update({f"owner is {k}": v for k, v in owner_cases.items()})
+        return all(v == False for v in cases.values()), cases  # noqa: E712
+
     def get_absolute_url(self):
         return reverse('place_detail', kwargs={'pk': self.pk})
+
+    def get_absolute_anonymous_url(self):
+        return self.__class__.get_absolute_anonymous_url_for_instance(self.pk)
+
+    @classmethod
+    def get_absolute_anonymous_url_for_instance(cls, object_id: int) -> str:
+        return reverse('place_detail', kwargs={'pk': object_id})
 
     def get_locality_display(self):
         """

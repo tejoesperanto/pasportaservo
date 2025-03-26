@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load i18n static variable cache crispy_forms_tags geoformat %}
+{% load i18n static domain variable cache crispy_forms_tags geoformat %}
 {% load mult compact next from utils %}
 
 {% block head_title %}
@@ -51,6 +51,14 @@
     {% endif %}
     {% if view.query and not view.result.latlng %}
             return document.title.replace('{{ view.cleaned_query.strip|escapejs }}', 'XXXXXXXXXX');
+    {% endif %}
+{% endblock %}
+
+{% block ogp_image %}
+    {% if view.country_search %}
+        {% domain %}{% get_static_prefix %}img/countries/{{ view.result.country_code.upper }}_outline.png
+    {% else %}
+        {{ block.super }}
     {% endif %}
 {% endblock %}
 
