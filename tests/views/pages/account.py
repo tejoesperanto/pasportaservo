@@ -61,6 +61,16 @@ class LoginPage(PageWithFormTemplate):
         'en': "Log in & Find accommodation | Pasporta Servo",
         'eo': "Ensalutu & Trovu loĝejon | Pasporta Servo",
     }
+    alternative_titles = {
+        'redirect_from_profile': {
+            'en': "Log in & View profile details | Pasporta Servo",
+            'eo': "Ensalutu & Rigardu detalojn de profilo | Pasporta Servo",
+        },
+        'redirect_from_place': {
+            'en': "Log in & View place details | Pasporta Servo",
+            'eo': "Ensalutu & Rigardu detalojn de loĝejo | Pasporta Servo",
+        },
+    }
     redirects_unauthenticated = False
     redirects_logged_in = True
     form = {

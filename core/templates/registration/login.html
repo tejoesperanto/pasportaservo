@@ -2,7 +2,16 @@
 {% load i18n static domain variable %}
 {% load gravatar from profile %}
 
-{% block head_title %}{% trans "Log in" context "Imperative" %} &amp; {% trans "Find accommodation" %}{% endblock %}
+{% block head_title %}
+    {% trans "Log in" context "Imperative" %} &amp;
+    {% if origin_object.type == "place" %}
+        {% trans "View place details" context "Imperative" %}
+    {% elif origin_object.type == "profile" %}
+        {% trans "View profile details" context "Imperative" %}
+    {% else %}
+        {% trans "Find accommodation" %}
+    {% endif %}
+{% endblock %}
 
 {% block ogp_title %}
     {% if origin_object.type == "place" %}

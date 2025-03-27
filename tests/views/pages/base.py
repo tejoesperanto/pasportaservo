@@ -23,21 +23,26 @@ class PageTemplate:
         'PathSpec',
         [('viewname', str), ('kwargs', dict[str, Any])])
 
+    class _LocalizationSpec(TypedDict):
+        en: str
+        eo: str
+
     # To be overridden in extending Page classes.
     view_class: type[View]
     url: Promise | _RequiresReverseURL
     alternative_urls: Optional[dict[str, Promise | _RequiresReverseURL]] = None
-    explicit_url = {
+    explicit_url: _LocalizationSpec = {
         'en': '',
         'eo': '',
     }
     template = ''
 
     # Common attributes for the views.
-    title = {
+    title: _LocalizationSpec = {
         'en': "Find accommodation | Pasporta Servo",
         'eo': "Trovu loĝejon | Pasporta Servo",
     }
+    alternative_titles: Optional[dict[str, _LocalizationSpec]] = None
     header_logged_out = {
         'en': {
             'session': {'text': "log in", 'url': '/login/'},
