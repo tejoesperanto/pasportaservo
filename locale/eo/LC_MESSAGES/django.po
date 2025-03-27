@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2025-02-21 09:45+0000\n"
+"POT-Revision-Date: 2025-03-27 00:53+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1348,6 +1348,16 @@ msgstr "Memorigo pri salutnomo"
 msgctxt "Imperative"
 msgid "Log in"
 msgstr "Ensalutu"
+
+#: core/templates/registration/login.html
+msgctxt "Imperative"
+msgid "View place details"
+msgstr "Rigardu detalojn de loĝejo"
+
+#: core/templates/registration/login.html
+msgctxt "Imperative"
+msgid "View profile details"
+msgstr "Rigardu detalojn de profilo"
 
 #: core/templates/registration/login.html hosting/forms/visibility.py
 #: hosting/templates/email/new_authorization.html

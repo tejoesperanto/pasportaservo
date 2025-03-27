@@ -93,19 +93,33 @@ class BasicViewTests(AdditionalAsserts, WebTest):
 
     def test_view_title(self):
         # Verify that the view has the expected <title> element.
+        user = self.user if self.view_page.redirects_unauthenticated else None
+
         for lang in self.view_page.title:
             with (
                 override_settings(LANGUAGE_CODE=lang),
                 self.subTest(lang=lang)
             ):
-                page = self.view_page.open(
-                    self,
-                    user=self.user if self.view_page.redirects_unauthenticated else None,
-                    reuse_for_lang=lang)
+                page = self.view_page.open(self, user=user, reuse_for_lang=lang)
                 self.assertHTMLEqual(
                     cast(str, page.pyquery("title").html()),
                     self.view_page.title[lang]
                 )
+
+        if self.view_page.alternative_titles is not None:
+            for url_tag in self.view_page.alternative_titles:
+                for lang in self.view_page.alternative_titles[url_tag]:
+                    with (
+                        override_settings(LANGUAGE_CODE=lang),
+                        self.subTest(tag=url_tag, lang=lang)
+                    ):
+                        page = self.view_page.open(
+                            self,
+                            user=user, url_tag=url_tag, reuse_for_lang=lang)
+                        self.assertHTMLEqual(
+                            cast(str, page.pyquery("title").html()),
+                            self.view_page.alternative_titles[url_tag][lang]
+                        )
 
     def test_view_open_graph_tags(self, url_tag='base', url_params=None, **customizations):
         # Verify that the view has the expected OGP meta tags.
