@@ -10,8 +10,8 @@ def update_policies(app_registry, schema_editor):
         policy.content = policy.content.replace("fa fa-sign-in ", "fa fa-sign-in-alt ")
         for orig_icon, repl_icon in {'chevron-down': 'angle-down', 'chevron-up': 'angle-up'}.items():
             policy.content = re.sub(
-                fr'(<a href=".+?")(>\s+<span class="fa )fa-{ orig_icon } pull-right(")',
-                fr'\1 class="pull-right"\2fa-{ repl_icon } fa-lg fa-fw\3',
+                fr'(<a href=".+?")(>\s+<span class="fa )fa-{orig_icon} pull-right(")',
+                fr'\1 class="pull-right"\2fa-{repl_icon} fa-lg fa-fw\3',
                 policy.content)
         policy.save()
 
@@ -22,8 +22,8 @@ def undo_policy_updates(app_registry, schema_editor):
         policy.content = policy.content.replace("fa fa-sign-in-alt ", "fa fa-sign-in ")
         for orig_icon, repl_icon in {'chevron-down': 'angle-down', 'chevron-up': 'angle-up'}.items():
             policy.content = re.sub(
-                fr'(<a href=".+?") class="pull-right"(>\s+<span class="fa )fa-{ repl_icon } .+?(")',
-                fr'\1\2fa-{ orig_icon } pull-right\3',
+                fr'(<a href=".+?") class="pull-right"(>\s+<span class="fa )fa-{repl_icon} .+?(")',
+                fr'\1\2fa-{orig_icon} pull-right\3',
                 policy.content)
         policy.save()
 

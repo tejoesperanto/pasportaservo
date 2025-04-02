@@ -51,7 +51,7 @@ class Command(BaseCommand):
         with open(COUNTRIES_GEODATA_FILE, 'r') as source_file:
             file_old_contents = source_file.read()
         bits = re.match(
-            '(.*\nCOUNTRIES_GEO = )(?:\{\n.*?\n\})(.*)', file_old_contents, re.DOTALL).groups()
+            '(.*\nCOUNTRIES_GEO = )(?:\\{\n.*?\n\\})(.*)', file_old_contents, re.DOTALL).groups()
 
         # Make countries dict.
         country_list = OrderedDict(COUNTRIES_GEO)

@@ -39,7 +39,10 @@ class LocaleFaker(Faker):
             locale = choice(PERSON_LOCALES)
         if locale not in cls._FAKER_REGISTRY:
             cls._FAKER_REGISTRY[locale] = faker.Faker(
-                locale=locale, **fake_providers('person', 'python', 'lorem')
+                locale=locale,
+                providers=[
+                    f'faker.providers.{p}' for p in ('person', 'python', 'lorem')
+                ],
             )
         return cls._FAKER_REGISTRY[locale]
 
@@ -55,12 +58,6 @@ class OptionalProvider(faker.providers.BaseProvider):
             return None
         else:
             return self.generator.format(fake, **kwargs)
-
-
-def fake_providers(*providers):
-    return {
-        'providers': [f'faker.providers.{p}' for p in providers]
-    }
 
 
 Faker.add_provider(OptionalProvider)
@@ -530,7 +527,7 @@ class TravelAdviceFactory(TypedDjangoModelFactory[TravelAdvice]):
     description = factory.LazyAttribute(lambda obj: '<p>{}</p>'.format(obj.content))
     countries = Faker(
         'random_elements',
-        elements=COUNTRIES.keys(),
+        elements=tuple(COUNTRIES.keys()),
         unique=True, length=factory.LazyFunction(lambda: randint(1, 4)))
 
     @factory.lazy_attribute

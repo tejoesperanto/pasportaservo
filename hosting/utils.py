@@ -149,7 +149,7 @@ def emulate_geocode_country(country_code: str) -> OpenCageResult:
 
 
 def title_with_particule(value: str, particules: Optional[list[str]] = None) -> str:
-    """
+    r"""
     Like string.title(), but do not capitalize surname particules.
     Regex matches a case insensitive (?i) particule
     at beginning of string or with space before (^|\W)

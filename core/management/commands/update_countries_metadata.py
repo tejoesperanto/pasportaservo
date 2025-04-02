@@ -31,7 +31,7 @@ class Command(BaseCommand):
         with open(COUNTRIES_METADATA_FILE, 'r') as source_file:
             file_old_contents = source_file.read()
         bits = re.match(
-            '(.*\nCOUNTRIES_DATA = )(?:\{\n.*?\n\})(.*)', file_old_contents, re.DOTALL).groups()
+            '(.*\nCOUNTRIES_DATA = )(?:\\{\n.*?\n\\})(.*)', file_old_contents, re.DOTALL).groups()
 
         # Update countries dict with the new metadata obtained from CommerceGuys and GeoNames.
         country_list = OrderedDict(COUNTRIES_DATA)
