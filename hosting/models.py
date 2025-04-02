@@ -149,14 +149,17 @@ class TrackingModel(models.Model):
 
 class ViewableModel:
     @abstractmethod
-    def is_visible_externally(self) -> tuple[bool, dict[str, bool]]: ...  # noqa: E704
+    def is_visible_externally(self) -> tuple[bool, dict[str, bool]]:
+        ...  # pragma: no cover
 
     @abstractmethod
-    def get_absolute_anonymous_url(self) -> str: ...  # noqa: E704
+    def get_absolute_anonymous_url(self) -> str:
+        ...  # pragma: no cover
 
     @classmethod
     @abstractmethod
-    def get_absolute_anonymous_url_for_instance(cls, object_id: int) -> str: ...  # noqa: E704
+    def get_absolute_anonymous_url_for_instance(cls, object_id: int) -> str:
+        ...  # pragma: no cover
 
 
 class ViewableTrackingModel(ViewableModel, TrackingModel):

@@ -648,7 +648,7 @@ class IsSupervisorOfFilterTests(TestCase):
         Group.objects.get_or_create(name='NL')[0].user_set.add(
             cls.supervisor_user, cls.inactive_supervisor_user, cls.supervisor_2c_user)
         cls.inactive_supervisor_user.is_active = False
-        cls.countries = sample(set(COUNTRIES) - {'NL'}, 3)
+        cls.countries = sample(list(set(COUNTRIES) - {'NL'}), 3)
         Group.objects.get_or_create(name=cls.countries[1])[0].user_set.add(
             cls.supervisor_2c_user, cls.supervisor_3c_user)
         for i in (0, 2):
@@ -658,7 +658,7 @@ class IsSupervisorOfFilterTests(TestCase):
 
         for backend in get_backends():
             try:
-                cls.auth_backend_method = backend.is_user_supervisor_of
+                cls.auth_backend_method = backend.is_user_supervisor_of  # type: ignore
             except AttributeError:
                 pass
 
@@ -790,7 +790,8 @@ class IsSupervisorOfFilterTests(TestCase):
         self.perform_tests_on_object("NL", 'string "NL"', True, True)
         self.perform_tests_on_object(["NL"], 'list of string "NL"', True)
 
-        unsupervised_countries = sample(set(COUNTRIES) - set(self.countries) - {'NL'}, 2)
+        unsupervised_countries = sample(
+            list(set(COUNTRIES) - set(self.countries) - {'NL'}), 2)
         unsupervised_countries_string = " , ".join(unsupervised_countries)
         mixed_countries = unsupervised_countries + ["NL"]
         mixed_countries_string = "  ".join(mixed_countries)

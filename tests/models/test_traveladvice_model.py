@@ -35,10 +35,11 @@ class TravelAdviceModelTests(AdditionalAsserts, WebTest):
             advice.applicable_countries(all_label=None),
             advice._meta.get_field('countries').blank_label)
         self.assertEqual(advice.applicable_countries(all_label="EVERYONE"), "EVERYONE")
-        # An advice for specific countries is expected to return the names or codes of these countries.
+        # An advice for specific countries is expected to return the names or codes
+        # of these countries.
         all_world = Countries()
-        countries = random.sample(all_world.countries.keys(), 4)
-        advice = TravelAdviceFactory(countries=countries)
+        countries = random.sample(list(all_world.countries.keys()), 4)
+        advice = TravelAdviceFactory.create(countries=countries)
         self.assertEqual(advice.applicable_countries(code=True), ', '.join(countries))
         self.assertEqual(
             advice.applicable_countries(code=False),
@@ -46,7 +47,7 @@ class TravelAdviceModelTests(AdditionalAsserts, WebTest):
         )
 
     def test_trimmed_content(self):
-        advice = TravelAdviceFactory(
+        advice = TravelAdviceFactory.create(
             content=""
             "We were all feeling seedy, and we were getting quite nervous about it. "
             "Harris said he felt such extraordinary fits of giddiness come over him "
@@ -57,7 +58,7 @@ class TravelAdviceModelTests(AdditionalAsserts, WebTest):
             advice.trimmed_content(),
             "We were all feeling seedy, and we were getting quite nervous about i...")
         self.assertEqual(
-            TravelAdviceFactory(content="Three invalids.").trimmed_content(),
+            TravelAdviceFactory.create(content="Three invalids.").trimmed_content(),
             "Three invalids.")
 
     def test_str(self):
@@ -101,7 +102,10 @@ class TravelAdviceModelTests(AdditionalAsserts, WebTest):
             TravelAdviceFactory(countries='', in_past=True).pk: 'any_past',
             TravelAdviceFactory(countries='', in_future=True).pk: 'any_future',
         }
-        _tag = lambda advice: tags[advice.pk]
+
+        def _tag(advice: TravelAdvice):
+            return tags[advice.pk]
+
         for country, active, expected in (('BB', True, []),
                                           ('BB', False, []),
                                           ('BB', None, ['any_future', 'any_past']),
@@ -123,7 +127,7 @@ class ActiveStatusManagerTests(WebTest):
 
     def test_active_status_flag(self):
         faker = Faker._get_faker()
-        test_data = [
+        test_data: list[tuple[str, bool, TravelAdvice]] = [
             (
                 "in past", False,
                 TravelAdviceFactory(
@@ -175,6 +179,10 @@ class ActiveStatusManagerTests(WebTest):
         qs = TravelAdvice.objects.get_queryset().order_by('id')
         self.assertEqual(len(qs), len(test_data))
         for i, (time_tag, active_flag, advice) in enumerate(test_data):
-            with self.subTest(start=str(advice.active_from), stop=str(advice.active_until), era=time_tag):
+            with self.subTest(
+                    start=str(advice.active_from),
+                    stop=str(advice.active_until),
+                    era=time_tag,
+            ):
                 self.assertEqual(qs[i].pk, advice.pk)
                 self.assertEqual(qs[i].is_active, active_flag)

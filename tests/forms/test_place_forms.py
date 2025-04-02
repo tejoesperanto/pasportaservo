@@ -64,9 +64,14 @@ class PlaceFormTestingBase:
                         for x in COUNTRIES_DATA[c]['postcode_format'])
             )
         )
-        cls.countries_with_optional_region = set(
-            cls.faker.random_elements(elements=countries_no_mandatory_region, length=15, unique=True)
-        ) | {'PL', 'DE'} - {'GM'}  # PL & DE used in test_labels. GM used in test_form_submit_postcode.
+        cls.countries_with_optional_region = (
+            set(
+                cls.faker.random_elements(
+                    elements=tuple(countries_no_mandatory_region), length=15, unique=True)
+            )
+            # PL & DE used in test_labels. GM used in test_form_submit_postcode.
+            | {'PL', 'DE'} - {'GM'}
+        )
         cls.countries_no_predefined_region = (
             countries_no_mandatory_region - cls.countries_with_optional_region
         )

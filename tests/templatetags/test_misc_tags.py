@@ -684,13 +684,13 @@ class LanguageTagTests(TestCase):
             "{% load get_system_language from utils %}"
             "{% get_system_language %}"
         ).render(Context())
-        self.assertEqual(page, f"{ settings.LANGUAGE_CODE }")
+        self.assertEqual(page, f"{settings.LANGUAGE_CODE}")
 
         page = Template(
             "{% load get_system_language from utils %}"
             "{% get_system_language as LANG %}//[{{ LANG }}]"
         ).render(Context())
-        self.assertEqual(page, f"//[{ settings.LANGUAGE_CODE }]")
+        self.assertEqual(page, f"//[{settings.LANGUAGE_CODE}]")
 
         page = Template(
             "{% load i18n %}{% load get_system_language from utils %}"
