@@ -10,7 +10,7 @@ $(document).ready(function() {
     // Fallback elements for when JavaScript is not available or not enabled
     $('.no-scripting-fallback').remove();
 
-    // Antispam and fallback for unhandled mail links
+    // #region Antispam and fallback for unhandled mail links
     function openMailtoPopover($mailLink, htmlHasAddress, emailAddress) {
         var assistHtml = window.mailto_fallback && window.mailto_fallback[htmlHasAddress];
         assistHtml = (assistHtml || "").replace("[[email_address]]", emailAddress);
@@ -90,11 +90,12 @@ $(document).ready(function() {
             });
         }
     });
+    // #endregion
 
     // Lazy load images
     $('.lazy').addClass('loaded');
 
-    // Navigation skipping
+    // #region Navigation skipping
     $('.navskip > a, a.scrolltop').click(function() {
         var targetName = this.getAttribute('href').substring(1);
         var targetElem = document.getElementById(targetName) || document.getElementsByName(targetName)[0];
@@ -105,11 +106,12 @@ $(document).ready(function() {
         return false;
     });
     $('a.scrolltop').on('focus', function() { this.scrollIntoView(); });
+    // #endregion
 
     // Checkboxes with undefined value
     $('input[type="checkbox"][data-initial="None"]').prop('indeterminate', true);
 
-    // Button hover
+    // #region Button hover
     +function() {
         var buttonSelector = '.btn[data-hover-text], .btn[data-hover-class]';
         var handlerIn = function() {
@@ -138,8 +140,9 @@ $(document).ready(function() {
             .focusin(handlerIn)
             .focusout(handlerOut);
     }();
+    // #endregion
 
-    // Date picker widget for date fields
+    // #region Date picker widget for date fields
     if (typeof $().datepicker !== "undefined") {
         $('#id_blocked_from, #id_blocked_until').each(function () {
             var $input = $(this);
@@ -170,8 +173,9 @@ $(document).ready(function() {
             });
         }) });
     }
+    // #endregion
 
-    // Technologies usage banner
+    // #region Technologies usage banner
     +function() {
         var bots = /bot|crawl|spider|slurp|bingpreview|pinterest|mail\.ru|facebookexternalhit|feedfetcher|feedburner/i;
         // see also https://ahrefs.com/images/robot/good-bots.jpg
@@ -193,8 +197,9 @@ $(document).ready(function() {
                    );
                });
     }();
+    // #endregion
 
-    // Highlighting elements pointed at via the URL
+    // #region Highlighting elements pointed at via the URL
     var repositionTarget = function() {};
     if (["fixed", "sticky"].indexOf($('header').css('position')) >= 0) {
         repositionTarget = function (targetEl) {
@@ -228,8 +233,9 @@ $(document).ready(function() {
             $targetEl.removeClass('highlight');
         }, 2700);
     });
+    // #endregion
 
-    // Profile picture magnifier
+    // #region Profile picture magnifier
     if (typeof $().magnificPopup !== "undefined") {
         $('.profile-detail .owner .avatar img, a:has(#avatar-preview_id)').each(function() {
             var $magnifiedElem = $(this);
@@ -272,9 +278,10 @@ $(document).ready(function() {
                 }
             });
         });
-    } // end magnifier setup
+    }
+    // #endregion
 
-    // Broken profile images
+    // #region Broken profile images
     window.addEventListener('error', function(event) {
         var culprit = event.target, $culprit = $(event.target);
         if (culprit.tagName == 'IMG' && $culprit.parents('.avatar').length && !$culprit.data('erroring-url')) {
@@ -282,8 +289,9 @@ $(document).ready(function() {
             culprit.src = $culprit.data('fallback') || '/static/img/image_not_available.png';
         }
     }, true);
+    // #endregion
 
-    // AJAX Paginator
+    // #region AJAX Paginator
     if (typeof $().endlessPaginate !== "undefined") {
         $.endlessPaginate({
             paginateOnScroll: true,
@@ -294,8 +302,9 @@ $(document).ready(function() {
             }
         });
     }
+    // #endregion
 
-    // Collapsing elements
+    // #region Collapsing elements
     $('.top-notice:has(p.collapse)').each(function() {
         var $container = $(this);
         var noticeKey = 'advisory.ID.collapsed'.replace('ID', $container.data('id'));
@@ -424,8 +433,9 @@ $(document).ready(function() {
         $('#map').css('visibility', $('#map').css('visibility') == 'hidden' ? 'visible' : 'hidden');
         $('[data-target="#map-container"]').toggleClass('active');
     });
+    // #endregion
 
-    // Advanced search panel
+    // #region Advanced search panel
     $('#advanced-filter-toggle').click(function(event) {
         $('[data-id="advanced-filter"]').collapse("show");
         event.preventDefault();
@@ -437,6 +447,9 @@ $(document).ready(function() {
             toggle.setAttribute('aria-expanded', event.type == 'shown');
         }
     });
+    // #endregion
+
+    // #region Sortable lists
 
     // Sortable lists (via drag-and-drop)
     if (typeof Sortable !== "undefined") {
@@ -550,7 +563,9 @@ $(document).ready(function() {
         }
     });
 
-    // Modal focus handling
+    // #endregion
+
+    // #region Modal focus handling
     $(document).on('show.bs.modal', '.modal', function(event) {
         var $target = $(event.target);
         if (!$target.data('relatedSource') && event.relatedTarget) {
@@ -564,8 +579,9 @@ $(document).ready(function() {
             $target.removeData(sourceAttr);
         }
     });
+    // #endregion
 
-    // Host preferences popover setup
+    // #region Host preferences popover setup
     if ($('#status-anchors_notification')[0]) {
         $('.anchor-notify').popover({
             trigger: "manual",
@@ -573,12 +589,13 @@ $(document).ready(function() {
             content: $('#status-anchors_notification').data('content')
         });
     }
+    // #endregion
 
     enableTooltips();
 });
 
 
-// Bootstrap tooltips and popovers
+// #region Bootstrap tooltips and popovers
 function enableTooltips() {
     function realignTooltip(tip, elem) {
         var placement = getComputedStyle(elem).getPropertyValue('--tooltip-placement').trim()
@@ -601,9 +618,10 @@ function enableTooltips() {
                         delay: { show: 0, hide: 2500 } });
     $('[data-toggle="popover"]').popover();
 }
+// #endregion
 
 
-// Host preferences popover
+// #region Host preferences popover
 function displayAnchorsNotification() {
     var $header = $('header'),
         $blockSmallDesc = $('.description-smallvp'),
@@ -621,12 +639,14 @@ function displayAnchorsNotification() {
         $notify.animate({ opacity: 0 }, 600, function() { $origin.popover("hide") });
     }, 5000);
 }
+// #endregion
 
 
-// Utility function for determining Ctrl or Cmd keyboard combinations
+// #region Utility function for determining Ctrl or Cmd keyboard combinations
 $.Event.prototype.isCommandKey = function() {
     return (this.ctrlKey && !this.altKey) || this.metaKey;
 }
+// #endregion
 
 
 // @license-end

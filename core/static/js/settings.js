@@ -4,6 +4,8 @@
 
 $(document).ready(function() {
 
+    // #region Window adjustment
+
     // Displays a suggestion to adjust the device or browser window when necessary.
     if (typeof screen !== "undefined") {
         var $matrix = $('.privacy-matrix-container table'),
@@ -67,6 +69,10 @@ $(document).ready(function() {
         }
     }
 
+    // #endregion
+
+    // #region Paired toggles
+
     // Automatically checks or unchecks the paired toggles.
     function updatePairedPrivacyToggle(event) {
         var onlyForCondition = event.data;
@@ -83,6 +89,10 @@ $(document).ready(function() {
     $('[data-tied=True]').change(updatePairedPrivacyToggle);
     $('[id$=-visible_online_public]:not([data-tied=True])').change(true,  $.proxy(updatePairedPrivacyToggle));
     $('[id$=-visible_online_authed]:not([data-tied=True])').change(false, $.proxy(updatePairedPrivacyToggle));
+
+    // #endregion
+
+    // #region Authorized users
 
     // Displays users authorized to view full place details.
     // Supports multiple panels on the same page.
@@ -109,6 +119,10 @@ $(document).ready(function() {
             continuationHandler();
     });
 
+    // #endregion
+
+    // #region UI adjustments
+
     // Places the 'setting saved' indicator near the checkbox.
     $('.optinout-success').first().appendTo(
         $('#id_public_listing, #id_site_analytics_consent').parent()
@@ -121,6 +135,10 @@ $(document).ready(function() {
                .find('.help-block')
                .append(" ", this);
     });
+
+    // #endregion
+
+    // #region Callbacks
 
     window.updateVisibilitySetup = function($this) {
         $this.closest('form').find('#id_dirty').val($this.get(0).name);
@@ -205,6 +223,8 @@ $(document).ready(function() {
                 .delay(650).queue(function(next) { $(this).removeClass('btn-warning'); next(); });
         }
     };
+
+    // #endregion
 
 });
 

@@ -12,6 +12,8 @@ $(function() {
         }
     });
 
+    // #region Form constraints
+
     /* constraint validation and localization */
     if (typeof $().localConstraint === "undefined") {
         $.fn.extend({ localConstraint: {} });
@@ -230,6 +232,10 @@ $(function() {
         );
     });
 
+    // #endregion
+
+    // #region Password fields
+
     /* password fields coupling for client-side validation of correctly typed value */
     $('#id_password2').data('coupling', '#id_password1');
     $('#id_new_password2').data('coupling', '#id_new_password1');
@@ -297,6 +303,10 @@ $(function() {
         });
     });
 
+    // #endregion
+
+    // #region Password strength
+
     /* password strength meter for password input fields (registration, password change) */
     if (typeof $().pwstrength !== "undefined") {
         $.fn.pwstrength.localui = $.fn.pwstrength.localui || {};
@@ -348,6 +358,10 @@ $(function() {
         }
     }
 
+    // #endregion
+
+    // #region Country region field
+
     /* dynamic updating of the country region form field */
     if (document.getElementById('id_country') && document.getElementById('id_state_province')) {
         $('#id_country').on('change', function() {
@@ -388,6 +402,10 @@ $(function() {
         });
     }
 
+    // #endregion
+
+    // #region Person names fields
+
     /* dynamic display of names ordering (changes with user input) */
     var updatePersonNamesExample = function() {
         var nameF = $('#id_first_name').val().trim(),
@@ -423,6 +441,10 @@ $(function() {
         });
         updatePersonNamesExample();
     }();
+
+    // #endregion
+
+    // #region Birth date field
 
     /* verification for accidental birth date selection by the user */
     $('.own-profile-form #id_birth_date').change(function() {
@@ -461,7 +483,11 @@ $(function() {
         }
     });
 
-    /* fallback support for datalist */
+    // #endregion
+
+    // #region Datalist fallback
+
+    /* fallback support for datalist for browsers that do not support it natively */
     if (!('list' in document.createElement('input') &&
           Boolean(document.createElement('datalist') && window.HTMLDataListElement))) {
         var searchText = gettext("select one of the suggestions");
@@ -522,7 +548,10 @@ $(function() {
         });
     }
 
-    /* for mass mail form */
+    // #endregion
+
+    // #region Mass mail form
+
     (function() {
         var frameElement = document.querySelector('iframe#massmail_preview');
         if (!frameElement)
@@ -564,6 +593,10 @@ $(function() {
         });
     })();
 
+    // #endregion
+
+    // #region Collapsible form areas
+
     /* dynamic (collapsible) form area management */
     $('[id$="_form_element"].collapse').each(function() {
         var $switch = $('[aria-controls='+this.id+']');
@@ -583,6 +616,10 @@ $(function() {
         $(this).on('show.bs.collapse hide.bs.collapse',
                    function(event) { toggler(event.type == 'show') });
     });
+
+    // #endregion
+
+    // #region Form buttons
 
     /* form cancel button enhancement */
     $('#id_form_cancel').each(function() {
@@ -632,6 +669,8 @@ $(function() {
             };
         });
     }
+
+    // #endregion
 
 });
 
