@@ -4,6 +4,8 @@
 
 $(document).ready(function() {
 
+    // #region AJAX bootstrap
+
     function isCSRFSafeMethod(method) {
         // these HTTP methods do not require CSRF protection
         return /^(GET|HEAD|OPTIONS|TRACE)$/.test(method);
@@ -76,6 +78,8 @@ $(document).ready(function() {
     }
     $.ajaxManualCall = ajaxPerform
 
+    // #region AJAX submission
+
     // allow interaction for any element and on any event
     $('[class*=ajax]').each(function() {
         var $this = $(this);
@@ -137,6 +141,8 @@ $(document).ready(function() {
         $this.unwrap('.unwrap-after-success');
         $this.prev('[name="csrfmiddlewaretoken"]').remove();
     };
+
+    // #region Success callbacks
 
     window.confirmInfoSuccess = function($this) {
         $this.parents('.remove-after-success').slideUp();
