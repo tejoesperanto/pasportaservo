@@ -630,38 +630,46 @@ $(function() {
         history.go(-1);
     });
     /* form submit buttons double-submission prevention */
-    $(formSubmitSelectors).closest('form')
+    $(formSubmitSelectors)
+    .on('click', function(event) {
+        $(this.closest('form')).data('latestSubmitter', this);
+    })
+    .closest('form')
     .on('submit', function(event) {
         // if client-side form validation fails, no 'submit' event will fire;
         // instead, the 'invalid' events will be raised. in addition, AJAX calls
         // do their own handling (overriding the default form behavior) and no
         // 'submit' event is raised either.
-        if (event.originalEvent.submitter.id.indexOf('id_form_submit') == 0) {
-            $(event.originalEvent.submitter).addClass('disabled')
-                                            .prop('disabled', true)
-                                            .attr('autocomplete', 'off');
+        let submitter = event.originalEvent.submitter || $(this).data('latestSubmitter');
+        if (submitter && submitter.id.startsWith('id_form_submit')) {
+            $(submitter)
+                .addClass('disabled')
+                .prop('disabled', true)
+                .attr('autocomplete', 'off');
+            $(this).removeData('latestSubmitter');
             $(window).one('pagehide', function() {
-                $(event.originalEvent.submitter).removeClass('disabled')
-                                                .prop('disabled', false);
+                $(submitter)
+                    .removeClass('disabled')
+                    .prop('disabled', false);
             });
         }
     });
     /* form submit/cancel keyboard shortcut key implementation */
-    var actionButtonShortcuts = {length: 0};
+    let actionButtonShortcuts = {length: 0};
     ['id_form_submit', 'id_form_submit_alt', 'id_form_cancel'].forEach(function(elementId) {
-        var btnNode = document.getElementById(elementId);
+        let btnNode = document.getElementById(elementId);
         if (!btnNode)
             return;
-        var shortcut = btnNode.getAttribute('data-kbdshortcut');
+        let shortcut = btnNode.dataset.kbdshortcut;
         if (!shortcut)
             return;
-        actionButtonShortcuts[shortcut.charAt(0).toLowerCase()] = $('#'+elementId);
+        actionButtonShortcuts[shortcut.charAt(0).toLowerCase()] = $(`#${elementId}`);
         actionButtonShortcuts.length++;
     });
     if (actionButtonShortcuts.length) {
         $(window).on('keydown', function(event) {
             if (event.isCommandKey()) {
-                var pressedKey = String.fromCharCode(event.which).toLowerCase();
+                let pressedKey = String.fromCharCode(event.which).toLowerCase();
                 if (actionButtonShortcuts[pressedKey] !== undefined) {
                     event.preventDefault();
                     actionButtonShortcuts[pressedKey].trigger('click');
