@@ -2,7 +2,7 @@
 
 [![TEJO](https://img.shields.io/badge/Projekto_de-TEJO-orange.svg)](https://tejo.org)
 [![Esperanto](https://img.shields.io/badge/Esperanto-jes-green.svg)](https://eo.wikipedia.org/wiki/Esperanto)
-[![Python 3.10](https://img.shields.io/badge/Python-3.10-blue.svg)](https://docs.python.org/3.10/)
+[![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)](https://docs.python.org/3.12/)
 [![Django 3.2](https://img.shields.io/badge/Django-3.2-0C4B33.svg)](https://docs.djangoproject.com/en/3.2/)
 [![HTTP](https://img.shields.io/badge/HTTP-2-blue.svg)](https://http2.github.io/)
 [![HTTPS](https://img.shields.io/badge/HTTPS-jes-green.svg)](https://www.ssllabs.com/ssltest/analyze.html?d=pasportaservo.org)
@@ -201,6 +201,11 @@ al la sama reto. Tiamaniere vi povas testi la ĝustan funkciadon de la retejo su
 (ekz., ankaŭ per poŝtelefonoj).
 Tion ebligas agordo *settings/dev.py/*`ALLOWED_HOSTS` – dum lanĉo, la servilo provas eltrovi la lokaretan
 IP-adreson de la maŝino kaj permesi ties uzon.
+
+Pasporta Servo (eĉ via loka, ne ankoraŭ publikigita, versio!) povas esti testita ankaŭ sur granda aro de
+realaj aparatoj pere de la
+[sponsora programo por malfermitkodaj projektoj](https://www.browserstack.com/open-source) de la servo
+BrowserStack – This project is tested with BrowserStack.
 
 
 ### Lernu Dĵangon
