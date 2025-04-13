@@ -5,7 +5,13 @@
 {% block head_title %}
     {% if view.query %}
         {% asvar where_to_look %}
-            {{ view.result|format_geo_result|default:view.cleaned_query.strip }}
+            {% if view.result.point %}
+                {{ view.result|format_geo_result|default:view.cleaned_query }}
+            {% elif view.cleaned_query.strip %}
+                {{ view.cleaned_query }}
+            {% else %}
+                {% blocktrans %}this planet{% endblocktrans %}
+            {% endif %}
         {% endasvar %}
         {% if filter.form.cleaned_data.available %}
             {% if view.country_search or view.inhabited_place_search %}
@@ -295,6 +301,10 @@
                     {% endif %}
                 {% elif queryset_cache_id %}
                     {% trans "The search query has expired. Please run a new search." %}
+                    {% comment %}
+                        NOTE: If there are no hosts in the system and the search string is empty, this
+                        message will be incorrectly displayed – but this is an unrealistic edge-case.
+                    {% endcomment %}
                 {% else %}
                     &nbsp;
                 {% endif %}
