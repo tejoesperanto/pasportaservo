@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2025-03-27 00:53+0000\n"
+"POT-Revision-Date: 2025-04-13 22:21+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -3273,6 +3273,10 @@ msgstr "Konfirmi kaj redakti lokigon"
 #: hosting/templates/hosting/place_form.html
 msgid "Nothing found for"
 msgstr "Nenio trovita por"
+
+#: hosting/templates/hosting/place_list.html
+msgid "this planet"
+msgstr "tiu ĉi planedo"
 
 #: hosting/templates/hosting/place_list.html
 #, python-format

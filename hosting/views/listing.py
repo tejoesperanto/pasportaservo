@@ -255,14 +255,12 @@ class SearchView(PlacePaginatedListView):
         if self.query:
             translated_tag = pgettext("URL", "countrycode")
             tag = f'countrycode|{translated_tag}'
-            country_code = re.search(rf'(?:^|\W)(?:{tag}):([A-Z]{{2}})(?:\W|$)', self.query)
+            country_code = re.search(rf'(?:^|\W)(?:{tag}):([A-Za-z]{{2}})(?:\W|$)', self.query)
             if country_code:
                 country_code = country_code.group(1)
+                parsed_query['country_code'] = country_code
             remaining_query = re.sub(rf'(^|\W)(?:{tag}):\w*?(?=\W|$)', r'\1', self.query)
-            parsed_query.update({
-                'query': remaining_query.strip(),
-                'country_code': country_code,
-            })
+            parsed_query['query'] = remaining_query.strip()
         return parsed_query
 
     def get_queryset(self):
@@ -295,9 +293,9 @@ class SearchView(PlacePaginatedListView):
             self.result = emulate_geocode_country(parsed_query['country_code'])
         else:
             self.result = geocode(
-                parsed_query['query'], country=parsed_query.get('country_code'))
+                parsed_query['query'], country=parsed_query.get('country_code', ''))
         self.cleaned_query = parsed_query['query']
-        if self.query and self.result.point:
+        if self.query and self.result and self.result.point:
             point_category = getattr(self.result, '_components', {}).get('_category')
             point_type = getattr(self.result, '_components', {}).get('_type')
             locality_found_flags = [
