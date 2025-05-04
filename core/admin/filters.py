@@ -1,8 +1,8 @@
 from enum import Enum
-from typing import Callable, Optional, TypedDict, cast
+from typing import Any, Callable, Optional, TypedDict, cast
 
 from django.contrib import admin
-from django.db.models import Model, QuerySet
+from django.db.models import F, Model, QuerySet
 from django.http import HttpRequest
 from django.utils.functional import lazy
 from django.utils.translation import gettext_lazy as _
@@ -64,7 +64,7 @@ class YearBracketFilter(admin.DateFieldListFilter):
         else:
             def label(year):
                 return lazy(
-                    lambda date=year: (label_string % {'date': date}).capitalize(),
+                    lambda date=year: (str(label_string) % {'date': date}).capitalize(),
                     str)
             self.links += tuple(
                 (label(year), {lookup_kwarg: str(year)})
@@ -81,7 +81,8 @@ class DependentFieldFilter(admin.SimpleListFilter):
     origin_field: str
     related_field: str
     parameter_name: str
-    coerce_value: Callable
+    related_sort_field: Optional[str]
+    coerce_value: Callable[[Any], Any]
     SortConfig = TypedDict('SortConfig', {'enabled': bool, 'reverse': bool})
     sorting: SortConfig
 
@@ -90,12 +91,14 @@ class DependentFieldFilter(admin.SimpleListFilter):
             cls,
             field: str,
             related_field: str,
-            coerce: Optional[Callable] = None,
+            related_sort_field: Optional[str] = None,
+            *,
+            coerce: Optional[Callable[[Any], Any]] = None,
             sort: bool = False,
             sort_reverse: Optional[bool] = None,
     ):
         if coerce is None or not callable(coerce):
-            coerce = lambda v: v
+            coerce = lambda v: v  # noqa: E731
         return type(
             ''.join(related_field.split('_')).capitalize()
             + 'Per' + ''.join(field.split('_')).capitalize()
@@ -105,6 +108,9 @@ class DependentFieldFilter(admin.SimpleListFilter):
                 'origin_field': field,
                 'related_field': related_field,
                 'parameter_name': related_field,
+                'related_sort_field': related_sort_field,
+                # Any callable in the type instantiation dictionary is treated
+                # as an instance method by default.
                 'coerce_value': lambda filter, value: coerce(value),
                 'sorting': {
                     'enabled': bool(sort),
@@ -118,11 +124,20 @@ class DependentFieldFilter(admin.SimpleListFilter):
             cast(type[Model], model_admin.model)._default_manager.all()
             .filter(**{self.origin_field: self.dependent_on_value})
         )
-        all_values = map(
-            self.coerce_value,
-            qs.values_list(self.related_field, flat=True).distinct())
+        all_values = qs.values_list(self.related_field, flat=True).distinct()
         if self.sorting['enabled']:
-            all_values = sorted(all_values, reverse=self.sorting['reverse'])
+            if self.related_sort_field:
+                ordering_config = F(self.related_sort_field)
+                if self.sorting['reverse']:
+                    ordering_config = ordering_config.desc(nulls_last=True)
+                else:
+                    ordering_config = ordering_config.asc(nulls_last=True)
+                all_values = all_values.order_by(ordering_config)
+            else:
+                all_values = sorted(
+                    all_values,
+                    key=self.coerce_value,
+                    reverse=self.sorting['reverse'])
         for val in all_values:
             yield (val, str(val))
 

@@ -2,6 +2,7 @@ import copy
 import logging
 import operator
 import random
+from decimal import Decimal
 from typing import NamedTuple, cast
 from unittest import skipUnless
 from unittest.mock import patch
@@ -21,8 +22,8 @@ from requests.exceptions import (
 )
 
 from core.utils import (
-    camel_case_split, is_password_compromised,
-    join_lazy, send_mass_html_mail, sort_by, split,
+    camel_case_split, is_password_compromised, join_lazy,
+    send_mass_html_mail, sort_by, split, version_to_numeric_repr,
 )
 from hosting.countries import countries_with_mandatory_region
 from hosting.gravatar import email_to_gravatar
@@ -78,7 +79,7 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
         )
         for title, expected_value in test_data:
             with self.subTest(title=title):
-                self.assertEqual(title_with_particule(title), expected_value)
+                self.assertEqual(title_with_particule(title), expected_value)  # type: ignore
 
     def test_title_with_particule_and_provided_list(self):
         test_data = (
@@ -206,6 +207,40 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
                         operation(z, 250)
                 self.assertIs(type(z), int)
                 self.assertIsNot(type(z), SimpleLazyObject)
+
+    def test_version_to_numeric(self):
+        v2 = version_to_numeric_repr("2")
+        self.assertIsInstance(v2, Decimal)
+        self.assertEqual(v2, version_to_numeric_repr("2.0"))
+        self.assertEqual(v2, version_to_numeric_repr("2.0.0"))
+
+        test_data = {
+            version_string: version_to_numeric_repr(version_string)
+            for version_string in ("9", "9.4.3.1.6080", "9.5", "12.0.0", "12.0.0.3", "13")
+        }
+        test_pairs = zip(test_data.items(), list(test_data.items())[1:])
+        for (first_string, first_number), (second_string, second_number) in test_pairs:
+            with self.subTest(left_version=first_string, right_version=second_string):
+                self.assertIsInstance(first_number, Decimal)
+                self.assertLess(first_number, second_number)
+                self.assertGreater(second_number, first_number)
+
+        vStr = version_to_numeric_repr("Beaver")
+        self.assertIsInstance(vStr, Decimal)
+        self.assertLess(vStr, 1)
+        self.assertGreater(vStr, 0)
+        self.assertGreater(vStr, version_to_numeric_repr("Anaconda"))
+        self.assertLess(vStr, version_to_numeric_repr("BeaverTails"))
+        self.assertLess(vStr, version_to_numeric_repr("Zebra"))
+        for (second_string, second_number) in test_data.items():
+            with self.subTest(left_version="Beaver", right_version=second_string):
+                self.assertLess(vStr, second_number)
+                self.assertGreater(second_number, vStr)
+
+        vStr = version_to_numeric_repr("Salamander", precision=5)
+        self.assertIsInstance(vStr, Decimal)
+        with self.subTest(version=str(vStr)):
+            self.assertEqual(len(str(vStr)), 7)
 
     def test_email_to_gravatar(self):
         test_data = (

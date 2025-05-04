@@ -2,6 +2,7 @@ import hashlib
 import locale
 import operator
 import re
+from decimal import Decimal, localcontext as local_decimal_context
 from functools import reduce
 from typing import Optional, Sequence, Tuple
 
@@ -16,6 +17,7 @@ from django.utils.safestring import mark_safe
 
 import requests
 from anymail.message import AnymailMessage
+from packvers import version
 
 
 def getattr_(obj, path):
@@ -50,6 +52,38 @@ mark_safe_lazy = keep_lazy_text(mark_safe)
 setattr(SimpleLazyObject, '__int__', new_method_proxy(int))
 setattr(SimpleLazyObject, '__add__', new_method_proxy(operator.add))
 setattr(SimpleLazyObject, '__mul__', new_method_proxy(operator.mul))
+
+
+def version_to_numeric_repr(version_string: str, precision: Optional[int] = None) -> Decimal:
+    """
+    Converts a version string to a numeric representation. For each component of the
+    version five digits are reserved and the first component is the most significant
+    part of the result.
+    If the version does not follow the PEP 440 specification, the given string is
+    converted to a fraction by using the ASCII values of the characters and their
+    positions, ensuring that the result is unique and can be compared numerically.
+    """
+    version_object = version.parse(version_string)
+    with local_decimal_context(prec=precision):
+        if version_object.release:
+            version_components = version_object.release
+            # Make sure there are always 5 version components for the correct
+            # numerical result (1.3.5 should be larger than 1.2.3.4).
+            version_components += (0,) * (5 - len(version_components))
+            return Decimal(
+                reduce(
+                    lambda result, component: result * 10 ** 5 + component,
+                    version_components
+                )
+            )
+        else:
+            result = Decimal(0)
+            for position, char in enumerate(version_string):
+                result += (
+                    Decimal(ord(char) if char.isascii() else 0)
+                    / (Decimal(128) ** (position + 1))
+                )
+            return result
 
 
 def send_mass_html_mail(
