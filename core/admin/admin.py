@@ -10,7 +10,6 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from djangocodemirror.widgets import CodeMirrorAdminWidget
-from packvers import version
 from solo.admin import SingletonModelAdmin
 
 from hosting.models import Profile
@@ -69,7 +68,7 @@ class AgreementAdmin(admin.ModelAdmin):
     readonly_fields = [f.name for f in Agreement._meta.fields] + ['user_link', 'policy_link']
 
     @admin.display(
-        description=_("user"),
+        description=Agreement._meta.get_field('user').verbose_name,
         ordering='user__username',
     )
     def user_link(self, obj: Agreement):
@@ -83,10 +82,10 @@ class AgreementAdmin(admin.ModelAdmin):
                 profile_link = ''
             return format_html(" ".join([account_link, profile_link]))
         except AttributeError:
-            return format_html('{userid} <sup>?</sup>', userid=obj.user_id)
+            return format_html('&mdash; <sup>?</sup>')
 
     @admin.display(
-        description=_("version of policy"),
+        description=Agreement._meta.get_field('policy_version').verbose_name,
         ordering='policy_version',
     )
     def policy_link(self, obj: Agreement):
@@ -126,21 +125,21 @@ class AgreementAdmin(admin.ModelAdmin):
 @admin.register(UserBrowser)
 class UserBrowserAdmin(admin.ModelAdmin):
     list_display = (
-        'user', 'os_name', 'os_version', 'browser_name', 'browser_version', 'added_on',
+        'user',
+        'os_name', 'os_version_display', 'browser_name', 'browser_version_display',
+        'added_on',
     )
     ordering = ('user__username', '-added_on')
     search_fields = ('user__username__exact',)
     list_filter = (
         'os_name',
         DependentFieldFilter.configure(
-            'os_name', 'os_version',
-            coerce=lambda version_string: version.parse(version_string),
+            'os_name', 'os_version', 'os_version_numeric',
             sort=True, sort_reverse=True,
         ),
         'browser_name',
         DependentFieldFilter.configure(
-            'browser_name', 'browser_version',
-            coerce=lambda version_string: version.parse(version_string),
+            'browser_name', 'browser_version', 'browser_version_numeric',
             sort=True, sort_reverse=True,
         ),
         ('added_on', YearBracketFilter.configure(YearBracketFilter.Brackets.SINCE)),
@@ -155,7 +154,7 @@ class UserBrowserAdmin(admin.ModelAdmin):
     readonly_fields = ('added_on',)
 
     @admin.display(
-        description=_("user"),
+        description=UserBrowser._meta.get_field('user').verbose_name,
         ordering='user__username',
     )
     def user_link(self, obj: UserBrowser):
@@ -163,7 +162,21 @@ class UserBrowserAdmin(admin.ModelAdmin):
             link = reverse('admin:auth_user_change', args=[obj.user.pk])
             return format_html('<a href="{link}">{user}</a>', link=link, user=obj.user)
         except AttributeError:
-            return format_html('{userid} <sup>?</sup>', userid=obj.user_id)
+            return format_html('&mdash; <sup>?</sup>')
+
+    @admin.display(
+        description=UserBrowser._meta.get_field('os_version').verbose_name,
+        ordering='os_version_numeric',
+    )
+    def os_version_display(self, obj: UserBrowser):
+        return obj.os_version
+
+    @admin.display(
+        description=UserBrowser._meta.get_field('browser_version').verbose_name,
+        ordering='browser_version_numeric',
+    )
+    def browser_version_display(self, obj: UserBrowser):
+        return obj.browser_version
 
     def get_queryset(self, request):
         qs = super().get_queryset(request).select_related('user')

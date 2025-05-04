@@ -12,6 +12,7 @@ from solo.models import SingletonModel
 from hosting.fields import RangeIntegerField
 
 from .managers import PoliciesManager
+from .utils import version_to_numeric_repr
 
 if TYPE_CHECKING:
     from django.db.models import ForeignKey
@@ -166,6 +167,13 @@ class UserBrowser(models.Model):
         _("operating system version"),
         blank=True,
         max_length=15)
+    os_version_numeric = models.DecimalField(
+        # Accommodate up to 5 version components, each 5 digits long. This
+        # allows for version strings like "12345.12345.12345.12345.12345".
+        max_digits=60,
+        # Non-numeric (legacy) versions are represented as a fraction with
+        # version_max_length * log10(128) digits after the zero.
+        decimal_places=35)
     browser_name = models.CharField(
         _("browser"),
         blank=True,
@@ -174,6 +182,13 @@ class UserBrowser(models.Model):
         _("browser version"),
         blank=True,
         max_length=15)
+    browser_version_numeric = models.DecimalField(
+        # Accommodate up to 5 version components, each 5 digits long. This
+        # allows for version strings like "12345.12345.12345.12345.12345".
+        max_digits=60,
+        # Non-numeric (legacy) versions are represented as a fraction with
+        # version_max_length * log10(128) digits after the zero.
+        decimal_places=35)
     device_type = models.CharField(
         _("type of device"),
         blank=True,
@@ -194,6 +209,24 @@ class UserBrowser(models.Model):
                  f" · OS: {self.os_name} {self.os_version}")
                 + (f" · Device: {self.device_type}" if self.device_type else "")
                 + ">")
+
+    def save(self, *args, **kwargs):
+        precision = (
+            cast(models.DecimalField, self._meta.get_field('os_version_numeric'))
+            .decimal_places
+        )
+        self.os_version_numeric = (
+            version_to_numeric_repr(self.os_version, precision)
+        )
+        precision = (
+            cast(models.DecimalField, self._meta.get_field('browser_version_numeric'))
+            .decimal_places
+        )
+        self.browser_version_numeric = (
+            version_to_numeric_repr(self.browser_version, precision)
+        )
+        return super().save(*args, **kwargs)
+    save.alters_data = True
 
 
 # TODO: Fetch from feature flags.

@@ -1,3 +1,6 @@
+from typing import cast
+
+from django.db.models import DecimalField
 from django.test import TestCase, override_settings, tag
 
 from ..factories import UserBrowserFactory, UserFactory
@@ -12,8 +15,14 @@ class UserBrowserModelTests(TestCase):
         self.assertEqual(ub._meta.get_field('geolocation').max_length, 50)
         self.assertEqual(ub._meta.get_field('os_name').max_length, 30)
         self.assertEqual(ub._meta.get_field('os_version').max_length, 15)
+        self.assertEqual(
+            cast(DecimalField, ub._meta.get_field('os_version_numeric')).decimal_places,
+            35)
         self.assertEqual(ub._meta.get_field('browser_name').max_length, 30)
         self.assertEqual(ub._meta.get_field('browser_version').max_length, 15)
+        self.assertEqual(
+            cast(DecimalField, ub._meta.get_field('browser_version_numeric')).decimal_places,
+            35)
         self.assertEqual(ub._meta.get_field('device_type').max_length, 30)
 
     def test_str_repr(self):
@@ -44,3 +53,31 @@ class UserBrowserModelTests(TestCase):
         with override_settings(LANGUAGE_CODE='eo'):
             self.assertEqual(str(ub), "jekeleme: ?  ĉe ? ")
             self.assertEqual(str(repr(ub)), "<User: jekeleme · Browser:   · OS:  >")
+
+    def test_save(self):
+        user = UserFactory.create(username="abcxyz", profile=None)
+        test_data = (
+            {'browser': "0.9.4.1", 'os': "5.1.2600.1106"},
+            {'browser': "Next", 'os': "XP SP2"},
+            {'browser': "", 'os': ""},
+        )
+
+        for versions in test_data:
+            with self.subTest(versions=versions):
+                ub = UserBrowserFactory.build(
+                    user=user,
+                    browser_name="Mozilla", browser_version=versions['browser'],
+                    os_name="Windows", os_version=versions['os'])
+                ub.save()
+                self.assertIsNotNone(ub.pk)
+                if versions['os']:
+                    self.assertIsNotNone(ub.os_version_numeric)
+                    self.assertNotEqual(ub.os_version_numeric, 0)
+                else:
+                    self.assertEqual(ub.os_version_numeric, 0)
+                if versions['browser']:
+                    self.assertIsNotNone(ub.browser_version_numeric)
+                    self.assertNotEqual(ub.browser_version_numeric, 0)
+                else:
+                    self.assertEqual(ub.browser_version_numeric, 0)
+                self.assertIsNotNone(ub.added_on)
