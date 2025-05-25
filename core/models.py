@@ -1,6 +1,6 @@
 from collections import namedtuple
 from datetime import timedelta
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from django.conf import settings
 from django.db import models
@@ -66,7 +66,7 @@ class SiteConfiguration(SingletonModel):
     google_analytics_key = models.CharField(
         max_length=13, default='UA-99737795-1', blank=True)
 
-    mapping_services_api_keys = models.JSONField(
+    mapping_services_api_keys: 'models.JSONField[dict[str, str]]' = models.JSONField(
         _("API keys for mapping services"),
         default=default_api_keys)
 
@@ -98,7 +98,7 @@ class Policy(models.Model):
         _("consent is required"),
         default=True)
 
-    objects = PoliciesManager()
+    objects: ClassVar[PoliciesManager] = PoliciesManager()
 
     class Meta:
         verbose_name = _("policy")

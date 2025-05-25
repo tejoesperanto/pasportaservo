@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.gis.geos import Point
+from django.db import models
 from django.utils import translation
 from django.utils.deconstruct import deconstructible
 
@@ -18,9 +19,6 @@ from maps import SRID
 from maps.data import COUNTRIES_GEO
 
 from .countries import countries_with_mandatory_region
-
-if TYPE_CHECKING:  # pragma: no cover
-    from .models import Profile
 
 
 def geocode(
@@ -182,7 +180,10 @@ class RenameAndPrefixAvatar(object):
     def __init__(self, path: str):
         self.sub_path = path
 
-    def __call__(self, profile_instance: 'Profile', filename: str) -> str:
+    def __call__(self, profile_instance: models.Model, filename: str) -> str:
+        if TYPE_CHECKING:  # pragma: no cover
+            from .models import Profile
+            assert isinstance(profile_instance, Profile)
         ext = filename.split('.')[-1]
         if profile_instance.pk:
             filename = f'p{profile_instance.pk}_{uuid4().fields[0]:08x}'

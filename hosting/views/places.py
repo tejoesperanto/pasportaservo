@@ -1,9 +1,10 @@
 import decimal
 import logging
 import re
-from collections import namedtuple
 from datetime import date
+from typing import Any, NamedTuple
 
+from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.gis.geos import LineString, Point, Polygon
@@ -20,6 +21,7 @@ from django.views import generic
 
 from braces.views import FormInvalidMessageMixin
 
+from core import PasportaServoHttpRequest
 from core.auth import PERM_SUPERVISOR, AuthMixin, AuthRole
 from core.mixins import LoginRequiredMixin
 from core.models import SiteConfiguration
@@ -35,7 +37,7 @@ from ..forms import (
 )
 from ..models import (
     Condition, LocationConfidence, LocationType,
-    Place, Profile, TravelAdvice, Whereabouts,
+    PasportaServoUser, Place, Profile, TravelAdvice, Whereabouts,
 )
 from .mixins import (
     CreateMixin, DeleteMixin, PlaceMixin, PlaceModifyMixin,
@@ -46,7 +48,8 @@ User = get_user_model()
 
 
 class PlaceCreateView(
-        CreateMixin, AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, PlaceModifyMixin, FormInvalidMessageMixin,
+        CreateMixin[Place], AuthMixin, ProfileIsUserMixin, ProfileModifyMixin, PlaceModifyMixin,
+        FormInvalidMessageMixin,
         generic.CreateView):
     model = Place
     form_class = PlaceCreateForm
@@ -59,7 +62,8 @@ class PlaceCreateView(
 
 
 class PlaceUpdateView(
-        UpdateMixin, AuthMixin, PlaceMixin, ProfileModifyMixin, PlaceModifyMixin, FormInvalidMessageMixin,
+        UpdateMixin[Place], AuthMixin, PlaceMixin, ProfileModifyMixin, PlaceModifyMixin,
+        FormInvalidMessageMixin,
         generic.UpdateView):
     form_class = PlaceForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
@@ -67,7 +71,7 @@ class PlaceUpdateView(
 
 
 class PlaceLocationUpdateView(
-        UpdateMixin, AuthMixin, PlaceMixin,
+        UpdateMixin[Place], AuthMixin, PlaceMixin,
         generic.UpdateView):
     form_class = PlaceLocationForm
     update_partial = True
@@ -85,12 +89,12 @@ class PlaceLocationUpdateView(
 
 
 class PlaceDeleteView(
-        DeleteMixin, AuthMixin, PlaceMixin, ProfileModifyMixin,
+        DeleteMixin[Place], AuthMixin, PlaceMixin, ProfileModifyMixin,
         generic.DeleteView):
     pass
 
 
-class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
+class PlaceDetailView(AuthMixin[Place], PlaceMixin, generic.DetailView):
     """
     Details about a place; allows also anonymous (unauthenticated) user access.
     For such users, the registration form will be displayed.
@@ -98,7 +102,6 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
     display_fair_usage_condition = True
     minimum_role = AuthRole.ANONYMOUS
     verbose_view = False
-    object: Place
 
     def get_queryset(self):
         related = ['owner', 'owner__user', 'visibility', 'family_members_visibility', 'owner__email_visibility']
@@ -233,7 +236,7 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
         }
 
     @staticmethod
-    def calculate_blocking(place):
+    def calculate_blocking(place: Place):
         block = {}
         today = date.today()
         if place.is_blocked:
@@ -254,7 +257,12 @@ class PlaceDetailView(AuthMixin, PlaceMixin, generic.DetailView):
             return self._access_validated
         user = self.request.user
         place = self.object
-        result = namedtuple('AccessConstraint', 'redirect, is_authorized, is_supervisor, is_family_member')
+        result = NamedTuple('AccessConstraint', [
+            ('redirect', bool | HttpResponseRedirect),
+            ('is_authorized', bool | None),
+            ('is_supervisor', bool | None),
+            ('is_family_member', bool | None),
+        ])
         auth_log = logging.getLogger('PasportaServo.auth')
 
         # Require the unauthenticated user to login in the following cases:
@@ -366,7 +374,7 @@ class PlaceMapPrintView(PlaceDetailView):
         )
 
 
-class PlaceBlockView(AuthMixin, PlaceMixin, generic.UpdateView):
+class PlaceBlockView(AuthMixin[Place], PlaceMixin, generic.UpdateView):
     http_method_names = ['get', 'post', 'put']
     template_name = 'hosting/place_block_form.html'
     form_class = PlaceBlockForm
@@ -381,11 +389,11 @@ class PlaceBlockView(AuthMixin, PlaceMixin, generic.UpdateView):
     def get_redirect_url(self):
         return sanitize_next(self.request)
 
-    def put(self, request, *args, **kwargs):
+    def put(self, request: PasportaServoHttpRequest, *args, **kwargs):
         self.object = self.get_object()
         form = PlaceBlockQuickForm(data=QueryDict(request.body), instance=self.object)
         data_correct = form.is_valid()
-        response = {'result': data_correct}
+        response: dict[str, Any] = {'result': data_correct}
         if data_correct:
             form.save()
         else:
@@ -414,14 +422,15 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['place'] = self.place
-        m = valid_back_link = re.match(
+        valid_back_link = re.match(
             r'^/([a-zA-Z]+)/(?:\d+/[\w-]+/([a-zA-Z]+)/)?',
             self.request.GET.get(settings.REDIRECT_FIELD_NAME, default='')
         )
         if valid_back_link:
+            m = valid_back_link
             context['back_to'] = m.group(1).lower() if not m.group(2) else m.group(2).lower()
 
-        def order_by_name(user):
+        def order_by_name(user: PasportaServoUser) -> str:
             try:
                 return (" ".join((user.profile.first_name, user.profile.last_name)).strip()
                         or user.username).lower()
@@ -435,7 +444,7 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
         ]
         return context
 
-    def form_valid(self, form):
+    def form_valid(self, form: forms.Form) -> HttpResponse:
         if not form.cleaned_data['remove']:
             # For addition, "user" is the username.
             user = get_object_or_404(User, username=form.cleaned_data['user'])

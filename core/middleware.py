@@ -1,5 +1,4 @@
 from hashlib import md5
-from typing import cast
 
 from django.conf import settings
 from django.contrib.auth.views import (
@@ -27,6 +26,8 @@ from pasportaservo.urls import (
     url_index_debug, url_index_maps, url_index_postman,
 )
 
+from . import PasportaServoHttpRequest
+
 
 class AccountFlagsMiddleware(MiddlewareMixin):
     """
@@ -48,7 +49,7 @@ class AccountFlagsMiddleware(MiddlewareMixin):
         ]
         self.exclude_urls = tuple(str(url) for url in exclude_urls)
 
-    def process_request(self, request):
+    def process_request(self, request: PasportaServoHttpRequest):
         if request.path.startswith(self.exclude_urls):
             # Only relevant when using the website itself (not Django-Admin or debug tools),
             # when the file requested is not a static one or a fragment,
@@ -167,7 +168,7 @@ class AccountFlagsMiddleware(MiddlewareMixin):
             current_policy = policies[0:1]
             policy_summary = SimpleLazyObject(lambda: [  # pragma: no branch
                 (p.effective_date, p.changes_summary)
-                for p in cast(Policy.objects.__class__, current_policy)
+                for p in current_policy
                 if p.changes_summary
             ])
             setattr(request.user, 'consent_obtained', {

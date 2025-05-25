@@ -1,9 +1,9 @@
-from typing import cast
-
 from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import (
+    HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse,
+)
 from django.urls import reverse
 from django.utils import translation
 from django.utils.decorators import method_decorator
@@ -15,6 +15,7 @@ from django.views.decorators.vary import vary_on_headers
 from django_countries.fields import Country
 from djgeojson.views import GeoJSONLayerView
 
+from core import PasportaServoHttpRequest
 from core.auth import AuthMixin, AuthRole
 from core.models import SiteConfiguration
 from core.utils import sanitize_next
@@ -47,7 +48,7 @@ class MapTypeConfigureView(generic.View):
     """
     http_method_names = ['post']
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: HttpRequest, *args, **kwargs):
         map_type = kwargs.pop('map_type')
         if request.is_ajax():
             response = JsonResponse({'success': 'map-type-configured'})
@@ -62,7 +63,7 @@ class MapTypeConfigureView(generic.View):
 
 
 class EndpointsView(generic.View):
-    def get(self, request, *args, **kwargs):
+    def get(self, request: HttpRequest, *args, **kwargs):
         data_format = request.GET.get('format', None)
         map_type = request.GET.get('type', '')
         endpoints = {
@@ -120,7 +121,7 @@ class MapStyleView(generic.TemplateView):
         return ['maps/styles/{}-gl-style.json'.format(self.style)]
 
     def get_context_data(self, **kwargs):
-        config = cast(SiteConfiguration, SiteConfiguration.get_solo())
+        config = SiteConfiguration.get_solo()
         return {
             'key': config.mapping_services_api_keys.get('openmaptiles', ''),
             'lang': translation.get_language(),
@@ -173,14 +174,14 @@ class PublicDataView(GeoJSONLayerView):
         'owner_avatar_params',
     ]
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request: PasportaServoHttpRequest, *args, **kwargs):
         request.META['HTTP_X_USER_STATUS'] = (
             'Authenticated' if request.user.is_authenticated
             else 'Anonymous')
         return self.genuine_dispatch(request, *args, **kwargs)
 
     @vary_on_headers('X-User-Status')
-    def genuine_dispatch(self, request, *args, **kwargs):
+    def genuine_dispatch(self, request: PasportaServoHttpRequest, *args, **kwargs):
         # Caching will take into account the header (via the Vary instruction), but
         # it must be added before the cache framework calculates the hashmap key.
         if request.user.is_authenticated:
@@ -204,7 +205,7 @@ class PublicDataView(GeoJSONLayerView):
         )
 
 
-class CountryDataView(AuthMixin, GeoJSONLayerView):
+class CountryDataView(AuthMixin[PlottablePlace], GeoJSONLayerView):
     geometry_field = 'location'
     properties = [
         'owner_full_name',
@@ -213,9 +214,11 @@ class CountryDataView(AuthMixin, GeoJSONLayerView):
     ]
     minimum_role = AuthRole.SUPERVISOR
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request: PasportaServoHttpRequest, *args, **kwargs):
         self.country = Country(kwargs['country_code'])
-        self.in_book_status = {'0': False, '1': True, None: None}[kwargs.get('in_book')]
+        self.in_book_status: bool | None = {
+            '0': False, '1': True, None: None,
+        }[kwargs.get('in_book')]
         kwargs['auth_base'] = self.country
         return super().dispatch(request, *args, **kwargs)
 

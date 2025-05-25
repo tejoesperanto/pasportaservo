@@ -333,6 +333,10 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
         self.assertFalse(p4 < p2)
         self.assertFalse(p4 < p3)
 
+    def test_full_profile(self):
+        self.assertTrue(self.factory._meta.model.is_full_profile(self.basic_profile))
+        self.assertFalse(self.factory._meta.model.is_full_profile(self.tenant_profile))
+
     def test_visible_externally(self):
         # Profile is expected to be not visible if it was deleted.
         self.basic_profile.deleted_on = timezone.now()

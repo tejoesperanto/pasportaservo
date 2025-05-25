@@ -4,7 +4,7 @@ import types
 import warnings
 from enum import Enum
 from functools import total_ordering
-from typing import Literal, Union
+from typing import TYPE_CHECKING, Final, Literal, Optional, Self, Union, cast
 
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend
@@ -19,14 +19,24 @@ from django.views import generic
 
 from django_countries.fields import Country
 
-from hosting.models import Place, Profile
+from hosting.models import PasportaServoUser, Place, Profile, TrackingModel
 
+from . import PasportaServoHttpRequest
 from .utils import camel_case_split, join_lazy
+
+if TYPE_CHECKING:
+    from hosting.models import FullProfile
+
+    from .mixins import SingleObjectViewProtocol
+else:
+    class SingleObjectViewProtocol[UnusedT]:
+        pass
+
 
 auth_log = logging.getLogger('PasportaServo.auth')
 
 
-PERM_SUPERVISOR = 'hosting.can_supervise'
+PERM_SUPERVISOR: Final = 'hosting.can_supervise'
 
 
 @total_ordering
@@ -56,6 +66,7 @@ class AuthRole(Enum):
 
     def __gt__(self, other):
         if self.__class__ is other.__class__:
+            other = cast(Self, other)
             if not other.parent:
                 return (self.value if not self.parent else self.parent.value) > other.value
             else:
@@ -66,6 +77,7 @@ class AuthRole(Enum):
 
     def __ge__(self, other):
         if self.__class__ is other.__class__:
+            other = cast(Self, other)
             if not other.parent:
                 return (self.value if not self.parent else self.parent.value) >= other.value
             else:
@@ -76,6 +88,7 @@ class AuthRole(Enum):
 
     def __eq__(self, other):
         if self.__class__ is other.__class__:
+            other = cast(Self, other)
             if self is other:
                 return True
             if self.parent and other.parent:
@@ -115,7 +128,7 @@ class SupervisorAuthBackend(ModelBackend):
         """
         return True
 
-    def get_user_supervisor_of(self, user_obj, obj=None, code=False):
+    def get_user_supervisor_of(self, user_obj: PasportaServoUser, obj=None, code=False):
         """
         Calculate responsibilities, globally or for an optional object.
         The given object may be an iterable of countries, a single country, or a profile.
@@ -127,7 +140,7 @@ class SupervisorAuthBackend(ModelBackend):
             user_groups = user_obj.groups.all() if not user_obj.is_superuser else Group.objects.all()
             user_countries = frozenset(Country(g.name) for g in user_groups if len(g.name) == 2)
             setattr(user_obj, cache_name, user_countries)
-        supervised = getattr(user_obj, cache_name)
+        supervised: set[Country] = getattr(user_obj, cache_name)
         if auth_log.getEffectiveLevel() == logging.DEBUG:
             auth_log.debug("\tobject is %s", repr(obj))
         if obj is not None:
@@ -152,9 +165,9 @@ class SupervisorAuthBackend(ModelBackend):
                     "\t\trequested: %s supervised: %s\n\t\tresult: %s",
                     set(countries), set(supervised), set(supervised) & set(countries))
             supervised = set(supervised) & set(countries)
-        return supervised if code else [c.name for c in supervised]
+        return supervised if code else [cast(str, c.name) for c in supervised]
 
-    def is_user_supervisor_of(self, user_obj, obj=None):
+    def is_user_supervisor_of(self, user_obj: PasportaServoUser, obj=None):
         """
         Compare intersection between responsibilities and given countries.
         The given object may be an iterable of countries, a single country, or a profile.
@@ -163,7 +176,7 @@ class SupervisorAuthBackend(ModelBackend):
             user_obj, obj if obj is not None else object(), code=True)
         return any(supervised)
 
-    def has_perm(self, user_obj, perm, obj=None):
+    def has_perm(self, user_obj: PasportaServoUser, perm: str, obj=None):
         """
         Verify if this user has permission (to an optional object).
         Short-circuits when resposibility is not satisfied.
@@ -182,13 +195,13 @@ class SupervisorAuthBackend(ModelBackend):
             raise PermissionDenied
         return allowed
 
-    def get_all_permissions(self, user_obj, obj=None):
+    def get_all_permissions(self, user_obj: PasportaServoUser, obj=None):
         if obj is not None and user_obj.is_active and not user_obj.is_anonymous:
             return self.get_group_permissions(user_obj, obj)
         else:
             return super().get_all_permissions(user_obj, obj)
 
-    def get_group_permissions(self, user_obj, obj=None):
+    def get_group_permissions(self, user_obj: PasportaServoUser, obj=None):
         """
         Return a list of permission strings that this user has through their groups.
         If an object is passed in, only permissions matching this object are returned.
@@ -219,7 +232,11 @@ class SupervisorAuthBackend(ModelBackend):
         return perms
 
 
-def get_role_in_context(request, profile=None, place=None, no_obj_context=False):
+def get_role_in_context(
+        request: PasportaServoHttpRequest,
+        profile: Optional[Profile] = None, place: Optional[Place | Country] = None,
+        no_obj_context: bool = False,
+) -> AuthRole:
     user = request.user
     context = place or profile or object
     if profile and user.pk == profile.user_id:
@@ -230,14 +247,14 @@ def get_role_in_context(request, profile=None, place=None, no_obj_context=False)
     # Once enabled, the interaction with perms.hosting.can_supervise has to be verified.
     # if user.is_staff:
     #     return AuthRole.STAFF
-    if user.has_perm(PERM_SUPERVISOR, None if no_obj_context else context):
+    if user.has_perm(PERM_SUPERVISOR, None if no_obj_context else context):  # type: ignore[arg-type]
         return AuthRole.SUPERVISOR
     return AuthRole.VISITOR
 
 
-class AuthMixin(AccessMixin):
-    minimum_role = AuthRole.OWNER
-    exact_role: AuthRole | tuple[AuthRole]
+class AuthMixin[ModelT: TrackingModel](SingleObjectViewProtocol[ModelT], AccessMixin):
+    minimum_role: AuthRole = AuthRole.OWNER
+    exact_role: AuthRole | tuple[AuthRole, ...]
     allow_anonymous = False
     redirect_field_name = settings.REDIRECT_FIELD_NAME
     display_permission_denied = True
@@ -294,19 +311,19 @@ class AuthMixin(AccessMixin):
             )
         return super().dispatch(request, *args, **kwargs)
 
-    def get_owner(self, object):
+    def get_owner(self, object: ModelT) -> Optional['FullProfile']:
         try:
-            return super().get_owner(object)
+            return super().get_owner(object)  # type: ignore[attr-defined]
         except AttributeError:
             return object.owner if object else None
 
-    def get_location(self, object):
+    def get_location(self, object: ModelT) -> Optional[Place | Country]:
         try:
-            return super().get_location(object)
+            return super().get_location(object)  # type: ignore[attr-defined]
         except AttributeError:
             return None
 
-    def _auth_verify(self, object, context_omitted=False):
+    def _auth_verify(self, object: ModelT, context_omitted: bool = False) -> ModelT:
         self.role = get_role_in_context(self.request,
                                         profile=self.get_owner(object),
                                         place=self.get_location(object),
@@ -339,14 +356,22 @@ class AuthMixin(AccessMixin):
         else:
             raise Http404("Operation not allowed.")
 
-    def get_permission_denied_message(self, object, context_omitted=False):
+    def get_permission_denied_message(
+            self, object: ModelT, context_omitted: bool = False) -> str:
         if not context_omitted:
             countries = [self.get_location(object)]
             if not countries[0]:
-                countries = self.get_owner(object).owned_places.filter(
-                    deleted=False
-                ).values_list('country', flat=True).distinct()
-            elif not countries[0].name:
+                owner = self.get_owner(object)
+                if owner is not None:
+                    countries = (
+                        owner.owned_places
+                        .filter(deleted=False)
+                        .values_list('country', flat=True)
+                        .distinct()
+                    )
+                else:
+                    countries = []
+            elif isinstance(countries[0], Country) and not countries[0].name:
                 countries = []
         else:
             countries = None

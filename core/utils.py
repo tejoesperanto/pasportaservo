@@ -4,11 +4,12 @@ import operator
 import re
 from decimal import Decimal, localcontext as local_decimal_context
 from functools import reduce
-from typing import Optional, Sequence, Tuple
+from typing import Any, Iterable, Literal, Optional, Sequence, Tuple, overload
 
 from django.conf import settings
 from django.core.mail import EmailMessage, get_connection
 from django.core.mail.backends.base import BaseEmailBackend
+from django.http import HttpRequest
 from django.utils.functional import (
     SimpleLazyObject, keep_lazy_text, lazy, new_method_proxy,
 )
@@ -124,7 +125,9 @@ def send_mass_html_mail(
     return connection.send_messages(messages) or 0
 
 
-def sanitize_next(request, from_post=False, url=None):
+def sanitize_next(
+        request: HttpRequest, from_post: bool = False, url: Optional[str] = None,
+) -> str:
     """
     Verifies if the redirect target provided in the request is a safe one,
     meaning (mainly) not pointing to an external domain. Returns the target
@@ -144,7 +147,7 @@ def sanitize_next(request, from_post=False, url=None):
         return ''
 
 
-def sort_by(paths, iterable):
+def sort_by[T](paths: Iterable[Any], iterable: Iterable[T]) -> Iterable[T]:
     """
     Sorts by a translatable name, using system locale for a better result.
     """
@@ -155,6 +158,22 @@ def sort_by(paths, iterable):
             key=lambda obj, attr_path=path: locale.strxfrm(str(getattr_(obj, attr_path)))
         )
     return iterable
+
+
+@overload
+def is_password_compromised(pwdvalue: str, full_list: Literal[False] = False) -> (
+        tuple[None, None]
+        | tuple[Literal[True], int] | Tuple[Literal[False], Literal[0]]
+):
+    ...  # pragma: no cover
+
+
+@overload
+def is_password_compromised(pwdvalue: str, full_list: Literal[True] = True) -> (
+        tuple[None, None]
+        | tuple[Literal[True], int, str] | Tuple[Literal[False], Literal[0], str]
+):
+    ...  # pragma: no cover
 
 
 def is_password_compromised(pwdvalue: str, full_list: bool = False):

@@ -12,7 +12,8 @@ class PostListView(generic.ListView):
 
 
 class PostDetailView(generic.DetailView):
-    model = Post
+    model: type[Post] = Post
+    object: Post
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -30,13 +31,13 @@ class PostsFeed(Feed):
     def items(self):
         return Post.objects.published()[:10]
 
-    def item_title(self, item):
+    def item_title(self, item: Post):
         return item.title
 
-    def item_description(self, item):
+    def item_description(self, item: Post):
         return item.description
 
-    def item_pubdate(self, item):
+    def item_pubdate(self, item: Post):
         return item.pub_date
 
 

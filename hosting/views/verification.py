@@ -1,8 +1,10 @@
 import json
 from collections import OrderedDict
+from typing import Any, Iterable, Optional
 
 from django.core import serializers
 from django.core.exceptions import NON_FIELD_ERRORS, PermissionDenied
+from django.db.models import QuerySet
 from django.forms import ModelForm
 from django.http import (
     HttpResponseBadRequest, HttpResponseRedirect, JsonResponse,
@@ -13,11 +15,12 @@ from django.utils.translation import gettext_lazy as _
 from django.views import generic
 from django.views.decorators.vary import vary_on_headers
 
+from core import PasportaServoHttpRequest
 from core.auth import PERM_SUPERVISOR, AuthMixin, AuthRole
 from core.mixins import LoginRequiredMixin
 
 from ..forms import PhoneForm, PlaceForm, ProfileForm
-from ..models import LocationConfidence, Place, Profile
+from ..models import LocationConfidence, Place, Profile, TrackingModel
 from .mixins import PlaceMixin
 
 
@@ -30,7 +33,7 @@ class InfoConfirmView(LoginRequiredMixin, generic.View):
     template_name = 'links/confirmed.html'
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
-    def post(self, request, *args, **kwargs):
+    def post(self, request: PasportaServoHttpRequest, *args, **kwargs):
         try:
             request.user.profile.confirm_all_info()
         except Profile.DoesNotExist:
@@ -47,7 +50,7 @@ class InfoConfirmView(LoginRequiredMixin, generic.View):
                 return TemplateResponse(request, self.template_name)
 
 
-class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
+class PlaceCheckView(AuthMixin[Place], PlaceMixin, generic.View):
     """
     Allows a supervisor to confirm accommodation details of a user as up-to-date.
     The profile and place data are both validated to make sure they conform to
@@ -71,7 +74,7 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
             else:
                 self.cleaned_data = {'location': self.data['location']}
 
-    def get_object(self, queryset=None):
+    def get_object(self, queryset: Optional[QuerySet[Place]] = None) -> Place:
         try:
             return super().get_object(queryset)
         except PermissionDenied:
@@ -85,15 +88,15 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
             raise
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
-    def post(self, request, *args, **kwargs):
+    def post(self, request: PasportaServoHttpRequest, *args, **kwargs):
         place = self.get_object()
-        data = [
+        data: list[tuple[type[ModelForm], Iterable[TrackingModel]]] = [
             (ProfileForm, [place.owner]),
             (PlaceForm, [place]),
             (self.LocationDummyForm, [place]),
             (PhoneForm, place.owner.phones.filter(deleted_on__isnull=True)),
         ]
-        all_forms = []
+        all_forms: list[ModelForm] = []
         for form_class, objects in data:
             for object_model in objects:
                 object_data = serializers.serialize('json', [object_model], fields=form_class._meta.fields)
@@ -101,7 +104,7 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
                 all_forms.append(form_class(data=object_data, instance=object_model))
 
         data_correct = all([form.is_valid() for form in all_forms])  # We want all validations.
-        viewresponse = {'result': data_correct}
+        viewresponse: dict[str, Any] = {'result': data_correct}
         if not data_correct:
             viewresponse['err'] = OrderedDict()
             data_problems = set()
@@ -127,7 +130,7 @@ class PlaceCheckView(AuthMixin, PlaceMixin, generic.View):
                 context={'view': self, 'place': place, 'result': viewresponse}
             )
 
-    def _get_field_label(self, form, field_name):
+    def _get_field_label(self, form: ModelForm, field_name: str) -> str:
         if not isinstance(form, PhoneForm):
             return str(form.fields[field_name].label)
         else:

@@ -1,4 +1,4 @@
-from typing import Protocol, TypedDict
+from typing import TYPE_CHECKING, Any, Optional, Protocol, TypedDict, cast
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -6,8 +6,10 @@ from django.contrib.auth.mixins import (
     LoginRequiredMixin as AuthenticatedUserRequiredMixin,
 )
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
-from django.db.models import Q
+from django.db.models import Model, Q, QuerySet
 from django.db.models.functions import Lower
+from django.forms import ModelForm
+from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.utils.functional import lazy
 from django.utils.safestring import mark_safe
@@ -15,12 +17,17 @@ from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 
-from hosting.models import Profile
+from hosting.models import PasportaServoUser, Profile
 from hosting.utils import value_without_invalid_marker
 from hosting.validators import AccountAttributesSimilarityValidator
 
+from . import PasportaServoHttpRequest
 from .auth import auth_log
 from .utils import is_password_compromised, sanitize_next
+
+if TYPE_CHECKING:
+    from .auth import AuthRole
+
 
 User = get_user_model()
 
@@ -34,15 +41,61 @@ class LoginRequiredMixin(AuthenticatedUserRequiredMixin):
     redirect_field_name = settings.REDIRECT_FIELD_NAME
 
 
-class UserModifyMixin(object):
-    def get_success_url(self, *args, **kwargs):
+class SingleObjectViewProtocol[T: Model]:
+    request: PasportaServoHttpRequest
+    role: 'AuthRole'
+    kwargs: dict[str, Any]
+    model: type[T]
+    object: T
+
+    if TYPE_CHECKING:
+        def dispatch(self, request: PasportaServoHttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+            ...
+
+        def get(self, request: PasportaServoHttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+            ...
+
+        def get_object(self, queryset: Optional[QuerySet[T]] = ...) -> T:
+            ...
+
+        def get_queryset(self) -> QuerySet[T]:
+            ...
+
+        def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+            ...
+
+
+class SingleObjectFormViewProtocol[T: Model](SingleObjectViewProtocol[T]):
+    if TYPE_CHECKING:
+        def get_success_url(self) -> str:
+            ...
+
+        def form_valid(self, form: ModelForm) -> HttpResponse:
+            ...
+
+
+class SingleObjectDeleteViewProtocol[T: Model](SingleObjectViewProtocol[T]):
+    if TYPE_CHECKING:
+        def delete(self, request: PasportaServoHttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+            ...
+
+        def get_success_url(self) -> str:
+            ...
+
+        def get_failure_url(self) -> str:
+            ...
+
+
+class UserModifyMixin(SingleObjectFormViewProtocol[User]):
+    def get_success_url(self, *args, **kwargs) -> str:
         redirect_to = sanitize_next(self.request)
         if redirect_to:
             return redirect_to
 
         try:
-            if hasattr(self.object, self.object._meta.get_field('profile').get_cache_name()):
-                profile = self.object.profile
+            user = cast(PasportaServoUser, self.object)
+            if hasattr(user, user._meta.get_field('profile').get_cache_name()):
+                profile = user.profile
             else:
                 profile = Profile.get_basic_data(user=self.object)
             return profile.get_edit_url()
@@ -50,7 +103,7 @@ class UserModifyMixin(object):
             return reverse_lazy('profile_create')
 
 
-class FlatpageAsTemplateMixin:
+class FlatpageAsTemplateMixin:  # pragma: no cover
     class DictWithContent(TypedDict):
         content: str
 
@@ -61,7 +114,7 @@ class FlatpageAsTemplateMixin:
         ...
 
 
-def flatpages_as_templates(cls: type[View]):
+def flatpages_as_templates[VT: View](cls: type[VT]) -> type[VT]:
     """
     View decorator:
     Facilitates rendering flat pages as Django templates, including usage of
@@ -79,7 +132,7 @@ def flatpages_as_templates(cls: type[View]):
         setattr(cls, context_func_name, _get_context_data_superfunc)
 
     def render_flat_page(
-            self,
+            self: VT,
             page: FlatpageAsTemplateMixin.DictWithContent | FlatpageAsTemplateMixin.HasContent,
     ):
         if not page:
