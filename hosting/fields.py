@@ -1,25 +1,41 @@
+from typing import (
+    TYPE_CHECKING, Any, Iterable, Literal, Optional, cast, overload, override,
+)
+
 from django import forms
+from django.contrib.gis.db.models import (
+    LineStringField as BuiltinLineStringField, PointField as BuiltinPointField,
+)
+from django.contrib.gis.geos import LineString, Point
 from django.core import checks
 from django.core.validators import (
     MaxLengthValidator, MaxValueValidator,
     MinValueValidator, ProhibitNullCharactersValidator,
 )
 from django.db import models
+from django.db.models.fields.related import ForeignObject
 from django.db.models.fields.related_descriptors import (
     ForwardManyToOneDescriptor,
 )
 from django.utils.html import format_html
-from django.utils.itercompat import is_iterable
 from django.utils.translation import gettext_lazy as _
 
-from phonenumber_field.modelfields import (
-    PhoneNumberField as DjangoPhoneNumberField,
+from django_countries.fields import (
+    Country, CountryField as ThirdPartyCountryField,
 )
+from phonenumber_field.modelfields import (
+    PhoneNumber, PhoneNumberField as ThirdPartyPhoneNumberField,
+)
+
+from core.fields import SimpleAnnotationFieldMixin
 
 from .widgets import MultiNullBooleanSelects, TextWithDatalistInput
 
+if TYPE_CHECKING:
+    from django.db.models.fields import _LiteralFieldChoices
 
-class StyledEmailField(models.EmailField):
+
+class StyledEmailField(SimpleAnnotationFieldMixin[str], models.EmailField):
     @property
     def icon(self):
         template = ('<span class="fa fa-envelope" title="{title}" '
@@ -27,14 +43,102 @@ class StyledEmailField(models.EmailField):
         return format_html(template, title=_("email address").capitalize())
 
 
-class PhoneNumberField(DjangoPhoneNumberField):
+class PhoneNumberField(
+        SimpleAnnotationFieldMixin[PhoneNumber], ThirdPartyPhoneNumberField,
+):
     default_error_messages = {'invalid': _("Enter a valid phone number.")}
+    region: Optional[str]
 
 
-class RangeIntegerField(models.IntegerField):
+class CountryField[_C: (Country, list[Country])](
+        SimpleAnnotationFieldMixin[_C], ThirdPartyCountryField,
+):
+    if TYPE_CHECKING:
+        @overload
+        def __new__(  # type: ignore[overload]
+            cls, *args, multiple: Literal[True], **kwargs,
+        ) -> 'CountryField[list[Country]]':
+            ...
+
+        @overload
+        def __new__(
+            cls, *args, multiple: Literal[False], **kwargs,
+        ) -> 'CountryField[Country]':
+            ...
+
+        @overload
+        def __new__(cls, *args, **kwargs) -> 'CountryField[Country]':
+            ...
+
+
+class PointField[_P: Point | None](SimpleAnnotationFieldMixin[_P], BuiltinPointField):
+    if TYPE_CHECKING:
+        @overload
+        def __new__(  # type: ignore[overload]
+                cls, *args, null: Literal[False], **kwargs,
+        ) -> 'PointField[Point]':
+            ...
+
+        @overload
+        def __new__(
+                cls, *args, null: Literal[True], **kwargs,
+        ) -> 'PointField[Point | None]':
+            ...
+
+        @overload
+        def __new__(cls, *args, **kwargs) -> 'PointField[Point]':
+            ...
+
+
+class LineStringField(SimpleAnnotationFieldMixin[LineString], BuiltinLineStringField):
+    pass
+
+
+class RangeIntegerField[_I: int | None](
+        models.IntegerField[_I] if TYPE_CHECKING else models.IntegerField
+):
     description = _("Integer within a predefined range")
 
-    def __init__(self, *args, min_value=None, max_value=None, **kwargs):
+    if TYPE_CHECKING:
+        @overload
+        def __new__(  # type: ignore[overload]
+                cls,
+                *args,
+                null: Literal[False],
+                min_value: Optional[int | Any],
+                max_value: Optional[int | Any],
+                **kwargs,
+        ) -> 'RangeIntegerField[int]':
+            ...
+
+        @overload
+        def __new__(
+                cls,
+                *args,
+                null: Literal[True],
+                min_value: Optional[int | Any],
+                max_value: Optional[int | Any],
+                **kwargs,
+        ) -> 'RangeIntegerField[int | None]':
+            ...
+
+        @overload
+        def __new__(
+                cls,
+                *args,
+                min_value: Optional[int | Any] = ...,
+                max_value: Optional[int | Any] = ...,
+                **kwargs,
+        ) -> 'RangeIntegerField[int]':
+            ...
+
+    @override
+    def __init__(
+            self,
+            *args,
+            min_value: Optional[int | Any] = None, max_value: Optional[int | Any] = None,
+            **kwargs,
+    ):
         self.min_value, self.max_value = None, None
         super().__init__(*args, **kwargs)
         if isinstance(min_value, int):
@@ -63,45 +167,93 @@ class RangeIntegerField(models.IntegerField):
         })
 
 
-def SuggestiveField(verbose_name=None, choices=None, to_field=None, **kwargs):
-    if isinstance(choices, str) or isinstance(choices, models.base.ModelBase):
-        # Assumed to be a reference to a model.
-        return ForeigKeyWithSuggestions(
-            choices=choices, to_field=to_field,
-            verbose_name=verbose_name,
-            **kwargs)
+class SuggestiveField[_M: models.Model]:
+    @overload
+    def __new__(
+            cls,
+            verbose_name: Optional[str],
+            choices: str | type[_M],
+            **kwargs,
+    ) -> 'ForeigKeyWithSuggestions[_M]':
+        ...  # pragma: no cover
+
+    @overload
+    def __new__(
+            cls,
+            verbose_name: Optional[str],
+            choices: '_LiteralFieldChoices',
+            **kwargs,
+    ) -> 'CharFieldWithSuggestions':
+        ...  # pragma: no cover
+
+    def __new__(
+            cls,
+            verbose_name: Optional[str] = None,
+            choices: Optional['str | type[_M] | _LiteralFieldChoices'] = None,
+            to_field: Optional[str] = None,
+            **kwargs,
+    ):
+        if (isinstance(choices, str)
+                or (isinstance(choices, type) and issubclass(choices, models.Model))):
+            # Assumed to be a reference to a model.
+            return ForeigKeyWithSuggestions[_M](
+                choices=choices, to_field=to_field,
+                verbose_name=verbose_name,
+                **kwargs)
+        else:
+            # Otherwise it is a list of options.
+            return CharFieldWithSuggestions(
+                choices=choices,
+                verbose_name=verbose_name,
+                **kwargs)
+
+
+def _handle_invalid_choice(
+        field: models.Field | forms.Field,
+        *args, function: str = 'validate', code: str = 'invalid_choice',
+) -> tuple[Any, Literal[False]] | tuple[None, Literal[True]]:
+    if isinstance(field, forms.Field):
+        parent_field = super(type(field), field)
     else:
-        # Otherwise it is a list of options.
-        return CharFieldWithSuggestions(
-            choices=choices,
-            verbose_name=verbose_name,
-            **kwargs)
+        parent_field = super(type(field), field)
 
-
-def _handle_invalid_choice(field, *args, function='validate', code='invalid_choice'):
-    validation_exception_intercepted = False
     try:
-        validation_result = getattr(super(type(field), field), function)(*args)
+        validation_result = getattr(parent_field, function)(*args)
     except forms.ValidationError as exception:
         validation_exception_intercepted = True
-        validation_result = None
-        exception.error_list = [err for err in exception.error_list if err.code != code]
+        exception.error_list = [
+            err
+            for err in cast(list[forms.ValidationError], getattr(exception, 'error_list', []))
+            if err.code != code
+        ]
         if exception.error_list:
             raise exception
-    return (validation_result, validation_exception_intercepted)
+        return (None, validation_exception_intercepted)
+    else:
+        return (validation_result, False)
 
 
-class CharFieldWithSuggestions(models.CharField):
-    def __init__(self, verbose_name=None, choices=None, **kwargs):
+class CharFieldWithSuggestions(models.CharField[str] if TYPE_CHECKING else models.CharField):
+    if TYPE_CHECKING:
+        def __new__(cls, *args, **kwargs) -> 'CharFieldWithSuggestions':
+            ...
+
+    def __init__(
+            self,
+            *,
+            verbose_name: Optional[str] = None,
+            choices: Optional['_LiteralFieldChoices'] = None,
+            **kwargs,
+    ):
         kwargs['verbose_name'] = verbose_name
         super().__init__(**kwargs)
         self.suggestions = choices
-        if not isinstance(choices, str) and is_iterable(choices):
+        if not isinstance(choices, str) and isinstance(choices, Iterable):
             choices = [('{:03d}'.format(i), choice)
-                       if isinstance(choice, str) or not is_iterable(choice)
+                       if isinstance(choice, str) or not isinstance(choice, Iterable)
                        else choice
                        for i, choice in enumerate(choices, start=1)]
-        self.choices = choices
+        self.choices: '_LiteralFieldChoices' = choices  # type: ignore[arg-type]
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
@@ -158,8 +310,21 @@ class CharFieldWithSuggestions(models.CharField):
         return super().formfield(**defaults)
 
 
-class ForeigKeyWithSuggestions(models.ForeignKey):
-    def __init__(self, verbose_name=None, choices=None, to_field=None, **kwargs):
+class ForeigKeyWithSuggestions[_M: models.Model](
+        models.ForeignKey[_M] if TYPE_CHECKING else models.ForeignKey
+):
+    if TYPE_CHECKING:
+        def __new__(cls, *args, **kwargs) -> 'ForeigKeyWithSuggestions[_M]':
+            ...
+
+    def __init__(
+            self,
+            *,
+            verbose_name: Optional[str] = None,
+            choices: Optional[type[_M] | str] = None,
+            to_field: Optional[str] = None,
+            **kwargs,
+    ):
         self.suggestions_source_field = to_field
         self.suggestions = choices
         kwargs.update(
@@ -195,10 +360,12 @@ class ForeigKeyWithSuggestions(models.ForeignKey):
         return errors
 
     class LenientForwardDescriptor(ForwardManyToOneDescriptor):
-        def get_object(self, model_instance):
+        field: 'ForeignObject[_M]'
+
+        def get_object(self, model_instance: _M):
             try:
                 return super().get_object(model_instance)
-            except models.ObjectDoesNotExist:
+            except models.ObjectDoesNotExist:  # type: ignore[attr-defined]
                 data = {'pk': -1}
                 data[self.field.to_fields[0]] = getattr(model_instance, self.field.attname)
                 return self.field.remote_field.model(**data)
@@ -221,7 +388,7 @@ class ForeigKeyWithSuggestions(models.ForeignKey):
                         lambda value:
                         validator(getattr(value, self.to_field_name or 'pk'))
                     )
-                if str(max_length).isdigit():
+                if max_length is not None and str(max_length).isdigit():
                     self.validators.append(
                         configure_validator(MaxLengthValidator(int(max_length))))
                 self.validators.append(

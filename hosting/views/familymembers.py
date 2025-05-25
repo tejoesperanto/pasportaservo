@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from django.views import generic
 
 from core.auth import AuthMixin, AuthRole
+from hosting.models import FamilyMember
 
 from ..forms import FamilyMemberCreateForm, FamilyMemberForm
 from .mixins import (
@@ -12,7 +13,7 @@ from .mixins import (
 
 
 class FamilyMemberCreateView(
-        CreateMixin, AuthMixin, FamilyMemberMixin,
+        CreateMixin[FamilyMember], AuthMixin, FamilyMemberMixin,
         generic.CreateView):
     template_name = 'hosting/profile_form.html'
     form_class = FamilyMemberCreateForm
@@ -43,7 +44,7 @@ class FamilyMemberCreateView(
 
 
 class FamilyMemberUpdateView(
-        UpdateMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin,
+        UpdateMixin[FamilyMember], AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin,
         generic.UpdateView):
     template_name = 'hosting/profile_form.html'
     form_class = FamilyMemberForm
@@ -56,7 +57,7 @@ class FamilyMemberUpdateView(
 
 
 class FamilyMemberRemoveView(
-        AuthMixin, FamilyMemberMixin,
+        AuthMixin[FamilyMember], FamilyMemberMixin,
         generic.DeleteView):
     """
     Removes the family member for the Place.
@@ -77,7 +78,7 @@ class FamilyMemberRemoveView(
 
 
 class FamilyMemberDeleteView(
-        DeleteMixin, AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin,
+        DeleteMixin[FamilyMember], AuthMixin, FamilyMemberAuthMixin, FamilyMemberMixin,
         generic.DeleteView):
     """
     Removes the family member for the Place and deletes the profile.

@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from ..models import Profile
+from ..models import Place, Profile
 from ..validators import client_side_validated
 
 
@@ -13,6 +13,7 @@ class FamilyMemberForm(forms.ModelForm):
         error_messages = {
             'birth_date': {'max_value': _("A family member cannot be future-born (even if planned).")},
         }
+    place: Place
 
     def __init__(self, *args, **kwargs):
         self.place = kwargs.pop('place')
@@ -43,6 +44,8 @@ class FamilyMemberForm(forms.ModelForm):
 
 
 class FamilyMemberCreateForm(FamilyMemberForm):
+    place: Place
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

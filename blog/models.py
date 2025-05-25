@@ -1,4 +1,5 @@
 import re
+from typing import ClassVar
 
 from django.conf import settings
 from django.db import models
@@ -9,15 +10,17 @@ from django.utils.translation import gettext_lazy as _
 
 from commonmark import commonmark
 from django_extensions.db.models import TimeStampedModel
-from simplemde.fields import SimpleMDEField
+
+from core.fields import SimpleMDEField
+from hosting.models import PasportaServoUser
 
 
-class PublishedQueryset(models.QuerySet):
+class PublishedQueryset(models.QuerySet['Post']):
     def published(self):
         return self.filter(published=True)
 
 
-class PublishedManager(models.Manager):
+class PublishedManager(models.Manager['Post']):
     def get_queryset(self):
         return PublishedQueryset(self.model, using=self._db).annotate(
             published=Case(
@@ -56,14 +59,14 @@ class Post(TimeStampedModel):
     description = models.TextField(
         _("HTML description"),
         blank=True)
-    author = models.ForeignKey(
+    author: 'models.ForeignKey[PasportaServoUser | None]' = models.ForeignKey(
         settings.AUTH_USER_MODEL, verbose_name=_("author"),
         blank=True, null=True, on_delete=models.SET_NULL)
     pub_date = models.DateTimeField(
         _("publication date"),
         null=True, blank=True)
 
-    objects = PublishedManager()
+    objects: ClassVar[PublishedManager] = PublishedManager()
 
     class Meta:
         ordering = ['-pub_date', '-created']

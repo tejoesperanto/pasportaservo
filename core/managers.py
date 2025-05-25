@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Self
 
 from django.core.cache import cache
 from django.db import models
@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from .models import Policy
 
 
-class PoliciesManager(models.Manager):
+class PoliciesManager(models.Manager['Policy']):
     use_in_migrations = True
 
     def latest_efective(self, requiring_consent: bool = False) -> 'Policy':
@@ -19,7 +19,7 @@ class PoliciesManager(models.Manager):
             policy_filter['requires_consent'] = True
         return self.filter(**policy_filter).latest()
 
-    def all_effective(self) -> tuple[list[str], 'PoliciesManager']:
+    def all_effective(self) -> tuple[list[str], Self]:
         today = timezone.now()
         cache_key = f'all-effective-policies_{today:%Y-%m-%d}'
         cached_policy_ids = cache.get(cache_key)

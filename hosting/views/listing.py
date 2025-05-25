@@ -1,6 +1,7 @@
 import json
 import logging
 import re
+from typing import Optional
 from urllib.parse import quote_plus, unquote_plus
 
 from django.conf import settings
@@ -8,7 +9,7 @@ from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
 from django.core.cache import cache
 from django.db.models import BooleanField, Case, Count, F, Prefetch, Q, When
-from django.http import HttpResponseRedirect
+from django.http import HttpRequest, HttpResponseRedirect, QueryDict
 from django.http.response import HttpResponseRedirectBase
 from django.urls import reverse
 from django.utils.encoding import uri_to_iri
@@ -19,6 +20,7 @@ import geocoder
 from django_countries.fields import Country
 from el_pagination.views import AjaxListView
 
+from core import PasportaServoHttpRequest
 from core.auth import PERM_SUPERVISOR, AuthMixin, AuthRole
 from core.forms import FeedbackForm
 from core.templatetags.utils import compact
@@ -46,7 +48,7 @@ class PlacePaginatedListView(AjaxListView):
     model = Place
 
 
-class PlaceStaffListView(AuthMixin, PlaceListView):
+class PlaceStaffListView(AuthMixin[Place], PlaceListView):
     """
     A place for supervisors to see an overview of and manage hosts in their
     area of responsibility.
@@ -58,8 +60,8 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
     def dispatch(self, request, *args, **kwargs):
         self.country = Country(kwargs['country_code'])
         kwargs['auth_base'] = self.country
-        self.in_book_status = {'0': False, '1': True, None: None}[kwargs.get('in_book')]
-        self.invalid_emails = kwargs.get('email')
+        self.in_book_status: bool | None = {'0': False, '1': True, None: None}[kwargs.get('in_book')]
+        self.invalid_emails: bool | None = kwargs.get('email')
         return super().dispatch(request, *args, **kwargs)
 
     def get_owner(self, object):
@@ -100,7 +102,7 @@ class PlaceStaffListView(AuthMixin, PlaceListView):
                 default=False, output_field=BooleanField()
             ),
         )
-        phones_prefetch = Prefetch(
+        phones_prefetch: 'Prefetch[Phone]' = Prefetch(
             'owner__phones',
             queryset=Phone.objects_raw.select_related('visibility')
         )
@@ -157,7 +159,7 @@ class SearchView(PlacePaginatedListView):
     paginate_by = 25
     display_fair_usage_condition = True
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request: PasportaServoHttpRequest, *args, **kwargs):
         if settings.SEARCH_FIELD_NAME in request.GET:
             return HttpResponseRedirect(
                 self.transpose_query_to_url_kwarg(request.GET))
@@ -165,7 +167,7 @@ class SearchView(PlacePaginatedListView):
         self.prepare_search(request, kwargs.get('query'), None, kwargs.get('cache'))
         return super().get(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: PasportaServoHttpRequest, *args, **kwargs):
         if not kwargs.get('query') and request.POST.get(settings.SEARCH_FIELD_NAME):
             if request.session.get('connection_browser') == 'Firefox':
                 # Ugly workaround because Firefox forgets the request data.
@@ -179,7 +181,7 @@ class SearchView(PlacePaginatedListView):
         self.prepare_search(request, query, request.POST, kwargs.get('cache'))
         return super().get(request, *args, **kwargs)
 
-    def transpose_query_to_url_kwarg(self, source):
+    def transpose_query_to_url_kwarg(self, source: QueryDict) -> str:
         """
         If the search query is given via the ps_q request parameter,
         convert it to a URL-encoded keyword param of the `search` path.
@@ -189,21 +191,25 @@ class SearchView(PlacePaginatedListView):
         params = {'query': query} if query else None
         return reverse('search', kwargs=params)
 
-    def get_identifier_for_cache(self, request=None):
+    def get_identifier_for_cache(self, request: Optional[HttpRequest] = None) -> str:
         """
         How the cached results are identified: if the user is authenticated,
         just use the user's ID; otherwise (user is not authenticated), use
-        # the key of the anonymous session.
+        the key of the anonymous session.
         """
         request = request or self.request
-        if not request.user.id and not request.session.session_key:
+        if not request.user.id and not request.session.session_key:  # type: ignore[attr-def]
             # Make sure the session has a key.
             request.session.cycle_key()
-        return request.user.id or request.session.session_key
+        return request.user.id or request.session.session_key  # type: ignore[attr-def]
 
-    def prepare_search(self, request, query, extended_query=None, cached_id=None):
+    def prepare_search(
+            self, request: PasportaServoHttpRequest,
+            query: str | None, extended_query: Optional[QueryDict] = None,
+            cached_id: Optional[str] = None,
+    ):
         # URL-decode and trim query, avoiding query=None.
-        self.query = compact(unquote_plus(query or ''))
+        self.query: str = compact(unquote_plus(query or ''))
         # Allow extended querying (that is, "advanced search") only to
         # authenticated users who have a profile and to administrators
         # regardless of their profile status.
@@ -225,7 +231,7 @@ class SearchView(PlacePaginatedListView):
         # is authenticated. For unauthenticated viewing, no conditions
         # are shown.
         if request.user.is_authenticated:
-            conditions_prefetch = Prefetch(
+            conditions_prefetch: 'Prefetch[Condition]' = Prefetch(
                 'conditions',
                 queryset=Condition.objects.filter(restriction=False)
             )

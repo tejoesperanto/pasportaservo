@@ -2,11 +2,15 @@ import re
 from datetime import date
 from difflib import SequenceMatcher
 from string import digits
+from typing import TYPE_CHECKING, Optional
 
 from django.core.exceptions import (
     ImproperlyConfigured, ObjectDoesNotExist, ValidationError,
 )
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db.models import Model
+from django.db.models.fields.files import FieldFile
+from django.forms import ModelForm
 from django.template.defaultfilters import filesizeformat
 from django.utils.deconstruct import deconstructible
 from django.utils.functional import lazy
@@ -16,8 +20,11 @@ from core.utils import getattr_, join_lazy, split
 
 from .utils import title_with_particule, value_without_invalid_marker
 
+if TYPE_CHECKING:
+    from .models import PasportaServoUser
 
-def validate_not_all_caps(value):
+
+def validate_not_all_caps(value: str):
     """
     Tries to figure out whether the value is all caps while it shouldn't be.
     Validates until 3 characters and non latin strings.
@@ -27,7 +34,7 @@ def validate_not_all_caps(value):
         raise ValidationError(message, code='caps', params={'correct_value': title_with_particule(value)})
 
 
-def validate_not_too_many_caps(value):
+def validate_not_too_many_caps(value: str):
     """
     Tries to figure out whether the value has too many capitals.
     Maximum two capitals per word.
@@ -53,8 +60,10 @@ def validate_not_too_many_caps(value):
                     raise ValidationError(message, code='caps', params={'correct_value': correct_value})
 
 
-def validate_no_digit(value):
-    """Validates if there is not a digit in the string."""
+def validate_no_digit(value: str):
+    """
+    Validates if there is not a digit in the string.
+    """
     if any([char in digits for char in value]):
         raise ValidationError(validate_no_digit.message, code='digits')
 
@@ -62,8 +71,10 @@ validate_no_digit.constraint = ('pattern', '[^0-9]*')
 validate_no_digit.message = _("Digits are not allowed.")
 
 
-def validate_latin(value):
-    """Validates if the string starts with latin characters."""
+def validate_latin(value: str):
+    """
+    Validates if the string starts with latin characters.
+    """
     if not re.match('^{}$'.format(validate_latin.constraint['pattern']), value):
         # http://kourge.net/projects/regexp-unicode-block
         raise ValidationError(validate_latin.message, code='non-latin')
@@ -74,18 +85,22 @@ validate_latin.message = _("Please provide this data in Latin characters, prefer
                            "The source language can be possibly stated in parentheses.")
 
 
-def validate_not_in_future(datevalue):
-    """Validates if the date is no later than today."""
+def validate_not_in_future(datevalue: date):
+    """
+    Validates if the date is no later than today.
+    """
     MaxValueValidator(date.today())(datevalue)
 
 
 @deconstructible
 class TooFarPastValidator():
-    def __init__(self, number_years):
+    def __init__(self, number_years: int):
         self.number_years = number_years
 
-    def __call__(self, datevalue):
-        """Validates if the date is not earlier than the specified number of years ago."""
+    def __call__(self, datevalue: date):
+        """
+        Validates if the date is not earlier than the specified number of years ago.
+        """
         now = date.today()
         try:
             back_in_time = now.replace(year=now.year - self.number_years)
@@ -102,8 +117,10 @@ class TooFarPastValidator():
 
 @deconstructible
 class TooNearPastValidator(TooFarPastValidator):
-    def __call__(self, datevalue):
-        """Validates if the date is not later than the specified number of years ago."""
+    def __call__(self, datevalue: date):
+        """
+        Validates if the date is not later than the specified number of years ago.
+        """
         now = date.today()
         try:
             back_in_time = now.replace(year=now.year - self.number_years)
@@ -114,7 +131,7 @@ class TooNearPastValidator(TooFarPastValidator):
 
 @deconstructible
 class AccountAttributesSimilarityValidator():
-    def __init__(self, max_similarity=0.7):
+    def __init__(self, max_similarity: float = 0.7):
         self.max_similarity = max(max_similarity, 0)
 
     def __eq__(self, other):
@@ -123,24 +140,24 @@ class AccountAttributesSimilarityValidator():
     def __ne__(self, other):
         return not (self == other)
 
-    def __call__(self, value, user=None):
+    def __call__(self, value: str, user: Optional['PasportaServoUser'] = None):
         """
         Validates that the given value is not too similar to known attributes of the account.
         """
         if not user:
             return
 
-        account_attributes = [
+        account_attributes: list[str] = [
             'username', 'email',
-            'profile.first_name', 'profile.last_name', 'profile.email'
+            'profile.first_name', 'profile.last_name', 'profile.email',
         ]
-        similar_to_attributes = []
+        similar_to_attributes: list[str] = []
         value = value.lower()
         for attribute_path in account_attributes:
             try:
                 path = attribute_path.split('.')
                 attribute_name = path[-1]
-                obj = getattr_(user, path[:-1])
+                obj: Model = getattr_(user, path[:-1])
                 attribute = getattr(obj, attribute_name)
             except ObjectDoesNotExist:
                 attribute = None
@@ -169,15 +186,17 @@ class AccountAttributesSimilarityValidator():
                 params={'verbose_name': join_lazy(", ", similar_to_attributes)},
             )
 
-    def exceeds_maximum_length_ratio(self, value_length, attribute_length):
+    def exceeds_maximum_length_ratio(self, value_length: int, attribute_length: int) -> bool:
         length_bound_similarity = self.max_similarity / 2 * value_length
         return attribute_length < length_bound_similarity and value_length >= 100 * attribute_length
 
 
-def validate_image(content):
-    """Validates if Content Type is an image."""
+def validate_image(content: FieldFile):
+    """
+    Validates if Content Type is an image.
+    """
     try:
-        content_type = content.file.content_type.split('/')[0]
+        content_type: str = content.file.content_type.split('/')[0]
     except (IOError, AttributeError):
         pass
     else:
@@ -185,7 +204,7 @@ def validate_image(content):
             raise ValidationError(_("File type is not supported."), code='file-type')
 
 
-def validate_size(content):
+def validate_size(content: FieldFile):
     """Validates if the size of the content in not too big."""
     try:
         content_size = content.file.size
@@ -202,15 +221,20 @@ validate_size.MAX_UPLOAD_SIZE = 102400  # 100kB
 validate_size.constraint = ('maxlength', validate_size.MAX_UPLOAD_SIZE)
 
 
-def client_side_validated(form_class):
+def client_side_validated[T: ModelForm](form_class: type[T]) -> type[T]:
     original_init = form_class.__init__
 
-    def _new_init(self, *args, **kwargs):
+    def _new_init(self: T, *args, **kwargs):
         original_init(self, *args, **kwargs)
+        if not self._meta.model:  # pragma: no cover
+            # Model class specification is validated by the ModelForm's init (raising a
+            # ValueError if no model is indicated), but the type checker is not aware of
+            # that; therefore, this `if` is needed to make it happy.
+            return
         for field in self._meta.model._meta.get_fields():
-            if field.name not in self._meta.fields:
+            if field.name not in self.fields:
                 continue
-            for validator in field.validators:
+            for validator in getattr(field, 'validators', []):
                 if hasattr(validator, 'constraint'):
                     constraint = getattr(validator, 'constraint', ())
                     if isinstance(constraint, dict):

@@ -1,12 +1,18 @@
+from typing import TYPE_CHECKING, Iterable, cast
+
 from django import forms
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field
+from phonenumber_field.phonenumber import PhoneNumber
 
 from ..models import Phone
 from ..validators import client_side_validated
+
+if TYPE_CHECKING:
+    from ..models import FullProfile
 
 
 @client_side_validated
@@ -14,6 +20,7 @@ class PhoneForm(forms.ModelForm):
     class Meta:
         model = Phone
         fields = ['number', 'type', 'country', 'comments']
+    instance: Phone
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -31,7 +38,7 @@ class PhoneForm(forms.ModelForm):
         """
         cleaned_data = super().clean()
         if 'number' in cleaned_data:
-            data = cleaned_data['number'].as_e164
+            data = cast(PhoneNumber, cleaned_data['number']).as_e164
             if self.instance.number and data == self.instance.number.as_e164:
                 phones = Phone.all_objects.none()
             else:
@@ -51,7 +58,9 @@ class PhoneForm(forms.ModelForm):
             # Just overwrite the existing deleted phone object with new data
             # (i.e., type and comments), because the user did not remember
             # deleting this phone number.
-            for field in filter(lambda f: f != 'number', self._meta.fields):
+            for field in filter(
+                    lambda f: f != 'number', cast(Iterable[str], self._meta.fields)
+            ):
                 setattr(self.existing_phone, field, getattr(phone, field))
             phone = self.existing_phone
             # Clear the deletion timestamp.
@@ -69,12 +78,14 @@ class PhoneForm(forms.ModelForm):
 
 
 class PhoneCreateForm(PhoneForm):
+    profile: 'FullProfile'
+
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
         super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        phone = super().save(commit=False)
+        phone: Phone = super().save(commit=False)
         phone.profile = self.profile
         if commit:
             phone.save()

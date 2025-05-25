@@ -57,7 +57,7 @@ class NotDeletedRawManager(models.Manager['TrackingModelT']):
         return super().get_queryset().filter(deleted_on__isnull=True)
 
 
-class ActiveStatusManager(models.Manager):
+class ActiveStatusManager[ActiveModelT: models.Model](models.Manager[ActiveModelT]):
     def get_queryset(self):
         return super().get_queryset().annotate(
             is_active=Case(

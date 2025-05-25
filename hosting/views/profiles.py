@@ -1,11 +1,12 @@
 import logging
 from copy import copy
 from itertools import chain
+from typing import TYPE_CHECKING
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from django.db.models import Prefetch
+from django.db.models import Model, Prefetch, QuerySet
 from django.db.models.functions import Trunc
 from django.forms import modelformset_factory
 from django.http import Http404, HttpResponseRedirect, JsonResponse, QueryDict
@@ -18,6 +19,7 @@ from django.views.decorators.vary import vary_on_headers
 
 from braces.views import FormInvalidMessageMixin
 
+from core import PasportaServoHttpRequest
 from core.auth import PERM_SUPERVISOR, AuthMixin, AuthRole
 from core.mixins import LoginRequiredMixin
 
@@ -31,22 +33,25 @@ from .mixins import (
     ProfileModifyMixin, UpdateMixin,
 )
 
+if TYPE_CHECKING:
+    from ..models import FullProfile  # noqa: F401
+
 User = get_user_model()
 
 
 class ProfileCreateView(
-        AuthMixin, ProfileModifyMixin, FormInvalidMessageMixin,
+        AuthMixin[Profile], ProfileModifyMixin, FormInvalidMessageMixin,
         generic.CreateView):
     model = Profile
     form_class = ProfileCreateForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
     exact_role = AuthRole.OWNER
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request: PasportaServoHttpRequest, *args, **kwargs):
         try:
             # Redirect to profile edit page if user is logged in & profile already exists.
             assert not request.user.is_anonymous
-            profile = Profile.get_basic_data(request, user=request.user)
+            profile: Profile = Profile.get_basic_data(request, user=request.user)
             self.role = AuthRole.OWNER
             return HttpResponseRedirect(profile.get_edit_url(), status=301)
         except Profile.DoesNotExist:
@@ -61,12 +66,13 @@ class ProfileCreateView(
             # Redirect to registration page when user is not authenticated.
             return HttpResponseRedirect(reverse_lazy('register'), status=303)
 
-    def get_form(self, form_class=ProfileCreateForm):
+    def get_form(self, form_class: type[ProfileCreateForm] = ProfileCreateForm):
         return form_class(user=self.request.user, **self.get_form_kwargs())
 
 
 class ProfileUpdateView(
-        UpdateMixin, AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin, FormInvalidMessageMixin,
+        UpdateMixin['FullProfile'], AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin,
+        FormInvalidMessageMixin,
         generic.UpdateView):
     form_class = ProfileForm
     form_invalid_message = _("The data is not saved yet! Note the specified errors.")
@@ -74,7 +80,7 @@ class ProfileUpdateView(
 
 
 class ProfileDeleteView(
-        DeleteMixin, AuthMixin, ProfileIsUserMixin, ProfileMixin,
+        DeleteMixin['FullProfile'], AuthMixin, ProfileIsUserMixin, ProfileMixin,
         generic.DeleteView):
     form_class = ProfileForm
     success_url = reverse_lazy('logout')
@@ -119,7 +125,7 @@ class ProfileDeleteView(
 
 
 class ProfileRestoreView(
-        AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin,
+        AuthMixin['FullProfile'], ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin,
         generic.DetailView):
     template_name = 'hosting/profile_confirm_restore.html'
     display_fair_usage_condition = True
@@ -136,12 +142,13 @@ class ProfileRestoreView(
 
     @property
     def deletion_timestamp(self):
+        assert self.object.deleted_on is not None
         return self.object.deleted_on.replace(second=0, microsecond=0)
 
     def _truncate_delete_field(self):
         return Trunc('deleted_on', kind='minute')
 
-    def _annotated_objects(self, qs):
+    def _annotated_objects[T: Model](self, qs: QuerySet[T]):
         return qs.annotate(
             deleted_when=self._truncate_delete_field()
         ).filter(
@@ -190,7 +197,7 @@ class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         if kwargs.get('pk'):
             try:
-                profile = Profile.get_basic_data(pk=kwargs['pk'])
+                profile: Profile = Profile.get_basic_data(pk=kwargs['pk'])
             except Profile.DoesNotExist:
                 raise Http404("No profile with the given id exists.")
             if profile.user_id:
@@ -207,12 +214,11 @@ class ProfileRedirectView(LoginRequiredMixin, generic.RedirectView):
 
 
 class ProfileDetailView(
-        AuthMixin, ProfileIsUserMixin, ProfileMixin,
+        AuthMixin['FullProfile'], ProfileIsUserMixin, ProfileMixin,
         generic.DetailView):
     display_fair_usage_condition = True
     public_view = True
     minimum_role = AuthRole.VISITOR
-    object: Profile
 
     def get_login_url(self):
         return reverse_lazy(
@@ -290,7 +296,7 @@ class ProfileSettingsRedirectView(LoginRequiredMixin, generic.RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         try:
-            profile = Profile.get_basic_data(self.request, user=self.request.user)
+            profile: Profile = Profile.get_basic_data(self.request, user=self.request.user)
         except Profile.DoesNotExist:
             return reverse_lazy('profile_create')
         else:
@@ -299,7 +305,7 @@ class ProfileSettingsRedirectView(LoginRequiredMixin, generic.RedirectView):
 
 
 class ProfileEmailUpdateView(
-        AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin,
+        AuthMixin['FullProfile'], ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin,
         generic.UpdateView):
     template_name = 'hosting/profile-email_form.html'
     form_class = ProfileEmailUpdateForm
@@ -308,7 +314,7 @@ class ProfileEmailUpdateView(
     minimum_role = AuthRole.OWNER
 
 
-class ProfilePrivacyUpdateView(AuthMixin, ProfileMixin, generic.View):
+class ProfilePrivacyUpdateView(AuthMixin[Profile], ProfileMixin, generic.View):
     http_method_names = ['post']
     exact_role = (AuthRole.OWNER, AuthRole.ADMIN)
 
@@ -321,7 +327,7 @@ class ProfilePrivacyUpdateView(AuthMixin, ProfileMixin, generic.View):
         return _("Only the user themselves can access this page")
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
-    def post(self, request, *args, **kwargs):
+    def post(self, request: PasportaServoHttpRequest, *args, **kwargs):
         profile = self.get_object()
         data = QueryDict(request.body)
 

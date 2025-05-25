@@ -5,10 +5,11 @@ from django.utils.translation import gettext_lazy as _
 from django.views import generic
 from django.views.decorators.vary import vary_on_headers
 
+from core import PasportaServoHttpRequest
 from core.auth import AuthMixin, AuthRole
 
 from ..forms import PhoneCreateForm, PhoneForm
-from ..models import Phone
+from ..models import Phone, Profile
 from .mixins import (
     CreateMixin, DeleteMixin, PhoneMixin, ProfileAssociatedObjectCreateMixin,
     ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin, UpdateMixin,
@@ -16,7 +17,7 @@ from .mixins import (
 
 
 class PhoneCreateView(
-        CreateMixin, AuthMixin, ProfileIsUserMixin,
+        CreateMixin[Phone], AuthMixin, ProfileIsUserMixin,
         ProfileAssociatedObjectCreateMixin, ProfileModifyMixin,
         generic.CreateView):
     model = Phone
@@ -32,24 +33,24 @@ class PhoneCreateView(
 
 
 class PhoneUpdateView(
-        UpdateMixin, AuthMixin, PhoneMixin, ProfileModifyMixin,
+        UpdateMixin[Phone], AuthMixin, PhoneMixin, ProfileModifyMixin,
         generic.UpdateView):
     form_class = PhoneForm
     display_fair_usage_condition = True
 
 
 class PhoneDeleteView(
-        DeleteMixin, AuthMixin, PhoneMixin, ProfileModifyMixin,
+        DeleteMixin[Phone], AuthMixin, PhoneMixin, ProfileModifyMixin,
         generic.DeleteView):
     pass
 
 
-class PhonePriorityChangeView(AuthMixin, ProfileMixin, generic.View):
+class PhonePriorityChangeView(AuthMixin[Profile], ProfileMixin, generic.View):
     http_method_names = ['post']
     minimum_role = AuthRole.OWNER
 
     @vary_on_headers('HTTP_X_REQUESTED_WITH')
-    def post(self, request, *args, **kwargs):
+    def post(self, request: PasportaServoHttpRequest, *args, **kwargs):
         profile = self.get_object()
         # This validation should be sufficient; non-existing IDs and phone IDs not
         # belonging to the profile will be filtered out by Django and not affected.

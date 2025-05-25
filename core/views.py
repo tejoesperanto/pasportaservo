@@ -3,7 +3,7 @@ import re
 from copy import copy
 from datetime import datetime, timedelta
 from traceback import format_exception
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from django.conf import settings
 from django.contrib import messages
@@ -52,7 +52,9 @@ from graphql import GraphQLError
 from blog.models import Post
 from core.models import Policy
 from hosting.forms import SubregionForm
-from hosting.models import Phone, Place, Profile, ViewableTrackingModel
+from hosting.models import (
+    PasportaServoUser, Phone, Place, Profile, ViewableTrackingModel,
+)
 from hosting.utils import value_without_invalid_marker
 from hosting.views.mixins import (
     ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin,
@@ -60,6 +62,7 @@ from hosting.views.mixins import (
 from links.utils import create_unique_url
 from shop.models import Reservation
 
+from . import PasportaServoHttpRequest
 from .auth import AuthMixin, AuthRole
 from .forms import (
     EmailStaffUpdateForm, EmailUpdateForm, FeedbackForm, MassMailForm,
@@ -72,6 +75,10 @@ from .mixins import (
 )
 from .models import FEEDBACK_TYPES, Agreement, SiteConfiguration
 from .utils import sanitize_next, send_mass_html_mail
+
+if TYPE_CHECKING:
+    from hosting.models import FullProfile
+
 
 User = get_user_model()
 
@@ -200,7 +207,7 @@ class RegisterView(generic.CreateView):
     model = User
     template_name = 'registration/register.html'
     form_class = UserRegistrationForm
-    success_url = reverse_lazy('profile_create')
+    success_url: str = reverse_lazy('profile_create')
 
     @method_decorator(sensitive_post_parameters('password1', 'password2'))
     def dispatch(self, request, *args, **kwargs):
@@ -209,7 +216,7 @@ class RegisterView(generic.CreateView):
             return HttpResponseRedirect(self.get_authenticated_redirect_url())
         return super().dispatch(request, *args, **kwargs)
 
-    def get_authenticated_redirect_url(self):
+    def get_authenticated_redirect_url(self) -> str:
         redirect_to = sanitize_next(self.request)
         if redirect_to:
             return redirect_to
@@ -395,7 +402,7 @@ class AccountSettingsView(LoginRequiredMixin, generic.TemplateView):
     template_name = 'account/settings.html'
     display_fair_usage_condition = True
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request: PasportaServoHttpRequest, *args, **kwargs):
         try:
             profile = Profile.get_basic_data(request, user=request.user)
             return HttpResponseRedirect(
@@ -498,7 +505,7 @@ class EmailUpdateView(AuthMixin, UserModifyMixin, generic.UpdateView):
             # expects all owners to be instances of Profile (which is not unreasonable).
             return Profile(user=copy(self.user))
 
-    def form_valid(self, form):
+    def form_valid(self, form: EmailUpdateForm) -> HttpResponse:
         response = super().form_valid(form)
         if form.previous_email != form.instance.email:
             messages.warning(self.request, extra_tags='eminent',
@@ -575,8 +582,8 @@ class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
     method of the mixin.
     """
 
-    def get(self, request, *args, **kwargs):
-        user = get_object_or_404(User, pk=kwargs['pk'])
+    def get(self, request: PasportaServoHttpRequest, *args, **kwargs):
+        user = cast(PasportaServoUser, get_object_or_404(User, pk=kwargs['pk']))
         if user.pk != request.user.pk:
             raise Http404("Only user the token was created for can use this view.")
         old_email, new_email = user.email, kwargs['email']
@@ -597,7 +604,9 @@ class EmailUpdateConfirmView(LoginRequiredMixin, generic.View):
                 'pk': user.profile.pk, 'slug': user.profile.autoslug}))
 
 
-class EmailStaffUpdateView(AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin, generic.UpdateView):
+class EmailStaffUpdateView(
+        AuthMixin['FullProfile'], ProfileIsUserMixin, ProfileMixin, ProfileModifyMixin,
+        generic.UpdateView):
     """
     Allows supervisors to modify the email address for a user account.
     """
@@ -614,12 +623,14 @@ class EmailStaffUpdateView(AuthMixin, ProfileIsUserMixin, ProfileMixin, ProfileM
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # We want the displayed logged in user still be request.user and not the modified User instance.
+        # We want the displayed logged in user (for example, in the header) to still be
+        # request.user and not the modified User instance.
         context['user'] = self.request.user
         return context
 
 
-class EmailValidityMarkView(AuthMixin, ProfileIsUserMixin, ProfileMixin, generic.View):
+class EmailValidityMarkView(
+        AuthMixin['FullProfile'], ProfileIsUserMixin, ProfileMixin, generic.View):
     http_method_names = ['post']
     template_name = '200.html'
     minimum_role = AuthRole.SUPERVISOR
@@ -869,13 +880,13 @@ class MassMailView(AuthMixin, generic.FormView):
             sent=self.nb_sent,
         )
 
-    def form_valid(self, form):
-        body = form.cleaned_data['body']
-        md_body = commonmark(body)
-        subject = form.cleaned_data['subject']
-        preheader = form.cleaned_data['preheader']
-        heading = form.cleaned_data['heading']
-        category = form.cleaned_data['categories']
+    def form_valid(self, form: MassMailForm) -> HttpResponse:
+        body: str = form.cleaned_data['body']
+        md_body: str = cast(str, commonmark(body))
+        subject: str = form.cleaned_data['subject']
+        preheader: str = form.cleaned_data['preheader']
+        heading: str = form.cleaned_data['heading']
+        category: str = form.cleaned_data['categories']
         default_from = f'Pasporta Servo <{self.mailing_address}>'
         template = get_template('email/mass_email.html')
 
@@ -944,7 +955,7 @@ class MassMailView(AuthMixin, generic.FormView):
                     'body': mark_safe(md_body.format(nomo=escape(profile.name or name_placeholder))),
                 }),
                 default_from,
-                [value_without_invalid_marker(profile.user.email)],
+                [value_without_invalid_marker(cast('FullProfile', profile).user.email)],
             ) for profile in profiles]
 
         self.nb_sent = send_mass_html_mail(messages)

@@ -4,16 +4,18 @@ from collections import namedtuple
 from datetime import date, datetime
 from enum import Enum, IntEnum
 from functools import partial, partialmethod
-from typing import TYPE_CHECKING, Iterable, Optional, Self, TypedDict
+from typing import (
+    TYPE_CHECKING, Callable, ClassVar, Final, Iterable,
+    Optional, Self, TypedDict, TypeGuard, cast,
+)
 
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.gis.db.models import LineStringField, PointField
 from django.db import models, transaction
-from django.db.models import F, Q, Value as V
+from django.db.models import F, Q, QuerySet, Value as V
 from django.db.models.functions import Concat, Substr
 from django.http import HttpRequest
 from django.urls import reverse
@@ -29,18 +31,18 @@ from django.utils.translation import (
 )
 
 from commonmark import commonmark
-from django_countries.fields import CountryField
 from django_extensions.db.models import TimeStampedModel
-from simplemde.fields import SimpleMDEField
 from slugify import Slugify
 from unidecode import unidecode
 
+from core.fields import SimpleMDEField
 from core.utils import camel_case_split
 from maps import SRID
 
 from .countries import COUNTRIES_DATA
 from .fields import (
-    PhoneNumberField, RangeIntegerField, StyledEmailField, SuggestiveField,
+    CountryField, LineStringField, PhoneNumberField, PointField,
+    RangeIntegerField, StyledEmailField, SuggestiveField,
 )
 from .filters.places import (
     HostingFilter, InBookFilter, MeetingFilter,
@@ -63,15 +65,20 @@ if TYPE_CHECKING:
         ForeignKey, ManyToManyField as M2MField, OneToOneField as S2SField,
     )
     from django.db.models.manager import RelatedManager
+    from django.db.models.query import ValuesQuerySet
 
 
 class PasportaServoUser(get_user_model()):
     class Meta:
         proxy = True
 
-    profile: 'Profile'
+    id: int
     username: str
     email: str
+    # Because of the reverse relation, accessing `user.profile` for an account without a
+    # profile raises a DoesNotExist exception. Thereafter, `profile` will always point to
+    # a valid Profile instance and will never be None.
+    profile: 'FullProfile'
 
 
 class LocationType(Enum):
@@ -100,7 +107,7 @@ class TrackingModel(models.Model):
     An abstract model that adds fields allowing tracking of activity related to
     the child model's instances, such as deletion or confirmation of the data.
     """
-    owner: 'ForeignKey[Profile]'
+    owner: 'ForeignKey[FullProfile]'
     deleted_on = models.DateTimeField(
         _("deleted on"),
         default=None, blank=True, null=True)
@@ -118,9 +125,9 @@ class TrackingModel(models.Model):
         blank=True, null=True,
         related_name='+', on_delete=models.SET_NULL)
 
-    all_objects = TrackingManager[Self]()
-    objects = NotDeletedManager[Self]()
-    objects_raw = NotDeletedRawManager[Self]()
+    all_objects: ClassVar[TrackingManager[Self]] = TrackingManager()
+    objects: ClassVar[NotDeletedManager[Self]] = NotDeletedManager()
+    objects_raw: ClassVar[NotDeletedRawManager[Self]] = NotDeletedRawManager()
 
     class Meta:
         abstract = True
@@ -405,7 +412,7 @@ class VisibilitySettingsForPublicEmail(VisibilitySettings):
 
 
 class Profile(ViewableModel, TrackingModel, TimeStampedModel):
-    INCOGNITO = pgettext_lazy("Name", "Anonymous")
+    INCOGNITO: Final = pgettext_lazy("Name", "Anonymous")
 
     class Titles(models.TextChoices):
         MRS = 'Mrs', _("Mrs")
@@ -447,7 +454,7 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
     names_inversed = models.BooleanField(
         _("names in inverse order"),
         default=False)
-    gender = SuggestiveField(
+    gender = SuggestiveField['Gender'](
         _("gender"),
         blank=True,
         choices='hosting.Gender', to_field='name',
@@ -496,6 +503,8 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
         pref: 'Preferences'
         owned_places: RelatedManager['Place']
         phones: RelatedManager['Phone']
+        get_phone_order: Callable[[], ValuesQuerySet[Self, int]]
+        set_phone_order: Callable[[Iterable[int | str]], None]
 
     class Meta:
         verbose_name = _("profile")
@@ -531,7 +540,10 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
         if self.avatar and hasattr(self.avatar, 'url') and self.avatar_exists():
             return self.avatar.url
         else:
-            email = self.user.email if self.user_id else "family.member@pasportaservo.org"
+            email = (
+                self.user.email if self.is_full_profile(self)
+                else "family.member@pasportaservo.org"
+            )
             email = value_without_invalid_marker(email)
             return email_to_gravatar(email, settings.DEFAULT_AVATAR_URL)
 
@@ -561,7 +573,8 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
         if not template:
             template.append((
                 template_username,
-                self.user.username.title() if self.user_id else ('--' if non_empty else " ")
+                self.user.username.title() if self.is_full_profile(self)
+                else ('--' if non_empty else " ")
             ))
         output = [format_html(t, q=mark_safe(quote), name=n) for (t, n) in template]
         if self.names_inversed:
@@ -580,13 +593,20 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
             pretranslate={'ĉ': 'ch', 'ĝ': 'gh', 'ĥ': 'hh', 'ĵ': 'jh', 'ŝ': 'sh'})
         return slugify(self.name) or '--'
 
+    @staticmethod
+    def is_full_profile(profile: 'Profile') -> TypeGuard['FullProfile']:
+        """
+        Returns whether the given profile is a full one (i.e., not a family member).
+        """
+        return bool(profile.user_id)
+
     def is_visible_externally(self):
         """
         Returns whether this profile is visible to non-authenticated visitors,
         and the reasons why it might be not visible.
         """
         cases = {
-            "not a standalone account": not self.user_id,
+            "not a standalone account": not self.is_full_profile(self),
             "deleted": bool(self.deleted_on),
             "deceased": bool(self.death_date),
             "not accessible by visitors": (
@@ -662,7 +682,7 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
     def __str__(self):
         if self.full_name:
             return self.full_name
-        elif self.user_id:
+        elif self.is_full_profile(self):
             return '{} ({})'.format(str(self.INCOGNITO), self.user.username)
         return '--'
 
@@ -770,19 +790,25 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
         return updated_models
 
 
+if TYPE_CHECKING:
+    class FullProfile(Profile):
+        user: 'S2SField[PasportaServoUser]'
+        user_id: int
+
+
 class FamilyMember(Profile):
     class Meta:
         proxy = True
 
     @property
-    def owner(self) -> Profile | None:
+    def owner(self) -> 'FullProfile | None':
         """
         The current 'owner' of this profile.
         When a family member profile is a user on their own, the 'owner' is the
         user themselves.
         Otherwise, it is the 'owner' of the place currently being engaged with.
         """
-        return self if self.user_id else getattr(self, '_current_owner', None)
+        return self if self.is_full_profile(self) else getattr(self, '_current_owner', None)
 
     @owner.setter
     def owner(self, value: Profile):
@@ -795,12 +821,12 @@ class FamilyMember(Profile):
         """
         if not isinstance(value, Profile):
             raise ValueError("An owner shall be a Profile.")
-        if not self.user_id:
+        if not self.is_full_profile(self):
             setattr(self, '_current_owner', value)
 
 
 class Place(ViewableModel, TrackingModel, TimeStampedModel):
-    owner: 'ForeignKey[Profile]' = models.ForeignKey(
+    owner: 'ForeignKey[FullProfile]' = models.ForeignKey(
         'hosting.Profile', verbose_name=_("owner"),
         related_name="owned_places", on_delete=models.CASCADE)
     owner_id: int
@@ -894,7 +920,7 @@ class Place(ViewableModel, TrackingModel, TimeStampedModel):
         blank=True,
         help_text=_("You are welcome to expand on the conditions "
                     "in your home in the description."))
-    family_members: 'M2MField[Profile, models.Model]' = models.ManyToManyField(
+    family_members: 'M2MField[FamilyMember, models.Model]' = models.ManyToManyField(
         'hosting.Profile', verbose_name=_("family members"),
         blank=True)
     family_members_visibility = models.OneToOneField(
@@ -1091,7 +1117,7 @@ class Phone(TrackingModel, TimeStampedModel):
         WORK = 'w', pgettext_lazy("Phone Type", "work")
         FAX = 'f', pgettext_lazy("Phone Type", "fax")
 
-    profile: 'ForeignKey[Profile]' = models.ForeignKey(
+    profile: 'ForeignKey[FullProfile]' = models.ForeignKey(
         'hosting.Profile', verbose_name=_("profile"),
         related_name="phones", on_delete=models.CASCADE)
     profile_id: int
@@ -1112,6 +1138,10 @@ class Phone(TrackingModel, TimeStampedModel):
     visibility = models.OneToOneField(
         'hosting.VisibilitySettingsForPhone',
         related_name='%(class)s', on_delete=models.PROTECT)
+
+    if TYPE_CHECKING:
+        get_next_in_order: Callable[[], Self | None]
+        get_previous_in_order: Callable[[], Self | None]
 
     class Meta:
         verbose_name = _("phone")
@@ -1430,7 +1460,7 @@ class ContactPreference(models.Model):
 
 class Preferences(models.Model):
     """Profile's various general preferences, that relate to the account as a whole."""
-    profile: 'S2SField[Profile]' = models.OneToOneField(
+    profile: 'S2SField[FullProfile]' = models.OneToOneField(
         'hosting.Profile', verbose_name=_("profile"),
         related_name="pref", on_delete=models.CASCADE)
     profile_id: int
@@ -1485,23 +1515,27 @@ class TravelAdvice(TimeStampedModel):
         _("advice valid until date"),
         null=True, blank=True)
 
-    objects = ActiveStatusManager()
+    objects: ClassVar[ActiveStatusManager[Self]] = ActiveStatusManager()
 
     class Meta:
         verbose_name = _("travel advice")
         verbose_name_plural = _("travel advices")
 
-    def trimmed_content(self, cut_off=70):
-        return '{}...'.format(self.content[:cut_off-2]) if len(self.content) > cut_off else self.content
+    def trimmed_content(self, cut_off: int = 70) -> str:
+        return (
+            '{}...'.format(self.content[:cut_off-2])
+            if len(self.content) > cut_off
+            else self.content
+        )
 
-    def applicable_countries(self, all_label=None, code=True):
+    def applicable_countries(self, all_label: Optional[str] = None, code: bool = True) -> str:
         if not self.countries:
-            return all_label or self._meta.get_field('countries').blank_label
+            return all_label or cast(CountryField, self._meta.get_field('countries')).blank_label
         else:
             return ', '.join(c.code if code else c.name for c in self.countries)
 
     @classmethod
-    def get_for_country(cls, country_code, is_active=True):
+    def get_for_country(cls, country_code: str, is_active: bool | None = True) -> QuerySet[Self]:
         """
         Extracts advices indicated for a specific country, i.e., those applicable to a
         list of countries among which is the queried country, or those applicable to

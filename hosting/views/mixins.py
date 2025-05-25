@@ -1,5 +1,10 @@
+from abc import abstractmethod
+from typing import TYPE_CHECKING, Optional, Protocol, cast
+
 from django.contrib import messages
-from django.http import Http404, HttpResponseRedirect
+from django.db.models import Model, OneToOneField, QuerySet
+from django.forms import ModelForm
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
@@ -8,17 +13,33 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import never_cache
 
+from django_countries.fields import Country
+
 from core.auth import AuthRole
+from core.mixins import (
+    SingleObjectDeleteViewProtocol,
+    SingleObjectFormViewProtocol, SingleObjectViewProtocol,
+)
 from core.templatetags.utils import next_link
 from core.utils import sanitize_next
 
-from ..models import FamilyMember, LocationConfidence, Phone, Place, Profile
+from ..models import (
+    FamilyMember, LocationConfidence, Phone, Place,
+    Profile, TrackingModel, VisibilitySettings,
+)
+
+if TYPE_CHECKING:
+    from ..models import FullProfile
 
 
-class ProfileMixin(object):
-    model = Profile
+class HasVisibilitySettings(Protocol):
+    visibility: 'OneToOneField[VisibilitySettings]'
 
-    def get_object(self, queryset=None):
+
+class ProfileMixin[ProfileT: (Profile, 'FullProfile')](SingleObjectViewProtocol[ProfileT]):
+    model: type[Profile] = Profile
+
+    def get_object(self, queryset: Optional[QuerySet[ProfileT]] = None) -> Profile:
         try:
             current_user_profile_pk = (
                 self.request.user_has_profile and self.request.user.profile.pk
@@ -32,7 +53,11 @@ class ProfileMixin(object):
                 profile = self.request.user.profile
             else:
                 where_from = queryset if queryset is not None else self.get_queryset()
-                profile = get_object_or_404(where_from, pk=self.kwargs['pk'])
+                # QuerySet is invariant in its type parameter, therefore QuerySet[FullProfile]
+                # is not a subtype of QuerySet[Profile].  But for the purpose of `get_object`,
+                # FullProfile is indeed a Profile.
+                profile = get_object_or_404(
+                    cast(QuerySet[Profile], where_from), pk=self.kwargs['pk'])
         return profile
 
     def get_queryset(self):
@@ -42,8 +67,8 @@ class ProfileMixin(object):
             return self.model._default_manager.all()
 
 
-class ProfileModifyMixin(object):
-    url_anchors = {Place: 'p', Phone: 't'}
+class ProfileModifyMixin[ModelT: Model](SingleObjectViewProtocol[ModelT]):
+    url_anchors: dict[type[Model], str] = {Place: 'p', Phone: 't'}
 
     def get_success_url(self, *args, **kwargs):
         redirect_to = sanitize_next(self.request)
@@ -52,7 +77,9 @@ class ProfileModifyMixin(object):
 
         success_url, success_url_anchor = None, None
         if hasattr(self.object, 'profile'):
-            success_url = self.object.profile.get_edit_url()
+            success_url = (
+                cast(Profile, self.object.profile)  # type: ignore[attr-defined]
+                .get_edit_url())
             success_url_anchor = self.url_anchors.get(self.model)
         if type(self.object) is Profile:
             success_url = self.object.get_edit_url()
@@ -63,23 +90,32 @@ class ProfileModifyMixin(object):
             return success_url
 
 
-class ProfileIsUserMixin(object):
+class ProfileIsUserMixin[ModelT: Model](SingleObjectViewProtocol[ModelT]):
     def dispatch(self, request, *args, **kwargs):
         try:
-            if not kwargs.get('auth_base').owner.user_id:
+            if not Profile.is_full_profile(
+                    cast(TrackingModel, kwargs.get('auth_base')).owner
+            ):
+                # For a family member, `owner` will point to itself. Otherwise,
+                # it will point to a full profile.
                 raise Http404("Detached profile (probably a family member).")
         except AttributeError:
             pass
         return super().dispatch(request, *args, **kwargs)
 
-    def get_object(self, queryset=None):
-        profile = super().get_object(queryset)
-        if not profile.user_id:
+    # `get_object` is called by UpdateView, but this mixin is only used for Profile views
+    # and the CreateView of other models (`get_object` is defined there but is not used).
+    # Therefore, the queryset will certainly contain only Profile objects.
+    def get_object(
+            self, queryset: Optional[QuerySet[Profile]] = None,
+    ) -> 'FullProfile':
+        profile = cast(Profile, super().get_object(queryset))  # type: ignore[type-var]
+        if not Profile.is_full_profile(profile):
             raise Http404("Detached profile (probably a family member).")
         return profile
 
 
-class CreateMixin(object):
+class CreateMixin[ModelT: TrackingModel](SingleObjectFormViewProtocol[ModelT]):
     minimum_role = AuthRole.OWNER
 
     def dispatch(self, request, *args, **kwargs):
@@ -94,8 +130,19 @@ class CreateMixin(object):
         return super().dispatch(request, *args, **kwargs)
 
 
-class ProfileAssociatedObjectCreateMixin(object):
-    def form_valid(self, form):
+class ProfileAssociatedObjectCreateMixin(SingleObjectFormViewProtocol):
+    create_for: Profile
+
+    if TYPE_CHECKING:
+        class ModelWithVisibility(TrackingModel, HasVisibilitySettings):
+            pass
+        object: ModelWithVisibility
+
+    @abstractmethod
+    def get_confirmation_message(self) -> str:  # pragma: no cover
+        ...
+
+    def form_valid(self, form: ModelForm) -> HttpResponse:
         response = super().form_valid(form)
         if self.role == AuthRole.OWNER:
             url = ''.join((
@@ -114,14 +161,14 @@ class ProfileAssociatedObjectCreateMixin(object):
         return response
 
 
-class PlaceMixin(object):
-    model = Place
+class PlaceMixin(SingleObjectViewProtocol[Place]):
+    model: type[Place] = Place
 
-    def get_object(self, queryset=None):
+    def get_object(self, queryset: Optional[QuerySet[Place]] = None) -> Place:
         where_from = queryset if queryset is not None else self.get_queryset()
         return get_object_or_404(where_from, pk=self.kwargs['pk'])
 
-    def get_location(self, object):
+    def get_location(self, object: Place) -> Country:
         return object.country
 
     def get_queryset(self):
@@ -131,8 +178,12 @@ class PlaceMixin(object):
             return self.model._default_manager.all()
 
 
-class PlaceModifyMixin(object):
-    def form_valid(self, form):
+class PlaceModifyMixin(SingleObjectFormViewProtocol[Place]):
+    if TYPE_CHECKING:
+        class FormWithConfidence(ModelForm):
+            confidence: LocationConfidence
+
+    def form_valid(self, form: 'FormWithConfidence') -> HttpResponse:
         response = super().form_valid(form)
         if '_gotomap' in self.request.POST or form.confidence < LocationConfidence.ACCEPTABLE:
             map_url = reverse('place_location_update', kwargs={'pk': self.object.pk})
@@ -145,21 +196,21 @@ class PlaceModifyMixin(object):
         return response
 
 
-class PhoneMixin(object):
-    model = Phone
+class PhoneMixin(SingleObjectViewProtocol[Phone]):
+    model: type[Phone] = Phone
 
-    def get_object(self, queryset=None):
+    def get_object(self, queryset: Optional[QuerySet[Phone]] = None) -> Phone:
         return get_object_or_404(Phone, pk=self.kwargs['pk'], profile=self.kwargs['profile_pk'])
 
 
-class FamilyMemberMixin(object):
-    model = FamilyMember
+class FamilyMemberMixin(SingleObjectViewProtocol[FamilyMember]):
+    model: type[FamilyMember] = FamilyMember
 
     def dispatch(self, request, *args, **kwargs):
         self.get_place()
         return super().dispatch(request, *args, **kwargs)
 
-    def get_object(self, queryset=None):
+    def get_object(self, queryset: Optional[QuerySet[FamilyMember]] = None) -> FamilyMember:
         profile = super().get_object(queryset)
         if profile in self.place.family_members_cache():
             profile.owner = self.place.owner
@@ -167,9 +218,9 @@ class FamilyMemberMixin(object):
         else:
             raise Http404(f"Profile {profile.pk} is not a family member at place {self.place.pk}.")
 
-    def get_place(self):
+    def get_place(self) -> Place:
         if not hasattr(self, 'place'):
-            self.place = (
+            self.place: Place = (
                 getattr(self, 'create_for', None)
                 or get_object_or_404(Place, pk=self.kwargs['place_pk'])
             )
@@ -197,15 +248,15 @@ class FamilyMemberMixin(object):
         return self.place.owner.get_edit_url()
 
 
-class FamilyMemberAuthMixin(object):
-    def get_object(self, queryset=None):
+class FamilyMemberAuthMixin(SingleObjectViewProtocol[FamilyMember]):
+    def get_object(self, queryset: Optional[QuerySet[FamilyMember]] = None) -> FamilyMember:
         profile = super().get_object(queryset)
-        if profile.user_id:
+        if Profile.is_full_profile(profile):
             raise Http404("Only the user can modify their profile.")
         return profile
 
 
-class UpdateMixin(object):
+class UpdateMixin[ModelT: TrackingModel](SingleObjectFormViewProtocol[ModelT]):
     minimum_role = AuthRole.OWNER
     update_partial = False
 
@@ -213,7 +264,11 @@ class UpdateMixin(object):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def form_valid(self, form):
+    def get_object(self, queryset: Optional[QuerySet[ModelT]] = None) -> ModelT:
+        # Make type-checker happy.
+        return super().get_object(queryset)
+
+    def form_valid(self, form: ModelForm) -> HttpResponse:
         self.object.set_check_status(
             self.request.user,
             clear_only=(
@@ -224,10 +279,10 @@ class UpdateMixin(object):
         return super().form_valid(form)
 
 
-class DeleteMixin(object):
+class DeleteMixin[ModelT: TrackingModel](SingleObjectDeleteViewProtocol[ModelT]):
     minimum_role = AuthRole.OWNER
 
-    def get_object(self, queryset=None):
+    def get_object(self, queryset: Optional[QuerySet[ModelT]] = None) -> ModelT:
         if getattr(self, 'object', None) is not None:
             # In some use-cases, get_object will be called several times prior to deletion.
             # Avoid multiple trips to the database for those cases.
