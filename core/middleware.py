@@ -103,10 +103,13 @@ class AccountFlagsMiddleware(MiddlewareMixin):
                 ))
 
         # Has the user consented to the most up-to-date usage policy?
-        if trouble_view is not None:
+        if trouble_view is not None and request.method == 'GET':
             redirect_response = (
                 self._verify_usage_policy_consent(request, trouble_view.func.view_class)
             )
+            # We don't want to disrupt the users when they are in the middle of an
+            # operation, by injecting an unexpected redirect. The newer policy can
+            # be shown when they complete the operation and continue browsing.
             if redirect_response is not None:
                 return redirect_response
 
@@ -114,9 +117,9 @@ class AccountFlagsMiddleware(MiddlewareMixin):
         # properly configured profile?
         if (request.path.startswith(str(url_index_postman))
                 and not request.user_has_profile and not request.user.is_superuser):
-            # We can reuse the birth date query result to avoid an additional
-            # query in the DB.  For users with a profile, the result will not
-            # be empty and hold some value (either datetime or None).
+            # We can reuse the birth date query result to avoid an additional query
+            # in the DB. For users with a profile, the result will not be empty and
+            # hold some value (either datetime or None).
             t = TemplateResponse(
                     request, 'registration/profile_create.html', status=403,
                     context={
