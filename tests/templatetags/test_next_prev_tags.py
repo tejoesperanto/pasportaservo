@@ -234,25 +234,54 @@ class PreviousTagTests(TestCase):
 
     def test_prevpage_link(self):
         template = Template("{% load previous from utils %}{% previous %}")
+
         # Missing request in context is expected to produce an empty result.
         page = template.render(Context())
         self.assertEqual(page, "")
+
         # Request with no referer header is expected to produce an empty result.
         request = self.request_factory.get('/festival')
         page = template.render(Context({'request': request}))
         self.assertEqual(page, "")
-        # Request including a URL path referer header is expected to produce the value of the header.
+
+        # Request that includes a URL path referer header is expected to produce
+        # the value of the header.
         request = self.request_factory.get('/festival', HTTP_REFERER='/1965/songs')
         page = template.render(Context({'request': request}))
         self.assertEqual(page, "/1965/songs")
-        # Request including a full referer header is expected to produce the URL path of the header.
-        request = self.request_factory.get('/festival', HTTP_REFERER='http://testserver/1968/award')
+        # Request that includes a URL path & query referer header is expected to produce
+        # the value of the header.
+        request = self.request_factory.get(
+            '/festival', HTTP_REFERER='/1968/award?year=1968#nominations')
+        page = template.render(Context({'request': request}))
+        self.assertEqual(page, "/1968/award?year=1968#nominations")
+        # Request that includes a URL path, params & query referer header is expected
+        # to produce the value of the header.
+        request = self.request_factory.get(
+            '/festival',
+            HTTP_REFERER='/1956;countries=y/participants;ext=2?len=100%25&orc=*#winners')
+        page = template.render(Context({'request': request}))
+        self.assertEqual(
+            page,
+            "/1956;countries=y/participants;ext=2?len=100%25&amp;orc=*#winners"
+        )
+
+        # Request that includes a full referer header (without query string) is expected
+        # to produce the URL path of the header.
+        request = self.request_factory.get(
+            '/festival', HTTP_REFERER='http://testserver/1968/award')
         page = template.render(Context({'request': request}))
         self.assertEqual(page, "/1968/award")
+        # Request that includes a full referer header (with a query string) is expected
+        # to produce the URL path & query of the header.
+        request = self.request_factory.get(
+            '/festival', HTTP_REFERER='http://testserver/1970/?award=true#nominations')
+        page = template.render(Context({'request': request}))
+        self.assertEqual(page, "/1970/?award=true#nominations")
 
     def test_insecure_prevpage_link(self):
-        # Requests whose referer header is not secure (points to an unexpected URL or an external domain),
-        # are expected to produce an empty result.
+        # Requests whose referer header is not secure (points to an unexpected URL
+        # or an external domain), are expected to produce an empty result.
         template = Template("{% load previous from utils %}{% previous %}")
         for url, secure in [('//example.com/landing', False),
                             ('http://example.net/landing', False),
