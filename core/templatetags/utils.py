@@ -1,7 +1,7 @@
 import random
 from hashlib import sha256
 from typing import Any, Optional, cast
-from urllib.parse import quote as urlquote, urlencode, urlparse
+from urllib.parse import quote as urlquote, urlencode, urlsplit
 
 from django import template
 from django.conf import settings
@@ -200,4 +200,6 @@ def previous_link(context, default=''):
     if 'request' in context:
         referrer_url = context['request'].META.get('HTTP_REFERER', '')
         url_param_value = sanitize_next(context['request'], url=referrer_url)
-    return urlparse(url_param_value).path or default
+    if url_param_value:
+        return urlsplit(url_param_value)._replace(scheme='', netloc='').geturl()
+    return default
