@@ -105,7 +105,7 @@
                                         class="btn btn-default requires-scripting"
                                         type="button" data-toggle="collapse" tabindex="2"
                                         aria-controls="{% trans "advanced-filter" context "URL" %}"
-                                        aria-expanded="{{ filtered_by|yesno:'true,false' }}"
+                                        aria-expanded="true"  {# Will be set to false by JS code. #}
                                         title="{% trans "Search settings" %}">
                                     <span class="fa fa-sliders" aria-hidden="true"></span>
                                     <span class="sr-only">{% trans "Search settings" %}</span>

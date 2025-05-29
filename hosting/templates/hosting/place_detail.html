@@ -174,11 +174,12 @@
                                     <button data-target="#set-blocking"
                                             class="btn btn-default btn-sm requires-scripting"
                                             type="button" data-toggle="collapse"
-                                            aria-haspopup="true" aria-expanded="false">
+                                            aria-haspopup="dialog" aria-controls="set-blocking">
                                         <span class="sr-only">{% trans "unavailable" %} ?</span>
                                         <span class="fa fa-regular fa-clock" aria-hidden="true"></span>
                                     </button>
-                                    <div id="set-blocking" class="panel panel-default place-blocking-panel collapse">
+                                    <div id="set-blocking" class="panel panel-default place-blocking-panel collapse"
+                                         role="dialog" aria-modal="false" aria-label="{% trans "Form to indicate the unavailability" %}">
                                         {% include './snippets/place_blocking_quick_form.html' with place=place form=blocking.form form_class="panel-body" csrf_token=csrf_token only %}
                                     </div>
                                     <noscript>
@@ -411,7 +412,7 @@
                         {% if shall_display_family_members and not place.family_is_anonymous %}
                             <button class="switch requires-scripting hidden-print btn btn-xs"
                                     type="button" data-target="#family-panel-small" data-toggle="collapse"
-                                    aria-controls="family-panel-small" aria-expanded="false">
+                                    aria-controls="family-panel-small" aria-expanded="true">
                                 &nbsp;<span class="fa fa-caret-right fa-lg" aria-label="{% trans "Show" %}" data-aria-label-inactive="{% trans "Hide" %}"></span>&nbsp;
                             </button>
                         {% endif %}

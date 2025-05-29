@@ -305,6 +305,16 @@ $(document).ready(function() {
     // #endregion
 
     // #region Collapsing elements
+    document.querySelectorAll('.collapse.when-scripting:not(.in)').forEach(function (element) {
+        if (!element.id)
+            return;
+        document.querySelectorAll(`[aria-controls="${element.id}"]`).forEach(function (elementSwitch) {
+            elementSwitch.setAttribute('aria-expanded', false);
+        });
+        if (element.hasAttribute('aria-expanded')) {
+            element.setAttribute('aria-expanded', false);
+        }
+    });
     $('.top-notice:has(p.collapse)').each(function() {
         var $container = $(this);
         var noticeKey = 'advisory.ID.collapsed'.replace('ID', $container.data('id'));

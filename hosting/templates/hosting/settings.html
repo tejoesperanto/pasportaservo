@@ -92,7 +92,8 @@
 
 {% block profile_email %}
     <section class="well well-sm" aria-label="{% trans "Public email address" %}">
-        <button type="button" data-target="#set-public-email" class="btn btn-primary btn-vert-space btn-xs" data-toggle="collapse">
+        <button type="button" data-target="#set-public-email" class="btn btn-primary btn-vert-space btn-xs"
+                data-toggle="collapse" aria-controls="set-public-email" aria-expanded="true">
             {% trans "Public email?" %}
         </button>
         <div id="set-public-email" class="collapse when-scripting {% if profile.email %} in{% endif %}">
@@ -152,7 +153,8 @@
                         <span class="notification"></span>
                     </span>
                     {% crispy optinouts_form %}
-                    <a id="analytics_more_link" data-target="#analytics_more" data-toggle="collapse" style="cursor: help" class="requires-scripting">
+                    <a id="analytics_more_link" role="button" data-target="#analytics_more" data-toggle="collapse"
+                       aria-controls="analytics_more" aria-expanded="true" style="cursor: help" class="requires-scripting">
                         {% trans "More&nbsp;information about the measurement technologies." %}
                     </a>
                     <div class="collapse when-scripting" id="analytics_more">

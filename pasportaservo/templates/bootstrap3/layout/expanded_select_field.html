@@ -6,7 +6,7 @@
         id="{{ field.auto_id }}_form_element"
         {% if field_block_collapsed is not None %}
             class="collapse when-scripting{% if not field_block_collapsed %} in{% endif %}"
-            aria-expanded="{{ field_block_collapsed|yesno:"false,true" }}"
+            aria-expanded="true"  {# Will be set to false by JavaScript, if enabled. #}
         {% endif %}
      {% endfilter %}>
     {% for widget in field %}
