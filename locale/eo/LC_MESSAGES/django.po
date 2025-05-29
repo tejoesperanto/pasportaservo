@@ -3064,6 +3064,10 @@ msgid "unavailable"
 msgstr "maldisponebla"
 
 #: hosting/templates/hosting/place_detail.html
+msgid "Form to indicate the unavailability"
+msgstr "Formularo por indiki la maldisponeblon"
+
+#: hosting/templates/hosting/place_detail.html
 #: hosting/templates/hosting/place_list_supervisor.html
 #: hosting/templates/hosting/place_printable_map.html
 #: hosting/templates/hosting/profile_detail.html

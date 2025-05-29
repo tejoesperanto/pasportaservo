@@ -5,15 +5,15 @@
                     class="switch requires-scripting hidden-print btn {{ switch_button_class }}"
                     {% if tabindex %}tabindex="{{ tabindex }}"{% endif %}
                     data-target="#{{ collapse_form_field_id }}_form_element" data-toggle="collapse"
-                    aria-controls="{{ collapse_form_field_id }}_form_element" aria-expanded="{{ field_block_collapsed|yesno:"false,true" }}">
+                    aria-controls="{{ collapse_form_field_id }}_form_element" aria-expanded="true">
                 {% asvar aria_label_prefix trimmed %}
                     {% if collapse_form_field_label or divider_title %}
                         {{ collapse_form_field_label|default:divider_title }}:
                     {% endif %}
                 {% endasvar %}
                 &nbsp;<span class="fa fa-caret-right{% if not field_block_collapsed %} fa-rotate-90{% endif %} fa-lg"
-                            aria-label="{{ aria_label_prefix }} {% if field_block_collapsed %}{% trans "Show" %}{% else %}{% trans "Hide" %}{% endif %} "
-                            data-aria-label-inactive="{{ aria_label_prefix }} {% if field_block_collapsed %}{% trans "Hide" %}{% else %}{% trans "Show" %}{% endif %} "></span>&nbsp;
+                            aria-label="{{ aria_label_prefix }} {% if field_block_collapsed %}{% trans "Show" %}{% else %}{% trans "Hide" %}{% endif %}"
+                            data-aria-label-inactive="{{ aria_label_prefix }} {% if field_block_collapsed %}{% trans "Hide" %}{% else %}{% trans "Show" %}{% endif %}"></span>&nbsp;
             </button>
         {% endif %}
         {% if divider_title and form_show_labels %}

@@ -1354,12 +1354,14 @@ p.tip {
         }
     }
 }
-.switch.btn-sm ~ .divider-heading {
+html.js-enabled .switch.btn-sm ~ .divider-heading,
+html:not(.js-enabled) .switch.btn-sm:not(.requires-scripting) ~ .divider-heading {
     padding-top: 4px;
     width: calc(100% - 50px);
     float: right;
 }
-.switch.btn-xs ~ .divider-heading {
+html.js-enabled .switch.btn-xs ~ .divider-heading,
+html:not(.js-enabled) .switch.btn-xs:not(.requires-scripting) ~ .divider-heading {
     padding-top: 2px;
     width: calc(100% - 40px);
     float: right;
