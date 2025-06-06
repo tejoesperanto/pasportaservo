@@ -6,7 +6,7 @@
 {% block page %}
     <section class="blog row">
         <div class="col-xxs-12 col-xxs-offset-0 col-xs-10 col-xs-offset-1 col-md-8 col-md-offset-2">
-            <div class="btn-toolbar pull-right" role="toolbar">
+            <div class="btn-toolbar control-buttons pull-right" role="toolbar">
                 {% if perms.blog %}
                     <div class="btn-group" role="group">
                         <a href="{% url 'admin:blog_post_add' %}" class="btn btn-primary" title="{% trans "Add" %}">

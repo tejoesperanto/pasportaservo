@@ -1,21 +1,34 @@
 {% load i18n static %}
 <div class="btn-group" role="group">
-    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <button id="subscribe-toggle" type="button" class="btn btn-default dropdown-toggle requires-scripting"
+            data-toggle="dropdown" aria-haspopup="true" aria-controls="subscribe" aria-expanded="false">
         {% trans "Subscribe" %}
         <span class="caret"></span>
     </button>
-    <ul id="subscribe" class="dropdown-menu dropdown-menu-right">
-        <li>
+    <ul id="subscribe" class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="subscribe-toggle">
+        <li role="menuitem">
             <a href="{% url 'blog:atom' %}">
                 <span class="fa ps-atom fa-lg fa-fw text-brand" aria-hidden="true"></span>
                 Atom
             </a>
         </li>
-        <li>
+        <li role="menuitem">
             <a href="{% url 'blog:rss' %}">
                 <span class="fa fa-square-rss fa-lg fa-fw text-brand" aria-hidden="true"></span>
                 RSS
             </a>
         </li>
     </ul>
+    <noscript>
+        <div class="btn-group">
+            <a role="button" href="{% url 'blog:atom' %}" class="btn btn-default">
+                <span class="fa ps-atom fa-lg fa-fw text-brand" aria-hidden="true"></span>
+                {% trans "Subscribe" %}: Atom
+            </a>
+            <a role="button" href="{% url 'blog:rss' %}" class="btn btn-default">
+                <span class="fa fa-square-rss fa-lg fa-fw text-brand" aria-hidden="true"></span>
+                {% trans "Subscribe" %}: RSS
+            </a>
+        </div>
+    </noscript>
 </div>

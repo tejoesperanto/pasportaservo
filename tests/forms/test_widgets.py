@@ -437,13 +437,14 @@ class ExpandedMultipleChoiceWidgetTests(AdditionalAsserts, TestCase):
         )
         html = BeautifulSoup(result, HTML_PARSER)
         # The form elements are expected to be rendered in a collapsible container
-        # corresponding to the form's multi-value field and folded by default.
+        # corresponding to the form's multi-value field. Since collapsing is enabled
+        # by JavaScript, the container is expected to be un-folded by default.
         container_element = html.find('div', id='id_the_past_form_element')
         self.assertIsNotNone(container_element)
         self.assertIn('class', container_element.attrs)
         self.assertIn("collapse", container_element.attrs['class'])
         self.assertNotIn("in", container_element.attrs['class'])
-        self.assertEqual(container_element.attrs.get('aria-expanded'), 'false')
+        self.assertEqual(container_element.attrs.get('aria-expanded'), 'true')
         # The control labels are expected to be rendered with the specified CSS class.
         label_elements = html.select('label.control-label')
         self.assertLength(label_elements, 2)
@@ -610,11 +611,9 @@ class FormDividerWidgetTests(AdditionalAsserts, TestCase):
         switch_icon_element = switch_element.find(None, "fa", recursive=False)
         self.assertIsNotNone(switch_icon_element)
         # The switch button is expected to indicate the ARIA 'expanded'
-        # state of the other form element according to the initial mode.
-        self.assertEqual(
-            switch_element.attrs.get('aria-expanded'),
-            'false' if collapsed else 'true'
-        )
+        # state of the other form element. Since collapsing is enabled by
+        # JavaScript, by default the expanded state is true.
+        self.assertEqual(switch_element.attrs.get('aria-expanded'), 'true')
         self.assertIn("fa-caret-right", switch_icon_element.attrs['class'])
         if not collapsed:
             # A visual indicator of the 'expanded' state is expected on
