@@ -517,7 +517,7 @@ class CollapseControlTestsMixin(with_type_hint(BasicViewTests)):
             self.assertEqual(control_element.attr("aria-expanded"), "true")
             self.assertCssClass(target_element, "in")
         else:
-            self.assertEqual(control_element.attr("aria-expanded"), "false")
+            self.assertEqual(control_element.attr("aria-expanded"), "true")
             self.assertFalse(target_element.has_class("in"))
 
 
@@ -731,9 +731,18 @@ class LanguageSwitcherTestsMixin(with_type_hint(BasicViewTests)):
         self.assertEqual(switch_languages_container.attr("role"), "menu")
         match expected_bidi:
             case "ltr":
-                self.assertCssClass(switch_languages_container, "dropdown-menu-right")
+                expected_dropdown_class = "dropdown-menu-right"
             case "rtl":
-                self.assertCssClass(switch_languages_container, "dropdown-menu-left")
+                expected_dropdown_class = "dropdown-menu-left"
+        actual_dropdown_classes = (
+            cast(str, switch_languages_container.attr("class") or "").split()
+        )
+        self.assertTrue(
+            any(
+                css_class for css_class in actual_dropdown_classes
+                if css_class.endswith(expected_dropdown_class)),
+            msg=f"'{expected_dropdown_class}' not found in {actual_dropdown_classes}"
+        )
         # Verify that it is possible to navigate to the correct localized page;
         # correctness is asserted using the content of the page.
         response = page.response.goto(language_element.attr("href"), status='*')

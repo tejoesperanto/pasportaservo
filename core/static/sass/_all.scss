@@ -215,6 +215,33 @@ ul.dropdown-menu li {
         }
     }
 }
+html:not(.js-enabled) .language-switcher {
+    [role="menu"] {
+        display: inline;
+        padding: 0;
+        font-size: 14px;
+
+        [role="menuitem"] {
+            display: inline-block;
+            &:not(:last-child)::after {
+                content: " | ";
+            }
+            a {
+                display: inline-block;
+            }
+        }
+    }
+    &:not([dir]), &[dir="ltr"] {
+        [role="menu"] {
+            margin-left: 0.25em;
+        }
+    }
+    &[dir="rtl"] {
+        [role="menu"] {
+            margin-right: 0.25em;
+        }
+    }
+}
 
 .debug-only {
     position: absolute;

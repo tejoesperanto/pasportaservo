@@ -443,6 +443,12 @@ $(document).ready(function() {
         $('#map').css('visibility', $('#map').css('visibility') == 'hidden' ? 'visible' : 'hidden');
         $('[data-target="#map-container"]').toggleClass('active');
     });
+    document.querySelectorAll('[role="menu"]').forEach(function(menuElement) {
+        menuElement.className =
+            Array.from(menuElement.classList)
+            .map(className => className.startsWith('js-') ? className.substring(3) : className)
+            .join(' ');
+    });
     // #endregion
 
     // #region Advanced search panel
