@@ -107,6 +107,8 @@ class HomeView(FlatpageAsTemplateMixin, generic.TemplateView):
                     .values_list('amount', flat=True)
                 )
             context['user_donations_count'] = donations_count
+            if 'nojs' not in self.request.COOKIES:
+                context['verify_js_enabled'] = True
         return context
 
 
@@ -981,21 +983,45 @@ class MassMailSentView(AuthMixin, generic.TemplateView):
         return context
 
 
-class HtmlFragmentRetrieveView(generic.TemplateView):
+class ContentFragmentRetrieveView(generic.TemplateView):
     template_names = {
+        'js_disabled_callback': '',
         'mailto_fallback': 'ui/fragment-mailto_fallback.html',
         'datalist_fallback': 'ui/fragment-datalist_fallback.html',
         'place_country_region_formfield': 'ui/fragment-subregion_formfield.html',
     }
 
     def get(self, request, *args, **kwargs):
-        self.fragment_id = kwargs['fragment_id']
+        self.fragment_id: str = kwargs['fragment_id']
         if self.fragment_id not in self.template_names:
             raise Http404("Unknown HTML Fragment")
         if self.fragment_id.endswith('fallback'):
             logging.getLogger('PasportaServo.ui.fallbacks').warning(
                 f"The {self.fragment_id} was used", extra={'request': request}
             )
+
+        if self.fragment_id == 'js_disabled_callback':
+            log_message = "Anonymous User" if request.user.is_anonymous else "User"
+            if request.session.get('connection_id'):
+                log_message += f" via connection {request.session['connection_id']}"
+            elif request.META.get('HTTP_USER_AGENT'):
+                log_message += f" on {request.META['HTTP_USER_AGENT']}"
+            log_message += " has JavaScript disabled."
+            logging.getLogger('PasportaServo.ui.fallbacks').warning(log_message)
+            response = HttpResponse(
+                content=(
+                    b'\x89PNG\x0d\x0a\x1a\x0a\x00\x00\x00\x0dIHDR'
+                    b'\x00\x00\x00\x01'  # Width: 1px
+                    b'\x00\x00\x00\x01'  # Height: 1px
+                    b'\x08\x06\x00\x00\x00'
+                    b'\x1f\x15\xc4\x89\x00\x00\x00\x0aIDAT'
+                    b'\x08\xd7\x63\x60\x00\x00\x00\x02\x00\x01'
+                    b'\xe2\x21\xbc\x33\x00\x00\x00\x00IEND\xaeB\x60\x82'
+                ),
+                content_type='image/png',
+            )
+            response.set_cookie('nojs', str(True), max_age=60 * 60 * 24 * 365)
+            return response
 
         if self.fragment_id == 'place_country_region_formfield':
             country = request.GET.get('country')

@@ -229,6 +229,30 @@ class HomeViewTests(HeroViewTemplateTestsMixin, BasicViewTests):
                         explain_element.attr("id")
                     )
 
+    def test_scripting_check(self):
+        callback_url = reverse(
+            'get_fragment', kwargs={'fragment_id': 'js_disabled_callback'})
+        callback_element_pattern = f'*[src="{callback_url}"]'
+
+        # For a non-authenticated user, no element referencing the callback
+        # URL is expected to be present.
+        page = self.view_page.open(self, user=None)
+        self.assertLength(page.pyquery(callback_element_pattern), 0)
+
+        # Do not reuse the cached pages, load clean instances.
+        page = self.view_page.open(self, user=self.user)
+        # An element referencing the callback URL is expected to be present.
+        callback_element = page.pyquery(callback_element_pattern)
+        self.assertLength(callback_element, 1)
+        self.assertLength(callback_element.parents('noscript'), 1)
+        # Simulate loading the resource.
+        self.app.get(callback_url, user=self.user)
+        # Upon reloading the page, the element referencing the callback URL
+        # is expected to be no longer included.
+        page = self.view_page.open(self, user=self.user)
+        callback_element = page.pyquery(callback_element_pattern)
+        self.assertLength(callback_element, 0)
+
     def test_social_buttons(self):
         for user_tag, user in self.params_for_test['users']:
             for lang in self.params_for_test['langs']:
