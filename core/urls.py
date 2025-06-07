@@ -20,7 +20,7 @@ from .views import (  # isort:skip
     AccountDeleteView,
     FeedbackView,
     MassMailView, MassMailSentView,
-    HtmlFragmentRetrieveView,
+    ContentFragmentRetrieveView,
 )
 
 urlpatterns = [
@@ -129,7 +129,7 @@ urlpatterns = [
 
     path(
         'fragment/<slug:fragment_id>/',
-        HtmlFragmentRetrieveView.as_view(), name='get_fragment'),
+        ContentFragmentRetrieveView.as_view(), name='get_fragment'),
     path(
         pgettext_lazy("URL", 'ok'),
         TemplateView.as_view(template_name='200.html')),

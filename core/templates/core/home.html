@@ -71,6 +71,13 @@
 {% block page_role %}toolbar{% endblock %}
 
 {% block page %}
+    {% if verify_js_enabled %}
+        <noscript>
+            <div class="text-center">
+                <img src="{% url 'get_fragment' fragment_id='js_disabled_callback' %}" alt="---" width="1" height="1" style="display: none" />
+            </div>
+        </noscript>
+    {% endif %}
     <div class="social-links social-networks" data-nosnippet>
         {% spaceless %}
             {% with local_context=True %}
