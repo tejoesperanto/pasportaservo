@@ -338,7 +338,7 @@ class FeedbackForm(forms.Form):
     message = forms.CharField(
         label=_("Message"),
         required=False,
-        widget=forms.Textarea(attrs={'rows': 4, 'style': "resize: vertical"}),
+        widget=forms.Textarea(attrs={'rows': 4, 'class': 'vertically-expandable'}),
         help_text=_("Your contribution will appear in a discussion thread "
                     "publicly visible on {forum_url}, without your name."))
     private = forms.BooleanField(
@@ -374,7 +374,7 @@ class MassMailForm(forms.Form):
         label=_("Heading"), initial=_("Announcement"))
     body = forms.CharField(
         label=_("Body"), initial=_("Dear {nomo},\n\n"),
-        widget=forms.Textarea)
+        widget=forms.Textarea(attrs={'class': 'vertically-expandable'}))
     subject = forms.CharField(
         label=_("Subject"), initial=_("Subject"))
     preheader = forms.CharField(

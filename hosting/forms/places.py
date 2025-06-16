@@ -87,6 +87,12 @@ class PlaceForm(forms.ModelForm):
 
         self.helper = FormHelper(self)
 
+        def mark_textarea_as_expandable(field_name: str):
+            self.fields[field_name].widget.attrs['class'] = ' '.join(filter(
+                lambda v: v,
+                [self.fields[field_name].widget.attrs.get('class', ''), 'vertically-expandable']
+            ))
+
         self.fields['state_province'].widget.attrs['autocomplete'] = 'region'
         # Combine the postcode and the city fields together in one line.
         postcode_field_index = self.helper.layout.fields.index('postcode')
@@ -97,6 +103,7 @@ class PlaceForm(forms.ModelForm):
         self.fields['city'].widget.attrs['autocomplete'] = 'locality'
         # Bigger input area for the address by default.
         self.fields['address'].widget.attrs['rows'] = 2
+        mark_textarea_as_expandable('address')
         self.fields['address'].widget.attrs['autocomplete'] = 'street-address'
         # Split address details from the description and conditions.
         self.helper.layout.insert(self.helper.layout.fields.index('max_guest'), FormDivider())
@@ -124,6 +131,9 @@ class PlaceForm(forms.ModelForm):
                 f'<span class="fa {field_styling["icon"]} fa-fw"></span>',
                 wrapper_class=field_styling['column'],
                 css_class='text-center')
+        # Resizable input areas for the description.
+        mark_textarea_as_expandable('description')
+        mark_textarea_as_expandable('short_description')
         # Split description from the conditions.
         self.helper.layout.insert(self.helper.layout.fields.index('available'), FormDivider())
 
