@@ -1449,13 +1449,81 @@ html.js-enabled *[type="password"]::-ms-reveal {
 textarea {
     resize: vertical;
     &.input-sm {
-        min-height: 30px;
+        --min-height: 30px;
     }
     &.input-lg {
-        min-height: 46px;
+        --min-height: 46px;
     }
     &:not(.input-sm):not(.input-lg) {
-        min-height: 34px;
+        --min-height: 34px;
+    }
+    min-height: var(--min-height);
+}
+.expandable-textarea-container {
+    position: relative;
+}
+textarea.vertically-expandable.has-gripper {
+    min-height: calc(var(--min-height) + 11px);
+    resize: none;
+
+    + .resize-grabzone {
+        height: 11px;
+        width: calc(100% - 2px);
+        position: absolute;
+        left: 1px;
+        top: calc(var(--dynamic-height) - 12px);
+        $color-grabzone-bg: darken($color-default-bg, 2%);
+        background: {
+            color: $color-grabzone-bg;
+            image:
+                url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFBAAAAACyuu4nAAAAAnRSTlMAD+Ys0KkAAAAVSURBVAjXY9j9HwUyoPP/owIGAuoBWS5CNnMTZLwAAAAASUVORK5CYII=);
+            image:
+                linear-gradient(
+                    to bottom,
+                    transparent 2px, $color-grabzone-bg 2px, $color-grabzone-bg 3px, transparent 3px),
+                repeating-linear-gradient(
+                    to right,
+                    #c0c0c0, #c0c0c0 2px, transparent 2px, transparent 4px);
+            size: 38px 5px;
+            repeat: no-repeat;
+            position: center;
+        }
+        cursor: ns-resize;
+        touch-action: none;
+
+        &:not(.in) {
+            display: none;
+        }
+    }
+    &.input-sm {
+        padding-bottom: 15px;
+        + .resize-grabzone {
+            border-bottom-left-radius: 3px;
+            border-bottom-right-radius: 3px;
+        }
+    }
+    &.input-lg {
+        padding-bottom: 20px;
+        + .resize-grabzone {
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+        }
+    }
+    &:not(.input-sm):not(.input-lg) {
+        padding-bottom: 16px;
+        + .resize-grabzone {
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+    }
+}
+@media screen and (min-resolution: 2dppx) {
+    /*
+    High-resolution adjustment to avoid content being visible between
+    the gripper and the bottom border of the textarea.
+    */
+    textarea.vertically-expandable.has-gripper + .resize-grabzone {
+        top: calc(var(--dynamic-height) - 11.5px);
     }
 }
 input[type="checkbox"], input[type="radio"] {

@@ -66,6 +66,11 @@ class ProfileForm(forms.ModelForm):
         field_bd.widget.attrs['data-date-end-date'] = '0d'
         field_bd.widget.attrs['pattern'] = '[1-2][0-9]{3}-((0[1-9])|(1[0-2]))-((0[1-9])|([12][0-9])|(3[0-1]))'
 
+        self.fields['description'].widget.attrs['class'] = ' '.join(filter(
+            lambda v: v,
+            [self.fields['description'].widget.attrs.get('class', ''), 'vertically-expandable']
+        ))
+
         if self.instance.has_places_for_in_book:
             message = _("This field is required to be printed in the book.")
             for field in self._validation_meta.book_required_fields:

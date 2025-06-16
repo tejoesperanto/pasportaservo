@@ -550,6 +550,123 @@ $(function() {
 
     // #endregion
 
+    // #region Textarea improvements
+
+    class TextAreaResizer {
+        /*
+        Inspired by jQuery TextAreaResizer plugin by Ryan O'Dell,
+        in turn converted from a Drupal textarea.js plugin.
+        */
+        ALLOWED_BUTTON_SINGLE = new Set([0, 1]);
+        ALLOWED_BUTTONS_COMBI = new Set([1, 4, 5]);
+
+        /** @param {HTMLTextAreaElement} target */
+        static enable(target) {
+            return new TextAreaResizer(target);
+        }
+
+        /** @param {HTMLTextAreaElement} target */
+        constructor(target) {
+            this.textarea = target;
+            this.lastPointerY = null;
+
+            this.performDragHandler = this.performDrag.bind(this);
+            this.endDragHandler = this.endDrag.bind(this);
+
+            this.gripper = document.createElement('div');
+            this.gripper.setAttribute('class', 'resize-grabzone');
+            this.textarea.insertAdjacentElement('afterend', this.gripper);
+            this.gripper.addEventListener('pointerdown', this.startDrag.bind(this));
+            this.textarea.classList.add('has-gripper');
+            this.textarea.parentElement.classList.add('expandable-textarea-container');
+
+            if (this.textarea.offsetHeight == 0) {
+                $(this.textarea).parents('.modal').one(
+                    'shown.bs.modal', () => {
+                        this._initProperties();
+                    });
+            }
+            else {
+                this._initProperties();
+            }
+        }
+
+        _initProperties() {
+            if (getComputedStyle(this.textarea).minHeight == '0px') {
+                this.textarea.style.minHeight = `${this.textarea.offsetHeight}px`;
+            }
+            this.gripper.style.setProperty('--dynamic-height', `${this.textarea.offsetHeight}px`);
+            this.gripper.classList.add('in');
+        }
+
+        /** @param {PointerEvent} event */
+        startDrag(event) {
+            if (!this.isPointerActionButton(event) || this.lastPointerY !== null) {
+                return false;
+            }
+            this.lastPointerY = this.getPointerPosition(event);
+            document.addEventListener('pointermove', this.performDragHandler);
+            document.addEventListener('pointerup', this.endDragHandler);
+            document.addEventListener('pointercancel', this.endDragHandler);
+            this.textareaCursor = this.textarea.style.cursor;
+            this.textarea.style.cursor = 'ns-resize';
+            this.docummentCursor = document.body.style.cursor;
+            document.body.style.cursor = 'ns-resize';
+            return false;
+        }
+
+        /** @param {PointerEvent} event */
+        performDrag(event) {
+            let currentPointerY = this.getPointerPosition(event);
+            let currentHeight = Math.round(currentPointerY - this.textarea.getBoundingClientRect().top);
+            if (currentHeight <= 0) {
+                return false;
+            }
+            this.lastPointerY = currentPointerY;
+            this.textarea.style.height = `${currentHeight}px`;
+            this.gripper.style.setProperty('--dynamic-height', `${this.textarea.offsetHeight}px`);
+            return false;
+        }
+
+        /** @param {PointerEvent} event */
+        endDrag(event) {
+            if (!this.isPointerActionButton(event)) {
+                return false;
+            }
+            document.removeEventListener('pointermove', this.performDragHandler);
+            document.removeEventListener('pointerup', this.endDragHandler);
+            document.removeEventListener('pointercancel', this.endDragHandler);
+            this.lastPointerY = null;
+            this.textarea.style.cursor = this.textareaCursor || '';
+            document.body.style.cursor = this.docummentCursor || '';
+        }
+
+        /** @param {PointerEvent} event */
+        isPointerActionButton(event) {
+            // For "mouse" pointer, check if the active mouse button is the left or the middle
+            // button, or a combination of these. For other pointer types or body parts, check
+            // that the main pointer or its main button is used.
+            return (
+                event.isPrimary &&
+                (this.ALLOWED_BUTTONS_COMBI.has(event.buttons)
+                    || event.buttons === 0 && this.ALLOWED_BUTTON_SINGLE.has(event.button))
+            );
+        }
+
+        /** @param {PointerEvent} event */
+        getPointerPosition(event) {
+            return event.clientY;
+        }
+    }
+
+    if ('PointerEvent' in window) {
+        document.querySelectorAll('textarea.vertically-expandable').forEach(function(textarea) {
+            TextAreaResizer.enable(textarea);
+        });
+    }
+
+    // #endregion
+
     // #region Mass mail form
 
     (function() {
