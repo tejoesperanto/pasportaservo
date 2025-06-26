@@ -3,13 +3,13 @@
 
 
 (function ($) {
-    var gestureSwipeOff = function (callback) {
-        var $el = $(this), sourceEl = this;
-        var moveStartX = undefined, moveStartY = undefined;
-        var origOffset = $el.offset().left;
+    const gestureSwipeOff = function (callback) {
+        let $el = $(this), sourceEl = this;
+        let moveStartX = undefined, moveStartY = undefined;
+        let origOffset = $el.offset().left;
 
         // Init
-        var settings = {
+        let settings = {
             swipeCompleted: function() {},
             canCompleteSwipe: function() { return true; },
             borderLeftColor: $el.css('border-left-color'),
@@ -25,24 +25,41 @@
         }
 
         // Setup
-        var $container =
+        let $container =
             $(document.createElement('div'))
-                .css({'position': 'relative', 'overflow': 'hidden',
-                      'width': '100%',
-                      'border-style': 'dotted', 'border-width': 0,
-                      'border-left-color': settings.borderLeftColor,
-                      'border-right-color': settings.borderRightColor,
-                      'margin-bottom': $el.css('margin-bottom')})
+                .css({
+                    'position': 'relative',
+                    'overflow': 'hidden',
+                    'width': '100%',
+                    'border-style': 'dashed',
+                    'border-width': '0px 1px',
+                    'border-left-color': 'transparent',
+                    'border-right-color': 'transparent',
+                    'margin-bottom': $el.css('margin-bottom'),
+                })
                 .insertBefore($el).append($el)
                 .parent().css('overflow', 'hidden').end();
-        $el.css({'position': 'relative', 'margin-bottom': 0});
+        $el.css({
+            'position': 'relative',
+            'margin-bottom': 0,
+        });
+        if (window.matchMedia('(any-pointer: coarse)').matches) {
+            $el.css({'touch-action': 'pan-y pinch-zoom'});
+        }
 
         // Cancelation
-        sourceEl.cancelSwipe = function() {
+        sourceEl.cancelSwipe = function(e) {
             if (moveStartX === undefined || moveStartY === undefined)
                 return;
-            moveStartX = undefined; moveStartY = undefined;
-            $el.animate({ left: 0 }, function() { $container.css('border-width', 0); });
+            moveStartX = moveStartY = undefined;
+            $el.animate(
+                { left: 0 }, function() {
+                    $container.css('border-left-color', 'transparent');
+                    $container.css('border-right-color', 'transparent');
+                });
+            if (e.originalEvent.pointerId) {
+                sourceEl.releasePointerCapture(e.originalEvent.pointerId);
+            }
         };
         // Reset
         sourceEl.resetSwipe = function() {
@@ -52,50 +69,64 @@
 
         $el
         .on(settings.touchOnly ? 'touchstart' : 'pointerdown', function(e) {
-            moveStartX = e.pageX;
-            moveStartY = e.pageY;
+            moveStartX = e.pageX != undefined ? e.pageX : e.originalEvent.touches[0].pageX;
+            moveStartY = e.pageY != undefined ? e.pageY : e.originalEvent.touches[0].pageY;
+            if (e.originalEvent.pointerId) {
+                sourceEl.setPointerCapture(e.originalEvent.pointerId);
+            }
         })
         .on(settings.touchOnly ? 'touchmove' : 'pointermove', function(e) {
             if (moveStartX === undefined || moveStartY === undefined)
                 return;
 
-            var diffX = e.pageX - moveStartX,
-                diffY = Math.abs(e.pageY - moveStartY);
-            if (diffY > 30) {
-                // Vertical movement discards the swiping off
-                sourceEl.cancelSwipe();
+            let currentX = e.pageX != undefined ? e.pageX : e.originalEvent.touches[0].pageX,
+                currentY = e.pageY != undefined ? e.pageY : e.originalEvent.touches[0].pageY;
+            let diffX = currentX - moveStartX,
+                diffY = Math.abs(currentY - moveStartY);
+            if (diffY > (settings.touchOnly ? 60 : 30)) {
+                // Vertical movement discards the swiping off.
+                sourceEl.cancelSwipe(e);
                 return;
             }
-            $container.css('border-right-width', diffX > 0 ? '1px' : '0');
-            $container.css('border-left-width', diffX > 0 ? '0' : '1px');
+            $container.css(
+                'border-right-color',
+                diffX > 0 ? settings.borderRightColor : 'transparent');
+            $container.css(
+                'border-left-color',
+                diffX > 0 ? 'transparent' : settings.borderLeftColor);
             $el.animate({ left: diffX }, 0);
 
-            // If threshold exceeded (to the left or to the right),
-            // deem the swiping off as confirmed
+            // If threshold is exceeded (to the left or to the right),
+            // deem the swiping off as confirmed.
             if (Math.abs(diffX) > 200 && settings.canCompleteSwipe.call(sourceEl, diffX)) {
-                var targetX;
-                moveStartX = undefined; moveStartY = undefined;
-                if (diffX > 0)
+                let targetX;
+                moveStartX = moveStartY = undefined;
+                if (diffX > 0) {
                     targetX = $(window).width() - origOffset + 50;
-                else
+                }
+                else {
                     targetX = -origOffset - $el.width() - 50;
+                }
                 $container.animate({ left: targetX }, function() {
                     $container.css('border-width', 0);
-                    var completionHandler = function() {
+                    function completionHandler() {
                         settings.swipeCompleted.call(sourceEl, diffX);
                         $el.trigger("off.swipe.ps");
-                    };
-                    if (settings.collapse)
+                    }
+                    if (settings.collapse) {
                         $el.slideUp(completionHandler);
-                    else
+                    }
+                    else {
                         completionHandler();
+                    }
                 });
             }
         })
         .on(settings.touchOnly ?
                 'touchend touchcancel' :
-                'pointerup pointerout pointercancel',
-            sourceEl.cancelSwipe);
+                'pointerup pointercancel',
+            e => sourceEl.cancelSwipe(e)
+        );
     };
 
     $.fn.swipeoff = function (callback) {
