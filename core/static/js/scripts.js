@@ -144,6 +144,23 @@ $(document).ready(function() {
 
     // #region Date picker widget for date fields
     if (typeof $().datepicker !== "undefined") {
+        let fields_date = [$('#id_birth_date'),
+                           $('#id_blocked_from, #id_blocked_until')];
+        $.each(fields_date, function() { (this instanceof jQuery ? this : $(this)).each(function(index) {
+            let $input = $(this);
+            if ($input.hasClass('quick-form-control')) {
+                $input.data({dateShowOnFocus: false, dateKeyboardNavigation: false});
+            }
+            $input.datepicker({
+                format: "yyyy-mm-dd",
+                maxViewMode: (this.id === 'id_birth_date' ? 3 : 2),
+                weekStart: 1,
+                startView: (this.id === 'id_birth_date' ? 2 : 1), // 0: month; 1: year; 2: decade;
+                language: document.documentElement.lang,
+                zIndexOffset: 1070,
+            });
+        }) });
+
         $('#id_blocked_from, #id_blocked_until').each(function () {
             var $input = $(this);
             var $toggler = $(document.createElement('span'));
@@ -155,23 +172,10 @@ $(document).ready(function() {
                   .parent().addClass('has-feedback');
             if ($input.hasClass('quick-form-control')) {
                 var id_helper = this.id + '_descript';
-                $input.data({dateShowOnFocus: false, dateKeyboardNavigation: false})
-                      .siblings('.help-block').addClass('sr-only').attr('id', id_helper).end()
+                $input.siblings('.help-block').addClass('sr-only').attr('id', id_helper).end()
                       .attr('aria-describedby', id_helper);
             }
         });
-
-        var fields_date = [$('#id_birth_date'),
-                           $('#id_blocked_from, #id_blocked_until')];
-        $.each(fields_date, function() { (this instanceof jQuery ? this : $(this)).each(function(index) {
-            $(this).datepicker({
-                format: "yyyy-mm-dd",
-                maxViewMode: (this.id === 'id_birth_date' ? 3 : 2),
-                weekStart: 1,
-                startView: (this.id === 'id_birth_date' ? 2 : 1), // 0: month; 1: year; 2: decade;
-                language: document.documentElement.lang,
-            });
-        }) });
     }
     // #endregion
 
