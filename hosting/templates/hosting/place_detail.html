@@ -28,7 +28,7 @@
 {% block ogp_title %}
     {% trans "A place in" %} {{ place.get_country_display }} | Pasporta Servo
 {% endblock %}
-{% block ogp_description %}{% endblock %}
+{% block ogp_description %}&nbsp;{% endblock %}
 {% block ogp_image %}
     {% domain %}{% get_static_prefix %}img/countries/{{ place.country.code.upper }}_outline.png
 {% endblock %}
