@@ -32,7 +32,7 @@
         {{ block.super }}
     {% endif %}
 {% endblock %}
-{% block ogp_description %}{% endblock %}
+{% block ogp_description %}&nbsp;{% endblock %}
 {% block ogp_type %}
     {% if origin_object.type == "profile" %}profile{% else %}{{ block.super }}{% endif %}
 {% endblock %}
