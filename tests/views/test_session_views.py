@@ -64,10 +64,11 @@ class LoginViewTests(FormViewTestsMixin, BasicViewTests):
         # After redirection from the profile page, the login view's OGP tags are expected
         # to include the name and avatar URL of the full profile (with an account).
         with self.subTest(redirect='Profile', type='full'):
+            profile_fallback_avatar_url = 'http://[DOMAIN]/static/img/avatar.png'
             profile_gravatar_url = (
                 self.users_definition['regular']['avatar_url'].replace(
                     f'd={settings.DEFAULT_AVATAR_URL}',
-                    f'd={quote('http://[DOMAIN]/static/img/avatar.png', safe='[]')}'
+                    f'd={quote(profile_fallback_avatar_url, safe='[]')}'
                 )
             )
             self.test_view_open_graph_tags(
@@ -83,6 +84,7 @@ class LoginViewTests(FormViewTestsMixin, BasicViewTests):
                     'eo': f'/profilo/{profile_with_account.pk}/',
                 },
                 image=profile_gravatar_url,
+                image_alt=profile_fallback_avatar_url,
             )
 
         # After redirection from the profile page, the login view's OGP tags are expected

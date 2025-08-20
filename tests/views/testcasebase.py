@@ -148,12 +148,23 @@ class BasicViewTests(AdditionalAsserts, WebTest):
                 self.assertEqual(
                     page.pyquery("meta[property='og:locale']").attr("content"),
                     lang)
-                image_url = customizations.get(
-                    'image', '/static/img/social_media_thumbnail_main.png')
+                image_url = cast(str, customizations.get(
+                    'image', '/static/img/social_media_thumbnail_main.png'))
                 image_url = image_url.replace('[DOMAIN]', 'test.domain')
+                ogp_image_element = page.pyquery("meta[property='og:image']")
                 self.assertStartsWith(
-                    page.pyquery("meta[property='og:image']").attr("content"),
+                    ogp_image_element.attr("content"),
                     f'http://test.domain{image_url}' if image_url.startswith('/') else image_url)
+                image_alt_url = cast(str | None, customizations.get('image_alt'))
+                if image_alt_url:
+                    image_alt_url = image_alt_url.replace('[DOMAIN]', 'test.domain')
+                    expected_url = (
+                        f'http://test.domain{image_alt_url}' if image_alt_url.startswith('/')
+                        else image_alt_url)
+                    self.assertLength(ogp_image_element, 2)
+                    self.assertStartsWith(ogp_image_element.eq(1).attr("content"), expected_url)
+                else:
+                    self.assertLength(ogp_image_element, 1)
 
     def test_view_header_unauthenticated_user(self):
         if self.view_page.redirects_unauthenticated:
