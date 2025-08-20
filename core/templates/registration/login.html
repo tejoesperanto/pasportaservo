@@ -73,6 +73,12 @@
         {{ block.super }}
     {% endif %}
 {% endblock %}
+{% block extra_ogp_properties %}
+    {% if origin_object.type == "profile" and origin_object.visible_externally %}
+        {% asvar fallback_avatar_url %}{% domain %}{% get_static_prefix %}img/avatar.png{% endasvar %}
+        <meta property="og:image"                           content="{{ fallback_avatar_url }}">
+    {% endif %}
+{% endblock %}
 
 {% block form_title %}{% trans "Log In" context "Title" %}{% endblock %}
 {% block form_tip %}{% trans "Log in with your username and password" %}{% endblock %}
