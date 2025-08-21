@@ -32,6 +32,10 @@
 {% block ogp_image %}
     {% domain %}{% get_static_prefix %}img/countries/{{ place.country.code.upper }}_outline.png
 {% endblock %}
+{% block extra_ogp_properties %}
+        {# Fallback image for social media sharing, when an outline for a certain country code is not available. #}
+        <meta property="og:image"                           content="{% domain %}{% get_static_prefix %}img/social_media_thumbnail_main.png">
+{% endblock %}
 
 {% block extra_css %}
         <link rel="stylesheet" href="{% static 'datepicker/css/datepicker3.min.css' %}">
