@@ -16,6 +16,7 @@ from django.contrib.auth.views import (
     PasswordResetView as PasswordResetBuiltinView,
 )
 from django.contrib.flatpages.models import FlatPage
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.core.mail import mail_admins, send_mail
 from django.db import transaction
 from django.db.models import Exists, OuterRef, Q
@@ -508,7 +509,11 @@ class EmailUpdateView(AuthMixin, UserModifyMixin, generic.UpdateView):
             return Profile(user=copy(self.user))
 
     def form_valid(self, form: EmailUpdateForm) -> HttpResponse:
-        response = super().form_valid(form)
+        try:
+            response = super().form_valid(form)
+        except ValidationError as e:
+            form.add_error(NON_FIELD_ERRORS, e)
+            return self.form_invalid(form)
         if form.previous_email != form.instance.email:
             messages.warning(self.request, extra_tags='eminent',
                              message=_("A confirmation email has been sent. "
@@ -547,8 +552,10 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
         email_template_subject = get_template('email/system-email_verify_subject.txt')
         email_template_text = get_template('email/system-email_verify.txt')
         email_template_html = get_template('email/system-email_verify.html')
+        # TODO: Reset the suppresion flag for the email at Postmark before sending.
         send_mail(
-            ''.join(email_template_subject.render(context).splitlines()),  # no newlines allowed in subject.
+            # No newlines are allowed in subject.
+            ''.join(email_template_subject.render(context).splitlines()),
             email_template_text.render(context),
             settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email_to_verify],

@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2025-04-13 22:21+0000\n"
+"POT-Revision-Date: 2025-08-22 12:48+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -222,6 +222,17 @@ msgid ""
 msgstr ""
 "Ĉu vi ŝatus ĝin reaktivigi? <a href=\"%(url)s\">Informi administranton.</a>"
 
+#: core/forms.py
+#, python-format
+msgid ""
+"This new email address cannot be reached. Please check for typos and "
+"problems with this mailbox. If you believe this is incorrect, please <a "
+"href=\"%(url)s\">contact us</a>."
+msgstr ""
+"Ne eblas komuniki al tiu ĉi nova retpoŝta adreso. Bonvole kontrolu "
+"tajperarojn kaj ĉu ne estas problemo kun la poŝtkesto. Se vi kredas ke tio "
+"malĝustas, bv. <a href=\"%(url)s\">kontaktu nin</a>."
+
 #: core/forms.py pasportaservo/forms.py
 msgid "Message"
 msgstr "Mesaĝo"
@@ -363,7 +374,8 @@ msgstr "Enigu retadreson en ĝusta formo."
 #, python-brace-format
 msgid "Email address cannot start with {PREFIX} (in all-capital letters)."
 msgstr ""
-"Retpoŝta adreso ne povas komenciĝi per {PREFIX} (per ĉiuj majusklaj literoj)."
+"Retpoŝta adreso ne povas komenciĝi per ‘{PREFIX}’ (per ĉiuj majusklaj "
+"literoj)."
 
 #: core/mixins.py
 msgid "User address already in use."

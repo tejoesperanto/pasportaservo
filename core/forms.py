@@ -16,6 +16,7 @@ from django.urls import reverse
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
+from anymail.exceptions import AnymailRecipientsRefused
 from crispy_forms.helper import FormHelper
 
 from hosting.models import Profile
@@ -206,13 +207,30 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
             email_template_subject = get_template(f'email/{old_new}_email_subject.txt')
             email_template_text = get_template(f'email/{old_new}_email_update.txt')
             email_template_html = get_template(f'email/{old_new}_email_update.html')
-            send_mail(
-                ''.join(email_template_subject.render(context).splitlines()),  # no newlines allowed in subject.
-                email_template_text.render(context),
-                settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[{'old': old_email, 'new': new_email}[old_new]],
-                html_message=email_template_html.render(context),
-                fail_silently=False)
+            try:
+                send_mail(
+                    # No newlines are allowed in subject.
+                    ''.join(email_template_subject.render(context).splitlines()),
+                    email_template_text.render(context),
+                    settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[{'old': old_email, 'new': new_email}[old_new]],
+                    html_message=email_template_html.render(context),
+                    fail_silently=False,
+                )
+            except AnymailRecipientsRefused:
+                # The recipient was rejected by the ESP. For the old email address,
+                # which might already be invalid, do nothing. For the new one, inform
+                # the user that there is a problem with the mailbox.
+                if old_new == 'new':
+                    raise forms.ValidationError(
+                        _(
+                            "This new email address cannot be reached. Please check for typos and "
+                            "problems with this mailbox. If you believe this is incorrect, please "
+                            "<a href=\"%(url)s\">contact us</a>."
+                        ),
+                        code='rejected',
+                        params={'url': f'mailto:{settings.SUPPORT_EMAIL}'},
+                    )
 
         return self.instance
     save.do_not_call_in_templates = True
@@ -283,7 +301,13 @@ class SystemPasswordResetRequestForm(PasswordResetForm):
             'RICH_ENVELOPE': getattr(settings, 'EMAIL_RICH_ENVELOPES', None),
             'subject_prefix': settings.EMAIL_SUBJECT_PREFIX_FULL,
         })
-        super().send_mail(*args, **kwargs)
+        try:
+            super().send_mail(*args, **kwargs)
+        except AnymailRecipientsRefused:
+            auth_log.warning(
+                (self.admin_inactive_user_notification + ", but the email address bounces.")
+                .format(u=context['user'])
+            )
 
     def save(self, **kwargs):
         return super().save(**kwargs)

@@ -19,6 +19,7 @@ from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from django.views import generic
 
+from anymail.exceptions import AnymailRecipientsRefused
 from braces.views import FormInvalidMessageMixin
 
 from core import PasportaServoHttpRequest
@@ -482,14 +483,17 @@ class UserAuthorizeView(AuthMixin, generic.FormView):
             'place': place,
         }
         # TODO : send mail only if the user chose to receive this type
-        send_mail(
-            ''.join(email_template_subject.render(email_context).splitlines()),
-            email_template_text.render(email_context),
-            settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            html_message=email_template_html.render(email_context),
-            fail_silently=False,
-        )
+        try:
+            send_mail(
+                ''.join(email_template_subject.render(email_context).splitlines()),
+                email_template_text.render(email_context),
+                settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                html_message=email_template_html.render(email_context),
+                fail_silently=False,
+            )
+        except AnymailRecipientsRefused:
+            Profile.mark_invalid_emails([user.email])
 
 
 class ConditionPreviewView(LoginRequiredMixin, generic.DetailView):
