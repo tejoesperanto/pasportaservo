@@ -208,7 +208,7 @@ class RegisterViewTests(FormViewTestsMixin, BasicViewTests):
             {
                 'en': "Email address cannot start with INVALID_ "
                       + "(in all-capital letters).",
-                'eo': "Retpoŝta adreso ne povas komenciĝi per INVALID_ "
+                'eo': "Retpoŝta adreso ne povas komenciĝi per ‘INVALID_’ "
                       + "(per ĉiuj majusklaj literoj).",
             },
         )

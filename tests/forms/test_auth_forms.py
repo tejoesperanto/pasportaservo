@@ -765,7 +765,7 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
                 with override_settings(LANGUAGE_CODE='eo'):
                     self.assertStartsWith(
                         form.errors['email'][0],
-                        f"Retpoŝta adreso ne povas komenciĝi per {settings.INVALID_PREFIX}"
+                        f"Retpoŝta adreso ne povas komenciĝi per ‘{settings.INVALID_PREFIX}’"
                     )
 
     def test_same_email(self):
@@ -841,7 +841,7 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
         self.assertFalse(form.is_valid())
         expected_errors = {
             'en': f"Email address cannot start with {settings.INVALID_PREFIX}",
-            'eo': f"Retpoŝta adreso ne povas komenciĝi per {settings.INVALID_PREFIX}",
+            'eo': f"Retpoŝta adreso ne povas komenciĝi per ‘{settings.INVALID_PREFIX}’",
         }
         unexpected_errors = {
             'en': "User address already in use.",
