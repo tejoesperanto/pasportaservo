@@ -759,10 +759,16 @@ $(function() {
         // 'submit' event is raised either.
         let submitter = event.originalEvent.submitter || $(this).data('latestSubmitter');
         if (submitter && submitter.id.startsWith('id_form_submit')) {
-            $(submitter)
-                .addClass('disabled')
-                .prop('disabled', true)
-                .attr('autocomplete', 'off');
+            setTimeout(function() {
+                // let the form serialization happen first since disabled fields
+                // are skipped as per the algorithm for representing the contents
+                // of a form
+                // https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#constructing-form-data-set
+                $(submitter)
+                    .addClass('disabled')
+                    .prop('disabled', true)
+                    .attr('autocomplete', 'off');
+            }, 0);
             $(this).removeData('latestSubmitter');
             $(window).one('pagehide', function() {
                 $(submitter)
