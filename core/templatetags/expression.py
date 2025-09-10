@@ -53,7 +53,7 @@ class ExprNode(template.Node):
                     context[self.variable.name] = result
                 return ""
             else:
-                return result
+                return str(result)
         except Exception:
             expr_log.warning("Expression invalid: [ %s ]", self.expr_string)
             return ""

@@ -3,7 +3,10 @@ from django.core.exceptions import ValidationError
 from django.db.models import Model
 from django.test import TestCase, modify_settings, override_settings, tag
 
-from hosting.fields import RangeIntegerField, StyledEmailField
+from hosting.fields import (
+    PhoneNumberField, PhoneNumberFormField,
+    RangeIntegerField, StyledEmailField,
+)
 
 from ..assertions import AdditionalAsserts
 
@@ -17,10 +20,10 @@ class StyledEmailFieldTests(AdditionalAsserts, TestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        class Guest(Model):
+        class GuestWithEmail(Model):
             email = StyledEmailField("contact email", blank=True)
 
-        cls.GuestModel = Guest
+        cls.GuestModel = GuestWithEmail
 
     def test_icon(self):
         field = self.GuestModel._meta.get_field('email')
@@ -29,6 +32,32 @@ class StyledEmailFieldTests(AdditionalAsserts, TestCase):
             self.assertIn(' title="Email address"', field.icon)
         with override_settings(LANGUAGE_CODE='eo'):
             self.assertIn(' title="Retpoŝta adreso"', field.icon)
+
+
+@tag('models', 'fields')
+class PhoneNumberFieldTests(TestCase):
+    @classmethod
+    @modify_settings(INSTALLED_APPS={
+        'append': 'tests.models.test_fields',
+    })
+    def setUpClass(cls):
+        super().setUpClass()
+
+        class GuestWithPhone(Model):
+            phone1 = PhoneNumberField("contact phone number")
+            phone2 = PhoneNumberField("secondary phone number", blank=True)
+
+        cls.GuestModel = GuestWithPhone
+
+    def test_formfield(self):
+        for field_name, expected_required in (('phone1', True), ('phone2', False)):
+            with self.subTest(field=field_name):
+                field = self.GuestModel._meta.get_field(field_name)
+                form_field = field.formfield()
+
+                self.assertIsInstance(form_field, PhoneNumberFormField)
+                self.assertIsInstance(form_field.widget, forms.TextInput)
+                self.assertIs(form_field.required, expected_required)
 
 
 @tag('models', 'fields')

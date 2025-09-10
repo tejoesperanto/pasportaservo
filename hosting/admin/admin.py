@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from django.contrib import admin
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
@@ -7,7 +7,7 @@ from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.admin import GenericTabularInline
 # from django.contrib.gis import admin as gis_admin
 from django.contrib.gis.db.models import LineStringField, PointField
-from django.contrib.gis.forms import OSMWidget
+from django.contrib.gis.forms.widgets import OSMWidget
 from django.db import models
 from django.db.models import Q, Value as V, functions as dbf
 from django.urls import reverse
@@ -17,6 +17,7 @@ from django.utils.translation import gettext_lazy as _
 from django_countries.fields import Country
 from djangocodemirror.widgets import CodeMirrorAdminWidget
 
+from core.admin import make_search_help_text
 from core.admin.filters import YearBracketFilter
 from maps.widgets import AdminMapboxGlWidget
 
@@ -149,6 +150,9 @@ class CustomUserAdmin(UserAdmin):
         value = any(g for g in obj.groups.all() if len(g.name) == 2)
         return value
 
+    def search_help_text(self):
+        return make_search_help_text(self, 'username', 'email')
+
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('groups')
 
@@ -237,7 +241,9 @@ class TrackingModelAdmin(ShowConfirmedMixin):
 
 
 @admin.register(VisibilitySettings)
-class VisibilityAdmin(admin.ModelAdmin):
+class VisibilityAdmin(
+        admin.ModelAdmin[VisibilitySettings] if TYPE_CHECKING else admin.ModelAdmin
+):
     visibility_fields = tuple(
         f.name for f in VisibilitySettings._meta.get_fields()
         if f.name.startswith(VisibilitySettings._PREFIX)
@@ -287,7 +293,8 @@ class VisibilityAdmin(admin.ModelAdmin):
 
 
 @admin.register(Profile)
-class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
+class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin,
+                   admin.ModelAdmin[Profile] if TYPE_CHECKING else admin.ModelAdmin):
     list_display = (
         'id', '__str__', 'title', 'first_name', 'last_name',
         'birth_date',
@@ -325,31 +332,40 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
 
     inlines = [VisibilityInLine, PreferencesInLine, PlaceInLine, PhoneInLine]
 
+    @admin.display(
+        description=User._meta.get_field('email').verbose_name,
+        ordering='user__email',
+    )
     def user__email(self, obj: Profile):
         try:
-            return obj.user.email
+            return obj.user.email  # type: ignore[attr-defined]
         except AttributeError:
             return '-'
-    user__email.short_description = _("email address")
-    user__email.admin_order_field = 'user__email'
 
+    @admin.display(
+        description=_("user"),
+        ordering='user__username',
+    )
     def user_link(self, obj: Profile):
         try:
-            link = reverse('admin:auth_user_change', args=[obj.user.pk])
+            link = reverse('admin:auth_user_change', args=[obj.user.pk])  # type: ignore[attr-defined]
             return format_html('<a href="{url}">{username}</a>', url=link, username=obj.user)
         except AttributeError:
             return '-'
-    user_link.short_description = _("user")
-    user_link.admin_order_field = 'user__username'
 
+    @admin.display(
+        description=Profile._meta.get_field('checked_by').verbose_name,
+        ordering='checked_by__username',
+    )
     def checked_by__name(self, obj: Profile):
         try:
-            return obj.checked_by.get_username()
+            return obj.checked_by.get_username()  # type: ignore[attr-defined]
         except AttributeError:
             return '-'
-    checked_by__name.short_description = _("approved by")
-    checked_by__name.admin_order_field = 'checked_by__username'
 
+    @admin.display(
+        description=_("supervisor status"),
+    )
     def supervisor(self, obj: Profile):
         country_list = CustomGroupAdmin.CountryGroup.objects.filter(
             name__regex=r'^[A-Z]{2}$',
@@ -358,7 +374,6 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
             return format_html(',&nbsp; '.join(map(str, country_list)))
         else:
             return self.get_empty_value_display()
-    supervisor.short_description = _("supervisor status")
 
     def get_list_display(self, request):
         death_date_filter = lambda param: (
@@ -375,12 +390,18 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin, admin.ModelAdmin):
             )
         return self.list_display
 
+    def search_help_text(self):
+        return make_search_help_text(
+            self, 'first_name', 'last_name', (User, 'email'), (User, 'username'),
+        )
+
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('user', 'checked_by')
 
 
 @admin.register(Place)
-class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.ModelAdmin):
+class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin,
+                 admin.ModelAdmin[Place] if TYPE_CHECKING else admin.ModelAdmin):
     list_display = (
         'id', 'city', 'postcode', 'state_province', 'display_country',
         'display_location',
@@ -425,6 +446,9 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
 
     inlines = [VisibilityInLine, ]
 
+    @admin.display(
+        description=Place._meta.get_field('location').verbose_name,
+    )
     def display_location(self, obj: Place):
         return (
             ' '.join([
@@ -434,22 +458,34 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
             ]) if obj.location
             else None
         )
-    display_location.short_description = _("location")
 
-    def owner_link(self, obj: Place):
-        return format_html('<a href="{url}">{name}</a>', url=obj.owner.get_admin_url(), name=obj.owner)
-    owner_link.short_description = _("owner")
-    owner_link.admin_order_field = dbf.Concat(
-        'owner__first_name', V(","), 'owner__last_name', V(","), 'owner__user__username'
+    @admin.display(
+        description=Place._meta.get_field('owner').verbose_name,
+        ordering=dbf.Concat(
+            'owner__first_name', V(","), 'owner__last_name', V(","), 'owner__user__username',
+        )
     )
+    def owner_link(self, obj: Place):
+        return format_html(
+            '<a href="{url}">{name}</a>',
+            url=obj.owner.get_admin_url(), name=obj.owner)
 
+    @admin.display(
+        description=Place._meta.get_field('checked_by').verbose_name,
+        ordering='checked_by__username',
+    )
     def checked_by__name(self, obj: Place):
         try:
-            return obj.checked_by.get_username()
+            return obj.checked_by.get_username()  # type: ignore[attr-defined]
         except AttributeError:
             return '-'
-    checked_by__name.short_description = _("approved by")
-    checked_by__name.admin_order_field = 'checked_by__username'
+
+    def search_help_text(self):
+        return make_search_help_text(
+            self,
+            'address', 'state_province', 'postcode',
+            (Profile, 'first_name'), (Profile, 'last_name'), (User, 'email'),
+        )
 
     class FamilyMemberRepr(Profile):
         class Meta:
@@ -493,8 +529,12 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
 
 
 @admin.register(Phone)
-class PhoneAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.ModelAdmin):
-    list_display = ('number_intl', 'profile_link', 'country_code', 'display_country', 'type', 'is_deleted')
+class PhoneAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin,
+                 admin.ModelAdmin[Phone] if TYPE_CHECKING else admin.ModelAdmin):
+    list_display = (
+        'number_intl', 'profile_link', 'country_code', 'display_country', 'type',
+        'is_deleted',
+    )
     list_select_related = ('profile__user',)
     search_fields = ('number', 'country', 'profile__first_name', 'profile__last_name')
     list_filter = ('type', 'deleted_on', CountryMentionedOnlyFilter)
@@ -508,21 +548,34 @@ class PhoneAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin, admin.M
     radio_fields = {'type': admin.VERTICAL}
     inlines = [VisibilityInLine, ]
 
+    @admin.display(
+        description=Phone._meta.get_field('number').verbose_name,
+        ordering='number',
+    )
     def number_intl(self, obj: Phone):
         return obj.number.as_international
-    number_intl.short_description = _("number")
-    number_intl.admin_order_field = 'number'
 
-    def profile_link(self, obj: Phone):
-        return format_html('<a href="{url}">{name}</a>', url=obj.profile.get_admin_url(), name=obj.profile)
-    profile_link.short_description = _("profile")
-    profile_link.admin_order_field = dbf.Concat(
-        'profile__first_name', V(","), 'profile__last_name', V(","), 'profile__user__username'
+    @admin.display(
+        description=Phone._meta.get_field('profile').verbose_name,
+        ordering=dbf.Concat(
+            'profile__first_name', V(","), 'profile__last_name', V(","), 'profile__user__username',
+        )
     )
+    def profile_link(self, obj: Phone):
+        return format_html(
+            '<a href="{url}">{name}</a>',
+            url=obj.profile.get_admin_url(), name=obj.profile)
 
+    @admin.display(
+        description=_("country code"),
+    )
     def country_code(self, obj: Phone):
         return obj.number.country_code
-    country_code.short_description = _("country code")
+
+    def search_help_text(self):
+        return make_search_help_text(
+            self, 'number', (Profile, 'first_name'), (Profile, 'last_name'),
+        )
 
 
 @admin.register(CountryRegion)
@@ -597,18 +650,24 @@ class TravelAdviceAdmin(admin.ModelAdmin):
     save_as = True
     save_as_continue = False
 
+    @admin.display(
+        description=TravelAdvice._meta.verbose_name,
+        ordering='content',
+    )
     def advice(self, obj: TravelAdvice):
         return obj.trimmed_content()
-    advice.short_description = _("travel advice")
-    advice.admin_order_field = 'content'
 
+    @admin.display(
+        description=TravelAdvice._meta.get_field('countries').verbose_name,
+    )
     def countries_list(self, obj: TravelAdvice):
         return obj.applicable_countries(code=False)
-    countries_list.short_description = _("countries")
 
+    @admin.display(
+        description=_("active"),
+        ordering='is_active',
+        boolean=True,
+    )
     def active_status(self, obj: TravelAdvice):
         # The status is a calculated field (QuerySet annotation).
         return obj.is_active
-    active_status.short_description = _("active")
-    active_status.admin_order_field = 'is_active'
-    active_status.boolean = True

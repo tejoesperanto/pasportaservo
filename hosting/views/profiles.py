@@ -82,7 +82,6 @@ class ProfileUpdateView(
 class ProfileDeleteView(
         DeleteMixin['FullProfile'], AuthMixin, ProfileIsUserMixin, ProfileMixin,
         generic.DeleteView):
-    form_class = ProfileForm
     success_url = reverse_lazy('logout')
     display_fair_usage_condition = True
 
@@ -101,7 +100,7 @@ class ProfileDeleteView(
         return reverse_lazy('profile_settings', kwargs={
             'pk': self.object.pk, 'slug': self.object.autoslug})
 
-    def delete(self, request, *args, **kwargs):
+    def form_valid(self, form):
         """
         Set the flag 'deleted' to True on the profile and some associated objects,
         deactivate the linked user,
@@ -120,8 +119,8 @@ class ProfileDeleteView(
             self.object.user.is_active = False
             self.object.user.save()
         if self.role == AuthRole.OWNER:
-            messages.success(request, _("Farewell !"))
-        return super().delete(request, *args, **kwargs)
+            messages.success(self.request, _("Farewell !"))
+        return self.delete()
 
 
 class ProfileRestoreView(

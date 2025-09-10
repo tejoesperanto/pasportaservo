@@ -254,7 +254,7 @@ class RegisterView(generic.CreateView):
 class AccountRestoreRequestView(generic.TemplateView):
     template_name = '200.html'
 
-    @never_cache
+    @method_decorator(never_cache)
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             # Only anonymous (non-authenticated) users are expected to access this page.
@@ -680,6 +680,7 @@ class AccountDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = User
     template_name = 'account/account_confirm_delete.html'
     success_url = reverse_lazy('logout')
+    success_message = _("Farewell !")
 
     def get_object(self, queryset=None):
         return self.request.user
@@ -698,16 +699,15 @@ class AccountDeleteView(LoginRequiredMixin, generic.DeleteView):
                     reverse_lazy('profile_delete', kwargs={'pk': profile.pk, 'slug': profile.autoslug})
                 )
 
-    def delete(self, request, *args, **kwargs):
+    def form_valid(self, form):
         """
         Deactivates the logged-in user and redirects to the logout URL.
         If called directly for a user with a profile, the profile (and all associated objects,
         such as places) will stay intact, dissimilar to the ProfileDeleteView's delete logic.
         """
-        self.object = self.get_object()
-        request.user.is_active = False
-        request.user.save()
-        messages.success(request, _("Farewell !"))
+        self.request.user.is_active = False
+        self.request.user.save()
+        messages.success(self.request, self.success_message)
         return HttpResponseRedirect(self.get_success_url())
 
 

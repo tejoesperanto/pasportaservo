@@ -23,6 +23,9 @@ from django.utils.translation import gettext_lazy as _
 from django_countries.fields import (
     Country, CountryField as ThirdPartyCountryField,
 )
+from phonenumber_field.formfields import (
+    PhoneNumberField as ThirdPartyPhoneNumberFormField,
+)
 from phonenumber_field.modelfields import (
     PhoneNumber, PhoneNumberField as ThirdPartyPhoneNumberField,
 )
@@ -48,6 +51,14 @@ class PhoneNumberField(
 ):
     default_error_messages = {'invalid': _("Enter a valid phone number.")}
     region: Optional[str]
+
+    def formfield(self, **kwargs):
+        return super().formfield(**({'form_class': PhoneNumberFormField} | kwargs))
+
+
+class PhoneNumberFormField(ThirdPartyPhoneNumberFormField):
+    # Always displays numbers in the PHONENUMBER_DEFAULT_FORMAT. See PhoneNumber.__str__.
+    widget = forms.TextInput
 
 
 class CountryField[_C: (Country, list[Country])](

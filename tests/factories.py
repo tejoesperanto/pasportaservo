@@ -1,6 +1,6 @@
 # https://faker.readthedocs.io/en/latest/providers/faker.providers.person.html
 import re
-from datetime import timedelta
+from datetime import datetime, timedelta
 from hashlib import md5
 from random import choice, randint, random, uniform as uniform_random
 from typing import TYPE_CHECKING, Callable, Generic, TypeVar
@@ -465,7 +465,7 @@ class GenderFactory(TypedDjangoModelFactory[Gender]):
     # explicitely set to avoid the "save() prohibited, unsaved related object"
     # errors for other models.
     id = factory.Sequence(lambda n: n)
-    name_en = Faker('word')
+    name_en = factory.LazyFunction(lambda: f"{Faker._get_faker().word()} {datetime.now().timestamp()}")
     name = Faker('pystr_format', string_format='{{word}} {{word}}', locale='la')
 
 

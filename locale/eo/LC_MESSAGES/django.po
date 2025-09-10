@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2025-08-22 12:48+0000\n"
+"POT-Revision-Date: 2025-09-10 21:17+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -136,14 +136,6 @@ msgstr "jes,ne"
 msgid "Communicator"
 msgstr "Komunikilo"
 
-#: core/admin/admin.py core/models.py core/templates/core/base.html
-#: core/views.py hosting/admin/admin.py
-#: hosting/templates/hosting/phone_form.html
-#: hosting/templates/hosting/place_form.html
-#: hosting/templates/hosting/snippets/checked.html shop/models.py
-msgid "user"
-msgstr "uzanto"
-
 #: core/admin/admin.py core/templates/registration/login.html
 #: hosting/admin/admin.py hosting/models.py
 #: hosting/templates/hosting/place_list_page.html
@@ -152,9 +144,10 @@ msgstr "uzanto"
 msgid "profile"
 msgstr "profilo"
 
-#: core/admin/admin.py core/models.py
-msgid "version of policy"
-msgstr "versio de regularo"
+#: core/admin/admin.py
+#, python-brace-format
+msgid "Search for {fields_list}"
+msgstr "Serĉu laŭ {fields_list}"
 
 #: core/admin/filters.py
 msgid "Any year"
@@ -452,6 +445,10 @@ msgid "Site Configuration"
 msgstr "Retejaj agordoj"
 
 #: core/models.py
+msgid "version of policy"
+msgstr "versio de regularo"
+
+#: core/models.py
 msgid "Avoid modifying already-existing versions."
 msgstr "Evitu ŝanĝi jam ekzistantajn versiojn."
 
@@ -489,6 +486,13 @@ msgstr "Regularo {version} deviga ekde {date:%Y-%m-%d}"
 msgid "Policy {version} effective from {date:%Y-%m-%d}"
 msgstr "Regularo {version} en efiko ekde {date:%Y-%m-%d}"
 
+#: core/models.py core/templates/core/base.html core/views.py
+#: hosting/admin/admin.py hosting/templates/hosting/phone_form.html
+#: hosting/templates/hosting/place_form.html
+#: hosting/templates/hosting/snippets/checked.html shop/models.py
+msgid "user"
+msgstr "uzanto"
+
 #: core/models.py
 msgid "withdrawn on"
 msgstr "retirita je"
@@ -514,7 +518,7 @@ msgstr "aplikaĵa identigilo"
 msgid "user agent hash"
 msgstr "aplikaĵa haketo"
 
-#: core/models.py hosting/admin/admin.py hosting/models.py
+#: core/models.py hosting/models.py
 msgid "location"
 msgstr "lokigo"
 
@@ -1767,42 +1771,14 @@ msgstr "lando"
 msgid "object"
 msgstr "objekto"
 
-#: hosting/admin/admin.py hosting/fields.py
-#: hosting/templates/hosting/profile_detail.html
-msgid "email address"
-msgstr "retpoŝta adreso"
-
-#: hosting/admin/admin.py hosting/models.py
-#: hosting/templates/hosting/snippets/checked.html
-msgid "approved by"
-msgstr "aprobita de"
-
 #: hosting/admin/admin.py
 #: hosting/templates/hosting/snippets/place_conditions.html
 msgid "Conditions"
 msgstr "Kondiĉoj"
 
-#: hosting/admin/admin.py hosting/models.py
-#: hosting/templates/hosting/place_detail.html
-#: hosting/templates/hosting/profile_detail.html
-msgid "owner"
-msgstr "posedanto"
-
-#: hosting/admin/admin.py hosting/models.py
-msgid "number"
-msgstr "numero"
-
 #: hosting/admin/admin.py
 msgid "country code"
 msgstr "landa kodo"
-
-#: hosting/admin/admin.py hosting/models.py
-msgid "travel advice"
-msgstr "vojaĝ-averto"
-
-#: hosting/admin/admin.py hosting/models.py
-msgid "countries"
-msgstr "landoj"
 
 #: hosting/admin/admin.py hosting/admin/filters.py
 msgid "active"
@@ -1949,6 +1925,10 @@ msgstr "ŝtato"
 msgctxt "administrative area type"
 msgid "voivodeship"
 msgstr "provinco (vojevodio)"
+
+#: hosting/fields.py hosting/templates/hosting/profile_detail.html
+msgid "email address"
+msgstr "retpoŝta adreso"
 
 #: hosting/fields.py
 msgid "Enter a valid phone number."
@@ -2230,6 +2210,10 @@ msgstr "forigita je"
 msgid "checked on"
 msgstr "kontrolita je"
 
+#: hosting/models.py hosting/templates/hosting/snippets/checked.html
+msgid "approved by"
+msgstr "aprobita de"
+
 #: hosting/models.py
 msgctxt "Noun"
 msgid "Unknown"
@@ -2398,6 +2382,11 @@ msgstr "Malgranda bildo, < 100 kB. Idealaj mezuroj: 140×140 punktoj."
 #: hosting/models.py
 msgid "profiles"
 msgstr "profiloj"
+
+#: hosting/models.py hosting/templates/hosting/place_detail.html
+#: hosting/templates/hosting/profile_detail.html
+msgid "owner"
+msgstr "posedanto"
 
 #: hosting/models.py hosting/templates/hosting/place_list_page.html
 msgid "address"
@@ -2583,6 +2572,10 @@ msgstr "laboreja"
 msgctxt "Phone Type"
 msgid "fax"
 msgstr "fakso"
+
+#: hosting/models.py
+msgid "number"
+msgstr "numero"
 
 #: hosting/models.py
 msgid ""
@@ -2792,6 +2785,10 @@ msgid "preferences for profile"
 msgstr "profilaj preferoj"
 
 #: hosting/models.py
+msgid "countries"
+msgstr "landoj"
+
+#: hosting/models.py
 msgid "- ALL COUNTRIES -"
 msgstr "- ĈIUJ LANDOJ -"
 
@@ -2802,6 +2799,10 @@ msgstr "averto en efiko ekde dato"
 #: hosting/models.py
 msgid "advice valid until date"
 msgstr "averto en efiko ĝis dato"
+
+#: hosting/models.py
+msgid "travel advice"
+msgstr "vojaĝ-averto"
 
 #: hosting/models.py
 msgid "travel advices"
@@ -5113,8 +5114,8 @@ msgstr "rezervado/"
 
 #~ msgid ""
 #~ "We use technologies such as cookies and browser storage to power the "
-#~ "website. We also use cookies to gather anonymised statistics. <a href="
-#~ "\"%(link)s\">Read more</a> about the technologies we use and how to "
+#~ "website. We also use cookies to gather anonymised statistics. <a "
+#~ "href=\"%(link)s\">Read more</a> about the technologies we use and how to "
 #~ "change your settings; by continuing to use the site without changing "
 #~ "settings, you are agreeing to such usage."
 #~ msgstr ""

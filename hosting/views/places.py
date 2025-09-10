@@ -92,7 +92,9 @@ class PlaceLocationUpdateView(
 class PlaceDeleteView(
         DeleteMixin[Place], AuthMixin, PlaceMixin, ProfileModifyMixin,
         generic.DeleteView):
-    pass
+
+    def form_valid(self, form):
+        return self.delete()
 
 
 class PlaceDetailView(AuthMixin[Place], PlaceMixin, generic.DetailView):

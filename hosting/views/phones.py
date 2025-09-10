@@ -42,7 +42,9 @@ class PhoneUpdateView(
 class PhoneDeleteView(
         DeleteMixin[Phone], AuthMixin, PhoneMixin, ProfileModifyMixin,
         generic.DeleteView):
-    pass
+
+    def form_valid(self, form):
+        return self.delete()
 
 
 class PhonePriorityChangeView(AuthMixin[Profile], ProfileMixin, generic.View):
