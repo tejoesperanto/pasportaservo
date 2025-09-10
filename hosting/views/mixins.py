@@ -8,6 +8,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -260,7 +261,7 @@ class UpdateMixin[ModelT: TrackingModel](SingleObjectFormViewProtocol[ModelT]):
     minimum_role = AuthRole.OWNER
     update_partial = False
 
-    @never_cache
+    @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
@@ -299,10 +300,11 @@ class DeleteMixin[ModelT: TrackingModel](SingleObjectDeleteViewProtocol[ModelT])
         else:
             return super().get(request, *args, **kwargs)
 
-    def delete(self, request, *args, **kwargs):
+    def delete(self, *args, **kwargs):
         if getattr(self, 'object', None) is None:
             self.object = self.get_object()
         if not self.object.deleted:
             self.object.deleted_on = timezone.now()
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
+    delete.do_not_call_in_templates = True

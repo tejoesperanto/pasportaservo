@@ -66,8 +66,7 @@ class FamilyMemberRemoveView(
     display_fair_usage_condition = True
     minimum_role = AuthRole.OWNER
 
-    def delete(self, request, *args, **kwargs):
-        self.object = self.get_object()
+    def form_valid(self, form):
         self.place.family_members.remove(self.object)
         return HttpResponseRedirect(self.get_success_url())
 
@@ -92,7 +91,7 @@ class FamilyMemberDeleteView(
             raise Http404("This family member is listed at other places as well; cannot delete the profile.")
         return self.object
 
-    def delete(self, request, *args, **kwargs):
-        redirect = super().delete(request, *args, **kwargs)
+    def form_valid(self, form):
+        redirect = self.delete()
         self.place.family_members.remove(self.object)
         return redirect

@@ -112,11 +112,14 @@ class ListTagTests(TestCase):
         ).render(Context())
         self.assertHTMLEqual(page, "[&#39;aa&#39;, 2, &#39;bb&#39;, -2, &#39;cc&#39;]")
 
+        # Output is expected to be impossible without escaping.
         page = Template(
             "{% load list from utils %}"
             "{% autoescape off %}{% list 'aa' +2 'bb' -2 'cc' %}{% endautoescape %}"
-        ).render(Context())
-        self.assertEqual(page, "['aa', 2, 'bb', -2, 'cc']")
+        )
+        with self.assertRaises(TypeError) as cm:
+            page.render(Context())
+        self.assertIn("expected str instance, list found", str(cm.exception))
 
     def test_list_result_empty(self):
         # Empty parameter list is expected to result in an empty list.
@@ -177,11 +180,14 @@ class DictTagTests(TestCase):
         ).render(Context())
         self.assertHTMLEqual(page, "{&#39;aa&#39;: True, &#39;bb&#39;: False, &#39;cc&#39;: None}")
 
+        # Output is expected to be impossible without escaping.
         page = Template(
             "{% load dict from utils %}"
             "{% autoescape off %}{% dict aa=+2 bb=-2 cc=33 %}{% endautoescape %}"
-        ).render(Context())
-        self.assertEqual(page, "{'aa': 2, 'bb': -2, 'cc': 33}")
+        )
+        with self.assertRaises(TypeError) as cm:
+            page.render(Context())
+        self.assertIn("expected str instance, dict found", str(cm.exception))
 
     def test_dict_result_empty(self):
         # Empty parameter list is expected to result in an empty dict.

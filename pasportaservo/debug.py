@@ -1,6 +1,5 @@
 from django.conf import settings
 
-from debug_toolbar.panels.logging import LoggingPanel
 from debug_toolbar.panels.request import RequestPanel
 
 
@@ -37,18 +36,3 @@ class CustomRequestPanel(RequestPanel):
                     supervisor_of(request.user) if not request.user.is_superuser else ["-- ALL --"],
             })
         self.record_stats(auth_stats)
-
-
-class CustomLoggingPanel(LoggingPanel):
-    def generate_stats(self, request, response):
-        from django.utils import html
-        from django.utils.safestring import mark_safe
-
-        super().generate_stats(request, response)
-        records = self.get_stats()['records']
-        for rec in records:
-            msg = html.escape(rec['message']).split('\n')
-            msg = "".join(map(
-                lambda t: t.replace('\t', "<div style='margin-left:1.5em'>") + "</div>"*t.count('\t'),
-                msg))
-            rec['message'] = mark_safe(msg)

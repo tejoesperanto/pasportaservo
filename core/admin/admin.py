@@ -1,12 +1,14 @@
 from typing import cast
 
 from django.contrib import admin
+from django.contrib.auth.models import User
 from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
 from django.core.cache import cache
 from django.db import models
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.text import format_lazy, get_text_list
 from django.utils.translation import gettext_lazy as _
 
 from djangocodemirror.widgets import CodeMirrorAdminWidget
@@ -25,7 +27,7 @@ admin.site.unregister(FlatPage)
 
 
 @admin.register(FlatPage)
-class FlatPageAdmin(FlatPageAdmin):
+class CustomFlatPageAdmin(FlatPageAdmin):
     formfield_overrides = {
         models.TextField: {'widget': CodeMirrorAdminWidget(config_name='html')},
     }
@@ -108,6 +110,9 @@ class AgreementAdmin(admin.ModelAdmin):
             cache[obj.policy_version] = value
         return value
 
+    def search_help_text(self):
+        return make_search_help_text(self, (User, 'username'))
+
     def get_queryset(self, request):
         qs = super().get_queryset(request).select_related('user', 'user__profile')
         qs = qs.only(
@@ -178,6 +183,9 @@ class UserBrowserAdmin(admin.ModelAdmin):
     def browser_version_display(self, obj: UserBrowser):
         return obj.browser_version
 
+    def search_help_text(self):
+        return make_search_help_text(self, (User, 'username'))
+
     def get_queryset(self, request):
         qs = super().get_queryset(request).select_related('user')
         qs = qs.only(
@@ -200,3 +208,19 @@ class UserBrowserAdmin(admin.ModelAdmin):
         if form.base_fields:
             form.base_fields['user_agent_string'].widget.attrs['style'] = "width: 50em;"
         return form
+
+
+def make_search_help_text[ModelT: models.Model](
+        model_admin: 'admin.ModelAdmin[ModelT]',
+        *search_fields: str | tuple[type[models.Model], str],
+) -> str:
+    return format_lazy(
+        _("Search for {fields_list}"),
+        fields_list=get_text_list([
+            (model_admin.model if isinstance(search_field, str) else search_field[0])
+            ._meta
+            .get_field(search_field if isinstance(search_field, str) else search_field[1])
+            .verbose_name.lower()
+            for search_field in search_fields
+        ])
+    )
