@@ -325,7 +325,7 @@ class ProfilePrivacyUpdateView(AuthMixin[Profile], ProfileMixin, generic.View):
     def get_permission_denied_message(self, *args, **kwargs):
         return _("Only the user themselves can access this page")
 
-    @vary_on_headers('HTTP_X_REQUESTED_WITH')
+    @vary_on_headers('X-Requested-With', 'Accept')
     def post(self, request: PasportaServoHttpRequest, *args, **kwargs):
         profile = self.get_object()
         data = QueryDict(request.body)
@@ -349,7 +349,7 @@ class ProfilePrivacyUpdateView(AuthMixin[Profile], ProfileMixin, generic.View):
         if optins_data_correct:
             optins_form.save()
 
-        if request.is_ajax():
+        if request.is_json:
             return JsonResponse({'result': matrix_data_correct and optins_data_correct})
         else:
             if not matrix_data_correct:

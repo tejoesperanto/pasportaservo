@@ -16,7 +16,7 @@ class HomeTests(WebTest):
 
     @override_settings(LANGUAGE_CODE='en')
     def test_home_logged_in(self):
-        user = UserFactory()
+        user = UserFactory.create()
         response = self.app.get(self.url, user=user, status=200)
         # self.assertIn(user.username, response.pyquery(".links").text())
         self.assertIn("log out", response.pyquery("header .navigator .nav-session").text())
@@ -32,13 +32,13 @@ class BasicProfileTests(WebTest):
         self.assertEqual(response.location, "/ensaluti/?ps_m=/profilo/")
 
     def test_profile_too_young(self):
-        profile = ProfileFactory(birth_date="2018-01-01")
-        response = self.app.get(self.url, user=profile.user, expect_errors=True)
+        profile = ProfileFactory.create(birth_date="2018-01-01")
+        response = self.app.get(self.url, user=profile.user, headers={'Accept': 'text/html'}, expect_errors=True)
         self.assertEqual(response.status_code, 403)
         self.assertIn("tro juna", response.pyquery("#subtitle").text())
 
     def test_profile_edit(self):
-        profile = ProfileFactory()
+        profile = ProfileFactory.create()
         response = self.app.get(self.url, user=profile.user)
         self.assertEqual(response.location, profile.get_edit_url())
         self.assertEqual(response.status_code, 302)

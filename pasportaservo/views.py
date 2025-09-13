@@ -30,7 +30,7 @@ def custom_permission_denied_view(request, exception, template_name=ERROR_403_TE
     the Debug toolbar.
     """
     exception_object = exception.args[0] if exception.args else exception
-    if request.is_ajax():
+    if request.accepts('application/json'):
         response = HttpResponseForbidden(str(exception_object), content_type='text/plain')
     else:
         response = permission_denied(request, exception_object, template_name)

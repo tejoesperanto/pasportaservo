@@ -50,6 +50,8 @@ class AccountFlagsMiddleware(MiddlewareMixin):
         self.exclude_urls = tuple(str(url) for url in exclude_urls)
 
     def process_request(self, request: PasportaServoHttpRequest):
+        request.is_json = request.accepts('application/json')
+
         if request.path.startswith(self.exclude_urls):
             # Only relevant when using the website itself (not Django-Admin or debug tools),
             # when the file requested is not a static one or a fragment,

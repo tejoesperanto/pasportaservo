@@ -943,7 +943,7 @@ class PreferenceOptinsFormTests(WebTest):
         )
 
     def test_view_page(self):
-        user = ProfileFactory(user=UserFactory(invalid_email=True))
+        user = ProfileFactory.create(user=UserFactory(invalid_email=True))
         page = self.app.get(
             reverse('profile_settings', kwargs={'pk': user.pk, 'slug': user.autoslug}),
             user=user.user,
@@ -954,21 +954,30 @@ class PreferenceOptinsFormTests(WebTest):
         self.assertIsInstance(page.context['optinouts_form'], PreferenceOptinsForm)
 
     def test_form_submit(self):
-        user = ProfileFactory(with_email=True)
-        page = self.app.get(
-            reverse('profile_settings', kwargs={'pk': user.pk, 'slug': user.autoslug}),
-            user=user.user,
-        )
+        user = ProfileFactory.create(with_email=True)
+        settings_page_url = reverse(
+            'profile_settings', kwargs={'pk': user.pk, 'slug': user.autoslug})
+
+        page = self.app.get(settings_page_url, user=user.user)
         self.assertTrue(user.pref.public_listing)
         form = page.forms['privacy_form']
         form['public_listing'] = False
-        page = form.submit()
+        response = form.submit(headers={'Accept': 'text/html'})
         user.refresh_from_db()
         self.assertRedirects(
-            page,
+            response,
             '{}#pR'.format(
                 reverse('profile_edit', kwargs={'pk': user.pk, 'slug': user.autoslug})
             )
         )
         self.assertFalse(user.pref.public_listing)
         self.assertTrue(user.pref.site_analytics_consent)
+
+        page = self.app.get(settings_page_url)
+        form = page.forms['privacy_form']
+        form['public_listing'] = True
+        response = form.submit(headers={'Accept': 'application/json'})
+        user.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json, {'result': True})

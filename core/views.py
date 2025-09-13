@@ -531,7 +531,7 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
     http_method_names = ['post', 'get']
     template_name = 'account/system-email_verify_done.html'
 
-    @vary_on_headers('HTTP_X_REQUESTED_WITH')
+    @vary_on_headers('X-Requested-With', 'Accept')
     def post(self, request, *args, **kwargs):
         config = SiteConfiguration.get_solo()
         email_to_verify = value_without_invalid_marker(request.user.email)
@@ -564,7 +564,7 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
             html_message=email_template_html.render(context),
             fail_silently=False)
 
-        if request.is_ajax():
+        if request.accepts('application/json'):
             return JsonResponse({'success': 'verification-requested'})
         else:
             return TemplateResponse(request, self.template_name)
@@ -647,7 +647,7 @@ class EmailValidityMarkView(
     minimum_role = AuthRole.SUPERVISOR
     valid = False
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request: PasportaServoHttpRequest, *args, **kwargs):
         self.profile = self.get_object()
         kwargs['auth_base'] = self.profile
         return super().dispatch(request, *args, **kwargs)
@@ -655,8 +655,8 @@ class EmailValidityMarkView(
     def get_queryset(self):
         return super().get_queryset().select_related(None)
 
-    @vary_on_headers('HTTP_X_REQUESTED_WITH')
-    def post(self, request, *args, **kwargs):
+    @vary_on_headers('X-Requested-With', 'Accept')
+    def post(self, request: PasportaServoHttpRequest, *args, **kwargs):
         # Spare the extra trip to the database to fetch the User object associated
         # with the profile, just to retrieve the email address in that record.
         email = User.objects.filter(pk=self.profile.user_id).values_list('email')
@@ -664,7 +664,7 @@ class EmailValidityMarkView(
             Profile.mark_valid_emails(email)
         else:
             Profile.mark_invalid_emails(email)
-        if request.is_ajax():
+        if request.is_json:
             success_value = 'valid' if self.valid else 'invalid'
             return JsonResponse({'success': success_value})
         else:
@@ -721,8 +721,8 @@ class FeedbackView(generic.View):
         False: 'core/feedback_form_fail.html',
     }
 
-    @vary_on_headers('HTTP_X_REQUESTED_WITH')
-    def post(self, request, *args, **kwargs):
+    @vary_on_headers('X-Requested-With', 'Accept')
+    def post(self, request: HttpRequest, *args, **kwargs):
         # Verify the form in the request; if it does not validate correctly,
         # it was most probably tampered with.
         form = FeedbackForm(data=QueryDict(request.body))
@@ -733,7 +733,7 @@ class FeedbackView(generic.View):
                 {'errors': form.errors, 'message': form.data.get('message', "NULL")[:1000]},
                 extra={'request': request},
             )
-            if request.is_ajax():
+            if request.accepts('application/json'):
                 return JsonResponse({'result': False})
             else:
                 return TemplateResponse(request, self.template_names[False])
@@ -748,7 +748,7 @@ class FeedbackView(generic.View):
             )
             # Submit the feedback.
             method(feedback_type, message_text)
-        if request.is_ajax():
+        if request.accepts('application/json'):
             return JsonResponse({
                 'result': True,
                 'submitted': bool(form.cleaned_data['message']),
