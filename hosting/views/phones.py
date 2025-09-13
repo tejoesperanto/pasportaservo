@@ -51,7 +51,7 @@ class PhonePriorityChangeView(AuthMixin[Profile], ProfileMixin, generic.View):
     http_method_names = ['post']
     minimum_role = AuthRole.OWNER
 
-    @vary_on_headers('HTTP_X_REQUESTED_WITH')
+    @vary_on_headers('X-Requested-With', 'Accept')
     def post(self, request: PasportaServoHttpRequest, *args, **kwargs):
         profile = self.get_object()
         # This validation should be sufficient; non-existing IDs and phone IDs not
@@ -62,7 +62,7 @@ class PhonePriorityChangeView(AuthMixin[Profile], ProfileMixin, generic.View):
             re.MULTILINE)
         profile.set_phone_order(phone_ids)
         priorities = list(profile.get_phone_order())
-        if request.is_ajax():
+        if request.is_json:
             return JsonResponse({'result': priorities})
         else:
             profile_url = profile.get_edit_url()

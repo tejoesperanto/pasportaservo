@@ -50,7 +50,7 @@ class MapTypeConfigureView(generic.View):
 
     def post(self, request: HttpRequest, *args, **kwargs):
         map_type = kwargs.pop('map_type')
-        if request.is_ajax():
+        if request.accepts('application/json'):
             response = JsonResponse({'success': 'map-type-configured'})
         else:
             response = HttpResponseRedirect(

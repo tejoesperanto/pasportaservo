@@ -32,19 +32,19 @@ class InfoConfirmView(LoginRequiredMixin, generic.View):
     http_method_names = ['post']
     template_name = 'links/confirmed.html'
 
-    @vary_on_headers('HTTP_X_REQUESTED_WITH')
+    @vary_on_headers('X-Requested-With', 'Accept')
     def post(self, request: PasportaServoHttpRequest, *args, **kwargs):
         try:
             request.user.profile.confirm_all_info()
         except Profile.DoesNotExist:
-            if request.is_ajax():
+            if request.is_json:
                 return HttpResponseBadRequest(
                     "Cannot confirm data; a profile must be created first.",
                     content_type="text/plain")
             else:
                 return HttpResponseRedirect(reverse_lazy('profile_create'))
         else:
-            if request.is_ajax():
+            if request.is_json:
                 return JsonResponse({'success': 'confirmed'})
             else:
                 return TemplateResponse(request, self.template_name)
@@ -87,7 +87,7 @@ class PlaceCheckView(AuthMixin[Place], PlaceMixin, generic.View):
                 )
             raise
 
-    @vary_on_headers('HTTP_X_REQUESTED_WITH')
+    @vary_on_headers('X-Requested-With', 'Accept')
     def post(self, request: PasportaServoHttpRequest, *args, **kwargs):
         place = self.get_object()
         data: list[tuple[type[ModelForm], Iterable[TrackingModel]]] = [
@@ -121,7 +121,7 @@ class PlaceCheckView(AuthMixin[Place], PlaceMixin, generic.View):
         else:
             place.set_check_status(self.request.user)
 
-        if request.is_ajax():
+        if request.is_json:
             return JsonResponse(viewresponse)
         else:
             return TemplateResponse(
