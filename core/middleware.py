@@ -103,7 +103,8 @@ class AccountFlagsMiddleware(MiddlewareMixin):
                 ))
 
         # Has the user consented to the most up-to-date usage policy?
-        if trouble_view is not None and request.method == 'GET':
+        if (trouble_view is not None
+                and (request.method == 'GET' or trouble_view.func.view_class == AgreementView)):
             redirect_response = (
                 self._verify_usage_policy_consent(request, trouble_view.func.view_class)
             )
