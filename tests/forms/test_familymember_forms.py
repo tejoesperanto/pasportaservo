@@ -336,7 +336,7 @@ class FamilyMemberFormTests(WebTest):
                 form.errors,
                 {
                     'title': [
-                        "Elektu validan elekton. XYZ ne estas el la eblaj elektoj."
+                        "Elektu ekzistantan opcion. XYZ ne estas el la eblaj elektoj."
                     ],
                 }
             )

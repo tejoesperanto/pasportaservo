@@ -119,7 +119,7 @@ class PhoneFormTests(WebTest):
         with override_settings(LANGUAGE_CODE='eo'):
             self.assertEqual(
                 form.errors['country'],
-                ["Elektu validan elekton. ZZ ne estas el la eblaj elektoj."]
+                ["Elektu ekzistantan opcion. ZZ ne estas el la eblaj elektoj."]
             )
 
     def test_invalid_number(self):

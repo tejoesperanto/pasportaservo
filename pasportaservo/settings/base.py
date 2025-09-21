@@ -55,7 +55,7 @@ COMPRESS_OFFLINE_CONTEXT = [
 # Application definition
 
 INSTALLED_APPS = (
-    'django.contrib.admin',
+    'pasportaservo.apps.PasportaServoAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.flatpages',
@@ -91,6 +91,17 @@ INSTALLED_APPS = (
     'links',
     'maps',
     'pages',
+    'shop',
+)
+
+ADMIN_APP_ORDERING = (
+    {'app': 'core', 'models': ('SiteConfiguration', 'Policy', 'Agreement')},
+    'admin',
+    'auth',
+    'hosting',
+    'postman',
+    'flatpages',
+    'blog',
     'shop',
 )
 
@@ -144,7 +155,7 @@ ROOT_URLCONF = 'pasportaservo.urls'
 
 WSGI_APPLICATION = 'pasportaservo.wsgi.application'
 
-SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 STATICFILES_FINDERS = global_settings.STATICFILES_FINDERS + [
@@ -219,7 +230,6 @@ TEST_EMAIL_BACKENDS = {
 LANGUAGE_CODE = 'eo'
 TIME_ZONE = 'UTC'
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
 
 # Other settings

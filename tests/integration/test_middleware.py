@@ -199,7 +199,7 @@ class ConnectionInfoTests(WebTest):
         # Accessing the website again after more than 24 hours through the
         # same session is expected to log a new connection.
         session = self.app.session
-        session['flag_connection_logged'] = timezone.now() - timezone.timedelta(hours=25)
+        session['flag_connection_logged'] = str(timezone.now() - timezone.timedelta(hours=25))
         session.save()
         self.app.get(
             self.general_url,

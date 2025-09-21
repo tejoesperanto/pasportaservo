@@ -3,8 +3,9 @@ from copy import copy
 from itertools import chain
 from typing import TYPE_CHECKING
 
+from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, logout
 from django.db import transaction
 from django.db.models import Model, Prefetch, QuerySet
 from django.db.models.functions import Trunc
@@ -82,7 +83,7 @@ class ProfileUpdateView(
 class ProfileDeleteView(
         DeleteMixin['FullProfile'], AuthMixin, ProfileIsUserMixin, ProfileMixin,
         generic.DeleteView):
-    success_url = reverse_lazy('logout')
+    success_url = settings.LOGOUT_REDIRECT_URL
     display_fair_usage_condition = True
 
     def get_context_data(self, **kwargs):
@@ -120,6 +121,7 @@ class ProfileDeleteView(
             self.object.user.save()
         if self.role == AuthRole.OWNER:
             messages.success(self.request, _("Farewell !"))
+            logout(self.request)
         return self.delete()
 
 

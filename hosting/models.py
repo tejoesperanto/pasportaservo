@@ -628,13 +628,22 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
             # verification status:
             'confirmed', 'checked',
         )
-        objects = self.owned_places.filter(deleted=False).values(*fields)
-        return tuple(namedtuple('SimplePlaceContainer', place.keys())(
-            *place.values()) for place in objects
+        if self.pk:
+            # Relationships can only be used once a profile has a primary key.
+            objects = self.owned_places.filter(deleted=False).values(*fields)
+        else:
+            objects = []
+        return tuple(
+            namedtuple('SimplePlaceContainer', place.keys())(*place.values())
+            for place in objects
         )
 
     def _count_listed_places(self, attr, query, restrained_search, **kwargs):
-        cached = self.__dict__.setdefault('_host_offer_cache', {}).get(attr) if not len(kwargs) else None
+        cached = (
+            self.__dict__.setdefault('_host_offer_cache', {}).get(attr)
+            if not len(kwargs)
+            else None
+        )
         if not cached:
             try:
                 _filter = {
@@ -645,16 +654,22 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
                     'ok_for_book': OkForBookFilter,
                 }[query](restrained_search, **kwargs)
             except KeyError:
-                raise AttributeError("Query '%s' is not implemented for model Profile" % query)
+                raise AttributeError(
+                    f"Query '{query}' is not implemented for model Profile")
             else:
                 cached = len([p.id for p in self._listed_places if _filter(p)])
             if not len(kwargs):
-                self._host_offer_cache[attr] = cached
+                cast(dict, self._host_offer_cache)[attr] = cached
         return cached
 
     @property
     def places_confirmed(self):
-        return all(p.confirmed for p in self.owned_places.filter(deleted=False, in_book=True))
+        relevant_places = (
+            self.owned_places.filter(deleted=False, in_book=True)
+            if self.pk
+            else []
+        )
+        return all(p.confirmed for p in relevant_places)
 
     def __getattr__(self, attr):
         """
@@ -675,7 +690,10 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
             'ok_for_book': {'accept_confirmed': False, 'accept_approved': True},
         }
         if query in customizable_queries:
-            return partial(self._count_listed_places, attr, query, restrained_search, **customizable_queries[query])
+            return partial(
+                self._count_listed_places,
+                attr, query, restrained_search, **customizable_queries[query]
+            )
         else:
             return self._count_listed_places(attr, query, restrained_search)
 
@@ -687,8 +705,10 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
         return '--'
 
     def __lt__(self, other):
-        return ((self.last_name < other.last_name)
-                or (self.last_name == other.last_name and self.first_name < other.first_name))
+        return (
+            (self.last_name < other.last_name)
+            or (self.last_name == other.last_name and self.first_name < other.first_name)
+        )
 
     def __repr__(self):
         return "<{} #{}: {}>".format(self.__class__.__name__, self.id, self.__str__())
@@ -697,6 +717,8 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
         return "{} ({})".format(self.__str__(), getattr(self.birth_date, 'year', "?"))
 
     def rawdisplay_phones(self):
+        if not self.pk:
+            return ""
         return ", ".join(phone.rawdisplay() for phone in self.phones.filter(deleted=False))
 
     def get_absolute_url(self):
@@ -725,11 +747,13 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
         """
         now = timezone.now() if confirm else None
         self.confirmed_on = now
-        with transaction.atomic():
-            self.owned_places.filter(deleted=False).update(confirmed_on=now)
-            self.phones.filter(deleted=False).update(confirmed_on=now)
-            self.website_set.filter(deleted=False).update(confirmed_on=now)
-            self.save()
+        if self.pk:
+            # Relationships can only be used once a profile has a primary key.
+            with transaction.atomic():
+                self.owned_places.filter(deleted=False).update(confirmed_on=now)
+                self.phones.filter(deleted=False).update(confirmed_on=now)
+                self.website_set.filter(deleted=False).update(confirmed_on=now)
+                self.save()
     confirm_all_info.alters_data = True
 
     @classonlymethod
@@ -957,9 +981,11 @@ class Place(ViewableModel, TrackingModel, TimeStampedModel):
     @cached_property
     def subregion(self):
         try:
-            region = CountryRegion.objects.get(country=self.country, iso_code=self.state_province)
+            region = CountryRegion.objects.get(
+                country=self.country, iso_code=self.state_province)
         except CountryRegion.DoesNotExist:
-            region = CountryRegion(country=self.country, iso_code='X-00', latin_code=self.state_province)
+            region = CountryRegion(
+                country=self.country, iso_code='X-00', latin_code=self.state_province)
         region.save = lambda *args, **kwargs: None  # Read-only instance.
         return region
 
@@ -979,7 +1005,9 @@ class Place(ViewableModel, TrackingModel, TimeStampedModel):
             cached_qs = self.__dict__[cache_name]
         except KeyError:
             try:
-                cached_qs = self._prefetched_objects_cache[self.family_members.prefetch_cache_name]
+                cached_qs = (
+                    self._prefetched_objects_cache[self.family_members.prefetch_cache_name]
+                )
             except (AttributeError, KeyError):
                 cached_qs = self.family_members.order_by('birth_date').select_related('user')
             self.__dict__[cache_name] = cached_qs

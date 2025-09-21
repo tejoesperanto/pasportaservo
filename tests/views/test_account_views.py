@@ -148,7 +148,8 @@ class RegisterViewTests(FormViewTestsMixin, BasicViewTests):
                 mock_pwd_check.assert_called_once_with(test_data['password1'])
                 self.assertStartsWith(page.get_form_errors(), expected_strings[lang]['form'])
                 self.assertFormError(
-                    page.response, 'form', 'password1', expected_strings[lang]['field'])
+                    page.response.context['form'], 'password1',
+                    expected_strings[lang]['field'])
                 self.assertEqual(
                     page.get_form_errors('password1'),
                     [expected_strings[lang]['field']])
@@ -178,7 +179,9 @@ class RegisterViewTests(FormViewTestsMixin, BasicViewTests):
                 self.assertEqual(page.response.status_code, 200)
                 mock_pwd_check.assert_called_with(test_data['password1'])
                 self.assertFormError(
-                    page.response, 'form', parameter_name, expected_strings[lang])
+                    page.response.context['form'], parameter_name,
+                    expected_strings[lang]
+                )
                 self.assertEqual(
                     page.get_form_errors(parameter_name),
                     [expected_strings[lang]]

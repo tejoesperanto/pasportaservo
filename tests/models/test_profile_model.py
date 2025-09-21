@@ -1,3 +1,4 @@
+from typing import TYPE_CHECKING, cast
 from unittest.mock import patch
 
 from django.conf import settings
@@ -10,7 +11,11 @@ from django.utils.html import format_html
 
 from factory import Faker
 
+from core import PasportaServoHttpRequest
 from hosting.gravatar import email_to_gravatar
+
+if TYPE_CHECKING:
+    from hosting.models import FullProfile, Profile
 
 from ..assertions import AdditionalAsserts
 from ..factories import ProfileFactory, ProfileSansAccountFactory, UserFactory
@@ -31,7 +36,8 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.basic_profile = ProfileFactory.create(locale='la', with_email=True)
+        cls.basic_profile = cast(
+            'FullProfile', ProfileFactory.create(locale='la', with_email=True))
         cls.tenant_profile = ProfileSansAccountFactory.create()
 
     def test_field_max_lengths(self):
@@ -297,24 +303,32 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
         self.assertSurrounding(repr(profile), f"<Profile #{profile.pk}:", ">")
 
     def test_rawdisplay(self):
-        # Raw string for profile with a birth date is expected to include the birth year.
-        profile = self.basic_profile
-        self.assertEqual(profile.rawdisplay(), f"{str(profile)} ({profile.birth_date.year})")
-        profile.first_name = ""
-        profile.last_name = ""
-        self.assertEqual(profile.rawdisplay(), f"{str(profile)} ({profile.birth_date.year})")
-        profile = self.tenant_profile
-        self.assertEqual(profile.rawdisplay(), f"{str(profile)} ({profile.birth_date.year})")
+        test_data: list[tuple[str, 'Profile']] = [
+            ('basic', self.basic_profile),
+            ('tenant', self.tenant_profile),
+            ('unsaved', ProfileFactory.build()),
+        ]
 
-        # Raw string for profile without a birth date is expected to include a question mark.
-        profile.birth_date = None
-        self.assertEqual(profile.rawdisplay(), f"{str(profile)} (?)")
-        profile.first_name = ""
-        profile.last_name = ""
-        self.assertEqual(profile.rawdisplay(), f"{str(profile)} (?)")
-        profile = self.tenant_profile
-        profile.birth_date = None
-        self.assertEqual(profile.rawdisplay(), f"{str(profile)} (?)")
+        # Raw string for profile with a birth date is expected to include
+        # the birth year.
+        for profile_tag, profile in test_data:
+            with self.subTest(tag=profile_tag, birth_date=True):
+                assert profile.birth_date is not None
+                self.assertEqual(
+                    profile.rawdisplay(),
+                    f"{str(profile)} ({profile.birth_date.year})")
+                profile.first_name = ""
+                profile.last_name = ""
+                self.assertEqual(
+                    profile.rawdisplay(),
+                    f"{str(profile)} ({profile.birth_date.year})")
+
+        # Raw string for profile without a birth date is expected to include
+        # a question mark.
+        for profile_tag, profile in test_data:
+            with self.subTest(tag=profile_tag, birth_date=False):
+                profile.birth_date = None
+                self.assertEqual(profile.rawdisplay(), f"{str(profile)} (?)")
 
     def test_visibility_delete_protection(self):
         with self.assertRaises(ProtectedError):
@@ -410,10 +424,10 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
             p.email_visibility
 
     def test_get_basic_data_from_request(self):
-        request = RequestFactory().get('/pro/filo')
+        request = cast(PasportaServoHttpRequest, RequestFactory().get('/pro/filo'))
         request.user = self.basic_profile.user  # Simulate a logged-in user.
-        other_profile = ProfileFactory(with_email=True)
-        other_user = UserFactory(profile=None)
+        other_profile = ProfileFactory.create(with_email=True)
+        other_user = UserFactory.create(profile=None)
         ProfileModel = self.basic_profile.__class__
 
         default_200_result = dict.fromkeys((None, True, False), {'queries': 1, 'exists': True})

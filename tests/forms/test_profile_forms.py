@@ -90,7 +90,10 @@ class ProfileFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
         ...
 
     def test_init(self):
-        form_empty = self._init_form(empty=True, user=self.profile_with_no_places.obj.user)
+        form_empty = self._init_form(
+            empty=True,
+            instance=self.profile_with_no_places.obj,
+            user=self.profile_with_no_places.obj.user)
         expected_fields = [
             'title',
             'first_name',
@@ -368,8 +371,8 @@ class ProfileFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
                     self.assertEqual(
                         form.errors['avatar'],
                         [
-                            "Alŝutu validan bildon. La alŝutita dosiero ne estas "
-                            "bildo, aŭ estas difektita bildo."
+                            "Alŝutu ĝustaforman bildon. La alŝutita dosiero ne estas "
+                            "bildo aŭ estas difektita bildo."
                         ]
                     )
 

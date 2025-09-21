@@ -1,7 +1,7 @@
 from collections import namedtuple
 from datetime import date, datetime
 from itertools import chain, islice
-from typing import cast
+from typing import ClassVar, cast
 from unittest.mock import patch
 
 from django.contrib.gis.geos import Point as GeoPoint
@@ -31,6 +31,7 @@ from hosting.models import (
 from maps import SRID
 from maps.widgets import MapboxGlWidget
 
+from .. import with_type_hint
 from ..assertions import AdditionalAsserts
 from ..factories import (
     ConditionFactory, CountryRegionFactory, PlaceFactory,
@@ -38,7 +39,9 @@ from ..factories import (
 )
 
 
-class PlaceFormTestingBase:
+class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
+    form_class: ClassVar[type[PlaceForm]]
+
     @classmethod
     def setUpClass(cls):
         cls.faker = Faker._get_faker(locale='en-GB')
@@ -81,7 +84,7 @@ class PlaceFormTestingBase:
         cls.conditions = list(Condition.objects.values_list('id', flat=True))
 
         cls.expected_fields = {
-            'country': ('random_element', {'elements': cls.all_countries}),
+            'country': ('random_element', {'elements': list(cls.all_countries)}),
             'state_province': ('word', ),
             'city': ('word', ),
             'closest_city': ('word', ),
@@ -131,6 +134,9 @@ class PlaceFormTestingBase:
         raise NotImplementedError
 
     def _init_empty_form(self, data=None):
+        raise NotImplementedError
+
+    def _get_view_page(self) -> WebTest.app_class.RequestClass:
         raise NotImplementedError
 
     def _fake_value(self, field_name, country=None, *, prev_value=None, faker=None):
@@ -281,7 +287,7 @@ class PlaceFormTestingBase:
         with override_settings(LANGUAGE_CODE='eo'):
             self.assertEqual(
                 form.errors,
-                {'country': ["Elektu validan elekton. ZZ ne estas el la eblaj elektoj."]}
+                {'country': ["Elektu ekzistantan opcion. ZZ ne estas el la eblaj elektoj."]}
             )
 
     @tag('subregions')
@@ -409,7 +415,7 @@ class PlaceFormTestingBase:
             self.assertIn('postcode', form.errors)
             expected_errors = {
                 'en': "Ensure this value has at most {} characters (it has {}).",
-                'eo': "Certigu, ke tiu valoro maksimume havas {} signojn (ĝi havas {}).",
+                'eo': "Certigu ke ĉi tiu valoro maksimume enhavas {} signojn (ĝi havas {}).",
             }
             for lang in expected_errors:
                 with override_settings(LANGUAGE_CODE=lang):
@@ -972,7 +978,7 @@ class PlaceFormTestingBase:
                 [-3], False,
                 {
                     'en': "Select a valid choice. -3 is not one of the available choices.",
-                    'eo': "Elektu validan elekton. -3 ne estas el la eblaj elektoj.",
+                    'eo': "Elektu ekzistantan opcion. -3 ne estas el la eblaj elektoj.",
                 }
             ),
             (None, True, ""),
@@ -1114,7 +1120,7 @@ class PlaceFormTestingBase:
 
 @tag('forms', 'forms-place', 'place')
 class PlaceFormTests(PlaceFormTestingBase, AdditionalAsserts, WebTest):
-    form_class = PlaceForm
+    form_class: ClassVar[type[PlaceForm]] = PlaceForm
 
     def _init_form(self, data=None, instance=None, owner=None):
         assert instance is not None
@@ -1194,7 +1200,7 @@ class PlaceFormTests(PlaceFormTestingBase, AdditionalAsserts, WebTest):
 
 @tag('forms', 'forms-place', 'place')
 class PlaceCreateFormTests(PlaceFormTestingBase, AdditionalAsserts, WebTest):
-    form_class = PlaceCreateForm
+    form_class: ClassVar[type[PlaceCreateForm]] = PlaceCreateForm
 
     def _init_form(self, data=None, instance=None, owner=None):
         assert owner is not None
@@ -1593,7 +1599,7 @@ class PlaceBlockFormTests(WebTest):
         with override_settings(LANGUAGE_CODE='eo'):
             self.assertEqual(
                 form.errors,
-                {'dirty': ["Elektu validan elekton. qwertyuiop ne estas el la eblaj elektoj."]}
+                {'dirty': ["Elektu ekzistantan opcion. qwertyuiop ne estas el la eblaj elektoj."]}
             )
 
     def test_date_in_past(self):

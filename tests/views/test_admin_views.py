@@ -71,7 +71,7 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                 'preheader': "Ĉi tiu kampo estas deviga.",
                 'heading': "Ĉi tiu kampo estas deviga.",
                 'body': "Ĉi tiu kampo estas deviga.",
-                'categories': "Elektu validan elekton."
+                'categories': "Elektu ekzistantan opcion."
                               + " 1qaz2wsx ne estas el la eblaj elektoj.",
                 'test_email': "Enigu retadreson en ĝusta formo.",
             },
@@ -94,7 +94,7 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                     with self.subTest(field=field):
                         # Verify context.
                         self.assertFormError(
-                            page.response, 'form', field,
+                            page.response.context['form'], field,
                             expected_errors[lang][field]
                         )
                         # Verify actual output.

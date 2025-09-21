@@ -11,7 +11,6 @@ from django.db.models.functions import Lower
 from django.forms import ModelForm
 from django.http import HttpResponse
 from django.urls import reverse_lazy
-from django.utils.functional import lazy
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
@@ -159,7 +158,7 @@ class UsernameFormMixin(object):
         # the error messages, and thus facilitate user enumeration attacks...
         'unique': _("A user with a similar username already exists."),
         # Clearly spell out to the potential new users what a valid username is.
-        'invalid': lazy(mark_safe, str)(_(
+        'invalid': mark_safe(_(
             "Enter a username conforming to these rules: "
             " This value may contain only letters, numbers, and the symbols"
             " <kbd>@</kbd> <kbd>.</kbd> <kbd>+</kbd> <kbd>-</kbd> <kbd>_</kbd>."
