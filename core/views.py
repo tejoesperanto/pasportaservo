@@ -679,7 +679,7 @@ class AccountDeleteView(LoginRequiredMixin, generic.DeleteView):
     """
     model = User
     template_name = 'account/account_confirm_delete.html'
-    success_url = reverse_lazy('logout')
+    success_url = settings.LOGOUT_REDIRECT_URL
     success_message = _("Farewell !")
 
     def get_object(self, queryset=None):
@@ -688,6 +688,7 @@ class AccountDeleteView(LoginRequiredMixin, generic.DeleteView):
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if not request.user.is_active:
+            logout(request)
             return HttpResponseRedirect(self.get_success_url())
         else:
             try:
@@ -701,13 +702,14 @@ class AccountDeleteView(LoginRequiredMixin, generic.DeleteView):
 
     def form_valid(self, form):
         """
-        Deactivates the logged-in user and redirects to the logout URL.
+        Deactivates the logged-in user and redirects to the post-logout URL.
         If called directly for a user with a profile, the profile (and all associated objects,
         such as places) will stay intact, dissimilar to the ProfileDeleteView's delete logic.
         """
         self.request.user.is_active = False
         self.request.user.save()
         messages.success(self.request, self.success_message)
+        logout(self.request)
         return HttpResponseRedirect(self.get_success_url())
 
 

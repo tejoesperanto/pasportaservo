@@ -11,20 +11,21 @@ from factory import Faker
 
 from hosting.models import CountryRegion, FamilyMember, Place, Profile
 
+if TYPE_CHECKING:
+    from hosting.models import FullProfile
+
 from ..assertions import AdditionalAsserts
 from ..factories import (
     ConditionFactory, CountryRegionFactory, PhoneFactory, PlaceFactory,
     ProfileFactory, ProfileSansAccountFactory, UserFactory,
 )
 
-if TYPE_CHECKING:
-    from hosting.models import FullProfile
-
 
 @tag('integration')
-class ProfileModelIntegrationTests(TestCase):
+class ProfileModelIntegrationTests(AdditionalAsserts, TestCase):
     @classmethod
     def setUpTestData(cls):
+        cls.unsaved_profile = cast('FullProfile', ProfileFactory.build())
         cls.profile = cast('FullProfile', ProfileFactory.create())
 
         cls.phones = PhoneFactory.build_batch(3, profile=cls.profile)
@@ -46,8 +47,13 @@ class ProfileModelIntegrationTests(TestCase):
             self.profile.rawdisplay_phones(),
             f"{self.phones[2].rawdisplay()}, {self.phones[0].rawdisplay()}"
         )
+        with self.assertNotRaises(ValueError):
+            self.assertEqual(
+                self.unsaved_profile.rawdisplay_phones(),
+                ""
+            )
 
-    def test_confirmation(self):
+    def test_confirmation_for_complete_profile(self):
         # The `places_confirmed` attribute looks at all profile's places
         # marked for printing in book which are not deleted, and is
         # expected to be False.
@@ -84,20 +90,53 @@ class ProfileModelIntegrationTests(TestCase):
             with self.subTest(obj=obj._meta.model_name, deleted=bool(obj.deleted_on)):
                 self.assertIsNone(obj.confirmed_on)
 
-        # Confirming a profile that has no associated places or phones
-        # is expected to succeed.
+    def test_confirmation_for_simple_profile(self):
+        # When a profile has no associated places, the value of the
+        # `places_confirmed` attribute is expected to be True.
         simple_profile = ProfileFactory.create()
         self.assertIsNone(simple_profile.confirmed_on)
+        self.assertTrue(simple_profile.places_confirmed)
+
+        # Confirming a profile that has no associated places or phones
+        # is expected to succeed.
         simple_profile.confirm_all_info(True)
         simple_profile.refresh_from_db()
         self.assertIsNotNone(simple_profile.confirmed_on)
         self.assertFalse(
-            Place.all_objects.filter(confirmed_on=simple_profile.confirmed_on).exists())
+            Place.all_objects.filter(confirmed_on=simple_profile.confirmed_on).exists()
+        )
+
         # Unconfirming a profile that has no associated places or phones
         # is also expected to succeed.
         simple_profile.confirm_all_info(False)
         simple_profile.refresh_from_db()
         self.assertIsNone(simple_profile.confirmed_on)
+
+    def test_confirmation_for_unsaved_profile(self):
+        # When the profile is not yet saved, the value of the
+        # `places_confirmed` attribute is expected to be True.
+        self.assertTrue(self.unsaved_profile.places_confirmed)
+
+        # The `confirm_all_info` method is expected to mark only the
+        # unsaved profile itself as confirmed, without saving it to
+        # the database.
+        self.assertIsNone(self.unsaved_profile.confirmed_on)
+        with self.assertNotRaises(ValueError):
+            self.unsaved_profile.confirm_all_info()
+        self.assertIsNone(self.unsaved_profile.pk)
+        self.assertIsNotNone(self.unsaved_profile.confirmed_on)
+        self.assertFalse(
+            Place.all_objects
+            .filter(confirmed_on=self.unsaved_profile.confirmed_on)
+            .exists()
+        )
+
+        # Unconfirming an unsaved profile is expected to mark that
+        # profile as not confirmed, without saving it to the database.
+        with self.assertNotRaises(ValueError):
+            self.unsaved_profile.confirm_all_info(False)
+        self.assertIsNone(self.unsaved_profile.pk)
+        self.assertIsNone(self.unsaved_profile.confirmed_on)
 
     def mark_emails_as_invalid_tests(self, email, params, expected_updated, expected_marked):
         with self.subTest(params=params, updated=expected_updated, mark="invalid"):
@@ -187,7 +226,7 @@ class ProfileModelIntegrationTests(TestCase):
         # The method invoked with a non-existing email parameter
         # is not expected to change anything.
         self.mark_emails_as_invalid_tests(
-            email, ["a@b.co"],
+            email, ["a@b.co", self.unsaved_profile.user.email],
             expected_updated=False, expected_marked=False)
         # The method is expected to add the marker prefix to non-empty
         # emails of the profile and the user.
@@ -232,8 +271,14 @@ class ProfileModelIntegrationTests(TestCase):
             expected_updated=False, expected_unmarked=False)
         # The method invoked with a non-existing email parameter
         # is not expected to change anything.
+        unexpected_emails = [
+            "a@b.co",
+            f"{settings.INVALID_PREFIX}a.b.c@d.e.f.mx",
+            self.unsaved_profile.user.email,
+            f"{settings.INVALID_PREFIX}{self.unsaved_profile.user.email}",
+        ]
         self.mark_emails_as_valid_tests(
-            email, ["a@b.co", f"{settings.INVALID_PREFIX}d.e@f-g.h.ij.km"],
+            email, unexpected_emails,
             expected_updated=False, expected_unmarked=False)
         # The method invoked with the existing (clean) email parameter
         # is not expected to change anything, since an email value
@@ -270,7 +315,7 @@ class ProfileModelIntegrationTests(TestCase):
         # Having two profiles with the same public email address is
         # permitted. The `mark_invalid_emails` and `mark_valid_emails`
         # methods are expected to update both profile objects.
-        profile_two = ProfileSansAccountFactory(with_email=True)
+        profile_two = ProfileSansAccountFactory.create(with_email=True)
         Profile.all_objects.filter(pk=self.profile.pk).update(email=profile_two.email)
         email = profile_two.email
         invalid_email = f'{settings.INVALID_PREFIX}{email}'

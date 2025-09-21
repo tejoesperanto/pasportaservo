@@ -12,6 +12,7 @@ from django.core.validators import RegexValidator
 from django.db.models import Case, When
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.utils.functional import keep_lazy_text, lazy
+from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
@@ -22,7 +23,7 @@ from django_countries.fields import Country
 
 from core.auth import AuthRole
 from core.models import SiteConfiguration
-from core.utils import join_lazy, mark_safe_lazy, sort_by
+from core.utils import join_lazy, sort_by
 from hosting.widgets import FormDivider
 from maps import SRID
 from maps.widgets import MapboxGlWidget
@@ -205,7 +206,7 @@ class PlaceForm(forms.ModelForm):
 
         if postcode_re and not re.fullmatch(postcode_re, postcode.upper()):
             accepted_patterns = COUNTRIES_DATA[country]['postcode_format'].split('|')
-            raise forms.ValidationError(mark_safe_lazy(
+            raise forms.ValidationError(mark_safe(
                 format_lazy(
                     _("Postal code should follow the pattern {} (# is digit, @ is a letter)."),
                     join_lazy(_(" or "), list(map(lambda pn: f"<kbd>{pn}</kbd>", accepted_patterns)))

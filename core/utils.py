@@ -10,11 +10,8 @@ from django.conf import settings
 from django.core.mail import EmailMessage, get_connection
 from django.core.mail.backends.base import BaseEmailBackend
 from django.http import HttpRequest
-from django.utils.functional import (
-    SimpleLazyObject, keep_lazy_text, lazy, new_method_proxy,
-)
+from django.utils.functional import SimpleLazyObject, lazy, new_method_proxy
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.safestring import mark_safe
 
 import requests
 from anymail.message import AnymailMessage
@@ -45,8 +42,6 @@ def _lazy_joiner(sep, items, item_to_string=str):
     return str(sep).join(map(item_to_string, items))
 
 join_lazy = lazy(_lazy_joiner, str)  # noqa:E305
-
-mark_safe_lazy = keep_lazy_text(mark_safe)
 
 
 # Monkey-patch Django's SimpleLazyObject to support integers and operations on them.

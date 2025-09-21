@@ -111,8 +111,7 @@ class WriteFormTests(AdditionalAsserts, WebTest):
                     'eo': "Ne eblas sendi la mesaĝon: Tiu ĉi uzanto forpasis.",
                 }
                 self.assertFormError(
-                    page_result,
-                    'form', 'recipients',
+                    page_result.context['form'], 'recipients',
                     expected_form_errors[lang])
                 self.assertLength(mail.outbox, 0)
             else:
@@ -341,8 +340,7 @@ class ReplyFormTests(AdditionalAsserts, WebTest):
                             'eo': "Ne eblas sendi la mesaĝon: Tiu ĉi uzanto forpasis.",
                         }
                         self.assertFormError(
-                            page_result,
-                            'form', None,
+                            page_result.context['form'], None,
                             expected_form_errors[lang])
                         self.assertLength(mail.outbox, 0)
                     else:

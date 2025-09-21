@@ -19,9 +19,6 @@ from hosting.models import Profile
 from ..models import Agreement, Policy, SiteConfiguration, UserBrowser
 from .filters import DependentFieldFilter, YearBracketFilter
 
-admin.site.index_template = 'admin/custom_index.html'
-admin.site.disable_action('delete_selected')
-
 admin.site.register(SiteConfiguration, SingletonModelAdmin)
 admin.site.unregister(FlatPage)
 
