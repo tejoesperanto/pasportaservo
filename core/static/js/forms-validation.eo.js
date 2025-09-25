@@ -17,6 +17,7 @@
         valueMissing__select__multiple: "Bonvole elektu almenaŭ unu opcion el la listo.",
         valueMissing: "Bonvole ne lasu tiun ĉi kampon malplena.",
         valueMismatch__password: "La du pasvortaj kampoj ne kongruas.",
+        valueMismatch__text: "La du kampoj ne kongruas.",
         typeMismatch__email: "Bonvole provizu ĝusta-forman retpoŝtan adreson.",
         typeMismatch__email__multiple: "Bonvole provizu liston de retpoŝtadresoj en ĝusta formo.",
         typeMismatch__url: "Bonvole provizu ĝusta-forman retadreson (URL).",
