@@ -135,10 +135,16 @@ $(function() {
                 constraint_failed = true;
             }
         }
-        if ($this.is('input[type="password"]') && $($this.data('coupling')).length == 1) {
-            var data = $($this.data('coupling')).val();
+        if ($this.is('input[type="password"], input[type="text"]') && $($this.data('coupling')).length == 1) {
+            var $other = $($this.data('coupling'));
+            var data = $other.val();
             if ($this.val() && $this.val() != data) {
-                errors.push(localui["valueMismatch__password"] || "The two password fields do not match.");
+                if (this.type == 'password' || $other[0].type == 'password') {
+                    errors.push(localui["valueMismatch__password"] || "The two password fields do not match.");
+                }
+                else {
+                    errors.push(localui["valueMismatch__text"] || "The two fields do not match.");
+                }
                 constraint_failed = true;
             }
         }
