@@ -1,5 +1,5 @@
 import re
-from typing import Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 from unittest.mock import patch
 
 from django.conf import settings
@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
+from anymail.exceptions import AnymailRecipientsRefused
 from anymail.message import AnymailMessage
 from django_webtest import WebTest
 from factory import Faker
@@ -27,10 +28,12 @@ from core.forms import (
 from core.views import (
     PasswordResetConfirmView, PasswordResetView, UsernameRemindView,
 )
-from hosting.models import PasportaServoUser
 
 from ..assertions import AdditionalAsserts
 from ..factories import UserFactory
+
+if TYPE_CHECKING:
+    from ..factories import PasportaServoFactoryUser
 
 
 def _snake_str(string: str) -> str:
@@ -851,7 +854,7 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
             with override_settings(LANGUAGE_CODE=lang):
                 self.assertTrue(
                     any(
-                        e.startswith(expected_errors[lang])
+                        str(e).startswith(expected_errors[lang])
                         for e in form.errors['email']
                     ),
                     msg=repr(form.errors))
@@ -884,7 +887,11 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
         self.assertIsInstance(page.context['form'], EmailUpdateForm)
 
     @override_settings(EMAIL_SUBJECT_PREFIX_FULL="TEST ")
-    def form_submission_tests(self, *, lang: str, obj: Optional[PasportaServoUser] = None):
+    def form_submission_tests(
+            self, *,
+            lang: str, obj: Optional['PasportaServoFactoryUser'] = None,
+            mailing_fail: bool = False,
+    ):
         obj = self.user if obj is None else obj
         old_email = obj._clean_email
         new_email = '{}@ps.org'.format(_snake_str(obj.username))
@@ -895,16 +902,29 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
             page.form['email'] = new_email
             page = page.form.submit()
             obj.refresh_from_db()
-            self.assertRedirects(
-                page,
-                reverse('profile_edit', kwargs={
-                    'pk': obj.profile.pk, 'slug': obj.profile.autoslug})
-            )
+            if not mailing_fail:
+                self.assertRedirects(
+                    page,
+                    reverse('profile_edit', kwargs={
+                        'pk': obj.profile.pk, 'slug': obj.profile.autoslug})
+                )
+            else:
+                self.assertEqual(page.status_code, 200)
+                form_errors = page.context['form'].non_field_errors()
+                expected_errors = {
+                    'en': ("This new email address cannot be reached. "
+                           "Please check for typos and problems with this mailbox."),
+                    'eo': ("Ne eblas komuniki al tiu ĉi nova retpoŝta adreso. "
+                           "Bonvole kontrolu tajperarojn "
+                           "kaj ĉu ne estas problemo kun la poŝtkesto."),
+                }
+                self.assertLength(form_errors, 1)
+                self.assertStartsWith(form_errors[0], expected_errors[lang])
+
             self.assertEqual(obj.email, unchanged_email)
 
         with override_settings(LANGUAGE_CODE=lang):
             submit_form_and_assert()
-        self.assertLength(mail.outbox, 2)
         test_subject = {
             'en': "TEST Change of email address",
             'eo': "TEST Retpoŝtadreso ĉe retejo ŝanĝita",
@@ -923,25 +943,32 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
                        "Bonvole iru al la jena paĝo por konfirmi vian novan retadreson:",),
             },
         }
-        for i, recipient in enumerate([old_email, new_email]):
-            self.assertEqual(mail.outbox[i].subject, test_subject[lang])
-            self.assertEqual(mail.outbox[i].from_email, settings.DEFAULT_FROM_EMAIL)
-            self.assertEqual(mail.outbox[i].to, [recipient])
-            for content in test_contents[recipient][lang]:
-                self.assertIn(content, mail.outbox[i].body)
+        if not mailing_fail:
+            self.assertLength(mail.outbox, 2)
+            for i, recipient in enumerate([old_email, new_email]):
+                self.assertEqual(mail.outbox[i].subject, test_subject[lang])
+                self.assertEqual(mail.outbox[i].from_email, settings.DEFAULT_FROM_EMAIL)
+                self.assertEqual(mail.outbox[i].to, [recipient])
+                for content in test_contents[recipient][lang]:
+                    self.assertIn(content, mail.outbox[i].body)
+        else:
+            self.assertLength(mail.outbox, 0)
 
         with override_settings(
                 **settings.TEST_EMAIL_BACKENDS['dummy'],
                 LANGUAGE_CODE=lang,
         ):
             submit_form_and_assert()
-        self.assertLength(mail.outbox, 4)
-        for i, recipient in enumerate([old_email, new_email], start=2):
-            self.assertEqual(mail.outbox[i].subject, test_subject[lang])
-            self.assertEqual(mail.outbox[i].to, [recipient])
-            self.assertEqual(cast(AnymailMessage, mail.outbox[i]).tags, ['notification:email'])
-            self.assertFalse(mail.outbox[i].anymail_test_params.get('is_batch_send'))
-            self.assertFalse(mail.outbox[i].anymail_test_params.get('track_opens'))
+        if not mailing_fail:
+            self.assertLength(mail.outbox, 4)
+            for i, recipient in enumerate([old_email, new_email], start=2):
+                self.assertEqual(mail.outbox[i].subject, test_subject[lang])
+                self.assertEqual(mail.outbox[i].to, [recipient])
+                self.assertEqual(cast(AnymailMessage, mail.outbox[i]).tags, ['notification:email'])
+                self.assertFalse(mail.outbox[i].anymail_test_params.get('is_batch_send'))
+                self.assertFalse(mail.outbox[i].anymail_test_params.get('track_opens'))
+        else:
+            self.assertLength(mail.outbox, 0)
 
     def test_form_submit(self):
         mail.outbox = []
@@ -954,6 +981,13 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
         self.form_submission_tests(obj=self.invalid_email_user, lang='en')
         mail.outbox = []
         self.form_submission_tests(obj=self.invalid_email_user, lang='eo')
+
+    @patch('core.forms.send_mail')
+    def test_form_submit_for_invalid_email_at_esp(self, mock_send_mail):
+        mail.outbox = []
+        mock_send_mail.side_effect = AnymailRecipientsRefused
+        self.form_submission_tests(lang='en', mailing_fail=True)
+        self.form_submission_tests(lang='eo', mailing_fail=True)
 
 
 class EmailStaffUpdateFormTests(EmailUpdateFormTests):
@@ -974,7 +1008,7 @@ class EmailStaffUpdateFormTests(EmailUpdateFormTests):
         self.assertEqual(len(page.forms), 1)
         self.assertIsInstance(page.context['form'], EmailStaffUpdateForm)
 
-    def form_submission_tests(self, *, lang, obj=None):
+    def form_submission_tests(self, *, lang, obj=None, mailing_fail=False):
         obj = self.user if obj is None else obj
         new_email = '{}@ps.org'.format(_snake_str(obj.username))
         page = self.app.get(
@@ -997,10 +1031,10 @@ class EmailStaffUpdateFormTests(EmailUpdateFormTests):
 class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
     @classmethod
     def setUpTestData(cls):
-        cls.active_user = UserFactory()
-        cls.inactive_user = UserFactory(is_active=False)
-        cls.active_invalid_email_user = UserFactory(invalid_email=True)
-        cls.inactive_invalid_email_user = UserFactory(invalid_email=True, is_active=False)
+        cls.active_user = UserFactory.create()
+        cls.inactive_user = UserFactory.create(is_active=False)
+        cls.active_invalid_email_user = UserFactory.create(invalid_email=True)
+        cls.inactive_invalid_email_user = UserFactory.create(invalid_email=True, is_active=False)
         cls.view_page_url = reverse('password_reset')
         cls.view_page_success_url = reverse('password_reset_done')
 
@@ -1036,10 +1070,10 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
     def test_get_users(self):
         with self.settings(PASSWORD_HASHERS=[
                 'django.contrib.auth.hashers.MD5PasswordHasher']):
-            active_md5_user1 = UserFactory()
+            active_md5_user1 = UserFactory.create()
         with self.settings(PASSWORD_HASHERS=[
                 'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher']):
-            active_md5_user2 = UserFactory(invalid_email=True)
+            active_md5_user2 = UserFactory.create(invalid_email=True)
         form = self._init_form()
 
         # All types of users with useable passwords are expected to be returned.
@@ -1061,10 +1095,10 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                     self.assertEqual(got_users[0].email, user._clean_email)
 
         # Users with unuseable passwords are expected to be not returned.
-        active_nonepwd_user = UserFactory()
+        active_nonepwd_user = UserFactory.create()
         active_nonepwd_user.set_unusable_password()
         active_nonepwd_user.save()
-        inactive_nonepwd_user = UserFactory(is_active=False)
+        inactive_nonepwd_user = UserFactory.create(is_active=False)
         inactive_nonepwd_user.set_unusable_password()
         inactive_nonepwd_user.save()
         for user in [active_nonepwd_user, inactive_nonepwd_user]:
@@ -1072,10 +1106,16 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                 got_users = list(form.get_users(user._clean_email))
                 self.assertEqual(got_users, [])
 
-    def _get_admin_message(self, user):
+    def _get_admin_message_account_inactive(self, user: 'PasportaServoFactoryUser') -> str:
         return (
             f"User '{user.username}' tried to reset the login password,"
             " but the account is deactivated"
+        )
+
+    def _get_admin_message_email_bounces(self, user: 'PasportaServoFactoryUser') -> str:
+        return (
+            f"User '{user.username}' tried to reset the login password,"
+            " but the email address bounces"
         )
 
     def _get_email_content(self, active, lang):
@@ -1200,7 +1240,9 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                                 html_email_template_name=self._related_view.html_email_template_name,
                             )
                         self.assertLength(log.records, 1)
-                        self.assertStartsWith(log.records[0].message, self._get_admin_message(user))
+                        self.assertStartsWith(
+                            log.records[0].message,
+                            self._get_admin_message_account_inactive(user))
                         # The warning is expected to include a reference number.
                         code = re.search(r'\[([A-F0-9-]+)\]', log.records[0].message)
                         self.assertIsNotNone(code)
@@ -1240,6 +1282,31 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
 
                     mail.outbox = []
 
+    @patch('django.contrib.auth.forms.PasswordResetForm.send_mail')
+    def test_bouncing_email_request(self, mock_send_mail):
+        mock_send_mail.side_effect = AnymailRecipientsRefused
+        for user_tag, user in [("active normal email", self.active_user),
+                               ("active invalid email", self.active_invalid_email_user),
+                               ("inactive normal email", self.inactive_user),
+                               ("inactive invalid email", self.inactive_invalid_email_user)]:
+            for lang in ['en', 'eo']:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(tag=user_tag, lang=lang)
+                ):
+                    with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
+                        form = self._init_form({'email': user._clean_email})
+                        self.assertTrue(form.is_valid())
+                        form.save(
+                            subject_template_name=self._related_view.subject_template_name,
+                            email_template_name=self._related_view.email_template_name,
+                            html_email_template_name=self._related_view.html_email_template_name,
+                        )
+                    self.assertLength(log.records, 2 if user_tag.startswith("inactive") else 1)
+                    self.assertStartsWith(
+                        log.records[-1].message,
+                        self._get_admin_message_email_bounces(user))
+
     def test_view_page(self):
         page = self.app.get(self.view_page_url)
         self.assertEqual(page.status_code, 200)
@@ -1273,10 +1340,16 @@ class UsernameRemindRequestFormTests(SystemPasswordResetRequestFormTests):
     def _related_view(self):
         return UsernameRemindView
 
-    def _get_admin_message(self, user):
+    def _get_admin_message_account_inactive(self, user: 'PasportaServoFactoryUser') -> str:
         return (
             f"User '{user.username}' requested a reminder of the username,"
             " but the account is deactivated"
+        )
+
+    def _get_admin_message_email_bounces(self, user: 'PasportaServoFactoryUser') -> str:
+        return (
+            f"User '{user.username}' requested a reminder of the username,"
+            " but the email address bounces"
         )
 
     def _get_email_content(self, active, lang):

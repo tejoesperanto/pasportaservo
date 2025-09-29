@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import cast
 from uuid import uuid4
 
 from django import forms
@@ -10,7 +11,7 @@ from django.contrib.auth.forms import (
 )
 from django.contrib.auth.hashers import UNUSABLE_PASSWORD_PREFIX
 from django.core.mail import send_mail
-from django.db.models import Q
+from django.db.models import Manager, Q
 from django.template.loader import get_template
 from django.urls import reverse
 from django.utils.text import format_lazy
@@ -19,7 +20,7 @@ from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from anymail.exceptions import AnymailRecipientsRefused
 from crispy_forms.helper import FormHelper
 
-from hosting.models import Profile
+from hosting.models import PasportaServoUser, Profile
 from hosting.utils import value_without_invalid_marker
 from links.utils import create_unique_url
 
@@ -267,9 +268,11 @@ class SystemPasswordResetRequestForm(PasswordResetForm):
         """
         users = User._default_manager.filter()
         invalid_email = f'{settings.INVALID_PREFIX}{email}'
-        lookup_users = users.filter(Q(email__iexact=email) | Q(email__iexact=invalid_email))
+        lookup_users = cast(
+            Manager[PasportaServoUser],
+            users.filter(Q(email__iexact=email) | Q(email__iexact=invalid_email)))
 
-        def remove_invalid_prefix(user):
+        def remove_invalid_prefix(user: PasportaServoUser):
             user.email = value_without_invalid_marker(user.email)
             return user
 
