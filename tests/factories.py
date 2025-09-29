@@ -3,7 +3,7 @@ import re
 from datetime import timedelta
 from hashlib import md5
 from random import choice, randint, random, uniform as uniform_random
-from typing import Generic, TypeVar
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 from django.conf import settings
 from django.contrib.gis.geos import LineString, Point
@@ -148,7 +148,12 @@ class AgreementFactory(TypedDjangoModelFactory[Agreement]):
     withdrawn = None
 
 
-class UserFactory(TypedDjangoModelFactory[PasportaServoUser]):
+if TYPE_CHECKING:
+    class PasportaServoFactoryUser(PasportaServoUser):
+        _clean_email: str
+
+
+class UserFactory(TypedDjangoModelFactory['PasportaServoFactoryUser']):
     class Meta:
         model = 'auth.User'
         django_get_or_create = ('username',)

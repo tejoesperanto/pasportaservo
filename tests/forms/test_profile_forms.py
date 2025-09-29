@@ -884,7 +884,7 @@ class ProfileEmailUpdateFormTests(EmailUpdateFormTests):
         self.assertEqual(len(page.forms), 1)
         self.assertIsInstance(page.context['form'], ProfileEmailUpdateForm)
 
-    def form_submission_tests(self, *, lang, obj=None):
+    def form_submission_tests(self, *, lang, obj=None, mailing_fail=False):
         random_email = Faker._get_faker().email(safe=False)
         for new_email in (" ", random_email):
             page = self.app.get(
