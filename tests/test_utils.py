@@ -22,7 +22,7 @@ from requests.exceptions import (
 )
 
 from core.utils import (
-    camel_case_split, is_password_compromised, join_lazy,
+    camel_case_split, getattr_, is_password_compromised, join_lazy,
     send_mass_html_mail, sort_by, split, version_to_numeric_repr,
 )
 from hosting.countries import countries_with_mandatory_region
@@ -85,14 +85,20 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
         test_data = (
             ("abu zayd ibn khaldun al-hadrami", "Abu Zayd ibn Khaldun al-Hadrami"),
             ("nasir al-din al-tusi", "Nasir al-Din al-Tusi"),
+            ("umm kulthūm bi.nt abī bakr", "Umm Kulthūm Bi.Nt Abī Bakr"),
+            ("umm kulthūm b*nt abī bakr", "Umm Kulthūm b*nt Abī Bakr"),
             ("d'artagnan", "D'Artagnan"),
             ("van artagnan", "Van Artagnan"),
             ("del artagnan", "Del Artagnan"),
+            ("alArtagNan", "Alartagnan"),
             ("Af-ARTAGNAN", "Af-Artagnan"),
         )
         for title, expected_value in test_data:
             with self.subTest(title=title):
-                self.assertEqual(title_with_particule(title, ["ibn", "al"]), expected_value)
+                self.assertEqual(
+                    title_with_particule(title, ["ibn", "al", "b*nt"]),
+                    expected_value
+                )
 
     def test_split_util(self):
         test_data = (
@@ -141,6 +147,44 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
         expected = [pfa, pfb, pta, ptb, wta]
 
         self.assertEqual(sort_by(['owner.name', 'city', 'country'], houses), expected)
+
+    def test_getattr_util(self):
+        NestedObject = NamedTuple('Nested', [('c', int)])
+        TestObject = NamedTuple('TestData', [('a', str), ('b', NestedObject)])
+        instance = TestObject(a="value_a", b=NestedObject(c=123))
+
+        # Simple attribute access is expected to return the value.
+        self.assertEqual(getattr_(instance, 'a'), "value_a")
+        # Nested attribute access is expected to return the nested value.
+        self.assertEqual(getattr_(instance, 'b.c'), 123)
+        # A list of path segments is expected to return the nested value.
+        self.assertEqual(getattr_(instance, ['b', 'c']), 123)
+        # An object that can be treated as string containing the attribute
+        # name is expected to return the value.
+        self.assertEqual(getattr_(instance, SimpleLazyObject(lambda: 'a')), "value_a")
+        # An object that can be treated as string containing the attribute
+        # path is expected to return the nested value.
+        self.assertEqual(getattr_(instance, SimpleLazyObject(lambda: 'b.c')), 123)
+        # An object that can be treated as list containing the attribute
+        # path is expected to return the nested value.
+        self.assertEqual(getattr_(instance, SimpleLazyObject(lambda: ['b', 'c'])), 123)
+        # Method attribute access is expected to return the method.
+        self.assertEqual(getattr_(instance, 'index'), instance.index)
+        self.assertEqual(getattr_(instance, ['b', '__class__', 'mro']), NestedObject.mro)
+
+        # Non-existent attribute access is expected to raise an error.
+        with self.assertRaises(AttributeError):
+            getattr_(instance, 'non_existent')
+        with self.assertRaises(AttributeError):
+            getattr_(instance, 'a.non_existent')
+        with self.assertRaises(AttributeError):
+            getattr_(instance, 'b.c.non_existent')
+        with self.assertRaises(AttributeError):
+            getattr_(instance, '')
+        with self.assertRaises(AttributeError):
+            getattr_(instance, SimpleLazyObject(lambda: 'b.c.d'))
+        with self.assertRaises(AttributeError):
+            getattr_(instance, SimpleLazyObject(lambda: ['b', 'c', 'z']))
 
     def test_join_lazy(self):
         test_data = {

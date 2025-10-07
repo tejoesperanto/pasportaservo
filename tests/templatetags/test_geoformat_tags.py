@@ -1,7 +1,7 @@
 import re
 import string
 from collections import namedtuple
-from typing import TypedDict
+from typing import NamedTuple, Optional, TypedDict
 
 from django.contrib.gis.geos import Point
 from django.template import Context, Template, TemplateSyntaxError
@@ -160,17 +160,38 @@ class FormatDMSFilterTests(TestCase):
 
 @tag('templatetags')
 class IsLocationInCountryFilterTests(TestCase):
-    MockPlace = namedtuple('MockPlace', 'country, location, location_confidence')
+    MockPlace = NamedTuple(
+        'MockPlace',
+        [
+            ('country', str), ('location', Optional[Point]), ('location_confidence', LocationConfidence),
+        ]
+    )
     template = Template("{% load is_location_in_country from geoformat %}{{ place|is_location_in_country }}")
 
     def setUp(self):
         self.loc = Point(coded_result.lng, coded_result.lat, srid=SRID)
 
     def test_unknown_location(self):
-        page = self.template.render(Context({'place': self.MockPlace('NL', None, 0)}))
+        page = self.template.render(Context({
+            'place': self.MockPlace('NL', None, LocationConfidence.EXACT),
+        }))
         self.assertEqual(page, str(False))
-        page = self.template.render(Context({'place': self.MockPlace('NL', Point([]), 0)}))
+        page = self.template.render(Context({
+            'place': self.MockPlace('NL', Point([]), LocationConfidence.EXACT),
+        }))
         self.assertEqual(page, str(False))
+
+    def test_missing_geodata(self):
+        # Expected to raise an error when trying to access COUNTRIES_GEO['XYZ'].
+        with self.assertRaises(KeyError):
+            self.template.render(Context({
+                'place': self.MockPlace('XYZ', self.loc, LocationConfidence.ACCEPTABLE),
+            }))
+        # Expected to return True, bypassing geodata check, when confidence is confirmed.
+        page = self.template.render(Context({
+            'place': self.MockPlace('XYZ', self.loc, LocationConfidence.CONFIRMED),
+        }))
+        self.assertEqual(page, str(True))
 
     def test_imprecise_location(self):
         page = self.template.render(Context({

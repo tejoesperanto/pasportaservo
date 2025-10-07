@@ -3,7 +3,7 @@ import re
 from datetime import timedelta
 from hashlib import md5
 from random import choice, randint, random, uniform as uniform_random
-from typing import TYPE_CHECKING, Generic, TypeVar
+from typing import TYPE_CHECKING, Callable, Generic, TypeVar
 
 from django.conf import settings
 from django.contrib.gis.geos import LineString, Point
@@ -66,7 +66,15 @@ Faker.add_provider(OptionalProvider)
 ModelType = TypeVar('ModelType', bound=Model)
 
 
+class TypedFactoryOptions(factory.base.FactoryOptions, Generic[ModelType]):
+    model: ModelType
+
+    get_model_class: Callable[[], ModelType]
+
+
 class TypedDjangoModelFactory(DjangoModelFactory, Generic[ModelType]):
+    _meta: TypedFactoryOptions[ModelType]
+
     @classmethod
     def build(cls, **kwargs) -> ModelType:
         return super().build(**kwargs)
@@ -82,6 +90,14 @@ class TypedDjangoModelFactory(DjangoModelFactory, Generic[ModelType]):
     @classmethod
     def create_batch(cls, size: int, **kwargs) -> list[ModelType]:
         return super().create_batch(size, **kwargs)
+
+    @classmethod
+    def stub(cls, **kwargs) -> ModelType:
+        return super().stub(**kwargs)
+
+    @classmethod
+    def stub_batch(cls, size: int, **kwargs) -> list[ModelType]:
+        return super().stub_batch(size, **kwargs)
 
 
 class PolicyFactory(TypedDjangoModelFactory[Policy]):

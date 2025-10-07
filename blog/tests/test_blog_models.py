@@ -17,10 +17,11 @@ class PostModelTests(AdditionalAsserts, WebTest):
     def setUpClass(cls):
         super().setUpClass()
         cls.faker = Faker()
+        cls.SEPARATOR = "----"
 
     @classmethod
     def setUpTestData(cls):
-        cls.basic_post = PostFactory()
+        cls.basic_post = PostFactory.create()
 
     def test_field_max_lengths(self):
         self.assertEqual(self.basic_post._meta.get_field('title').max_length, 200)
@@ -34,7 +35,7 @@ class PostModelTests(AdditionalAsserts, WebTest):
         self.assertTrue(self.basic_post._meta.get_field('pub_date').blank)
 
     def test_field_uniqueness(self):
-        self.assertTrue(self.basic_post._meta.get_field('slug').unique)
+        self.assertTrue(getattr(self.basic_post._meta.get_field('slug'), 'unique'))
 
     def test_ordering(self):
         self.assertEqual(self.basic_post._meta.ordering, ['-pub_date', '-created'])
@@ -51,107 +52,153 @@ class PostModelTests(AdditionalAsserts, WebTest):
             'en': '/blog/{}/',
         }
         for lang in expected_urls:
-            with override_settings(LANGUAGE_CODE=lang):
-                with self.subTest(LANGUAGE_CODE=lang):
-                    self.assertEqual(
-                        self.basic_post.get_absolute_url(),
-                        expected_urls[lang].format(self.basic_post.slug)
-                    )
+            with (
+                override_settings(LANGUAGE_CODE=lang),
+                self.subTest(LANGUAGE_CODE=lang)
+            ):
+                self.assertEqual(
+                    self.basic_post.get_absolute_url(),
+                    expected_urls[lang].format(self.basic_post.slug)
+                )
 
     def test_save(self):
-        SEPARATOR = "----"
-
-        # A blog post containing two non-empty parts separated by dashes is expected to have a description.
+        # A blog post containing two non-empty parts separated by dashes is expected
+        # to have a description.
         post = PostFactory.build(description="", body="")
         self.assertIsNone(post.pk)
         self.assertEqual(post.description, "")
         self.assertEqual(post.body, "")
-        post.author.save()
+        post.author.save()  # type: ignore[union-attr]
         post.save()
         self.assertIsNotNone(post.pk)
-        self.assertEqual(post.description, "<p>{}</p>\n".format(post.content.split(SEPARATOR, 1)[0]))
-        self.assertEqual(post.body, "<p>{}</p>\n".format(post.content.replace(SEPARATOR, "", 1)))
+        self.assertEqual(
+            post.description,
+            "<p>{}</p>\n".format(post.content.split(self.SEPARATOR, 1)[0]))
+        self.assertEqual(
+            post.body,
+            "<p>{}</p>\n".format(post.content.replace(self.SEPARATOR, "", 1)))
 
-        # A blog post containing an empty part separated by dashes from a non-empty part is expected
-        # to have no description.
+    def test_post_without_author(self):
+        post = PostFactory.create(author=None)
+        self.assertIsNone(post.author)
+        # Verify retrieval from database.
+        retrieved_post = Post.objects.get(pk=post.pk)
+        self.assertIsNone(retrieved_post.author)
+
+        # Verify cascade of user deletion.
+        post = PostFactory.create()
+        self.assertIsNotNone(post.author)
+        post.author.delete()  # type: ignore[union-attr]
+        retrieved_post = Post.objects.filter(pk=post.pk)
+        self.assertLength(retrieved_post, 1)
+        self.assertIsNone(retrieved_post[0].author)
+
+    def test_split_empty_description(self):
+        # A blog post containing an empty part separated by dashes from a non-empty part
+        # is expected to have no description.
         post = PostFactory.build(
-            content=f"{SEPARATOR}{self.faker.sentence()}",
-            description="", body="")
+            content=f"{self.SEPARATOR}{self.faker.sentence()}",
+            description="", body="", author=None)
         self.assertEqual(post.description, "")
         self.assertEqual(post.body, "")
-        post.author.save()
         post.save()
         self.assertEqual(post.description, "")
-        self.assertEqual(post.body, "<p>{}</p>\n".format(post.content.replace(SEPARATOR, "", 1)))
+        self.assertEqual(
+            post.body,
+            "<p>{}</p>\n".format(post.content.replace(self.SEPARATOR, "", 1)))
 
-        # A blog post containing a non-empty part separated by dashes from an empty part is expected
-        # to have a description, equal to body.
+    def test_split_empty_body(self):
+        # A blog post containing a non-empty part separated by dashes from an empty part
+        # is expected to have a description, equal to body.
         post = PostFactory.build(
-            content=f"{self.faker.sentence()}{SEPARATOR}",
-            description="", body="")
+            content=f"{self.faker.sentence()}{self.SEPARATOR}",
+            description="", body="", author=None)
         self.assertEqual(post.description, "")
         self.assertEqual(post.body, "")
-        post.author.save()
         post.save()
-        assert_content = "<p>{}</p>\n".format(post.content.replace(SEPARATOR, "", 1))
-        self.assertEqual(post.description, assert_content)
-        self.assertEqual(post.body, assert_content)
+        expected_content = "<p>{}</p>\n".format(post.content.replace(self.SEPARATOR, "", 1))
+        self.assertEqual(post.description, expected_content)
+        self.assertEqual(post.body, expected_content)
 
+    def test_split_using_only_separator(self):
+        # A blog post containing only dashes is expected to have empty description and body.
+        post = PostFactory.build(
+            content=self.SEPARATOR,
+            description="", body="", author=None)
+        post.save()
+        self.assertEqual(
+            post.body, "",
+            "Body should be empty when content is only a separator.")
+        self.assertEqual(
+            post.description, "",
+            "Description should be empty when content is only a separator.")
+
+    def test_split_without_separator(self):
         # A blog post containing no dashes is expected to have a description equal to body.
         post = PostFactory.build(
             content=self.faker.sentence(),
-            description="", body="")
+            description="", body="", author=None)
         self.assertEqual(post.description, "")
         self.assertEqual(post.body, "")
-        post.author.save()
         post.save()
-        assert_content = f"<p>{post.content}</p>\n"
-        self.assertEqual(post.description, assert_content)
-        self.assertEqual(post.body, assert_content)
+        expected_content = f"<p>{post.content}</p>\n"
+        self.assertEqual(post.description, expected_content)
+        self.assertEqual(post.body, expected_content)
 
-    def test_splitter(self):
-        SEPARATOR = "----"
-
-        # A blog post with less than or more than 4 dashes (not a content separator) is expected
-        # to have a description, equal to body.
+    def test_split_using_incongruent_dashes(self):
+        # A blog post with less than or more than 4 dashes (not a content separator)
+        # is expected to have a description, equal to body.
         for splitter in ("-"*2, "-"*3, "-"*5, "-"*6):
             post = PostFactory.build(
                 content=f"{self.faker.sentence()}{splitter}{self.faker.sentence()}",
-                description="", body="")
+                description="", body="", author=None)
             self.assertEqual(post.description, "")
             self.assertEqual(post.body, "")
-            post.author.save()
             post.save()
             assert_content = f"<p>{post.content}</p>\n"
             with self.subTest(splitter=splitter):
                 self.assertEqual(post.description, assert_content)
                 self.assertEqual(post.body, assert_content)
 
-        # A blog post with dashes (not a content separator) followed by separator dashes is expected
-        # to have a description, containing dashes, and the full body.
+    def test_split_using_dashes_and_separator(self):
+        # A blog post with dashes (not a content separator) followed by separator dashes
+        # is expected to have a description, containing dashes, and the full body.
         for splitter in ("-"*2, "-"*3, "-"*5, "-"*6):
             post = PostFactory.build(
-                content=f"{self.faker.sentence()}{splitter}{self.faker.sentence()}----{self.faker.sentence()}",
-                description="", body="")
+                content=(
+                    f"{self.faker.sentence()}{splitter}{self.faker.sentence()}"
+                    f"{self.SEPARATOR}{self.faker.sentence()}"
+                ),
+                description="", body="", author=None)
             self.assertEqual(post.description, "")
             self.assertEqual(post.body, "")
-            post.author.save()
             post.save()
             with self.subTest(splitter=splitter):
-                self.assertEqual(post.description, "<p>{}</p>\n".format(post.content.rsplit(SEPARATOR, 1)[0]))
-                self.assertEqual(post.body, "<p>{}</p>\n".format("".join(post.content.rsplit(SEPARATOR, 1))))
+                self.assertEqual(
+                    post.description,
+                    "<p>{}</p>\n".format(post.content.rsplit(self.SEPARATOR, 1)[0]))
+                self.assertEqual(
+                    post.body,
+                    "<p>{}</p>\n".format("".join(post.content.rsplit(self.SEPARATOR, 1))))
 
+    def test_split_using_separator_twice(self):
         # A blog post with separator dashes followed by separator dashes is expected
         # to have a description and the full body, containing dashes.
         post = PostFactory.build(
-            content=f"{self.faker.sentence()}----{self.faker.sentence()}----{self.faker.sentence()}",
-            description="", body="")
+            content=(
+                f"{self.faker.sentence()}{self.SEPARATOR}{self.faker.sentence()}"
+                f"{self.SEPARATOR}{self.faker.sentence()}"
+            ),
+            description="", body="", author=None)
         self.assertEqual(post.description, "")
         self.assertEqual(post.body, "")
-        post.author.save()
         post.save()
-        self.assertEqual(post.description, "<p>{}</p>\n".format(post.content.split(SEPARATOR, 1)[0]))
-        self.assertEqual(post.body, "<p>{}</p>\n".format("".join(post.content.split(SEPARATOR, 1))))
+        self.assertEqual(
+            post.description,
+            "<p>{}</p>\n".format(post.content.split(self.SEPARATOR, 1)[0]))
+        self.assertEqual(
+            post.body,
+            "<p>{}</p>\n".format("".join(post.content.split(self.SEPARATOR, 1))))
 
 
 @tag('blog')

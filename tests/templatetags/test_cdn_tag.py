@@ -48,6 +48,12 @@ class CdnTagTests(AdditionalAsserts, TestCase):
                     if version is not None:
                         self.assertIn('@{}'.format(version), page)
 
+    def test_cased_library(self):
+        page = Template("{% load cdn %}{% cdn 'Bootstrap' %}").render(Context())
+        self.assertEqual(page, "", "'Bootstrap' should not match Bootstrap JS package")
+        page = Template("{% load cdn %}{% cdn 'JQUERY' 1.0 %}").render(Context())
+        self.assertEqual(page, "", "'JQUERY' should not match jQuery JS package")
+
     def test_unknown_library(self):
         page = Template("{% load cdn %}{% cdn 'qwerty' %}").render(Context())
         self.assertEqual(page, "")

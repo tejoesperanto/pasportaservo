@@ -128,7 +128,7 @@ urlpatterns = [
         ])),
 
     path(
-        'fragment/<slug:fragment_id>/',
+        'fragment/<slug:fragment_id>',
         ContentFragmentRetrieveView.as_view(), name='get_fragment'),
     path(
         pgettext_lazy("URL", 'ok'),

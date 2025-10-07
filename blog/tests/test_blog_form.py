@@ -27,16 +27,40 @@ class PostFormTests(WebTest):
             'eo': ["Ĉi tiu kampo estas deviga."],
         }
         for lang in expected_errors:
-            with override_settings(LANGUAGE_CODE=lang):
-                with self.subTest(LANGUAGE_CODE=lang):
-                    self.assertEqual(
-                        form.errors,
-                        {
-                            'title': expected_errors[lang],
-                            'content': expected_errors[lang],
-                            'slug': expected_errors[lang],
-                        }
-                    )
+            with (
+                override_settings(LANGUAGE_CODE=lang),
+                self.subTest(LANGUAGE_CODE=lang)
+            ):
+                self.assertEqual(
+                    form.errors,
+                    {
+                        'title': expected_errors[lang],
+                        'content': expected_errors[lang],
+                        'slug': expected_errors[lang],
+                    }
+                )
+
+    def test_existing_slug(self):
+        existing_post = PostFactory.create()
+        new_post = PostFactory.stub(author=None)
+        data = {
+            'title': new_post.title,
+            'slug': existing_post.slug,  # Use existing slug.
+            'content': new_post.content,
+        }
+        form = PostForm(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('slug', form.errors)
+        expected_errors = {
+            'en': ["Post with this Slug already exists."],
+            'eo': ["Afiŝo kun tiu Ligilero jam ekzistas."],
+        }
+        for lang in expected_errors:
+            with (
+                override_settings(LANGUAGE_CODE=lang),
+                self.subTest(LANGUAGE_CODE=lang)
+            ):
+                self.assertEqual(form.errors['slug'], expected_errors[lang])
 
     def test_valid_data(self):
         stub = PostFactory.stub(author=None)

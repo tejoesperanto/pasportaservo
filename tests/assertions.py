@@ -73,25 +73,25 @@ class AdditionalAsserts(with_type_hint(TestCase)):
                 postfix
             )))
 
-    def assertEqual(self, obj1: Any, obj2: Any, msg: Optional[str] = None):
+    def assertEqual(self, first: Any, second: Any, msg: Optional[str] = None):
         """
         Asserts that two objects are equal as determined by the '==' operator.
         In case one of the objects is a GIS point,
         asserts that it has the specified coordinates.
         """
-        if isinstance(obj1, GeoPoint) or isinstance(obj2, GeoPoint):
-            if isinstance(obj1, (tuple, list)):
-                obj1 = GeoPoint(obj1, srid=SRID)
-            if isinstance(obj2, (tuple, list)):
-                obj2 = GeoPoint(obj2, srid=SRID)
-            if obj1 != obj2:
+        if isinstance(first, GeoPoint) or isinstance(second, GeoPoint):
+            if isinstance(first, (tuple, list)):
+                first = GeoPoint(first, srid=SRID)
+            if isinstance(second, (tuple, list)):
+                second = GeoPoint(second, srid=SRID)
+            if first != second:
                 comparisson_message = "{} != {}".format(
-                    getattr(obj1, 'wkt', str(obj1)),
-                    getattr(obj2, 'wkt', str(obj2)),
+                    getattr(first, 'wkt', str(first)),
+                    getattr(second, 'wkt', str(second)),
                 )
                 self.fail(self._formatMessage(msg, comparisson_message))
         else:
-            super().assertEqual(obj1, obj2, msg=msg)
+            super().assertEqual(first, second, msg=msg)
 
     def assertLength(self, objects: Collection, value: int, msg: Optional[str] = None):
         """
@@ -178,7 +178,9 @@ class AdditionalAsserts(with_type_hint(TestCase)):
                 full_id(el): el.attrs.get("class")
                 for el in element
             }
-            result = any(class_name in (class_list or []) for class_list in css_classes)
+            result = any(
+                class_name in (class_list or []) for class_list in css_classes.values()
+            )
         elif element is None:
             result = None
             self.fail(self._formatMessage(None, "Desired element is not in HTML."))

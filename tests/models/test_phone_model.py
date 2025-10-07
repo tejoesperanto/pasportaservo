@@ -1,8 +1,7 @@
 from django.conf import settings
-from django.test import override_settings, tag
+from django.db.models import ProtectedError
+from django.test import TestCase, override_settings, tag
 from django.utils.functional import lazy
-
-from django_webtest import WebTest
 
 from ..assertions import AdditionalAsserts
 from ..factories import PhoneFactory
@@ -10,12 +9,12 @@ from .test_managers import TrackingManagersTests
 
 
 @tag('models', 'phone')
-class PhoneModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
+class PhoneModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
     factory = PhoneFactory
 
     @classmethod
     def setUpTestData(cls):
-        cls.phone = PhoneFactory()
+        cls.phone = PhoneFactory.create()
 
     def test_field_max_lengths(self):
         self.assertEqual(self.phone._meta.get_field('comments').max_length, 255)
@@ -25,16 +24,15 @@ class PhoneModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
         self.assertIs(self.phone.owner, self.phone.profile)
 
     def test_icon(self):
-        # SIDE EFFECT: self.phone.type is altered but not saved to database.
         mock_translation = lazy(
             lambda text: "neindikita tipo" if settings.LANGUAGE_CODE == 'eo' else text,
             str
         )
         test_data = self.phone.PhoneType.choices
-        test_data += [('x', "x"), ('', mock_translation("type not indicated"))]
+        test_data += [('x', "x"), ('', mock_translation("type not indicated"))]  # type: ignore
         for phone_type, phone_type_title in test_data:
             with self.subTest(phone_type=phone_type):
-                self.phone.type = phone_type
+                self.phone.type = phone_type  # Type is altered but not saved to database.
                 for lang in ['en', 'eo']:
                     with override_settings(LANGUAGE_CODE=lang):
                         self.assertSurrounding(self.phone.icon, "<span ", "></span>")
@@ -48,13 +46,18 @@ class PhoneModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
         self.assertSurrounding(repr(self.phone), "<Phone:", f"|p#{self.phone.profile.pk}>")
 
     def test_rawdisplay(self):
-        # SIDE EFFECT: self.phone.type is altered but not saved to database.
-        test_data = self.phone.PhoneType.values + ['x', '', None]
+        test_data = self.phone.PhoneType.values + ['x', '', None]  # type: ignore
         for phone_type in test_data:
             with self.subTest(phone_type=phone_type):
-                self.phone.type = phone_type
+                self.phone.type = phone_type  # Type is altered but not saved to database.
                 expected_type = phone_type or "(?)"
                 self.assertEqual(
                     self.phone.rawdisplay(),
                     f"{expected_type}: {self.phone.number.as_international}"
                 )
+
+    def test_visibility_delete_protection(self):
+        with self.assertRaises(ProtectedError):
+            self.phone.visibility.delete()
+        self.phone.refresh_from_db()
+        self.assertIsNotNone(self.phone.visibility)
