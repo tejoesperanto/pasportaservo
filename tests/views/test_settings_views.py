@@ -91,7 +91,9 @@ class AccountSettingsViewTests(BasicViewTests):
                 )
 
     def basic_section_tests(
-            self, page, expected_heading, expected_urls, expected_texts, expected_css_classes,
+            self, page: AccountSettingsPage,
+            expected_heading: str, expected_urls: list[str],
+            expected_texts: list[str], expected_css_classes: list[list[str]],
     ):
         section = page.get_section_by_heading(expected_heading)
         self.assertLength(section, 1)
@@ -104,13 +106,9 @@ class AccountSettingsViewTests(BasicViewTests):
                 # Verify the expected target URL of the link.
                 self.assertEqual(button_elements.eq(i).attr("href"), expected_urls[i])
                 # Verify that the expected CSS classes are set on the link.
-                if len(button_elements) == 1:
-                    expected_classes = expected_css_classes
-                else:
-                    expected_classes = expected_css_classes[i]
-                for cls in expected_classes:
+                for cls in expected_css_classes[i]:
                     self.assertCssClass(button_elements.eq(i), cls)
-                if "btn" not in expected_classes:
+                if "btn" not in expected_css_classes[i]:
                     self.assertFalse(button_elements.eq(i).has_class("btn"))
                 # Verify that the link has the expected text.
                 self.assertEqual(button_elements.eq(i).text(), expected_texts[i])
@@ -133,7 +131,7 @@ class AccountSettingsViewTests(BasicViewTests):
                 self.basic_section_tests(
                     page, expected_text[lang][0],
                     [expected_url], [expected_text[lang][1]],
-                    ["btn", "btn-default"],
+                    [["btn", "btn-default"]],
                 )
 
     def test_username_section(self):
@@ -154,7 +152,7 @@ class AccountSettingsViewTests(BasicViewTests):
                 section = self.basic_section_tests(
                     page, expected_text[lang][0],
                     [expected_url], [expected_text[lang][1]],
-                    ["btn", "btn-default"],
+                    [["btn", "btn-default"]],
                 )
                 self.assertIn(self.user.username, cast(str, section.text()))
                 self.assertNotIn(self.user.username, cast(str, section.html()))
@@ -165,63 +163,108 @@ class AccountSettingsViewTests(BasicViewTests):
         # current email address, a warning icon if the email is invalid,
         # and a corresponding help text.
         expected_url = reverse_lazy('email_update')
-        expected_text = {
-            'en': ("Email", "Update account email"),
-            'eo': ("Retadreso", "Ŝanĝi retadreson por konto"),
+        expected_texts = {
+            'en': {
+                'heading': "Email",
+                'button': "Update account email",
+                'help-text': "We send e-mails to this address. It will never be public.",
+                'error-reason': "When we tried to mail it, the response was an error.",
+                'invalid-title': "invalid email",
+                'invalid-aria-label': "Warning : invalid email",
+            },
+            'eo': {
+                'heading': "Retadreso",
+                'button': "Ŝanĝi retadreson por konto",
+                'help-text': "Ni sendas retmesaĝojn al tiu ĉi retpoŝta adreso. "
+                             + "Ĝi neniam estos publika.",
+                'error-reason': "Kiam ni provis komuniki al ĝi, la respondo estis eraro.",
+                'invalid-title': "nefunkcianta adreso",
+                'invalid-aria-label': "Averto : nefunkcianta adreso",
+            },
         }
+
         for user_tag in self.users:
-            for lang in expected_text:
+            for lang in expected_texts:
                 with (
                     override_settings(LANGUAGE_CODE=lang),
-                    self.subTest(user=user_tag, lang=lang, section=expected_text[lang][0])
+                    self.subTest(
+                        user=user_tag, lang=lang,
+                        section=expected_texts[lang]['heading'])
                 ):
-                    page = self.view_page.open(
-                        self, self.users[user_tag], reuse_for_lang=lang)
+                    page = self.view_page.open(self, self.users[user_tag], reuse_for_lang=lang)
                     section = self.basic_section_tests(
-                        page, expected_text[lang][0],
-                        [expected_url], [expected_text[lang][1]],
-                        ["btn", "btn-default"],
+                        page, expected_texts[lang]['heading'],
+                        [expected_url], [expected_texts[lang]['button']],
+                        [["btn", "btn-default"]],
                     )
+
                     # The user's email address and an explanation about usage of this
                     # address are expected to be displayed.
+                    email_node = [
+                        elem for elem in section[0].xpath('*//child::text()')
+                        if str(elem).strip() == self.users[user_tag]._clean_email
+                    ]
+                    self.assertLength(email_node, 1)
+                    email_container_element = PyQuery(email_node[0].getparent())
                     if user_tag != 'invalid_email':
                         self.assertIn(self.users[user_tag].email, section.text())
+                        self.assertFalse(email_container_element.has_class("text-danger"))
+                        caption_assertion = self.assertNotEqual
                         help_text_assertion = self.assertEqual
                     else:
                         self.assertIn(self.users[user_tag]._clean_email, section.text())
                         self.assertNotIn(settings.INVALID_PREFIX, section.text())
+                        self.assertCssClass(email_container_element, "text-danger")
+                        caption_assertion = self.assertEqual
                         help_text_assertion = self.assertStartsWith
+                    self.assertCssClass(email_container_element, "person-email-address")
+                    caption_assertion(
+                        email_container_element.attr("title"),
+                        expected_texts[lang]['invalid-title'],
+                        "email container's title attribute mismatch")
+                    caption_assertion(
+                        email_container_element.attr("aria-label"),
+                        expected_texts[lang]['invalid-aria-label'],
+                        "email container's aria-label attribute mismatch")
                     help_text_assertion(
                         section.find(".help-block").text(),
-                        {
-                            'en': "We send e-mails to this address. "
-                                  + "It will never be public.",
-                            'eo': "Ni sendas retmesaĝojn al tiu ĉi retpoŝta adreso. "
-                                  + "Ĝi neniam estos publika.",
-                        }[lang]
+                        expected_texts[lang]['help-text']
                     )
+
                     # If the user's email address is marked as invalid, an additional
                     # explanation text is expected to be displayed. If the email is
                     # valid, no such text is expected.
-                    explanation_help_text = {
-                        'en': "When we tried to mail it, the response was an error.",
-                        'eo': "Kiam ni provis komuniki al ĝi, la respondo estis eraro.",
-                    }[lang]
+                    # The warning icon is expected to be displayed if and only if the
+                    # user's email address is marked as invalid.
                     explanation_element = (
                         section
                         .find(".help-block")
                         .find("*")
                         .filter(
-                            lambda i, this, content=explanation_help_text:
+                            lambda i, this, content=expected_texts[lang]['error-reason']:
                             PyQuery(this).text() == content
                         )
                     )
+                    warning_icon = (
+                        email_container_element.find(".fa-exclamation-triangle")
+                    )
                     if user_tag != 'invalid_email':
                         self.assertLength(explanation_element, 0)
+                        self.assertLength(warning_icon, 0)
+                        self.assertLength(section.find(".fa-exclamation-triangle"), 0)
                     else:
                         self.assertLength(explanation_element, 1)
                         self.assertCssClass(explanation_element, "text-danger")
-                    # TODO: Test for the warning icon if email is invalid.
+                        self.assertLength(warning_icon, 1)
+                        self.assertIs(email_node[0].getparent(), warning_icon[0].getparent())
+                        email_container_child_nodes = email_container_element.contents()
+                        # Verify that the icon is placed after the email text.
+                        self.assertLess(
+                            email_container_child_nodes.index(email_node[0]),
+                            email_container_child_nodes.index(warning_icon[0]),
+                        )
+                        self.assertEqual(warning_icon.attr("aria-hidden"), "true")
+                        self.assertLength(section.find(".fa-exclamation-triangle"), 1)
 
     def test_agreement_section(self):
         # The agreement settings section is expected to be titled "Agreement"
@@ -243,7 +286,7 @@ class AccountSettingsViewTests(BasicViewTests):
                 self.basic_section_tests(
                     page, expected_text[lang][0],
                     [expected_full_url], [expected_text[lang][1]],
-                    [],
+                    [[]],
                 )
 
     def test_membership_section(self):

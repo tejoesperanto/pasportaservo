@@ -3,11 +3,11 @@ from typing import cast
 from unittest.mock import PropertyMock, patch
 
 from django.core.exceptions import ValidationError
-from django.test import override_settings, tag
+from django.db.models import ProtectedError
+from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
 from django_countries.fields import Country
-from django_webtest import WebTest
 from factory import Faker
 
 from hosting.fields import RangeIntegerField
@@ -19,7 +19,7 @@ from .test_managers import TrackingManagersTests
 
 
 @tag('models', 'place')
-class PlaceModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
+class PlaceModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
     factory = PlaceFactory
 
     @classmethod
@@ -258,6 +258,15 @@ class PlaceModelTests(AdditionalAsserts, TrackingManagersTests, WebTest):
     def test_repr(self):
         place = self.basic_place
         self.assertSurrounding(repr(place), f"<Place #{place.pk}:", ">")
+
+    def test_visibility_delete_protection(self):
+        with self.assertRaises(ProtectedError):
+            self.basic_place.visibility.delete()
+        with self.assertRaises(ProtectedError):
+            self.basic_place.family_members_visibility.delete()
+        self.basic_place.refresh_from_db()
+        self.assertIsNotNone(self.basic_place.visibility)
+        self.assertIsNotNone(self.basic_place.family_members_visibility)
 
     def test_visible_externally(self):
         place = self.basic_place

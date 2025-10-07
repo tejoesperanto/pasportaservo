@@ -3,6 +3,7 @@ from unittest.mock import patch
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db.models import ProtectedError
 from django.test import RequestFactory, TestCase, override_settings, tag
 from django.utils import timezone
 from django.utils.html import format_html
@@ -314,6 +315,12 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
         profile = self.tenant_profile
         profile.birth_date = None
         self.assertEqual(profile.rawdisplay(), f"{str(profile)} (?)")
+
+    def test_visibility_delete_protection(self):
+        with self.assertRaises(ProtectedError):
+            self.basic_profile.email_visibility.delete()
+        self.basic_profile.refresh_from_db()
+        self.assertIsNotNone(self.basic_profile.email_visibility)
 
     def test_lt(self):
         p1 = ProfileSansAccountFactory(first_name="Aa", last_name="Yy")

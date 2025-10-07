@@ -157,9 +157,13 @@ def title_with_particule(value: str, particules: Optional[list[str]] = None) -> 
     particules = particules if particules else particule_list
     if value:
         value = value.title()
-        particules_re = [(part, r'(^|\W)(?i:%s)(\W)' % part) for part in particules]
-        for particule, particule_re in particules_re:
-            value = re.sub(particule_re, r'\g<1>' + particule + r'\g<2>', value)
+        regex_template = r'(^|\W)(?i:{})(\W)'
+        particules_re_data = [
+            (part, regex_template.format(re.escape(part)))
+            for part in particules
+        ]
+        for particule, particule_re in particules_re_data:
+            value = re.sub(particule_re, rf'\g<1>{particule}\g<2>', value)
     return value
 
 

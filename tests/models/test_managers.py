@@ -1,20 +1,26 @@
 from collections import namedtuple
 from datetime import timedelta
+from typing import TYPE_CHECKING, ClassVar
 from unittest.mock import patch
 
 from django.db import DatabaseError
+from django.test import TestCase
 from django.utils.timezone import make_aware
 
 from factory import Faker
+from factory.django import DjangoModelFactory
 
 from hosting.managers import (
     NotDeletedManager, NotDeletedRawManager, TrackingManager,
 )
+from hosting.models import TrackingModel
 
 
-class TrackingManagersTests:
+class TrackingManagersTests(TestCase if TYPE_CHECKING else object):
+    factory: ClassVar[type[DjangoModelFactory]]
+
     def test_manager_classes(self):
-        model = self.factory._meta.model
+        model: TrackingModel = self.factory._meta.model
 
         self.assertTrue(hasattr(model, 'objects'))
         self.assertIsInstance(model.objects, NotDeletedManager)
@@ -25,22 +31,28 @@ class TrackingManagersTests:
         self.assertTrue(hasattr(model, 'all_objects'))
         self.assertIsInstance(model.all_objects, TrackingManager)
 
-    @patch('hosting.managers.SiteConfiguration.get_solo',
-           return_value=namedtuple('DummyConfig', 'confirmation_validity_period')(timedelta(days=35)))
+    @patch('hosting.managers.SiteConfiguration.get_solo')
     def test_manager_flags(self, mock_config):
-        model = self.factory._meta.model
+        model: TrackingModel = self.factory._meta.model
+        mock_config.return_value = (
+            namedtuple('DummyConfig', 'confirmation_validity_period')(timedelta(days=35))
+        )
         faker = Faker._get_faker()
         existing_items_count = {
             manager_name: getattr(model, manager_name).count()
             for manager_name in ['objects', 'objects_raw', 'all_objects']
         }
-        from_period = lambda start, end: make_aware(faker.date_time_between(start, end))
+
+        def from_period(start: str, end: str):
+            return make_aware(faker.date_time_between(start, end))
         test_data = [
             self.factory(),
             self.factory(confirmed_on=from_period('-30d', '-20d')),
-            self.factory(confirmed_on=from_period('-60d', '-40d'), deleted_on=from_period('-10d', '-2d')),
+            self.factory(confirmed_on=from_period('-60d', '-40d'),
+                         deleted_on=from_period('-10d', '-2d')),
             self.factory(checked_on=from_period('-30d', '-20d')),
-            self.factory(checked_on=from_period('-60d', '-40d'), deleted_on=from_period('-10d', '-2d')),
+            self.factory(checked_on=from_period('-60d', '-40d'),
+                         deleted_on=from_period('-10d', '-2d')),
         ]
 
         # The `objects` manager is expected to fetch only non-deleted,
@@ -96,7 +108,7 @@ class TrackingManagersTests:
 
     @patch('hosting.managers.SiteConfiguration.get_solo', side_effect=DatabaseError)
     def test_manager_defaults(self, mock_config):
-        model = self.factory._meta.model
+        model: TrackingModel = self.factory._meta.model
         faker = Faker._get_faker()
         # The default validity period is expected to be 42 weeks.
         self.factory(confirmed_on=make_aware(faker.date_time_between('-288d', '-293d')))

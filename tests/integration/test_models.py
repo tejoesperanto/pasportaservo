@@ -1,4 +1,5 @@
 from datetime import date
+from typing import TYPE_CHECKING, cast
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -10,17 +11,21 @@ from factory import Faker
 
 from hosting.models import CountryRegion, FamilyMember, Place, Profile
 
+from ..assertions import AdditionalAsserts
 from ..factories import (
     ConditionFactory, CountryRegionFactory, PhoneFactory, PlaceFactory,
     ProfileFactory, ProfileSansAccountFactory, UserFactory,
 )
+
+if TYPE_CHECKING:
+    from hosting.models import FullProfile
 
 
 @tag('integration')
 class ProfileModelIntegrationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.profile = ProfileFactory()
+        cls.profile = cast('FullProfile', ProfileFactory.create())
 
         cls.phones = PhoneFactory.build_batch(3, profile=cls.profile)
         cls.phones[1].deleted_on = timezone.now()
@@ -78,6 +83,21 @@ class ProfileModelIntegrationTests(TestCase):
             obj.refresh_from_db()
             with self.subTest(obj=obj._meta.model_name, deleted=bool(obj.deleted_on)):
                 self.assertIsNone(obj.confirmed_on)
+
+        # Confirming a profile that has no associated places or phones
+        # is expected to succeed.
+        simple_profile = ProfileFactory.create()
+        self.assertIsNone(simple_profile.confirmed_on)
+        simple_profile.confirm_all_info(True)
+        simple_profile.refresh_from_db()
+        self.assertIsNotNone(simple_profile.confirmed_on)
+        self.assertFalse(
+            Place.all_objects.filter(confirmed_on=simple_profile.confirmed_on).exists())
+        # Unconfirming a profile that has no associated places or phones
+        # is also expected to succeed.
+        simple_profile.confirm_all_info(False)
+        simple_profile.refresh_from_db()
+        self.assertIsNone(simple_profile.confirmed_on)
 
     def mark_emails_as_invalid_tests(self, email, params, expected_updated, expected_marked):
         with self.subTest(params=params, updated=expected_updated, mark="invalid"):
@@ -299,25 +319,25 @@ class ProfileModelIntegrationTests(TestCase):
 
 
 @tag('integration')
-class FamilyMemberModelIntegrationTests(TestCase):
+class FamilyMemberModelIntegrationTests(AdditionalAsserts, TestCase):
     """
     Tests for customizations of the FamilyMember proxy model.
     """
 
     @classmethod
     def setUpTestData(cls):
-        cls.profile_only_tenant = ProfileSansAccountFactory()
-        cls.profile_with_account = ProfileFactory()
-        cls.place_owner = ProfileFactory()
-        cls.place = PlaceFactory(owner=cls.place_owner)
+        cls.profile_only_tenant = ProfileSansAccountFactory.create()
+        cls.profile_with_account = ProfileFactory.create()
+        cls.place_owner = ProfileFactory.create()
+        cls.place = PlaceFactory.create(owner=cls.place_owner)
 
     def test_owner_setting_on_incorrect_model(self):
         # Setting the `owner` on a `Profile` instance is expected to fail.
         with self.assertRaises(AttributeError):
-            self.profile_only_tenant.owner = -5
+            self.profile_only_tenant.owner = -5  # type: ignore
         self.assertIs(self.profile_only_tenant.owner, self.profile_only_tenant)
         with self.assertRaises(AttributeError):
-            self.profile_only_tenant.owner = self.place_owner
+            self.profile_only_tenant.owner = self.place_owner  # type: ignore
         self.assertIs(self.profile_only_tenant.owner, self.profile_only_tenant)
 
     def test_owner_setting_with_invalid_value(self):
@@ -325,21 +345,23 @@ class FamilyMemberModelIntegrationTests(TestCase):
         # fail if the value is of incorrect type.
         profile_only_tenant = FamilyMember.all_objects.get(pk=self.profile_only_tenant.pk)
         with self.assertRaises(ValueError):
-            profile_only_tenant.owner = -6
+            profile_only_tenant.owner = -6  # type: ignore
         with self.assertRaises(ValueError):
-            profile_only_tenant.owner = self.place
+            profile_only_tenant.owner = self.place  # type: ignore
 
     def test_owner_setting(self):
         # Setting the `owner` on a `FamilyMember` instance without a user
         # account is expected to succeed.
         profile_only_tenant = FamilyMember.all_objects.get(pk=self.profile_only_tenant.pk)
-        profile_only_tenant.owner = self.place_owner
+        with self.assertNotRaises(ValueError):
+            profile_only_tenant.owner = self.place_owner
         self.assertIsInstance(profile_only_tenant.owner, Profile)
         self.assertEqual(profile_only_tenant.owner.pk, self.place_owner.pk)
         # Setting the `owner` on a `FamilyMember` instance with a user
         # account is expected to succeed but do nothing.
         profile_with_account = FamilyMember.all_objects.get(pk=self.profile_with_account.pk)
-        profile_with_account.owner = self.place_owner
+        with self.assertNotRaises(ValueError):
+            profile_with_account.owner = self.place_owner
         self.assertIsInstance(profile_with_account.owner, Profile)
         self.assertEqual(profile_with_account.owner.pk, self.profile_with_account.pk)
 
@@ -359,8 +381,8 @@ class FamilyMemberModelIntegrationTests(TestCase):
 class PlaceModelIntegrationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.region = CountryRegionFactory()
-        cls.place = PlaceFactory(country=cls.region.country, state_province=cls.region.iso_code)
+        cls.region = CountryRegionFactory.create()
+        cls.place = PlaceFactory.create(country=cls.region.country, state_province=cls.region.iso_code)
 
         cls.place.family_members.add(ProfileSansAccountFactory(
             birth_date=Faker('date_between', start_date=date(1976, 1, 2), end_date=date(1976, 12, 30)),
@@ -381,8 +403,8 @@ class PlaceModelIntegrationTests(TestCase):
         cls.place.conditions.add(ConditionFactory())
         cls.place.conditions.add(ConditionFactory())
 
-        cls.other_account = UserFactory(profile__first_name="", profile__last_name="")
-        cls.deleted_account = UserFactory(profile__deleted_on=timezone.now())
+        cls.other_account = UserFactory.create(profile__first_name="", profile__last_name="")
+        cls.deleted_account = UserFactory.create(profile__deleted_on=timezone.now())
         cls.place.authorized_users.add(cls.other_account)
         cls.place.authorized_users.add(cls.deleted_account)
 
@@ -406,7 +428,7 @@ class PlaceModelIntegrationTests(TestCase):
         # The cache is expected to contain all family members,
         # ordered by their birth date.
         family = [p.pk for p in self.place.family_members.order_by('birth_date')]
-        transform = lambda p: p.pk
+        transform = lambda p: p.pk  # noqa: E731
         with self.assertNumQueries(1):
             cache = self.place.family_members_cache()
             self.assertQuerysetEqual(cache, family, transform, ordered=True)
@@ -498,6 +520,7 @@ class PlaceModelIntegrationTests(TestCase):
         self.assertIsInstance(subregion, CountryRegion)
         self.assertEqual(subregion.pk, self.region.pk)
         self.assertEqual(subregion.iso_code, self.place.state_province)
+        self.assertEqual(subregion.country, self.place.country)
         # Saving the object is expected to be disabled.
         current_name = subregion.latin_name
         subregion.latin_name = "SUBSTITUTE"
@@ -521,6 +544,7 @@ class PlaceModelIntegrationTests(TestCase):
         # the `state_province` value of the place.
         self.assertNotEqual(subregion.pk, self.region.pk)
         self.assertEqual(subregion.latin_code, self.place.state_province)
+        self.assertEqual(subregion.country, self.place.country)
         # Saving the object is expected to be disabled.
         self.assertIsNone(subregion.pk)
         subregion.save()

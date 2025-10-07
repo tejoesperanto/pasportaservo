@@ -21,7 +21,7 @@ from anymail.message import AnymailMessage
 from packvers import version
 
 
-def getattr_(obj, path):
+def getattr_(obj: Any, path: Iterable[str]) -> Any:
     return reduce(getattr, path.split('.') if isinstance(path, str) else path, obj)
 
 

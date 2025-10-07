@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.core.files.uploadedfile import SimpleUploadedFile, UploadedFile
+from django.db import IntegrityError
 from django.test import override_settings, tag
 from django.urls import reverse
 
@@ -816,6 +817,17 @@ class ProfileCreateFormTests(ProfileFormTestingBase, WebTest):
 
     def test_valid_data(self):
         super().test_valid_data(*self.profile_with_no_places)
+
+    def test_existing_profile(self):
+        # Form for a user who already has a profile is expected to be valid but raise
+        # an integrity error on save.
+        form = self._init_form(
+            {'first_name': self.faker.first_name()},
+            instance=self.profile_with_no_places.obj,
+        )
+        self.assertTrue(form.is_valid())
+        with self.assertRaises(IntegrityError):
+            form.save(commit=True)
 
     def test_view_page(self):
         page = self.app.get(reverse('profile_create'), user=UserFactory(profile=None))

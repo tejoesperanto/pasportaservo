@@ -19,13 +19,13 @@ from django.views import generic
 
 from django_countries.fields import Country
 
-from hosting.models import PasportaServoUser, Place, Profile, TrackingModel
-
 from . import PasportaServoHttpRequest
 from .utils import camel_case_split, join_lazy
 
 if TYPE_CHECKING:
-    from hosting.models import FullProfile
+    from hosting.models import (
+        FullProfile, PasportaServoUser, Place, Profile, TrackingModel,
+    )
 
     from .mixins import SingleObjectViewProtocol
 else:
@@ -128,7 +128,7 @@ class SupervisorAuthBackend(ModelBackend):
         """
         return True
 
-    def get_user_supervisor_of(self, user_obj: PasportaServoUser, obj=None, code=False):
+    def get_user_supervisor_of(self, user_obj: 'PasportaServoUser', obj=None, code=False):
         """
         Calculate responsibilities, globally or for an optional object.
         The given object may be an iterable of countries, a single country, or a profile.
@@ -144,6 +144,7 @@ class SupervisorAuthBackend(ModelBackend):
         if auth_log.getEffectiveLevel() == logging.DEBUG:
             auth_log.debug("\tobject is %s", repr(obj))
         if obj is not None:
+            from hosting.models import Place, Profile
             if isinstance(obj, Country):
                 countries = [obj]
                 auth_log.debug("\t\tGot a Country, %s", countries)
@@ -167,7 +168,7 @@ class SupervisorAuthBackend(ModelBackend):
             supervised = set(supervised) & set(countries)
         return supervised if code else [cast(str, c.name) for c in supervised]
 
-    def is_user_supervisor_of(self, user_obj: PasportaServoUser, obj=None):
+    def is_user_supervisor_of(self, user_obj: 'PasportaServoUser', obj=None):
         """
         Compare intersection between responsibilities and given countries.
         The given object may be an iterable of countries, a single country, or a profile.
@@ -176,7 +177,7 @@ class SupervisorAuthBackend(ModelBackend):
             user_obj, obj if obj is not None else object(), code=True)
         return any(supervised)
 
-    def has_perm(self, user_obj: PasportaServoUser, perm: str, obj=None):
+    def has_perm(self, user_obj: 'PasportaServoUser', perm: str, obj=None):
         """
         Verify if this user has permission (to an optional object).
         Short-circuits when resposibility is not satisfied.
@@ -195,13 +196,13 @@ class SupervisorAuthBackend(ModelBackend):
             raise PermissionDenied
         return allowed
 
-    def get_all_permissions(self, user_obj: PasportaServoUser, obj=None):
+    def get_all_permissions(self, user_obj: 'PasportaServoUser', obj=None):
         if obj is not None and user_obj.is_active and not user_obj.is_anonymous:
             return self.get_group_permissions(user_obj, obj)
         else:
             return super().get_all_permissions(user_obj, obj)
 
-    def get_group_permissions(self, user_obj: PasportaServoUser, obj=None):
+    def get_group_permissions(self, user_obj: 'PasportaServoUser', obj=None):
         """
         Return a list of permission strings that this user has through their groups.
         If an object is passed in, only permissions matching this object are returned.
@@ -234,7 +235,7 @@ class SupervisorAuthBackend(ModelBackend):
 
 def get_role_in_context(
         request: PasportaServoHttpRequest,
-        profile: Optional[Profile] = None, place: Optional[Place | Country] = None,
+        profile: 'Optional[Profile]' = None, place: 'Optional[Place | Country]' = None,
         no_obj_context: bool = False,
 ) -> AuthRole:
     user = request.user
@@ -317,7 +318,7 @@ class AuthMixin[ModelT: TrackingModel](SingleObjectViewProtocol[ModelT], AccessM
         except AttributeError:
             return object.owner if object else None
 
-    def get_location(self, object: ModelT) -> Optional[Place | Country]:
+    def get_location(self, object: ModelT) -> 'Optional[Place | Country]':
         try:
             return super().get_location(object)  # type: ignore[attr-defined]
         except AttributeError:

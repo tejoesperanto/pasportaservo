@@ -1,10 +1,12 @@
 from datetime import date
-from random import sample
+from importlib import import_module
+from random import choice, sample
 from typing import Literal, Optional, TypedDict, cast
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, Group
 from django.contrib.flatpages.models import FlatPage
+from django.contrib.sessions.backends.base import SessionBase
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 from django.db import DEFAULT_DB_ALIAS, connections
@@ -16,16 +18,21 @@ from django.utils import translation
 from django.utils.formats import localize
 from django.utils.functional import classproperty
 
+from bs4 import BeautifulSoup, ResultSet as SoupResultSet
 from django_countries.data import COUNTRIES
+from django_webtest import WebTest
 from faker import Faker
 from lxml.html import HtmlComment, HtmlElement
 from pyquery import PyQuery
 from webtest.forms import Form as HtmlForm
 
 from core.models import Policy
+from hosting.countries import COUNTRIES_DATA, SUBREGION_TYPES
+from hosting.forms import SubregionForm
 from shop.tests.factories import ProductReservationFactory
 
 from .. import with_type_hint
+from ..assertions import AdditionalAsserts
 from ..factories import (
     AdminUserFactory, PolicyFactory, StaffUserFactory, UserFactory,
 )
@@ -488,6 +495,229 @@ class OkayViewTests(HeroViewTemplateTestsMixin, BasicViewTests):
                 container_element = page.get_hero_content()
                 self.assertLength(container_element.find("[role='search']"), 1)
                 self.assertLength(container_element.find("a"), 0)
+
+
+@tag('views', 'views-general')
+class ContentFragmentRetrieveViewTests(AdditionalAsserts, WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.url = reverse_lazy('get_fragment', kwargs={'fragment_id': 'dummy'})
+        cls.user = UserFactory.create()
+
+    def test_javascript_disabled_callback(self):
+        # The response is expected to be a transparent PNG image, and a notification
+        # about the user having JavaScript disabled in their browser is expected to
+        # be written to the log.
+
+        test_data = [
+            ("anonymous", None),
+            ("anonymous with connection", None),
+            ("anonymous with user agent", None),
+            ("authenticated", self.user),
+            ("authenticated with connection", self.user),
+            ("authenticated with user agent", self.user),
+        ]
+        SessionStore = cast(
+            type[SessionBase],
+            import_module(settings.SESSION_ENGINE).SessionStore)
+
+        for user_tag, user in test_data:
+            with self.subTest(user=user_tag):
+                if 'connection' in user_tag:
+                    session = SessionStore()
+                    # Simulate the connection set up by the middleware.
+                    session['connection_id'] = 12345
+                    session.save()
+                    headers = {'Cookie': f'{settings.SESSION_COOKIE_NAME}={session.session_key}'}
+                elif 'user agent' in user_tag:
+                    headers = {'User-Agent': 'WebTester/3.2.25'}
+                else:
+                    headers = {}
+
+                with self.assertLogs('PasportaServo.ui.fallbacks', level='WARNING') as log:
+                    self.app.reset()
+                    response = self.app.get(
+                        self.url.replace('dummy', 'js_disabled_callback'),
+                        user=user,
+                        headers=headers)
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.content_type, 'image/png')
+                self.assertIn('nojs', self.app.cookies)
+                self.assertEqual(self.app.cookies['nojs'], 'True')
+
+                self.assertLength(log.records, 1)
+                if user is None:
+                    self.assertStartsWith(log.records[0].message, "Anonymous User")
+                else:
+                    self.assertStartsWith(log.records[0].message, "User")
+                assertion = self.assertIn if 'connection' in user_tag else self.assertNotIn
+                assertion("via connection 12345 ", log.output[0])
+                assertion = self.assertIn if 'user agent' in user_tag else self.assertNotIn
+                assertion("on WebTester/3.2.25 ", log.output[0])
+                self.assertEndsWith(log.output[0], "has JavaScript disabled.")
+
+    def test_mailto_fallback(self):
+        # The response is expected to be two HTML fragments containing an explanatory
+        # text and a button to copy the email address to clipboard.
+        # One of the fragments is expected to be used when the email is already visible
+        # on the page (e.g., <a href="mailto:a@b.co">a@b.co</a>) and the other when the
+        # email is not directly visible (e.g., <a href="mailto:a@b.co">Contact us</a>).
+
+        test_data = {
+            'en': {
+                'address-visible': (
+                    "Copy",
+                    "Copy the email address and send an email via your mailbox.",
+                ),
+                'address-opaque': (
+                    "Copy",
+                    "Copy the email address below and send an email via your mailbox:",
+                ),
+            },
+            'eo': {
+                'address-visible': (
+                    "Kopii",
+                    "Kopiu la retpoŝtan adreson kaj sendu retmesaĝon pere de via kesto.",
+                ),
+                'address-opaque': (
+                    "Kopii",
+                    "Kopiu la suban retpoŝtan adreson kaj sendu retmesaĝon pere de via kesto:",
+                ),
+            },
+        }
+
+        for lang in test_data:
+            with (
+                override_settings(LANGUAGE_CODE=lang),
+                self.subTest(LANGUAGE_CODE=lang)
+            ):
+                with self.assertLogs('PasportaServo.ui.fallbacks', level='WARNING') as log:
+                    response = self.app.get(self.url.replace('dummy', 'mailto_fallback'))
+
+                self.assertEqual(response.status_code, 200)
+                self.assertTemplateUsed(response, 'ui/fragment-mailto_fallback.html')
+
+                html: BeautifulSoup = response.html
+                for block_tag, expected_strings in test_data[lang].items():
+                    with self.subTest(block=block_tag):
+                        block = html.find_all(class_=f"mailto-{block_tag}")
+                        self.assertLength(block, 1)
+                        block = block[0]
+                        button = block.find('button', "email-copy-button")
+                        self.assertIsNotNone(button)
+                        self.assertEqual(list(button.stripped_strings), [expected_strings[0]])
+                        self.assertIn(expected_strings[1], block.stripped_strings)
+                        if block_tag == 'address-visible':
+                            self.assertNotIn("[[email_address]]", block.stripped_strings)
+                        else:
+                            self.assertIn("[[email_address]]", block.stripped_strings)
+
+                self.assertLength(log.records, 1)
+                self.assertEqual("The mailto_fallback was used", log.records[0].message)
+
+    def test_datalist_fallback(self):
+        # The response is expected to be an HTML fragment containing a modal with a
+        # placeholder for the options of the datalist, to be used when the <datalist>
+        # tag is not supported by the browser.
+        for lang, expected_label in {'en': "Hide", 'eo': "Kaŝi"}.items():
+            with (
+                override_settings(LANGUAGE_CODE=lang),
+                self.subTest(LANGUAGE_CODE=lang)
+            ):
+                with self.assertLogs('PasportaServo.ui.fallbacks', level='WARNING') as log:
+                    response = self.app.get(self.url.replace('dummy', 'datalist_fallback'))
+
+                self.assertEqual(response.status_code, 200)
+                self.assertTemplateUsed(response, 'ui/fragment-datalist_fallback.html')
+
+                html: BeautifulSoup = response.html
+                modal_element = html.find_all(class_="modal")
+                self.assertLength(modal_element, 1)
+                modal_element = modal_element[0]
+                self.assertEqual(modal_element.attrs.get('role'), "dialog")
+                self.assertIn('id', modal_element.attrs)
+                self.assertIn("datalist-replacement", modal_element.attrs['id'])
+                self.assertCssClass(
+                    SoupResultSet(None, filter(lambda child: child.name, modal_element.children)),
+                    "modal-dialog")
+                button_element = modal_element.find('button', attrs={'data-dismiss': "modal"})
+                self.assertIsNotNone(button_element)
+                self.assertEqual(button_element.string.strip(), expected_label)
+
+                modal_body_element = modal_element.find_all(class_="modal-body")
+                self.assertLength(modal_body_element, 1)
+                self.assertCssClass(modal_body_element, "datalist-list")
+                button_elements = modal_body_element[0].find_all('button')
+                self.assertGreaterEqual(len(button_elements), 1)
+                for button_element in button_elements:
+                    self.assertCssClass(button_element, "datalist-item")
+                    self.assertEqual(button_element.string.strip(), "[[dataitem]]")
+
+                self.assertLength(log.records, 1)
+                self.assertEqual("The datalist_fallback was used", log.records[0].message)
+
+    def test_place_country_region_formfield(self):
+        # The response is expected to be an HTML fragment containing the `state_province`
+        # form field (only), with a suitably localized label. The fragment is used as
+        # part of the complete place form, and is expected to contain neither the <form>
+        # tag nor any <input> tag with the CSRF token.
+        # When no "country" query parameter is provided, the response is still expected
+        # to be as above, with the default label used for the form field.
+
+        country = choice(list({
+            country
+            for country, data in COUNTRIES_DATA.items()
+            if data.get('administrative_area_type') in SUBREGION_TYPES
+        }))
+        test_data: list[dict[str, str]] = [
+            {'country': country},
+            {'country': ''},
+            {},
+        ]
+        expected_label = {
+            'en': "State / Province",
+            'eo': "Ŝtato / Provinco",
+        }
+
+        for country_param in test_data:
+            for lang in expected_label:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(params=country_param, lang=lang)
+                ):
+                    response = self.app.get(
+                        self.url.replace('dummy', 'place_country_region_formfield'),
+                        params=country_param,
+                    )
+                    self.assertEqual(response.status_code, 200)
+                    self.assertTemplateUsed(response, 'ui/fragment-subregion_formfield.html')
+                    self.assertIsInstance(response.context['form'], SubregionForm)
+
+                    html: BeautifulSoup = response.html
+                    self.assertIsNone(html.find('form'))
+                    # No CSRF token is expected as part of the form output.
+                    self.assertNotContains(response, "csrfmiddlewaretoken")
+                    # Input also when mandatory regions.
+                    self.assertIsNotNone(
+                        html.find('input', id='id_state_province'),
+                        msg=f'form element observed is {html.find('input')}')
+                    label_element = html.find('label', attrs={'for': 'id_state_province'})
+                    self.assertIsNotNone(label_element)
+                    if country_param.get('country'):
+                        region_type = COUNTRIES_DATA[country]['administrative_area_type']
+                        self.assertEqual(
+                            label_element.string.strip(),
+                            SUBREGION_TYPES[region_type].capitalize()
+                        )
+                    else:
+                        self.assertEqual(label_element.string.strip(), expected_label[lang])
+
+    def test_unknown_fragment(self):
+        response = self.app.get(self.url, expect_errors=True)
+        self.assertEqual(response.status_code, 404)
+
+        response = self.app.get(self.url, user=self.user, expect_errors=True)
+        self.assertEqual(response.status_code, 404)
 
 
 class GeneralViewTestsMixin(with_type_hint(BasicViewTests)):

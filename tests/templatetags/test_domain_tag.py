@@ -22,17 +22,26 @@ class DomainTagTests(TestCase):
     def test_through_request(self):
         # A typical web page template has a 'request' context variable and the values
         # of scheme+host are expected to be taken from the Request.
+        template_with_nonascii_url = Template(
+            "{% load domain %}"
+            "{% domain '/कुल्लू घाटी?region=京都府&city=綾部市' %}"
+        )
+
         request = self.request_factory.get('/404')
         page = self.template_sans_url.render(Context({'request': request}))
         self.assertEqual(page, "http://mytestsrv")
         page = self.template_with_url.render(Context({'request': request}))
         self.assertEqual(page, "http://mytestsrv/418?I=am&amp;Teapot")
+        page = template_with_nonascii_url.render(Context({'request': request}))
+        self.assertEqual(page, "http://mytestsrv/कुल्लू घाटी?region=京都府&amp;city=綾部市")
 
         request = self.request_factory.get('/404', secure=True)
         page = self.template_sans_url.render(Context({'request': request}))
         self.assertEqual(page, "https://mytestsrv")
         page = self.template_with_url.render(Context({'request': request}))
         self.assertEqual(page, "https://mytestsrv/418?I=am&amp;Teapot")
+        page = template_with_nonascii_url.render(Context({'request': request}))
+        self.assertEqual(page, "https://mytestsrv/कुल्लू घाटी?region=京都府&amp;city=綾部市")
 
     def test_through_django_email(self):
         # A Django email template has 'protocol' & 'domain' context variables and the
@@ -66,7 +75,11 @@ class DomainTagTests(TestCase):
             page = self.template_with_url.render(Context())
             self.assertEqual(page, "https://mytestsrv/418?I=am&amp;Teapot")
 
-        with self.settings(DEBUG=True):
+        with self.settings(ALLOWED_HOSTS=[]):
+            with self.assertRaises(Exception):
+                self.template_sans_url.render(Context())
+
+        with self.settings(DEBUG=True, ALLOWED_HOSTS=[]):
             page = self.template_sans_url.render(Context())
             self.assertEqual(page, "http://localhost:8000")
             page = self.template_with_url.render(Context())

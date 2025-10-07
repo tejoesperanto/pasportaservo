@@ -1,12 +1,15 @@
 from datetime import timedelta, timezone
 
 import factory
-from factory.django import DjangoModelFactory
 from faker import Faker
 from slugify import slugify
 
+from tests.factories import TypedDjangoModelFactory
 
-class PostFactory(DjangoModelFactory):
+from ..models import Post
+
+
+class PostFactory(TypedDjangoModelFactory[Post]):
     class Meta:
         model = 'blog.Post'
         exclude = ('first_para', 'rest_of_text',)

@@ -21,7 +21,8 @@ from django.core.mail import mail_admins, send_mail
 from django.db import transaction
 from django.db.models import Exists, OuterRef, Q
 from django.http import (
-    Http404, HttpResponse, HttpResponseRedirect, JsonResponse, QueryDict,
+    Http404, HttpRequest, HttpResponse,
+    HttpResponseRedirect, JsonResponse, QueryDict,
 )
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
@@ -41,6 +42,7 @@ from django.utils.translation import (
 )
 from django.views import generic
 from django.views.decorators.cache import never_cache
+from django.views.decorators.common import no_append_slash
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.vary import vary_on_headers
 
@@ -998,7 +1000,11 @@ class ContentFragmentRetrieveView(generic.TemplateView):
         'place_country_region_formfield': 'ui/fragment-subregion_formfield.html',
     }
 
-    def get(self, request, *args, **kwargs):
+    @no_append_slash
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         self.fragment_id: str = kwargs['fragment_id']
         if self.fragment_id not in self.template_names:
             raise Http404("Unknown HTML Fragment")
