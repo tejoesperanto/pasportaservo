@@ -563,8 +563,6 @@ $(function() {
         Inspired by jQuery TextAreaResizer plugin by Ryan O'Dell,
         in turn converted from a Drupal textarea.js plugin.
         */
-        ALLOWED_BUTTON_SINGLE = new Set([0, 1]);
-        ALLOWED_BUTTONS_COMBI = new Set([1, 4, 5]);
 
         /** @param {HTMLTextAreaElement} target */
         static enable(target) {
@@ -573,6 +571,9 @@ $(function() {
 
         /** @param {HTMLTextAreaElement} target */
         constructor(target) {
+            this.ALLOWED_BUTTON_SINGLE = new Set([0, 1]);
+            this.ALLOWED_BUTTONS_COMBI = new Set([1, 4, 5]);
+
             this.textarea = target;
             this.lastPointerY = null;
 
