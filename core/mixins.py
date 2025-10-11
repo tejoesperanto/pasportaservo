@@ -100,7 +100,7 @@ class UserModifyMixin(SingleObjectFormViewProtocol[User]):
                 profile = Profile.get_basic_data(user=self.object)
             return profile.get_edit_url()
         except Profile.DoesNotExist:
-            return reverse_lazy('profile_create')
+            return reverse_lazy('account_settings')
 
 
 class FlatpageAsTemplateMixin:  # pragma: no cover
