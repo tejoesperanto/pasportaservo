@@ -2,12 +2,15 @@
 {% load compact from utils %}
 
         {% trans "log out" as title_logout %}
-        <a href="{% url 'logout' %}" class="linkicon">
-            <span class="fa fa-sign-out-alt" aria-hidden="true"
-                  title="{{ title_logout|capfirst }}"
-                  data-toggle="tooltip" data-placement="bottom"></span>
-            <span class="{% filter compact %}
-                            {% include './viewport_visibility_class.html' with breakpoints=label_at|default:"lg" %}
-                         {% endfilter %}"
-                  style="padding-left: 2px">{{ title_logout }}</span>
-        </a>
+        <form id="id_logout_form" action="{% url 'logout' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="linkicon">
+                <span class="fa fa-sign-out-alt" aria-hidden="true"
+                      title="{{ title_logout|capfirst }}"
+                      data-toggle="tooltip" data-placement="bottom"></span>
+                <span class="{% filter compact %}
+                                {% include './viewport_visibility_class.html' with breakpoints=label_at|default:"lg" %}
+                             {% endfilter %}"
+                      style="padding-left: 2px">{{ title_logout }}</span>
+            </button>
+        </form>

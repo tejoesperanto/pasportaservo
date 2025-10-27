@@ -6,16 +6,17 @@ from django.utils.translation import gettext_lazy as _
 
 from crispy_forms.helper import FormHelper
 
+from core.mixins import HtmlIdFormMixin
 from core.models import SiteConfiguration
 
-from ..models import Preferences, Profile
+from ..models import PasportaServoUser, Preferences, Profile
 from ..utils import value_without_invalid_marker
 from ..validators import TooNearPastValidator, client_side_validated
 from ..widgets import ClearableWithPreviewImageInput, InlineRadios
 
 
 @client_side_validated
-class ProfileForm(forms.ModelForm):
+class ProfileForm(HtmlIdFormMixin, forms.ModelForm):
     class Meta:
         model = Profile
         fields = [
@@ -146,11 +147,11 @@ class ProfileForm(forms.ModelForm):
 
 class ProfileCreateForm(ProfileForm):
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user')
+        self.user: PasportaServoUser = kwargs.pop('user')
         super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        profile = super().save(commit=False)
+        profile: Profile = super().save(commit=False)
         profile.user = self.user
         profile.email = self.user.email
         if commit:
@@ -159,7 +160,7 @@ class ProfileCreateForm(ProfileForm):
     save.alters_data = True
 
 
-class ProfileEmailUpdateForm(forms.ModelForm):
+class ProfileEmailUpdateForm(HtmlIdFormMixin, forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['email']

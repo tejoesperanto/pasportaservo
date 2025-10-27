@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from typing import Optional
 
 from django.test import override_settings, tag
 from django.urls import reverse
@@ -10,7 +11,7 @@ from factory import Faker
 from hosting.forms.familymembers import (
     FamilyMemberCreateForm, FamilyMemberForm,
 )
-from hosting.models import FamilyMember
+from hosting.models import FamilyMember, Place
 
 from ..factories import LocaleFaker, PlaceFactory, ProfileSansAccountFactory
 
@@ -18,6 +19,7 @@ from ..factories import LocaleFaker, PlaceFactory, ProfileSansAccountFactory
 @tag('forms', 'forms-familymembers', 'family-members')
 class FamilyMemberFormTests(WebTest):
     form_class = FamilyMemberForm
+    form_id = 'id_family_member_form'
 
     @classmethod
     def setUpClass(cls):
@@ -33,15 +35,19 @@ class FamilyMemberFormTests(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.place_with_family = PlaceFactory()
-        cls.profile_one = ProfileSansAccountFactory(pronoun="", description="")
+        cls.place_with_family = PlaceFactory.create()
+        cls.profile_one = ProfileSansAccountFactory.create(pronoun="", description="")
         cls.place_with_family.family_members.add(cls.profile_one)
-        cls.place_anon_family = PlaceFactory()
-        cls.profile_two = ProfileSansAccountFactory(
+        cls.place_anon_family = PlaceFactory.create()
+        cls.profile_two = ProfileSansAccountFactory.create(
             first_name="", last_name="", pronoun="", description="")
         cls.place_anon_family.family_members.add(cls.profile_two)
 
-    def _init_form(self, data=None, place=None, member_index=0):
+    def _init_form(
+            self,
+            data: Optional[dict] = None, place: Optional[Place] = None,
+            member_index: int = 0,
+    ):
         assert place is not None
         assert member_index < len(place.family_members_cache())
         return self.form_class(
@@ -112,7 +118,7 @@ class FamilyMemberFormTests(WebTest):
 
     def test_blank_data_for_regular_big_family(self):
         # Empty form for member of place's 'regular' 2-person family is expected to be invalid.
-        place_with_big_family = PlaceFactory()
+        place_with_big_family = PlaceFactory.create()
         place_with_big_family.family_members.add(self.profile_one)
         place_with_big_family.family_members.add(ProfileSansAccountFactory())
         with self.assertNumQueries(1):
@@ -341,7 +347,7 @@ class FamilyMemberFormTests(WebTest):
                 }
             )
 
-    def test_valid_data(self, for_place=None):
+    def test_valid_data(self, for_place: Optional[Place] = None):
         data = {
             'first_name': LocaleFaker._get_faker(locale='lt').first_name(),
             'last_name': LocaleFaker._get_faker(locale='lv').last_name(),
@@ -354,7 +360,7 @@ class FamilyMemberFormTests(WebTest):
         place = for_place or self.place_with_family
         form = self._init_form(data, place=place)
         self.assertTrue(form.is_valid(), msg=repr(form.errors))
-        profile = form.save(commit=False)
+        profile: FamilyMember = form.save(commit=False)
         if type(form) is FamilyMemberForm:
             self.assertEqual(profile.pk, self.profile_one.pk)
         elif type(form) is FamilyMemberCreateForm:
@@ -377,7 +383,7 @@ class FamilyMemberFormTests(WebTest):
             user=self.place_with_family.owner.user,
         )
         self.assertEqual(page.status_code, 200)
-        self.assertEqual(len(page.forms), 1)
+        self.assertIn(self.form_id, page.forms)
         self.assertIs(type(page.context['form']), self.form_class)
 
     def test_form_submit(self):
@@ -387,9 +393,10 @@ class FamilyMemberFormTests(WebTest):
                 'place_pk': self.place_with_family.pk}),
             user=self.place_with_family.owner.user,
         )
-        page.form['first_name'] = fname = LocaleFaker._get_faker(locale='et').first_name()
-        page.form['last_name'] = lname = LocaleFaker._get_faker(locale='fi').last_name()
-        page = page.form.submit()
+        form = page.forms[self.form_id]
+        form['first_name'] = fname = LocaleFaker._get_faker(locale='et').first_name()
+        form['last_name'] = lname = LocaleFaker._get_faker(locale='fi').last_name()
+        page = form.submit()
         self.profile_one.refresh_from_db()
         self.assertRedirects(
             page,
@@ -403,6 +410,7 @@ class FamilyMemberFormTests(WebTest):
 
 class FamilyMemberCreateFormTests(FamilyMemberFormTests):
     form_class = FamilyMemberCreateForm
+    form_id = 'id_family_member_create_form'
 
     def _init_form(self, data=None, place=None, member_index=0):
         assert place is not None
@@ -410,12 +418,12 @@ class FamilyMemberCreateFormTests(FamilyMemberFormTests):
 
     def test_blank_data_for_no_family(self):
         # Empty form for first member of place's family is expected to be valid.
-        place_no_family = PlaceFactory()
+        place_no_family = PlaceFactory.create()
         with self.assertNumQueries(1):
             form = self._init_form(data={}, place=place_no_family)
             self.assertTrue(form.is_valid(), msg=repr(form.errors))
 
-    def test_valid_data(self, for_place=None):
+    def test_valid_data(self, for_place: Optional[Place] = None):
         super().test_valid_data(for_place or PlaceFactory())
 
     def test_view_page(self):
@@ -425,12 +433,12 @@ class FamilyMemberCreateFormTests(FamilyMemberFormTests):
             user=self.place_with_family.owner.user,
         )
         self.assertEqual(page.status_code, 200)
-        self.assertEqual(len(page.forms), 1)
+        self.assertIn(self.form_id, page.forms)
         self.assertIs(type(page.context['form']), self.form_class)
 
     def test_form_submit(self):
-        place_with_family = PlaceFactory()
-        profile_old = ProfileSansAccountFactory()
+        place_with_family = PlaceFactory.create()
+        profile_old = ProfileSansAccountFactory.create()
         place_with_family.family_members.add(profile_old)
 
         page = self.app.get(
@@ -438,10 +446,11 @@ class FamilyMemberCreateFormTests(FamilyMemberFormTests):
                 'place_pk': place_with_family.pk}),
             user=place_with_family.owner.user,
         )
-        page.form['first_name'] = fname = LocaleFaker._get_faker(locale='et').first_name()
-        page.form['last_name'] = lname = LocaleFaker._get_faker(locale='fi').last_name()
-        page.form['title'] = FamilyMember.Titles.MR
-        page = page.form.submit()
+        form = page.forms[self.form_id]
+        form['first_name'] = fname = LocaleFaker._get_faker(locale='et').first_name()
+        form['last_name'] = lname = LocaleFaker._get_faker(locale='fi').last_name()
+        form['title'] = FamilyMember.Titles.MR
+        page = form.submit()
         self.assertRedirects(
             page,
             reverse('profile_edit', kwargs={
@@ -450,6 +459,7 @@ class FamilyMemberCreateFormTests(FamilyMemberFormTests):
         )
 
         profile_new = place_with_family.family_members.last()
+        assert profile_new is not None
         self.assertNotEqual(profile_old.pk, profile_new.pk)
         self.assertEqual(profile_new.first_name, fname)
         self.assertEqual(profile_new.last_name, lname)
@@ -457,15 +467,16 @@ class FamilyMemberCreateFormTests(FamilyMemberFormTests):
         self.assertEqual(profile_new.title, FamilyMember.Titles.MR)
 
     def test_form_submit_anonymous_family(self):
-        place_no_family = PlaceFactory()
+        place_no_family = PlaceFactory.create()
 
         page = self.app.get(
             reverse('family_member_create', kwargs={
                 'place_pk': place_no_family.pk}),
             user=place_no_family.owner.user,
         )
-        page.form['title'] = FamilyMember.Titles.MRS
-        page = page.form.submit()
+        form = page.forms[self.form_id]
+        form['title'] = FamilyMember.Titles.MRS
+        page = form.submit()
         self.assertRedirects(
             page,
             reverse('profile_edit', kwargs={

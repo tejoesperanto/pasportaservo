@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 from django.test import override_settings, tag
 from django.urls import reverse
@@ -7,6 +7,7 @@ from django.utils.timezone import make_aware
 from django_countries import Countries
 from django_webtest import WebTest
 from factory import Faker
+from phonenumber_field.phonenumber import PhoneNumber
 
 from core.models import SiteConfiguration
 from hosting.forms.phones import PhoneCreateForm, PhoneForm
@@ -48,7 +49,11 @@ class PhoneFormTests(WebTest):
             profile=cls.profile_two,
             deleted_on=make_aware(cls.faker.date_time_this_decade()))
 
-    def _init_form(self, data=None, instance=None, owner=None):
+    def _init_form(
+            self,
+            data: Optional[dict] = None, instance: Optional[Phone] = None,
+            owner: Optional['FullProfile'] = None,
+    ):
         assert instance is not None
         return PhoneForm(data=data, instance=instance)
 
@@ -74,7 +79,9 @@ class PhoneFormTests(WebTest):
 
     def test_blank_data(self):
         # Empty form is expected to be invalid.
-        form = self._init_form(data={}, instance=self.phone1_valid, owner=self.profile_one)
+        form = self._init_form(
+            data={},
+            instance=self.phone1_valid, owner=self.profile_one)
         self.assertFalse(form.is_valid())
         with override_settings(LANGUAGE_CODE='en'):
             self.assertEqual(
@@ -129,8 +136,7 @@ class PhoneFormTests(WebTest):
                 'type': "m",
                 'number': "+31600000001"
             },
-            instance=self.phone1_valid,
-            owner=self.profile_one)
+            instance=self.phone1_valid, owner=self.profile_one)
         self.assertFalse(form.is_valid())
         self.assertIn('number', form.errors)
         with override_settings(LANGUAGE_CODE='en'):
@@ -205,7 +211,7 @@ class PhoneFormTests(WebTest):
         ]
 
         for case_tag, other_phone, expected_valid in test_data:
-            initial_phone = PhoneFactory(profile=self.profile_one)
+            initial_phone = PhoneFactory.create(profile=self.profile_one)
             remaining_countries = set(self.all_countries) - set([initial_phone.country.code])
             with self.subTest(tag=case_tag, number=other_phone.number):
                 form_data = {
@@ -255,8 +261,8 @@ class PhoneFormTests(WebTest):
                 'profile_pk': self.profile_one.pk}),
             user=self.profile_one.user,
         )
-        self.assertEqual(page.status_int, 200)
-        self.assertEqual(len(page.forms), 1)
+        self.assertEqual(page.status_code, 200)
+        self.assertIn('id_phone_form', page.forms)
         self.assertIs(type(page.context['form']), PhoneForm)
 
     def test_form_submit(self):
@@ -266,10 +272,12 @@ class PhoneFormTests(WebTest):
                 'profile_pk': self.profile_two.pk}),
             user=self.profile_two.user,
         )
-        page.form['comments'] = comment = (
+        form = page.forms['id_phone_form']
+        comment: str
+        form['comments'] = comment = (
             LocaleFaker._get_faker(locale='ar').text(max_nb_chars=250)
         )
-        page = page.form.submit()
+        page = form.submit()
         self.phone4_valid.refresh_from_db()
         self.assertRedirects(
             page,
@@ -313,8 +321,8 @@ class PhoneCreateFormTests(PhoneFormTests):
             reverse('phone_create', kwargs={'profile_pk': self.profile_one.pk}),
             user=self.profile_one.user,
         )
-        self.assertEqual(page.status_int, 200)
-        self.assertEqual(len(page.forms), 1)
+        self.assertEqual(page.status_code, 200)
+        self.assertIn('id_phone_create_form', page.forms)
         self.assertIs(type(page.context['form']), PhoneCreateForm)
 
     def test_form_submit(self):
@@ -322,14 +330,16 @@ class PhoneCreateFormTests(PhoneFormTests):
             reverse('phone_create', kwargs={'profile_pk': self.profile_two.pk}),
             user=self.profile_two.user,
         )
-        page.form['country'] = self.faker.random_element(elements=self.all_countries)
-        page.form['type'] = self.faker.random_element(elements=Phone.PhoneType.values)
-        number = PhoneFactory.number.evaluate(None, None, None)
-        page.form['number'] = number.as_international
-        page.form['comments'] = comment = (
+        form = page.forms['id_phone_create_form']
+        form['country'] = self.faker.random_element(elements=self.all_countries)
+        form['type'] = self.faker.random_element(elements=Phone.PhoneType.values)
+        number: PhoneNumber = PhoneFactory.number.evaluate(None, None, None)
+        form['number'] = number.as_international
+        comment: str
+        form['comments'] = comment = (
             LocaleFaker._get_faker(locale='th').text(max_nb_chars=250)
         )
-        page = page.form.submit()
+        page = form.submit()
         new_phone = Phone.all_objects.filter(profile=self.profile_two).order_by('-id').first()
         assert new_phone is not None
         self.assertRedirects(

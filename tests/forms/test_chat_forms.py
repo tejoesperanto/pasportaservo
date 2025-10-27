@@ -92,17 +92,18 @@ class WriteFormTests(AdditionalAsserts, WebTest):
     def test_view_page(self):
         page = self.app.get(reverse('postman:write'), user=self.sender)
         self.assertEqual(page.status_code, 200)
-        self.assertEqual(len(page.forms), 1)
+        self.assertIn('id_write_form', page.forms)
         self.assertIsInstance(page.context['form'], CustomWriteForm)
 
     def do_test_form_submit(self, recipient, deceased, lang, invalid_email=False):
         with override_settings(LANGUAGE_CODE=lang):
             page = self.app.get(reverse('postman:write'), user=self.sender, headers={'Referer': '/origin'})
-            page.form['recipients'] = recipient.username
-            page.form['body'] = self.faker.paragraphs()
-            page.form['subject'] = self.faker.sentence(nb_words=10)
+            form = page.forms['id_write_form']
+            form['recipients'] = recipient.username
+            form['body'] = self.faker.paragraphs()
+            form['subject'] = self.faker.sentence(nb_words=10)
             mail.outbox = []
-            page_result = page.form.submit()
+            page_result = form.submit()
 
             if deceased:
                 self.assertEqual(page_result.status_code, 200)
@@ -122,9 +123,9 @@ class WriteFormTests(AdditionalAsserts, WebTest):
                 else:
                     self.assertLength(mail.outbox, 1)
                     self.assertEqual(mail.outbox[0].to, [self.sender.email])
-                    self.assertEndsWith(mail.outbox[0].subject, page.form['subject'].value)
+                    self.assertEndsWith(mail.outbox[0].subject, form['subject'].value)
                     with override_settings(**settings.TEST_EMAIL_BACKENDS['dummy']):
-                        page_result = page.form.submit()
+                        page_result = form.submit()
                         self.assertEqual(page_result.status_code, 302)
                         self.assertLength(mail.outbox, 2)
                         self.assertEqual(
@@ -309,12 +310,13 @@ class ReplyFormTests(AdditionalAsserts, WebTest):
     def test_view_page(self):
         for view_name, form_class in (('postman:view', CustomQuickReplyForm),
                                       ('postman:reply', CustomReplyForm)):
-            page = self.app.get(
-                reverse(view_name, kwargs={'message_id': self.message.pk}),
-                user=self.sender)
-            self.assertEqual(page.status_code, 200)
-            self.assertEqual(len(page.forms), 1)
-            self.assertIsInstance(page.context['form'], form_class)
+            with self.subTest(view=view_name):
+                page = self.app.get(
+                    reverse(view_name, kwargs={'message_id': self.message.pk}),
+                    user=self.sender)
+                self.assertEqual(page.status_code, 200)
+                self.assertIn('form', page.context)
+                self.assertIsInstance(page.context['form'], form_class)
 
     def do_test_form_submit(self, orig_message, deceased, lang, invalid_email=False):
         test_views = [
@@ -329,9 +331,10 @@ class ReplyFormTests(AdditionalAsserts, WebTest):
                         reverse('postman:reply', kwargs={'message_id': reply_to_message_id}),
                         user=self.sender,
                         headers={'Referer': '/origin'})
-                    page.form['body'] = self.faker.paragraphs()
+                    form = page.forms['id_reply_form']
+                    form['body'] = self.faker.paragraphs()
                     mail.outbox = []
-                    page_result = page.form.submit()
+                    page_result = form.submit()
 
                     if deceased:
                         self.assertEqual(page_result.status_code, 200)
@@ -351,9 +354,9 @@ class ReplyFormTests(AdditionalAsserts, WebTest):
                         else:
                             self.assertLength(mail.outbox, 1)
                             self.assertEqual(mail.outbox[0].to, [orig_message.sender.email])
-                            self.assertEndsWith(mail.outbox[0].subject, page.form['subject'].value)
+                            self.assertEndsWith(mail.outbox[0].subject, form['subject'].value)
                             with override_settings(**settings.TEST_EMAIL_BACKENDS['dummy']):
-                                page_result = page.form.submit()
+                                page_result = form.submit()
                                 self.assertEqual(page_result.status_code, 302)
                                 self.assertLength(mail.outbox, 2)
                                 self.assertEqual(

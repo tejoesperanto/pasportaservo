@@ -119,6 +119,6 @@ class SearchFormTests(WebTest):
     def test_view_page(self):
         page = self.app.get(reverse('search'))
         self.assertEqual(page.status_code, 200)
-        self.assertGreater(len(page.forms), 0)
+        self.assertIn('searchform', page.forms)
         self.assertIn('filter', page.context)
         self.assertIsInstance(page.context['filter'].form, SearchForm)

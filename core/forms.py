@@ -25,14 +25,19 @@ from hosting.utils import value_without_invalid_marker
 from links.utils import create_unique_url
 
 from .auth import auth_log
-from .mixins import PasswordFormMixin, SystemEmailFormMixin, UsernameFormMixin
+from .mixins import (
+    HtmlIdFormMixin, PasswordFormMixin,
+    SystemEmailFormMixin, UsernameFormMixin,
+)
 from .models import FEEDBACK_TYPES, SiteConfiguration
 from .widgets import PasswordWithToggleInput
 
 User = get_user_model()
 
 
-class UserRegistrationForm(UsernameFormMixin, PasswordFormMixin, SystemEmailFormMixin, UserCreationForm):
+class UserRegistrationForm(
+        UsernameFormMixin, PasswordFormMixin, SystemEmailFormMixin,
+        HtmlIdFormMixin, UserCreationForm):
     # Honeypot:
     realm = forms.CharField(
         widget=forms.TextInput(attrs={'autocomplete': 'off'}),
@@ -106,7 +111,7 @@ class UserRegistrationForm(UsernameFormMixin, PasswordFormMixin, SystemEmailForm
     save.alters_data = True
 
 
-class UserAuthenticationForm(AuthenticationForm):
+class UserAuthenticationForm(HtmlIdFormMixin, AuthenticationForm):
     admin_inactive_user_notification = "User '{u.username}' tried to log in"
 
     def __init__(self, request=None, *args, **kwargs):
@@ -149,7 +154,7 @@ class UserAuthenticationForm(AuthenticationForm):
             ])
 
 
-class UsernameUpdateForm(UsernameFormMixin, forms.ModelForm):
+class UsernameUpdateForm(UsernameFormMixin, HtmlIdFormMixin, forms.ModelForm):
     class Meta:
         model = User
         fields = ['username']
@@ -164,7 +169,7 @@ class UsernameUpdateForm(UsernameFormMixin, forms.ModelForm):
     save.alters_data = True
 
 
-class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
+class EmailUpdateForm(SystemEmailFormMixin, HtmlIdFormMixin, forms.ModelForm):
     class Meta:
         model = User
         fields = ['email']
@@ -237,7 +242,7 @@ class EmailUpdateForm(SystemEmailFormMixin, forms.ModelForm):
     save.do_not_call_in_templates = True
 
 
-class EmailStaffUpdateForm(SystemEmailFormMixin, forms.ModelForm):
+class EmailStaffUpdateForm(SystemEmailFormMixin, HtmlIdFormMixin, forms.ModelForm):
     class Meta:
         model = User
         fields = ['email']
@@ -254,7 +259,7 @@ class EmailStaffUpdateForm(SystemEmailFormMixin, forms.ModelForm):
     save.alters_data = True
 
 
-class SystemPasswordResetRequestForm(PasswordResetForm):
+class SystemPasswordResetRequestForm(HtmlIdFormMixin, PasswordResetForm):
     admin_inactive_user_notification = "User '{u.username}' tried to reset the login password"
 
     def __init__(self, *args, **kwargs):
@@ -317,7 +322,7 @@ class SystemPasswordResetRequestForm(PasswordResetForm):
     save.do_not_call_in_templates = True
 
 
-class SystemPasswordResetForm(PasswordFormMixin, SetPasswordForm):
+class SystemPasswordResetForm(PasswordFormMixin, HtmlIdFormMixin, SetPasswordForm):
     analyze_password_field = 'new_password1'
 
     def __init__(self, *args, **kwargs):
@@ -337,7 +342,7 @@ class SystemPasswordResetForm(PasswordFormMixin, SetPasswordForm):
     save.alters_data = True
 
 
-class SystemPasswordChangeForm(PasswordFormMixin, PasswordChangeForm):
+class SystemPasswordChangeForm(PasswordFormMixin, HtmlIdFormMixin, PasswordChangeForm):
     analyze_password_field = 'new_password1'
 
     def __init__(self, *args, **kwargs):
