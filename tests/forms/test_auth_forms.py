@@ -297,17 +297,18 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
     def test_view_page(self):
         page = self.app.get(reverse('register'))
         self.assertEqual(page.status_code, 200)
-        self.assertEqual(len(page.forms), 1)
+        self.assertIn('id_user_registration_form', page.forms)
         self.assertIsInstance(page.context['form'], UserRegistrationForm)
 
     @patch('core.mixins.is_password_compromised')
     def test_form_submit(self, mock_pwd_check):
         page = self.app.get(reverse('register'))
-        page.form['username'] = uname = self.faker.user_name()
-        page.form['email'] = email = self.faker.email()
-        page.form['password1'] = page.form['password2'] = self.faker.password()
+        form = page.forms['id_user_registration_form']
+        form['username'] = uname = self.faker.user_name()
+        form['email'] = email = self.faker.email()
+        form['password1'] = page.form['password2'] = self.faker.password()
         mock_pwd_check.return_value = (False, 0)
-        page = page.form.submit()
+        page = form.submit()
         mock_pwd_check.assert_called_once()
         self.assertEqual(page.status_code, 302)
         self.assertRedirects(page, reverse('profile_create'), fetch_redirect_response=False)
@@ -445,23 +446,25 @@ class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
     def test_view_page(self):
         page = self.app.get(reverse('login'))
         self.assertEqual(page.status_code, 200)
-        self.assertEqual(len(page.forms), 1)
+        self.assertIn('id_user_authentication_form', page.forms)
         self.assertIsInstance(page.context['form'], UserAuthenticationForm)
 
     def test_form_submit_invalid_credentials(self):
         page = self.app.get(reverse('login'))
-        page.form['username'] = "SomeUser"
-        page.form['password'] = ".incorrect."
-        page = page.form.submit()
+        form = page.forms['id_user_authentication_form']
+        form['username'] = "SomeUser"
+        form['password'] = ".incorrect."
+        page = form.submit()
         self.assertEqual(page.status_code, 200)
-        self.assertEqual(len(page.forms), 1)
+        self.assertIn('id_user_authentication_form', page.forms)
         self.assertGreaterEqual(len(page.context['form'].errors), 1)
 
     def test_form_submit_valid_credentials(self):
         page = self.app.get(reverse('login'))
-        page.form['username'] = self.user.username
-        page.form['password'] = "adm1n"
-        page = page.form.submit()
+        form = page.forms['id_user_authentication_form']
+        form['username'] = self.user.username
+        form['password'] = "adm1n"
+        page = form.submit()
         self.assertEqual(page.status_code, 302)
         self.assertRedirects(page, '/')
 
@@ -617,13 +620,14 @@ class UsernameUpdateFormTests(AdditionalAsserts, WebTest):
     def test_view_page(self):
         page = self.app.get(reverse('username_change'), user=self.user)
         self.assertEqual(page.status_code, 200)
-        self.assertEqual(len(page.forms), 1)
+        self.assertIn('id_username_update_form', page.forms)
         self.assertIsInstance(page.context['form'], UsernameUpdateForm)
 
     def test_form_submit(self):
         page = self.app.get(reverse('username_change'), user=self.user)
-        page.form['username'] = new_username = _snake_str(self.user.username)
-        page = page.form.submit()
+        form = page.forms['id_username_update_form']
+        form['username'] = new_username = _snake_str(self.user.username)
+        page = form.submit()
         self.user.refresh_from_db()
         self.assertRedirects(
             page,
@@ -883,7 +887,7 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
     def test_view_page(self):
         page = self.app.get(reverse('email_update'), user=self.user)
         self.assertEqual(page.status_code, 200)
-        self.assertEqual(len(page.forms), 1)
+        self.assertIn('id_email_update_form', page.forms)
         self.assertIsInstance(page.context['form'], EmailUpdateForm)
 
     @override_settings(EMAIL_SUBJECT_PREFIX_FULL="TEST ")
@@ -899,8 +903,9 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
 
         def submit_form_and_assert():
             page = self.app.get(reverse('email_update'), user=obj)
-            page.form['email'] = new_email
-            page = page.form.submit()
+            form = page.forms['id_email_update_form']
+            form['email'] = new_email
+            page = form.submit()
             obj.refresh_from_db()
             if not mailing_fail:
                 self.assertRedirects(
@@ -1005,7 +1010,7 @@ class EmailStaffUpdateFormTests(EmailUpdateFormTests):
                 'pk': self.user.profile.pk, 'slug': self.user.profile.autoslug}),
             user=self.supervisor)
         self.assertEqual(page.status_code, 200)
-        self.assertEqual(len(page.forms), 1)
+        self.assertIn('id_email_staff_update_form', page.forms)
         self.assertIsInstance(page.context['form'], EmailStaffUpdateForm)
 
     def form_submission_tests(self, *, lang, obj=None, mailing_fail=False):
@@ -1015,8 +1020,9 @@ class EmailStaffUpdateFormTests(EmailUpdateFormTests):
             reverse('staff_email_update', kwargs={
                 'pk': obj.profile.pk, 'slug': obj.profile.autoslug}),
             user=self.supervisor)
-        page.form['email'] = new_email
-        page = page.form.submit()
+        form = page.forms['id_email_staff_update_form']
+        form['email'] = new_email
+        page = form.submit()
         obj.refresh_from_db()
         self.assertRedirects(
             page,
@@ -1029,6 +1035,10 @@ class EmailStaffUpdateFormTests(EmailUpdateFormTests):
 
 @tag('forms', 'forms-auth', 'auth')
 class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
+    form_class = SystemPasswordResetRequestForm
+    form_id = 'id_system_password_reset_request_form'
+    related_view = PasswordResetView
+
     @classmethod
     def setUpTestData(cls):
         cls.active_user = UserFactory.create()
@@ -1038,15 +1048,8 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
         cls.view_page_url = reverse('password_reset')
         cls.view_page_success_url = reverse('password_reset_done')
 
-    def _init_form(self, data=None):
-        return SystemPasswordResetRequestForm(data=data)
-
-    @property
-    def _related_view(self):
-        return PasswordResetView
-
     def test_init(self):
-        form = self._init_form()
+        form = self.form_class()
         # Verify that the expected fields are part of the form.
         self.assertEqual(['email'], list(form.fields))
         # Verify that the `email` field will be auto-focused on load.
@@ -1060,7 +1063,7 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
 
     def test_blank_data(self):
         # Empty form is expected to be invalid.
-        form = self._init_form(data={})
+        form = self.form_class(data={})
         self.assertFalse(form.is_valid())
         with override_settings(LANGUAGE_CODE='en'):
             self.assertEqual(form.errors, {'email': ["This field is required."]})
@@ -1074,7 +1077,7 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
         with self.settings(PASSWORD_HASHERS=[
                 'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher']):
             active_md5_user2 = UserFactory.create(invalid_email=True)
-        form = self._init_form()
+        form = self.form_class()
 
         # All types of users with useable passwords are expected to be returned.
         for user, expected_empty in [(self.active_user, True),
@@ -1182,12 +1185,12 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                     with self.subTest(tag=user_tag, lang=lang):
                         # No warnings are expected on the auth log.
                         with self.assertNoLogs('PasportaServo.auth', level='WARNING'):
-                            form = self._init_form({'email': user._clean_email})
+                            form = self.form_class({'email': user._clean_email})
                             self.assertTrue(form.is_valid())
                             form.save(
-                                subject_template_name=self._related_view.subject_template_name,
-                                email_template_name=self._related_view.email_template_name,
-                                html_email_template_name=self._related_view.html_email_template_name,
+                                subject_template_name=self.related_view.subject_template_name,
+                                email_template_name=self.related_view.email_template_name,
+                                html_email_template_name=self.related_view.html_email_template_name,
                             )
                         # The email message is expected to describe the password reset procedure.
                         title, expected_content, not_expected_content = self._get_email_content(True, lang)
@@ -1204,9 +1207,9 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                         # subject and ESP parameters are the expected ones.
                         with override_settings(**settings.TEST_EMAIL_BACKENDS['dummy']):
                             form.save(
-                                subject_template_name=self._related_view.subject_template_name,
-                                email_template_name=self._related_view.email_template_name,
-                                html_email_template_name=self._related_view.html_email_template_name,
+                                subject_template_name=self.related_view.subject_template_name,
+                                email_template_name=self.related_view.email_template_name,
+                                html_email_template_name=self.related_view.html_email_template_name,
                             )
                         self.assertLength(mail.outbox, 2)
                         self.assertEqual(mail.outbox[1].subject, title)
@@ -1232,12 +1235,12 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                         #       the logger, resulting in no emails being dispatched to the
                         #       admins, if configured.
                         with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
-                            form = self._init_form({'email': user._clean_email})
+                            form = self.form_class({'email': user._clean_email})
                             self.assertTrue(form.is_valid())
                             form.save(
-                                subject_template_name=self._related_view.subject_template_name,
-                                email_template_name=self._related_view.email_template_name,
-                                html_email_template_name=self._related_view.html_email_template_name,
+                                subject_template_name=self.related_view.subject_template_name,
+                                email_template_name=self.related_view.email_template_name,
+                                html_email_template_name=self.related_view.html_email_template_name,
                             )
                         self.assertLength(log.records, 1)
                         self.assertStartsWith(
@@ -1268,9 +1271,9 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                         with override_settings(**settings.TEST_EMAIL_BACKENDS['dummy']):
                             with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
                                 form.save(
-                                    subject_template_name=self._related_view.subject_template_name,
-                                    email_template_name=self._related_view.email_template_name,
-                                    html_email_template_name=self._related_view.html_email_template_name,
+                                    subject_template_name=self.related_view.subject_template_name,
+                                    email_template_name=self.related_view.email_template_name,
+                                    html_email_template_name=self.related_view.html_email_template_name,
                                 )
                         self.assertLength(mail.outbox, 2)
                         self.assertEqual(mail.outbox[1].subject, title)
@@ -1295,12 +1298,12 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                     self.subTest(tag=user_tag, lang=lang)
                 ):
                     with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
-                        form = self._init_form({'email': user._clean_email})
+                        form = self.form_class({'email': user._clean_email})
                         self.assertTrue(form.is_valid())
                         form.save(
-                            subject_template_name=self._related_view.subject_template_name,
-                            email_template_name=self._related_view.email_template_name,
-                            html_email_template_name=self._related_view.html_email_template_name,
+                            subject_template_name=self.related_view.subject_template_name,
+                            email_template_name=self.related_view.email_template_name,
+                            html_email_template_name=self.related_view.html_email_template_name,
                         )
                     self.assertLength(log.records, 2 if user_tag.startswith("inactive") else 1)
                     self.assertStartsWith(
@@ -1310,8 +1313,8 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
     def test_view_page(self):
         page = self.app.get(self.view_page_url)
         self.assertEqual(page.status_code, 200)
-        self.assertEqual(len(page.forms), 1)
-        self.assertIsInstance(page.context['form'], self._init_form().__class__)
+        self.assertIn(self.form_id, page.forms)
+        self.assertIsInstance(page.context['form'], self.form_class)
 
     def test_form_submit(self):
         for user in [self.active_user,
@@ -1320,25 +1323,23 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                      self.inactive_invalid_email_user]:
             with self.subTest(email=user.email, active=user.is_active):
                 page = self.app.get(self.view_page_url)
-                page.form['email'] = user.email
-                page = page.form.submit()
+                form = page.forms[self.form_id]
+                form['email'] = user.email
+                page = form.submit()
                 self.assertEqual(page.status_code, 302)
                 self.assertRedirects(page, self.view_page_success_url)
 
 
 class UsernameRemindRequestFormTests(SystemPasswordResetRequestFormTests):
+    form_class = UsernameRemindRequestForm
+    form_id = 'id_username_remind_request_form'
+    related_view = UsernameRemindView
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         cls.view_page_url = reverse('username_remind')
         cls.view_page_success_url = reverse('username_remind_done')
-
-    def _init_form(self, data=None):
-        return UsernameRemindRequestForm(data=data)
-
-    @property
-    def _related_view(self):
-        return UsernameRemindView
 
     def _get_admin_message_account_inactive(self, user: 'PasportaServoFactoryUser') -> str:
         return (
@@ -1499,7 +1500,7 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
                     'token': PasswordResetConfirmView.reset_url_token})
             )
         self.assertEqual(page.status_code, 200, msg=repr(page))
-        self.assertEqual(len(page.forms), 1)
+        self.assertIn('id_system_password_reset_form', page.forms)
         self.assertIsInstance(page.context['form'], SystemPasswordResetForm)
 
     def test_view_page_localised(self):
@@ -1515,7 +1516,8 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
                 'uidb64': user_id if isinstance(user_id, str) else user_id.decode(),
                 'token': PasswordResetConfirmView.reset_url_token}),
             user=self.user)
-        page.form['new_password1'] = page.form['new_password2'] = (
+        form = page.forms['id_system_password_reset_form']
+        form['new_password1'] = form['new_password2'] = (
             Faker._get_faker().password()
         )
         session = self.app.session
@@ -1524,7 +1526,7 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
         mock_pwd_check.return_value = (False, 0)  # Treat password as a strong one.
         self.assertEqual(self.user.email, self.user.profile.email)
         self.assertStartsWith(self.user.email, settings.INVALID_PREFIX)
-        page = page.form.submit()
+        page = form.submit()
         mock_pwd_check.assert_called_once()
         self.assertEqual(page.status_code, 302, msg=repr(page))
         self.assertRedirects(page, reverse('password_reset_complete'))
@@ -1551,17 +1553,18 @@ class SystemPasswordChangeFormTests(SystemPasswordResetFormTests):
         with override_settings(LANGUAGE_CODE=lang):
             page = self.app.get(reverse('password_change'), user=self.user)
         self.assertEqual(page.status_code, 200, msg=repr(page))
-        self.assertEqual(len(page.forms), 1)
+        self.assertIn('id_system_password_change_form', page.forms)
         self.assertIsInstance(page.context['form'], SystemPasswordChangeForm)
 
     @patch('core.mixins.is_password_compromised')
     def test_form_submit(self, mock_pwd_check):
         page = self.app.get(reverse('password_change'), user=self.user)
-        page.form['old_password'] = "adm1n"
-        page.form['new_password1'] = "Strong & Courageous"
-        page.form['new_password2'] = "Strong & Courageous"
+        form = page.forms['id_system_password_change_form']
+        form['old_password'] = "adm1n"
+        form['new_password1'] = "Strong & Courageous"
+        form['new_password2'] = "Strong & Courageous"
         mock_pwd_check.return_value = (False, 0)  # Treat password as a strong one.
-        page = page.form.submit()
+        page = form.submit()
         mock_pwd_check.assert_called_once()
         self.assertEqual(page.status_code, 302, msg=repr(page))
         self.assertRedirects(page, reverse('password_change_done'))

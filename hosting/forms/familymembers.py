@@ -1,12 +1,14 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
+from core.mixins import HtmlIdFormMixin
+
 from ..models import Place, Profile
 from ..validators import client_side_validated
 
 
 @client_side_validated
-class FamilyMemberForm(forms.ModelForm):
+class FamilyMemberForm(HtmlIdFormMixin, forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['title', 'first_name', 'last_name', 'names_inversed', 'birth_date']

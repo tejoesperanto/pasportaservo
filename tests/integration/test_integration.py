@@ -1,4 +1,5 @@
 from random import randint
+from typing import Optional
 from unittest import skipUnless
 
 from django.conf import settings
@@ -15,7 +16,9 @@ from anymail.message import AnymailMessage
 from django_webtest import WebTest
 
 from core.auth import AuthMixin, AuthRole
-from hosting.models import Preferences, VisibilitySettings
+from hosting.models import (
+    PasportaServoUser, Preferences, TrackingModel, VisibilitySettings,
+)
 
 from ..assertions import AdditionalAsserts
 from ..factories import (
@@ -238,22 +241,28 @@ class CheckStatusTests(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.country_group = Group.objects.get_or_create(name='NL')[0]
-        cls.admin = AdminUserFactory(profile=None)
-        cls.supervisor = UserFactory(profile=None)
+        cls.admin = AdminUserFactory.create(profile=None)
+        cls.supervisor = UserFactory.create(profile=None)
         cls.country_group.user_set.add(cls.supervisor)
 
-        cls.profile = ProfileFactory(locale='fi')
-        cls.place = PlaceFactory(
+        cls.profile = ProfileFactory.create(locale='fi')
+        cls.place = PlaceFactory.create(
             country='NL', closest_city='Enschede',
             owner=cls.profile)
 
     def object_update_tests(
-            self, object, page_url, privileged_user, owner_user=None, partial_update=False):
+            self,
+            object: TrackingModel, page_url: str, form_id: str,
+            privileged_user: PasportaServoUser,
+            owner_user: Optional[PasportaServoUser] = None,
+            partial_update: bool = False,
+    ):
         # Update of an object (profile, place, phone) by an
         # administrator or supervisor is expected to mark it
         # as checked.
         page = self.app.get(page_url, user=privileged_user)
-        response = page.form.submit()
+        self.assertIn(form_id, page.forms)
+        response = page.forms[form_id].submit()
         self.assertEqual(response.status_code, 302, msg=response)
         object.refresh_from_db()
         if not partial_update:
@@ -269,7 +278,8 @@ class CheckStatusTests(WebTest):
         if not owner_user:
             owner_user = object.owner.user
         page = self.app.get(page_url, user=owner_user)
-        response = page.form.submit()
+        self.assertIn(form_id, page.forms)
+        response = page.forms[form_id].submit()
         self.assertEqual(response.status_code, 302, msg=response)
         object.refresh_from_db()
         self.assertIsNone(object.checked_on)
@@ -282,14 +292,18 @@ class CheckStatusTests(WebTest):
 
         self.assertIsNone(self.profile.checked_on)
         self.assertIsNone(self.profile.checked_by)
-        self.object_update_tests(self.profile, profile_form_url, self.admin)
+        self.object_update_tests(
+            self.profile, profile_form_url, 'id_profile_form', self.admin,
+        )
 
     def test_place_update(self):
         place_form_url = reverse('place_update', kwargs={'pk': self.place.pk})
 
         self.assertIsNone(self.place.checked_on)
         self.assertIsNone(self.place.checked_by)
-        self.object_update_tests(self.place, place_form_url, self.supervisor)
+        self.object_update_tests(
+            self.place, place_form_url, 'id_place_form', self.supervisor,
+        )
 
     def test_place_location_update(self):
         place_location_form_url = reverse(
@@ -299,11 +313,12 @@ class CheckStatusTests(WebTest):
         self.assertIsNone(self.place.checked_on)
         self.assertIsNone(self.place.checked_by)
         self.object_update_tests(
-            self.place, place_location_form_url, self.supervisor,
-            partial_update=True)
+            self.place, place_location_form_url, 'id_place_location_form',
+            self.supervisor, partial_update=True,
+        )
 
     def test_family_member_update(self):
-        family_member = ProfileSansAccountFactory(locale='et')
+        family_member = ProfileSansAccountFactory.create(locale='et')
         self.place.family_members.add(family_member)
         family_member_form_url = reverse(
             'family_member_update',
@@ -312,18 +327,21 @@ class CheckStatusTests(WebTest):
         self.assertIsNone(family_member.checked_on)
         self.assertIsNone(family_member.checked_by)
         self.object_update_tests(
-            family_member, family_member_form_url, self.supervisor,
-            owner_user=self.place.owner.user)
+            family_member, family_member_form_url, 'id_family_member_form',
+            self.supervisor, owner_user=self.place.owner.user,
+        )
 
     def test_phone_update(self):
-        phone = PhoneFactory(profile=self.profile)
+        phone = PhoneFactory.create(profile=self.profile)
         phone_form_url = reverse(
             'phone_update',
             kwargs={'pk': phone.pk, 'profile_pk': self.profile.pk})
 
         self.assertIsNone(phone.checked_on)
         self.assertIsNone(phone.checked_by)
-        self.object_update_tests(phone, phone_form_url, self.admin)
+        self.object_update_tests(
+            phone, phone_form_url, 'id_phone_form', self.admin,
+        )
 
 
 @tag('integration', 'auth')

@@ -128,14 +128,14 @@ class HeroViewTemplateTestsMixin(with_type_hint(BasicViewTests)):
                     link_elements = page.get_header_links()
                     admin_element = page.get_nav_element('admin')
                     if self.users[user_tag].is_superuser and self.users[user_tag].is_staff:
-                        self.assertLength(link_elements, 5)
+                        self.assertLength(link_elements, 4)
                         self.assertEqual(admin_element.text(), expected_admin_text[lang])
                         self.assertEqual(
                             admin_element.find("a").attr("href"),
                             reverse('admin:index')
                         )
                     else:
-                        self.assertLength(link_elements, 4)
+                        self.assertLength(link_elements, 3)
                         self.assertLength(admin_element, 0)
 
 

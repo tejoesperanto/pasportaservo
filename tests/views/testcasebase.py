@@ -236,16 +236,23 @@ class BasicViewTests(AdditionalAsserts, WebTest):
                             # Verify that the navigation element links to the expected
                             # page (parametrization, such as the profile ID, is ignored
                             # at this point).
-                            element_href = element.find("a").attr("href")
+                            if nav_part == 'session':
+                                element_target = element.find("form").attr("action")
+                                self.assertEqual(
+                                    (element.find("form").attr("method") or "").upper(),
+                                    "POST"
+                                )
+                            else:
+                                element_target = element.find("a").attr("href")
                             expected_url = test_data[lang][nav_part]['url']
                             if isinstance(expected_url, dict):
                                 expected_url = expected_url[user_has_profile]
                             if '...' in expected_url:
                                 expected_url_prefix, expected_url_suffix = expected_url.split('...')
-                                self.assertStartsWith(element_href, expected_url_prefix)
-                                self.assertEndsWith(element_href, expected_url_suffix)
+                                self.assertStartsWith(element_target, expected_url_prefix)
+                                self.assertEndsWith(element_target, expected_url_suffix)
                             else:
-                                self.assertEqual(element_href, expected_url)
+                                self.assertEqual(element_target, expected_url)
 
                     # Verify that the profile navigation element displays the
                     # user's avatar and links to the user's public profile

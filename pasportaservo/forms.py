@@ -40,16 +40,16 @@ class ChatMessageReplyMixin(object):
 
 
 class CustomWriteForm(ChatMessageMixin, WriteForm):
-    pass
+    html_id = 'id_write_form'
 
 
 class CustomAnonymousWriteForm(ChatMessageMixin, AnonymousWriteForm):
-    pass
+    html_id = 'id_write_form'
 
 
 class CustomReplyForm(ChatMessageMixin, ChatMessageReplyMixin, FullReplyForm):
-    pass
+    html_id = 'id_reply_form'
 
 
 class CustomQuickReplyForm(ChatMessageMixin, ChatMessageReplyMixin, QuickReplyForm):
-    pass
+    html_id = 'id_reply_form'

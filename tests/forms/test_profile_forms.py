@@ -1,6 +1,6 @@
 from datetime import date, timedelta
-from typing import Any, NamedTuple, Optional
-from unittest.mock import patch
+from typing import TYPE_CHECKING, Any, NamedTuple, Optional, cast
+from unittest.mock import MagicMock, patch
 
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.core.files.uploadedfile import SimpleUploadedFile, UploadedFile
@@ -19,6 +19,9 @@ from hosting.forms.profiles import (
 )
 from hosting.models import PasportaServoUser, Profile
 from hosting.widgets import ClearableWithPreviewImageInput
+
+if TYPE_CHECKING:
+    from hosting.models import FullProfile
 
 from .. import with_type_hint
 from ..assertions import AdditionalAsserts
@@ -427,7 +430,7 @@ class ProfileFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
     def test_valid_data_for_simple_profile(self):
         form = self._init_form({}, instance=self.profile_with_no_places.obj, save=True)
         self.assertTrue(form.is_valid())
-        profile = form.save(commit=False)
+        profile: Profile = form.save(commit=False)
         if type(form) is ProfileForm:
             self.assertIs(profile, self.profile_with_no_places.obj)
         elif type(form) is ProfileCreateForm:
@@ -445,7 +448,7 @@ class ProfileFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
 
     @override_settings(MEDIA_ROOT='tests/assets/')
     @patch('django.core.files.storage.FileSystemStorage.save', return_value='a2529045.jpg')
-    def test_valid_data(self, profile, profile_tag, mock_storage_save):
+    def test_valid_data(self, profile, profile_tag, mock_storage_save: MagicMock):
         fr_faker = LocaleFaker._get_faker(locale='fr')
         es_faker = LocaleFaker._get_faker(locale='es')
         for dataset_type in ("full", "partial"):
@@ -479,7 +482,7 @@ class ProfileFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
                     instance=profile,
                     save=True)
                 self.assertTrue(form.is_valid())
-                saved_profile = form.save()
+                saved_profile: Profile = form.save()
                 if type(form) is ProfileForm:
                     self.assertIs(saved_profile, profile)
                 elif type(form) is ProfileCreateForm:
@@ -782,7 +785,7 @@ class ProfileFormTests(ProfileFormTestingBase, WebTest):
             user=self.profile_with_no_places.obj.user,
         )
         self.assertEqual(page.status_code, 200)
-        self.assertEqual(len(page.forms), 1)
+        self.assertIn('id_profile_form', page.forms)
         self.assertIsInstance(page.context['form'], ProfileForm)
 
     def test_form_submit(self):
@@ -792,9 +795,10 @@ class ProfileFormTests(ProfileFormTestingBase, WebTest):
                 'slug': self.profile_with_no_places.obj.autoslug}),
             user=self.profile_with_no_places.obj.user,
         )
-        page.form['first_name'] = LocaleFaker._get_faker(locale='hu').first_name()
-        page.form['last_name'] = LocaleFaker._get_faker(locale='cs').last_name()
-        page = page.form.submit()
+        form = page.forms['id_profile_form']
+        form['first_name'] = LocaleFaker._get_faker(locale='hu').first_name()
+        form['last_name'] = LocaleFaker._get_faker(locale='cs').last_name()
+        page = form.submit()
         self.profile_with_no_places.obj.refresh_from_db()
         self.assertRedirects(
             page,
@@ -835,15 +839,16 @@ class ProfileCreateFormTests(ProfileFormTestingBase, WebTest):
     def test_view_page(self):
         page = self.app.get(reverse('profile_create'), user=UserFactory(profile=None))
         self.assertEqual(page.status_code, 200)
-        self.assertEqual(len(page.forms), 1)
+        self.assertIn('id_profile_create_form', page.forms)
         self.assertIsInstance(page.context['form'], ProfileCreateForm)
 
     def test_form_submit(self):
-        user = UserFactory(profile=None)
+        user = UserFactory.create(profile=None)
         page = self.app.get(reverse('profile_create'), user=user)
-        page.form['first_name'] = LocaleFaker._get_faker(locale='hu').first_name()
-        page.form['last_name'] = LocaleFaker._get_faker(locale='cs').last_name()
-        page = page.form.submit()
+        form = page.forms['id_profile_create_form']
+        form['first_name'] = LocaleFaker._get_faker(locale='hu').first_name()
+        form['last_name'] = LocaleFaker._get_faker(locale='cs').last_name()
+        page = form.submit()
         user.refresh_from_db()
         self.assertRedirects(
             page,
@@ -860,9 +865,11 @@ class ProfileEmailUpdateFormTests(EmailUpdateFormTests):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = ProfileFactory(with_email=True)
+        cls.user = cast('FullProfile', ProfileFactory.create(with_email=True))
         cls.user.username = cls.user.user.username
-        cls.invalid_email_user = ProfileFactory(with_email=True, invalid_email=True)
+        cls.invalid_email_user = (
+            cast('FullProfile', ProfileFactory.create(with_email=True, invalid_email=True))
+        )
         cls.invalid_email_user.username = cls.invalid_email_user.user.username
 
     def _init_form(self, data=None, instance=None):
@@ -896,7 +903,7 @@ class ProfileEmailUpdateFormTests(EmailUpdateFormTests):
             user=self.invalid_email_user.user,
         )
         self.assertEqual(page.status_code, 200)
-        self.assertEqual(len(page.forms), 1)
+        self.assertIn('id_profile_email_update_form', page.forms)
         self.assertIsInstance(page.context['form'], ProfileEmailUpdateForm)
 
     def form_submission_tests(self, *, lang, obj=None, mailing_fail=False):
@@ -908,8 +915,9 @@ class ProfileEmailUpdateFormTests(EmailUpdateFormTests):
                     'slug': self.user.autoslug}),
                 user=self.user.user,
             )
-            page.form['email'] = new_email
-            page = page.form.submit()
+            form = page.forms['id_profile_email_update_form']
+            form['email'] = new_email
+            page = form.submit()
             self.user.refresh_from_db()
             self.assertRedirects(
                 page,
@@ -952,7 +960,6 @@ class PreferenceOptinsFormTests(WebTest):
             user=user.user,
         )
         self.assertEqual(page.status_code, 200)
-        self.assertGreaterEqual(len(page.forms), 1)
         self.assertIn('optinouts_form', page.context)
         self.assertIsInstance(page.context['optinouts_form'], PreferenceOptinsForm)
 

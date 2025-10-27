@@ -8,6 +8,8 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field
 from phonenumber_field.phonenumber import PhoneNumber
 
+from core.mixins import HtmlIdFormMixin
+
 from ..models import Phone
 from ..validators import client_side_validated
 
@@ -16,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @client_side_validated
-class PhoneForm(forms.ModelForm):
+class PhoneForm(HtmlIdFormMixin, forms.ModelForm):
     class Meta:
         model = Phone
         fields = ['number', 'type', 'country', 'comments']

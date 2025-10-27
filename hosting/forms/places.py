@@ -22,6 +22,7 @@ from crispy_forms.layout import Div, Field
 from django_countries.fields import Country
 
 from core.auth import AuthRole
+from core.mixins import HtmlIdFormMixin
 from core.models import SiteConfiguration
 from core.utils import join_lazy, sort_by
 from hosting.widgets import FormDivider
@@ -41,7 +42,7 @@ from ..validators import TooNearPastValidator
 User = get_user_model()
 
 
-class PlaceForm(forms.ModelForm):
+class PlaceForm(HtmlIdFormMixin, forms.ModelForm):
     class Meta:
         model = Place
         fields = [
@@ -429,7 +430,7 @@ class SubregionForm(forms.Form):
         self.fields[field].widget.attrs['data-search-threshold'] = 6
 
 
-class PlaceLocationForm(forms.ModelForm):
+class PlaceLocationForm(HtmlIdFormMixin, forms.ModelForm):
     class Meta:
         model = Place
         fields = ['location']
@@ -532,7 +533,7 @@ class PlaceLocationForm(forms.ModelForm):
     save.alters_data = True
 
 
-class PlaceBlockForm(forms.ModelForm):
+class PlaceBlockForm(HtmlIdFormMixin, forms.ModelForm):
     class Meta:
         model = Place
         fields = ['blocked_from', 'blocked_until']

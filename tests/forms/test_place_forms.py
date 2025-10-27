@@ -1,8 +1,8 @@
 from collections import namedtuple
 from datetime import date, datetime
 from itertools import chain, islice
-from typing import ClassVar, cast
-from unittest.mock import patch
+from typing import TYPE_CHECKING, ClassVar, Optional
+from unittest.mock import MagicMock, patch
 
 from django.contrib.gis.geos import Point as GeoPoint
 from django.core.exceptions import NON_FIELD_ERRORS
@@ -28,6 +28,10 @@ from hosting.models import (
     Condition, CountryRegion, LocationConfidence,
     LocationType, Place, Whereabouts,
 )
+
+if TYPE_CHECKING:
+    from hosting.models import FullProfile
+
 from maps import SRID
 from maps.widgets import MapboxGlWidget
 
@@ -41,6 +45,7 @@ from ..factories import (
 
 class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
     form_class: ClassVar[type[PlaceForm]]
+    form_id: ClassVar[str]
 
     @classmethod
     def setUpClass(cls):
@@ -116,8 +121,8 @@ class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
             'postcode',
         ]
 
-        cls.simple_place = PlaceFactory(available=False)
-        cls.complete_place = PlaceFactory(
+        cls.simple_place = PlaceFactory.create(available=False)
+        cls.complete_place = PlaceFactory.create(
             country=cls.faker.random_element(elements=cls.countries_no_predefined_region),
             available=False, tour_guide=False, have_a_drink=False,
             state_province=cls.faker.county(), postcode=True,
@@ -128,12 +133,16 @@ class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
     DummyLocation = namedtuple('Location', 'point')
     DummyLocationWithConfidence = namedtuple('Location', 'point, confidence')
 
-    def _init_form(self, data=None, instance=None, owner=None):
+    def _init_form(
+            self,
+            data: Optional[dict] = None, instance: Optional[Place] = None,
+            owner: Optional['FullProfile'] = None,
+    ) -> PlaceForm:
         # `instance` should be used for the PlaceForm (modification of an existing place),
         # while `owner` should be used for the PlaceCreateForm (addition of a new place).
         raise NotImplementedError
 
-    def _init_empty_form(self, data=None):
+    def _init_empty_form(self, data: Optional[dict] = None) -> PlaceForm:
         raise NotImplementedError
 
     def _get_view_page(self) -> WebTest.app_class.RequestClass:
@@ -719,7 +728,7 @@ class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
 
     @patch('hosting.forms.places.geocode')
     @patch('hosting.forms.places.geocode_city')
-    def test_save_change_location_data(self, mock_geocode_city, mock_geocode):
+    def test_save_change_location_data(self, mock_geocode_city: MagicMock, mock_geocode: MagicMock):
         form = self._init_form(instance=self.complete_place, owner=self.complete_place.profile)  # = GET
         form_data = form.initial.copy()
         if 'country' not in form_data:
@@ -768,7 +777,7 @@ class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
 
                         mock_geocode.return_value = None
                         mock_geocode.side_effect = side_effect
-                        place = form.save(commit=False)
+                        place: Place = form.save(commit=False)
                         # The number of geocoded cities is expected to remain the same,
                         # since we simulate a failure to geocode the given city.
                         self.assertEqual(Whereabouts.objects.count(), number_coded_cities)
@@ -781,7 +790,7 @@ class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
 
     @patch('hosting.forms.places.geocode')
     @patch('hosting.forms.places.geocode_city')
-    def test_save_change_location_data_and_address(self, mock_geocode_city, mock_geocode):
+    def test_save_change_location_data_and_address(self, mock_geocode_city: MagicMock, mock_geocode: MagicMock):
         form = self._init_form(instance=self.complete_place, owner=self.complete_place.profile)  # = GET
         form_data = form.initial.copy()
         if 'country' not in form_data:
@@ -844,7 +853,7 @@ class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
 
                         mock_geocode.return_value = None
                         mock_geocode.side_effect = side_effect
-                        place = form.save(commit=False)
+                        place: Place = form.save(commit=False)
                         # The number of geocoded cities is expected to remain the same,
                         # since we simulate a failure to geocode the given city.
                         self.assertEqual(Whereabouts.objects.count(), number_coded_cities)
@@ -858,7 +867,7 @@ class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
     @tag('subregions')
     @patch('hosting.forms.places.geocode')
     @patch('hosting.forms.places.geocode_city')
-    def test_save_geocode_existing_city(self, mock_geocode_city, mock_geocode):
+    def test_save_geocode_existing_city(self, mock_geocode_city: MagicMock, mock_geocode: MagicMock):
         # We don't care about geocoding the address of the place.
         mock_geocode.return_value = None
         # But we do care whether the geocoding of the city is done or not.
@@ -872,7 +881,7 @@ class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
             else:
                 countries = self.countries_no_predefined_region
             country = self.faker.random_element(elements=countries)
-            whereabouts = WhereaboutsFactory(type=LocationType.CITY, country=country)
+            whereabouts = WhereaboutsFactory.create(type=LocationType.CITY, country=country)
             number_coded_cities = Whereabouts.objects.count()
 
             form = self._init_form(instance=self.simple_place, owner=self.complete_place.profile)
@@ -899,7 +908,7 @@ class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
     @tag('subregions')
     @patch('hosting.forms.places.geocode')
     @patch('hosting.forms.places.geocode_city')
-    def test_save_geocode_new_city(self, mock_geocode_city, mock_geocode):
+    def test_save_geocode_new_city(self, mock_geocode_city: MagicMock, mock_geocode: MagicMock):
         # We don't care about geocoding the address of the place.
         mock_geocode.return_value = None
         number_coded_cities = Whereabouts.objects.count()
@@ -954,7 +963,7 @@ class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
 
     @patch('hosting.forms.places.geocode')
     @patch('hosting.forms.places.geocode_city')
-    def test_save_conditions(self, mock_geocode_city, mock_geocode):
+    def test_save_conditions(self, mock_geocode_city: MagicMock, mock_geocode: MagicMock):
         mock_geocode.return_value = None
         mock_geocode_city.return_value = None
 
@@ -1028,23 +1037,24 @@ class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
     def test_view_page(self):
         page = self._get_view_page()
         self.assertEqual(page.status_code, 200)
-        self.assertEqual(len(page.forms), 1)
+        self.assertIn(self.form_id, page.forms)
         self.assertIsInstance(page.context['form'], self.form_class)
 
     def _init_page_form_for_submission(self, page, modify_fields, test_data=None):
         data = test_data or {}
         faker = Faker._get_faker(locale='zh')
+        form = page.forms[self.form_id]
         for field_name in modify_fields:
-            page.form[field_name] = data[field_name] = self._fake_value(
+            form[field_name] = data[field_name] = self._fake_value(
                 field_name, country=data.get('country'), faker=faker)
         return data
 
-    def _get_altered_place(self):
+    def _get_altered_place(self) -> Place:
         raise NotImplementedError
 
     @patch('hosting.forms.places.geocode')
     @patch('hosting.forms.places.geocode_city')
-    def test_form_submit_non_location_data(self, mock_geocode_city, mock_geocode):
+    def test_form_submit_non_location_data(self, mock_geocode_city: MagicMock, mock_geocode: MagicMock):
         mock_geocode.return_value = None
         mock_geocode_city.return_value = None
 
@@ -1053,7 +1063,7 @@ class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
         page = self._get_view_page()
         modify_fields = ['short_description', 'sporadic_presence', 'conditions']
         data = self._init_page_form_for_submission(page, modify_fields)
-        page = page.form.submit()
+        page = page.forms[self.form_id].submit()
         altered_place = self._get_altered_place()
         self.assertRedirects(
             page,
@@ -1073,7 +1083,7 @@ class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
 
     @patch('hosting.forms.places.geocode')
     @patch('hosting.forms.places.geocode_city')
-    def test_form_submit_location_data(self, mock_geocode_city, mock_geocode):
+    def test_form_submit_location_data(self, mock_geocode_city: MagicMock, mock_geocode: MagicMock):
         mock_geocode.return_value = None
         mock_geocode_city.return_value = None
 
@@ -1082,7 +1092,7 @@ class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
         page = self._get_view_page()
         modify_fields = ['address', 'state_province']
         data = self._init_page_form_for_submission(page, modify_fields)
-        page = page.form.submit()
+        page = page.forms[self.form_id].submit()
         altered_place = self._get_altered_place()
         self.assertRedirects(
             page,
@@ -1095,7 +1105,7 @@ class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
 
     @patch('hosting.forms.places.geocode')
     @patch('hosting.forms.places.geocode_city')
-    def test_form_submit_postcode(self, mock_geocode_city, mock_geocode):
+    def test_form_submit_postcode(self, mock_geocode_city: MagicMock, mock_geocode: MagicMock):
         mock_geocode.return_value = None
         mock_geocode_city.return_value = None
 
@@ -1103,9 +1113,10 @@ class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
         # to be successful and result in redirection to the location update form page.
         page = self._get_view_page()
         self._init_page_form_for_submission(page, [])
-        page.form['country'] = 'GM'
-        page.form['postcode'] = "\tk  5487 - n\n"
-        page = page.form.submit()
+        form = page.forms[self.form_id]
+        form['country'] = 'GM'
+        form['postcode'] = "\tk  5487 - n\n"
+        page = form.submit()
         altered_place = self._get_altered_place()
         self.assertRedirects(
             page,
@@ -1121,6 +1132,7 @@ class PlaceFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
 @tag('forms', 'forms-place', 'place')
 class PlaceFormTests(PlaceFormTestingBase, AdditionalAsserts, WebTest):
     form_class: ClassVar[type[PlaceForm]] = PlaceForm
+    form_id: ClassVar[str] = 'id_place_form'
 
     def _init_form(self, data=None, instance=None, owner=None):
         assert instance is not None
@@ -1148,7 +1160,7 @@ class PlaceFormTests(PlaceFormTestingBase, AdditionalAsserts, WebTest):
 
     @patch('hosting.forms.places.geocode')
     @patch('hosting.forms.places.geocode_city')
-    def test_save_no_change(self, mock_geocode_city, mock_geocode):
+    def test_save_no_change(self, mock_geocode_city: MagicMock, mock_geocode: MagicMock):
         form = self._init_form(instance=self.simple_place)  # = GET
         form = self._init_form(data=form.initial.copy(), instance=self.simple_place)  # = POST
         # No change in data means that the form is expected to be valid.
@@ -1157,7 +1169,7 @@ class PlaceFormTests(PlaceFormTestingBase, AdditionalAsserts, WebTest):
         mock_geocode.side_effect = AssertionError("geocode was unexpectedly called")
         mock_geocode_city.side_effect = AssertionError("geocode-city was unexpectedly called")
         number_coded_cities = Whereabouts.objects.count()
-        place = form.save(commit=False)
+        place: Place = form.save(commit=False)
         # The number of geocoded cities is expected to remain the same.
         self.assertEqual(Whereabouts.objects.count(), number_coded_cities)
         # The form is expected to have an attribute 'confidence' equal to location confidence.
@@ -1167,7 +1179,7 @@ class PlaceFormTests(PlaceFormTestingBase, AdditionalAsserts, WebTest):
 
     @patch('hosting.forms.places.geocode')
     @patch('hosting.forms.places.geocode_city')
-    def test_save_change_non_location_data(self, mock_geocode_city, mock_geocode):
+    def test_save_change_non_location_data(self, mock_geocode_city: MagicMock, mock_geocode: MagicMock):
         form = self._init_form(instance=self.complete_place)  # = GET
         form_data = form.initial.copy()
         number_coded_cities = Whereabouts.objects.count()
@@ -1189,7 +1201,7 @@ class PlaceFormTests(PlaceFormTestingBase, AdditionalAsserts, WebTest):
                     # The geocoding utility is not expected to be called, because location data has not changed.
                     mock_geocode.side_effect = AssertionError("geocode was unexpectedly called")
                     mock_geocode_city.side_effect = AssertionError("geocode-city was unexpectedly called")
-                    place = form.save(commit=False)
+                    place: Place = form.save(commit=False)
                     # The number of geocoded cities is expected to remain the same.
                     self.assertEqual(Whereabouts.objects.count(), number_coded_cities)
                     # The form is expected to have an attribute 'confidence', equal to location confidence.
@@ -1201,6 +1213,7 @@ class PlaceFormTests(PlaceFormTestingBase, AdditionalAsserts, WebTest):
 @tag('forms', 'forms-place', 'place')
 class PlaceCreateFormTests(PlaceFormTestingBase, AdditionalAsserts, WebTest):
     form_class: ClassVar[type[PlaceCreateForm]] = PlaceCreateForm
+    form_id: ClassVar[str] = 'id_place_create_form'
 
     def _init_form(self, data=None, instance=None, owner=None):
         assert owner is not None
@@ -1223,8 +1236,9 @@ class PlaceCreateFormTests(PlaceFormTestingBase, AdditionalAsserts, WebTest):
 
     def _init_page_form_for_submission(self, page, modify_fields, test_data=None):
         data = test_data or {}
+        form = page.forms[self.form_id]
         for field_name in set(self.expected_fields) - set(modify_fields) - set(['conditions']):
-            page.form[field_name] = data[field_name] = getattr(self.complete_place, field_name)
+            form[field_name] = data[field_name] = getattr(self.complete_place, field_name)
         return super()._init_page_form_for_submission(page, modify_fields, data)
 
     def _get_altered_place(self):
@@ -1237,7 +1251,7 @@ class PlaceCreateFormTests(PlaceFormTestingBase, AdditionalAsserts, WebTest):
 
     @patch('hosting.forms.places.geocode')
     @patch('hosting.forms.places.geocode_city')
-    def test_form_submit_non_location_data(self, mock_geocode_city, mock_geocode):
+    def test_form_submit_non_location_data(self, mock_geocode_city: MagicMock, mock_geocode: MagicMock):
         mock_geocode.side_effect = [
             self.DummyLocationWithConfidence(GeoPoint([-19.624239, 63.627832], srid=SRID), 8),
             AssertionError("geocode was not supposed to be called second time"),
@@ -1325,7 +1339,7 @@ class PlaceLocationFormTests(AdditionalAsserts, WebTest):
     def setUpTestData(cls):
         cls.point_one = GeoPoint([-19.624239, 63.627832], srid=SRID)
         cls.point_two = GeoPoint([-22.094971, 64.308326], srid=SRID)
-        cls.place = cast(Place, PlaceFactory())
+        cls.place = PlaceFactory.create()
 
     def test_init(self):
         form_empty = PlaceLocationForm(view_role=0)
@@ -1438,7 +1452,7 @@ class PlaceLocationFormTests(AdditionalAsserts, WebTest):
                     },
                     instance=self.place, view_role=role)
                 self.assertTrue(form.is_valid(), msg=repr(form.errors))
-                place = form.save(commit=False)
+                place: Place = form.save(commit=False)
                 self.assertIsNone(place.location)
                 self.assertEqual(place.location_confidence, LocationConfidence.UNDETERMINED)
 
@@ -1451,7 +1465,7 @@ class PlaceLocationFormTests(AdditionalAsserts, WebTest):
                 form = PlaceLocationForm(
                     data=form_data, instance=self.place, view_role=role)
                 self.assertTrue(form.is_valid(), msg=repr(form.errors))
-                place = form.save(commit=False)
+                place: Place = form.save(commit=False)
                 self.assertEqual(place.location, expected_result['location'])
                 with self.subTest(places=place.location.decimal_precision):
                     self.assertEqual(place.location_confidence, expected_confidence)
@@ -1502,7 +1516,7 @@ class PlaceLocationFormTests(AdditionalAsserts, WebTest):
             user=self.place.owner.user,
         )
         self.assertEqual(page.status_code, 200)
-        self.assertEqual(len(page.forms), 1)
+        self.assertIn('id_place_location_form', page.forms)
         self.assertIsInstance(page.context['form'], PlaceLocationForm)
         self.assertIn('data-selectable-zoom', page)
 
@@ -1514,9 +1528,10 @@ class PlaceLocationFormTests(AdditionalAsserts, WebTest):
             reverse('place_location_update', kwargs={'pk': self.place.pk}),
             user=user or self.place.owner.user,
         )
-        page.form['location'] = str(self.point_one)
-        page.form['coordinates'] = "{p.y}\t{p.x}".format(p=self.point_two)
-        page = page.form.submit()
+        form = page.forms['id_place_location_form']
+        form['location'] = str(self.point_one)
+        form['coordinates'] = "{p.y}\t{p.x}".format(p=self.point_two)
+        page = form.submit()
         self.place.refresh_from_db()
         self.assertRedirects(
             page,
@@ -1526,7 +1541,7 @@ class PlaceLocationFormTests(AdditionalAsserts, WebTest):
         self.assertEqual(self.place.location_confidence, conf)
 
     def test_form_submit_as_supervisor(self):
-        supervisor = UserFactory(is_superuser=True, profile=None)
+        supervisor = UserFactory.create(is_superuser=True, profile=None)
         self.test_form_submit(supervisor, LocationConfidence.CONFIRMED)
 
 
@@ -1540,7 +1555,7 @@ class PlaceBlockFormTests(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.place = PlaceFactory()
+        cls.place = PlaceFactory.create()
 
     def test_init(self):
         expected_fields = {
@@ -1727,8 +1742,8 @@ class PlaceBlockFormTests(WebTest):
             reverse('place_block', kwargs={'pk': self.place.pk}),
             user=self.place.owner.user,
         )
-        self.assertEqual(page.status_int, 200)
-        self.assertEqual(len(page.forms), 1)
+        self.assertEqual(page.status_code, 200)
+        self.assertIn('id_place_block_form', page)
         self.assertIs(type(page.context['form']), PlaceBlockForm)
 
     def test_regular_form_submit(self):
@@ -1738,8 +1753,9 @@ class PlaceBlockFormTests(WebTest):
         )
         from_date = self.faker.date_between(start_date='+15d', end_date='+30d')
         until_date = self.faker.date_between(start_date='+45d', end_date='+90d')
-        page.form['blocked_from'], page.form['blocked_until'] = str(from_date), str(until_date)
-        page = page.form.submit()
+        form = page.forms['id_place_block_form']
+        form['blocked_from'], form['blocked_until'] = str(from_date), str(until_date)
+        page = form.submit()
         self.place.refresh_from_db()
         self.assertRedirects(
             page,
@@ -1754,7 +1770,7 @@ class PlaceBlockFormTests(WebTest):
             user=self.place.owner.user,
         )
         token_name = 'csrfmiddlewaretoken'
-        token_value = place_page.forms['placeBlockForm' + str(self.place.pk)][token_name].value
+        token_value = place_page.forms[f'placeBlockForm{self.place.pk}'][token_name].value
         from_date = self.faker.future_date(end_date='+40d')
         until_date = self.place.blocked_until
         response = self.app.put(
@@ -1764,7 +1780,7 @@ class PlaceBlockFormTests(WebTest):
             user=self.place.owner.user,
         )
         self.place.refresh_from_db()
-        self.assertEqual(response.status_int, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, {"result": True})
         self.assertEqual(self.place.blocked_from, from_date)
         self.assertEqual(self.place.blocked_until, until_date)
@@ -1775,7 +1791,7 @@ class PlaceBlockFormTests(WebTest):
             headers={'X-CSRFToken': token_value},
             user=self.place.owner.user,
         )
-        self.assertEqual(response.status_int, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertIn('result', response.json)
         self.assertEqual(response.json['result'], False)
 
@@ -1833,7 +1849,7 @@ class UserAuthorizeFormTests(WebTest):
 
     def test_nonexistent_profile(self):
         # Attempting to authorize a user with no profile is expected to result in error.
-        user = UserFactory(profile=None)
+        user = UserFactory.create(profile=None)
         form = UserAuthorizeForm({'user': user.username, 'remove': 0})
         self.assertFalse(form.is_valid())
         with override_settings(LANGUAGE_CODE='en'):

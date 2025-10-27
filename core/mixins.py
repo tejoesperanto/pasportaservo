@@ -22,13 +22,16 @@ from hosting.validators import AccountAttributesSimilarityValidator
 
 from . import PasportaServoHttpRequest
 from .auth import auth_log
-from .utils import is_password_compromised, sanitize_next
+from .utils import camel_case_split, is_password_compromised, sanitize_next
 
 if TYPE_CHECKING:
     from .auth import AuthRole
 
 
 User = get_user_model()
+
+
+# ========================= View Mixins =========================
 
 
 class LoginRequiredMixin(AuthenticatedUserRequiredMixin):
@@ -146,6 +149,41 @@ def flatpages_as_templates[VT: View](cls: type[VT]) -> type[VT]:
     getattr(cls, 'render_flat_page')._view_context = {}
 
     return cls
+
+
+# ========================= Form Mixins =========================
+
+
+class HtmlIdFormMixin:
+    @property
+    def html_id(self) -> str:
+        """
+        The string identifying this form when rendered in HTML,
+        to be used in the `<form>` tag.
+        """
+        PRIVATE_PROPERTY = '_form_html_id'
+        if hasattr(self, PRIVATE_PROPERTY):
+            return getattr(self, PRIVATE_PROPERTY)
+        id_attr = ''
+        if hasattr(self, 'helper'):
+            id_attr = self.helper.form_id  # type: ignore[attr-defined]
+        if not id_attr:
+            id_attr = 'id_' + '_'.join(
+                map(lambda part: part.lower(), camel_case_split(self.__class__.__name__))
+            )
+        setattr(self, PRIVATE_PROPERTY, id_attr)
+        return id_attr
+
+    @html_id.setter
+    def html_id(self, value: str):
+        setattr(self, '_form_html_id', value)
+
+    @html_id.deleter
+    def html_id(self):
+        try:
+            delattr(self, '_form_html_id')
+        except AttributeError:
+            pass
 
 
 class UsernameFormMixin(object):

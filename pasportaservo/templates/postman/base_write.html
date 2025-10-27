@@ -67,7 +67,7 @@
             </div>
         {% endif %}
 
-        <form action="{% if next_url %}?next={{ next_url|urlencode }}{% endif %}" method="post">
+        <form id="{{ form.html_id }}" action="{% if next_url %}?next={{ next_url|urlencode }}{% endif %}" method="post">
             {% block pm_write_recipient %}{% endblock %}
             {% crispy form %}
             <button type="submit" class="btn btn-primary">

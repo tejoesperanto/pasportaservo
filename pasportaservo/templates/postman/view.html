@@ -73,7 +73,7 @@
                     <hr />
                     <h2>{% trans "Reply" context "postman:title" %}</h2>
 
-                    <form action="{% url 'postman:reply' reply_to_pk %}?next={{ next_url|urlencode }}" method="post">
+                    <form id="{{ form.html_id }}" action="{% url 'postman:reply' reply_to_pk %}?next={{ next_url|urlencode }}" method="post">
                         <div id="pm_reply">
                             {% crispy form %}
                         </div>
