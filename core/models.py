@@ -210,7 +210,7 @@ class UserBrowser(models.Model):
                 + (f" · Device: {self.device_type}" if self.device_type else "")
                 + ">")
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, update_fields=None, **kwargs):
         precision = (
             cast(models.DecimalField, self._meta.get_field('os_version_numeric'))
             .decimal_places
@@ -225,7 +225,12 @@ class UserBrowser(models.Model):
         self.browser_version_numeric = (
             version_to_numeric_repr(self.browser_version, precision)
         )
-        return super().save(*args, **kwargs)
+        if update_fields:
+            if 'os_version' in update_fields:
+                update_fields = {'os_version_numeric'}.union(update_fields)
+            if 'browser_version' in update_fields:
+                update_fields = {'browser_version_numeric'}.union(update_fields)
+        return super().save(*args, update_fields=update_fields, **kwargs)
     save.alters_data = True
 
 

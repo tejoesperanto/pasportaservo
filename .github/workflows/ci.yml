@@ -13,17 +13,17 @@ jobs:
   build-test:
     name: Build, Test, Report Coverage
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.python-version == '3.13' || matrix.django-version >= '4' }}
+    continue-on-error: ${{ matrix.python-version == '3.13' || matrix.django-version >= '5' }}
     strategy:
       fail-fast: false
       matrix:
         python-version: ['3.12'] #, '3.13']
-        django-version: ['3.2.0'] #, '4.0.0']
+        django-version: ['4.2.0'] #, '5.0.0']
 
     services:
       postgres:
-        # postgresql 10 with postgis 2.5
-        image: postgis/postgis:10-2.5
+        # postgresql 17 with postgis 3.5.2
+        image: postgis/postgis:17-3.5
         env:
           POSTGRES_DB: pasportaservo
           POSTGRES_PASSWORD: pg_master

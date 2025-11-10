@@ -1556,14 +1556,21 @@ class TravelAdvice(TimeStampedModel):
             else self.content
         )
 
-    def applicable_countries(self, all_label: Optional[str] = None, code: bool = True) -> str:
+    def applicable_countries(
+            self, all_label: Optional[str] = None, code: bool = True,
+    ) -> str:
         if not self.countries:
-            return all_label or cast(CountryField, self._meta.get_field('countries')).blank_label
+            return (
+                all_label
+                or cast(CountryField, self._meta.get_field('countries')).blank_label
+            )
         else:
             return ', '.join(c.code if code else c.name for c in self.countries)
 
     @classmethod
-    def get_for_country(cls, country_code: str, is_active: bool | None = True) -> QuerySet[Self]:
+    def get_for_country(
+            cls, country_code: str, is_active: bool | None = True,
+    ) -> QuerySet[Self]:
         """
         Extracts advices indicated for a specific country, i.e., those applicable to a
         list of countries among which is the queried country, or those applicable to
@@ -1593,7 +1600,9 @@ class TravelAdvice(TimeStampedModel):
             self.trimmed_content(90).replace('\n', ' ')
         )
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, update_fields=None, **kwargs):
         self.description = commonmark(self.content)
-        return super().save(*args, **kwargs)
+        if update_fields and 'content' in update_fields:
+            update_fields = [*update_fields, 'description']
+        return super().save(*args, update_fields=update_fields, **kwargs)
     save.alters_data = True

@@ -8,11 +8,21 @@
             border: solid 1px #e3e3e3;
             border-radius: 3px;
             padding: 1px;
+        {% else %}
+            min-width: 624px;
         {% endif %}
     }
     #map {
         text-align: initial;
         height: {{ map_height }}px;
+    }
+    @media (max-width: 767px) {
+        .map-widget {
+            {% if admin_site %}
+                min-width: 20em;
+                max-width: 100%;
+            {% endif %}
+        }
     }
     @media (max-width: 479px) {
         #map { height: 250px };
@@ -27,11 +37,14 @@
     }
     {% if not debug %}#{{ id }} { display: none; } {% endif %}
     {% if admin_site %}
-        form .aligned #{{ id }} {
-            margin-left: 170px;
+        form .aligned .help.wrapped-help {
+            margin-left: 0;
+            padding-left: 0;
         }
     {% endif %}
 </style>
+
+{% if admin_site %}<div>{% endif %}  {# Treat all components of the widget as a single flex item. #}
 
 <div class="map-widget"><div id="map"></div></div>
 <noscript>
@@ -45,11 +58,11 @@
     <br />
 </noscript>
 
-<p class="{% if admin_site %}help{% else %}help-block{% endif %}">
+<p class="{% if admin_site %}help wrapped-help{% else %}help-block{% endif %}">
     {% trans "Select manually the most suitable point on the map." %}
 </p>
 {% if 'data-selectable-zoom' in widget.attrs %}
-    <p class="{% if admin_site %}help{% else %}help-block{% endif %}">
+    <p class="{% if admin_site %}help wrapped-help{% else %}help-block{% endif %}">
         <span style="font-size: 90%; font-style: italic;">
         {% blocktrans trimmed %}
             It will be possible to register the point when the resolution
@@ -72,7 +85,9 @@
 {% else %}
     {% dict_insert input_field_attrs "cols" 54 %}
     {% dict_insert input_field_attrs "rows" 2 %}
-    <textarea class="required {{ widget.attrs.class }}{% if admin_site %} vTextField{% endif %}"
+    <textarea class="required {{ widget.attrs.class }}{% if admin_site %} vLargeTextField{% endif %}"
               {% for name, value in input_field_attrs.items %}{{ name }}="{{ value }}" {% endfor %}
     >{{ serialized }}</textarea>
 {% endif %}
+
+{% if admin_site %}</div>{% endif %}
