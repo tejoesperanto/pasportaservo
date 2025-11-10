@@ -81,3 +81,55 @@ class UserBrowserModelTests(TestCase):
                 else:
                     self.assertEqual(ub.browser_version_numeric, 0)
                 self.assertIsNotNone(ub.added_on)
+
+    def test_save_partial(self):
+        ub = UserBrowserFactory.create(
+            user__profile=None, os_version='1.20.300', browser_version='49.6.8',
+        )
+        self.assertNotEqual(ub.os_version, "")
+        self.assertNotEqual(ub.os_version_numeric, 0)
+        self.assertNotEqual(ub.browser_version, "")
+        self.assertNotEqual(ub.browser_version_numeric, 0)
+
+        # Saving fields not related to the version of the OS or the browser is
+        # expected not to save the textual and the numeric version values.
+        ub.device_type = "Printer"
+        ub.os_name = "IBM PrintOS"
+        ub.os_version = ""
+        ub.browser_version = ""
+        ub.save(update_fields=('os_name', 'device_type'))
+        ub.refresh_from_db()
+        self.assertEqual(ub.device_type, "Printer")
+        self.assertEqual(ub.os_name, "IBM PrintOS")
+        self.assertEqual(ub.os_version, "1.20.300")
+        self.assertNotEqual(ub.os_version_numeric, 0)
+        self.assertEqual(ub.browser_version, "49.6.8")
+        self.assertNotEqual(ub.browser_version_numeric, 0)
+
+        # Saving the textual OS version field is expected to update also
+        # the numeric value, and not save any other fields.
+        ub.device_type = "Scanner"
+        ub.os_version, previous_os_numeric = "4.50", ub.os_version_numeric
+        ub.browser_version, previous_browser_numeric = "", ub.browser_version_numeric
+        ub.save(update_fields=['os_version'])
+        ub.refresh_from_db()
+        self.assertEqual(ub.device_type, "Printer")
+        self.assertEqual(ub.os_version, "4.50")
+        self.assertNotEqual(ub.os_version_numeric, 0)
+        self.assertNotEqual(ub.os_version_numeric, previous_os_numeric)
+        self.assertEqual(ub.browser_version, "49.6.8")
+        self.assertEqual(ub.browser_version_numeric, previous_browser_numeric)
+
+        # Saving the textual browser version field is expected to update also
+        # the numeric value, and not save any other fields.
+        ub.device_type = "Router"
+        ub.os_version, previous_os_numeric = "", ub.os_version_numeric
+        ub.browser_version = "84.4.4"
+        ub.save(update_fields=['browser_version'])
+        ub.refresh_from_db()
+        self.assertEqual(ub.device_type, "Printer")
+        self.assertEqual(ub.os_version, "4.50")
+        self.assertEqual(ub.os_version_numeric, previous_os_numeric)
+        self.assertEqual(ub.browser_version, "84.4.4")
+        self.assertNotEqual(ub.browser_version_numeric, 0)
+        self.assertNotEqual(ub.browser_version_numeric, previous_browser_numeric)

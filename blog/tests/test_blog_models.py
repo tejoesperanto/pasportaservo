@@ -78,6 +78,39 @@ class PostModelTests(AdditionalAsserts, WebTest):
             post.body,
             "<p>{}</p>\n".format(post.content.replace(self.SEPARATOR, "", 1)))
 
+    def test_save_partial(self):
+        post = PostFactory.create()
+        self.assertNotEqual(post.description, "")
+        self.assertNotEqual(post.body, "")
+
+        # Saving fields not related to the blog post's content is expected not to
+        # save the full content, the description, or the body to the database.
+        post.title, previous_title = "Ĉiuĵaŭda Eĥoŝanĝo!", post.title
+        post.content, previous_content = post.content[::-1], post.content
+        post.description, previous_description = "", post.description
+        post.body, previous_body = "", post.body
+        post.save(update_fields=['title'])
+        post.refresh_from_db()
+        self.assertEqual(post.title, "Ĉiuĵaŭda Eĥoŝanĝo!")
+        self.assertEqual(post.content, previous_content)
+        self.assertEqual(post.description, previous_description)
+        self.assertEqual(post.body, previous_body)
+
+        # Saving the content field is expected to update also the description and
+        # the body in the database, and not save the other fields.
+        post.title = previous_title
+        post.content = post.content[::-1]
+        post.description = "=EĤOŜANĜO="
+        post.body = "~Eĥoj kaj Ŝanĝoj."
+        post.save(update_fields=['content'])
+        post.refresh_from_db()
+        self.assertEqual(post.title, "Ĉiuĵaŭda Eĥoŝanĝo!")
+        self.assertNotEqual(post.content, previous_content)
+        self.assertNotEqual(post.description, "=EĤOŜANĜO=")
+        self.assertNotEqual(post.description, previous_description)
+        self.assertNotEqual(post.body, "~Eĥoj kaj Ŝanĝoj.")
+        self.assertNotEqual(post.body, previous_body)
+
     def test_post_without_author(self):
         post = PostFactory.create(author=None)
         self.assertIsNone(post.author)

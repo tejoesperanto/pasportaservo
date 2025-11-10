@@ -82,9 +82,11 @@ class Post(TimeStampedModel):
     def get_absolute_url(self):
         return reverse_lazy('blog:post', kwargs={'slug': self.slug})
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, update_fields=None, **kwargs):
         content = re.split(r'(?<!-)----(?!-)', self.content, maxsplit=1)
         self.body = commonmark("".join(content))
         self.description = commonmark(content[0])
-        return super().save(*args, **kwargs)
+        if update_fields and 'content' in update_fields:
+            update_fields = [*update_fields, 'body', 'description']
+        super().save(*args, update_fields=update_fields, **kwargs)
     save.alters_data = True

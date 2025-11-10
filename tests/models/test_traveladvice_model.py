@@ -94,6 +94,33 @@ class TravelAdviceModelTests(AdditionalAsserts, WebTest):
                     "".join("<p>{}</p>\n".format(phrase) for phrase in content)
                 )
 
+    def test_save_partial(self):
+        advice = TravelAdviceFactory.create()
+        self.assertNotEqual(advice.content, "")
+        self.assertNotEqual(advice.description, "")
+
+        # Saving fields not related to the content of the travel advice is expected
+        # to save to the DB neither the markdown content nor the formatted description.
+        advice.countries = expected_countries = advice.countries + ["ZZ"]
+        advice.content = ""
+        advice.save(update_fields=['countries'])
+        advice.refresh_from_db()
+        self.assertEqual(advice.countries, expected_countries)
+        self.assertNotEqual(advice.content, "")
+        self.assertNotEqual(advice.description, "")
+
+        # Saving the content field is expected to update also the formatted description
+        # in the database, and not save the other fields.
+        advice.countries = ["AA", "BB"]
+        advice.content = "Vojaĝema Esperantisto Travojaĝas Ankaŭ Ĉi-tie."
+        advice.description = "ronda vojaĝo"
+        advice.save(update_fields=['content'])
+        advice.refresh_from_db()
+        self.assertEqual(advice.countries, expected_countries)
+        self.assertIn("Vojaĝema Esperantisto", advice.content)
+        self.assertIn("Vojaĝema Esperantisto", advice.description)
+        self.assertNotIn("ronda vojaĝo", advice.description)
+
     def test_get_for_country(self):
         tags = {
             TravelAdviceFactory(countries='AA', in_past=True).pk: 'aa_past',
