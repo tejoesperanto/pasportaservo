@@ -589,7 +589,7 @@ class ContentFragmentRetrieveViewTests(AdditionalAsserts, WebTest):
         for lang in test_data:
             with (
                 override_settings(LANGUAGE_CODE=lang),
-                self.subTest(LANGUAGE_CODE=lang)
+                self.subTest(lang=lang)
             ):
                 with self.assertLogs('PasportaServo.ui.fallbacks', level='WARNING') as log:
                     response = self.app.get(self.url.replace('dummy', 'mailto_fallback'))
@@ -622,7 +622,7 @@ class ContentFragmentRetrieveViewTests(AdditionalAsserts, WebTest):
         for lang, expected_label in {'en': "Hide", 'eo': "Kaŝi"}.items():
             with (
                 override_settings(LANGUAGE_CODE=lang),
-                self.subTest(LANGUAGE_CODE=lang)
+                self.subTest(lang=lang)
             ):
                 with self.assertLogs('PasportaServo.ui.fallbacks', level='WARNING') as log:
                     response = self.app.get(self.url.replace('dummy', 'datalist_fallback'))

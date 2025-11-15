@@ -5,6 +5,7 @@ from django.test import override_settings, tag
 from django.urls import reverse, reverse_lazy
 
 from django_webtest import WebTest
+from django_webtest.response import DjangoWebtestResponse
 
 from ..assertions import AdditionalAsserts
 from ..factories import UserFactory
@@ -15,7 +16,7 @@ class InactiveUserLoginTests(AdditionalAsserts, WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.url = reverse_lazy('login')
-        cls.user = UserFactory(profile=None, is_active=False)
+        cls.user = UserFactory.create(profile=None, is_active=False)
 
     def login_attempt_tests(self, lang):
         # A user who supplied the correct credentials but whose account was
@@ -25,21 +26,24 @@ class InactiveUserLoginTests(AdditionalAsserts, WebTest):
         # email sent to the administrators once the user clicks the link to
         # notify them about the user's desire to reactivate the account.
 
-        page = self.app.get(self.url, status=200)
+        page: DjangoWebtestResponse = self.app.get(self.url, status=200)
         page.form['username'] = self.user.username
         page.form['password'] = "adm1n"
         with self.assertLogs('PasportaServo.auth', level='WARNING') as log:
-            result_page = page.form.submit()
+            result_page: DjangoWebtestResponse = page.form.submit()
         # A status code of 200 means the user is returned to the login page
         # with an error; otherwise the status code would have been 302.
         self.assertEqual(result_page.status_code, 200)
         self.assertLength(log.records, 1)
         m = re.search(r'\[([A-F0-9-]+)\]', log.output[0])
         self.assertIsNotNone(m, msg="restore_request_id was not logged.")
+        assert m is not None
         notification_id = m.group(1)
         mail.outbox = []
         # Simulate a click on the "request reactivation" link.
-        status_page = result_page.click(href=lambda href: href == reverse('login_restore'))
+        with self.assertNotRaises(IndexError, msg="Reactivation request link"):
+            status_page = result_page.click(
+                href=lambda href: href == reverse('login_restore'))
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn(
             {
@@ -60,6 +64,8 @@ class InactiveUserLoginTests(AdditionalAsserts, WebTest):
 
     def test_login(self):
         for lang in ['en', 'eo']:
-            with override_settings(LANGUAGE_CODE=lang):
-                with self.subTest(lang=lang):
-                    self.login_attempt_tests(lang)
+            with (
+                override_settings(LANGUAGE_CODE=lang),
+                self.subTest(lang=lang)
+            ):
+                self.login_attempt_tests(lang)

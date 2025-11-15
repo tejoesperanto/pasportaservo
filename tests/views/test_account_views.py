@@ -1,14 +1,24 @@
-from datetime import datetime
+import itertools
+from collections import namedtuple
+from datetime import datetime, timedelta
+from importlib import import_module
+from typing import cast
 from unittest.mock import patch
 
 from django.conf import settings
+from django.contrib.sessions.backends.base import SessionBase
+from django.core import mail
 from django.test import override_settings, tag
 from django.urls import reverse_lazy
 
+from django_webtest import WebTest
+from django_webtest.response import DjangoWebtestResponse
 from factory import Faker
 
 from core.utils import join_lazy
 
+from ..assertions import AdditionalAsserts
+from ..factories import UserFactory
 from .mixins import FormViewTestsMixin
 from .pages import RegisterPage
 from .testcasebase import BasicViewTests
@@ -227,3 +237,187 @@ class RegisterViewTests(FormViewTestsMixin, BasicViewTests):
 
     # TODO: Integration test for the honeypot.
     # TODO: Integration test for the complete registration flow.
+
+
+@tag('views', 'views-account')
+class AccountRestoreRequestViewTests(AdditionalAsserts, WebTest):
+    # Related validations are also performed by Form tests for UserAuthenticationForm
+    # and by the functional tests for the login process.
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.SessionStore = cast(
+            type[SessionBase],
+            import_module(settings.SESSION_ENGINE).SessionStore)
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.url = reverse_lazy('login_restore')
+
+    def setUp(self):
+        self.session = cast(SessionBase, self.app.session or self.SessionStore())
+        self.session.cycle_key()
+        self.session_header = {
+            'Cookie': f'{settings.SESSION_COOKIE_NAME}={self.session.session_key}',
+        }
+
+    def test_redirect_authenticated_user(self):
+        TestData = namedtuple('TestData', 'timestamp, redirect, user_tag')
+        test_dataset = itertools.product(
+            (None, datetime.now().timestamp()),
+            (None, '/another/page/', 'https://far.away/'),
+            ('basic', 'regular'),
+        )
+        users = {
+            'basic': UserFactory.create(profile=None),
+            'regular': UserFactory.create(),
+        }
+
+        for test_data in test_dataset:
+            test_data = TestData(*test_data)
+            internal_redirect = test_data.redirect and test_data.redirect.startswith('/')
+            with self.subTest(
+                    user=test_data.user_tag,
+                    timestamp=test_data.timestamp,
+                    next=(('internal' if internal_redirect else 'external')
+                          if test_data.redirect else False),
+            ):
+                # Initialize the logged-in user's session by requesting an unrelated page.
+                self.app.get('/', user=users[test_data.user_tag])
+                session = cast(SessionBase, self.app.session)
+                if test_data.timestamp is not None:
+                    session['restore_request_id'] = ("QWERTY", test_data.timestamp)
+                else:
+                    session['restore_request_id'] = None
+                    del session['restore_request_id']
+                session.save()
+                redirect_param = (
+                    f'?{settings.REDIRECT_FIELD_NAME}={test_data.redirect}'
+                    if test_data.redirect
+                    else '')
+
+                response: DjangoWebtestResponse = self.app.get(
+                    f'{self.url}{redirect_param}', status=302)
+                # The view is expected to redirect a logged-in user:
+                # * If a valid redirection destination is specified in the request,
+                #   to that destination.
+                # * If the redirection destination is invalid or not specified,
+                #   - to the user's profile when set up
+                #   - to the home page when the user has no profile yet.
+                if internal_redirect:
+                    expected_location = test_data.redirect
+                elif test_data.user_tag == 'regular':
+                    expected_location = users[test_data.user_tag].profile.get_absolute_url()
+                else:
+                    expected_location = '/'
+                self.assertEqual(response.location, expected_location)
+                # No email is expected to be sent by the view.
+                self.assertLength(mail.outbox, 0)
+
+                page = response.follow(status='*')
+                # No notification is expected to be shown to the logged-in user.
+                self.assertLength(page.context.get('messages', []), 0)
+                self.assertLength(page.pyquery("section.messages .message"), 0)
+
+    def test_redirect_missing_or_invalid_restore_request(self):
+        TestData = namedtuple('TestData', 'timestamp, redirect, expect_message')
+        test_dataset = [
+            TestData(None, None, False),
+            TestData(None, '/another/page/', False),
+            TestData(None, 'https://far.away/', False),
+            TestData("0", None, False),
+            TestData("0", '/some/where/else/', False),
+            TestData((datetime.now() - timedelta(minutes=90)).timestamp(), None, True),
+            TestData((datetime.now() - timedelta(hours=2)).timestamp(), '/not/here', True),
+        ]
+        expected_location = reverse_lazy('login')
+        expected_message = {
+            'en': "Something misfunctioned. Please log in again and retry.",
+            'eo': "Io misfunkciis. Bonvole ensalutu denove kaj reprovu.",
+        }
+
+        for test_data in test_dataset:
+            for lang in expected_message:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(
+                        lang=lang,
+                        timestamp=test_data.timestamp,
+                        next=bool(test_data.redirect),
+                    )
+                ):
+                    if test_data.timestamp is not None:
+                        self.session['restore_request_id'] = ("QWERTY", test_data.timestamp)
+                    else:
+                        self.session['restore_request_id'] = None
+                        del self.session['restore_request_id']
+                    self.session.save()
+                    redirect_param = (
+                        f'?{settings.REDIRECT_FIELD_NAME}={test_data.redirect}'
+                        if test_data.redirect
+                        else '')
+
+                    response: DjangoWebtestResponse = self.app.get(
+                        f'{self.url}{redirect_param}', status=302, headers=self.session_header)
+                    # The view is expected to redirect to the login page.
+                    self.assertEqual(response.location, expected_location)
+                    # The view is expected to prevent caching by the browser.
+                    self.assertIsNotNone(response.cache_control.no_cache)
+                    # No email is expected to be sent by the view.
+                    self.assertLength(mail.outbox, 0)
+
+                    page = response.follow()
+                    if not test_data.expect_message:
+                        # No notification is expected to be shown to the user in case of
+                        # missing or invalid restore request.
+                        self.assertLength(page.context.get('messages', []), 0)
+                        self.assertLength(page.pyquery("section.messages .message"), 0)
+                    else:
+                        # In case of an expired restore request, a notification is expected
+                        # to be shown to the user.
+                        self.assertLength(page.context.get('messages', []), 1)
+                        self.assertEqual(
+                            page.pyquery("section.messages .message [id^='MSG_']").text(),
+                            expected_message[lang])
+                    # The login form is expected to display no error.
+                    self.assertLength(page.pyquery(".base-form .alert"), 0)
+
+    def test_valid_restore_request(self):
+        expected_messages = {
+            'en': {
+                'admin': "Note to admin",
+                'user': "OK : An administrator will contact you soon.",
+            },
+            'eo': {
+                'admin': "Sciigo al admino",
+                'user': "Enordas : Administranto baldaŭ kontaktiĝos kun vi.",
+            },
+        }
+
+        for lang in expected_messages:
+            with (
+                override_settings(LANGUAGE_CODE=lang),
+                self.subTest(lang=lang)
+            ):
+                self.session['restore_request_id'] = (
+                    "ABC-DEF-GHIJ", (datetime.now() - timedelta(minutes=15)).timestamp(),
+                )
+                self.session.save()
+                mail.outbox = []
+
+                page = self.app.get(self.url, status='*', headers=self.session_header)
+                self.assertEqual(page.status_code, 200)
+                # An email is expected to be sent by the view to the administrators,
+                # specifying the ID of the restore request.
+                self.assertEqual(len(mail.outbox), 1)
+                self.assertIn(expected_messages[lang]['admin'], mail.outbox[0].subject)
+                self.assertIn("ABC-DEF-GHIJ", mail.outbox[0].subject)
+                # The user is expected to be shown a success result message that the
+                # administrators were notified.
+                self.assertEqual(
+                    page.pyquery("#subtitle").text(),
+                    expected_messages[lang]['user'])
+                # No (further) notification is expected to be displayed to the user.
+                self.assertLength(page.context.get('messages', []), 0)
+                self.assertLength(page.pyquery("section.messages .message"), 0)
