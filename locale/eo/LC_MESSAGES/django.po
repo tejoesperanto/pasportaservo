@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2025-09-10 21:17+0000\n"
+"POT-Revision-Date: 2025-11-18 07:31+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -3795,8 +3795,8 @@ msgstr "proksime al %(closest_city)s"
 #, python-format
 msgid "I can accept %(max_host)s person"
 msgid_plural "I can accept %(max_host)s persons"
-msgstr[0] "Mi povas akcepti %(max_host)s homon"
-msgstr[1] "Mi povas akcepti %(max_host)s homojn"
+msgstr[0] "Mi povas bonvenigi %(max_host)s homon"
+msgstr[1] "Mi povas bonvenigi %(max_host)s homojn"
 
 #: hosting/templates/hosting/profile_detail.html
 #: hosting/templates/hosting/snippets/place_description.html
@@ -4029,7 +4029,7 @@ msgstr[1] "bonvolu kontakti min almenaŭ %(nb_days)s tagojn antaŭe"
 
 #: hosting/templates/hosting/snippets/place_description.html
 msgid "However, at this moment I do not accept guests."
-msgstr "Tamen, nuntempe ne akceptas mi gastojn."
+msgstr "Tamen, nuntempe mi ne akceptas gastojn."
 
 #: hosting/templates/hosting/snippets/place_description.html
 #, python-format
