@@ -1,5 +1,5 @@
 # Esperantaj tekstoĉenoj por reta Pasporta Servo.
-# Kopirajto (C) 2015 TEJO kaj kontribuantoj
+# Kopirajto (C) 2015-2025 TEJO kaj kontribuantoj
 # Al tiu ĉi dosiero aplikiĝas la sama licenco kiel al la tuta kodo de PS.
 #
 msgid ""
@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2025-09-10 21:17+0000\n"
+"POT-Revision-Date: 2025-11-18 07:31+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -4029,7 +4029,7 @@ msgstr[1] "bonvolu kontakti min almenaŭ %(nb_days)s tagojn antaŭe"
 
 #: hosting/templates/hosting/snippets/place_description.html
 msgid "However, at this moment I do not accept guests."
-msgstr "Tamen, nuntempe ne akceptas mi gastojn."
+msgstr "Tamen, nuntempe mi ne akceptas gastojn."
 
 #: hosting/templates/hosting/snippets/place_description.html
 #, python-format
