@@ -4274,14 +4274,14 @@ msgid ""
 "<a href=\"{url}\">Don't forget to choose</a> where it should be displayed."
 msgstr "<a href=\"{url}\">Ne forgesu elekti</a> kie ĝi estu montrata."
 
-#: hosting/views/phones.py
-msgid "A new phone was added."
-msgstr "Nova telefonnumero aldonita."
-
-#: hosting/views/places.py hosting/views/profiles.py
+#: hosting/views/mixins.py
 msgid "The data is not saved yet! Note the specified errors."
 msgstr ""
 "La informoj ankoraŭ ne estas konservitaj! Atentu la indikitajn erarojn."
+
+#: hosting/views/phones.py
+msgid "A new phone was added."
+msgstr "Nova telefonnumero aldonita."
 
 #: hosting/views/places.py
 msgid "Only the owner of the place can access this page"

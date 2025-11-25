@@ -18,8 +18,6 @@ from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from django.views import generic
 from django.views.decorators.vary import vary_on_headers
 
-from braces.views import FormInvalidMessageMixin
-
 from core import PasportaServoHttpRequest
 from core.auth import PERM_SUPERVISOR, AuthMixin, AuthRole
 from core.mixins import LoginRequiredMixin
@@ -30,8 +28,8 @@ from ..forms import (
 )
 from ..models import Profile, VisibilitySettings
 from .mixins import (
-    DeleteMixin, ProfileIsUserMixin, ProfileMixin,
-    ProfileModifyMixin, UpdateMixin,
+    DeleteMixin, FormInvalidMessageMixin, ProfileIsUserMixin,
+    ProfileMixin, ProfileModifyMixin, UpdateMixin,
 )
 
 if TYPE_CHECKING:
@@ -45,7 +43,6 @@ class ProfileCreateView(
         generic.CreateView):
     model = Profile
     form_class = ProfileCreateForm
-    form_invalid_message = _("The data is not saved yet! Note the specified errors.")
     exact_role = AuthRole.OWNER
 
     def dispatch(self, request: PasportaServoHttpRequest, *args, **kwargs):
@@ -76,7 +73,6 @@ class ProfileUpdateView(
         FormInvalidMessageMixin,
         generic.UpdateView):
     form_class = ProfileForm
-    form_invalid_message = _("The data is not saved yet! Note the specified errors.")
     display_fair_usage_condition = True
 
 

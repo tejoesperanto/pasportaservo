@@ -263,6 +263,7 @@ SERVER_EMAIL = 'teknika@pasportaservo.org'
 CSRF_COOKIE_AGE = None
 CSRF_COOKIE_HTTPONLY = True
 SECURE_REFERRER_POLICY = 'origin-when-cross-origin'
+SECURE_CONTENT_TYPE_NOSNIFF = False  # Avoid duplication; header is already set by Nginx
 
 
 # Non-Django settings:
