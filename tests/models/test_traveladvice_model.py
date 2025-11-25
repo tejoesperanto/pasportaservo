@@ -1,5 +1,6 @@
 import random
 from datetime import date
+from typing import cast
 
 from django.test import tag
 
@@ -7,6 +8,7 @@ from django_countries import Countries
 from django_webtest import WebTest
 from factory import Faker
 
+from hosting.fields import CountryField
 from hosting.managers import ActiveStatusManager
 from hosting.models import TravelAdvice
 
@@ -25,23 +27,23 @@ class TravelAdviceModelTests(AdditionalAsserts, WebTest):
         self.assertTrue(advice._meta.get_field('active_until').blank)
 
     def test_active_status_flag(self):
-        advice = TravelAdviceFactory()
+        advice = TravelAdviceFactory.create()
         self.assertTrue(hasattr(TravelAdvice.objects.get(pk=advice.pk), 'is_active'))
 
     def test_applicable_countries(self):
         # An advice applicable for any country is expected to return the "ALL" label.
-        advice = TravelAdviceFactory(countries=[])
+        advice = TravelAdviceFactory.create(countries=[])
         self.assertEqual(
             advice.applicable_countries(all_label=None),
-            advice._meta.get_field('countries').blank_label)
+            cast(CountryField, advice._meta.get_field('countries')).blank_label)
         self.assertEqual(advice.applicable_countries(all_label="EVERYONE"), "EVERYONE")
         # An advice for specific countries is expected to return the names or codes
         # of these countries.
         all_world = Countries()
         countries = random.sample(list(all_world.countries.keys()), 4)
         advice = TravelAdviceFactory.create(countries=countries)
-        self.assertEqual(advice.applicable_countries(code=True), ', '.join(countries))
-        self.assertEqual(
+        self.assertCountEqual(advice.applicable_countries(code=True), ', '.join(countries))
+        self.assertCountEqual(
             advice.applicable_countries(code=False),
             ', '.join(all_world.name(k) for k in countries)
         )
@@ -62,9 +64,9 @@ class TravelAdviceModelTests(AdditionalAsserts, WebTest):
             "Three invalids.")
 
     def test_str(self):
-        advice = TravelAdviceFactory(content="short message", countries='DD,EE')
+        advice = TravelAdviceFactory.create(content="short message", countries='DD,EE')
         self.assertEqual(str(advice), "short message (DD, EE)")
-        advice = TravelAdviceFactory(
+        advice = TravelAdviceFactory.create(
             content="quite a long message: with multiple details, spanning several sentences",
             countries='FF')
         self.assertEqual(
@@ -73,10 +75,10 @@ class TravelAdviceModelTests(AdditionalAsserts, WebTest):
 
     def test_repr(self):
         # An advice for specific countries is expected to spell out these countries.
-        advice = TravelAdviceFactory(countries='AA,BB,CC')
+        advice = TravelAdviceFactory.create(countries='AA,BB,CC')
         self.assertSurrounding(repr(advice), "<TravelAdvice for AA, BB, CC:", ">")
         # An advice applicable for any country is expected to spell out "ALL".
-        advice = TravelAdviceFactory(countries=[])
+        advice = TravelAdviceFactory.create(countries=[])
         self.assertSurrounding(repr(advice), "<TravelAdvice for ALL:", ">")
 
     def test_save(self):

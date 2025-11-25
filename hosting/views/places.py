@@ -20,7 +20,6 @@ from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from django.views import generic
 
 from anymail.exceptions import AnymailRecipientsRefused
-from braces.views import FormInvalidMessageMixin
 
 from core import PasportaServoHttpRequest
 from core.auth import PERM_SUPERVISOR, AuthMixin, AuthRole
@@ -41,8 +40,8 @@ from ..models import (
     PasportaServoUser, Place, Profile, TravelAdvice, Whereabouts,
 )
 from .mixins import (
-    CreateMixin, DeleteMixin, PlaceMixin, PlaceModifyMixin,
-    ProfileIsUserMixin, ProfileModifyMixin, UpdateMixin,
+    CreateMixin, DeleteMixin, FormInvalidMessageMixin, PlaceMixin,
+    PlaceModifyMixin, ProfileIsUserMixin, ProfileModifyMixin, UpdateMixin,
 )
 
 User = get_user_model()
@@ -54,7 +53,6 @@ class PlaceCreateView(
         generic.CreateView):
     model = Place
     form_class = PlaceCreateForm
-    form_invalid_message = _("The data is not saved yet! Note the specified errors.")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -67,7 +65,6 @@ class PlaceUpdateView(
         FormInvalidMessageMixin,
         generic.UpdateView):
     form_class = PlaceForm
-    form_invalid_message = _("The data is not saved yet! Note the specified errors.")
     display_fair_usage_condition = True
 
 
