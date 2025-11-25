@@ -3,7 +3,7 @@
 beautifulsoup4==4.14.2
 bpython==0.26
 coverage==7.12.0
-django-debug-toolbar==4.2.0
+django-debug-toolbar==6.1.0
 django-webtest==1.9.14
 fabric==2.7.1
 factory-boy==3.3.3
