@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.http import HttpResponseForbidden
 from django.utils.functional import SimpleLazyObject, cached_property
+from django.views.debug import SafeExceptionReporterFilter
 from django.views.defaults import ERROR_403_TEMPLATE_NAME, permission_denied
 
 from postman.views import (
@@ -40,6 +41,11 @@ def custom_permission_denied_view(request, exception, template_name=ERROR_403_TE
     except IndexError:
         pass
     return response
+
+
+class UnsafeExceptionReporterFilter(SafeExceptionReporterFilter):
+    def cleanse_setting(self, key, value):
+        return value
 
 
 class ExtendedWriteView(PostmanWriteView):

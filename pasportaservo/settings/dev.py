@@ -24,6 +24,8 @@ except (OSError, IndexError):
     pass
 
 
+DEFAULT_EXCEPTION_REPORTER_FILTER = 'pasportaservo.views.UnsafeExceptionReporterFilter'
+
 logging.getLogger('PasportaServo.auth').setLevel(logging.INFO)
 logging.getLogger('PasportaServo.geo').setLevel(logging.DEBUG)
 
@@ -44,6 +46,7 @@ DEBUG_TOOLBAR_CONFIG = {
     'JQUERY_URL': '/static/js/jquery.min.js',
     'DISABLE_PANELS': {
         'debug_toolbar.panels.redirects.RedirectsPanel',
+        'debug_toolbar.panels.profiling.ProfilingPanel',
     },
     'SHOW_TOOLBAR_CALLBACK': 'pasportaservo.debug.show_debug_toolbar',
 }

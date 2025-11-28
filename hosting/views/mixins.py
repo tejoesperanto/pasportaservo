@@ -30,6 +30,8 @@ from ..models import (
 )
 
 if TYPE_CHECKING:
+    from django.views.generic import FormView
+
     from ..models import FullProfile
 
 
@@ -255,6 +257,15 @@ class FamilyMemberAuthMixin(SingleObjectViewProtocol[FamilyMember]):
         if Profile.is_full_profile(profile):
             raise Http404("Only the user can modify their profile.")
         return profile
+
+
+class FormInvalidMessageMixin(FormView if TYPE_CHECKING else object):
+    form_invalid_message = _("The data is not saved yet! Note the specified errors.")
+
+    def form_invalid(self, form: ModelForm) -> HttpResponse:
+        response = super().form_invalid(form)
+        messages.error(self.request, self.form_invalid_message, fail_silently=True)
+        return response
 
 
 class UpdateMixin[ModelT: TrackingModel](SingleObjectFormViewProtocol[ModelT]):
