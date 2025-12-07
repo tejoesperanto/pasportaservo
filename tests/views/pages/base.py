@@ -1,3 +1,4 @@
+from functools import cached_property
 from threading import Lock
 from typing import Any, NamedTuple, Optional, TypedDict, TypeVar, cast
 
@@ -198,14 +199,14 @@ class PageTemplate:
             raise AttributeError("Page was not successfully loaded yet")
         return self._page
 
-    @property
+    @cached_property
     def html(self) -> BeautifulSoup:
         """
         Returns the response as a `BeautifulSoup` object.
         """
         return self.response.html
 
-    @property
+    @cached_property
     def pyquery(self) -> PyQuery:
         """
         Returns the response as a `PyQuery` object.

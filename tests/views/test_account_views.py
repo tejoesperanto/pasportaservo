@@ -368,20 +368,21 @@ class AccountRestoreRequestViewTests(AdditionalAsserts, WebTest):
                     self.assertLength(mail.outbox, 0)
 
                     page = response.follow()
+                    pyquery = page.pyquery
                     if not test_data.expect_message:
                         # No notification is expected to be shown to the user in case of
                         # missing or invalid restore request.
                         self.assertLength(page.context.get('messages', []), 0)
-                        self.assertLength(page.pyquery("section.messages .message"), 0)
+                        self.assertLength(pyquery("section.messages .message"), 0)
                     else:
                         # In case of an expired restore request, a notification is expected
                         # to be shown to the user.
                         self.assertLength(page.context.get('messages', []), 1)
                         self.assertEqual(
-                            page.pyquery("section.messages .message [id^='MSG_']").text(),
+                            pyquery("section.messages .message [id^='MSG_']").text(),
                             expected_message[lang])
                     # The login form is expected to display no error.
-                    self.assertLength(page.pyquery(".base-form .alert"), 0)
+                    self.assertLength(pyquery(".base-form .alert"), 0)
 
     def test_valid_restore_request(self):
         expected_messages = {
@@ -407,6 +408,7 @@ class AccountRestoreRequestViewTests(AdditionalAsserts, WebTest):
                 mail.outbox = []
 
                 page = self.app.get(self.url, status='*', headers=self.session_header)
+                pyquery = page.pyquery
                 self.assertEqual(page.status_code, 200)
                 # An email is expected to be sent by the view to the administrators,
                 # specifying the ID of the restore request.
@@ -416,8 +418,8 @@ class AccountRestoreRequestViewTests(AdditionalAsserts, WebTest):
                 # The user is expected to be shown a success result message that the
                 # administrators were notified.
                 self.assertEqual(
-                    page.pyquery("#subtitle").text(),
+                    pyquery("#subtitle").text(),
                     expected_messages[lang]['user'])
                 # No (further) notification is expected to be displayed to the user.
                 self.assertLength(page.context.get('messages', []), 0)
-                self.assertLength(page.pyquery("section.messages .message"), 0)
+                self.assertLength(pyquery("section.messages .message"), 0)

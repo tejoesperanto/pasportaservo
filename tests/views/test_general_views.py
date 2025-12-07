@@ -191,10 +191,11 @@ class HomeViewTests(HeroViewTemplateTestsMixin, BasicViewTests):
                     self.subTest(user=user_tag, lang=lang)
                 ):
                     page = self.view_page.open(self, user=user, reuse_for_lang=lang)
+                    pyquery = page.pyquery
 
                     # A promo element is expected to be present. We do not verify its
                     # exact contents.
-                    promo_element = page.pyquery("#promo-pitch")
+                    promo_element = pyquery("#promo-pitch")
                     self.assertLength(promo_element, 1)
                     self.assertEqual(promo_element.attr("role"), "note")
                     self.assertNotEqual(promo_element.text(), "")
@@ -205,7 +206,7 @@ class HomeViewTests(HeroViewTemplateTestsMixin, BasicViewTests):
                         self.assertNotIn("ĉ", promo_element.text())
 
                     # A link to the map of hosts is expected to be present.
-                    explore_element = page.pyquery("#home-explore")
+                    explore_element = pyquery("#home-explore")
                     self.assertLength(explore_element, 1)
                     self.assertEqual(
                         explore_element.text(),
@@ -227,7 +228,7 @@ class HomeViewTests(HeroViewTemplateTestsMixin, BasicViewTests):
                     # A container for news and usage is expected to be present and to
                     # be empty by default. More detailed tests are in `test_news_block`
                     # and `test_usage_block`,
-                    explain_element = page.pyquery("#home-explain")
+                    explain_element = pyquery("#home-explain")
                     self.assertEqual(explain_element.text(), "")
                     # This container is expected to be placed directly after the link
                     # to the map of hosts.
@@ -268,6 +269,7 @@ class HomeViewTests(HeroViewTemplateTestsMixin, BasicViewTests):
                     self.subTest(user=user_tag, lang=lang)
                 ):
                     page = self.view_page.open(self, user=user, reuse_for_lang=lang)
+                    pyquery = page.pyquery
 
                     # The home view is expected to include various social links.
                     test_data: dict[str, dict[str, tuple[str, dict[str, str]]]] = {
@@ -326,7 +328,7 @@ class HomeViewTests(HeroViewTemplateTestsMixin, BasicViewTests):
                         }
                     }
                     for social_tag in test_data:
-                        social_element = page.pyquery(f".social-links.{social_tag}")
+                        social_element = pyquery(f".social-links.{social_tag}")
                         with self.subTest(tag=social_tag):
                             self.assertLength(social_element, 1)
                             social_link_elements = social_element.find("a")
