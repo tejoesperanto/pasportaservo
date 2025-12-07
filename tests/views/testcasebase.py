@@ -135,23 +135,24 @@ class BasicViewTests(AdditionalAsserts, WebTest):
                     self,
                     user=self.user if self.view_page.redirects_unauthenticated else None,
                     url_tag=url_tag, url_params=url_params)
+                pyquery = page.pyquery
                 self.assertEqual(
-                    page.pyquery("meta[property='og:title']").attr("content"),
+                    pyquery("meta[property='og:title']").attr("content"),
                     customizations.get('title', self.view_page.title)[lang])
                 self.assertEqual(
-                    page.pyquery("meta[property='og:type']").attr("content"),
+                    pyquery("meta[property='og:type']").attr("content"),
                     customizations.get('type', "website"))
                 self.assertEqual(
-                    page.pyquery("meta[property='og:url']").attr("content"),
+                    pyquery("meta[property='og:url']").attr("content"),
                     f'http://test.domain'
                     f'{customizations.get('page_url', self.view_page.explicit_url)[lang]}')
                 self.assertEqual(
-                    page.pyquery("meta[property='og:locale']").attr("content"),
+                    pyquery("meta[property='og:locale']").attr("content"),
                     lang)
                 image_url = cast(str, customizations.get(
                     'image', '/static/img/social_media_thumbnail_main.png'))
                 image_url = image_url.replace('[DOMAIN]', 'test.domain')
-                ogp_image_element = page.pyquery("meta[property='og:image']")
+                ogp_image_element = pyquery("meta[property='og:image']")
                 self.assertStartsWith(
                     ogp_image_element.attr("content"),
                     f'http://test.domain{image_url}' if image_url.startswith('/') else image_url)
