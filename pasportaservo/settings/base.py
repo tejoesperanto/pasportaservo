@@ -43,6 +43,7 @@ COMPRESS_OUTPUT_DIR = ''
 COMPRESS_REBUILD_TIMEOUT = 31536000
 COMPRESS_FILTERS = {
     'css': ['compressor.filters.cssmin.CSSCompressorFilter'],
+    'js': ['compressor.filters.jsmin.rJSMinFilter'],
 }
 COMPRESS_OFFLINE = True
 COMPRESS_OFFLINE_MANIFEST = 'static_cache.json'
