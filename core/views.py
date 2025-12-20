@@ -30,9 +30,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.utils.functional import (
-    SimpleLazyObject, cached_property, classproperty,
-)
+from django.utils.functional import SimpleLazyObject, cached_property
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
@@ -69,7 +67,8 @@ from . import PasportaServoHttpRequest
 from .auth import AuthMixin, AuthRole
 from .forms import (
     EmailStaffUpdateForm, EmailUpdateForm, FeedbackForm, MassMailForm,
-    SystemPasswordChangeForm, UserAuthenticationForm,
+    SystemPasswordChangeForm, SystemPasswordResetForm,
+    SystemPasswordResetRequestForm, UserAuthenticationForm,
     UsernameRemindRequestForm, UsernameUpdateForm, UserRegistrationForm,
 )
 from .mixins import (
@@ -430,15 +429,21 @@ class PasswordResetView(PasswordResetBuiltinView):
     email depending on whether the user is active (True) or no (False).
     See also the companion `SystemPasswordResetRequestForm`.
     """
-    html_email_template_name = {True: 'email/password_reset.html', False: 'email/password_reset_activate.html'}
-    email_template_name = {True: 'email/password_reset.txt', False: 'email/password_reset_activate.txt'}
+    html_email_template_name: dict[bool, str] = {
+        True: 'email/password_reset.html',
+        False: 'email/password_reset_activate.html',
+    }
+    email_template_name: dict[bool, str] = {
+        True: 'email/password_reset.txt',
+        False: 'email/password_reset_activate.txt',
+    }
     subject_template_name = 'email/password_reset_subject.txt'
+    form_class = SystemPasswordResetRequestForm
 
 
 class PasswordResetConfirmView(PasswordResetConfirmBuiltinView):
-    @classproperty
-    def reset_url_token(self):
-        return pgettext("URL", "set-password")
+    form_class = SystemPasswordResetForm
+    reset_url_token = pgettext("URL", "set-password")
 
 
 class PasswordChangeView(LoginRequiredMixin, PasswordChangeBuiltinView):

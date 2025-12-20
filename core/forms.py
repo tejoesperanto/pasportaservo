@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import cast
+from typing import Any, cast
 from uuid import uuid4
 
 from django import forms
@@ -19,7 +19,9 @@ from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from anymail.exceptions import AnymailRecipientsRefused
 from crispy_forms.helper import FormHelper
+from django_q.tasks import async_task
 
+from core.utils import camel_case_split
 from hosting.models import PasportaServoUser, Profile
 from hosting.utils import value_without_invalid_marker
 from links.utils import create_unique_url
@@ -281,41 +283,78 @@ class SystemPasswordResetRequestForm(HtmlIdFormMixin, PasswordResetForm):
             user.email = value_without_invalid_marker(user.email)
             return user
 
-        # All users should be able to reset their passwords regardless of the hashing (even when obsoleted),
-        # unless the password was forcefully set by an administrator as unusable to prevent logging in.
+        # All users should be able to reset their passwords regardless of the hashing
+        # algorithm (even when obsoleted) – unless the password was forcefully set by
+        # an administrator as unusable to prevent logging in.
         return map(remove_invalid_prefix, (
             u for u in lookup_users
             if u.password is not None and not u.password.startswith(UNUSABLE_PASSWORD_PREFIX)
         ))
 
-    def send_mail(self,
-                  subject_template_name, email_template_name, context, *args,
-                  html_email_template_name=None, **kwargs):
+    def send_mail(
+            self,
+            subject_template_name: str,
+            email_template_name: dict[bool, str],
+            context: dict[str, Any],
+            *args,
+            html_email_template_name: dict[bool, str],
+            **kwargs,
+    ):
         user_is_active = context['user'].is_active
-        html_email_template_name = html_email_template_name[user_is_active]
-        email_template_name = email_template_name[user_is_active]
+        template_name_html = html_email_template_name[user_is_active]
+        template_name_plain = email_template_name[user_is_active]
         if not user_is_active:
             case_id = str(uuid4()).upper()
-            auth_log.warning(
+            async_task(
+                auth_log.warning,
                 (self.admin_inactive_user_notification + ", but the account is deactivated [{cid}].")
-                .format(u=context['user'], cid=case_id)
+                .format(u=context['user'], cid=case_id),
+                group='inactive account',
             )
             context['restore_request_id'] = case_id
 
-        args = [subject_template_name, email_template_name, context, *args]
-        kwargs.update(html_email_template_name=html_email_template_name)
+        args = [subject_template_name, template_name_plain, context, *args]
+        kwargs.update(
+            template_name_content_html=template_name_html,
+            bounce_notification=(
+                (self.admin_inactive_user_notification + ", but the email address bounces.")
+                .format(u=context['user'])
+            ),
+        )
         context.update({
             'ENV': settings.ENVIRONMENT,
             'RICH_ENVELOPE': getattr(settings, 'EMAIL_RICH_ENVELOPES', None),
             'subject_prefix': settings.EMAIL_SUBJECT_PREFIX_FULL,
         })
+        async_task(
+            self.send_out_of_band_email, *args, **kwargs,
+            group=' '.join(camel_case_split(self.__class__.__name__)[:-2]).lower(),
+        )
+
+    @staticmethod
+    def send_out_of_band_email(
+            template_name_subject: str,
+            template_name_content_plain: str,
+            context: dict[str, Any],
+            from_email: str | None,
+            to_email: str,
+            template_name_content_html: str,
+            bounce_notification: str,
+    ):
         try:
-            super().send_mail(*args, **kwargs)
-        except AnymailRecipientsRefused:
-            auth_log.warning(
-                (self.admin_inactive_user_notification + ", but the email address bounces.")
-                .format(u=context['user'])
+            # No newlines are allowed in subject.
+            subject = ''.join(
+                get_template(template_name_subject).render(context).splitlines())
+            send_mail(
+                subject,
+                get_template(template_name_content_plain).render(context),
+                from_email,
+                recipient_list=[to_email],
+                html_message=get_template(template_name_content_html).render(context),
+                fail_silently=False,
             )
+        except AnymailRecipientsRefused:
+            auth_log.warning(bounce_notification)
 
     def save(self, **kwargs):
         return super().save(**kwargs)

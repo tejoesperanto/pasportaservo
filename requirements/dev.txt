@@ -5,7 +5,7 @@ bpython==0.26
 coverage==7.12.0
 django-debug-toolbar==6.1.0
 django-webtest==1.9.14
-fabric==2.7.1
+fabric==3.2.2
 factory-boy==3.3.3
 flake8==7.3.0
 isort==7.0.0

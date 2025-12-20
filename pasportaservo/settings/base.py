@@ -34,6 +34,13 @@ STATICFILES_DIRS = (path.join(PROJECT_DIR, 'static'), )
 
 LOCALE_PATHS = (path.join(BASE_DIR, 'locale'), )
 
+STATICFILES_FINDERS = global_settings.STATICFILES_FINDERS + [
+    'sass_processor.finders.CssFinder',
+    'compressor.finders.CompressorFinder',
+]
+STATICI18N_PACKAGES = ('core', 'hosting', 'pages')
+STATICI18N_OUTPUT_DIR = 'js/i18n'
+
 SASS_PRECISION = 8
 SASS_PROCESSOR_INCLUDE_DIRS = [
     path.join(BASE_DIR, 'core/static/sass'),
@@ -74,6 +81,7 @@ INSTALLED_APPS = (
     'django_extensions',
     'django_countries',
     'djangocodemirror',
+    'django_q',
     'djgeojson',
     'el_pagination',
     'logentry_admin',
@@ -159,13 +167,6 @@ WSGI_APPLICATION = 'pasportaservo.wsgi.application'
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-STATICFILES_FINDERS = global_settings.STATICFILES_FINDERS + [
-    'sass_processor.finders.CssFinder',
-    'compressor.finders.CompressorFinder',
-]
-STATICI18N_PACKAGES = ('core', 'hosting', 'pages')
-STATICI18N_OUTPUT_DIR = 'js/i18n'
-
 # Database
 # https://docs.djangoproject.com/en/stable/ref/settings/#databases
 
@@ -174,6 +175,19 @@ DATABASES = {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'pasportaservo',
     }
+}
+
+# Async tasks queue
+# https://django-q2.readthedocs.io/en/master/configure.html
+
+Q_CLUSTER = {
+    'label': gettext_lazy("Async Queue"),
+    'orm': 'default',
+    'poll': 5,
+    'max_attempts': 2,
+    'timeout': 20,
+    'save_limit': 0,
+    'catch_up': False,
 }
 
 # Logging
@@ -205,6 +219,8 @@ LOGGING = {
         },
     },
 }
+
+# Testing
 
 TEST_EXTERNAL_SERVICES = False
 

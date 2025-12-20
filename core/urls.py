@@ -6,8 +6,6 @@ from django.utils.text import format_lazy
 from django.utils.translation import pgettext_lazy
 from django.views.generic import TemplateView
 
-from .forms import SystemPasswordResetForm, SystemPasswordResetRequestForm
-
 from .views import (  # isort:skip
     HomeView,
     RegisterView, LoginView, AccountRestoreRequestView, LogoutView,
@@ -68,19 +66,13 @@ urlpatterns = [
                 pgettext_lazy("URL", 'reset/'), include([
                     path(
                         '',
-                        PasswordResetView.as_view(
-                            form_class=SystemPasswordResetRequestForm,
-                        ),
-                        name='password_reset'),
+                        PasswordResetView.as_view(), name='password_reset'),
                     path(
                         pgettext_lazy("URL", 'sent/'),
                         PasswordResetDoneView.as_view(), name='password_reset_done'),
                     re_path(
                         r'^(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,32})/$',
-                        view=PasswordResetConfirmView.as_view(
-                            form_class=SystemPasswordResetForm,
-                        ),
-                        name='password_reset_confirm'),
+                        view=PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
                     path(
                         pgettext_lazy("URL", 'done/'),
                         PasswordResetCompleteView.as_view(), name='password_reset_complete'),

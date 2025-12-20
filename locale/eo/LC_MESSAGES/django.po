@@ -4534,6 +4534,10 @@ msgid "Cannot send the message: This user has passed away."
 msgstr "Ne eblas sendi la mesaĝon: Tiu ĉi uzanto forpasis."
 
 #: pasportaservo/settings/base.py
+msgid "Async Queue"
+msgstr "Nesinkrona Atendovico"
+
+#: pasportaservo/settings/base.py
 msgid "Great Britain"
 msgstr "Britio"
 

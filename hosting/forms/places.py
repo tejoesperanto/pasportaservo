@@ -20,6 +20,7 @@ from crispy_forms.bootstrap import PrependedText
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field
 from django_countries.fields import Country
+from django_q.tasks import async_task
 
 from core.auth import AuthRole
 from core.mixins import HtmlIdFormMixin
@@ -415,11 +416,13 @@ class SubregionForm(forms.Form):
             elif for_country in countries_with_mandatory_region():
                 # We don't want to raise an error, preventing the user from using the form,
                 # but we do want to log it and notify the administrators.
-                logging.getLogger('PasportaServo.address').error(
+                async_task(
+                    logging.getLogger('PasportaServo.address').error,
                     "Service misconfigured: Mandatory regions for %s are not defined!"
                     "  (noted when %s)",
                     getattr(for_country, 'code', for_country),
                     operation or "preparing choice field",
+                    group='subregions',
                 )
             region_type = country_data.get('administrative_area_type')
             if region_type in SUBREGION_TYPES:
