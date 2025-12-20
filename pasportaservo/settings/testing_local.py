@@ -7,6 +7,11 @@ DEBUG = False
 
 COMPRESS_ENABLED = False
 
+Q_CLUSTER.update({
+    'sync': True,
+    'log_level': 'ERROR',
+})
+
 EMAIL_SUBJECT_PREFIX = '[PS test] '
 EMAIL_SUBJECT_PREFIX_FULL = '[Pasporta Servo][{}] '.format(ENVIRONMENT)
 

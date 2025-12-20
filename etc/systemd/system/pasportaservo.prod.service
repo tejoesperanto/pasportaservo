@@ -1,12 +1,14 @@
 [Unit]
 Description=Pasporta Servo https://www.pasportaservo.org
-Wants=memcached-ps.prod.service
+Wants=memcached-ps.prod.service qcluster-ps.prod.service
 After=network-online.target memcached-ps.prod.service
+PropagatesReloadTo=qcluster-ps.prod.service
+PropagatesStopTo=qcluster-ps.prod.service
 
 [Service]
 ExecStart=/opt/envs/prod/bin/python /opt/envs/prod/bin/gunicorn -c /srv/prod/gunicorn_config.py pasportaservo.wsgi
 WorkingDirectory=/srv/prod/pasportaservo
-RuntimeDirectory=pasportaservo
+RuntimeDirectory=pasportaservo/prod
 User=ps
 Restart=on-failure
 RestartSec=1

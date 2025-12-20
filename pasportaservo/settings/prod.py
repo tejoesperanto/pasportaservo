@@ -43,3 +43,7 @@ CSRF_COOKIE_SAMESITE = 'Strict'
 GITHUB_ACCESS_TOKEN = ('Bearer', get_env_setting('GITHUB_ACCESS_TOKEN'))
 
 sentry_init(env=ENVIRONMENT)
+
+Q_CLUSTER.setdefault('error_reporter', {})['sentry'] = {
+    'dsn': get_env_setting('SENTRY_DSN'),
+}

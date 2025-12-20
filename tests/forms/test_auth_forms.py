@@ -1285,7 +1285,7 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
 
                     mail.outbox = []
 
-    @patch('django.contrib.auth.forms.PasswordResetForm.send_mail')
+    @patch('core.forms.send_mail')
     def test_bouncing_email_request(self, mock_send_mail):
         mock_send_mail.side_effect = AnymailRecipientsRefused
         for user_tag, user in [("active normal email", self.active_user),

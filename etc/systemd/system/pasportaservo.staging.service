@@ -1,12 +1,14 @@
 [Unit]
 Description=Pasporta Servo staging (UAT) https://ido.pasportaservo.org
-Wants=memcached-ps.staging.service
+Wants=memcached-ps.staging.service qcluster-ps.staging.service
 After=network-online.target memcached-ps.staging.service
+PropagatesReloadTo=qcluster-ps.staging.service
+PropagatesStopTo=qcluster-ps.staging.service
 
 [Service]
 ExecStart=/opt/envs/staging/bin/python /opt/envs/staging/bin/gunicorn -c /srv/staging/gunicorn_config.py pasportaservo.wsgi
 WorkingDirectory=/srv/staging/pasportaservo
-RuntimeDirectory=pasportaservo
+RuntimeDirectory=pasportaservo/staging
 User=ps
 Restart=on-failure
 RestartSec=1
