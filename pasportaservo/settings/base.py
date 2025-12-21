@@ -59,6 +59,7 @@ COMPRESS_OFFLINE_CONTEXT = [
     # Needed for the extra JS in `place_form` template.
     {'form': {'location': True}},
 ]
+COMPRESS_JINJA2_GET_ENVIRONMENT = lambda: None  # noqa: E731
 
 # Application definition
 
