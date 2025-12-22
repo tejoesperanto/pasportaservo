@@ -1,4 +1,5 @@
 import itertools
+import time
 from collections import namedtuple
 from datetime import datetime, timedelta
 from importlib import import_module
@@ -12,15 +13,19 @@ from django.test import override_settings, tag
 from django.urls import reverse_lazy
 
 from django_webtest import WebTest
-from django_webtest.response import DjangoWebtestResponse
 from factory import Faker
 
+from core.forms import async_task
 from core.utils import join_lazy
 
+from .. import DjangoWebtestResponse
 from ..assertions import AdditionalAsserts
 from ..factories import UserFactory
 from .mixins import FormViewTestsMixin
-from .pages import RegisterPage
+from .pages import (
+    PasswordResetPage, PasswordResetRequestSuccessPage, RegisterPage,
+    UsernameRemindPage, UsernameRemindRequestSuccessPage,
+)
 from .testcasebase import BasicViewTests
 
 
@@ -115,6 +120,7 @@ class RegisterViewTests(FormViewTestsMixin, BasicViewTests):
                 # The user is expected to be logged in now.
                 user = page.get_user()
                 self.assertIsNotNone(user)
+                assert user is not None
                 self.assertIsNotNone(user.pk)
                 self.assertEqual(user.username, test_data['username'])
                 # A top-level login success message is expected to be displayed to
@@ -423,3 +429,150 @@ class AccountRestoreRequestViewTests(AdditionalAsserts, WebTest):
                 # No (further) notification is expected to be displayed to the user.
                 self.assertLength(page.context.get('messages', []), 0)
                 self.assertLength(pyquery("section.messages .message"), 0)
+
+
+@tag('views', 'views-account')
+class PasswordResetViewTests(FormViewTestsMixin, BasicViewTests):
+    view_page = PasswordResetPage
+
+    def test_request_submission(self):
+        """
+        Tests that for both existing and non-existing email addresses, the anonymous and
+        the authenticated user are shown the same result page.
+        """
+        # Much more thorough tests are in SystemPasswordResetRequestFormTests.
+
+        for user in [None, self.user]:
+            for tested_email in [self.user._clean_email, 'abcdef@localhost']:
+                with self.subTest(
+                        user="authenticated" if user else "anonymous",
+                        email="non-existing" if '@localhost' in tested_email else "existing",
+                ):
+                    page = self.view_page.open(self, user=user)
+                    mail.outbox = []
+                    page.submit({'email': tested_email})
+                    self.assertRedirects(page.response, str(self.view_page.success_page.url))
+                    # An email is expected to be sent only when the email address exists.
+                    self.assertLength(mail.outbox, 0 if '@localhost' in tested_email else 1)
+
+    def test_timing(self):
+        """
+        Tests that the view takes approximately the same time to respond for both existing
+        and non-existing email addresses, to avoid leaking information regarding emails of
+        registered users through timing attacks.
+        """
+        original_async_task = async_task
+
+        def force_async_task(*args, **kwargs):
+            return original_async_task(*args, sync=False, **kwargs)
+
+        with (
+            patch('core.forms.async_task', new=force_async_task),
+            patch('core.forms.send_mail', side_effect=lambda *args, **kwargs: time.sleep(1.0)),
+        ):
+            users = UserFactory.create_batch(5, profile=None)
+            emails = [u.email for u in users] + [f'{letter}@localhost' for letter in 'abcdef']
+            timings = []
+            for tested_email in emails:
+                page = self.view_page.open(self, user=None)
+                start_time = time.perf_counter()
+                page.submit({'email': tested_email})
+                self.assertRedirects(page.response, str(self.view_page.success_page.url))
+                elapsed_time = time.perf_counter() - start_time
+                timings.append(elapsed_time)
+            average_existing = sum(timings[:len(users)]) / len(users)
+            average_absent = sum(timings[len(users):]) / (len(emails) - len(users))
+            self.assertLess(
+                abs(average_existing - average_absent), 0.05, msg=(
+                    f"Timing averages differ too much: existing email {average_existing:.4f}s"
+                    f" vs non-existing email {average_absent:.4f}s")
+            )
+
+
+@tag('views', 'views-account')
+class PasswordResetDoneViewTests(BasicViewTests):
+    view_page = PasswordResetRequestSuccessPage
+    reset_request_content = {
+        'en': "We've emailed you instructions for setting your password.",
+        'eo': "Ni retpoŝtis al vi instrukciojn por agordi la pasvorton.",
+    }
+    expected_content = {
+        'en': [
+            "If an account exists for the email address you provided, you should receive them"
+            " shortly.",
+            "If you don't receive an email message, please make sure you've entered the email"
+            " address you registered with. Also, check your spam folder.",
+        ],
+        'eo': [
+            "Se la konto koncerna al la retpoŝta adreso kiun vi indikis ekzistas, vi baldaŭ"
+            " devus ilin ricevi.",
+            "Se vi ne ricevas retpoŝtmesaĝon, bonvole certiĝu ke vi entajpis tiun adreson per"
+            " kiu vi registriĝis. Krom tio, kontrolu vian spam-dosierujon."
+        ],
+    }
+
+    def test_request_result(self):
+        """
+        Tests that the password reset request result page informs the user that an email
+        was sent, without disclosing whether the email address is registered or not, and
+        provides additional instructions.
+        """
+        for lang in self.expected_content:
+            with (
+                override_settings(LANGUAGE_CODE=lang),
+                self.subTest(lang=lang)
+            ):
+                page = self.view_page.open(self, reuse_for_lang=lang)
+                for expected_string in self.expected_content[lang]:
+                    with self.subTest(content=f"{expected_string[:20]}..."):
+                        self.assertContains(page.response, expected_string, count=1)
+                self.assertContains(page.response, self.reset_request_content[lang], count=1)
+                self.assertNotContains(
+                    page.response, UsernameRemindDoneViewTests.remind_request_content[lang])
+
+
+@tag('views', 'views-account')
+class UsernameRemindViewTests(PasswordResetViewTests):
+    view_page = UsernameRemindPage
+
+
+@tag('views', 'views-account')
+class UsernameRemindDoneViewTests(BasicViewTests):
+    view_page = UsernameRemindRequestSuccessPage
+    remind_request_content = {
+        'en': "We've emailed you a reminder of your username.",
+        'eo': "Ni retpoŝtis al vi memorigon pri via ensalutnomo.",
+    }
+    expected_content = {
+        'en': [
+            "If an account exists for the email address you provided, you should receive it"
+            " shortly.",
+            "If you don't receive an email message, please make sure you've entered the email"
+            " address you registered with. Also, check your spam folder.",
+        ],
+        'eo': [
+            "Se la konto koncerna al la retpoŝta adreso kiun vi indikis ekzistas, vi baldaŭ"
+            " devus ĝin ricevi.",
+            "Se vi ne ricevas retpoŝtmesaĝon, bonvole certiĝu ke vi entajpis tiun adreson per"
+            " kiu vi registriĝis. Krom tio, kontrolu vian spam-dosierujon."
+        ],
+    }
+
+    def test_request_result(self):
+        """
+        Tests that the username reminder request result page informs the user that an
+        email was sent, without disclosing whether the email address is registered or
+        not, and provides additional instructions.
+        """
+        for lang in self.expected_content:
+            with (
+                override_settings(LANGUAGE_CODE=lang),
+                self.subTest(lang=lang)
+            ):
+                page = self.view_page.open(self, reuse_for_lang=lang)
+                for expected_string in self.expected_content[lang]:
+                    with self.subTest(content=f"{expected_string[:20]}..."):
+                        self.assertContains(page.response, expected_string, count=1)
+                self.assertContains(page.response, self.remind_request_content[lang], count=1)
+                self.assertNotContains(
+                    page.response, PasswordResetDoneViewTests.reset_request_content[lang])

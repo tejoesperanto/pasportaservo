@@ -10,9 +10,10 @@ from django.utils.functional import Promise
 from django.views import View
 
 from bs4 import BeautifulSoup
-from django_webtest import DjangoTestApp, WebTest
+from django_webtest import WebTest
 from pyquery import PyQuery
 
+from ... import DjangoWebtestResponse
 from ...factories import UserFactory
 
 Page = TypeVar('Page', bound='PageTemplate')
@@ -94,7 +95,7 @@ class PageTemplate:
 
     # Private Page instance fields.
     _test_case: WebTest
-    _page: DjangoTestApp.response_class
+    _page: DjangoWebtestResponse
     _open_pages: dict[str | None, 'PageTemplate'] = {}
     _open_pages_lock = Lock()
 
@@ -170,7 +171,7 @@ class PageTemplate:
     def wrap_response(
             cls: type[Page],
             test_case: WebTest,
-            response: DjangoTestApp.response_class,
+            response: DjangoWebtestResponse,
     ) -> Page:
         page_instance = cls()
         page_instance._test_case = test_case
@@ -256,7 +257,7 @@ class PageTemplate:
 class PageWithFormTemplate(PageTemplate):
     class _RenderedFormDefinitionBase(TypedDict):
         selector: str
-        title: dict[str, str]
+        title: PageTemplate._LocalizationSpec
 
     class RenderedFormDefinition(_RenderedFormDefinitionBase, total=False):
         object: Form | ModelForm | None
@@ -268,6 +269,7 @@ class PageWithFormTemplate(PageTemplate):
             'en': "", 'eo': "",
         },
     }
+    success_page: type[PageTemplate]
 
     @classmethod
     def open(cls: type[PageWithForm], *args, **kwargs) -> PageWithForm:
@@ -277,7 +279,7 @@ class PageWithFormTemplate(PageTemplate):
 
     def submit(
             self,
-            form_data: dict,
+            form_data: dict[str, Any],
             redirect_to: Optional[str] = None,
             csrf_token: Optional[str] = None,
     ):
