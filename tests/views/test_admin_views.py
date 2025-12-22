@@ -383,7 +383,7 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                         self.assertEqual(page.response.status_code, 302)
                         self.assertEqual(
                             page.response.location,
-                            f'{MassMailResultPage.url}?' + urlencode({
+                            f'{self.view_page.success_page.url}?' + urlencode({
                                 'nb': len(test_users[category][True]),
                             })
                         )

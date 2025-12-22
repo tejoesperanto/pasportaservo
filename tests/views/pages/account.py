@@ -1,13 +1,20 @@
 from typing import cast
 
+from django.contrib.auth.views import PasswordResetDoneView
 from django.urls import reverse_lazy
 from django.utils.translation import pgettext_lazy
 
 from lxml.html import HtmlElement
 from pyquery import PyQuery
 
-from core.forms import UserAuthenticationForm, UserRegistrationForm
-from core.views import AccountSettingsView, LoginView, RegisterView
+from core.forms import (
+    SystemPasswordResetRequestForm, UserAuthenticationForm,
+    UsernameRemindRequestForm, UserRegistrationForm,
+)
+from core.views import (
+    AccountSettingsView, LoginView, PasswordResetView,
+    RegisterView, UsernameRemindDoneView, UsernameRemindView,
+)
 
 from .base import PageTemplate, PageWithFormTemplate
 
@@ -80,6 +87,88 @@ class LoginPage(PageWithFormTemplate):
             'eo': "Ensaluto",
         },
     }
+
+
+class PasswordResetRequestSuccessPage(PageTemplate):
+    view_class = PasswordResetDoneView
+    url = reverse_lazy('password_reset_done')
+    explicit_url = {
+        'en': '/password/reset/sent/',
+        'eo': '/pasvorto/nova/sukceso/',
+    }
+    template = 'registration/password_reset_done.html'
+    title = {
+        'en': "Password reset at Pasporta Servo",
+        'eo': "Nova pasvorto ĉe Pasporta Servo",
+    }
+    redirects_unauthenticated = False
+    redirects_logged_in = False
+
+
+class PasswordResetPage(PageWithFormTemplate):
+    view_class = PasswordResetView
+    form_class = SystemPasswordResetRequestForm
+    url = reverse_lazy('password_reset')
+    explicit_url = {
+        'en': '/password/reset/',
+        'eo': '/pasvorto/nova/',
+    }
+    template = 'registration/password_reset_form.html'
+    title = {
+        'en': "Password reset at Pasporta Servo",
+        'eo': "Nova pasvorto ĉe Pasporta Servo",
+    }
+    redirects_unauthenticated = False
+    redirects_logged_in = False
+    form = {
+        'selector': ".password.reset",
+        'title': {
+            'en': "Password reset",
+            'eo': "Nova pasvorto",
+        }
+    }
+    success_page = PasswordResetRequestSuccessPage
+
+
+class UsernameRemindRequestSuccessPage(PageTemplate):
+    view_class = UsernameRemindDoneView
+    url = reverse_lazy('username_remind_done')
+    explicit_url = {
+        'en': '/username/remind/sent/',
+        'eo': '/salutnomo/memorigo/sukceso/',
+    }
+    template = 'registration/username_remind_done.html'
+    title = {
+        'en': "Username at Pasporta Servo",
+        'eo': "Salutnomo ĉe Pasporta Servo",
+    }
+    redirects_unauthenticated = False
+    redirects_logged_in = False
+
+
+class UsernameRemindPage(PageWithFormTemplate):
+    view_class = UsernameRemindView
+    form_class = UsernameRemindRequestForm
+    url = reverse_lazy('username_remind')
+    explicit_url = {
+        'en': '/username/remind/',
+        'eo': '/salutnomo/memorigo/',
+    }
+    template = 'registration/username_remind_form.html'
+    title = {
+        'en': "Username at Pasporta Servo",
+        'eo': "Salutnomo ĉe Pasporta Servo",
+    }
+    redirects_unauthenticated = False
+    redirects_logged_in = False
+    form = {
+        'selector': ".username.remind",
+        'title': {
+            'en': "Username reminder",
+            'eo': "Memorigo pri salutnomo",
+        }
+    }
+    success_page = UsernameRemindRequestSuccessPage
 
 
 class AccountSettingsPage(PageTemplate):

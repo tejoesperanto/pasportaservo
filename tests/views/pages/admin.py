@@ -8,21 +8,6 @@ from core.views import MassMailSentView, MassMailView
 from .base import PageWithFormTemplate, PageWithTitleHeadingTemplate
 
 
-class MassMailPage(PageWithFormTemplate):
-    view_class = MassMailView
-    form_class = MassMailForm
-    url = reverse_lazy('mass_mail')
-    explicit_url = {
-        'en': '/admin/mass-mail/',
-        'eo': '/admin/amassendado/',
-    }
-    template = 'core/mass_mail_form.html'
-    title = {
-        'en': "Announcement to users | Pasporta Servo",
-        'eo': "Anonco al uzantoj | Pasporta Servo",
-    }
-
-
 class MassMailResultPage(PageWithTitleHeadingTemplate):
     view_class = MassMailSentView
     url = reverse_lazy('mass_mail_sent')
@@ -46,3 +31,19 @@ class MassMailResultPage(PageWithTitleHeadingTemplate):
 
     def get_result_element(self) -> PyQuery:
         return self.pyquery("[role='main'] > h3")
+
+
+class MassMailPage(PageWithFormTemplate):
+    view_class = MassMailView
+    form_class = MassMailForm
+    url = reverse_lazy('mass_mail')
+    explicit_url = {
+        'en': '/admin/mass-mail/',
+        'eo': '/admin/amassendado/',
+    }
+    template = 'core/mass_mail_form.html'
+    title = {
+        'en': "Announcement to users | Pasporta Servo",
+        'eo': "Anonco al uzantoj | Pasporta Servo",
+    }
+    success_page = MassMailResultPage
