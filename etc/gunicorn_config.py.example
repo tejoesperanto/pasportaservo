@@ -1,12 +1,11 @@
-command = '/opt/envs/prod/bin/gunicorn'
+command = '/opt/envs/{ENV_NAME}/bin/gunicorn'
 raw_env = [
-    'DJANGO_SETTINGS_MODULE=pasportaservo.settings.prod',
-    'SECRET_KEY="sekreto"',
-    'EMAIL_HOST_PASSWORD="pasvorto"',
-    'SENDGRID_API_KEY=SG.some.API.Key',
+
 ]
-pythonpath = '/srv/prod/pasportaservo'
+pythonpath = '/srv/{ENV_NAME}/pasportaservo'
 bind = ['127.0.0.1:8010', '[::1]:8010']
 workers = 3
 user = 'ps'
-errorlog = '/srv/staging/stderr.log'
+errorlog = '/srv/{ENV_NAME}/stderr.log'
+capture_output = True
+timeout = 60

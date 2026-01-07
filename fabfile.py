@@ -150,4 +150,5 @@ def deploy(conn, mode="full", remote="origin"):
     if mode != "html":
         site_ctl(conn, command="restart")
         site_ctl(conn, command="status", service_name="memcached-ps", needs_su=False)
+        site_ctl(conn, command="status", service_name="qcluster-ps", needs_su=False)
         site_ctl(conn, command="status", needs_su=False)

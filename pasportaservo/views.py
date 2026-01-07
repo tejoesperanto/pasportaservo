@@ -1,3 +1,7 @@
+import re
+from typing import cast
+
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.http import HttpResponseForbidden
@@ -43,7 +47,44 @@ def custom_permission_denied_view(request, exception, template_name=ERROR_403_TE
     return response
 
 
-class UnsafeExceptionReporterFilter(SafeExceptionReporterFilter):
+class SafeGranularExceptionReporterFilter(SafeExceptionReporterFilter):
+    nonsensitive_settings = {
+        'full_match': (
+            'INSTALLED_APPS', 'ADMIN_APP_ORDERING', 'AUTH_USER_MODEL', 'AUTH_PROFILE_MODULE',
+            'AUTHENTICATION_BACKENDS', 'AUTH_PASSWORD_VALIDATORS', 'PASSWORD_RESET_TIMEOUT',
+        ),
+        'partial_match': re.compile(r'KEY_PREFIX|KEY_FUNCTION|_HASHER'),
+    }
+
+    @cached_property
+    def hidden_settings(self):
+        existing_regex = cast(
+            re.Pattern[str], super().hidden_settings)  # type: ignore[attr-defined]
+        combined_pattern = f'{existing_regex.pattern}|DSN'
+        return re.compile(combined_pattern, existing_regex.flags)
+
+    def get_safe_settings(self):
+        settings_dict = {}
+        for key in dir(settings):
+            if not key.isupper():
+                continue
+            if (
+                key in self.nonsensitive_settings['full_match']
+                or re.search(self.nonsensitive_settings['partial_match'], key)
+            ):
+                settings_dict[key] = getattr(settings, key)
+            else:
+                settings_dict[key] = self.cleanse_setting(key, getattr(settings, key))
+        return settings_dict
+
+    def cleanse_setting(self, key, value):
+        if value is None or value == '':
+            return value
+        else:
+            return super().cleanse_setting(key, value)  # type: ignore[attr-defined]
+
+
+class UnsafeExceptionReporterFilter(SafeExceptionReporterFilter):  # pragma: no cover
     def cleanse_setting(self, key, value):
         return value
 
