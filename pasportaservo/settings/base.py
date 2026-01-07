@@ -220,6 +220,9 @@ LOGGING = {
         },
     },
 }
+DEFAULT_EXCEPTION_REPORTER_FILTER = (
+    'pasportaservo.views.SafeGranularExceptionReporterFilter'
+)
 
 # Testing
 

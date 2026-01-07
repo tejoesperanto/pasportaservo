@@ -1,13 +1,14 @@
 [Unit]
 Description=Async tasks runner for Pasporta Servo (staging)
+PartOf=pasportaservo.staging.service
 
 [Service]
 ExecStart=/opt/envs/staging/bin/python manage.py qcluster
+EnvironmentFile=/srv/staging/config.env
 WorkingDirectory=/srv/staging/pasportaservo
 RuntimeDirectory=pasportaservo/staging-qcluster
 User=ps
 Restart=no
-StandardError=syslog
 
 [Install]
 WantedBy=multi-user.target

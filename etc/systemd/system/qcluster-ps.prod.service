@@ -1,13 +1,14 @@
 [Unit]
 Description=Async tasks runner for Pasporta Servo
+PartOf=pasportaservo.prod.service
 
 [Service]
 ExecStart=/opt/envs/prod/bin/python manage.py qcluster
+EnvironmentFile=/srv/prod/config.env
 WorkingDirectory=/srv/prod/pasportaservo
 RuntimeDirectory=pasportaservo/prod-qcluster
 User=ps
 Restart=no
-StandardError=syslog
 
 [Install]
 WantedBy=multi-user.target
