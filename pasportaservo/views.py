@@ -15,6 +15,7 @@ from postman.views import (
     ReplyView as PostmanReplyView, WriteView as PostmanWriteView,
 )
 
+from chat.moderation import moderate_new_contact, moderate_reply
 from hosting.models import Phone, Place, Profile
 
 from .forms import (
@@ -91,6 +92,7 @@ class UnsafeExceptionReporterFilter(SafeExceptionReporterFilter):  # pragma: no 
 
 class ExtendedWriteView(PostmanWriteView):
     form_classes = (CustomWriteForm, CustomAnonymousWriteForm)
+    auto_moderators = [moderate_new_contact]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -134,6 +136,7 @@ class ExtendedWriteView(PostmanWriteView):
 
 class ExtendedReplyView(PostmanReplyView):
     form_class = CustomReplyForm
+    auto_moderators = [moderate_reply]
 
 
 class ChatMixin(object):

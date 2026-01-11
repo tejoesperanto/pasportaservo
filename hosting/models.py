@@ -498,6 +498,10 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
         upload_to=RenameAndPrefixAvatar("avatars"),
         validators=[validate_image, validate_size],
         help_text=_("Small image under 100kB. Ideal size: 140x140 px."))
+    personal_details_changed_on = models.DateTimeField(
+        _("personal details changed on"),
+        default=None, null=True, blank=True,
+    )
 
     if TYPE_CHECKING:
         pref: 'Preferences'

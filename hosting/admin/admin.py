@@ -315,6 +315,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin,
     fieldsets = (
         (None, {'fields': (
             'user', 'title', 'first_name', 'last_name', 'names_inversed',
+            'personal_details_changed_on',
             'birth_date', 'death_date',
             ('gender', 'pronoun'),
             'description', 'avatar', 'email',
@@ -325,7 +326,9 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin,
     fields = None
     raw_id_fields = ('user',)
     radio_fields = {'title': admin.HORIZONTAL}
-    readonly_fields = ('supervisor',) + TrackingModelAdmin.readonly_fields
+    readonly_fields = (
+        'personal_details_changed_on', 'supervisor',
+    ) + TrackingModelAdmin.readonly_fields
     formfield_overrides = {
         models.ImageField: {'widget': AdminImageWithPreviewWidget},
     }
