@@ -310,7 +310,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin,
         EmailValidityFilter, ProfileHasUserFilter,
         ('death_date', YearBracketFilter),
     )
-    date_hierarchy = 'birth_date'
+    # date_hierarchy = 'birth_date'
 
     fieldsets = (
         (None, {'fields': (
