@@ -3814,6 +3814,7 @@ msgstr "Rigardi detalojn de tiu ĉi loĝejo"
 
 #: hosting/templates/hosting/profile_detail.html
 #: hosting/templates/hosting/profile_edit.html
+#: pasportaservo/templates/postman/email_user.html
 msgid "View"
 msgstr "Rigardi"
 
@@ -4817,28 +4818,31 @@ msgid "%(sender)s wrote to you!"
 msgstr "%(sender)s skribis al vi!"
 
 #: pasportaservo/templates/postman/email_user.html
-msgid "Reply"
-msgstr "Respondi"
+#: pasportaservo/templates/postman/email_user.txt
+#: pasportaservo/templates/postman/email_visitor.txt
+msgid "Your message has been rejected by the moderator"
+msgstr ""
 
 #: pasportaservo/templates/postman/email_user.html
-msgid "Answer this message by using the button:"
-msgstr "Respondu tiun ĉi mesaĝon uzante la butonon:"
-
 #: pasportaservo/templates/postman/email_user.txt
 #: pasportaservo/templates/postman/email_visitor.txt
 #, python-format
 msgid "On %(date)s, you asked to send a message to the user '%(recipient)s'."
 msgstr ""
 
-#: pasportaservo/templates/postman/email_user.txt
-#: pasportaservo/templates/postman/email_visitor.txt
-msgid "Your message has been rejected by the moderator"
-msgstr ""
-
+#: pasportaservo/templates/postman/email_user.html
 #: pasportaservo/templates/postman/email_user.txt
 #: pasportaservo/templates/postman/email_visitor.txt
 msgid ", for the following reason:"
 msgstr ""
+
+#: pasportaservo/templates/postman/email_user.html
+msgid "Reply"
+msgstr "Respondi"
+
+#: pasportaservo/templates/postman/email_user.html
+msgid "Answer this message by using the button:"
+msgstr "Respondu tiun ĉi mesaĝon uzante la butonon:"
 
 #: pasportaservo/templates/postman/email_user.txt
 #: pasportaservo/templates/postman/email_visitor.txt
@@ -4876,9 +4880,12 @@ msgid ""
 msgstr ""
 
 #: pasportaservo/templates/postman/email_user_subject.txt
-#, python-format
-msgid "Message from %(sender)s: %(subject)s"
-msgstr "Mesaĝo de %(sender)s: %(subject)s"
+msgid "Message from user %(sender)s: %(subject)s"
+msgstr "Mesaĝo de uzanto %(sender)s: %(subject)s"
+
+#: pasportaservo/templates/postman/email_user_subject.txt
+msgid "Message to user %(recipient)s: %(subject)s"
+msgstr "Mesaĝo al uzanto %(recipient)s: %(subject)s"
 
 #: pasportaservo/templates/postman/email_visitor.txt
 msgid "Dear visitor,"

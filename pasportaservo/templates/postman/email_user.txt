@@ -1,9 +1,13 @@
 {% load i18n domain %}{% load compact split from utils %}{% autoescape off %}
 {% filter compact %}
-    {% include 'email/base_salutation.txt' with recipient=object.recipient only %}
+    {% if action == 'acceptance' %}
+        {% include 'email/base_salutation.txt' with recipient=object.recipient only %}
+    {% else %}
+        {% include 'email/base_salutation.txt' with recipient=object.sender only %}
+    {% endif %}
 {% endfilter %}
 {% if action == 'rejection' %}
-{% blocktrans with object.sent_at|date:"DATETIME_FORMAT" as date and object.obfuscated_recipient as recipient trimmed %}
+{% blocktrans with date=object.sent_at|date:"DATETIME_FORMAT" recipient=object.obfuscated_recipient trimmed %}
     On {{ date }}, you asked to send a message to the user '{{ recipient }}'.
 {% endblocktrans %}
 
@@ -14,17 +18,17 @@
 {% filter compact %}
     {% if object.parent_id %}
         {% if object.parent.sender_id == object.recipient_id %}
-            {% blocktrans with object.parent.sent_at|date:"DATETIME_FORMAT" as date and object.obfuscated_sender as sender trimmed %}
+            {% blocktrans with date=object.parent.sent_at|date:"DATETIME_FORMAT" sender=object.obfuscated_sender trimmed %}
                 On {{ date }}, you sent a message to the user '{{ sender }}'.
             {% endblocktrans %}
             {% trans "Your correspondent has given you an answer." %}
         {% else %}
-            {% blocktrans with object.obfuscated_sender as sender trimmed %}
+            {% blocktrans with sender=object.obfuscated_sender trimmed %}
                 You have received a copy of a response from the user '{{ sender }}'.
             {% endblocktrans %}
         {% endif %}
     {% else %}
-        {% blocktrans with object.obfuscated_sender as sender trimmed %}
+        {% blocktrans with sender=object.obfuscated_sender trimmed %}
             You have received a message from the user '{{ sender }}'.
         {% endblocktrans %}
     {% endif %}

@@ -2,8 +2,14 @@
 [[CHAT]]
 {% filter compact %}
 {% autoescape off %}
-    {% blocktrans with object.obfuscated_sender as sender and object.subject as subject trimmed %}
-        Message from {{ sender }}: {{ subject }}
-    {% endblocktrans %}
+    {% if action == 'acceptance' %}
+        {% blocktrans with sender=object.obfuscated_sender subject=object.subject trimmed %}
+            Message from user {{ sender }}: {{ subject }}
+        {% endblocktrans %}
+    {% else %}
+        {% blocktrans with recipient=object.obfuscated_recipient subject=object.subject trimmed %}
+            Message to user {{ recipient }}: {{ subject }}
+        {% endblocktrans %}
+    {% endif %}
 {% endautoescape %}
 {% endfilter %}
