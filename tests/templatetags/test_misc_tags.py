@@ -2,7 +2,7 @@ import string
 import sys
 import unittest
 from collections import namedtuple
-from typing import Any
+from typing import Any, cast
 
 from django.conf import settings
 from django.contrib.flatpages.models import FlatPage
@@ -460,8 +460,8 @@ class CompactFilterTests(TestCase):
 class SplitFilterTests(TestCase):
     dummy_object = object()
     test_data: list[tuple[Any, dict[str | None, list]]] = [
-        ("", {',': [""], None: []}),
-        (" \t  ", {',': [" \t  "], None: []}),
+        ("", {',': [""], None: [""]}),
+        (" \t  ", {',': [" \t  "], None: [""]}),
         ("xyzqw", {',': ["xyzqw"], None: ["xyzqw"]}),
         ("1,2,3", {',': ["1", "2", "3"], None: ["1,2,3"]}),
         ("a,bb,", {',': ["a", "bb", ""], None: ["a,bb,"]}),
@@ -537,7 +537,7 @@ class SplitFilterTests(TestCase):
             ("<a>\n\n<b>\n", {
                 '>': ["<a", "\n\n<b", "\n"],
                 '<a>': ["", "\n\n<b>\n"],
-                'NEWLINE': ["<a>", "", "<b>", ""]
+                'NEWLINE': ["<a>", "", "<b>"]
             }),
         ]
         self.test_var_input(test_data=test_data, autoescape=True)
@@ -546,7 +546,7 @@ class SplitFilterTests(TestCase):
     def do_test_with_chunks(self, *, var, autoescape):
         test_data = (
             "This message;\t<strong>along with the apple</strong>;"
-            " is sent on behalf of <span>Adam</span>;"
+            " is sent on behalf of <span>Adamµ</span>;"
         )
         expected = {
             # no separator, no chunk length
@@ -557,42 +557,42 @@ class SplitFilterTests(TestCase):
             '~14': [
                 True,
                 ["This message;\t", "<strong>along ", "with the apple", "</strong>; is ", "sent on behalf",
-                 " of <span>Adam", "</span>;"]],
+                 " of <span>Adam", "µ</span>;"]],
             # separator is space, chunk length 4
             ' ~4': [
                 True,
                 ["This", "mess", "age;", "\t<st", "rong", ">alo", "ng", "with", "the", "appl", "e</s", "tron",
-                 "g>;", "is", "sent", "on", "beha", "lf", "of", "<spa", "n>Ad", "am</", "span", ">;"]],
+                 "g>;", "is", "sent", "on", "beha", "lf", "of", "<spa", "n>Ad", "amµ<", "/spa", "n>;"]],
             # separator is semicolon, chunk length 9
             ';~9': [
                 True,
                 ["This mess", "age", "\t<strong>", "along wit", "h the app", "le</stron", "g>", " is sent ",
-                 "on behalf", " of <span", ">Adam</sp", "an>", ""]],
+                 "on behalf", " of <span", ">Adamµ</s", "pan>", ""]],
             # separator is angle bracket, no chunk length
             '<~': [
                 False,
                 ["This message;\t", "strong>along with the apple", "/strong>; is sent on behalf of ",
-                 "span>Adam", "/span>;"]],
+                 "span>Adamµ", "/span>;"]],
             # separator is angle bracket, chunk length is invalid
             '<~aab': [
                 False,
                 ["This message;\t", "strong>along with the apple", "/strong>; is sent on behalf of ",
-                 "span>Adam", "/span>;"]],
+                 "span>Adamµ", "/span>;"]],
             # separator is angle bracket, chunk length is invalid
             '<~9.3': [
                 False,
                 ["This message;\t", "strong>along with the apple", "/strong>; is sent on behalf of ",
-                 "span>Adam", "/span>;"]],
+                 "span>Adamµ", "/span>;"]],
             # separator is angle bracket, chunk length 17
             '<~-17': [
                 True,
                 ["This message;\t", "strong>along with", " the apple", "/strong>; is sent", " on behalf of ",
-                 "span>Adam", "/span>;"]],
+                 "span>Adamµ", "/span>;"]],
             # separator is tab-tilda-tab, chunk length 42
             '\t~\t~42': [
                 True,
                 ["This message;\t<strong>along with the apple", "</strong>; is sent on behalf of <span>Adam",
-                 "</span>;"]],
+                 "µ</span>;"]],
             # separator is tilda-tilda, chunk length 99
             '~~~99': [True, [test_data]],
         }
@@ -603,6 +603,47 @@ class SplitFilterTests(TestCase):
                 {% for x in $DATA|split:'$SEP' %}#{{ x }}#{% endfor %}
             {% endautoescape %}
         """)
+
+        if var:
+            test_data = test_data.replace("µ", "\n")
+            for expected_values in expected.values():
+                expected_values[1] = map(
+                    lambda part: part.replace("µ", "\n"),
+                    cast(list[str], expected_values[1])
+
+                )
+            expected.update({
+                # separator is a newline, no chunk length
+                'NEWLINE~': [
+                    True,
+                    ["This message;\t<strong>along with the apple</strong>; is sent on behalf of <span>Adam",
+                     "</span>;"]],
+                # separator is a newline, chunk length is invalid
+                'NEWLINE~NONE': [
+                    True,
+                    ["This message;\t<strong>along with the apple</strong>; is sent on behalf of <span>Adam",
+                     "</span>;"]],
+                # separator is a newline, chunk length 50
+                'NEWLINE~50': [
+                    True,
+                    ["This message;\t<strong>along with the apple</strong",
+                     ">; is sent on behalf of <span>Adam", "</span>;"]],
+                # separator is "NEWLINE"-tilda, chunk length 25
+                'NEWLINE~~25': [
+                    True,
+                    ["This message;\t<strong>alo", "ng with the apple</strong", ">; is sent on behalf of <",
+                     "span>Adam\n</span>;"]],
+            })
+        else:
+            expected.update({
+                # separator is a newline, no chunk length
+                'NEWLINE~': [False, [test_data]],
+                # separator is a newline, chunk length 52
+                'NEWLINE~52': [
+                    True,
+                    ["This message;\t<strong>along with the apple</strong>;",
+                     " is sent on behalf of <span>Adamµ</span>;"]],
+            })
 
         for sep in expected:
             with self.subTest(separator=sep):
