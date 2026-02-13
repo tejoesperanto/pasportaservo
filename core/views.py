@@ -55,6 +55,7 @@ from gql.transport.requests import RequestsHTTPTransport as GQLHttpTransport
 from graphql import GraphQLError
 
 from blog.models import Post
+from core.templatetags.utils import split as text_split
 from hosting.forms import SubregionForm
 from hosting.models import (
     PasportaServoUser, Phone, Place, Profile, ViewableTrackingModel,
@@ -988,7 +989,7 @@ class MassMailView(AuthMixin, generic.FormView):
 
         message = (
             subject,
-            body,
+            "\n".join(text_split(body, 'NEWLINE~75')),
             template.render({
                 'preheader': preheader, 'heading': heading, 'body': mark_safe(md_body),
                 'body_alignment': form.cleaned_data.get('alignment'),
