@@ -378,7 +378,8 @@ def postman_params_email(context):
     }
 
 POSTMAN_I18N_URLS = True
-POSTMAN_AUTO_MODERATE_AS = True
+# Leave messages to a human moderator review, if no automated decision was taken.
+POSTMAN_AUTO_MODERATE_AS = None
 POSTMAN_MAILER_APP = None
 POSTMAN_PARAMS_EMAIL = postman_params_email
 POSTMAN_SHOW_USER_AS = user_first_name

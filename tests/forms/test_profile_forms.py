@@ -7,6 +7,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile, UploadedFile
 from django.db import IntegrityError
 from django.test import override_settings, tag
 from django.urls import reverse
+from django.utils import timezone
 
 import rstr
 from django_webtest import WebTest
@@ -49,7 +50,8 @@ class ProfileFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
     def setUpTestData(cls):
         TaggedProfile = NamedTuple('TaggedProfile', [('obj', Profile), ('tag', str)])
 
-        cls.profile_with_no_places = TaggedProfile(ProfileFactory.create(), "simple")
+        profile = ProfileFactory.create(locale='la')
+        cls.profile_with_no_places = TaggedProfile(profile, "simple")
         profile = ProfileFactory.create(deceased=True)
         cls.profile_with_no_places_deceased = TaggedProfile(profile, "deceased")
 
@@ -428,6 +430,7 @@ class ProfileFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
         self.assertTrue(form.is_valid(), msg=repr(form.errors))
 
     def test_valid_data_for_simple_profile(self):
+        init_timestamp = timezone.now()
         form = self._init_form({}, instance=self.profile_with_no_places.obj, save=True)
         self.assertTrue(form.is_valid())
         profile: Profile = form.save(commit=False)
@@ -445,6 +448,12 @@ class ProfileFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
         self.assertIsNone(profile.birth_date)
         self.assertEqual(profile.description, "")
         self.assertEqual(profile.avatar.name, "")
+        if type(form) is ProfileForm:
+            self.assertIsNotNone(profile.personal_details_changed_on)
+            assert profile.personal_details_changed_on is not None
+            self.assertGreater(profile.personal_details_changed_on, init_timestamp)
+        elif type(form) is ProfileCreateForm:
+            self.assertIsNone(profile.personal_details_changed_on)
 
     @override_settings(MEDIA_ROOT='tests/assets/')
     @patch('django.core.files.storage.FileSystemStorage.save', return_value='a2529045.jpg')
@@ -475,6 +484,7 @@ class ProfileFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
                     'avatar': avatar_file,
                 })
             with self.subTest(dataset=dataset_type, condition=profile_tag):
+                init_timestamp = timezone.now()
                 avatar_file = data.pop('avatar', None)
                 form = self._init_form(
                     {**data, 'avatar-clear': avatar_file is None},
@@ -501,6 +511,9 @@ class ProfileFormTestingBase(AdditionalAsserts, with_type_hint(WebTest)):
                                 getattr(saved_profile, field),
                                 data[field] if data[field] is not None else ""
                             )
+                self.assertIsNotNone(saved_profile.personal_details_changed_on)
+                assert saved_profile.personal_details_changed_on is not None
+                self.assertGreater(saved_profile.personal_details_changed_on, init_timestamp)
 
 
 @tag('forms', 'forms-profile', 'profile')
@@ -776,6 +789,52 @@ class ProfileFormTests(ProfileFormTestingBase, WebTest):
                                      self.profile_in_book,
                                      self.profile_in_book_complex):
             super().test_valid_data(profile, profile_tag)
+
+    def test_personal_details_modification(self):
+        profile = self.profile_with_no_places.obj
+        profile.title = ""
+        sv_faker = LocaleFaker._get_faker(locale='sv')
+        test_data = {
+            True: [
+                ['first_name', ""],
+                ['last_name', ""],
+                ['first_name', sv_faker.first_name()],
+                ['last_name', sv_faker.last_name()],
+            ],
+            False: [
+                ['title', self.faker.random_element(elements=filter(None, profile.Titles.values))],
+                ['names_inversed', not profile.names_inversed],
+                ['birth_date', self.faker.date_between(start_date='-150y', end_date='-101y')],
+                ['description', sv_faker.text()],
+            ],
+        }
+        form_fields = (
+            self._init_form(empty=True, instance=profile, user=profile.user)
+            .fields.keys()
+        )
+
+        for expected_timestamp_change, field_changes in test_data.items():
+            for modified_field, new_value in field_changes:
+                with self.subTest(field=modified_field, timestamp=expected_timestamp_change):
+                    init_timestamp = timezone.now()
+                    current_timestamp = profile.personal_details_changed_on
+                    form = self._init_form(
+                        {
+                            field: getattr(profile, field)
+                            for field in form_fields
+                        } | {
+                            modified_field: new_value
+                        },
+                        instance=profile,
+                        save=True)
+                    self.assertTrue(form.is_valid(), msg=repr(form.errors))
+                    saved_profile = form.save()
+                    if expected_timestamp_change:
+                        self.assertIsNotNone(saved_profile.personal_details_changed_on)
+                        assert saved_profile.personal_details_changed_on is not None
+                        self.assertGreater(saved_profile.personal_details_changed_on, init_timestamp)
+                    else:
+                        self.assertEqual(saved_profile.personal_details_changed_on, current_timestamp)
 
     def test_view_page(self):
         page = self.app.get(

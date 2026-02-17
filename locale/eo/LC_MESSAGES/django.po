@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2025-11-18 07:31+0000\n"
+"POT-Revision-Date: 2026-01-11 19:29+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -135,6 +135,39 @@ msgstr "jes,ne"
 #: chat/apps.py
 msgid "Communicator"
 msgstr "Komunikilo"
+
+#: chat/apps.py
+#, python-brace-format
+msgid "Note to admin: There is currently {} chat message pending moderation."
+msgid_plural ""
+"Note to admin: There are currently {} chat messages pending moderation."
+msgstr[0] "Sciigo al admino: {} mesaĝo atendas permanan kontrolon."
+msgstr[1] "Sciigo al admino: {} mesaĝoj atendas permanan kontrolon."
+
+#: chat/moderation.py
+msgctxt "Chat moderation"
+msgid "no earlier accepted messages"
+msgstr "neniuj pli frue akceptitaj mesaĝoj"
+
+#: chat/moderation.py
+msgctxt "Chat moderation"
+msgid "previous messages are still pending"
+msgstr "antaŭaj mesaĝoj ankoraŭ atendas kontrolon"
+
+#: chat/moderation.py
+msgctxt "Chat moderation"
+msgid "previous message was rejected"
+msgstr "antaŭa mesaĝo estis malakceptita"
+
+#: chat/moderation.py
+msgctxt "Chat moderation"
+msgid "profile changed since last accepted message"
+msgstr "profilo ŝanĝiĝis post lasta akceptita mesaĝo"
+
+#: chat/moderation.py
+msgctxt "Chat moderation"
+msgid "sender has no profile set up"
+msgstr "sendanto ne havas agorditan profilon"
 
 #: core/admin/admin.py core/templates/registration/login.html
 #: hosting/admin/admin.py hosting/models.py
@@ -2380,6 +2413,10 @@ msgid "Small image under 100kB. Ideal size: 140x140 px."
 msgstr "Malgranda bildo, < 100 kB. Idealaj mezuroj: 140×140 punktoj."
 
 #: hosting/models.py
+msgid "personal details changed on"
+msgstr "personaĵeroj aliigitaj je"
+
+#: hosting/models.py
 msgid "profiles"
 msgstr "profiloj"
 
@@ -3777,6 +3814,7 @@ msgstr "Rigardi detalojn de tiu ĉi loĝejo"
 
 #: hosting/templates/hosting/profile_detail.html
 #: hosting/templates/hosting/profile_edit.html
+#: pasportaservo/templates/postman/email_user.html
 msgid "View"
 msgstr "Rigardi"
 
@@ -4780,28 +4818,31 @@ msgid "%(sender)s wrote to you!"
 msgstr "%(sender)s skribis al vi!"
 
 #: pasportaservo/templates/postman/email_user.html
-msgid "Reply"
-msgstr "Respondi"
+#: pasportaservo/templates/postman/email_user.txt
+#: pasportaservo/templates/postman/email_visitor.txt
+msgid "Your message has been rejected by the moderator"
+msgstr ""
 
 #: pasportaservo/templates/postman/email_user.html
-msgid "Answer this message by using the button:"
-msgstr "Respondu tiun ĉi mesaĝon uzante la butonon:"
-
 #: pasportaservo/templates/postman/email_user.txt
 #: pasportaservo/templates/postman/email_visitor.txt
 #, python-format
 msgid "On %(date)s, you asked to send a message to the user '%(recipient)s'."
 msgstr ""
 
-#: pasportaservo/templates/postman/email_user.txt
-#: pasportaservo/templates/postman/email_visitor.txt
-msgid "Your message has been rejected by the moderator"
-msgstr ""
-
+#: pasportaservo/templates/postman/email_user.html
 #: pasportaservo/templates/postman/email_user.txt
 #: pasportaservo/templates/postman/email_visitor.txt
 msgid ", for the following reason:"
 msgstr ""
+
+#: pasportaservo/templates/postman/email_user.html
+msgid "Reply"
+msgstr "Respondi"
+
+#: pasportaservo/templates/postman/email_user.html
+msgid "Answer this message by using the button:"
+msgstr "Respondu tiun ĉi mesaĝon uzante la butonon:"
 
 #: pasportaservo/templates/postman/email_user.txt
 #: pasportaservo/templates/postman/email_visitor.txt
@@ -4840,8 +4881,13 @@ msgstr ""
 
 #: pasportaservo/templates/postman/email_user_subject.txt
 #, python-format
-msgid "Message from %(sender)s: %(subject)s"
-msgstr "Mesaĝo de %(sender)s: %(subject)s"
+msgid "Message from user %(sender)s: %(subject)s"
+msgstr "Mesaĝo de uzanto %(sender)s: %(subject)s"
+
+#: pasportaservo/templates/postman/email_user_subject.txt
+#, python-format
+msgid "Message to user %(recipient)s: %(subject)s"
+msgstr "Mesaĝo al uzanto %(recipient)s: %(subject)s"
 
 #: pasportaservo/templates/postman/email_visitor.txt
 msgid "Dear visitor,"

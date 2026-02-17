@@ -75,15 +75,15 @@ def split(value: Any, by: Optional[str] = None):
     """
     length = None
     try:
-        if by == 'NEWLINE':
-            by = '\n'
         if by and isinstance(by, str) and '~' in by:
             by, length = by.rsplit('~', maxsplit=1)
             try:
                 length = abs(int(length))
             except ValueError:
                 length = None
-        parts = value.split(by)
+        parts = value.splitlines() if by == 'NEWLINE' else value.split(by)
+        if not parts:
+            parts = [""]  # ensure consistency between `"".split()`, `"".split("\n")`, and `"".splitlines()`.
     except (ValueError, TypeError, AttributeError):
         parts = [value]
 

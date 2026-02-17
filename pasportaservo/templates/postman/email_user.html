@@ -1,35 +1,63 @@
 {% extends 'email/base_email.html' %}
-{% load i18n domain variable %}
+{% load i18n domain variable utils %}
 
 {% block heading %}
-    {% asvar sender_url %}{{ object.sender.profile.get_absolute_url }}{% endasvar %}
-    {% if sender_url %}
-        {% domain sender_url as sender_url %}
-        {% blocktrans with url=sender_url sender=object.obfuscated_sender trimmed %}
-            <a href="{{ url }}">{{ sender }}</a> wrote to you!
-        {% endblocktrans %}
-    {% else %}
-        {% blocktrans with sender=object.obfuscated_sender trimmed %}
-            {{ sender }} wrote to you!
-        {% endblocktrans %}
+    {% if action == 'acceptance' %}
+        {% asvar sender_url %}{{ object.sender.profile.get_absolute_url }}{% endasvar %}
+        {% if sender_url %}
+            {% domain sender_url as sender_url %}
+            {% blocktrans with url=sender_url sender=object.obfuscated_sender trimmed %}
+                <a href="{{ url }}">{{ sender }}</a> wrote to you!
+            {% endblocktrans %}
+        {% else %}
+            {% blocktrans with sender=object.obfuscated_sender trimmed %}
+                {{ sender }} wrote to you!
+            {% endblocktrans %}
+        {% endif %}
     {% endif %}
 {% endblock heading %}
 
-{% block preheader %}{{ object.body|truncatechars:97 }}{% endblock %}
+{% block preheader %}
+    {% if action == 'rejection' %}
+        {% trans "Your message has been rejected by the moderator" %}
+    {% else %}
+        {{ object.body|truncatechars:97 }}
+    {% endif %}
+{% endblock %}
 
 {% block body %}
-    {{ object.body|linebreaks }}
+    {% if action == 'rejection' %}
+        {% blocktrans with date=object.sent_at|date:"DATE_FORMAT" recipient=object.obfuscated_recipient trimmed %}
+            On {{ date }}, you asked to send a message to the user '{{ recipient }}'.
+        {% endblocktrans %}
+        <br /><br />
+        {% trans "Your message has been rejected by the moderator" as rejection_text_main %}
+        {% asvar rejection_text_aux trimmed %}
+            {% if object.moderation_reason %}
+                {% trans ", for the following reason:" %}
+                {% list "." "!" "?" as phrase_endings %}
+                {{ object.moderation_reason }}{% if object.moderation_reason|slice:'-1:' not in phrase_endings %}.{% endif %}
+            {% else %}
+                .
+            {% endif %}
+        {% endasvar %}
+        {{ rejection_text_main }}{{ rejection_text_aux }}
+    {% else %}
+        {{ object.body|linebreaks }}
+    {% endif %}
 {% endblock body %}
 
 {% block call_to_action %}
-    {% url 'postman:view' object.pk as url %}
-    {% trans "Reply" as text %}
-    {% asvar text_before_button %}
-        <div class="padding" style="font-size: 14px; font-family: Helvetica, Arial, sans-serif; color: #333333; padding-top: 25px;">
-            <i>{% trans "Answer this message by using the button:" %}</i>
-        </div>
-    {% endasvar %}
-    {% include 'email/snippets/button.html' %}
+    {% if action == 'acceptance' %}
+        {% url 'postman:view' object.pk as url %}
+        {% trans "Reply" as text %}
+        {% asvar text_before_button %}
+            <div class="padding" style="font-size: 14px; font-family: Helvetica, Arial, sans-serif; color: #333333; padding-top: 25px;">
+                <i>{% trans "Answer this message by using the button:" %}</i>
+            </div>
+        {% endasvar %}
+        {% include 'email/snippets/button.html' %}
+    {% endif %}
 {% endblock %}
 {% block email_action %}
     {% url 'postman:view' object.pk as url %}
@@ -39,7 +67,7 @@
         "@type": "EmailMessage",
         "potentialAction": {
             "@type": "ViewAction",
-            "name": "{% trans "Reply" %} {% trans "at" %} PS",
+            "name": "{% if action == 'acceptance' %}{% trans "Reply" %}{% else %}{% trans "View" %}{% endif %} {% trans "at" %} PS",
             "target": "{% domain url %}",
             "url": "{% domain url %}"
         },

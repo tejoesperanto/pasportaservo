@@ -1,6 +1,7 @@
 from copy import deepcopy
 
 from django import forms
+from django.utils import timezone
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
@@ -34,6 +35,7 @@ class ProfileForm(HtmlIdFormMixin, forms.ModelForm):
                                                          (True, _("Last, then First"))),),
             'avatar': ClearableWithPreviewImageInput,
         }
+    instance: Profile
 
     class _validation_meta:
         offer_required_fields = ['birth_date']
@@ -143,6 +145,16 @@ class ProfileForm(HtmlIdFormMixin, forms.ModelForm):
                 )
 
         return cleaned_data
+
+    def save(self, commit=True):
+        profile: Profile = super().save(commit=False)
+        if 'first_name' in self.changed_data or 'last_name' in self.changed_data:
+            profile.personal_details_changed_on = timezone.now()
+        if commit:
+            profile.save()
+            self.save_m2m()
+        return profile
+    save.alters_data = True
 
 
 class ProfileCreateForm(ProfileForm):

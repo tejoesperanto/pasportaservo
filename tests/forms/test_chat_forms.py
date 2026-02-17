@@ -10,7 +10,7 @@ from django.urls import reverse
 from anymail.message import AnymailMessage
 from django_webtest import WebTest
 from factory import Faker
-from postman.models import Message
+from postman.models import STATUS_ACCEPTED, Message
 
 from pasportaservo.forms import (
     CustomAnonymousWriteForm, CustomQuickReplyForm,
@@ -96,7 +96,12 @@ class WriteFormTests(AdditionalAsserts, WebTest):
         self.assertIsInstance(page.context['form'], CustomWriteForm)
 
     def do_test_form_submit(self, recipient, deceased, lang, invalid_email=False):
-        with override_settings(LANGUAGE_CODE=lang):
+        with override_settings(
+            LANGUAGE_CODE=lang,
+            # Test the happy path of a message immediately being accepted.
+            # Moderation is tested separately.
+            POSTMAN_AUTO_MODERATE_AS=True,
+        ):
             page = self.app.get(reverse('postman:write'), user=self.sender, headers={'Referer': '/origin'})
             form = page.forms['id_write_form']
             form['recipients'] = recipient.username
@@ -245,7 +250,7 @@ class ReplyFormTests(AdditionalAsserts, WebTest):
             sender=sender,
             recipient=cls.sender,
         )
-        message.auto_moderate([])
+        message.moderation_status = STATUS_ACCEPTED
         message.save()
         return message
 
