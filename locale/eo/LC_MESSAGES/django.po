@@ -4880,10 +4880,12 @@ msgid ""
 msgstr ""
 
 #: pasportaservo/templates/postman/email_user_subject.txt
+#, python-format
 msgid "Message from user %(sender)s: %(subject)s"
 msgstr "Mesaĝo de uzanto %(sender)s: %(subject)s"
 
 #: pasportaservo/templates/postman/email_user_subject.txt
+#, python-format
 msgid "Message to user %(recipient)s: %(subject)s"
 msgstr "Mesaĝo al uzanto %(recipient)s: %(subject)s"
 
