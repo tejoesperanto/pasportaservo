@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
+from smtplib import SMTPException
 from typing import Callable, Iterable, Optional
+from unittest.mock import MagicMock, patch
 from urllib.parse import urlencode
 
 from django.contrib.auth.models import Group
@@ -108,10 +110,10 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
         cutoff_date = make_aware(datetime(2014, 11, 24))
         generated_users = {}
 
-        very_long_ago = (
-            lambda:
-                faker.date_time_between(start_date=cutoff_date + timedelta(days=1), end_date='-5y')
-        )
+        def very_long_ago():
+            return faker.date_time_between(
+                start_date=cutoff_date + timedelta(days=1), end_date='-5y')
+
         generated_users['old_system'] = {
             True: [
                 # User who logged in before PS.3 was launched.
@@ -156,7 +158,8 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
             ],
         }
 
-        some_time_ago = lambda: faker.date_time_between(start_date='-725d', end_date='-370d')
+        def some_time_ago():
+            return faker.date_time_between(start_date='-725d', end_date='-370d')
         generated_users['users_active_1y'] = {
             True: [
                 # User with profile (not a host).
@@ -203,7 +206,8 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
             ],
         }
 
-        long_ago = lambda: faker.date_time_between(start_date='-5y', end_date='-735d')
+        def long_ago():
+            return faker.date_time_between(start_date='-5y', end_date='-735d')
         generated_users['users_active_2y'] = {
             True: [
                 # Users who logged in in the last 2 years.
@@ -412,6 +416,49 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                                 test_data['preheader'].format(nomo=recipient_name),
                                 mailitem_htmlbody
                             )
+
+    @patch('core.utils.get_connection')
+    def test_submit_for_invalid_email_at_esp(self, mock_get_connection: MagicMock):
+        faker = Faker._get_faker('la')
+        test_user = UserFactory.create(email=f"Ludoviko.L_Z-hof+{faker.email().capitalize()}")
+        test_data = {
+            'subject': faker.sentence(),
+            'preheader': faker.sentence(),
+            'heading': faker.word().capitalize() * 2,
+            'body': "Important email!",
+            'categories': 'test',
+            'test_email': test_user.email,
+        }
+
+        def side_effect_get_connection(*args, **kwargs):
+            mock_get_connection.return_value.fail_silently = kwargs.get('fail_silently', False)
+            return mock_get_connection.return_value
+
+        def side_effect_send_messages(messages):
+            # Simulate an error at the ESP level when trying to send an
+            # email to an invalid email address.
+            if not mock_get_connection.return_value.fail_silently:
+                raise SMTPException("Simulated ESP Error")
+            return 0
+
+        mock_get_connection.side_effect = side_effect_get_connection
+        mock_get_connection.return_value.send_messages.side_effect = side_effect_send_messages
+
+        page = self.view_page.open(self, user=self.user)
+        page.submit(
+            {
+                f'massmail-{key}': value for key, value in test_data.items()
+            },
+            possible_errors=True,
+        )
+        # Submission is expected to result in a redirect to the results
+        # page, not in an internal server error.
+        self.assertEqual(page.response.status_code, 302)
+        self.assertEqual(
+            page.response.location,
+            f'{self.view_page.success_page.url}?nb=0'
+        )
+        self.assertLength(mail.outbox, 0)
 
 
 @tag('views', 'views-admin')
