@@ -84,7 +84,7 @@ def version_to_numeric_repr(version_string: str, precision: Optional[int] = None
 
 def send_mass_html_mail(
         datatuple: Sequence[Tuple[str, str, str, Optional[str], Sequence[str] | None]],
-        fail_silently: bool = False,
+        fail_silently: bool = True,
         auth_user: Optional[str] = None, auth_password: Optional[str] = None,
         connection: Optional[BaseEmailBackend] = None,
 ) -> int:

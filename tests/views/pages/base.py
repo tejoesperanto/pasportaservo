@@ -282,16 +282,19 @@ class PageWithFormTemplate(PageTemplate):
             form_data: dict[str, Any],
             redirect_to: Optional[str] = None,
             csrf_token: Optional[str] = None,
+            possible_errors: bool = False,
     ):
-        extra_form_data = {
+        extra_form_data: dict[str, Any] = {
             'csrfmiddlewaretoken': csrf_token or (self.response.context or {}).get('csrf_token'),
         }
         if redirect_to:
             extra_form_data[settings.REDIRECT_FIELD_NAME] = redirect_to
-        self._page = self._test_case.app.post(
-            self.url,
-            {**form_data, **extra_form_data},
-            status='*')
+
+        with self._test_case.settings(DEBUG_PROPAGATE_EXCEPTIONS=not possible_errors):
+            self._page = self._test_case.app.post(
+                self.url,
+                {**form_data, **extra_form_data},
+                status='*', expect_errors=possible_errors)
         if getattr(self._page, 'context', None) and 'form' in self._page.context:
             self.form['object'] = self._page.context['form']
 
