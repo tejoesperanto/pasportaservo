@@ -1,15 +1,19 @@
+import string
 from datetime import datetime, timedelta
 from smtplib import SMTPException
-from typing import Callable, Iterable, Optional
+from typing import (
+    TYPE_CHECKING, Callable, Collection, Iterable, Literal, Optional,
+)
 from unittest.mock import MagicMock, patch
 from urllib.parse import urlencode
 
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import override_settings, tag
 from django.utils.timezone import make_aware
 
-from factory import Faker
+import factory
 
 from hosting.models import PasportaServoUser
 
@@ -18,6 +22,9 @@ from ..factories import StaffUserFactory, UserFactory
 from .mixins import FormViewTestsMixin
 from .pages import MassMailPage, MassMailResultPage
 from .testcasebase import BasicViewTests
+
+if TYPE_CHECKING:
+    from ..factories import PasportaServoFactoryUser
 
 
 class AdministratorUserSetupMixin(with_type_hint(BasicViewTests)):
@@ -55,6 +62,8 @@ class AdministratorUserSetupMixin(with_type_hint(BasicViewTests)):
 class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicViewTests):
     view_page = MassMailPage
 
+    Segmentation = Literal[True, 'FalseHere', False]
+
     def test_submit_invalid_values(self):
         # Invalid or missing values are expected to result in form errors
         # and no email being dispatched.
@@ -87,6 +96,7 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                 page.submit({
                     'massmail-categories': "1qaz2wsx",
                     'massmail-test_email': "ppqqrrtt",
+                    'massmail-include_users': "\n\n\n\n",
                 })
                 # Unsuccessful submission is expected to return the user
                 # to the same page, not redirect to the results page.
@@ -106,9 +116,12 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                         )
 
     def _build_test_dataset(self):
-        faker = Faker._get_faker()
+        faker = factory.Faker._get_faker()
         cutoff_date = make_aware(datetime(2014, 11, 24))
-        generated_users = {}
+        generated_users: dict[
+            str,
+            dict[MassMailViewTests.Segmentation, Collection['PasportaServoFactoryUser']]
+        ] = {}
 
         def very_long_ago():
             return faker.date_time_between(
@@ -119,7 +132,7 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                 # User who logged in before PS.3 was launched.
                 UserFactory(last_login=make_aware(faker.date_time(end_datetime=cutoff_date))),
                 # User who logged in on the date of launching.
-                UserFactory(last_login=cutoff_date),
+                UserFactory(last_login=cutoff_date, invalid_email=True),
                 # User with an available place, who logged in prior to launch date.
                 UserFactory(
                     last_login=make_aware(faker.date_time(end_datetime=cutoff_date)),
@@ -175,6 +188,7 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                 # User with profile and previously available places (deleted).
                 UserFactory(
                     last_login=make_aware(faker.date_time_this_month()),
+                    invalid_email=True,
                     places=[{'in_book': False}, {'in_book': True}],
                     places__available=True, places__deleted=True),
                 # The administrator.
@@ -249,7 +263,7 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                     ),
                 ),
             False:
-                self._filter_generated_users(generated_users, which_subkeys=False),
+                self._filter_generated_users(generated_users, segments=[False]),
         }
 
         generated_users['in_book'] = {
@@ -258,6 +272,7 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                 # who logged in after the launch date.
                 UserFactory(
                     last_login=make_aware(very_long_ago()),
+                    invalid_email=True,
                     places=[
                         {'available': True, 'in_book': True},
                         {'available': True, 'in_book': True, 'deleted': True},
@@ -323,22 +338,50 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
             ],
         }
 
+        generated_users['specified'] = {
+            True: [
+                # Previously generated users defined either as True (with an invalid email)
+                # or as FalseHere.
+                *self._filter_generated_users(
+                    generated_users, segments=[True],
+                    condition=lambda user: (
+                        user.email.startswith(settings.INVALID_PREFIX)
+                    ),
+                ),
+                *self._filter_generated_users(generated_users, segments=['FalseHere']),
+            ],
+            False: [
+                # Previously generated users defined as False, fulfilling one of the conditions:
+                # deleted user, user with deleted profile, deceased user.
+                *self._filter_generated_users(
+                    generated_users, segments=[False],
+                    condition=lambda user: (
+                        any([
+                            not user.is_active,
+                            hasattr(user, 'profile') and user.profile.deleted_on,
+                            hasattr(user, 'profile') and user.profile.death_date,
+                        ])
+                    ),
+                ),
+            ],
+        }
+
         return generated_users
 
     def _filter_generated_users(
             self,
-            generated_users: dict[str, dict[str, Iterable[PasportaServoUser]]],
+            generated_users: dict[str, dict[Segmentation, Collection['PasportaServoFactoryUser']]],
             keys: Optional[Iterable[str]] = None,
-            which_subkeys: bool = True,
+            segments: Optional[Iterable[Segmentation]] = None,
             condition: Callable[[PasportaServoUser], bool] = lambda user: True,
-    ) -> Iterable[PasportaServoUser]:
+    ) -> Collection['PasportaServoFactoryUser']:
         keys = keys or generated_users.keys()
         return set(
             user
             for key in keys
-            for selection, userset in generated_users[key].items()
+            for segment, userset in generated_users[key].items()
             for user in userset
-            if (selection if which_subkeys else selection is False)
+            if (segment if not segments else segment in segments)
             if condition(user)
         )
 
@@ -349,6 +392,10 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
         # and customized per user.
 
         test_users = self._build_test_dataset()
+        manual_users = {
+            True: list(map(lambda u: u._clean_email, test_users['specified'][True])),
+            False: list(map(lambda u: u.username, test_users['specified'][False])),
+        }
         # from pprint import pprint; pprint(test_users)
 
         for lang in ['en', 'eo']:
@@ -356,7 +403,7 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                 override_settings(LANGUAGE_CODE=lang),
                 self.subTest(lang=lang)
             ):
-                faker = Faker._get_faker('la' if lang == 'eo' else lang)
+                faker = factory.Faker._get_faker('la' if lang == 'eo' else lang)
                 test_data = {
                     'subject': faker.sentence(),
                     'preheader': "{nomo}: " + faker.sentence(),
@@ -364,6 +411,9 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                     'body': "Important email *{}* for all, {{nomo}}.",
                     'categories': None,
                     'test_email': f"Zamenhof.{faker.email().capitalize()}",
+                    'include_users': "\n".join(manual_users[True]) + "\t\n"
+                                     + ",".join(manual_users[False]),
+                    'exclude_users': f"Ludoviko.{faker.email().capitalize()}\t\n",
                 }
                 test_data['body'] = test_data['body'].format(test_data['heading'])
                 test_users['test'] = {True: [
@@ -400,7 +450,8 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                             # the name of the user.
                             self.assertEqual(mailitem.subject, test_data['subject'])
                             recipient = [
-                                u for u in test_users[category][True] if [u.email] == mailitem.to
+                                u for u in test_users[category][True]
+                                if [u._clean_email] == mailitem.to
                             ]
                             self.assertLength(recipient, 1)
                             recipient_name = recipient[0].profile.first_name
@@ -417,9 +468,60 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                                 mailitem_htmlbody
                             )
 
+    def test_submit_for_specified_users(self):
+        faker = factory.Faker._get_faker('la')
+        emails = [
+            f'{letter}.{letter}@esperanto.net' for letter in string.ascii_lowercase[:10]
+        ]
+        test_users = UserFactory.create_batch(
+            len(emails),
+            email=factory.Iterator(emails),
+            username=factory.Iterator(string.ascii_uppercase),
+            invalid_email=factory.Iterator([False, False, False, True]),
+        )
+        test_data = {
+            'subject': faker.sentence(),
+            'preheader': faker.sentence(),
+            'heading': faker.word().capitalize() * 2,
+            'body': "Monthly update for {nomo}.",
+            'categories': 'specified',
+            'test_email': f"Lazaro.{faker.email().capitalize()}",
+            'include_users': "\n aa,  b.b@esperanto.net  ,,  , C\nd.d@esperanto.net   \n,"
+                             + "  E,,,f.f@esperanto.net  \n\n\tg.g@esperanto.net\f,\n\tH",
+            'exclude_users': "K,k',\n,G,\t,B\f,f.f@esperanto@net\n,e.e@esperanto.net,,@A",
+        }
+        expected_recipients = [
+            user for user in test_users if user.username in ('C', 'D', 'F', 'H')
+        ]
+
+        page = self.view_page.open(self, user=self.user)
+        page.submit(
+            {
+                f'massmail-{key}': value for key, value in test_data.items()
+            }
+        )
+        # The number of emails dispatched is expected to be equal to the number of users
+        # who were included and not excluded.
+        self.assertLength(
+            mail.outbox, len(expected_recipients),
+            msg="Dispatched to {}".format(", ".join([addr for m in mail.outbox for addr in m.to])),
+        )
+        # Successful submission is expected to result in a redirect to the results page.
+        self.assertEqual(page.response.status_code, 302)
+        self.assertEqual(
+            page.response.location,
+            f'{self.view_page.success_page.url}?' + urlencode({'nb': len(expected_recipients)}),
+        )
+        # The recipient of each individual email is expected to correspond to one of the
+        # included users.
+        for i, mailitem in enumerate(mail.outbox):
+            with self.subTest(mail_item=i+1):
+                self.assertEqual(mailitem.to, [expected_recipients[i]._clean_email])
+                self.assertIn(expected_recipients[i].profile.first_name, mailitem.body)
+
     @patch('core.utils.get_connection')
     def test_submit_for_invalid_email_at_esp(self, mock_get_connection: MagicMock):
-        faker = Faker._get_faker('la')
+        faker = factory.Faker._get_faker('la')
         test_user = UserFactory.create(email=f"Ludoviko.L_Z-hof+{faker.email().capitalize()}")
         test_data = {
             'subject': faker.sentence(),
@@ -469,7 +571,7 @@ class MassMailSentViewTests(AdministratorUserSetupMixin, BasicViewTests):
         # The view is expected to show the result of mass mail submission
         # and the number of messages dispatched according to the value of
         # the `nb` parameter.
-        faker = Faker._get_faker()
+        faker = factory.Faker._get_faker()
         test_data = [
             None, '', faker.word(), 0, 1, faker.random_int(min=2),
         ]

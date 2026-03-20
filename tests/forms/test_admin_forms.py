@@ -8,16 +8,20 @@ from core.forms import MassMailForm
 class MassMailFormTests(TestCase):
     def test_init(self):
         form = MassMailForm()
+        optional_fields = ['include_users', 'exclude_users']
         expected_fields = [
             'subject', 'body', 'preheader', 'heading',
-            'categories', 'test_email',
+            'categories', 'test_email', *optional_fields,
         ]
         # Verify that the expected fields are part of the form.
         self.assertEqual(set(expected_fields), set(form.fields))
         # Verify the IDs of the fields and that they are marked 'required'.
         for field_name in expected_fields:
             with self.subTest(field=field_name):
-                self.assertTrue(form.fields[field_name].required)
+                if field_name in optional_fields:
+                    self.assertFalse(form.fields[field_name].required)
+                else:
+                    self.assertTrue(form.fields[field_name].required)
                 self.assertEqual(form[field_name].auto_id, f'id_massmail-{field_name}')
         # Verify that the form does not have a save method.
         self.assertFalse(hasattr(form, 'save'))
@@ -34,6 +38,6 @@ class MassMailFormTests(TestCase):
             set(key for key, text in form.fields['categories'].choices),
             {
                 'old_system', 'users_active_1y', 'users_active_2y', 'not_hosts',
-                'in_book', 'not_in_book', 'test',
+                'in_book', 'not_in_book', 'specified', 'test',
             }
         )

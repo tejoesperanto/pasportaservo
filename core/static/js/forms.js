@@ -713,6 +713,8 @@ $(function() {
 
             $('#id_massmail-categories').change(function() {
                 $('#id_massmail-test_email').closest('.form-group').toggle(this.value === "test");
+                $('#id_massmail-include_users').closest('.form-group').toggle(this.value === "specified");
+                $('#id_massmail-exclude_users').closest('.form-group').toggle(this.value != "test");
             }).change();
         });
     })();
