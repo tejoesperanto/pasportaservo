@@ -445,6 +445,7 @@ class MassMailForm(forms.Form):
         label=_("Heading"), initial=_("Announcement"))
     body = forms.CharField(
         label=_("Body"), initial=_("Dear {nomo},\n\n"),
+        help_text=_("Markdown content"),
         widget=forms.Textarea(attrs={'class': 'vertically-expandable'}))
     subject = forms.CharField(
         label=_("Subject"), initial=_("Subject"))
@@ -462,7 +463,19 @@ class MassMailForm(forms.Form):
             ('not_hosts', pgettext_lazy("Mass mailing category", "not hosts")),
             ('users_active_1y', pgettext_lazy("Mass mailing category", "active users (1 year)")),
             ('users_active_2y', pgettext_lazy("Mass mailing category", "active users (2 years)")),
+            ('specified', pgettext_lazy("Mass mailing category", "specified users")),
         )
     )
+    include_users = forms.CharField(
+        # Only used if the 'specified' category is selected.
+        label=_("Included users"), required=False,
+        help_text=_("Comma or newline-separated list of usernames / email addresses to send to."),
+        widget=forms.Textarea(attrs={'class': 'vertically-expandable'}))
+    exclude_users = forms.CharField(
+        label=_("Excluded users"), required=False,
+        help_text=_("Comma or newline-separated list of usernames / email addresses to exclude "
+                    "from this mailing."),
+        widget=forms.Textarea(attrs={'class': 'vertically-expandable'}))
     test_email = forms.EmailField(
+        # Only used if the 'test' category is selected.
         label=_("Your email for test"), initial="baptiste@darthenay.fr")

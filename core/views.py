@@ -3,7 +3,7 @@ import re
 from copy import copy
 from datetime import datetime, timedelta
 from traceback import format_exception
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Collection, cast
 
 from django.conf import settings
 from django.contrib import messages
@@ -898,6 +898,23 @@ class MassMailView(AuthMixin, generic.FormView):
             sent=self.nb_sent,
         )
 
+    def raw_list_to_usernames_and_emails(self, raw_id_list: str) -> (
+            tuple[Collection[str], Collection[str]]
+    ):
+        # Usernames or email addresses.
+        process_ids = [
+            value.strip()
+            for single_line in raw_id_list.splitlines()
+            for value in single_line.split(',')
+            if value.strip()
+        ]
+        # Only values that look like an email address (with an `@` somewhere in the middle).
+        process_emails = {value for value in process_ids if value.count('@', 1, -1) == 1}
+        # The same email addresses with the invalid marker, to cover both cases in the DB.
+        process_emails |= {f"{settings.INVALID_PREFIX}{email}" for email in process_emails}
+
+        return process_ids, process_emails
+
     def form_valid(self, form: MassMailForm) -> HttpResponse:
         body: str = form.cleaned_data['body']
         md_body: str = cast(str, commonmark(body))
@@ -921,6 +938,14 @@ class MassMailView(AuthMixin, generic.FormView):
         elif category == "old_system":
             # those who logged in before the opening date; essentially, never used the new system
             profiles = Profile.objects_raw.filter(user__last_login__lte=opening)
+        elif category == "specified":
+            # profiles indicated via the form (and linked to existing user accounts)
+            include_ids, include_emails = (
+                self.raw_list_to_usernames_and_emails(form.cleaned_data.get('include_users', ""))
+            )
+            profiles = Profile.objects_raw.filter(
+                Q(user__username__in=include_ids) | Q(user__email__in=include_emails)
+            )
         elif category in ("in_book", "not_in_book"):
             # those who logged in after the opening date
             profiles = Profile.objects_raw.filter(user__last_login__gt=opening)
@@ -940,6 +965,13 @@ class MassMailView(AuthMixin, generic.FormView):
             profiles = Profile.objects_raw.filter(user__last_login__gte=cutoff)
         # ensure that the account is still active and the person is not deceased
         profiles = profiles.filter(user__is_active=True, death_date__isnull=True)
+        # filter out accounts explicitely marked for exclusion
+        if form.cleaned_data.get('exclude_users') and category != 'test':
+            exclude_ids, exclude_emails = (
+                self.raw_list_to_usernames_and_emails(form.cleaned_data['exclude_users'])
+            )
+            profiles = profiles.exclude(user__username__in=exclude_ids)
+            profiles = profiles.exclude(user__email__in=exclude_emails)
         # finally remove duplicates
         profiles = profiles.distinct()
         # leave only the needed fields
