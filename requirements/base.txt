@@ -35,7 +35,7 @@ libsass==0.23.0
 packvers==21.5
 pymemcache==4.0.0
 phonenumberslite==9.0.21
-requests==2.32.5
+requests==2.33.0
 rstr==3.2.2
 sentry-sdk>=1.18
 user_agents==2.2.0
