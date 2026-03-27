@@ -1,24 +1,37 @@
+import json
+import sys
+import time
+import uuid
 from random import randint
-from typing import Optional
+from typing import Optional, TypedDict
 from unittest import skipUnless
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, Group
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured
+from django.core.mail import EmailMessage
 from django.http import JsonResponse
-from django.test import RequestFactory, TestCase, override_settings, tag
-from django.urls import reverse
+from django.test import (
+    LiveServerTestCase, RequestFactory, TestCase, override_settings, tag,
+)
+from django.urls import NoReverseMatch, reverse
 from django.views.generic import CreateView, View
 
-from anymail.exceptions import AnymailAPIError, AnymailRecipientsRefused
+from anymail.exceptions import (
+    AnymailAPIError, AnymailInsecureWebhookWarning, AnymailRecipientsRefused,
+)
 from anymail.message import AnymailMessage
+from anymail.signals import AnymailTrackingEvent, EventType as AnymailEventType
+from anymail.webhooks.base import AnymailBaseWebhookView
 from django_webtest import WebTest
 
 from core.auth import AuthMixin, AuthRole
+from core.hooks import process_suppression
 from hosting.models import (
     PasportaServoUser, Preferences, TrackingModel, VisibilitySettings,
 )
+from tests import DjangoWebtestResponse
 
 from ..assertions import AdditionalAsserts
 from ..factories import (
@@ -28,14 +41,14 @@ from ..factories import (
 
 
 @tag('integration', 'mailing')
-class MailingTests(AdditionalAsserts, TestCase):
+class MailingTests(AdditionalAsserts, WebTest):
     """
     Tests for the mailing functionalities and integration with an external
     provider.
     """
 
     @tag('external')
-    @override_settings(**settings.TEST_EMAIL_BACKENDS['live'])
+    @override_settings(**settings.TEST_EMAIL_BACKENDS['remote-test'])
     @skipUnless(settings.TEST_EXTERNAL_SERVICES, 'External services are tested only explicitly')
     def test_mail_backend_integration_contract(self):
         message = AnymailMessage(
@@ -70,6 +83,264 @@ class MailingTests(AdditionalAsserts, TestCase):
         status = message.anymail_status
         self.assertEqual(status.status, {'invalid'})
         self.assertIsNone(status.message_id)
+
+    @staticmethod
+    def _email_for_user(user: PasportaServoUser) -> str:
+        return (
+            user._meta.model.objects
+            .filter(pk=user.pk)
+            .values_list('email', flat=True)
+            .get()
+        )
+
+    def test_mail_tracking_signal(self):
+        """
+        Direct tests of the signal receiver for tracking webhook call.
+        """
+        users = {
+            'basic': UserFactory.create(profile=None),
+            'basic_invalid_email': UserFactory.create(profile=None, invalid_email=True),
+            'regular': UserFactory.create(),
+            'regular_invalid_email': UserFactory.create(invalid_email=True),
+        }
+        initial_emails = {user_tag: users[user_tag].email for user_tag in users}
+
+        def restore_emails():
+            for user_tag in users:
+                users[user_tag].email = initial_emails[user_tag]
+            PasportaServoUser.objects.bulk_update(users.values(), ['email'])
+
+        # Unmonitored events are expected to cause no change in the database.
+        ignored_event_types = [
+            AnymailEventType.QUEUED, AnymailEventType.SENT,
+            AnymailEventType.UNKNOWN, AnymailEventType.FAILED,
+        ]
+        for ignored_event in ignored_event_types:
+            with self.subTest(expected_ignored=ignored_event):
+                event = AnymailTrackingEvent(event_type=ignored_event)
+                for user, expected_email in zip(users.values(), initial_emails.values()):
+                    event.recipient = user._clean_email
+                    with self.assertNotRaises(Exception):
+                        process_suppression(AnymailBaseWebhookView, event, 'dummy')
+                    # The email address of the related user is expected to
+                    # remain as-is.
+                    self.assertEqual(self._email_for_user(user), expected_email)
+            restore_emails()
+
+        # Monitored events due to deliveries originating in a different
+        # environment are expected to be dropped and cause no change in
+        # the database.
+        processed_event_types = [
+            AnymailEventType.BOUNCED, AnymailEventType.REJECTED,
+            AnymailEventType.COMPLAINED,
+        ]
+        for processed_event in processed_event_types:
+            with self.subTest(expected_processed=processed_event):
+                event = AnymailTrackingEvent(
+                    event_type=processed_event, metadata={'env': 'NOT_REAL_ENVIRONMENT'})
+                for user, expected_email in zip(users.values(), initial_emails.values()):
+                    event.recipient = user._clean_email
+                    with self.assertNotRaises(Exception):
+                        process_suppression(AnymailBaseWebhookView, event, 'dummy')
+                    # The email address of the related user is expected to
+                    # remain as-is.
+                    self.assertEqual(self._email_for_user(user), expected_email)
+            restore_emails()
+
+        # Monitored events affecting the current environment are expected
+        # to result in the email addresses of the affected users being marked
+        # as invalid.
+        for processed_event in processed_event_types:
+            with self.subTest(expected_processed=processed_event):
+                event = AnymailTrackingEvent(event_type=processed_event)
+                for user in users.values():
+                    event.recipient = user._clean_email
+                    with self.assertNotRaises(Exception):
+                        process_suppression(AnymailBaseWebhookView, event, 'dummy')
+                    # The email address of the related user is expected to be
+                    # marked invalid.
+                    expected_email = f'{settings.INVALID_PREFIX}{user._clean_email}'
+                    self.assertEqual(self._email_for_user(user), expected_email)
+            restore_emails()
+
+    def test_mail_tracking_webhook(self):
+        user = UserFactory.create(profile=None)
+        response: DjangoWebtestResponse
+
+        # Verify that the webhook exists at the expected URL (status of
+        # 405 Method Not Allowed and not 404 Not Found).
+        with self.assertWarns(AnymailInsecureWebhookWarning):
+            response = self.app.get('/mail_hook/tracking/', status='*')
+        self.assertEqual(response.status_code, 405,
+                         msg="Expected 'Method Not Allowed' due to use of GET")
+
+        # Verify that the webhook's processing view is set up correctly.
+        with self.assertNotRaises(NoReverseMatch):
+            webhook_url = reverse('postmark_tracking_webhook')
+
+        # Verify that the webhook call is rejected when the authentication
+        # secret is not provided.
+        with self.settings(ANYMAIL_WEBHOOK_SECRET='abcdef:123456'):
+            response = self.app.post(
+                webhook_url, '{}', content_type='application/json', status='*')
+        self.assertEqual(response.status_code, 400,
+                         msg="Expected 'Bad Request' due to missing auth secret")
+
+        # A properly configured call for a delivery event is expected to
+        # be accepted by the webhook but not processed, with the user's
+        # email address remaining as previously.
+        for test_user in (None, user):
+            with self.subTest(
+                    event_type='delivery',
+                    user='existing' if test_user else 'non-existing',
+            ):
+                test_delivery_payload = {
+                    "MessageID": "883953f4-6105-42a2-a16a-77a8eac79483",
+                    "MessageStream": "outbound",
+                    "RecordType": "Delivery",
+                    "Recipient": user._clean_email if test_user else "Not.Real-D@ps.org",
+                    "DeliveredAt": "2026-03-01T22:33:44.087208Z",
+                }
+                with self.settings(ANYMAIL_WEBHOOK_SECRET='qwerty:789456'):
+                    self.app.authorization = ('Basic', ('qwerty', '789456'))
+                    response = self.app.post(
+                        webhook_url,
+                        json.dumps(test_delivery_payload),
+                        content_type='application/json',
+                        status='*',
+                    )
+                self.assertEqual(response.status_code, 200,
+                                 msg="Expected successful Delivery webhook call")
+                self.assertEqual(self._email_for_user(user), user._clean_email)
+
+        # A properly configured call for a bounce event is expected to
+        # be accepted and processed by the webhook. If the event relates
+        # to an existing user, that user's email address is expected to
+        # be marked as invalid.
+        for test_user in (None, user):
+            with self.subTest(
+                    event_type='bounce',
+                    user='existing' if test_user else 'non-existing',
+            ):
+                test_bounce_payload = {
+                    "MessageID": "883953f4-6105-42a2-a16a-77a8eac79483",
+                    "MessageStream": "outbound",
+                    "RecordType": "Bounce",
+                    "Type": "SoftBounce",
+                    "Inactive": True,
+                    "Email": user._clean_email if test_user else "Not.Real-B@ps.org",
+                    "BouncedAt": "2026-03-03T21:32:43.087208Z",
+                }
+                with self.settings(ANYMAIL_WEBHOOK_SECRET='qwerty:24680'):
+                    self.app.authorization = ('Basic', ('qwerty', '24680'))
+                    response = self.app.post(
+                        webhook_url,
+                        json.dumps(test_bounce_payload),
+                        content_type='application/json',
+                        status='*',
+                    )
+                self.assertEqual(response.status_code, 200,
+                                 msg="Expected successful Bounce webhook call")
+                if test_user is None:
+                    # A bounce event for a non-existing recipient is not expected to
+                    # result in a change of the user's email address.
+                    self.assertEqual(self._email_for_user(user), user._clean_email)
+                else:
+                    # A bounce event for an existing recipient (user) is expected to
+                    # cause that user's email address being marked invalid.
+                    self.assertEqual(
+                        self._email_for_user(user),
+                        '{}{}'.format(settings.INVALID_PREFIX, user._clean_email)
+                    )
+
+
+@tag('integration', 'mailing')
+class MailingWebhookTests(AdditionalAsserts, LiveServerTestCase):
+    """
+    Tests for integration with an external email service provider (ESP).
+    """
+    port = 8006
+
+    class WebhookTimeout(AssertionError):
+        pass
+
+    @staticmethod
+    def _wait_for_user_email_change(user: PasportaServoUser, initial_email: str):
+        start = time.time()
+        timeout = 95  # seconds
+        expected_email = '{}{}'.format(settings.INVALID_PREFIX, initial_email)
+        CLEAR_LINE_ESCAPE_CODE = "\033[2K\r"
+
+        sys.stdout.write("\nStarting polling.")
+        sys.stdout.flush()
+        while True:
+            if MailingTests._email_for_user(user) == expected_email:
+                sys.stdout.write(CLEAR_LINE_ESCAPE_CODE)
+                sys.stdout.flush()
+                return
+            if (elapsed := time.time() - start) > timeout:
+                sys.stdout.write(CLEAR_LINE_ESCAPE_CODE)
+                sys.stdout.flush()
+                raise MailingWebhookTests.WebhookTimeout(
+                    f"User's email not marked as invalid after {timeout} seconds")
+            sys.stdout.write(
+                f"{CLEAR_LINE_ESCAPE_CODE}Awaiting webhook invocation"
+                f" targeting {initial_email} for {int(elapsed)} seconds...")
+            sys.stdout.flush()
+            time.sleep(5)
+
+    @tag('external')
+    @override_settings(**settings.TEST_EMAIL_BACKENDS['remote-live'])
+    @skipUnless(settings.TEST_EXTERNAL_SERVICES, 'External services are tested only explicitly')
+    def test_mail_tracking_webhook_integration_contract(self):
+        # This test cannot be run without externalizing the local web server.
+        # Via Serveo:
+        # 1. Generate an SSH key pair using `ssh-keygen`.
+        # 2. Add the public key to Serveo's web console: https://console.serveo.net/ssh/keys.
+        # 3. Run `ssh -R ps-egress:80:127.0.0.1:8006 serveo.net` in terminal.
+        # 4. POSTMARK_SERVER_TOKEN should point to the Sandbox server for
+        #    which the webhook is defined.
+        # The test polls twice for 90 seconds, but it is still flaky because
+        # Postmark might send the bounce event even after 2 minutes.
+
+        class UserDef(TypedDict):
+            user_id: uuid.UUID
+            actual_email: str
+            dispatch_email: str
+            user: PasportaServoUser
+        test_data: dict[str, UserDef] = {}
+        for email_tag in ('non-existing', 'existing'):
+            user_id = uuid.uuid4()
+            test_data[email_tag] = {}  # type: ignore
+            test_data[email_tag]['user_id'] = user_id
+            test_data[email_tag]['actual_email'] = (
+                f'{user_id.hex.upper()}@bounce-testing.postmarkapp.com'
+            )
+            test_data[email_tag]['dispatch_email'] = (
+                test_data[email_tag]['actual_email'] if email_tag == 'existing'
+                else test_data[email_tag]['actual_email'].lower()
+            )
+            test_data[email_tag]['user'] = UserFactory.create(
+                profile=None, email=test_data[email_tag]['actual_email'],
+            )
+
+        for email_tag in test_data:
+            with self.subTest(email=email_tag):
+                message = EmailMessage(
+                    f"bounce test for {test_data[email_tag]['user_id']} ({email_tag})",
+                    "---",
+                    to=[test_data[email_tag]['dispatch_email']],
+                    headers={'X-PM-Bounce-Type': 'HardBounce'})
+                with self.assertNotRaises(AnymailAPIError):
+                    message.send()
+                assertion = (
+                    self.assertNotRaises if email_tag == 'existing' else self.assertRaises
+                )
+                with assertion(self.WebhookTimeout):
+                    self._wait_for_user_email_change(
+                        test_data[email_tag]['user'],
+                        test_data[email_tag]['actual_email']
+                    )
 
 
 @tag('integration')

@@ -115,6 +115,7 @@ def send_mass_html_mail(
             message.tags = [tag_match.group(1)]
             message.subject = subject.removeprefix(tag_match.group()).strip()
         message.merge_data = {}  # Enable batch sending mode.
+        message.metadata = {'env': settings.ENVIRONMENT}
         setattr(message, 'mass_mail', True)
         messages.append(message)
     return connection.send_messages(messages) or 0

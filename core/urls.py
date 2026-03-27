@@ -6,6 +6,8 @@ from django.utils.text import format_lazy
 from django.utils.translation import pgettext_lazy
 from django.views.generic import TemplateView
 
+from anymail.webhooks.postmark import PostmarkTrackingWebhookView
+
 from .views import (  # isort:skip
     HomeView,
     RegisterView, LoginView, AccountRestoreRequestView, LogoutView,
@@ -119,6 +121,9 @@ urlpatterns = [
             ])),
         ])),
 
+    path(
+        'mail_hook/tracking/',
+        PostmarkTrackingWebhookView.as_view(), name='postmark_tracking_webhook'),
     path(
         'fragment/<slug:fragment_id>',
         ContentFragmentRetrieveView.as_view(), name='get_fragment'),
