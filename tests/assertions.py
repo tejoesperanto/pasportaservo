@@ -126,7 +126,9 @@ class AdditionalAsserts(with_type_hint(TestCase)):
                 if not issubclass(exc_type, self.expected):
                     # Let unexpected exceptions pass through.
                     return False
-                msg = self.test_case._formatMessage(self.msg, f"Unexpected {self.exception!r}")
+                msg = self.test_case._formatMessage(
+                    self.msg,
+                    f"Unexpected {self.exception.__class__.__name__} ~ {self.exception}")
                 raise self.test_case.failureException(msg) from None
             else:
                 traceback.clear_frames(tb)

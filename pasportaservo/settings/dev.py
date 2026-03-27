@@ -15,6 +15,7 @@ MESSAGE_LEVEL = message_level.DEBUG
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
+    'ps-egress.serveousercontent.com',
 ]
 try:
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
@@ -22,6 +23,10 @@ try:
         ALLOWED_HOSTS.append(s.getsockname()[0])
 except (OSError, IndexError):
     pass
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://ps-egress.serveousercontent.com',
+]
 
 
 DEFAULT_EXCEPTION_REPORTER_FILTER = 'pasportaservo.views.UnsafeExceptionReporterFilter'

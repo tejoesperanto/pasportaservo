@@ -194,9 +194,30 @@ Q_CLUSTER = {
 # Logging
 # https://docs.djangoproject.com/en/stable/topics/logging/#configuring-logging
 
+def format_logger_name(record):
+    """
+    Modifies the LogRecord to include only the last part (in uppercase)
+    of the full logger's name.
+    """
+    record.logger_identifier = record.name.split('.')[-1].upper()
+    return True
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'filters': {
+        'format_logger_name': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': format_logger_name,
+        },
+    },
+    'formatters': {
+        'with_logger_id': {
+            'format': '[{asctime}] [{logger_identifier}] {message}',
+            'style': '{',
+            'datefmt': '%d/%b/%Y %H:%M:%S',
+        },
+    },
     'handlers': {
         'mail_admins_important_bits': {
             'level': 'WARNING',
@@ -205,6 +226,12 @@ LOGGING = {
         'mail_admins_severe_bits': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
+        },
+        'output_traceworthy_bits': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'filters': ['format_logger_name'],
+            'formatter': 'with_logger_id',
         },
     },
     'loggers': {
@@ -217,6 +244,10 @@ LOGGING = {
         },
         'PasportaServo.ui': {
             'handlers': ['mail_admins_important_bits'],
+        },
+        'PasportaServo.webhook': {
+            'level': 'INFO',
+            'handlers': ['output_traceworthy_bits'],
         },
     },
 }
@@ -238,11 +269,16 @@ TEST_EMAIL_BACKENDS = {
         'EMAIL_BACKEND': 'anymail.backends.test.EmailBackend',
         'EMAIL_RICH_ENVELOPES': True,
     },
-    'live': {
+    'remote-test': {
         'EMAIL_BACKEND': 'anymail.backends.postmark.EmailBackend',
         'POSTMARK_SERVER_TOKEN': 'POSTMARK_API_TEST',
         'EMAIL_RICH_ENVELOPES': True,
-    }
+    },
+    'remote-live': {
+        'EMAIL_BACKEND': 'anymail.backends.postmark.EmailBackend',
+        'POSTMARK_SERVER_TOKEN': environ.get('POSTMARK_SERVER_TOKEN'),
+        'EMAIL_RICH_ENVELOPES': True,
+    },
 }
 
 # Internationalization

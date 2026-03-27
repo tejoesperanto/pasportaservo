@@ -22,6 +22,9 @@ CACHES = {
 
 EMAIL_BACKEND = 'anymail.backends.postmark.EmailBackend'
 POSTMARK_SERVER_TOKEN = get_env_setting('POSTMARK_SERVER_TOKEN')
+ANYMAIL_WEBHOOK_SECRET = [
+    secret.strip() for secret in get_env_setting('MAIL_WEBHOOK_AUTH_SECRETS').split(';')
+]
 EMAIL_RICH_ENVELOPES = True
 EMAIL_SUBJECT_PREFIX = '[PS] '
 EMAIL_SUBJECT_PREFIX_FULL = '[Pasporta Servo] '
