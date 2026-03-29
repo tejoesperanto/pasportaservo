@@ -21,6 +21,10 @@
                     {% else %}
                         {% trans "approver unknown"|capfirst %}
                     {% endif %}
+                    {% if object.checked_on %}
+                        <br />
+                        {{ object.checked_on|date:"SENTENCE_DATE_FORMAT" }}
+                    {% endif %}
               {% endfilter %}"
               data-toggle="tooltip-lasting" data-placement="bottom" data-container="body" data-html="true">
             <span class="fa fa-regular fa-circle-check" aria-hidden="true"></span>
