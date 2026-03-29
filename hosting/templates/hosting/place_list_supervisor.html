@@ -213,7 +213,7 @@
                         {% spaceless %}
                         <p class="timestamp text-center text-muted"
                            title="{% trans "last login" %}{% if not place.owner.user.last_login %} ({% trans "never" %}){% endif %}"
-                           data-title="{% trans "last login" %}<br />{{ place.owner.user.last_login|default:_("never") }}"
+                           data-title="{% trans "last login" %}<br />{{ place.owner.user.last_login|date:"SENTENCE_DATETIME_FORMAT"|default:_("never") }}"
                            data-toggle="tooltip" data-html="true" data-placement="bottom">
                             <small class="fa fa-fw fa-sign-in-alt" aria-hidden="true" style="position: relative; left: -1px"></small>
                             <span class="sr-only">{% trans "last login" %}</span>
@@ -223,7 +223,7 @@
                         {% spaceless %}
                         <p class="timestamp text-center text-muted"
                            title="{% trans "last modification" %}{% if not place.modified %} ({% trans "never" %}){% endif %}"
-                           data-title="{% trans "last modification" %}<br />{{ place.modified|default:_("never") }}"
+                           data-title="{% trans "last modification" %}<br />{{ place.modified|date:"SENTENCE_DATETIME_FORMAT"|default:_("never") }}"
                            data-toggle="tooltip" data-html="true" data-placement="bottom">
                             <small class="fa fa-fw fa-regular fa-edit" aria-hidden="true"></small>
                             <span class="sr-only">{% trans "last modification" %}</span>

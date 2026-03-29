@@ -239,7 +239,7 @@
             {% endasvar %}
             <span class="timestamp timestamp-edit pull-right text-muted"
                   title="{% trans "last modification" %}"
-                  data-title="{% trans "last modification" %}:<br />{{ profile.modified }}"
+                  data-title="{% trans "last modification" %}:<br />{{ profile.modified|date:"SENTENCE_DATETIME_FORMAT" }}"
                   data-toggle="tooltip" data-placement="top" data-html="true">
                 <small class="fa fa-regular fa-edit" aria-hidden="true"></small>
                 <span class="sr-only">{% trans "last modification" %}</span>

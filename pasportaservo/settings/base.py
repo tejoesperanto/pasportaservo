@@ -161,6 +161,8 @@ TEMPLATES = [
     },
 ]
 
+FORMAT_MODULE_PATH = 'core.formats'
+
 ROOT_URLCONF = 'pasportaservo.urls'
 
 WSGI_APPLICATION = 'pasportaservo.wsgi.application'
