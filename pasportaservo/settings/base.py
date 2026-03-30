@@ -92,6 +92,7 @@ INSTALLED_APPS = (
     'simplemde',
     'solo',
     'statici18n',
+    'waffle',
 
     'blog',
     'book',
@@ -105,7 +106,12 @@ INSTALLED_APPS = (
 )
 
 ADMIN_APP_ORDERING = (
-    {'app': 'core', 'models': ('SiteConfiguration', 'Policy', 'Agreement')},
+    {
+        'app': 'core',
+        'models': (
+            'SiteConfiguration', 'SiteSwitch', 'SiteFlag', 'Policy', 'Agreement',
+        ),
+    },
     'admin',
     'auth',
     'hosting',
@@ -130,6 +136,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    'waffle.middleware.WaffleMiddleware',
     'dnt.middleware.DoNotTrackMiddleware',
     'core.middleware.AccountFlagsMiddleware',
 ]
@@ -378,6 +385,9 @@ PHONENUMBER_DEFAULT_REGION = 'PL'
 PHONENUMBER_DEFAULT_FORMAT = 'INTERNATIONAL'
 
 SOLO_CACHE = 'default'
+WAFFLE_FLAG_MODEL = 'core.SiteFlag'
+WAFFLE_SWITCH_MODEL = 'core.SiteSwitch'
+WAFFLE_SAMPLE_MODEL = 'core.SiteSample'
 
 DEFAULT_AVATAR_URL = "mp"
 

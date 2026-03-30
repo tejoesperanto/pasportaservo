@@ -8,6 +8,9 @@ from django.utils.translation import gettext, gettext_lazy as _
 
 from django_extensions.db.models import TimeStampedModel
 from solo.models import SingletonModel
+from waffle.models import (
+    AbstractBaseSample, AbstractBaseSwitch, AbstractUserFlag,
+)
 
 from hosting.fields import RangeIntegerField
 
@@ -79,6 +82,24 @@ class SiteConfiguration(SingletonModel):
     @classmethod
     def get_solo(cls):
         return cast(SiteConfiguration, super().get_solo())
+
+
+class SiteFlag(AbstractUserFlag):
+    class Meta:
+        verbose_name = _("site flag")
+        verbose_name_plural = _("site flags")
+
+
+class SiteSwitch(AbstractBaseSwitch):
+    class Meta:
+        verbose_name = _("site switch")
+        verbose_name_plural = _("site switches")
+
+
+class SiteSample(AbstractBaseSample):
+    class Meta:
+        verbose_name = _("site sample")
+        verbose_name_plural = _("site samples")
 
 
 class Policy(models.Model):

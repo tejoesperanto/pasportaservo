@@ -13,10 +13,15 @@ from django.utils.translation import gettext_lazy as _
 
 from djangocodemirror.widgets import CodeMirrorAdminWidget
 from solo.admin import SingletonModelAdmin
+from waffle.admin import (
+    FlagAdmin as WaffleFlagAdmin, SwitchAdmin as WaffleSwitchAdmin,
+)
 
 from hosting.models import Profile
 
-from ..models import Agreement, Policy, SiteConfiguration, UserBrowser
+from ..models import (
+    Agreement, Policy, SiteConfiguration, SiteFlag, SiteSwitch, UserBrowser,
+)
 from .filters import DependentFieldFilter, YearBracketFilter
 
 admin.site.register(SiteConfiguration, SingletonModelAdmin)
@@ -28,6 +33,18 @@ class CustomFlatPageAdmin(FlatPageAdmin):
     formfield_overrides = {
         models.TextField: {'widget': CodeMirrorAdminWidget(config_name='html')},
     }
+
+
+@admin.register(SiteFlag)
+class SiteFlagAdmin(WaffleFlagAdmin):
+    def search_help_text(self):
+        return make_search_help_text(self, *self.search_fields)
+
+
+@admin.register(SiteSwitch)
+class SiteSwitchAdmin(WaffleSwitchAdmin):
+    def search_help_text(self):
+        return make_search_help_text(self, *self.search_fields)
 
 
 @admin.register(Policy)
