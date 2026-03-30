@@ -483,6 +483,30 @@ msgid "Site Configuration"
 msgstr "Retejaj agordoj"
 
 #: core/models.py
+msgid "site flag"
+msgstr "reteja indikilo"
+
+#: core/models.py
+msgid "site flags"
+msgstr "retejaj indikiloj"
+
+#: core/models.py
+msgid "site switch"
+msgstr "reteja ŝaltilo"
+
+#: core/models.py
+msgid "site switches"
+msgstr "retejaj ŝaltiloj"
+
+#: core/models.py
+msgid "site sample"
+msgstr "reteja selektilo"
+
+#: core/models.py
+msgid "site samples"
+msgstr "retejaj selektiloj"
+
+#: core/models.py
 msgid "version of policy"
 msgstr "versio de regularo"
 

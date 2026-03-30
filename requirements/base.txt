@@ -24,6 +24,7 @@ django-sass-processor==1.4.2
 django-simplemde==0.1.4
 django-solo==2.5.1
 django-statici18n==2.6.0
+django-waffle==5.0.0
 django-geojson==4.2.0
 faker==40.1.0
 fontawesomefree==6.0.0b2

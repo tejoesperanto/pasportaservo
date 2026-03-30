@@ -17,6 +17,8 @@ for logger_config in LOGGING['loggers'].values():
     if logger_config.get('level') in ('INFO', 'DEBUG'):
         logger_config['level'] = 'ERROR'
 
+WAFFLE_OVERRIDE = True
+
 EMAIL_SUBJECT_PREFIX = '[PS ci] '
 EMAIL_SUBJECT_PREFIX_FULL = '[Pasporta Servo][{}] '.format(ENVIRONMENT)
 
