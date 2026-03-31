@@ -1,8 +1,10 @@
 from typing import TYPE_CHECKING, TypeVar
 
 from django.db import DatabaseError, models
-from django.db.models import BooleanField, Case, When
+from django.db.models import BooleanField, Case, Q, When
 from django.utils import timezone
+
+from waffle import get_waffle_switch_model
 
 from core.models import SiteConfiguration
 
@@ -21,9 +23,31 @@ class TrackingManager(models.Manager['TrackingModelT']):
         try:
             validity_period = SiteConfiguration.get_solo().confirmation_validity_period
         except DatabaseError:
-            from datetime import timedelta
-            validity_period = timedelta(weeks=42)
+            validity_period = timezone.timedelta(weeks=42)
         validity_start = timezone.now() - validity_period
+
+        SiteSwitch = get_waffle_switch_model()
+        try:
+            confirmation_expiration = (
+                SiteSwitch.get('HOSTING_DATA_CONFIRMATION_EXPIRY').is_active()
+            )
+        except DatabaseError:
+            confirmation_expiration = True
+        try:
+            verification_expiration = (
+                SiteSwitch.get('HOSTING_DATA_VERIFICATION_EXPIRY').is_active()
+            )
+        except DatabaseError:
+            verification_expiration = False
+        confirmation_validity_condition = (
+            Q(confirmed_on__lt=validity_start) if confirmation_expiration
+            else Q(confirmed_on__in=[])  # Always-false condition.
+        )
+        verification_validity_condition = (
+            Q(checked_on__lt=validity_start) if verification_expiration
+            else Q(checked_on__in=[])  # Always-false condition.
+        )
+
         return super().get_queryset().annotate(
             deleted=Case(
                 When(deleted_on__isnull=True, then=False),
@@ -31,12 +55,12 @@ class TrackingManager(models.Manager['TrackingModelT']):
                 output_field=BooleanField()),
             confirmed=Case(
                 When(confirmed_on__isnull=True, then=False),
-                When(confirmed_on__lt=validity_start, then=False),
+                When(confirmation_validity_condition, then=False),
                 default=True,
                 output_field=BooleanField()),
             checked=Case(
                 When(checked_on__isnull=True, then=False),
-                # When(checked_on__lt=validity_start, then=False),  # Temporarily disabled.
+                When(verification_validity_condition, then=False),
                 default=True,
                 output_field=BooleanField()),
         ).select_related()
