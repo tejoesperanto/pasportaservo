@@ -10,7 +10,7 @@ from urllib.parse import urlencode
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
-from django.test import override_settings, tag
+from django.test import RequestFactory, override_settings, tag
 from django.utils.timezone import make_aware
 
 import factory
@@ -52,10 +52,18 @@ class AdministratorUserSetupMixin(with_type_hint(BasicViewTests)):
         for user_tag in tested_users:
             with self.subTest(user=user_tag):
                 page = self.view_page.open(self, user=tested_users[user_tag], status='*')
-                self.assertEqual(page.response.status_code, 404)
+                if page.response.status_code == 302:
+                    assertion_note = f'Redirect to {page.response.location}'
+                else:
+                    assertion_note = None
+                self.assertEqual(page.response.status_code, 404, msg=assertion_note)
         with self.subTest(user='admin'):
             page = self.view_page.open(self, user=self.user, status='*')
-            self.assertEqual(page.response.status_code, 200)
+            if page.response.status_code == 302:
+                assertion_note = f'Redirect to {page.response.location}'
+            else:
+                assertion_note = None
+            self.assertEqual(page.response.status_code, 200, msg=assertion_note)
 
 
 @tag('views', 'views-admin')
@@ -63,6 +71,24 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
     view_page = MassMailPage
 
     Segmentation = Literal[True, 'FalseHere', False]
+
+    def test_success_url(self):
+        mass_mail_view = self.view_page.view_class()
+        mass_mail_view.setup(RequestFactory().get(str(self.view_page.get_complete_url())))
+        setattr(mass_mail_view, 'nb_sent', 12345)
+        self.assertTrue(hasattr(mass_mail_view, 'get_success_url'))
+
+        with self.assertNotRaises(Exception):
+            url = getattr(mass_mail_view, 'get_success_url')()
+        expected_url = self.view_page.success_page.get_complete_url()
+        self.assertEqual(url, str(expected_url) + '?' + urlencode({'nb': 12345}))
+
+        setattr(mass_mail_view, 'async_task_id', '12345678aaaabbbbccccabcdef123456')
+        with self.assertNotRaises(Exception):
+            url = getattr(mass_mail_view, 'get_success_url')()
+        expected_url = self.view_page.success_page.get_complete_url(
+            'via_async_task', {'task_id': '12345678aaaabbbbccccabcdef123456'})
+        self.assertEqual(url, str(expected_url) + '?' + urlencode({'nb': 12345}))
 
     def test_submit_invalid_values(self):
         # Invalid or missing values are expected to result in form errors
@@ -404,12 +430,12 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                 self.subTest(lang=lang)
             ):
                 faker = factory.Faker._get_faker('la' if lang == 'eo' else lang)
-                test_data = {
+                test_data: dict[str, str] = {
                     'subject': faker.sentence(),
                     'preheader': "{nomo}: " + faker.sentence(),
                     'heading': faker.word().capitalize() * 2,
                     'body': "Important email *{}* for all, {{nomo}}.",
-                    'categories': None,
+                    'categories': '',
                     'test_email': f"Zamenhof.{faker.email().capitalize()}",
                     'include_users': "\n".join(manual_users[True]) + "\t\n"
                                      + ",".join(manual_users[False]),
@@ -419,7 +445,7 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                 test_users['test'] = {True: [
                     UserFactory(
                         email=test_data['test_email'],
-                        profile__first_name=test_data['test_email'],
+                        profile__first_name=test_data['test_email'].split('@')[0].capitalize(),
                     )
                 ]}
 
@@ -428,16 +454,23 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                         page = self.view_page.open(self, user=self.user)
                         self.user.refresh_from_db()
                         mail.outbox = []
-                        page.submit({
-                            f'massmail-{key}': (value if key != 'categories' else category)
-                            for key, value in test_data.items()
-                        })
+                        success_task_id = faker.hexify('12345678^^^^^^^^^^^^abcdef123456')
+                        with patch(
+                                'django_q.tasks.uuid',
+                                return_value=('keke-meke', success_task_id)
+                        ):
+                            page.submit({
+                                f'massmail-{key}': (value if key != 'categories' else category)
+                                for key, value in test_data.items()
+                            })
                         # Successful submission is expected to result in a
                         # redirect to the results page.
                         self.assertEqual(page.response.status_code, 302)
+                        expected_result_url = self.view_page.success_page.get_complete_url(
+                            'via_async_task', {'task_id': success_task_id})
                         self.assertEqual(
                             page.response.location,
-                            f'{self.view_page.success_page.url}?' + urlencode({
+                            f'{expected_result_url}?' + urlencode({
                                 'nb': len(test_users[category][True]),
                             })
                         )
@@ -495,11 +528,13 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
         ]
 
         page = self.view_page.open(self, user=self.user)
-        page.submit(
-            {
-                f'massmail-{key}': value for key, value in test_data.items()
-            }
-        )
+        success_task_id = faker.hexify('12345678^^^^^^^^^^^^abcdef123456')
+        with patch('django_q.tasks.uuid', return_value=('keke-meke', success_task_id)):
+            page.submit(
+                {
+                    f'massmail-{key}': value for key, value in test_data.items()
+                }
+            )
         # The number of emails dispatched is expected to be equal to the number of users
         # who were included and not excluded.
         self.assertLength(
@@ -508,9 +543,11 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
         )
         # Successful submission is expected to result in a redirect to the results page.
         self.assertEqual(page.response.status_code, 302)
+        expected_result_url = self.view_page.success_page.get_complete_url(
+            'via_async_task', {'task_id': success_task_id})
         self.assertEqual(
             page.response.location,
-            f'{self.view_page.success_page.url}?' + urlencode({'nb': len(expected_recipients)}),
+            f'{expected_result_url}?' + urlencode({'nb': len(expected_recipients)}),
         )
         # The recipient of each individual email is expected to correspond to one of the
         # included users.
@@ -547,19 +584,27 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
         mock_get_connection.return_value.send_messages.side_effect = side_effect_send_messages
 
         page = self.view_page.open(self, user=self.user)
-        page.submit(
-            {
-                f'massmail-{key}': value for key, value in test_data.items()
-            },
-            possible_errors=True,
-        )
+        success_task_id = faker.hexify('12345678^^^^^^^^^^^^abcdef123456')
+        with patch('django_q.tasks.uuid', return_value=('keke-meke', success_task_id)):
+            page.submit(
+                {
+                    f'massmail-{key}': value for key, value in test_data.items()
+                },
+                possible_errors=True,
+            )
         # Submission is expected to result in a redirect to the results
-        # page, not in an internal server error.
+        # page, not in an internal server error. The result count in URL
+        # should indicate the number of messages submitted for the async
+        # processing.
         self.assertEqual(page.response.status_code, 302)
-        self.assertEqual(
-            page.response.location,
-            f'{self.view_page.success_page.url}?nb=0'
-        )
+        expected_result_url = self.view_page.success_page.get_complete_url(
+            'via_async_task', {'task_id': success_task_id})
+        self.assertEqual(page.response.location, f'{expected_result_url}?nb=1')
+        self.assertNotRaises(Exception, page.follow)
+        self.assertEqual(page.response.status_code, 200)
+        mock_get_connection.return_value.send_messages.assert_called()
+        # All messages are expected to be "rejected by ESP" and none are
+        # expected to be sent.
         self.assertLength(mail.outbox, 0)
 
 
@@ -567,7 +612,7 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
 class MassMailSentViewTests(AdministratorUserSetupMixin, BasicViewTests):
     view_page = MassMailResultPage
 
-    def test_result_output(self):
+    def test_immediate_result_output(self):
         # The view is expected to show the result of mass mail submission
         # and the number of messages dispatched according to the value of
         # the `nb` parameter.
@@ -590,13 +635,13 @@ class MassMailSentViewTests(AdministratorUserSetupMixin, BasicViewTests):
                         # No emails were sent.
                         self.assertEqual(
                             page.get_heading_text(),
-                            self.view_page.page_title_failure[lang]
+                            self.view_page.page_title_failure['base'][lang]
                         )
                         self.assertEqual(
                             page.get_result_element().text(),
                             {
-                                'en': "You sent 0 emails.",
-                                'eo': "Vi sendis 0 mesaĝojn.",
+                                'en': "You dispatched 0 emails.",
+                                'eo': "Vi registrigis 0 mesaĝojn por forsendo.",
                             }[lang]
                         )
                         self.assertFalse(page.get_result_element().has_class("text-success"))
@@ -604,7 +649,7 @@ class MassMailSentViewTests(AdministratorUserSetupMixin, BasicViewTests):
                         # A specific number or an unknown number of emails was sent.
                         self.assertEqual(
                             page.get_heading_text(),
-                            self.view_page.page_title_success[lang]
+                            self.view_page.page_title_success['base'][lang]
                         )
                         expected_count = (
                             result
@@ -619,8 +664,82 @@ class MassMailSentViewTests(AdministratorUserSetupMixin, BasicViewTests):
                         self.assertEqual(
                             page.get_result_element().text(),
                             {
-                                'en': f"You sent {expected_count} email{expected_plural}. Well done!",
-                                'eo': f"Vi sendis {expected_count} mesaĝo{expected_plural}n. Bonege!",
+                                'en': (
+                                    f"You dispatched {expected_count} email{expected_plural}."
+                                    " Well done!"
+                                ),
+                                'eo': (
+                                    f"Vi registrigis {expected_count} mesaĝo{expected_plural}n"
+                                    " por forsendo. Bonege!"
+                                ),
                             }[lang]
                         )
                         self.assertCssClass(page.get_result_element(), "text-success")
+                    self.assertNotContains(
+                        page.response,
+                        {
+                            'en': "The identifier of the queue does not match any result",
+                            'eo': "La identigilo de la vico ne (jam) konformas al rezulto",
+                        }[lang]
+                    )
+
+    def test_delayed_result_output(self):
+        # The view is expected to show the result of mass mail submission
+        # and the number of messages dispatched according to the value of
+        # the `nb` parameter.
+        faker = factory.Faker._get_faker()
+        test_data = [
+            0, faker.random_int(min=2),
+        ]
+        for lang in self.view_page.explicit_url:
+            for result in test_data:
+                with (
+                    override_settings(LANGUAGE_CODE=lang),
+                    self.subTest(lang=lang, result=result)
+                ):
+                    page = self.view_page.open(
+                        self, url_tag='via_async_task', user=self.user,
+                        extra_params={'nb': result})
+                    if result == 0:
+                        # No emails were dispatched.
+                        self.assertEqual(
+                            page.get_heading_text(),
+                            self.view_page.page_title_failure['via_async_task'][lang]
+                        )
+                        self.assertEqual(
+                            page.get_result_element().text(),
+                            {
+                                'en': "You dispatched 0 emails.",
+                                'eo': "Vi registrigis 0 mesaĝojn por forsendo.",
+                            }[lang]
+                        )
+                        self.assertFalse(page.get_result_element().has_class("text-success"))
+                    else:
+                        # A specific number of emails was dispatched.
+                        self.assertEqual(
+                            page.get_heading_text(),
+                            self.view_page.page_title_success['via_async_task'][lang]
+                        )
+                        self.assertEqual(
+                            page.get_result_element().text(),
+                            {
+                                'en': (
+                                    f"You dispatched {result} emails. Well done!"
+                                ),
+                                'eo': (
+                                    f"Vi registrigis {result} mesaĝojn por forsendo. Bonege!"
+                                ),
+                            }[lang]
+                        )
+                        self.assertCssClass(page.get_result_element(), "text-success")
+                    self.assertContains(
+                        page.response,
+                        {
+                            'en': "The identifier of the queue does not match any result",
+                            'eo': "La identigilo de la vico ne (jam) konformas al rezulto",
+                        }[lang]
+                    )
+
+    # TODO: Integration test for the complete mass mail flow, including
+    # existing task ID "12345678aaaabbbbccccabcdef123456"
+    # and an invalid task ID "87654321abcdeffedcba001234567899".

@@ -11,6 +11,12 @@ from .base import PageWithFormTemplate, PageWithTitleHeadingTemplate
 class MassMailResultPage(PageWithTitleHeadingTemplate):
     view_class = MassMailSentView
     url = reverse_lazy('mass_mail_sent')
+    alternative_urls = {
+        'via_async_task':
+            PageWithFormTemplate._RequiresReverseURL(viewname='mass_mail_sent', kwargs={
+                'task_id': '00001112223334445556667778889999',
+            }),
+    }
     explicit_url = {
         'en': '/admin/mass-mail/sent/',
         'eo': '/admin/amassendado/sukceso/',
@@ -21,12 +27,24 @@ class MassMailResultPage(PageWithTitleHeadingTemplate):
         'eo': "Anonco al uzantoj | Pasporta Servo",
     }
     page_title_success = {
-        'en': "Emails sent",
-        'eo': "Retmesaĝoj senditaj",
+        'base': {
+            'en': "Emails sent",
+            'eo': "Retmesaĝoj senditaj",
+        },
+        'via_async_task': {
+            'en': "Emails enqueued",
+            'eo': "Retmesaĝoj envicigitaj",
+        },
     }
     page_title_failure = {
-        'en': "Emails not sent",
-        'eo': "Retmesaĝoj ne senditaj",
+        'base': {
+            'en': "Emails not sent",
+            'eo': "Retmesaĝoj ne senditaj",
+        },
+        'via_async_task': {
+            'en': "Emails not enqueued",
+            'eo': "Retmesaĝoj ne envicigitaj",
+        },
     }
 
     def get_result_element(self) -> PyQuery:

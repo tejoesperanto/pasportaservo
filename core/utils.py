@@ -1,16 +1,20 @@
+import functools
 import hashlib
 import locale
 import operator
 import re
 from decimal import Decimal, localcontext as local_decimal_context
-from functools import reduce
-from typing import Any, Iterable, Literal, Optional, Sequence, Tuple, overload
+from typing import (
+    Any, Callable, Iterable, Literal,
+    Optional, Sequence, Tuple, cast, overload,
+)
 
 from django.conf import settings
-from django.core.mail import EmailMessage, get_connection
+from django.core.mail import get_connection
 from django.core.mail.backends.base import BaseEmailBackend
 from django.http import HttpRequest
 from django.utils.functional import SimpleLazyObject, lazy, new_method_proxy
+from django.utils.html import escape as html_escape
 from django.utils.http import url_has_allowed_host_and_scheme
 
 import requests
@@ -19,7 +23,7 @@ from packvers import version
 
 
 def getattr_(obj: Any, path: Iterable[str]) -> Any:
-    return reduce(getattr, path.split('.') if isinstance(path, str) else path, obj)
+    return functools.reduce(getattr, path.split('.') if isinstance(path, str) else path, obj)
 
 
 def split(value: str) -> list[str]:
@@ -67,7 +71,7 @@ def version_to_numeric_repr(version_string: str, precision: Optional[int] = None
             # numerical result (1.3.5 should be larger than 1.2.3.4).
             version_components += (0,) * (5 - len(version_components))
             return Decimal(
-                reduce(
+                functools.reduce(
                     lambda result, component: result * 10 ** 5 + component,
                     version_components
                 )
@@ -83,42 +87,90 @@ def version_to_numeric_repr(version_string: str, precision: Optional[int] = None
 
 
 def send_mass_html_mail(
-        datatuple: Sequence[Tuple[str, str, str, Optional[str], Sequence[str] | None]],
+        subject: str,
+        text_content: str,
+        html_content: str,
+        from_email: Optional[str],
+        customizations: dict[str, dict[str, str]],
         fail_silently: bool = True,
         auth_user: Optional[str] = None, auth_password: Optional[str] = None,
         connection: Optional[BaseEmailBackend] = None,
 ) -> int:
     """
-    Given a datatuple of (subject, text_content, html_content, from_email,
-    recipient_list), sends each message to each recipient list. Returns the
-    number of emails sent.
+    Given a `subject`, `text_content`, and `html_content`, sends a message to each
+    recipient, indicated as a key of the `customizations` dict. If bulk sending is
+    supported by the email backend, a single message will be dispatched, with
+    placeholders in the form {{variable}} replaced by the ESP with values from the
+    `customizations` dict. Otherwise, the replacements are done manually and a set
+    of messages, equal in length to the number of recipients, is dispatched.
+    Returns the number of emails that will be delivered.
 
-    If from_email is None, the DEFAULT_FROM_EMAIL setting is used.
-    If auth_user and auth_password are set, they're used to log in.
-    If auth_user is None, the EMAIL_HOST_USER setting is used.
-    If auth_password is None, the EMAIL_HOST_PASSWORD setting is used.
+    If `from_email` is None, the DEFAULT_FROM_EMAIL setting is used.
+    When `auth_user` and `auth_password` are set, they're used to log in.
+    If `auth_user` is None, the EMAIL_HOST_USER setting is used. If `auth_password`
+    is None, the EMAIL_HOST_PASSWORD setting is used.
     """
-    connection = connection or get_connection(
-        username=auth_user, password=auth_password, fail_silently=fail_silently)
-    messages: Sequence[EmailMessage] = []
+    connection = connection or cast(
+        BaseEmailBackend,  # get_connection never returns a None.
+        get_connection(
+            username=auth_user, password=auth_password, fail_silently=fail_silently,
+        )
+    )
+    messages: Sequence[AnymailMessage] = []
     default_from = settings.DEFAULT_FROM_EMAIL
-    for subject, text, html, from_email, recipients in datatuple:
-        subject = ''.join(subject.splitlines())
-        recipients = [r.strip() for r in recipients] if recipients else []
-        message = AnymailMessage(
-            subject, text, from_email or default_from, recipients,
-            headers={'Reply-To': 'Pasporta Servo <saluton@pasportaservo.org>'})
-        message.attach_alternative(html, 'text/html')
+
+    bulk_sending_supported = False
+    if bulk_sending_supported:  # pragma: no cover
+        raise NotImplementedError
+    else:
+        variable_pattern = re.compile(r'\{\s*([a-z]+)\s*\}')
+
+        def replacement_transform(
+                match: re.Match[str], recipient: str, transform: Callable[[Any], str],
+        ) -> str:
+            replacement = customizations[recipient].get(match.group(1))
+            return match.group(0) if replacement is None else str(transform(replacement))
+
+        for recipient in customizations:
+            text_transform = functools.partial(
+                replacement_transform, recipient=recipient, transform=lambda v: v)
+            html_transform = functools.partial(
+                replacement_transform, recipient=recipient, transform=html_escape)
+            single_subject = variable_pattern.sub(text_transform, subject)
+            single_text = variable_pattern.sub(text_transform, text_content)
+            single_html = variable_pattern.sub(html_transform, html_content)
+
+            message = AnymailMessage(
+                single_subject, single_text, from_email or default_from,
+                [recipient.strip()],
+                merge_data={},  # Enable batch sending mode.
+            )
+            message.attach_alternative(single_html, 'text/html')
+            messages.append(message)
+
+    subject_tag_re = re.compile(r'\[\[([a-zA-Z0-9_-]+)\]\]')
+    for message in messages:
+        message.subject = ''.join(message.subject.splitlines())
+        if tag_match := re.match(subject_tag_re, message.subject):
+            message.tags = [tag_match.group(1)]
+            message.subject = message.subject.removeprefix(tag_match.group()).strip()
+        message.metadata = {'env': settings.ENVIRONMENT}
+        message.extra_headers.update({
+            'Reply-To': 'Pasporta Servo <saluton@pasportaservo.org>',
+        })
         # TODO: Implement custom one-click unsubscribe.
         message.esp_extra = {'MessageStream': 'broadcast'}
-        if tag_match := re.match(r'\[\[([a-zA-Z0-9_-]+)\]\]', subject):
-            message.tags = [tag_match.group(1)]
-            message.subject = subject.removeprefix(tag_match.group()).strip()
-        message.merge_data = {}  # Enable batch sending mode.
-        message.metadata = {'env': settings.ENVIRONMENT}
         setattr(message, 'mass_mail', True)
-        messages.append(message)
-    return connection.send_messages(messages) or 0
+
+    num_sent = connection.send_messages(messages)
+    if bulk_sending_supported:  # pragma: no cover
+        # Only a single message is sent, but it will be delivered to multiple
+        # recipients (individually).
+        return len(customizations)
+    else:
+        # Since bulk dispatching is unavailable, a fallback of the manually
+        # constructed set of individual messages is used.
+        return num_sent or 0
 
 
 def sanitize_next(
