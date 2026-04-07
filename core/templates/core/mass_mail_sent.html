@@ -5,24 +5,68 @@
 
 {% block page %}
     <h1>
-        {% if nb != 0 %}
-            {% trans "Emails sent" %}
+        {% if not async_result or async_result.exists %}
+            {% if nb != 0 %}
+                {% trans "Emails sent" %}
+            {% else %}
+                {% trans "Emails not sent" %}
+            {% endif %}
         {% else %}
-            {% trans "Emails not sent" %}
+            {% if nb != 0 %}
+                {% trans "Emails enqueued" %}
+            {% else %}
+                {% trans "Emails not enqueued" %}
+            {% endif %}
         {% endif %}
     </h1>
     <h3 class="{% if nb != 0 %}text-success {% endif %}well">
         {% if nb is not None %}
             {% blocktrans count nb=nb trimmed %}
-                You sent 1 email.
+                You dispatched 1 email.
             {% plural %}
-                You sent {{ nb }} emails.
+                You dispatched {{ nb }} emails.
             {% endblocktrans %}
         {% else %}
-            {% trans "You sent the emails." %}
+            {% trans "You dispatched the emails." %}
         {% endif %}
         {% if nb != 0 %}
             {% trans "Well done!" %}
         {% endif %}
     </h3>
+    {% if async_result %}
+        <hr>
+        {% if not async_result.exists %}
+            <p>
+                {% blocktrans trimmed %}
+                    The identifier of the queue does not match any result (yet).
+                    If you just dispatched the emails, please wait a minute
+                    and refresh the page.
+                {% endblocktrans %}
+            </p>
+        {% else %}
+            <p>
+                {% trans "Result:" %}
+                {% blocktrans count nb=async_result.value|default:0 trimmed %}
+                    1 email was sent via the delivery service.
+                {% plural %}
+                    {{ nb }} emails were sent via the delivery service.
+                {% endblocktrans %}
+            </p>
+            {% if nb > async_result.value|default:0 %}
+                <p>
+                    {% if async_result.value == 0 %}
+                        {% blocktrans trimmed %}
+                            This means that all of the target email addresses are
+                            invalid or that the service is out of order.
+                        {% endblocktrans %}
+                    {% else %}
+                        {% blocktrans trimmed %}
+                            The recipients of the rest have email addresses that
+                            are not working or no longer valid.
+                        {% endblocktrans %}
+                    {% endif %}
+                </p>
+            {% endif %}
+        {% endif %}
+    {% endif %}
 {% endblock %}

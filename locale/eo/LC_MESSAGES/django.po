@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2026-03-19 23:15+0000\n"
+"POT-Revision-Date: 2026-04-04 00:20+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1117,19 +1117,61 @@ msgid "Emails not sent"
 msgstr "Retmesaĝoj ne senditaj"
 
 #: core/templates/core/mass_mail_sent.html
-#, python-format
-msgid "You sent 1 email."
-msgid_plural "You sent %(nb)s emails."
-msgstr[0] "Vi sendis 1 mesaĝon."
-msgstr[1] "Vi sendis %(nb)s mesaĝojn."
+msgid "Emails enqueued"
+msgstr "Retmesaĝoj envicigitaj"
 
 #: core/templates/core/mass_mail_sent.html
-msgid "You sent the emails."
-msgstr "Vi sendis la mesaĝojn."
+msgid "Emails not enqueued"
+msgstr "Retmesaĝoj ne envicigitaj"
+
+#: core/templates/core/mass_mail_sent.html
+#, python-format
+msgid "You dispatched 1 email."
+msgid_plural "You dispatched %(nb)s emails."
+msgstr[0] "Vi registrigis 1 mesaĝon por forsendo."
+msgstr[1] "Vi registrigis %(nb)s mesaĝojn por forsendo."
+
+#: core/templates/core/mass_mail_sent.html
+msgid "You dispatched the emails."
+msgstr "Vi registrigis la mesaĝojn por forsendo."
 
 #: core/templates/core/mass_mail_sent.html
 msgid "Well done!"
 msgstr "Bonege!"
+
+#: core/templates/core/mass_mail_sent.html
+msgid ""
+"The identifier of the queue does not match any result (yet). If you just "
+"dispatched the emails, please wait a minute and refresh the page."
+msgstr ""
+"La identigilo de la vico ne (jam) konformas al rezulto. Se vi ĵus transdonis "
+"la mesaĝojn, bonvole atendu minuton kaj tiam reŝargu la paĝon."
+
+#: core/templates/core/mass_mail_sent.html
+msgid "Result:"
+msgstr "Rezulto:"
+
+#: core/templates/core/mass_mail_sent.html
+#, python-format
+msgid "1 email was sent via the delivery service."
+msgid_plural "%(nb)s emails were sent via the delivery service."
+msgstr[0] "1 mesaĝo estis forsendita tra la livera servo."
+msgstr[1] "%(nb)s mesaĝoj estis forsenditaj tra la livera servo."
+
+#: core/templates/core/mass_mail_sent.html
+msgid ""
+"This means that all of the target email addresses are invalid or that the "
+"service is out of order."
+msgstr ""
+"Tio signifas ke ĉiuj celitaj retpoŝtadresoj ne funkcias aŭ ke la servo "
+"momente paneas."
+
+#: core/templates/core/mass_mail_sent.html
+msgid ""
+"The recipients of the rest have email addresses that are not working or no "
+"longer valid."
+msgstr ""
+"La ceteraj estis celitaj al adresatoj kies retpoŝtadresoj ne (plu) funkcias."
 
 #: core/templates/core/message.html
 #: core/templates/ui/fragment-datalist_fallback.html

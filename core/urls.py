@@ -115,8 +115,10 @@ urlpatterns = [
             path(pgettext_lazy("URL", 'mass-mail/'), include([
                 path(
                     '', MassMailView.as_view(), name='mass_mail'),
-                path(
-                    pgettext_lazy("URL", 'sent/'),
+                re_path(
+                    format_lazy(
+                        '^(?:@@(?P<task_id>[a-f0-9]{{32}})/)?{sent}$',
+                        sent=pgettext_lazy("URL", 'sent/')),
                     MassMailSentView.as_view(), name='mass_mail_sent'),
             ])),
         ])),

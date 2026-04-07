@@ -2,6 +2,7 @@ import logging
 import re
 from copy import copy
 from datetime import datetime, timedelta
+from itertools import batched
 from traceback import format_exception
 from typing import TYPE_CHECKING, Any, Collection, cast
 
@@ -16,6 +17,7 @@ from django.contrib.auth.views import (
     PasswordResetView as PasswordResetBuiltinView,
 )
 from django.contrib.flatpages.models import FlatPage
+from django.core.cache.backends.locmem import LocMemCache
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.core.mail import mail_admins, send_mail
 from django.db import transaction
@@ -31,7 +33,6 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.functional import SimpleLazyObject, cached_property
-from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.timezone import make_aware
@@ -45,13 +46,15 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.vary import vary_on_headers
 
 from commonmark import commonmark
+from django_q import tasks as async_tasks
+from django_q.brokers import get_broker
+from django_q.models import Task as QueuedTask
 from gql import Client as GQLClient, gql
 from gql.transport.exceptions import TransportError, TransportQueryError
 from gql.transport.requests import RequestsHTTPTransport as GQLHttpTransport
 from graphql import GraphQLError
 
 from blog.models import Post
-from core.models import Policy
 from hosting.forms import SubregionForm
 from hosting.models import (
     PasportaServoUser, Phone, Place, Profile, ViewableTrackingModel,
@@ -75,7 +78,7 @@ from .mixins import (
     FlatpageAsTemplateMixin, LoginRequiredMixin,
     UserModifyMixin, flatpages_as_templates,
 )
-from .models import FEEDBACK_TYPES, Agreement, SiteConfiguration
+from .models import FEEDBACK_TYPES, Agreement, Policy, SiteConfiguration
 from .utils import sanitize_next, send_mass_html_mail
 
 if TYPE_CHECKING:
@@ -892,9 +895,13 @@ class MassMailView(AuthMixin, generic.FormView):
         return context
 
     def get_success_url(self):
+        try:
+            kwargs = {'task_id': getattr(self, 'async_task_id')}
+        except AttributeError:
+            kwargs = {}
         return format_lazy(
             '{success_url}?nb={sent}',
-            success_url=reverse_lazy('mass_mail_sent'),
+            success_url=reverse_lazy('mass_mail_sent', kwargs=kwargs),
             sent=self.nb_sent,
         )
 
@@ -979,36 +986,46 @@ class MassMailView(AuthMixin, generic.FormView):
             'first_name', 'last_name', 'user__username', 'user__email',
         )
 
-        if category == 'test':
-            test_email = form.cleaned_data['test_email']
-            context = {
-                'preheader': mark_safe(preheader.format(nomo=test_email)),
-                'heading': heading,
-                'body': mark_safe(md_body.format(nomo=test_email)),
-            }
-            messages = [(
-                subject,
-                body.format(nomo=test_email),
-                template.render(context),
-                default_from,
-                [test_email],
-            )]
+        message = (
+            subject,
+            body,
+            template.render({
+                'preheader': preheader, 'heading': heading, 'body': mark_safe(md_body),
+            }),
+            default_from,
+            cast(dict[str, dict[str, str]], {}),
+        )
+        RECIPIENTS = -1
 
+        if category == 'test':
+            test_email: str = form.cleaned_data['test_email']
+            message[RECIPIENTS][test_email] = {
+                'nomo': test_email.partition('@')[0].capitalize(),
+            }
         else:
             name_placeholder = _("user")
-            messages = [(
-                subject,
-                body.format(nomo=profile.name or name_placeholder),
-                template.render({
-                    'preheader': mark_safe(preheader.format(nomo=escape(profile.name or name_placeholder))),
-                    'heading': heading,
-                    'body': mark_safe(md_body.format(nomo=escape(profile.name or name_placeholder))),
-                }),
-                default_from,
-                [value_without_invalid_marker(cast('FullProfile', profile).user.email)],
-            ) for profile in profiles]
+            for profile in profiles:
+                user_clean_email = (
+                    value_without_invalid_marker(cast('FullProfile', profile).user.email)
+                )
+                message[RECIPIENTS][user_clean_email] = {
+                    'nomo': profile.name or name_placeholder,
+                }
 
-        self.nb_sent = send_mass_html_mail(messages)
+        async_broker = get_broker()
+        async_iter = async_tasks.Iter(send_mass_html_mail, broker=async_broker)
+        if (
+            settings.DEBUG
+            or isinstance(async_broker.get_cache(), LocMemCache)
+        ):  # pragma: no cover
+            # async_iter always uses the cache but in case of LocMemCache, the cluster
+            # process will have its own local memory region - separate from the one of
+            # the WSGI process...
+            async_iter.sync = True
+        for recipient_batch in batched(message[RECIPIENTS].items(), 500):
+            async_iter.append(*message[:-1], dict(recipient_batch))
+        self.async_task_id = async_iter.run()
+        self.nb_sent = len(message[RECIPIENTS])
         return super().form_valid(form)
 
 
@@ -1028,6 +1045,16 @@ class MassMailSentView(AuthMixin, generic.TemplateView):
             if self.request.GET.get('nb', '').isdigit()
             else None
         )
+        if task_id := self.kwargs.get('task_id'):
+            task = QueuedTask.get_task(task_id)
+            context['async_result'] = {
+                'exists': task and task.func.endswith('.send_mass_html_mail'),
+            }
+            if context['async_result']['exists']:
+                try:
+                    context['async_result']['value'] = sum(task.result)  # type: ignore
+                except TypeError:  # pragma: no cover
+                    context['async_result']['value'] = task.result  # type: ignore
         return context
 
 

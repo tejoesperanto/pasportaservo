@@ -896,49 +896,118 @@ class GeographicUtilityFunctionsTests(AdditionalAsserts, TestCase):
 @tag('utils')
 class MassMailTests(AdditionalAsserts, TestCase):
     def test_empty_list(self):
-        self.assertEqual(send_mass_html_mail(tuple()), 0)
+        self.assertEqual(send_mass_html_mail("", "", "", None, customizations={}), 0)
 
     def test_mass_html_mail(self):
-        test_data: list[tuple[str, str, str, str | None, list[str]]] = []
-        test_subjects: list[tuple[str | None, str]] = []
         faker = Faker._get_faker()
-        for i in range(random.randint(3, 7)):
+        test_data = {
+            'text_content': faker.word(),
+            'html_content': f"<hr /><strong>{faker.word()}</strong>",
+            'subject': faker.sentence(),
+            'from_email': None,
+            'customizations': {},
+        }
+        test_recipients = [faker.company_email() for _ in range(random.randint(3, 7))]
+        for recipient in test_recipients:
+            test_data['customizations'][recipient] = {}
+
+        with self.assertNotRaises(Exception):
+            result = send_mass_html_mail(**test_data)
+        self.assertEqual(result, len(test_recipients))
+        self.assertLength(mail.outbox, len(test_recipients))
+        for i in range(len(test_recipients)):
+            self.assertEqual(mail.outbox[i].subject, test_data['subject'])
+            self.assertEqual(mail.outbox[i].from_email, settings.DEFAULT_FROM_EMAIL)
+            self.assertEqual(mail.outbox[i].to, [test_recipients[i]])
+
+        mail.outbox = []
+        with override_settings(**settings.TEST_EMAIL_BACKENDS['dummy']):
+            with self.assertNotRaises(Exception):
+                result = send_mass_html_mail(**test_data)
+        self.assertEqual(result, len(test_recipients))
+        self.assertLength(mail.outbox, len(test_recipients))
+        for i in range(len(test_recipients)):
+            outbox_item = cast(AnymailMessage, mail.outbox[i])
+            self.assertEqual(outbox_item.tags, UNSET)
+            self.assertTrue(outbox_item.anymail_test_params.get('is_batch_send'))
+            self.assertFalse(outbox_item.anymail_test_params.get('track_opens'))
+
+    def test_customizations(self):
+        faker = Faker._get_faker()
+        test_content_parts = [
+            faker.word() for _ in range(3)
+        ]
+        test_data = {
+            'text_content': (
+                f"{test_content_parts[0]} {{name}} {test_content_parts[1]} "
+                f"{{age}} {test_content_parts[2]} {{xyz:6!}}. ¡{{name}}!"
+            ),
+            'html_content': (
+                f"<hr /><strong>{test_content_parts[2]}</strong> {{ age }} ({{ name }}) "
+                f"<span>{test_content_parts[0]}</span>! <sup>{{  age  }}</sup>"
+            ),
+            'subject': "{ offer }",
+            'from_email': "test@ps",
+            'customizations': {},
+        }
+        test_recipients: list[str] = []
+        test_subjects: list[tuple[str | None, str]] = []
+        for i in range(random.randint(4, 8)):
+            test_recipients.append(faker.company_email())
             test_subjects.append((
                 faker.optional_value(
                     'pystr_format', ratio=0.2 if i else 1.0,
                     string_format='{{word}}-{{random_int}}'),
-                faker.sentence(),
+                f"{{name}}: {faker.sentence()}",
             ))
-            test_data.append((
-                # subject line
-                test_subjects[i][1]
-                if not test_subjects[i][0]
-                else f"[[{test_subjects[i][0]}]] \t {test_subjects[i][1]}",
-                # content: plain text & html
-                faker.word(), f"<hr /><strong>{faker.word()}</strong>",
-                # author email & emails of recipients
-                "test@ps" if i else None, [],
-            ))
-            for _ in range(random.randint(1, 3)):
-                test_data[i][4].append(faker.company_email())
+            params = {
+                'first_name': faker.first_name_nonbinary().capitalize(),
+                'last_name': faker.last_name_nonbinary().capitalize(),
+                'age': faker.random_int(12, 89),
+                'region': faker.street_name(),
+                'offer': (
+                    test_subjects[i][1]
+                    if not test_subjects[i][0]
+                    else f"[[{test_subjects[i][0]}]] \t {test_subjects[i][1]}"
+                ),
+            }
+            params['name'] = f"{params['first_name']}<{params['last_name']}>"
+            test_data['customizations'][test_recipients[i]] = params
 
-        result = send_mass_html_mail(test_data)
-        self.assertEqual(result, len(test_data))
-        self.assertLength(mail.outbox, len(test_data))
-        for i in range(len(test_data)):
+        with self.assertNotRaises(Exception):
+            result = send_mass_html_mail(**test_data)
+        self.assertEqual(result, len(test_recipients))
+        self.assertLength(mail.outbox, len(test_recipients))
+        for i in range(len(test_recipients)):
             self.assertEqual(mail.outbox[i].subject, test_subjects[i][1])
-            if i == 0:
-                self.assertEqual(mail.outbox[i].from_email, settings.DEFAULT_FROM_EMAIL)
-            else:
-                self.assertEqual(mail.outbox[i].from_email, "test@ps")
-            self.assertEqual(mail.outbox[i].to, test_data[i][4])
+            self.assertEqual(mail.outbox[i].from_email, "test@ps")
+            self.assertEqual(mail.outbox[i].to, [test_recipients[i]])
+            recipient_details = test_data['customizations'][test_recipients[i]]
+            expected_text = " ".join([
+                test_content_parts[0],
+                recipient_details['name'],
+                test_content_parts[1],
+                str(recipient_details['age']),
+                test_content_parts[2],
+                "{xyz:6!}.",
+                f"¡{recipient_details['name']}!",
+            ])
+            self.assertEqual(mail.outbox[i].body, expected_text)
+            expected_html = " ".join([
+                f"<hr /><strong>{test_content_parts[2]}</strong>",
+                str(recipient_details['age']),
+                f"({recipient_details['first_name']}&lt;{recipient_details['last_name']}&gt;)",
+                f"<span>{test_content_parts[0]}</span>! <sup>{recipient_details['age']}</sup>",
+            ])
+            self.assertEqual(mail.outbox[i].alternatives[0][0], expected_html)
 
         mail.outbox = []
         with override_settings(**settings.TEST_EMAIL_BACKENDS['dummy']):
-            result = send_mass_html_mail(test_data)
-        self.assertEqual(result, len(test_data))
-        self.assertLength(mail.outbox, len(test_data))
-        for i in range(len(test_data)):
+            with self.assertNotRaises(Exception):
+                result = send_mass_html_mail(**test_data)
+        self.assertEqual(result, len(test_recipients))
+        self.assertLength(mail.outbox, len(test_recipients))
+        for i in range(len(test_recipients)):
             outbox_item = cast(AnymailMessage, mail.outbox[i])
             if test_subjects[i][0]:
                 self.assertEqual(outbox_item.tags, [test_subjects[i][0]])
@@ -950,17 +1019,19 @@ class MassMailTests(AdditionalAsserts, TestCase):
     def test_invalid_values(self):
         faker = Faker._get_faker()
         expected_subject = faker.sentence()
-        test_data = [(
+        test_data = [
             # subject line
             "\n".join(expected_subject.split()),
             # content: plain text & html; author email
             "", "", "test@ps",
             # emails of recipients
             [f'{faker.email()}  ', f'  {faker.email()}', f'   {faker.email()} '],
-        )]
+        ]
 
-        result = send_mass_html_mail(test_data)
-        self.assertEqual(result, 1)
-        self.assertLength(mail.outbox, 1)
-        self.assertEqual(mail.outbox[0].subject, expected_subject.replace(" ", ""))
-        self.assertEqual(mail.outbox[0].to, [email.strip() for email in test_data[0][-1]])
+        with self.assertNotRaises(Exception):
+            result = send_mass_html_mail(*test_data)
+        self.assertEqual(result, 3)
+        self.assertLength(mail.outbox, 3)
+        for i in range(len(mail.outbox)):
+            self.assertEqual(mail.outbox[i].subject, expected_subject.replace(" ", ""))
+            self.assertEqual(mail.outbox[i].to, [test_data[-1][i].strip()])
