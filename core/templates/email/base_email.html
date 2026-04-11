@@ -1,4 +1,5 @@
 {% load i18n cdn domain %}
+{% load list compact from utils %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,8 +12,9 @@
         font-variant: small-caps;
         font-variant-caps: small-caps;
     }
-    a { color: #428bca; text-decoration: none;}
-    a:hover, a:focus { color: #2a6496; text-decoration: underline;}
+    a { color: #428bca; text-decoration: none; }
+    a:hover, a:focus { color: #2a6496; text-decoration: underline; }
+    .full-width > p, .full-width > div > p { text-indent: 2ch; }
 
     /* CLIENT-SPECIFIC STYLES */
     body, table, td, a {
@@ -102,7 +104,17 @@
 <body style="margin: 0 !important; padding: 0 !important;">
 
 <!-- HIDDEN PREHEADER TEXT -->
-<div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: Helvetica, Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
+<div style="{% filter compact %}
+                display: none;
+                font-size: 1px;
+                color: #fefefe;
+                line-height: 1px;
+                font-family: Helvetica, Arial, sans-serif;
+                max-height: 0px;
+                max-width: 0px;
+                opacity: 0;
+                overflow: hidden;
+            {% endfilter %}">
     {% block preheader %}{% endblock %}
 </div>
 
@@ -120,7 +132,10 @@
                     <!-- HERO IMAGE -->
                     <td align="center" valign="middle" bgcolor="#ff7711" style="padding: 15px 0;" class="logo">
                         <a href="https://pasportaservo.org/" target="_blank" style="text-decoration: none;">
-                            {# https://blog.mailtrap.io/embedding-images-in-html-email-have-the-rules-changed/#Choosing_a_method_of_putting_an_image_in_an_HTML_message #}
+                            {% comment %}
+                                https://blog.mailtrap.io/embedding-images-in-html-email-have-the-rules-changed/
+                                #Choosing_a_method_of_putting_an_image_in_an_HTML_message
+                            {% endcomment %}
                             <img alt="Pasporta Servo" src="{% cdn 'ps' %}/core/static/img/email_logo.png" width="300" height="50"
                                  style="display: block; font-family: Times, serif; color: #ffffff; font-size: 38px;" border="0"
                                  decoding="async" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -150,13 +165,32 @@
                                 <td>
                                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                                         <tr>
-                                            <td align="center" style="font-size: 25px; font-family: Helvetica, Arial, sans-serif; color: #333333; padding-top: 30px;" class="padding">
+                                            <td align="center"
+                                                class="padding"
+                                                style="{% filter compact %}
+                                                            font-size: 25px;
+                                                            font-family: Helvetica, Arial, sans-serif;
+                                                            color: #333333;
+                                                            padding-top: 30px;
+                                                       {% endfilter %}">
                                                 {% block heading %}<span id="preview_heading"></span>{% endblock heading %}
                                             </td>
                                         </tr>
+                                        {% list 'left' 'center' 'right' 'justify' as allowed_alignment %}
                                         <tr>
-                                            <td align="center" style="font-size: 16px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #666666; padding: 20px 0 0 0;" class="padding">
-                                                {% block body %}<span id="preview_body"></span>{% endblock %}
+                                            <td align="center"
+                                                class="padding{% if body_alignment == 'justify' %} full-width{% endif %}"
+                                                style="{% filter compact %}
+                                                            {% if body_alignment in allowed_alignment %}
+                                                                text-align: {{ body_alignment }};
+                                                            {% endif %}
+                                                            font-size: 16px;
+                                                            line-height: 25px;
+                                                            font-family: Helvetica, Arial, sans-serif;
+                                                            color: #666666;
+                                                            padding: 20px 0 0 0;
+                                                       {% endfilter %}">
+                                                {% block body %}<div id="preview_body"></div>{% endblock %}
                                             </td>
                                         </tr>
                                     </table>
@@ -185,16 +219,25 @@
             <tr>
             <td align="center" valign="top" width="500">
             <![endif]-->
-            <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" style="max-width: 500px;" class="responsive-table">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center"
+                   style="max-width: 500px;" class="responsive-table">
                 <tr>
                     <!-- COLOPHON -->
-                    <td align="center" style="font-size: 12px; line-height: 18px; font-family: Helvetica, Arial, sans-serif; color: #666666;">
+                    <td align="center"
+                        style="{% filter compact %}
+                                    font-size: 12px;
+                                    line-height: 18px;
+                                    font-family: Helvetica, Arial, sans-serif;
+                                    color: #666666;
+                               {% endfilter %}">
                         Nieuwe Binnenweg 176 <br>
                         3015 BJ • Rotterdam – Nederlando <br>
                         <br>
                         {% if unsubscribe_url %}
                             <!-- UNSUBSCRIBE -->
-                            <a href="{% domain unsubscribe_url %}" target="_blank" style="color: #666666;">{% trans "Unsubscribe from this type of messages" %}</a>
+                            <a href="{% domain unsubscribe_url %}" target="_blank" style="color: #666666;">
+                                {% trans "Unsubscribe from this type of messages" %}
+                            </a>
                         {% endif %}
                     </td>
                 </tr>

@@ -10,7 +10,7 @@ class MassMailFormTests(TestCase):
         form = MassMailForm()
         optional_fields = ['include_users', 'exclude_users']
         expected_fields = [
-            'subject', 'body', 'preheader', 'heading',
+            'subject', 'body', 'preheader', 'heading', 'alignment',
             'categories', 'test_email', *optional_fields,
         ]
         # Verify that the expected fields are part of the form.
@@ -27,7 +27,7 @@ class MassMailFormTests(TestCase):
         self.assertFalse(hasattr(form, 'save'))
 
     def test_list_of_categories(self):
-        # The form's field `categories` is expected to have 7 simple choices.
+        # The form's field `categories` is expected to have 8 simple choices.
         form = MassMailForm()
         for category in form.fields['categories'].choices:
             self.assertIsInstance(category, tuple)

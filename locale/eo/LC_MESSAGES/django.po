@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2026-04-04 00:20+0000\n"
+"POT-Revision-Date: 2026-04-10 18:29+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -263,6 +263,16 @@ msgid ""
 msgstr ""
 "Kara {nomo},\n"
 "\n"
+
+#: core/forms.py
+msgctxt "Text alignment"
+msgid "centered"
+msgstr "centrigita"
+
+#: core/forms.py
+msgctxt "Text alignment"
+msgid "justified"
+msgstr "ĝisrandigita"
 
 #: core/forms.py pasportaservo/templates/postman/base_folder.html
 msgid "Subject"
