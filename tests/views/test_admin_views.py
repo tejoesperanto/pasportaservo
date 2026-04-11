@@ -435,6 +435,7 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                     'preheader': "{nomo}: " + faker.sentence(),
                     'heading': faker.word().capitalize() * 2,
                     'body': "Important email *{}* for all, {{nomo}}.",
+                    'alignment': 'center',
                     'categories': '',
                     'test_email': f"Zamenhof.{faker.email().capitalize()}",
                     'include_users': "\n".join(manual_users[True]) + "\t\n"
@@ -465,7 +466,12 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
                             })
                         # Successful submission is expected to result in a
                         # redirect to the results page.
-                        self.assertEqual(page.response.status_code, 302)
+                        submit_errors = (
+                            (form := page.response.context.get('form')) and form.errors
+                        )
+                        self.assertEqual(page.response.status_code, 302, msg=(
+                            "Form errors: " + (submit_errors and repr(submit_errors) or "none")
+                        ))
                         expected_result_url = self.view_page.success_page.get_complete_url(
                             'via_async_task', {'task_id': success_task_id})
                         self.assertEqual(
@@ -517,6 +523,7 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
             'preheader': faker.sentence(),
             'heading': faker.word().capitalize() * 2,
             'body': "Monthly update for {nomo}.",
+            'alignment': 'justify',
             'categories': 'specified',
             'test_email': f"Lazaro.{faker.email().capitalize()}",
             'include_users': "\n aa,  b.b@esperanto.net  ,,  , C\nd.d@esperanto.net   \n,"
@@ -539,7 +546,9 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
         # who were included and not excluded.
         self.assertLength(
             mail.outbox, len(expected_recipients),
-            msg="Dispatched to {}".format(", ".join([addr for m in mail.outbox for addr in m.to])),
+            msg="Dispatched to {}".format(
+                ", ".join([addr for m in mail.outbox for addr in m.to]) or "none"
+            ),
         )
         # Successful submission is expected to result in a redirect to the results page.
         self.assertEqual(page.response.status_code, 302)
@@ -565,6 +574,7 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
             'preheader': faker.sentence(),
             'heading': faker.word().capitalize() * 2,
             'body': "Important email!",
+            'alignment': 'center',
             'categories': 'test',
             'test_email': test_user.email,
         }
@@ -596,7 +606,12 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
         # page, not in an internal server error. The result count in URL
         # should indicate the number of messages submitted for the async
         # processing.
-        self.assertEqual(page.response.status_code, 302)
+        self.assertEqual(page.response.status_code, 302, msg=(
+            "Form errors: " + (
+                (form := page.response.context.get('form')) and repr(form.errors)
+                or "none"
+            )
+        ))
         expected_result_url = self.view_page.success_page.get_complete_url(
             'via_async_task', {'task_id': success_task_id})
         self.assertEqual(page.response.location, f'{expected_result_url}?nb=1')

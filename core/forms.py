@@ -24,6 +24,7 @@ from django_q.tasks import async_task
 from core.utils import camel_case_split
 from hosting.models import PasportaServoUser, Profile
 from hosting.utils import value_without_invalid_marker
+from hosting.widgets import InlineRadios
 from links.utils import create_unique_url
 
 from .auth import auth_log
@@ -447,6 +448,14 @@ class MassMailForm(forms.Form):
         label=_("Body"), initial=_("Dear {nomo},\n\n"),
         help_text=_("Markdown content"),
         widget=forms.Textarea(attrs={'class': 'vertically-expandable'}))
+    alignment = forms.ChoiceField(
+        label="",
+        choices=(
+            ('center', pgettext_lazy("Text alignment", "centered")),
+            ('justify', pgettext_lazy("Text alignment", "justified")),
+        ),
+        initial='center',
+        widget=forms.RadioSelect)
     subject = forms.CharField(
         label=_("Subject"), initial=_("Subject"))
     preheader = forms.CharField(
@@ -479,3 +488,8 @@ class MassMailForm(forms.Form):
     test_email = forms.EmailField(
         # Only used if the 'test' category is selected.
         label=_("Your email for test"), initial="baptiste@darthenay.fr")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper['alignment'].wrap(InlineRadios)

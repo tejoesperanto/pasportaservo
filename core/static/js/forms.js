@@ -696,6 +696,9 @@ $(function() {
                               .keyup();
                 }
             }).keyup();
+            $('[id^="id_massmail-alignment"]').change(function() {
+                $('#preview_body', frameContext).css('text-align', this.value);
+            });
 
             $.each(['heading', 'subject', 'preheader'], function(i, element) {
                 $('#id_massmail-'+element).keyup(function(event) {
@@ -707,7 +710,7 @@ $(function() {
                             $this.data('previous-value', this.value);
                         }
                     }
-                    $('#preview_'+element, element == 'heading' ? frameContext : null).html(this.value);
+                    $('#preview_'+element, element == 'heading' ? frameContext : null).text(this.value);
                 }).keyup();
             });
 

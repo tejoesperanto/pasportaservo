@@ -991,6 +991,7 @@ class MassMailView(AuthMixin, generic.FormView):
             body,
             template.render({
                 'preheader': preheader, 'heading': heading, 'body': mark_safe(md_body),
+                'body_alignment': form.cleaned_data.get('alignment'),
             }),
             default_from,
             cast(dict[str, dict[str, str]], {}),
