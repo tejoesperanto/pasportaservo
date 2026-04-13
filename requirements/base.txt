@@ -1,6 +1,6 @@
 Django==4.2.30
 psycopg2==2.9.11
-Pillow==12.1.1
+Pillow==12.2.0
 
 awesome-slugify==1.6.5
 blessed==1.25.0
