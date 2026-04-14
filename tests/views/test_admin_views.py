@@ -715,6 +715,10 @@ class MassMailSentViewTests(AdministratorUserSetupMixin, BasicViewTests):
                     page = self.view_page.open(
                         self, url_tag='via_async_task', user=self.user,
                         extra_params={'nb': result})
+                    unknown_result_text = {
+                        'en': "The identifier of the queue does not match any result",
+                        'eo': "La identigilo de la vico ne (jam) konformas al rezulto",
+                    }[lang]
                     if result == 0:
                         # No emails were dispatched.
                         self.assertEqual(
@@ -729,6 +733,7 @@ class MassMailSentViewTests(AdministratorUserSetupMixin, BasicViewTests):
                             }[lang]
                         )
                         self.assertFalse(page.get_result_element().has_class("text-success"))
+                        self.assertNotContains(page.response, unknown_result_text)
                     else:
                         # A specific number of emails was dispatched.
                         self.assertEqual(
@@ -747,13 +752,7 @@ class MassMailSentViewTests(AdministratorUserSetupMixin, BasicViewTests):
                             }[lang]
                         )
                         self.assertCssClass(page.get_result_element(), "text-success")
-                    self.assertContains(
-                        page.response,
-                        {
-                            'en': "The identifier of the queue does not match any result",
-                            'eo': "La identigilo de la vico ne (jam) konformas al rezulto",
-                        }[lang]
-                    )
+                        self.assertContains(page.response, unknown_result_text)
 
     # TODO: Integration test for the complete mass mail flow, including
     # existing task ID "12345678aaaabbbbccccabcdef123456"

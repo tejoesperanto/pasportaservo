@@ -1049,14 +1049,22 @@ class MassMailSentView(AuthMixin, generic.TemplateView):
         )
         if task_id := self.kwargs.get('task_id'):
             task = QueuedTask.get_task(task_id)
-            context['async_result'] = {
+            context['async_result'] = cast(dict[str, bool | int | str | None], {
                 'exists': task and task.func.endswith('.send_mass_html_mail'),
-            }
+            })
             if context['async_result']['exists']:
-                try:
-                    context['async_result']['value'] = sum(task.result)  # type: ignore
-                except TypeError:  # pragma: no cover
-                    context['async_result']['value'] = task.result  # type: ignore
+                assert task is not None
+                context['async_result']['success'] = task.success
+                context['async_result']['value'] = sum(
+                    filter(lambda val: isinstance(val, int), task.result)
+                )
+                context['async_result']['outcome'] = "\n".join([
+                    f"Batch {counter}: {{res}}".format(
+                        res=(str(single_result).strip().splitlines() or [""])[-1]
+                    )
+                    for counter, single_result in enumerate(task.result, start=1)
+                    if not isinstance(single_result, int)
+                ])
         return context
 
 
