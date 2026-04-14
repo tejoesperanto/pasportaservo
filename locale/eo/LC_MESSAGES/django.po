@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2026-04-10 18:29+0000\n"
+"POT-Revision-Date: 2026-04-14 04:14+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1183,6 +1183,18 @@ msgid ""
 msgstr ""
 "La ceteraj estis celitaj al adresatoj kies retpoŝtadresoj ne (plu) funkcias."
 
+#: core/templates/core/mass_mail_sent.html
+msgid ""
+"An error occurred during processing and/or communication with the delivery "
+"service. It is possible that additional emails were nonetheless sent to "
+"their respective recipients; check the dashboard of the email delivery "
+"service provider."
+msgstr ""
+"Okazis eraro dum la prilaborado kaj/aŭ komunikado kun la livera servo. Eblas "
+"ke ĉiuokaze pliaj mesaĝoj estis tamen liveritaj al iliaj respektivaj "
+"adresatoj; kontrolu la aktiveco-panelon de la provizanto de retpoŝt-livera "
+"servo."
+
 #: core/templates/core/message.html
 #: core/templates/ui/fragment-datalist_fallback.html
 #: core/templates/ui/widget-password+toggle.html
@@ -1753,6 +1765,11 @@ msgstr "admin/"
 msgctxt "URL"
 msgid "mass-mail/"
 msgstr "amassendado/"
+
+#: core/urls.py
+msgctxt "URL"
+msgid "result/"
+msgstr "rezulto/"
 
 #: core/urls.py
 msgctxt "URL"

@@ -18,8 +18,8 @@ class MassMailResultPage(PageWithTitleHeadingTemplate):
             }),
     }
     explicit_url = {
-        'en': '/admin/mass-mail/sent/',
-        'eo': '/admin/amassendado/sukceso/',
+        'en': '/admin/mass-mail/result/',
+        'eo': '/admin/amassendado/rezulto/',
     }
     template = 'core/mass_mail_sent.html'
     title = {

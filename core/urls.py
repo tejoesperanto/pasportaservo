@@ -118,7 +118,7 @@ urlpatterns = [
                 re_path(
                     format_lazy(
                         '^(?:@@(?P<task_id>[a-f0-9]{{32}})/)?{sent}$',
-                        sent=pgettext_lazy("URL", 'sent/')),
+                        sent=pgettext_lazy("URL", 'result/')),
                     MassMailSentView.as_view(), name='mass_mail_sent'),
             ])),
         ])),
