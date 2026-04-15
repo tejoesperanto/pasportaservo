@@ -187,6 +187,7 @@ Q_CLUSTER = {
     'poll': 5,
     'max_attempts': 2,
     'timeout': 20,
+    'retry': 900,
     'save_limit': 0,
     'catch_up': False,
 }

@@ -177,6 +177,7 @@ class UserFactory(TypedDjangoModelFactory['PasportaServoFactoryUser']):
     class Params:
         deceased_user = False
         deleted_profile = False
+        locale = None
 
     username = Faker('user_name')
     password = factory.PostGenerationMethodCall('set_password', "adm1n")
@@ -189,6 +190,7 @@ class UserFactory(TypedDjangoModelFactory['PasportaServoFactoryUser']):
 
     profile = factory.RelatedFactory(
         'tests.factories.ProfileFactory', 'user',
+        locale=factory.SelfAttribute('..locale'),
         deceased=factory.SelfAttribute('..deceased_user'),
         deleted=factory.SelfAttribute('..deleted_profile'))
     agreement = factory.RelatedFactory('tests.factories.AgreementFactory', 'user')

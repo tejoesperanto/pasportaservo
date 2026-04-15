@@ -1135,6 +1135,11 @@ msgid "Emails not enqueued"
 msgstr "Retmesaĝoj ne envicigitaj"
 
 #: core/templates/core/mass_mail_sent.html
+msgctxt "Adverb"
+msgid "Simulated"
+msgstr "Simulite"
+
+#: core/templates/core/mass_mail_sent.html
 #, python-format
 msgid "You dispatched 1 email."
 msgid_plural "You dispatched %(nb)s emails."
