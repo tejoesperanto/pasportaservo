@@ -18,6 +18,10 @@
                 {% trans "Emails not enqueued" %}
             {% endif %}
         {% endif %}
+        {% if simulation is not None %}
+            &#x2008;
+            [&#x202f;{% trans "Simulated"|upper context "Adverb" %}&#x202f;]
+        {% endif %}
     </h1>
     <h3 class="{% if nb != 0 %}text-success {% endif %}well">
         {% if nb is not None %}

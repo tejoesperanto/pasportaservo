@@ -1,6 +1,7 @@
 from functools import cached_property
 from threading import Lock
 from typing import Any, NamedTuple, Optional, TypedDict, TypeVar, cast
+from urllib.parse import urlencode
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
@@ -241,8 +242,10 @@ class PageTemplate:
         })
         for message_element in self.pyquery("section.messages > .message"):
             message_element = PyQuery(message_element)
-            result['content'].append(message_element.children('span[id]').html())
-            result['level'].append(message_element.attr('data-level'))
+            result['content'].append(
+                cast(str, message_element.children('span[id]').html())
+            )
+            result['level'].append(cast(str, message_element.attr('data-level')))
         return result
 
     def get_footer_element(self, footer_part: str) -> PyQuery:
@@ -280,19 +283,25 @@ class PageWithFormTemplate(PageTemplate):
     def submit(
             self,
             form_data: dict[str, Any],
+            query_data: Optional[dict[str, Any]] = None,
             redirect_to: Optional[str] = None,
             csrf_token: Optional[str] = None,
             possible_errors: bool = False,
     ):
         extra_form_data: dict[str, Any] = {
-            'csrfmiddlewaretoken': csrf_token or (self.response.context or {}).get('csrf_token'),
+            'csrfmiddlewaretoken':
+                csrf_token or (self.response.context or {}).get('csrf_token'),
         }
         if redirect_to:
             extra_form_data[settings.REDIRECT_FIELD_NAME] = redirect_to
 
         with self._test_case.settings(DEBUG_PROPAGATE_EXCEPTIONS=not possible_errors):
             self._page = self._test_case.app.post(
-                self.url,
+                '{base_url}{delimiter}{query_string}'.format(
+                    base_url=self.get_complete_url(),
+                    delimiter='?' if query_data else '',
+                    query_string=urlencode(query_data or {}),
+                ),
                 {**form_data, **extra_form_data},
                 status='*', expect_errors=possible_errors)
         if getattr(self._page, 'context', None) and 'form' in self._page.context:

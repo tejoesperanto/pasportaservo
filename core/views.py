@@ -882,12 +882,15 @@ class MassMailView(AuthMixin, generic.FormView):
     form_class = MassMailForm
     display_permission_denied = False
     exact_role = AuthRole.ADMIN
+    simulation = False
     # Keep the email address separate from the one used for transactional
     # emails, for better email sender reputation.
     mailing_address = 'anoncoj@pasportaservo.org'
 
     def dispatch(self, request, *args, **kwargs):
         kwargs['auth_base'] = None
+        if 'sim' in self.request.GET:
+            self.simulation = True
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -901,7 +904,7 @@ class MassMailView(AuthMixin, generic.FormView):
         except AttributeError:
             kwargs = {}
         return format_lazy(
-            '{success_url}?nb={sent}',
+            '{success_url}?nb={sent}' + ('&sim' if self.simulation else ''),
             success_url=reverse_lazy('mass_mail_sent', kwargs=kwargs),
             sent=self.nb_sent,
         )
@@ -987,6 +990,10 @@ class MassMailView(AuthMixin, generic.FormView):
             'first_name', 'last_name', 'user__username', 'user__email',
         )
 
+        if self.simulation:
+            self.nb_sent = 1 if category == 'test' else len(profiles)
+            return super().form_valid(form)
+
         message = (
             subject,
             "\n".join(text_split(body, 'NEWLINE~75')),
@@ -1015,11 +1022,11 @@ class MassMailView(AuthMixin, generic.FormView):
                 }
 
         async_broker = get_broker()
-        async_iter = async_tasks.Iter(send_mass_html_mail, broker=async_broker)
-        if (
-            settings.DEBUG
-            or isinstance(async_broker.get_cache(), LocMemCache)
-        ):  # pragma: no cover
+        async_iter = async_tasks.Iter(send_mass_html_mail, broker=async_broker, kwargs={
+            'timeout': 600,  # The task can be worked on for the ample time of 10 mins.
+            'ack_failure': True,  # Remove the task from queue also in case of failure.
+        })
+        if isinstance(async_broker.get_cache(), LocMemCache):  # pragma: no cover
             # async_iter always uses the cache but in case of LocMemCache, the cluster
             # process will have its own local memory region - separate from the one of
             # the WSGI process...
@@ -1042,6 +1049,7 @@ class MassMailSentView(AuthMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['simulation'] = self.request.GET.get('sim')
         context['nb'] = (
             int(self.request.GET['nb'])
             if self.request.GET.get('nb', '').isdigit()
