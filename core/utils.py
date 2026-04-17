@@ -12,7 +12,7 @@ from typing import (
 from django.conf import settings
 from django.core.mail import get_connection
 from django.core.mail.backends.base import BaseEmailBackend
-from django.http import HttpRequest
+from django.http.request import HttpRequest, MediaType
 from django.utils.functional import SimpleLazyObject, lazy, new_method_proxy
 from django.utils.html import escape as html_escape
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -52,6 +52,27 @@ join_lazy = lazy(_lazy_joiner, str)  # noqa:E305
 setattr(SimpleLazyObject, '__int__', new_method_proxy(int))
 setattr(SimpleLazyObject, '__add__', new_method_proxy(operator.add))
 setattr(SimpleLazyObject, '__mul__', new_method_proxy(operator.mul))
+
+
+def request_asks_for_json(request: HttpRequest) -> bool:
+    """
+    Checks whether this request stipulates that the response should be a JSON, as
+    indicated in the "`Accept`" header. However, since most of the browsers include
+    the value "`*/*`" in the header (meaning, no preference for the response type),
+    the `MediaType.match()` method and `HttpRequest.accepts()` method (which relies
+    on matching the media types, including wildcards) cannot be used - as also an
+    HTML request would be classified as "JSON desired". Due to this, the check is
+    done manually, in a strict manner.
+    """
+    # TODO: Revisit in Django 5.2.
+    FLAG_ATTRIBUTE_NAME = 'needs_json'
+    if not hasattr(request, FLAG_ATTRIBUTE_NAME):
+        json = MediaType('application/json')
+        setattr(request, FLAG_ATTRIBUTE_NAME, any(
+            json.main_type == accepted.main_type and json.sub_type == accepted.sub_type
+            for accepted in request.accepted_types
+        ))
+    return getattr(request, FLAG_ATTRIBUTE_NAME)
 
 
 def version_to_numeric_repr(version_string: str, precision: Optional[int] = None) -> Decimal:

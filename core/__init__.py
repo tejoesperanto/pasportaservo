@@ -13,4 +13,4 @@ class PasportaServoHttpRequest(HttpRequest):
     skip_hosting_checks: bool
     DNT: bool
 
-    is_json: bool
+    needs_json: bool

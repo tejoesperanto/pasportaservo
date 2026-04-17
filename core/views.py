@@ -80,7 +80,7 @@ from .mixins import (
     UserModifyMixin, flatpages_as_templates,
 )
 from .models import FEEDBACK_TYPES, Agreement, Policy, SiteConfiguration
-from .utils import sanitize_next, send_mass_html_mail
+from .utils import request_asks_for_json, sanitize_next, send_mass_html_mail
 
 if TYPE_CHECKING:
     from hosting.models import FullProfile
@@ -573,7 +573,7 @@ class EmailVerifyView(LoginRequiredMixin, generic.View):
             html_message=email_template_html.render(context),
             fail_silently=False)
 
-        if request.accepts('application/json'):
+        if request_asks_for_json(request):
             return JsonResponse({'success': 'verification-requested'})
         else:
             return TemplateResponse(request, self.template_name)
@@ -673,7 +673,7 @@ class EmailValidityMarkView(
             Profile.mark_valid_emails(email)
         else:
             Profile.mark_invalid_emails(email)
-        if request.is_json:
+        if request.needs_json:
             success_value = 'valid' if self.valid else 'invalid'
             return JsonResponse({'success': success_value})
         else:
@@ -744,7 +744,7 @@ class FeedbackView(generic.View):
                 {'errors': form.errors, 'message': form.data.get('message', "NULL")[:1000]},
                 extra={'request': request},
             )
-            if request.accepts('application/json'):
+            if request_asks_for_json(request):
                 return JsonResponse({'result': False})
             else:
                 return TemplateResponse(request, self.template_names[False])
@@ -759,7 +759,7 @@ class FeedbackView(generic.View):
             )
             # Submit the feedback.
             method(feedback_type, message_text)
-        if request.accepts('application/json'):
+        if request_asks_for_json(request):
             return JsonResponse({
                 'result': True,
                 'submitted': bool(form.cleaned_data['message']),

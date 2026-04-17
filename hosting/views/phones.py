@@ -62,7 +62,7 @@ class PhonePriorityChangeView(AuthMixin[Profile], ProfileMixin, generic.View):
             re.MULTILINE)
         profile.set_phone_order(phone_ids)
         priorities = list(profile.get_phone_order())
-        if request.is_json:
+        if request.needs_json:
             return JsonResponse({'result': priorities})
         else:
             profile_url = profile.get_edit_url()

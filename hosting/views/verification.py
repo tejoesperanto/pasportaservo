@@ -18,6 +18,7 @@ from django.views.decorators.vary import vary_on_headers
 from core import PasportaServoHttpRequest
 from core.auth import PERM_SUPERVISOR, AuthMixin, AuthRole
 from core.mixins import LoginRequiredMixin
+from core.utils import request_asks_for_json
 
 from ..forms import PhoneForm, PlaceForm, ProfileForm
 from ..models import LocationConfidence, Place, Profile, TrackingModel
@@ -37,14 +38,14 @@ class InfoConfirmView(LoginRequiredMixin, generic.View):
         try:
             request.user.profile.confirm_all_info()
         except Profile.DoesNotExist:
-            if request.is_json:
+            if request_asks_for_json(request):
                 return HttpResponseBadRequest(
                     "Cannot confirm data; a profile must be created first.",
                     content_type="text/plain")
             else:
                 return HttpResponseRedirect(reverse_lazy('profile_create'))
         else:
-            if request.is_json:
+            if request_asks_for_json(request):
                 return JsonResponse({'success': 'confirmed'})
             else:
                 return TemplateResponse(request, self.template_name)
@@ -121,7 +122,7 @@ class PlaceCheckView(AuthMixin[Place], PlaceMixin, generic.View):
         else:
             place.set_check_status(self.request.user)
 
-        if request.is_json:
+        if request.needs_json:
             return JsonResponse(viewresponse)
         else:
             return TemplateResponse(

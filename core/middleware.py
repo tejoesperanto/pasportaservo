@@ -19,6 +19,7 @@ import geocoder
 import user_agents
 
 from core.models import Agreement, Policy, SiteConfiguration, UserBrowser
+from core.utils import request_asks_for_json
 from core.views import AgreementRejectView, AgreementView, HomeView
 from hosting.models import Preferences, Profile
 from hosting.validators import TooNearPastValidator
@@ -50,7 +51,7 @@ class AccountFlagsMiddleware(MiddlewareMixin):
         self.exclude_urls = tuple(str(url) for url in exclude_urls)
 
     def process_request(self, request: PasportaServoHttpRequest):
-        request.is_json = request.accepts('application/json')
+        request.needs_json = request_asks_for_json(request)
 
         if request.path.startswith(self.exclude_urls):
             # Only relevant when using the website itself (not Django-Admin or debug tools),

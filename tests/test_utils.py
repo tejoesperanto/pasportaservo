@@ -10,7 +10,7 @@ from unittest.mock import patch
 from django.conf import settings
 from django.contrib.gis.geos import Point as GeoPoint
 from django.core import mail
-from django.test import TestCase, override_settings, tag
+from django.test import RequestFactory, TestCase, override_settings, tag
 from django.utils.functional import SimpleLazyObject, lazy, lazystr
 
 from anymail.message import AnymailMessage
@@ -22,8 +22,9 @@ from requests.exceptions import (
 )
 
 from core.utils import (
-    camel_case_split, getattr_, is_password_compromised, join_lazy,
-    send_mass_html_mail, sort_by, split, version_to_numeric_repr,
+    camel_case_split, getattr_, is_password_compromised,
+    join_lazy, request_asks_for_json, send_mass_html_mail,
+    sort_by, split, version_to_numeric_repr,
 )
 from hosting.countries import countries_with_mandatory_region
 from hosting.gravatar import email_to_gravatar
@@ -330,6 +331,38 @@ class UtilityFunctionsTests(AdditionalAsserts, TestCase):
         with self.subTest(profile=profile.pk, user=profile.user):
             path = util(profile, "invalid>filename<attempt|.tiffany")
             self.assertRegex(path, fr"^/storage/picture-p{profile.id}_[0-9a-f]{{8}}\.tiffany$")
+
+    def test_request_asks_for_json(self):
+        req = RequestFactory()
+        test_data = {
+            False: [
+                'text/html',
+                'text/plain,application/*',
+                'application/*',
+                'application/*,application/octet-stream,text/javascript',
+                '*/*',
+                'text/json,*/*,image/png',
+                # 'text/xml,application/json,image/jpg',
+                # 'application/xml,application/xhtml+xml,application/json',
+                '',
+            ],
+            True: [
+                'application/json',
+                'application/json,application/xml,text/plain',
+                'application/json,*/*',
+                '*/*,application/json',
+                'audio/midi,application/json,audio/mpeg',
+            ],
+        }
+        for expected in test_data:
+            for i, requested_types in enumerate(test_data[expected]):
+                with self.subTest(requested=requested_types):
+                    method = req.get if i % 2 else req.post
+                    self.assertIs(
+                        request_asks_for_json(
+                            method(f'/{i:03}', headers={'Accept': requested_types})),
+                        expected
+                    )
 
     @patch('core.utils.requests.get')
     def test_is_password_compromised(self, mock_get):

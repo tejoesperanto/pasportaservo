@@ -18,7 +18,7 @@ from djgeojson.views import GeoJSONLayerView
 from core import PasportaServoHttpRequest
 from core.auth import AuthMixin, AuthRole
 from core.models import SiteConfiguration
-from core.utils import sanitize_next
+from core.utils import request_asks_for_json, sanitize_next
 from hosting.models import Place
 from hosting.templatetags.profile import avatar_dimension
 
@@ -50,7 +50,7 @@ class MapTypeConfigureView(generic.View):
 
     def post(self, request: HttpRequest, *args, **kwargs):
         map_type = kwargs.pop('map_type')
-        if request.accepts('application/json'):
+        if request_asks_for_json(request):
             response = JsonResponse({'success': 'map-type-configured'})
         else:
             response = HttpResponseRedirect(
