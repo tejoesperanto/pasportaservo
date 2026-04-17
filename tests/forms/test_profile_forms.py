@@ -972,7 +972,7 @@ class PreferenceOptinsFormTests(WebTest):
         self.assertTrue(user.pref.public_listing)
         form = page.forms['privacy_form']
         form['public_listing'] = False
-        response = form.submit(headers={'Accept': 'text/html'})
+        response = form.submit(headers={'Accept': 'text/html,*/*'})
         user.refresh_from_db()
         self.assertRedirects(
             response,

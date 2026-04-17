@@ -347,7 +347,7 @@ class ProfilePrivacyUpdateView(AuthMixin[Profile], ProfileMixin, generic.View):
         if optins_data_correct:
             optins_form.save()
 
-        if request.is_json:
+        if request.needs_json:
             return JsonResponse({'result': matrix_data_correct and optins_data_correct})
         else:
             if not matrix_data_correct:

@@ -15,6 +15,7 @@ from postman.views import (
     ReplyView as PostmanReplyView, WriteView as PostmanWriteView,
 )
 
+from core.utils import request_asks_for_json
 from hosting.models import Phone, Place, Profile
 
 from .forms import (
@@ -35,7 +36,7 @@ def custom_permission_denied_view(request, exception, template_name=ERROR_403_TE
     the Debug toolbar.
     """
     exception_object = exception.args[0] if exception.args else exception
-    if request.accepts('application/json'):
+    if request_asks_for_json(request):
         response = HttpResponseForbidden(str(exception_object), content_type='text/plain')
     else:
         response = permission_denied(request, exception_object, template_name)
