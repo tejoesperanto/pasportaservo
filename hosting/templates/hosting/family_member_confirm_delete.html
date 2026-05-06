@@ -1,5 +1,6 @@
 {% extends 'hosting/base_confirm.html' %}
 {% load i18n %}
+{% load next from utils %}
 
 {% block head_title %}
     {% trans "Remove a family member" %}
@@ -43,7 +44,8 @@
 
 {% block confirm_buttons %}
     {% if not profile.user_id and not profile.deleted %}
-        <a href="{% url 'family_member_delete' place.pk profile.pk %}" class="btn btn-danger btn-vert-space" title="{% trans "Delete profile" %}"
+        <a href="{% url 'family_member_delete' place.pk profile.pk %}?{% next 'next page' %}"
+           class="btn btn-danger btn-vert-space" title="{% trans "Delete profile" %}"
            {% if view.other_places %}disabled{% endif %}>
             <span class="fa fa-regular fa-trash-can" aria-hidden="true"></span>
             <span class="hidden-xxs">{% trans "Delete profile" %}</span>

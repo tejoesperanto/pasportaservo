@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2026-04-14 04:14+0000\n"
+"POT-Revision-Date: 2026-06-02 19:11+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -549,7 +549,8 @@ msgid "Policy {version} effective from {date:%Y-%m-%d}"
 msgstr "Regularo {version} en efiko ekde {date:%Y-%m-%d}"
 
 #: core/models.py core/templates/core/base.html core/views.py
-#: hosting/admin/admin.py hosting/templates/hosting/phone_form.html
+#: hosting/admin/admin.py hosting/templates/hosting/model_uncheck.html
+#: hosting/templates/hosting/phone_form.html
 #: hosting/templates/hosting/place_form.html
 #: hosting/templates/hosting/snippets/checked.html shop/models.py
 msgid "user"
@@ -2990,6 +2991,35 @@ msgstr "Forpreni el listo de kunloĝantoj"
 msgid "Save without confirming"
 msgstr "Konservi sen konfirmi"
 
+#: hosting/templates/hosting/model_uncheck.html
+#: hosting/templates/hosting/phone_form.html
+#: hosting/templates/hosting/settings.html
+#, python-format
+msgid "of %(name)s"
+msgstr "de %(name)s"
+
+#: hosting/templates/hosting/model_uncheck.html
+msgid "Are you sure you want to undo your approval?"
+msgstr "Ĉu vi certe volas malfari vian aprobon?"
+
+#: hosting/templates/hosting/model_uncheck.html
+#, python-format
+msgid "Are you sure you want to undo the approval by user '%(user)s'&thinsp;?"
+msgstr "Ĉu vi certe volas malfari la aprobon far uzanto ‘%(user)s’&thinsp;?"
+
+#: hosting/templates/hosting/model_uncheck.html
+msgid "Are you sure you want to undo the approval?"
+msgstr "Ĉu vi certe volas malfari la aprobon?"
+
+#: hosting/templates/hosting/model_uncheck.html
+#, python-format
+msgid "Undo the approval of %(object_type)s"
+msgstr "Malfari la aprobon de %(object_type)s"
+
+#: hosting/templates/hosting/model_uncheck.html
+msgid "Undo"
+msgstr "Malfari"
+
 #: hosting/templates/hosting/phone_confirm_delete.html
 #: hosting/templates/hosting/profile_edit.html
 msgid "Remove a phone number"
@@ -2998,12 +3028,6 @@ msgstr "Forigi telefonan numeron"
 #: hosting/templates/hosting/phone_confirm_delete.html
 msgid "Are you sure you want to delete this number?"
 msgstr "Ĉu vi certe volas forigi tiun ĉi numeron?"
-
-#: hosting/templates/hosting/phone_form.html
-#: hosting/templates/hosting/settings.html
-#, python-format
-msgid "of %(name)s"
-msgstr "de %(name)s"
 
 #: hosting/templates/hosting/place_authorized_users.html
 #: hosting/templates/hosting/place_detail.html
@@ -4128,6 +4152,10 @@ msgstr "aprobanto nekonata"
 #: hosting/templates/hosting/snippets/email_mark_invalid.html
 msgid "Mark invalid"
 msgstr "Marki kiel nefunkcianta"
+
+#: hosting/templates/hosting/snippets/object_mark_unchecked.html
+msgid "Undo approval"
+msgstr "Malfari aprobon"
 
 #: hosting/templates/hosting/snippets/place_availability_icon.html
 msgid "available,unavailable"

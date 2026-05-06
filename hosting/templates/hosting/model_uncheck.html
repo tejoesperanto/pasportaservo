@@ -1,0 +1,47 @@
+{% extends 'hosting/base_confirm.html' %}
+{% load i18n %}
+
+{% block head_title %}
+    {{ object_type|capfirst }}
+    {% blocktrans with name=object.owner.name|default:_("user") %}of {{ name }}{% endblocktrans %}
+    {% if not object.owner.name %}#{{ object.owner.id }}{% endif %}
+{% endblock %}
+
+{% block confirmation %}
+    {% if object.checked_by == user %}
+        {% blocktrans trimmed %}
+            Are you sure you want to undo your approval?
+        {% endblocktrans %}
+    {% elif object.checked_by %}
+        {% blocktrans with user=object.checked_by trimmed %}
+            Are you sure you want to undo the approval by user '{{ user }}'&thinsp;?
+        {% endblocktrans %}
+    {% else %}
+        {% blocktrans trimmed %}
+            Are you sure you want to undo the approval?
+        {% endblocktrans %}
+    {% endif %}
+{% endblock %}
+{% block extra_details %}
+    <span class="person-full-name">{{ object.owner }}</span>
+    {% if object.get_model_qualifier != 'profile' %}
+        &thinsp;&mdash;&thinsp;
+    {% endif %}
+    {% if object.get_model_qualifier == 'phone' %}
+        <span class="phone-number"><span class="number">{{ object }}</span></span>
+    {% elif object.get_model_qualifier != 'profile' %}
+        {{ object }}
+    {% endif %}
+{% endblock %}
+
+{% block cancel_button %}
+    {% if object.get_model_qualifier == 'place' %}
+        {% url 'place_edit' object.pk as default_previous_page %}
+    {% else %}
+        {% url 'profile_edit' object.owner.pk object.owner.autoslug as default_previous_page %}
+    {% endif %}
+    {{ block.super }}
+{% endblock %}
+
+{% block form_confirm_button_title %}{% blocktrans %}Undo the approval of {{ object_type }}{% endblocktrans %}{% endblock %}
+{% block form_confirm_button %}{% trans "Undo" %}{% endblock %}

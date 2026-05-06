@@ -1,14 +1,13 @@
 from collections import namedtuple
 from datetime import timedelta
-from typing import TYPE_CHECKING, ClassVar
-from unittest.mock import patch
+from typing import TYPE_CHECKING, ClassVar, TypeVar
+from unittest.mock import MagicMock, patch
 
 from django.db import DatabaseError
 from django.test import TestCase
 from django.utils.timezone import make_aware
 
 from factory import Faker
-from factory.django import DjangoModelFactory
 from waffle.testutils import override_switch
 
 from hosting.managers import (
@@ -16,12 +15,16 @@ from hosting.managers import (
 )
 from hosting.models import TrackingModel
 
+from ..factories import TypedDjangoModelFactory
+
+TrackingModelT = TypeVar('TrackingModelT', bound=TrackingModel)
+
 
 class TrackingManagersTests(TestCase if TYPE_CHECKING else object):
-    factory: ClassVar[type[DjangoModelFactory]]
+    factory: ClassVar[type[TypedDjangoModelFactory[TrackingModelT]]]
 
     def test_manager_classes(self):
-        model: TrackingModel = self.factory._meta.model
+        model = self.factory._meta.model
 
         self.assertTrue(hasattr(model, 'objects'))
         self.assertIsInstance(model.objects, NotDeletedManager)
@@ -33,8 +36,8 @@ class TrackingManagersTests(TestCase if TYPE_CHECKING else object):
         self.assertIsInstance(model.all_objects, TrackingManager)
 
     @patch('hosting.managers.SiteConfiguration.get_solo')
-    def test_manager_flags(self, mock_config):
-        model: TrackingModel = self.factory._meta.model
+    def test_manager_flags(self, mock_config: MagicMock):
+        model = self.factory._meta.model
         mock_config.return_value = (
             namedtuple('DummyConfig', 'confirmation_validity_period')(timedelta(days=35))
         )
@@ -47,13 +50,13 @@ class TrackingManagersTests(TestCase if TYPE_CHECKING else object):
         def from_period(start: str, end: str):
             return make_aware(faker.date_time_between(start, end))
         test_data = [
-            self.factory(),
-            self.factory(confirmed_on=from_period('-30d', '-20d')),
-            self.factory(confirmed_on=from_period('-60d', '-40d'),
-                         deleted_on=from_period('-10d', '-2d')),
-            self.factory(checked_on=from_period('-30d', '-20d')),
-            self.factory(checked_on=from_period('-60d', '-40d'),
-                         deleted_on=from_period('-10d', '-2d')),
+            self.factory.create(),
+            self.factory.create(confirmed_on=from_period('-30d', '-20d')),
+            self.factory.create(confirmed_on=from_period('-60d', '-40d'),
+                                deleted_on=from_period('-10d', '-2d')),
+            self.factory.create(checked_on=from_period('-30d', '-20d')),
+            self.factory.create(checked_on=from_period('-60d', '-40d'),
+                                deleted_on=from_period('-10d', '-2d')),
         ]
 
         # The `objects` manager is expected to fetch only non-deleted,
@@ -133,8 +136,8 @@ class TrackingManagersTests(TestCase if TYPE_CHECKING else object):
 
     @patch('hosting.managers.get_waffle_switch_model')
     @patch('hosting.managers.SiteConfiguration')
-    def test_manager_defaults(self, mock_config, mock_switch):
-        model: TrackingModel = self.factory._meta.model
+    def test_manager_defaults(self, mock_config: MagicMock, mock_switch: MagicMock):
+        model = self.factory._meta.model
         faker = Faker._get_faker()
         mock_config.get_solo.side_effect = DatabaseError
         mock_switch.return_value.get.side_effect = DatabaseError

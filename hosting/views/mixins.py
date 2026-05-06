@@ -71,8 +71,6 @@ class ProfileMixin[ProfileT: (Profile, 'FullProfile')](SingleObjectViewProtocol[
 
 
 class ProfileModifyMixin[ModelT: Model](SingleObjectViewProtocol[ModelT]):
-    url_anchors: dict[type[Model], str] = {Place: 'p', Phone: 't'}
-
     def get_success_url(self, *args, **kwargs):
         redirect_to = sanitize_next(self.request)
         if redirect_to:
@@ -83,10 +81,13 @@ class ProfileModifyMixin[ModelT: Model](SingleObjectViewProtocol[ModelT]):
             success_url = (
                 cast(Profile, self.object.profile)  # type: ignore[attr-defined]
                 .get_edit_url())
-            success_url_anchor = self.url_anchors.get(self.model)
+            try:
+                success_url_anchor = self.model.get_model_anchor()  # type: ignore[attr-defined]
+            except Exception:
+                pass
         if type(self.object) is Profile:
             success_url = self.object.get_edit_url()
-            success_url_anchor = getattr(self, 'success_with_anchor', None)
+        success_url_anchor = getattr(self, 'success_with_anchor', success_url_anchor)
         if success_url_anchor:
             return f'{success_url}#{success_url_anchor}{self.object.pk}'
         else:

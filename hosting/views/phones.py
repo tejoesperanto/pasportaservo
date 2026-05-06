@@ -67,5 +67,5 @@ class PhonePriorityChangeView(AuthMixin[Profile], ProfileMixin, generic.View):
         else:
             profile_url = profile.get_edit_url()
             if priorities:
-                profile_url += f'#t{priorities[0]}'
+                profile_url += f'#{Phone.get_model_anchor()}{priorities[0]}'
             return HttpResponseRedirect(profile_url)

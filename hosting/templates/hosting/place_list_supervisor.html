@@ -145,8 +145,8 @@
                                 {% if not place.confirmed %}callout-warning{% endif %}
                                 {% if place.owner.death_date %}deceased-owner{% endif %}
                             {% endfilter %}"
-                     id="p-{{ place.pk }}">
-                    {% asvar current_page_position %}#p-{{ place.pk }}{% endasvar %}
+                     id="{{ place.get_model_anchor }}-{{ place.pk }}">
+                    {% asvar current_page_position %}#{{ place.get_model_anchor }}-{{ place.pk }}{% endasvar %}
 
                     <div class="sr-only">&#8962;&nbsp; <em>{% trans "place"|upper %} {{ forloop.counter }}</em></div>
                     <div class="control-buttons pull-right">
@@ -379,7 +379,7 @@
                                                 {% trans "Esperanto letters?" as phone_comment_text_warning %}
                                                 <span class="sr-only">&#9888;</span>
                                                 <span class="fa fa-exclamation-triangle text-warning"
-                                                      data-toggle="tooltip" data-container="#p-{{ place.pk }} address"
+                                                      data-toggle="tooltip" data-container="#{{ place.get_model_anchor }}-{{ place.pk }} address"
                                                       title="{{ phone_comment_text_warning }}"
                                                       aria-label="{% trans "Warning " context 'Title' %}: {{ phone_comment_text_warning }}"></span>
                                                 <small class="visible-print-inline"><i>{{ phone_comment_text_warning }}</i></small>

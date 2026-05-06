@@ -4,6 +4,7 @@
     {% if object.checked %}
         <{% if button %}button type="button" {% if button_id %}id="{{ button_id }}"{% endif %}{% else %}span{% endif %}
               class="staff {% if button %}btn btn-success disabled{% else %}label label-success{% endif %}"
+              style="vertical-align: middle;"
               data-title="{% filter compact %}
                     {% if object.checked_by_id %}
                         {% get_approver object as checked_by %}
@@ -32,7 +33,8 @@
         </{% if button %}button{% else %}span{% endif%}>
     {% else %}
         <{% if button %}button type="button" {% if button_id %}id="{{ button_id }}"{% endif %}{% else %}span{% endif %}
-              class="staff {% if button %}btn btn-warning disabled{% else %}label label-warning{% endif %}">
+              class="staff {% if button %}btn btn-warning disabled{% else %}label label-warning{% endif %}"
+              style="vertical-align: middle;">
             <span class="fa fa-regular fa-circle-xmark" aria-hidden="true"></span>
             <span>&nbsp;{% trans "Not checked" %}</span>
         </{% if button %}button{% else %}span{% endif%}>

@@ -13,7 +13,7 @@ from django.utils.safestring import SafeString, mark_safe
 from core.auth import PERM_SUPERVISOR, auth_log
 from hosting.gravatar import email_to_gravatar
 
-from ..models import PasportaServoUser, Profile
+from ..models import PasportaServoUser, Profile, TrackingModel
 from ..utils import value_without_invalid_marker
 
 register = template.Library()
@@ -79,14 +79,14 @@ def supervisor_of(user_or_profile):
             user, "<~ '%s' " % user_or_profile if user != user_or_profile else "")
     for backend in auth.get_backends():
         try:
-            return sorted(backend.get_user_supervisor_of(user))
+            return sorted(backend.get_user_supervisor_of(user))  # type: ignore[attr-defined]
         except Exception:
             pass
     return []
 
 
 @register.simple_tag(takes_context=True)
-def get_approver(context, model_instance):
+def get_approver(context, model_instance: TrackingModel):
     # This tag is provided for enabling transparent caching of User and Profile objects
     # referenced in the `checked_by` property of TrackingModel instances.  Without such
     # caching, each instance causes a new DB query even when the approving User is just

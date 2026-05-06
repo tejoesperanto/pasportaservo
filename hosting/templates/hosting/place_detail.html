@@ -227,6 +227,7 @@
                                     {{ place.get_country_display }}
 
                                     &nbsp; {% include './snippets/checked.html' with object=place %}
+                                    {% include './snippets/object_mark_unchecked.html' with object=place return_url='this page' %}
                                 </p>
                             {% endif %}
                         </div>

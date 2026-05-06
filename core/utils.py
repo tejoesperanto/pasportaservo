@@ -42,7 +42,9 @@ def camel_case_split(identifier: str) -> list[str]:
     return [m.group(0) for m in matches]
 
 
-def _lazy_joiner(sep, items, item_to_string=str):
+def _lazy_joiner(
+        sep: Any, items: Iterable[Any], item_to_string: Callable[[Any], str] = str,
+) -> str:
     return str(sep).join(map(item_to_string, items))
 
 join_lazy = lazy(_lazy_joiner, str)  # noqa:E305

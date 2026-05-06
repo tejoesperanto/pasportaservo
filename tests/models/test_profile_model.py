@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 from unittest.mock import patch
 
 from django.conf import settings
@@ -24,7 +24,7 @@ from .test_managers import TrackingManagersTests
 
 @tag('models', 'profile')
 class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
-    factory = ProfileFactory
+    factory: ClassVar[type[ProfileFactory]] = ProfileFactory
 
     @classmethod
     def setUpClass(cls):
@@ -330,6 +330,13 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
                 profile.birth_date = None
                 self.assertEqual(profile.rawdisplay(), f"{str(profile)} (?)")
 
+    def test_qualifier_and_prefix(self):
+        self.assertEqual(self.factory._meta.model.get_model_qualifier(), "profile")
+        with self.assertNotRaises(NotImplementedError):
+            self.assertEqual(self.factory._meta.model.get_model_anchor(), "h")
+        self.assertEqual(self.basic_profile.get_model_qualifier(), "profile")
+        self.assertEqual(self.basic_profile.get_model_anchor(), "h")
+
     def test_visibility_delete_protection(self):
         with self.assertRaises(ProtectedError):
             self.basic_profile.email_visibility.delete()
@@ -541,7 +548,7 @@ class ProfileModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
                     expected_urls[lang].format(profile.pk)
                 )
                 self.assertEqual(
-                    ProfileFactory._meta.model.get_absolute_anonymous_url_for_instance(profile.pk),
+                    profile._meta.model.get_absolute_anonymous_url_for_instance(profile.pk),
                     expected_urls[lang].format(profile.pk)
                 )
 

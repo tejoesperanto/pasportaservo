@@ -632,6 +632,7 @@ class EmailStaffUpdateView(
     """
     template_name = 'account/system-email_form.html'
     form_class = EmailStaffUpdateForm
+    success_with_anchor = False
     minimum_role = AuthRole.SUPERVISOR
 
     def get_queryset(self):

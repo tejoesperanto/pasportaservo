@@ -3,7 +3,7 @@ import re
 from datetime import datetime, timedelta
 from hashlib import md5
 from random import choice, randint, random, uniform as uniform_random
-from typing import TYPE_CHECKING, Callable, Generic, TypeVar
+from typing import TYPE_CHECKING, Callable, ClassVar, Generic, TypeVar
 
 from django.conf import settings
 from django.contrib.gis.geos import LineString, Point
@@ -73,7 +73,7 @@ class TypedFactoryOptions(factory.base.FactoryOptions, Generic[ModelType]):
 
 
 class TypedDjangoModelFactory(DjangoModelFactory, Generic[ModelType]):
-    _meta: TypedFactoryOptions[ModelType]
+    _meta: ClassVar[TypedFactoryOptions[ModelType]]
 
     @classmethod
     def build(cls, **kwargs) -> ModelType:

@@ -124,6 +124,7 @@ class TrackingModel(models.Model):
         settings.AUTH_USER_MODEL, verbose_name=_("approved by"),
         blank=True, null=True,
         related_name='+', on_delete=models.SET_NULL)
+    checked_by_id: int | None
 
     all_objects: ClassVar[TrackingManager[Self]] = TrackingManager()
     objects: ClassVar[NotDeletedManager[Self]] = NotDeletedManager()
@@ -132,6 +133,24 @@ class TrackingModel(models.Model):
     class Meta:
         abstract = True
         base_manager_name = 'all_objects'
+
+    @classmethod
+    def get_model_qualifier(cls) -> str:
+        """
+        Returns the untranslated name of the non-abstract model, in lowercase.
+        """
+        return cls._meta.model_name or cls.__name__.lower()
+
+    @classmethod
+    @abstractmethod
+    def get_model_anchor(cls) -> str:
+        """
+        Returns the untranslated prefix for the non-abstract model.
+        Can be used for linking to an object displayed on a page with multiple
+        (possibly different) objects, and is expected to be unique for each
+        distinct model.
+        """
+        raise NotImplementedError  # pragma: no cover
 
     def set_check_status(
             self, set_by_user: PasportaServoUser,
@@ -509,6 +528,10 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
     class Meta:
         verbose_name = _("profile")
         verbose_name_plural = _("profiles")
+
+    @classmethod
+    def get_model_anchor(cls):
+        return "h"
 
     @property
     def owner(self):
@@ -973,6 +996,10 @@ class Place(ViewableModel, TrackingModel, TimeStampedModel):
         verbose_name_plural = _("places")
         default_manager_name = 'all_objects'
 
+    @classmethod
+    def get_model_anchor(cls):
+        return "p"
+
     @property
     def profile(self):
         """Proxy for self.owner. Rename 'owner' to 'profile' if/as possible."""
@@ -1177,6 +1204,10 @@ class Phone(TrackingModel, TimeStampedModel):
         unique_together = ('profile', 'number')
         order_with_respect_to = 'profile'
 
+    @classmethod
+    def get_model_anchor(cls):
+        return "t"
+
     @property
     def owner(self):
         return self.profile
@@ -1224,6 +1255,10 @@ class Website(TrackingModel, TimeStampedModel):
     class Meta:
         verbose_name = _("website")
         verbose_name_plural = _("websites")
+
+    @classmethod
+    def get_model_anchor(cls):
+        return "u"
 
     @property
     def owner(self):
