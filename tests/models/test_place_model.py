@@ -1,5 +1,5 @@
 from datetime import date
-from typing import cast
+from typing import ClassVar, cast
 from unittest.mock import PropertyMock, patch
 
 from django.core.exceptions import ValidationError
@@ -20,11 +20,11 @@ from .test_managers import TrackingManagersTests
 
 @tag('models', 'place')
 class PlaceModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
-    factory = PlaceFactory
+    factory: ClassVar[type[PlaceFactory]] = PlaceFactory
 
     @classmethod
     def setUpTestData(cls):
-        cls.basic_place = PlaceFactory.create()
+        cls.basic_place = cls.factory.create()
 
     def test_field_max_lengths(self):
         place = self.basic_place
@@ -58,7 +58,7 @@ class PlaceModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
         self.assertTrue(hasattr(model, 'available_objects'))
         self.assertIsInstance(model.available_objects, AvailableManager)
         # The manager is expected to fetch only places which are marked available.
-        PlaceFactory(owner=self.basic_place.owner, available=False)
+        self.factory(owner=self.basic_place.owner, available=False)
         qs = model.available_objects.order_by('id')
         self.assertTrue(self.basic_place.available)
         self.assertEqual(len(qs), 1)
@@ -210,7 +210,7 @@ class PlaceModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
 
         # The result is expected to be calculated only once and memoized
         # until the postcode is modified.
-        place = PlaceFactory.build(
+        place = self.factory.build(
             owner=self.basic_place.owner, postcode=True, country=Country('HT'))
         with (
             patch('hosting.models.Place.postcode', new_callable=PropertyMock)
@@ -258,6 +258,13 @@ class PlaceModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
     def test_repr(self):
         place = self.basic_place
         self.assertSurrounding(repr(place), f"<Place #{place.pk}:", ">")
+
+    def test_qualifier_and_prefix(self):
+        self.assertEqual(self.basic_place._meta.model.get_model_qualifier(), "place")
+        with self.assertNotRaises(NotImplementedError):
+            self.assertEqual(self.basic_place._meta.model.get_model_anchor(), "p")
+        self.assertEqual(self.basic_place.get_model_qualifier(), "place")
+        self.assertEqual(self.basic_place.get_model_anchor(), "p")
 
     def test_visibility_delete_protection(self):
         with self.assertRaises(ProtectedError):
@@ -338,6 +345,6 @@ class PlaceModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
                     expected_urls[lang].format(place.pk)
                 )
                 self.assertEqual(
-                    PlaceFactory._meta.model.get_absolute_anonymous_url_for_instance(place.pk),
+                    place._meta.model.get_absolute_anonymous_url_for_instance(place.pk),
                     expected_urls[lang].format(place.pk)
                 )

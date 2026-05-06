@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.conf import settings
 from django.db.models import ProtectedError
 from django.test import TestCase, override_settings, tag
@@ -10,11 +12,11 @@ from .test_managers import TrackingManagersTests
 
 @tag('models', 'phone')
 class PhoneModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
-    factory = PhoneFactory
+    factory: ClassVar[type[PhoneFactory]] = PhoneFactory
 
     @classmethod
     def setUpTestData(cls):
-        cls.phone = PhoneFactory.create()
+        cls.phone = cls.factory.create()
 
     def test_field_max_lengths(self):
         self.assertEqual(self.phone._meta.get_field('comments').max_length, 255)
@@ -55,6 +57,13 @@ class PhoneModelTests(AdditionalAsserts, TrackingManagersTests, TestCase):
                     self.phone.rawdisplay(),
                     f"{expected_type}: {self.phone.number.as_international}"
                 )
+
+    def test_qualifier_and_prefix(self):
+        self.assertEqual(self.phone._meta.model.get_model_qualifier(), "phone")
+        with self.assertNotRaises(NotImplementedError):
+            self.assertEqual(self.phone._meta.model.get_model_anchor(), "t")
+        self.assertEqual(self.phone.get_model_qualifier(), "phone")
+        self.assertEqual(self.phone.get_model_anchor(), "t")
 
     def test_visibility_delete_protection(self):
         with self.assertRaises(ProtectedError):

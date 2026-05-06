@@ -175,6 +175,9 @@
                     &nbsp;
                 {% endif %}
                 {% include './snippets/checked.html' with object=profile %}
+                {% if not view.public_view %}
+                    {% include './snippets/object_mark_unchecked.html' with object=profile return_url='this page' %}
+                {% endif %}
             </p>
             {% if profile.user.email|is_invalid and view.role == roles.OWNER %}
                 <p class="alert alert-small alert-danger" style="margin-bottom: 0">
@@ -346,14 +349,14 @@
                             {% if perms.hosting.can_supervise and place.checked %}text-success{% endif %}
                             {% if not place.visibility.online_public %}concealed{% endif %}
                        {% endfilter %}"
-                id="p{{ place.pk }}" aria-label="{% trans "place"|capfirst %}: {{ place }}">
+                id="{{ place.get_model_anchor }}{{ place.pk }}" aria-label="{% trans "place"|capfirst %}: {{ place }}">
                 <div class="sr-only">&#8962;&nbsp; <em>{% trans "place"|upper %} {{ forloop.counter }}</em></div>
                 <div class="btn-group control-buttons pull-right">
                     {% block place_edit_buttons %}{% endblock %}
                     <a href="{% url 'place_detail' place.pk %}"
                        class="btn btn-primary"
                        title="{% trans "View details of this place" %}"
-                       data-toggle="tooltip" data-container="#p{{ place.pk }}">
+                       data-toggle="tooltip" data-container="#{{ place.get_model_anchor }}{{ place.pk }}">
                         <span class="fa fa-arrow-right" aria-hidden="true"></span>
                         <span class="{% if view.public_view %}hidden-xxs{% else %}hidden-xs{% endif %}">{% trans "View" %}</span>
                     </a>
@@ -512,7 +515,7 @@
                                {% if phones|length > 1 %} draggable {% endif %}
                                {{ concealed_class }}
                            {% endfilter %}"
-                    id="t{{ phone.pk }}">
+                    id="{{ phone.get_model_anchor }}{{ phone.pk }}">
                     {% block phone_priority_buttons %}{% endblock %}
                     {% if phones|length > 1 %}<span class="grabzone"></span>{% endif %}
                     {% block phone_edit_buttons %}{% endblock %}

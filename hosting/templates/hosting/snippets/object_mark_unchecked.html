@@ -1,0 +1,16 @@
+{% load i18n variable %}
+{% load next from utils %}
+
+{% if object.checked %}
+    {% if perms.hosting.can_supervise and object.checked_by == user or user.is_superuser %}
+        {% asvar staff_url %}staff_{{ object.get_model_qualifier }}_unverify{% endasvar %}
+        <a href="{% url staff_url object.pk %}?{% next return_url %}"
+           role="button" class="control-buttons btn btn-default btn-xs btn-vert-space-even ajax"
+           data-method="POST"
+           data-csrf="{{ csrf_token }}"
+           data-on-ajax-success="markUncheckedSuccess"
+           autocomplete="off">
+            {% trans "Undo approval" %}
+        </a>
+    {% endif %}
+{% endif %}
