@@ -4352,6 +4352,16 @@ msgstr "konfirmi/"
 
 #: hosting/urls.py
 msgctxt "URL"
+msgid "status/"
+msgstr "stato/"
+
+#: hosting/urls.py
+msgctxt "URL"
+msgid "unverify/"
+msgstr "malkonfirmi/"
+
+#: hosting/urls.py
+msgctxt "URL"
 msgid "condition/"
 msgstr "kond/"
 
@@ -4444,6 +4454,10 @@ msgstr "Nur la posedanto de la loĝejo povas aliri tiun ĉi paĝon"
 #: hosting/views/profiles.py
 msgid "Only the user themselves can access this page"
 msgstr "Nur la uzanto mem povas aliri tiun ĉi paĝon"
+
+#: hosting/views/verification.py
+msgid "You can revert only your own previous approval."
+msgstr "Vi povas nuligi nur vian propran antaŭan aprobon."
 
 #: hosting/views/verification.py
 msgid "The geographical location on map is unknown."

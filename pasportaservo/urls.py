@@ -23,6 +23,7 @@ urlpatterns = [
     path(pgettext_lazy("URL", 'world-map/'), RedirectView.as_view(pattern_name='world_map')),
 ]
 
+handler404 = 'pasportaservo.views.custom_page_not_found_view'
 handler403 = 'pasportaservo.views.custom_permission_denied_view'
 
 if settings.DEBUG:

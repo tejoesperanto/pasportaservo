@@ -4,10 +4,14 @@ from typing import cast
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Q
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.utils.functional import SimpleLazyObject, cached_property
 from django.views.debug import SafeExceptionReporterFilter
-from django.views.defaults import ERROR_403_TEMPLATE_NAME, permission_denied
+from django.views.decorators.csrf import requires_csrf_token
+from django.views.defaults import (
+    ERROR_403_TEMPLATE_NAME, ERROR_404_TEMPLATE_NAME,
+    page_not_found, permission_denied,
+)
 
 from postman.views import (
     ConversationView as PostmanConversationView,
@@ -26,6 +30,16 @@ from .forms import (
 User = get_user_model()
 
 
+@requires_csrf_token
+def custom_page_not_found_view(request, exception, template_name=ERROR_404_TEMPLATE_NAME):
+    if request_asks_for_json(request):
+        response = HttpResponseNotFound('', content_type='application/json')
+    else:
+        response = page_not_found(request, exception, template_name)
+    return response
+
+
+@requires_csrf_token
 def custom_permission_denied_view(request, exception, template_name=ERROR_403_TEMPLATE_NAME):
     """
     The Permission Denied view normally lacks information about the view that triggered the

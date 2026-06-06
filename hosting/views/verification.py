@@ -2,12 +2,14 @@ import json
 from collections import OrderedDict
 from typing import Any, Iterable, Optional
 
+from django.apps import apps
+from django.conf import settings
 from django.core import serializers
 from django.core.exceptions import NON_FIELD_ERRORS, PermissionDenied
 from django.db.models import QuerySet
 from django.forms import ModelForm
 from django.http import (
-    HttpResponseBadRequest, HttpResponseRedirect, JsonResponse,
+    Http404, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse,
 )
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
@@ -18,11 +20,18 @@ from django.views.decorators.vary import vary_on_headers
 from core import PasportaServoHttpRequest
 from core.auth import PERM_SUPERVISOR, AuthMixin, AuthRole
 from core.mixins import LoginRequiredMixin
-from core.utils import request_asks_for_json
+from core.utils import request_asks_for_json, sanitize_next
 
 from ..forms import PhoneForm, PlaceForm, ProfileForm
 from ..models import LocationConfidence, Place, Profile, TrackingModel
 from .mixins import PlaceMixin
+
+APPROVABLE_CATEGORIES = {
+    model.get_model_qualifier(): model
+    for model in apps.get_models()
+    if issubclass(model, TrackingModel)
+    and all([not model._meta.abstract, not model._meta.proxy])
+}
 
 
 class InfoConfirmView(LoginRequiredMixin, generic.View):
@@ -49,6 +58,84 @@ class InfoConfirmView(LoginRequiredMixin, generic.View):
                 return JsonResponse({'success': 'confirmed'})
             else:
                 return TemplateResponse(request, self.template_name)
+
+
+class InfoStaffUnconfirmView(AuthMixin[TrackingModel], generic.TemplateView):
+    http_method_names = ['get', 'post']
+    template_name = 'hosting/model_uncheck.html'
+    minimum_role = AuthRole.SUPERVISOR
+    category: str = ''
+
+    def dispatch(self, request, *args, **kwargs):
+        current_model = APPROVABLE_CATEGORIES.get(self.category)
+        if not current_model:
+            raise Http404(f"Model category '{self.category}' is not supported.")
+        # Make type checker happy by assigning only a non-None value.
+        self.current_model = current_model
+        try:
+            self.object = (
+                current_model.all_objects
+                .select_related('checked_by')
+                .get(pk=self.kwargs['pk'])
+            )
+        except current_model.DoesNotExist:
+            self.object = None  # type: ignore
+        kwargs['auth_base'] = self.object
+        return super().dispatch(request, *args, **kwargs)
+
+    def _object_access_verify(self, request: PasportaServoHttpRequest):
+        if self.object is None:
+            error = Http404(
+                f"No {self.current_model._meta.object_name} matches"
+                f" the given ID '{self.kwargs['pk']}'."
+            )
+            if settings.DEBUG:  # pragma: no cover
+                from pasportaservo.views import custom_page_not_found_view
+                return custom_page_not_found_view(request, error)
+            else:
+                raise error
+        if self.object.checked_by != request.user and not request.user.is_superuser:
+            error = PermissionDenied(
+                _("You can revert only your own previous approval."), self
+            )
+            if settings.DEBUG:  # pragma: no cover
+                from pasportaservo.views import custom_permission_denied_view
+                return custom_permission_denied_view(request, error)
+            else:
+                raise error
+
+    def get(self, request: PasportaServoHttpRequest, *args, **kwargs):
+        if error_response := self._object_access_verify(request):
+            return error_response
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['object'] = self.object
+        context['object_type'] = self.object._meta.verbose_name
+        return context
+
+    @vary_on_headers('X-Requested-With', 'Accept')
+    def post(self, request: PasportaServoHttpRequest, *args, **kwargs):
+        if error_response := self._object_access_verify(request):
+            return error_response
+        self.object.checked_on = None
+        self.object.save(update_fields=['checked_on'])
+        if request.needs_json:
+            return JsonResponse({
+                'success': 'unconfirmed',
+                'status_url': reverse_lazy(
+                    f'staff_{self.category}_check_status',
+                    kwargs={'pk': self.object.pk}
+                ),
+            })
+        else:
+            redirect_to = sanitize_next(request)
+            if not redirect_to:
+                redirect_to = self.object.owner.get_edit_url()
+                if not isinstance(self.object, Profile):
+                    redirect_to += f'#{self.object.get_model_anchor()}{self.object.pk}'
+            return HttpResponseRedirect(redirect_to)
 
 
 class PlaceCheckView(AuthMixin[Place], PlaceMixin, generic.View):
@@ -100,7 +187,8 @@ class PlaceCheckView(AuthMixin[Place], PlaceMixin, generic.View):
         all_forms: list[ModelForm] = []
         for form_class, objects in data:
             for object_model in objects:
-                object_data = serializers.serialize('json', [object_model], fields=form_class._meta.fields)
+                object_data = serializers.serialize(
+                    'json', [object_model], fields=form_class._meta.fields)
                 object_data = json.loads(object_data)[0]['fields']
                 all_forms.append(form_class(data=object_data, instance=object_model))
 
@@ -139,3 +227,41 @@ class PlaceCheckView(AuthMixin[Place], PlaceMixin, generic.View):
                 f"{form.fields[field_name].label} {form.data['number']}"
                 f" ({form.initial['country'].name or form.initial['country'].code})"
             )
+
+
+class InfoStaffCheckStatusDisplayView(AuthMixin[TrackingModel], generic.TemplateView):
+    template_name = 'hosting/snippets/checked.html'
+    minimum_role = AuthRole.SUPERVISOR
+    category: str = ''
+
+    def dispatch(self, request, *args, **kwargs):
+        current_model = APPROVABLE_CATEGORIES.get(self.category)
+        if not current_model:
+            raise Http404(f"Model category '{self.category}' is not supported.")
+        self.current_model = current_model
+        kwargs['auth_base'] = None  # Just verify that the user is a supervisor.
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            self.object = (
+                self.current_model.all_objects
+                .select_related('checked_by')
+                .get(pk=self.kwargs['pk'])
+            )
+        except self.current_model.DoesNotExist:
+            error = Http404(
+                f"No {self.current_model._meta.object_name} matches"
+                f" the given ID '{self.kwargs['pk']}'."
+            )
+            if settings.DEBUG:  # pragma: no cover
+                from pasportaservo.views import custom_page_not_found_view
+                return custom_page_not_found_view(request, error)
+            else:
+                raise error
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['object'] = self.object
+        return context
