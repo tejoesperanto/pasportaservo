@@ -5,6 +5,8 @@ from django.utils.translation import pgettext_lazy
 
 from core.views import EmailStaffUpdateView, EmailValidityMarkView
 
+from .views.verification import APPROVABLE_CATEGORIES
+
 from .views import (                                                            # isort:skip
     ProfileCreateView, ProfileRedirectView, ProfileDetailView,
     ProfileEditView, ProfileUpdateView, ProfileDeleteView, ProfileRestoreView,
@@ -17,13 +19,21 @@ from .views import (                                                            
     FamilyMemberRemoveView, FamilyMemberDeleteView,
     ConditionPreviewView,
     PhoneCreateView, PhoneUpdateView, PhoneDeleteView, PhonePriorityChangeView,
-    PlaceStaffListView, InfoConfirmView, PlaceCheckView,
+    PlaceStaffListView, InfoConfirmView, InfoStaffUnconfirmView, PlaceCheckView,
+    InfoStaffCheckStatusDisplayView,
     SearchView,
 )
 
+
+HOSTING_OBJECT_PATH_SEGMENT = {
+    'profile': pgettext_lazy("URL", 'profile/'),
+    'place': pgettext_lazy("URL", 'place/'),
+    'phone': pgettext_lazy("URL", 'phone/'),
+}
+
 urlpatterns = [
     path(
-        pgettext_lazy("URL", 'profile/'), include([
+        HOSTING_OBJECT_PATH_SEGMENT['profile'], include([
             path(
                 pgettext_lazy("URL", 'create/'),
                 ProfileCreateView.as_view(), name='profile_create'),
@@ -83,13 +93,13 @@ urlpatterns = [
             path(
                 '<int:profile_pk>/', include([
                     path(
-                        pgettext_lazy("URL", 'place/'), include([
+                        HOSTING_OBJECT_PATH_SEGMENT['place'], include([
                             path(
                                 pgettext_lazy("URL", 'create/'),
                                 PlaceCreateView.as_view(), name='place_create'),
                         ])),
                     path(
-                        pgettext_lazy("URL", 'phone/'), include([
+                        HOSTING_OBJECT_PATH_SEGMENT['phone'], include([
                             path(
                                 pgettext_lazy("URL", 'create/'),
                                 PhoneCreateView.as_view(), name='phone_create'),
@@ -107,7 +117,7 @@ urlpatterns = [
         ])),
 
     path(
-        pgettext_lazy("URL", 'place/'), include([
+        HOSTING_OBJECT_PATH_SEGMENT['place'], include([
             path('<int:pk>/', include([
                 path(
                     '', PlaceDetailView.as_view(), name='place_detail'),
@@ -163,6 +173,25 @@ urlpatterns = [
             path(
                 pgettext_lazy("URL", 'confirm/'),
                 InfoConfirmView.as_view(), name='hosting_info_confirm'),
+            path(
+                pgettext_lazy("URL", 'staff/'), include([
+                    path(
+                        format_lazy(
+                            '{url_path}<int:pk>/',
+                            url_path=HOSTING_OBJECT_PATH_SEGMENT[category]),
+                        include([
+                            path(
+                                pgettext_lazy("URL", 'status/'),
+                                InfoStaffCheckStatusDisplayView.as_view(category=category),
+                                name=f'staff_{category}_check_status'),
+                            path(
+                                pgettext_lazy("URL", 'unverify/'),
+                                InfoStaffUnconfirmView.as_view(category=category),
+                                name=f'staff_{category}_unverify'),
+                        ]))
+                    for category in APPROVABLE_CATEGORIES
+                    if category in HOSTING_OBJECT_PATH_SEGMENT
+                ])),
         ])),
 
     path(

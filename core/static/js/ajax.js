@@ -148,6 +148,23 @@ $(document).ready(function() {
         $this.parents('.remove-after-success').slideUp();
     };
 
+    window.markUncheckedSuccess = function($this, response) {
+        $this
+            .prevAll('.staff').first()
+            .addClass('disabled')
+            .wrap('<span class="temp-container"></span>')
+            .parent().load(response.status_url, function(response, status) {
+                let $container = $(this);
+                if (status == "error") {
+                    $container.remove();
+                }
+                else {
+                    $container.contents().unwrap();
+                }
+            });
+        $this.remove();
+    };
+
     window.verifyEmailSuccess = function($this) {
         ditchForm($this);
         $this.removeClass('ajax');
