@@ -18,6 +18,8 @@ class CustomRequestPanel(RequestPanel):
             from core.auth import AuthRole
             auth_stats['context_role'].update({
                 'role': view.role,
+                'role_numerary':
+                    view.role.parent.value if view.role.parent else view.role.value,
                 'role_required':
                     f"= {view.exact_role}" if hasattr(view, 'exact_role')
                     else f">= {view.minimum_role}",

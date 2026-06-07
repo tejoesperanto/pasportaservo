@@ -19,13 +19,7 @@
                 <code>{% filter compact %}
                     {{ context_role.role }}
                     {% if context_role.role %}
-                        [
-                            {% if context_role.role.parent %}
-                                {{ context_role.role.parent.value }}
-                            {% else %}
-                                {{ context_role.role.value }}
-                            {% endif %}
-                        ]
+                        [ {{ context_role.role_numerary }} ]
                     {% endif %}
                 {% endfilter %}</code>
             </td>
