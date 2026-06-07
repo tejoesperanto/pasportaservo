@@ -47,9 +47,8 @@ class UniqueLinkView(generic.TemplateView):
         if place.confirmed and place.owner.confirmed:
             return HttpResponseRedirect(reverse('info_already_confirmed'))
         place.owner.confirm_all_info()
-        url = reverse('profile_edit', kwargs={'pk': place.owner.pk})
         msg = _("Good, your data are confirmed. Look at <a href=\"{url}\">your profile</a>!")
-        messages.info(request, format_html(msg, url=url))
+        messages.info(request, format_html(msg, url=place.owner.get_edit_url()))
         return HttpResponseRedirect(reverse('info_confirmed'))
 
     def redirect_update(self, request, payload):

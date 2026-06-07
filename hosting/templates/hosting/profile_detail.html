@@ -36,8 +36,7 @@
         <div class="row bg-info top-notice remove-after-success hidden-print">
             {% if view.role != roles.OWNER %}
                 <p class="col-xs-12 text-center">
-                    {% url 'profile_edit' user.profile.pk user.profile.autoslug as current_user_profile %}
-                    {% blocktrans with url=current_user_profile trimmed %}
+                    {% blocktrans with url=user.profile.get_edit_url trimmed %}
                         Are <a href="{{ url }}">your data</a> up-to-date? Please check your hosting profile.
                     {% endblocktrans %}
                 </p>
