@@ -12,10 +12,10 @@ from pages.views import (
     AboutView, FaqView, PrivacyPolicyView, TermsAndConditionsView,
 )
 
-from .base import PageTemplate, PageWithTitleHeadingTemplate
+from .base import PageHeroTemplate, PageTemplate, PageWithTitleHeadingTemplate
 
 
-class HomePage(PageTemplate):
+class HomePage(PageHeroTemplate):
     view_class = HomeView
     url = reverse_lazy('home')
     explicit_url = {
@@ -25,14 +25,8 @@ class HomePage(PageTemplate):
     template = 'core/home.html'
     redirects_unauthenticated = False
 
-    def get_headings(self) -> PyQuery:
-        return self.pyquery("[role='heading']")
 
-    def get_hero_content(self) -> PyQuery:
-        return self.pyquery("header .search-container")
-
-
-class OkayPage(PageTemplate):
+class OkayPage(PageHeroTemplate):
     view_class = TemplateView
     explicit_url = {
         'en': '/ok',
@@ -44,12 +38,6 @@ class OkayPage(PageTemplate):
     @classproperty
     def url(cls):
         return cls.explicit_url[settings.LANGUAGE_CODE]
-
-    def get_headings(self) -> PyQuery:
-        return self.pyquery("[role='heading']")
-
-    def get_hero_content(self) -> PyQuery:
-        return self.pyquery("header .search-container")
 
 
 class PageWithLanguageSwitcher(PageTemplate, metaclass=ABCMeta):
