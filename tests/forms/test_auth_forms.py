@@ -1,6 +1,7 @@
 import re
-from typing import TYPE_CHECKING, Optional, cast
-from unittest.mock import patch
+from typing import TYPE_CHECKING, Any, Literal, Optional, cast
+from unittest import TestCase
+from unittest.mock import MagicMock, patch
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -8,6 +9,7 @@ from django.contrib.auth.views import INTERNAL_RESET_SESSION_TOKEN
 from django.contrib.sessions.backends.cache import SessionStore
 from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist
+from django.forms import BaseForm
 from django.http import HttpRequest
 from django.test import override_settings, tag
 from django.urls import reverse
@@ -29,6 +31,7 @@ from core.views import (
     PasswordResetConfirmView, PasswordResetView, UsernameRemindView,
 )
 
+from .. import DjangoWebtestResponse
 from ..assertions import AdditionalAsserts
 from ..factories import UserFactory
 
@@ -62,8 +65,8 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user_one = UserFactory(invalid_email=True)
-        cls.user_two = UserFactory(is_active=False)
+        cls.user_one = UserFactory.create(invalid_email=True)
+        cls.user_two = UserFactory.create(is_active=False)
 
     def test_init(self):
         form_empty = UserRegistrationForm()
@@ -98,7 +101,7 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
         self.assertTrue(hasattr(form_empty.save, 'alters_data'))
 
     @patch('core.mixins.is_password_compromised')
-    def test_blank_data(self, mock_pwd_check):
+    def test_blank_data(self, mock_pwd_check: MagicMock):
         # Empty form is expected to be invalid.
         form = UserRegistrationForm(data={})
         mock_pwd_check.side_effect = AssertionError("password check API was unexpectedly called")
@@ -108,7 +111,7 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
                 self.assertIn(field, form.errors)
 
     @patch('core.mixins.is_password_compromised')
-    def test_nonunique_username(self, mock_pwd_check):
+    def test_nonunique_username(self, mock_pwd_check: MagicMock):
         mock_pwd_check.return_value = (False, 0)
         for transform in self.test_transforms:
             transformed_uname = transform(self.user_two.username)
@@ -135,7 +138,7 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
                 self.assertNotIn('password1', form.errors)
 
     @patch('core.mixins.is_password_compromised')
-    def test_nonunique_email(self, mock_pwd_check):
+    def test_nonunique_email(self, mock_pwd_check: MagicMock):
         mock_pwd_check.return_value = (False, 0)
         for transform in self.test_transforms:
             transformed_email = transform(self.user_one._clean_email)
@@ -162,7 +165,7 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
                 self.assertNotIn('password1', form.errors)
 
     @patch('core.mixins.is_password_compromised')
-    def test_password_similar_to_username(self, mock_pwd_check):
+    def test_password_similar_to_username(self, mock_pwd_check: MagicMock):
         mock_pwd_check.return_value = (False, 0)
         for transform in self.test_transforms + [lambda v: v[::-1]]:
             username = self.faker.user_name()
@@ -191,7 +194,7 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
                 mock_pwd_check.assert_not_called()
 
     @patch('core.mixins.is_password_compromised')
-    def test_password_similar_to_email(self, mock_pwd_check):
+    def test_password_similar_to_email(self, mock_pwd_check: MagicMock):
         mock_pwd_check.return_value = (False, 0)
         for transform in self.test_transforms + [lambda v: v[::-1]]:
             email = self.faker.email()
@@ -251,7 +254,7 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
         self.assertEqual(user.email, registration_data['email'])
 
     @patch('core.mixins.is_password_compromised')
-    def test_honeypot(self, mock_pwd_check):
+    def test_honeypot(self, mock_pwd_check: MagicMock):
         mock_pwd_check.return_value = (False, 0)
         for expected_result, injected_value in ((True, "  \n \f  "),
                                                 (False, self.faker.domain_word())):
@@ -295,14 +298,14 @@ class UserRegistrationFormTests(AdditionalAsserts, WebTest):
         self.assertNotRaises(AttributeError, lambda: user.email)
 
     def test_view_page(self):
-        page = self.app.get(reverse('register'))
+        page: DjangoWebtestResponse = self.app.get(reverse('register'))
         self.assertEqual(page.status_code, 200)
         self.assertIn('id_user_registration_form', page.forms)
         self.assertIsInstance(page.context['form'], UserRegistrationForm)
 
     @patch('core.mixins.is_password_compromised')
-    def test_form_submit(self, mock_pwd_check):
-        page = self.app.get(reverse('register'))
+    def test_form_submit(self, mock_pwd_check: MagicMock):
+        page: DjangoWebtestResponse = self.app.get(reverse('register'))
         form = page.forms['id_user_registration_form']
         form['username'] = uname = self.faker.user_name()
         form['email'] = email = self.faker.email()
@@ -444,13 +447,13 @@ class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
                     form.non_field_errors()[0])
 
     def test_view_page(self):
-        page = self.app.get(reverse('login'))
+        page: DjangoWebtestResponse = self.app.get(reverse('login'))
         self.assertEqual(page.status_code, 200)
         self.assertIn('id_user_authentication_form', page.forms)
         self.assertIsInstance(page.context['form'], UserAuthenticationForm)
 
     def test_form_submit_invalid_credentials(self):
-        page = self.app.get(reverse('login'))
+        page: DjangoWebtestResponse = self.app.get(reverse('login'))
         form = page.forms['id_user_authentication_form']
         form['username'] = "SomeUser"
         form['password'] = ".incorrect."
@@ -460,7 +463,7 @@ class UserAuthenticationFormTests(AdditionalAsserts, WebTest):
         self.assertGreaterEqual(len(page.context['form'].errors), 1)
 
     def test_form_submit_valid_credentials(self):
-        page = self.app.get(reverse('login'))
+        page: DjangoWebtestResponse = self.app.get(reverse('login'))
         form = page.forms['id_user_authentication_form']
         form['username'] = self.user.username
         form['password'] = "adm1n"
@@ -618,13 +621,13 @@ class UsernameUpdateFormTests(AdditionalAsserts, WebTest):
         self.assertEqual(user.username, new_username)
 
     def test_view_page(self):
-        page = self.app.get(reverse('username_change'), user=self.user)
+        page: DjangoWebtestResponse = self.app.get(reverse('username_change'), user=self.user)
         self.assertEqual(page.status_code, 200)
         self.assertIn('id_username_update_form', page.forms)
         self.assertIsInstance(page.context['form'], UsernameUpdateForm)
 
     def test_form_submit(self):
-        page = self.app.get(reverse('username_change'), user=self.user)
+        page: DjangoWebtestResponse = self.app.get(reverse('username_change'), user=self.user)
         form = page.forms['id_username_update_form']
         form['username'] = new_username = _snake_str(self.user.username)
         page = form.submit()
@@ -885,7 +888,7 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
                 self.assertEqual(user.email, new_email)
 
     def test_view_page(self):
-        page = self.app.get(reverse('email_update'), user=self.user)
+        page: DjangoWebtestResponse = self.app.get(reverse('email_update'), user=self.user)
         self.assertEqual(page.status_code, 200)
         self.assertIn('id_email_update_form', page.forms)
         self.assertIsInstance(page.context['form'], EmailUpdateForm)
@@ -902,7 +905,7 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
         unchanged_email = obj.email
 
         def submit_form_and_assert():
-            page = self.app.get(reverse('email_update'), user=obj)
+            page: DjangoWebtestResponse = self.app.get(reverse('email_update'), user=obj)
             form = page.forms['id_email_update_form']
             form['email'] = new_email
             page = form.submit()
@@ -988,7 +991,7 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
         self.form_submission_tests(obj=self.invalid_email_user, lang='eo')
 
     @patch('core.forms.send_mail')
-    def test_form_submit_for_invalid_email_at_esp(self, mock_send_mail):
+    def test_form_submit_for_invalid_email_at_esp(self, mock_send_mail: MagicMock):
         mail.outbox = []
         mock_send_mail.side_effect = AnymailRecipientsRefused
         self.form_submission_tests(lang='en', mailing_fail=True)
@@ -998,14 +1001,14 @@ class EmailUpdateFormTests(AdditionalAsserts, WebTest):
 class EmailStaffUpdateFormTests(EmailUpdateFormTests):
     @classmethod
     def setUpTestData(cls):
-        cls.supervisor = UserFactory(is_superuser=True, profile=None)
+        cls.supervisor = UserFactory.create(is_superuser=True, profile=None)
         super().setUpTestData()
 
     def _init_form(self, data=None, instance=None):
         return EmailStaffUpdateForm(data=data, instance=instance)
 
     def test_view_page(self):
-        page = self.app.get(
+        page: DjangoWebtestResponse = self.app.get(
             reverse('staff_email_update', kwargs={
                 'pk': self.user.profile.pk, 'slug': self.user.profile.autoslug}),
             user=self.supervisor)
@@ -1016,7 +1019,7 @@ class EmailStaffUpdateFormTests(EmailUpdateFormTests):
     def form_submission_tests(self, *, lang, obj=None, mailing_fail=False):
         obj = self.user if obj is None else obj
         new_email = '{}@ps.org'.format(_snake_str(obj.username))
-        page = self.app.get(
+        page: DjangoWebtestResponse = self.app.get(
             reverse('staff_email_update', kwargs={
                 'pk': obj.profile.pk, 'slug': obj.profile.autoslug}),
             user=self.supervisor)
@@ -1286,7 +1289,7 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                     mail.outbox = []
 
     @patch('core.forms.send_mail')
-    def test_bouncing_email_request(self, mock_send_mail):
+    def test_bouncing_email_request(self, mock_send_mail: MagicMock):
         mock_send_mail.side_effect = AnymailRecipientsRefused
         for user_tag, user in [("active normal email", self.active_user),
                                ("active invalid email", self.active_invalid_email_user),
@@ -1311,7 +1314,7 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                         self._get_admin_message_email_bounces(user))
 
     def test_view_page(self):
-        page = self.app.get(self.view_page_url)
+        page: DjangoWebtestResponse = self.app.get(self.view_page_url)
         self.assertEqual(page.status_code, 200)
         self.assertIn(self.form_id, page.forms)
         self.assertIsInstance(page.context['form'], self.form_class)
@@ -1322,7 +1325,7 @@ class SystemPasswordResetRequestFormTests(AdditionalAsserts, WebTest):
                      self.inactive_user,
                      self.inactive_invalid_email_user]:
             with self.subTest(email=user.email, active=user.is_active):
-                page = self.app.get(self.view_page_url)
+                page: DjangoWebtestResponse = self.app.get(self.view_page_url)
                 form = page.forms[self.form_id]
                 form['email'] = user.email
                 page = form.submit()
@@ -1432,7 +1435,7 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
         self.assertTrue(hasattr(form_empty.save, 'alters_data'))
 
     @patch('core.mixins.is_password_compromised')
-    def test_blank_data(self, mock_pwd_check):
+    def test_blank_data(self, mock_pwd_check: MagicMock):
         # Empty form is expected to be invalid.
         form = self.form_class(self.user, data={})
         mock_pwd_check.side_effect = AssertionError("password check API was unexpectedly called")
@@ -1442,7 +1445,7 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
                 self.assertIn(field, form.errors)
 
     @patch('core.mixins.is_password_compromised')
-    def test_password_similar_to_account_details(self, mock_pwd_check):
+    def test_password_similar_to_account_details(self, mock_pwd_check: MagicMock):
         mock_pwd_check.return_value = (False, 0)
         test_data = [
             ('username', "salutnomo", _snake_str(self.user.username)),
@@ -1490,11 +1493,11 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
         self.assertEqual(user.pk, self.user.pk)
 
     @patch('django.contrib.auth.views.default_token_generator.check_token')
-    def test_view_page(self, mock_check_token, lang='en'):
+    def test_view_page(self, mock_check_token: MagicMock, lang: str = 'en'):
         mock_check_token.return_value = True
         user_id = urlsafe_base64_encode(force_bytes(self.user.pk))
         with override_settings(LANGUAGE_CODE=lang):
-            page = self.app.get(
+            page: DjangoWebtestResponse = self.app.get(
                 reverse('password_reset_confirm', kwargs={
                     'uidb64': user_id if isinstance(user_id, str) else user_id.decode(),
                     'token': PasswordResetConfirmView.reset_url_token})
@@ -1508,10 +1511,10 @@ class SystemPasswordResetFormTests(AdditionalAsserts, WebTest):
 
     @patch('core.mixins.is_password_compromised')
     @patch('django.contrib.auth.views.default_token_generator.check_token')
-    def test_form_submit(self, mock_check_token, mock_pwd_check):
+    def test_form_submit(self, mock_check_token: MagicMock, mock_pwd_check: MagicMock):
         mock_check_token.return_value = True  # Bypass Django's token verification.
         user_id = urlsafe_base64_encode(force_bytes(self.user.pk))
-        page = self.app.get(
+        page: DjangoWebtestResponse = self.app.get(
             reverse('password_reset_confirm', kwargs={
                 'uidb64': user_id if isinstance(user_id, str) else user_id.decode(),
                 'token': PasswordResetConfirmView.reset_url_token}),
@@ -1549,16 +1552,16 @@ class SystemPasswordChangeFormTests(SystemPasswordResetFormTests):
             'old_password',
         ]
 
-    def test_view_page(self, lang='en'):
+    def test_view_page(self, lang: str = 'en'):
         with override_settings(LANGUAGE_CODE=lang):
-            page = self.app.get(reverse('password_change'), user=self.user)
+            page: DjangoWebtestResponse = self.app.get(reverse('password_change'), user=self.user)
         self.assertEqual(page.status_code, 200, msg=repr(page))
         self.assertIn('id_system_password_change_form', page.forms)
         self.assertIsInstance(page.context['form'], SystemPasswordChangeForm)
 
     @patch('core.mixins.is_password_compromised')
-    def test_form_submit(self, mock_pwd_check):
-        page = self.app.get(reverse('password_change'), user=self.user)
+    def test_form_submit(self, mock_pwd_check: MagicMock):
+        page: DjangoWebtestResponse = self.app.get(reverse('password_change'), user=self.user)
         form = page.forms['id_system_password_change_form']
         form['old_password'] = "adm1n"
         form['new_password1'] = "Strong & Courageous"
@@ -1570,8 +1573,17 @@ class SystemPasswordChangeFormTests(SystemPasswordResetFormTests):
         self.assertRedirects(page, reverse('password_change_done'))
 
 
-def weak_password_tests(test_inst, where_to_patch, form_class, form_args, form_data, inspect_field):
-    test_data = [
+def weak_password_tests(
+        test_inst: TestCase,
+        where_to_patch: str,
+        form_class: type[BaseForm],
+        form_args: tuple[Any, ...],
+        form_data: dict[str, Any],
+        inspect_field: str,
+):
+    test_data: list[
+        tuple[int, Literal[True], str] | tuple[int, Literal[False], dict[str, str]]
+    ] = [
         (1, True, ""),
         (2, False, {
             'en': ("The password selected by you is not very secure. "
@@ -1596,6 +1608,7 @@ def weak_password_tests(test_inst, where_to_patch, form_class, form_args, form_d
                 test_inst.assertIs(form.is_valid(), expected_result, msg=repr(form.errors))
             mock_pwd_check.assert_called_once_with(form_data[inspect_field])
         if expected_result is False:
+            expected_error = cast(dict[str, str], expected_error)
             test_inst.assertIn(inspect_field, form.errors)
             with override_settings(LANGUAGE_CODE='en'):
                 test_inst.assertEqual(
@@ -1613,11 +1626,17 @@ def weak_password_tests(test_inst, where_to_patch, form_class, form_args, form_d
         )
 
 
-def strong_password_tests(test_inst, where_to_patch, form_class, form_args, form_data):
+def strong_password_tests(
+        test_inst: TestCase,
+        where_to_patch: str,
+        form_class: type[BaseForm],
+        form_args: tuple[Any, ...],
+        form_data: dict[str, Any],
+) -> 'PasportaServoFactoryUser':
     # Mock the response of the Pwned Pwds API to indicate non-compromised password.
     with patch(where_to_patch) as mock_pwd_check:
         mock_pwd_check.return_value = (False, 0)
         form = form_class(*form_args, data=form_data)
         test_inst.assertTrue(form.is_valid(), msg=repr(form.errors))
         mock_pwd_check.assert_called_once()
-    return form.save(commit=False)
+    return form.save(commit=False)  # type: ignore[attr-defined]

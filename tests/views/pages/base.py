@@ -26,26 +26,26 @@ class PageTemplate:
         'PathSpec',
         [('viewname', str), ('kwargs', dict[str, Any])])
 
-    class _LocalizationSpec(TypedDict):
-        en: str
-        eo: str
+    class _LocalizationSpec[T](TypedDict):
+        en: T
+        eo: T
 
     # To be overridden in extending Page classes.
     view_class: type[View]
     url: Promise | _RequiresReverseURL
     alternative_urls: Optional[dict[str, Promise | _RequiresReverseURL]] = None
-    explicit_url: _LocalizationSpec = {
+    explicit_url: _LocalizationSpec[str] = {
         'en': '',
         'eo': '',
     }
-    template = ''
+    template: str = ''
 
     # Common attributes for the views.
-    title: _LocalizationSpec = {
+    title: _LocalizationSpec[str] = {
         'en': "Find accommodation | Pasporta Servo",
         'eo': "Trovu loĝejon | Pasporta Servo",
     }
-    alternative_titles: Optional[dict[str, _LocalizationSpec]] = None
+    alternative_titles: Optional[dict[str, _LocalizationSpec[str]]] = None
     header_logged_out = {
         'en': {
             'session': {'text': "log in", 'url': '/login/'},
@@ -58,7 +58,7 @@ class PageTemplate:
             'use_notice': "Por persona uzo",
         },
     }
-    redirects_unauthenticated = True
+    redirects_unauthenticated: bool = True
     header_logged_in = {
         'en': {
             'session': {
@@ -91,8 +91,8 @@ class PageTemplate:
             'use_notice': {True: "Por persona uzo de ", False: "Por persona uzo"},
         },
     }
-    redirects_logged_in = False
-    use_notice = False
+    redirects_logged_in: bool = False
+    use_notice: bool = False
 
     # Private Page instance fields.
     _test_case: WebTest
@@ -268,7 +268,7 @@ class PageHeroTemplate(PageTemplate):
 class PageWithFormTemplate(PageTemplate):
     class _RenderedFormDefinitionBase(TypedDict):
         selector: str
-        title: PageTemplate._LocalizationSpec
+        title: PageTemplate._LocalizationSpec[str]
 
     class RenderedFormDefinition(_RenderedFormDefinitionBase, total=False):
         object: Form | ModelForm | None
