@@ -257,6 +257,14 @@ class PageTemplate:
             return self._footer_element.find(f"a[href='{reverse(footer_part)}']")
 
 
+class PageHeroTemplate(PageTemplate):
+    def get_headings(self) -> PyQuery:
+        return self.pyquery("[role='heading']")
+
+    def get_hero_content(self) -> PyQuery:
+        return self.pyquery("header .search-container")
+
+
 class PageWithFormTemplate(PageTemplate):
     class _RenderedFormDefinitionBase(TypedDict):
         selector: str

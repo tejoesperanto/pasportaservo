@@ -37,13 +37,13 @@ from ..factories import (
     AdminUserFactory, PolicyFactory, StaffUserFactory, UserFactory,
 )
 from .pages import AboutPage, FAQPage, HomePage, OkayPage, PrivacyPage, TCPage
-from .pages.base import PageWithTitleHeadingTemplate
+from .pages.base import PageHeroTemplate, PageWithTitleHeadingTemplate
 from .pages.general import PageWithLanguageSwitcher
-from .testcasebase import BasicViewTests
+from .testcasebase import BasicViewTests, HeroViewAsserts
 
 
-class HeroViewTemplateTestsMixin(with_type_hint(BasicViewTests)):
-    view_page: type[HomePage] | type[OkayPage]
+class HeroViewTemplateTestsMixin(HeroViewAsserts):
+    view_page: type[PageHeroTemplate]
 
     @classmethod
     def setUpTestData(cls):
@@ -63,80 +63,11 @@ class HeroViewTemplateTestsMixin(with_type_hint(BasicViewTests)):
         cls.users['full-admin'] = AdminUserFactory(profile=None, is_staff=True)
 
     def test_searchbox(self):
-        # When the page is accessed without any redirection parameter, it is
-        # expected to show a search box.
-        for lang in ['en', 'eo']:
-            with (
-                override_settings(LANGUAGE_CODE=lang),
-                self.subTest(lang=lang)
-            ):
-                page = self.view_page.open(self, reuse_for_lang=lang)
-                container_element = page.get_hero_content()
-                self.assertLength(container_element, 1)
-                # An element with an ARIA role "search" is expected to be present.
-                search_element = container_element.find("[id='searchform']")
-                self.assertLength(search_element, 1)
-                self.assertEqual(search_element.attr("role"), "search")
-                self.assertCssClass(search_element, "search")
-                # A form element with a search input field, using the name
-                # specified in the settings, is expected to be present.
-                search_form_element = search_element("form")
-                self.assertLength(search_form_element, 1)
-                self.assertEqual(search_form_element.attr("action"), reverse('search'))
-                search_input_element = search_form_element.find("input#searchinput")
-                self.assertLength(search_input_element, 1)
-                self.assertEqual(search_input_element.attr("type"), "search")
-                self.assertEqual(search_input_element.attr("name"), settings.SEARCH_FIELD_NAME)
-                self.assertCssClass(search_input_element, "form-control")
-                # A form submit element, styled as a button with a localized
-                # caption "search", is expected to be present.
-                search_submit_element = search_form_element.find("[type='submit']")
-                self.assertLength(search_submit_element, 1)
-                self.assertCssClass(search_submit_element, "btn")
-                self.assertCssClass(search_submit_element, "btn-default")
-                self.assertFalse(search_submit_element.has_class("btn-primary"))
-                self.assertEqual(
-                    search_submit_element.text(),
-                    {'en': "Search", 'eo': "Serĉi"}[lang]
-                )
+        self._assert_searchbox(self.view_page)
 
     def test_hero_header(self):
-        # When the user is not authenticated, the view's header is expected
-        # to have only the "login" and "register" links. More detailed tests
-        # are in `test_view_header_unauthenticated_user`.
-        page = self.view_page.open(self)
-        link_elements = page.get_header_links()
-        self.assertLength(link_elements, 2)
-
-        # When the user is logged in, the view's header is expected to have
-        # several session and profile links – more detailed tests are in
-        # `test_view_header_logged_in_user`. In addition, if the user is a
-        # "full admin" with access to the administrative interface, a link
-        # to this interface is expected in the header.
-        expected_admin_text = {
-            'en': "admin site",
-            'eo': "administrilo",
-        }
-        for user_tag in self.users:
-            for lang in expected_admin_text:
-                with (
-                    override_settings(LANGUAGE_CODE=lang),
-                    self.subTest(user=user_tag, lang=lang)
-                ):
-                    page = self.view_page.open(
-                        self, user=self.users[user_tag], reuse_for_lang=lang)
-                    link_elements = page.get_header_links()
-                    admin_element = page.get_nav_element('admin')
-                    if self.users[user_tag].is_superuser and self.users[user_tag].is_staff:
-                        self.assertLength(link_elements, 4)
-                        self.assertEqual(admin_element.text(), expected_admin_text[lang])
-                        self.assertEqual(
-                            admin_element.find("a").attr("href"),
-                            reverse('admin:index')
-                        )
-                    else:
-                        self.assertLength(link_elements, 3)
-                        self.assertLength(admin_element, 0)
+        self._assert_view_hero_header_logged_out(self.view_page)
+        self._assert_view_hero_header_logged_in(self.view_page)
 
 
 @tag('views', 'views-general', 'views-home')

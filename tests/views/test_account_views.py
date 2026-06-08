@@ -3,7 +3,7 @@ import time
 from collections import namedtuple
 from datetime import datetime, timedelta
 from importlib import import_module
-from typing import cast
+from typing import NamedTuple, cast
 from unittest.mock import patch
 
 from django.conf import settings
@@ -12,21 +12,19 @@ from django.core import mail
 from django.test import override_settings, tag
 from django.urls import reverse_lazy
 
-from django_webtest import WebTest
 from factory import Faker
 
 from core.forms import async_task
 from core.utils import join_lazy
 
 from .. import DjangoWebtestResponse
-from ..assertions import AdditionalAsserts
 from ..factories import UserFactory
 from .mixins import FormViewTestsMixin
 from .pages import (
     PasswordResetPage, PasswordResetRequestSuccessPage, RegisterPage,
     UsernameRemindPage, UsernameRemindRequestSuccessPage,
 )
-from .testcasebase import BasicViewTests
+from .testcasebase import BasicViewTests, ViewTestingBase
 
 
 def _snake_str(string: str) -> str:
@@ -246,7 +244,7 @@ class RegisterViewTests(FormViewTestsMixin, BasicViewTests):
 
 
 @tag('views', 'views-account')
-class AccountRestoreRequestViewTests(AdditionalAsserts, WebTest):
+class AccountRestoreRequestViewTests(ViewTestingBase):
     # Related validations are also performed by Form tests for UserAuthenticationForm
     # and by the functional tests for the login process.
 
@@ -259,6 +257,7 @@ class AccountRestoreRequestViewTests(AdditionalAsserts, WebTest):
 
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
         cls.url = reverse_lazy('login_restore')
 
     def setUp(self):
@@ -269,16 +268,14 @@ class AccountRestoreRequestViewTests(AdditionalAsserts, WebTest):
         }
 
     def test_redirect_authenticated_user(self):
-        TestData = namedtuple('TestData', 'timestamp, redirect, user_tag')
+        TestData = NamedTuple(
+            'TestData',
+            [('timestamp', float | None), ('redirect', str | None), ('user_tag', str)])
         test_dataset = itertools.product(
             (None, datetime.now().timestamp()),
             (None, '/another/page/', 'https://far.away/'),
-            ('basic', 'regular'),
+            self.users.keys(),
         )
-        users = {
-            'basic': UserFactory.create(profile=None),
-            'regular': UserFactory.create(),
-        }
 
         for test_data in test_dataset:
             test_data = TestData(*test_data)
@@ -290,7 +287,7 @@ class AccountRestoreRequestViewTests(AdditionalAsserts, WebTest):
                           if test_data.redirect else False),
             ):
                 # Initialize the logged-in user's session by requesting an unrelated page.
-                self.app.get('/', user=users[test_data.user_tag])
+                self.app.get('/', user=self.users[test_data.user_tag])
                 session = cast(SessionBase, self.app.session)
                 if test_data.timestamp is not None:
                     session['restore_request_id'] = ("QWERTY", test_data.timestamp)
@@ -314,7 +311,9 @@ class AccountRestoreRequestViewTests(AdditionalAsserts, WebTest):
                 if internal_redirect:
                     expected_location = test_data.redirect
                 elif test_data.user_tag == 'regular':
-                    expected_location = users[test_data.user_tag].profile.get_absolute_url()
+                    expected_location = (
+                        self.users[test_data.user_tag].profile.get_absolute_url()
+                    )
                 else:
                     expected_location = '/'
                 self.assertEqual(response.location, expected_location)

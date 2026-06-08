@@ -56,8 +56,8 @@ class LoginViewTests(FormViewTestsMixin, BasicViewTests):
         # After redirection from a not supported page, the login view is expected to keep
         # the standard OGP tags.
         with self.subTest(redirect='Unsupported'):
-            self.test_view_open_graph_tags(
-                'redirect_from_profile',
+            self._assert_view_open_graph_tags(
+                self.view_page, 'redirect_from_profile',
                 {'model_type': "qwerty", 'model_id': 12345},
             )
 
@@ -71,8 +71,8 @@ class LoginViewTests(FormViewTestsMixin, BasicViewTests):
                     f'd={quote(profile_fallback_avatar_url, safe='[]')}'
                 )
             )
-            self.test_view_open_graph_tags(
-                'redirect_from_profile',
+            self._assert_view_open_graph_tags(
+                self.view_page, 'redirect_from_profile',
                 {'model_id': profile_with_account.pk},
                 title={
                     'en': "Daisy McDuck at Pasporta Servo",
@@ -91,8 +91,8 @@ class LoginViewTests(FormViewTestsMixin, BasicViewTests):
         # to include no identifying details of the limited profile (without an account),
         # point to the generic profile avatar, and not disclose the type of the profile.
         with self.subTest(redirect='Profile', type='limited'):
-            self.test_view_open_graph_tags(
-                'redirect_from_profile',
+            self._assert_view_open_graph_tags(
+                self.view_page, 'redirect_from_profile',
                 {'model_id': profile_only_tenant.pk},
                 title={
                     'en': "Profile at Pasporta Servo",
@@ -109,8 +109,8 @@ class LoginViewTests(FormViewTestsMixin, BasicViewTests):
         # After redirection from the profile page, the login view's OGP tags are expected
         # to not disclose the fact that a profile does not exist.
         with self.subTest(redirect='Profile', type='nonexistent'):
-            self.test_view_open_graph_tags(
-                'redirect_from_profile',
+            self._assert_view_open_graph_tags(
+                self.view_page, 'redirect_from_profile',
                 {'model_id': profile_only_tenant.pk + 20},
                 title={
                     'en': "Profile at Pasporta Servo",
@@ -129,8 +129,8 @@ class LoginViewTests(FormViewTestsMixin, BasicViewTests):
         # located.
         not_deleted_place_pk = profile_with_account.owned_places.order_by('-id')[0].pk
         with self.subTest(redirect='Place', status='accessible'):
-            self.test_view_open_graph_tags(
-                'redirect_from_place',
+            self._assert_view_open_graph_tags(
+                self.view_page, 'redirect_from_place',
                 {'model_id': not_deleted_place_pk},
                 title={
                     'en': "A place in Antarctica at Pasporta Servo",
@@ -148,8 +148,8 @@ class LoginViewTests(FormViewTestsMixin, BasicViewTests):
         # fact that it is deleted.
         deleted_place_pk = profile_with_account.owned_places.order_by('id')[0].pk
         with self.subTest(redirect='Place', status='deleted'):
-            self.test_view_open_graph_tags(
-                'redirect_from_place',
+            self._assert_view_open_graph_tags(
+                self.view_page, 'redirect_from_place',
                 {'model_id': deleted_place_pk},
                 title={
                     'en': "Place at Pasporta Servo",
@@ -164,8 +164,8 @@ class LoginViewTests(FormViewTestsMixin, BasicViewTests):
         # After redirection from the place page, the login view's OGP tags are expected
         # to not disclose the fact that a place does not exist.
         with self.subTest(redirect='Place', status='nonexistent'):
-            self.test_view_open_graph_tags(
-                'redirect_from_place',
+            self._assert_view_open_graph_tags(
+                self.view_page, 'redirect_from_place',
                 {'model_id': deleted_place_pk + 20},
                 title={
                     'en': "Place at Pasporta Servo",
@@ -182,8 +182,8 @@ class LoginViewTests(FormViewTestsMixin, BasicViewTests):
         profile_with_account.deleted_on = now()
         profile_with_account.save()
         with self.subTest(redirect='Profile', type='full', status='deleted'):
-            self.test_view_open_graph_tags(
-                'redirect_from_profile',
+            self._assert_view_open_graph_tags(
+                self.view_page, 'redirect_from_profile',
                 {'model_id': profile_with_account.pk},
                 title={
                     'en': "Profile at Pasporta Servo",
@@ -200,8 +200,8 @@ class LoginViewTests(FormViewTestsMixin, BasicViewTests):
         # After redirection from the place page, the login view's OGP tags are expected
         # to include no identifying details of the place of which the owner is deleted.
         with self.subTest(redirect='Place', status='accessible; owner deleted'):
-            self.test_view_open_graph_tags(
-                'redirect_from_place',
+            self._assert_view_open_graph_tags(
+                self.view_page, 'redirect_from_place',
                 {'model_id': not_deleted_place_pk},
                 title={
                     'en': "Place at Pasporta Servo",
