@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import override_settings
-from django.urls import reverse, reverse_lazy
+from django.urls import NoReverseMatch, reverse, reverse_lazy
 from django.utils.functional import Promise
 
 from django_webtest import WebTest, _notgiven as WEBTEST_USER_NOT_GIVEN
@@ -92,17 +92,29 @@ class ViewAsserts(with_type_hint(ViewTestingBase)):
 
     def _assert_view_url_alt(
             self, view_page: type[PageTemplate],
+            *,
+            url_kwargs_per_tag: Optional[dict[str, dict[str, Any]]] = None,
             user: PasportaServoUser | None | Sentinel = Sentinel.NOT_GIVEN,
     ):
         response: DjangoWebtestResponse
+        url_kwargs = url_kwargs_per_tag or {}
         app_user = self._user_for_page_request(view_page, user, raw_request=True)
+        extra_info = ("URL resolved to a valid path but the view failed to load")
+        if app_user is not None and app_user is not WEBTEST_USER_NOT_GIVEN:
+            extra_info += " for the given user"
 
         if view_page.alternative_urls is not None:
             for url_tag in view_page.alternative_urls:
-                expected_url = view_page.get_complete_url(url_tag)
-                with self.subTest(tag=url_tag, attempted=expected_url):
-                    response = self.app.get(expected_url, status='*', user=app_user)
-                    self.assertEqual(response.status_code, 200)
+                expected_url = view_page.get_complete_url(url_tag, url_kwargs.get(url_tag))
+                with self.subTest(tag=url_tag):
+                    self.assertNotRaises(NoReverseMatch, lambda: str(expected_url))
+                    with self.subTest(attempted=expected_url):
+                        response = self.app.get(expected_url, status='*', user=app_user)
+                        extra_info_for_tag = extra_info + (
+                            f"{' and' if extra_info.endswith('user') else ''}"
+                            " for the given parameters" if url_tag in url_kwargs else ""
+                        )
+                        self.assertEqual(response.status_code, 200, msg=extra_info_for_tag)
 
     def _assert_view_explicit_url(
             self, view_page: type[PageTemplate],
