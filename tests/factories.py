@@ -412,7 +412,13 @@ class PhoneFactory(TypedDjangoModelFactory[Phone]):
     class Meta:
         model = 'hosting.Phone'
 
-    profile = factory.SubFactory('tests.factories.ProfileFactory')
+    class Params:
+        deleted = False
+        deleted_profile = False
+
+    profile = factory.SubFactory(
+        'tests.factories.ProfileFactory',
+        deleted=factory.SelfAttribute('..deleted_profile'))
 
     @factory.lazy_attribute
     def number(self):
@@ -425,6 +431,10 @@ class PhoneFactory(TypedDjangoModelFactory[Phone]):
     country = Faker('random_element', elements=COUNTRIES.keys())
     comments = Faker('text', max_nb_chars=20)
     type = Faker('random_element', elements=Phone.PhoneType.values)
+    deleted_on = factory.Maybe(
+        'deleted',
+        yes_declaration=timezone.now(),
+        no_declaration=None)
 
 
 class ConditionFactory(TypedDjangoModelFactory['Condition']):

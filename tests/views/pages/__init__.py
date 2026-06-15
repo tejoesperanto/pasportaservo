@@ -7,3 +7,4 @@ from .admin import MassMailPage, MassMailResultPage
 from .general import (
     AboutPage, FAQPage, HomePage, OkayPage, PrivacyPage, TCPage,
 )
+from .links import InfoAlreadyConfirmedPage, InfoConfirmedPage

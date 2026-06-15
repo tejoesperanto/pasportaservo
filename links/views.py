@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html
@@ -44,6 +44,9 @@ class UniqueLinkView(generic.TemplateView):
 
     def redirect_confirm(self, request, payload):
         place = get_object_or_404(Place, pk=payload['place'])
+        place.owner = get_object_or_404(place.owner._meta.model, pk=place.owner_id)
+        if place.owner.deleted or place.owner.death_date or not place.owner.user.is_active:
+            raise Http404
         if place.confirmed and place.owner.confirmed:
             return HttpResponseRedirect(reverse('info_already_confirmed'))
         place.owner.confirm_all_info()

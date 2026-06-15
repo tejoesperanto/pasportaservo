@@ -5,7 +5,8 @@ from datetime import date, datetime
 from enum import Enum, IntEnum
 from functools import partial, partialmethod
 from typing import (
-    TYPE_CHECKING, Callable, ClassVar, Final, Iterable,
+    TYPE_CHECKING, Callable, ClassVar, Final,
+    Iterable, NotRequired as NotRequiredDictItem,
     Optional, Self, TypedDict, TypeGuard, cast,
 )
 
@@ -223,13 +224,11 @@ class VisibilitySettings(models.Model):
 
     # Rules define what can be customized by the user. Tied online means an object
     # hidden for public will necessarily be hidden also for authorized users.
-    class RulesBase(TypedDict):
+    class Rules(TypedDict):
         online_public: bool
         online_authed: bool
         in_book: bool
-
-    class Rules(RulesBase, total=False):
-        tied_online: bool
+        tied_online: NotRequiredDictItem[bool]
 
     rules: Rules
 
@@ -313,19 +312,19 @@ class VisibilitySettings(models.Model):
         return cls.__name__[len(cls.__mro__[1].__name__+'For'):]
 
     @property
-    def printable(self):
+    def printable(self) -> bool:
         """Can this data appear in the printed edition?"""
         return True
 
     @property
-    def concealed(self):
+    def concealed(self) -> bool:
         """Can this data be seen by anyone apart from owner and supervisors?"""
         return not any([self.visible_online_public, self.visible_online_authed, self.visible_in_book])
 
     _PREFIX = 'visible_'
 
     @classmethod
-    def venues(cls):
+    def venues(cls) -> list[str]:
         """
         Returns the list of available venues as strings:
           - online_public (authenticated users)
@@ -336,13 +335,13 @@ class VisibilitySettings(models.Model):
             f.name[len(cls._PREFIX):] for f in cls._meta.get_fields() if f.name.startswith(cls._PREFIX)
         ]
 
-    def __getitem__(self, venue):
+    def __getitem__(self, venue: str) -> bool:
         try:
             return getattr(self, self._PREFIX+venue)
         except Exception:
             raise KeyError("Unknown venue {!r}".format(venue))
 
-    def __setitem__(self, venue, value):
+    def __setitem__(self, venue: str, value: bool):
         self[venue]  # This will raise an exception if venue is invalid.
         setattr(self, self._PREFIX+venue, value)
 
@@ -412,7 +411,7 @@ class VisibilitySettingsForPhone(VisibilitySettings):
 
     @cached_property
     def printable(self):
-        return self.content_object.owner.has_places_for_hosting
+        return bool(self.content_object.owner.has_places_for_hosting)
 
 
 class VisibilitySettingsForPublicEmail(VisibilitySettings):
@@ -427,7 +426,7 @@ class VisibilitySettingsForPublicEmail(VisibilitySettings):
 
     @cached_property
     def printable(self):
-        return self.content_object.has_places_for_hosting
+        return bool(self.content_object.has_places_for_hosting)
 
 
 class Profile(ViewableModel, TrackingModel, TimeStampedModel):
@@ -501,7 +500,7 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
                     "Leave blank if you don't want this email to be public.\n"
                     "The system will never send emails to this address, "
                     "neither publish it on the site without your permission."))
-    email_visibility = models.OneToOneField(
+    email_visibility: 'S2SField[VisibilitySettingsForPublicEmail]' = models.OneToOneField(
         'hosting.VisibilitySettingsForPublicEmail',
         related_name='%(class)s', on_delete=models.PROTECT)
     description = models.TextField(
@@ -661,7 +660,7 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
             for place in objects
         )
 
-    def _count_listed_places(self, attr, query, restrained_search, **kwargs):
+    def _count_listed_places(self, attr, query, restrained_search, **kwargs) -> int:
         cached = (
             self.__dict__.setdefault('_host_offer_cache', {}).get(attr)
             if not len(kwargs)
@@ -970,7 +969,7 @@ class Place(ViewableModel, TrackingModel, TimeStampedModel):
     family_members: 'M2MField[FamilyMember, models.Model]' = models.ManyToManyField(
         'hosting.Profile', verbose_name=_("family members"),
         blank=True)
-    family_members_visibility = models.OneToOneField(
+    family_members_visibility: 'S2SField[VisibilitySettingsForFamilyMembers]' = models.OneToOneField(
         'hosting.VisibilitySettingsForFamilyMembers',
         related_name='family_members', on_delete=models.PROTECT)
     blocked_from = models.DateField(
@@ -985,7 +984,7 @@ class Place(ViewableModel, TrackingModel, TimeStampedModel):
         settings.AUTH_USER_MODEL, verbose_name=_("authorized users"),
         blank=True,
         help_text=_("List of users authorized to view most of data of this accommodation."))
-    visibility = models.OneToOneField(
+    visibility: 'S2SField[VisibilitySettingsForPlace]' = models.OneToOneField(
         'hosting.VisibilitySettingsForPlace',
         related_name='%(class)s', on_delete=models.PROTECT)
 
@@ -1190,7 +1189,7 @@ class Phone(TrackingModel, TimeStampedModel):
         _("phone type"),
         max_length=3,
         choices=PhoneType.choices, default=PhoneType.MOBILE)
-    visibility = models.OneToOneField(
+    visibility: 'S2SField[VisibilitySettingsForPhone]' = models.OneToOneField(
         'hosting.VisibilitySettingsForPhone',
         related_name='%(class)s', on_delete=models.PROTECT)
 
