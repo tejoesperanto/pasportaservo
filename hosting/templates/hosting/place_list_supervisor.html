@@ -157,7 +157,7 @@
                                 {% if place.checked %}
                                     {% include './snippets/checked.html' with object=place button=True button_id=id_check_status %}
                                 {% else %}
-                                    <form action="{% url 'place_check' place.pk %}?{% next current_page_position %}"
+                                    <form action="{% url 'staff_place_check' place.pk %}?{% next current_page_position %}"
                                           method="POST"
                                           class="unwrap-after-success">
                                         {% csrf_token %}
@@ -206,6 +206,16 @@
                                             {% trans "Update profile" %}
                                         </a>
                                     </li>
+                                    {% if place.checked %}
+                                    {% if place.checked_by == user or user.is_superuser %}
+                                        <li role="separator" class="divider"></li>
+                                        <li>
+                                            <a href="{% url 'staff_place_unverify' place.pk %}?{% next current_page_position %}">
+                                                {% trans "Undo approval" %}
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    {% endif %}
                                 </ul>
                             </div>
                         </div>

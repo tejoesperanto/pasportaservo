@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2026-06-02 19:11+0000\n"
+"POT-Revision-Date: 2026-06-15 18:35+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -3700,6 +3700,11 @@ msgid "more options"
 msgstr "pliaj opcioj"
 
 #: hosting/templates/hosting/place_list_supervisor.html
+#: hosting/templates/hosting/snippets/object_mark_unchecked.html
+msgid "Undo approval"
+msgstr "Malfari aprobon"
+
+#: hosting/templates/hosting/place_list_supervisor.html
 #: hosting/templates/hosting/profile_detail.html
 msgid "last login"
 msgstr "lasta ensaluto"
@@ -4153,10 +4158,6 @@ msgstr "aprobanto nekonata"
 msgid "Mark invalid"
 msgstr "Marki kiel nefunkcianta"
 
-#: hosting/templates/hosting/snippets/object_mark_unchecked.html
-msgid "Undo approval"
-msgstr "Malfari aprobon"
-
 #: hosting/templates/hosting/snippets/place_availability_icon.html
 msgid "available,unavailable"
 msgstr "disponebla,maldisponebla"
@@ -4237,6 +4238,16 @@ msgstr "profilo/"
 
 #: hosting/urls.py
 msgctxt "URL"
+msgid "place/"
+msgstr "ejo/"
+
+#: hosting/urls.py
+msgctxt "URL"
+msgid "phone/"
+msgstr "telefono/"
+
+#: hosting/urls.py
+msgctxt "URL"
 msgid "create/"
 msgstr "krei/"
 
@@ -4289,16 +4300,6 @@ msgstr "funkcianta:0/"
 msgctxt "URL"
 msgid "mark-valid/"
 msgstr "funkcianta:1/"
-
-#: hosting/urls.py
-msgctxt "URL"
-msgid "place/"
-msgstr "ejo/"
-
-#: hosting/urls.py
-msgctxt "URL"
-msgid "phone/"
-msgstr "telefono/"
 
 #: hosting/urls.py
 msgctxt "URL"

@@ -135,7 +135,7 @@ urlpatterns = [
                     PlaceLocationUpdateView.as_view(), name='place_location_update'),
                 path(
                     pgettext_lazy("URL", 'check/'),
-                    PlaceCheckView.as_view(), name='place_check'),
+                    PlaceCheckView.as_view(), name='staff_place_check'),
                 path(
                     pgettext_lazy("URL", 'delete/'),
                     PlaceDeleteView.as_view(), name='place_delete'),
