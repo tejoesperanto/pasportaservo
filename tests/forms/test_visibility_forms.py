@@ -24,10 +24,10 @@ class VisibilityFormTests(AdditionalAsserts, TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.place = PlaceFactory(in_book=False)
+        cls.place = PlaceFactory.create(in_book=False)
         cls.place.visibility.refresh_from_db()
         cls.place.family_members_visibility.refresh_from_db()
-        cls.phone = PhoneFactory(profile=cls.place.profile)
+        cls.phone = PhoneFactory.create(profile=cls.place.profile)
         cls.phone.visibility.refresh_from_db()
         cls.place.profile.email_visibility.refresh_from_db()
 
@@ -81,9 +81,9 @@ class VisibilityFormTests(AdditionalAsserts, TestCase):
     def test_inbook_field_disabled(self):
         # Case 1. available: N, in book: N.
         with self.subTest(case=1, available=False, in_book=False):
-            place = PlaceFactory(available=False, in_book=False)
+            place = PlaceFactory.create(available=False, in_book=False)
             place.visibility.refresh_from_db()
-            phone = PhoneFactory(profile=place.profile)
+            phone = PhoneFactory.create(profile=place.profile)
             phone.visibility.refresh_from_db()
             # The `in_book` field for place's visibility object is expected to be disabled.
             form = VisibilityForm(instance=place.visibility)
@@ -198,7 +198,7 @@ class VisibilityFormTests(AdditionalAsserts, TestCase):
                     self.assertEqual(str(form.obj), str(title.get('eo') or title['title']))
 
     def test_object_tampering(self):
-        test_data = [
+        test_data: list[VisibilitySettings] = [
             self.phone.visibility,
             self.place.visibility,
             self.place.family_members_visibility,
@@ -303,7 +303,7 @@ class VisibilityFormTests(AdditionalAsserts, TestCase):
         self.assertTrue(self.place.visibility.visible_online_authed)
         self.assertTrue(self.place.visibility.visible_in_book)
 
-        place2stay = PlaceFactory(available=True, in_book=True)
+        place2stay = PlaceFactory.create(available=True, in_book=True)
         place2stay.visibility.refresh_from_db()
         place2stay.visibility.visible_online_public = False
         place2stay.visibility.visible_online_authed = False
@@ -387,32 +387,32 @@ class VisibilityFormSetTests(AdditionalAsserts, TestCase):
             VisibilitySettings,
             form=VisibilityForm, formset=VisibilityFormSetBase, extra=0)
 
-        cls.profile = ProfileFactory(with_email=True)
+        cls.profile = ProfileFactory.create(with_email=True)
         cls.profile.email_visibility.refresh_from_db()
 
-        cls.place1 = PlaceFactory(owner=cls.profile)
+        cls.place1 = PlaceFactory.create(owner=cls.profile)
         cls.place1.visibility.refresh_from_db()
         cls.place1.family_members_visibility.refresh_from_db()
 
-        cls.place2 = PlaceFactory(owner=cls.profile)
+        cls.place2 = PlaceFactory.create(owner=cls.profile)
         cls.place2.visibility.refresh_from_db()
         cls.place2.family_members_visibility.refresh_from_db()
         cls.place2.family_members.add(ProfileSansAccountFactory())
 
-        cls.place3 = PlaceFactory(owner=cls.profile)
+        cls.place3 = PlaceFactory.create(owner=cls.profile)
         cls.place3.visibility.refresh_from_db()
         cls.place3.family_members_visibility.refresh_from_db()
         cls.place3.family_members.add(ProfileSansAccountFactory(first_name="", last_name=""))
 
-        cls.place4 = PlaceFactory()  # Different owner.
+        cls.place4 = PlaceFactory.create()  # Different owner.
         cls.place4.visibility.refresh_from_db()
 
-        cls.place_gone = PlaceFactory(owner=cls.profile, deleted_on=now())
+        cls.place_gone = PlaceFactory.create(owner=cls.profile, deleted_on=now())
 
-        cls.phone = PhoneFactory(profile=cls.profile)
+        cls.phone = PhoneFactory.create(profile=cls.profile)
         cls.phone.visibility.refresh_from_db()
 
-        cls.phone_gone = PhoneFactory(profile=cls.profile, deleted_on=now())
+        cls.phone_gone = PhoneFactory.create(profile=cls.profile, deleted_on=now())
 
     def test_invalid_init(self):
         with self.assertRaises(KeyError) as cm:
@@ -425,6 +425,7 @@ class VisibilityFormSetTests(AdditionalAsserts, TestCase):
         # The formset's queryset is expected to include visibility objects for
         # place1, place2, place2 family members, place3, phone, public email,
         # in this order.
+        assert formset.queryset is not None
         self.assertEqual(len(formset.queryset), 6)
         self.assertEqual(formset.queryset[0].pk, self.place1.visibility.pk)
         self.assertEqual(formset.queryset[1].pk, self.place2.visibility.pk)
