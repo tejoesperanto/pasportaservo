@@ -215,9 +215,9 @@ class CustomGroupAdmin(GroupAdmin):
 
 class TrackingModelAdmin(ShowConfirmedMixin):
     fields = (
-        ('checked_on', 'checked_by'), 'display_confirmed', 'deleted_on',
+        ('checked_on', 'checked_by'), 'display_confirmed', 'created', 'deleted_on',
     )
-    readonly_fields = ('display_confirmed',)
+    readonly_fields = ('display_confirmed', 'created')
 
     class InstanceApprover(PasportaServoUser):
         class Meta:
