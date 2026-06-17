@@ -85,6 +85,9 @@ class ProfileModifyMixin[ModelT: Model](SingleObjectViewProtocol[ModelT]):
                 success_url_anchor = self.model.get_model_anchor()  # type: ignore[attr-defined]
             except Exception:
                 pass
+            else:
+                if getattr(self.object, 'deleted_on', None):
+                    success_url_anchor = None  # Avoid linking to the deleted object.
         if type(self.object) is Profile:
             success_url = self.object.get_edit_url()
         success_url_anchor = getattr(self, 'success_with_anchor', success_url_anchor)
