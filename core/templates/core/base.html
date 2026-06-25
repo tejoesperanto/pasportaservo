@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n static %}
 {% load next random_identifier from utils %}
+{% load user_supervisor_of from profile %}
 
 {% block body %}
     <a name="{% trans "top-most" context "URL" %}" tabindex="-1"></a>
@@ -158,6 +159,16 @@
                         {{ ENVIRONMENT }} &bull; {{ CURRENT_COMMIT|join:' – '|default:"?" }}
                         {% if user and user.is_authenticated %}
                             &bull; {% trans "user" %}: {{ user.username }}
+                            {% if user.is_superuser and user.is_staff %}
+                                &ndash; {% trans "ADMIN" context "User raw role" %}
+                            {% elif user.is_superuser %}
+                                &ndash; {% trans "GSV" context "User raw role" %}
+                            {% else %}
+                                {% user_supervisor_of user show_as='code' as user_supervises %}
+                                {% if user_supervises %}
+                                    &ndash; {% trans "SV" context "User raw role" %} [{{ user_supervises|join:", " }}]
+                                {% endif %}
+                            {% endif %}
                         {% endif %}
                     </div>
                 {% endif %}

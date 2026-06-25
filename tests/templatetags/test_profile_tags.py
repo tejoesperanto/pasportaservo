@@ -19,7 +19,7 @@ from django_countries.fields import Country
 from django_webtest import WebTest
 from factory import Faker
 
-from hosting.models import Profile
+from hosting.models import PasportaServoUser, Profile
 
 from ..factories import (
     PlaceFactory, ProfileFactory, ProfileSansAccountFactory, UserFactory,
@@ -827,99 +827,126 @@ class IsSupervisorOfFilterTests(TestCase):
 
 
 @tag('templatetags')
-class SupervisorOfFilterTests(TestCase):
+class UserSupervisorOfTagTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.template = Template(
-            "{% load supervisor_of from profile %}"
-            "{{ person|supervisor_of|safe }}"
+        cls.template_string = string.Template(
+            "{% load user_supervisor_of from profile %}"
+            "{% user_supervisor_of person $SHOW_AS as supervised %}"
+            "{{ supervised|safe }}"
         )
 
-        cls.family_member = ProfileSansAccountFactory()
-        (
-            cls.regular_user,               # Not a supervisor.
-            cls.supervisor_user,            # Supervisor in 3 countries.
-            cls.inactive_supervisor_user,   # Supervisor, not active.
-            cls.admin_user,                 # Superuser; supervises everywhere.
-        ) = UserFactory.create_batch(4)
+        privileged_users = dict(zip(
+            [
+                'supervisor',           # Supervisor in 3 countries.
+                'inactive supervisor',  # Supervisor, not active.
+                'superuser',            # Superuser; supervises everywhere.
+                'inactive superuser',   # Superuser, not active.
+            ],
+            UserFactory.create_batch(4)
+        ))
         cls.countries = sample(list(COUNTRIES), 3)
         for c in cls.countries:
             Group.objects.get_or_create(name=c)[0].user_set.add(
-                cls.supervisor_user, cls.inactive_supervisor_user)
-        cls.inactive_supervisor_user.is_active = False
-        cls.admin_user.is_superuser = True
+                privileged_users['supervisor'], privileged_users['inactive supervisor'])
+        privileged_users['inactive supervisor'].is_active = False
+        privileged_users['superuser'].is_superuser = True
+        privileged_users['inactive superuser'].is_active = False
+        privileged_users['inactive superuser'].is_superuser = True
+
+        cls.users: dict[str, PasportaServoUser | AnonymousUser | Profile] = {
+            'anonymous': AnonymousUser(),     # Unauthenticated user.
+            'regular': UserFactory.create(),  # Not a supervisor.
+            **privileged_users,
+            'w/o account': ProfileSansAccountFactory.create(),
+        }
 
         for backend in get_backends():
             try:
-                cls.auth_backend_method = backend.get_user_supervisor_of
+                cls.auth_backend_method = backend.get_user_supervisor_of  # type: ignore
             except AttributeError:
                 pass
+            else:
+                break
 
-    def test_supervisor_backend(self):
-        country_names = sorted(all_countries.name(code) for code in self.countries)
-        test_data = [
-            # The expected result for a non-authenticated user is empty list.
-            (AnonymousUser(), 'anonymous', []),
-            # The expected result for non-supervisor is empty list.
-            (self.regular_user, 'regular', []),
-            # The expected result for a supervisor
-            # is list of supervised by them country names.
-            (self.supervisor_user, 'supervisor', country_names),
-            # The expected result for an inactive supervisor
-            # is list of supervised by them country names.
-            (self.inactive_supervisor_user, 'inactive supervisor', country_names),
-            # The expected result for a superuser is list of all country names.
-            (self.admin_user, 'superuser',
-             sorted(next(all_countries.translate_code(c)).name for c in COUNTRIES)),
-            # The expected result for a profile without account is empty list.
-            (self.family_member, 'w/o account', []),
-        ]
+    def output_tests(
+            self,
+            user: PasportaServoUser | AnonymousUser | Profile,
+            show_as_param: str | None,
+            expected_result: list[str],
+    ):
+        template = Template(self.template_string.substitute(
+            SHOW_AS=f'show_as="{show_as_param}"' if show_as_param is not None else '',
+        ))
 
-        for user, user_tag, expected_result in test_data:
-            with self.subTest(user=user_tag):
-                with self.assertLogs('PasportaServo.auth', level='DEBUG') as cm:
-                    # Verify for a User object.
-                    page = self.template.render(Context({'person': user}))
+        with self.subTest(display=show_as_param if show_as_param is not None else 'default'):
+            with self.assertLogs('PasportaServo.auth', level='DEBUG') as cm:
+                # Verify for a User object.
+                page = template.render(Context({'person': user}))
+                self.assertEqual(page, str(expected_result))
+
+                # Verify for a Profile object.
+                if not isinstance(user, Profile) and hasattr(user, 'profile'):
+                    page = template.render(Context({'person': getattr(user, 'profile')}))
                     self.assertEqual(page, str(expected_result))
 
-                    # Verify for a Profile object.
-                    if not isinstance(user, Profile) and hasattr(user, 'profile'):
-                        page = self.template.render(Context({'person': user.profile}))
-                        self.assertEqual(page, str(expected_result))
+            # Verify log.
+            self.assertIn("searching supervised objects", cm.output[0])
+            if not isinstance(user, Profile):
+                self.assertIn(user.username, cm.output[0])
 
-                # Verify log.
-                self.assertIn("searching supervised objects", cm.output[0])
-                if not isinstance(user, Profile):
-                    self.assertIn(user.username, cm.output[0])
+            # Verify directly for the underlying auth backend's method.
+            if hasattr(self, 'auth_backend_method') and not isinstance(user, Profile):
+                self.assertEqual(
+                    set(self.auth_backend_method(user, code=show_as_param == 'code')),
+                    set(expected_result)
+                )
 
-                # Verify directly for the underlying auth backend's method.
-                if hasattr(self, 'auth_backend_method') and not isinstance(user, Profile):
-                    self.assertEqual(
-                        set(self.auth_backend_method(user)),
-                        set(expected_result)
-                    )
+    def test_supervisor_backend(self):
+        selected_country_names = sorted(
+            all_countries.name(code) for code in self.countries)
+        selected_country_codes = sorted(self.countries)
+        all_country_names = sorted(
+            next(all_countries.translate_code(c)).name for c in COUNTRIES)
+        all_country_codes = sorted(COUNTRIES)
+
+        for user_tag, user in self.users.items():
+            match user_tag:
+                case superuser_tag if 'superuser' in superuser_tag:
+                    # The expected result for a superuser is a list of all country names
+                    # or codes, depending on the `show_as` tag parameter.
+                    expected_name_result = all_country_names
+                    expected_code_result = all_country_codes
+                case supervisor_tag if 'supervisor' in supervisor_tag:
+                    # The expected result for a supervisor is list of supervised by them
+                    # country names or codes, depending on the `show_as` tag parameter.
+                    expected_name_result = selected_country_names
+                    expected_code_result = selected_country_codes
+                case _:
+                    # The expected result for a non-authenticated user, a non-supervisor
+                    # user, and a profile without account is empty list.
+                    expected_name_result = []
+                    expected_code_result = []
+            with self.subTest(user=user_tag):
+                self.output_tests(user, None, expected_name_result)
+                self.output_tests(user, 'name', expected_name_result)
+                self.output_tests(user, 'code', expected_code_result)
+                self.output_tests(user, '', expected_name_result)
+                self.output_tests(user, 'bang', expected_name_result)
 
     @override_settings(
         AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])
     def test_default_backend(self):
         # The expected result for any user authenticated via a backend that does
         # not support supervising permissions, is an empty list.
-        test_data = [
-            (AnonymousUser(), 'anonymous'),
-            (self.regular_user, 'regular'),
-            (self.supervisor_user, 'supervisor'),
-            (self.inactive_supervisor_user, 'inactive supervisor'),
-            (self.admin_user, 'superuser'),
-            (self.family_member, 'w/o account'),
-        ]
-
-        for user, user_tag in test_data:
+        template = Template(self.template_string.substitute(SHOW_AS=''))
+        for user_tag, user in self.users.items():
             with self.subTest(user=user_tag):
                 # Verify for a User object.
-                page = self.template.render(Context({'person': user}))
+                page = template.render(Context({'person': user}))
                 self.assertEqual(page, "[]")
 
                 # Verify for a Profile object.
                 if not isinstance(user, Profile) and hasattr(user, 'profile'):
-                    page = self.template.render(Context({'person': user.profile}))
+                    page = template.render(Context({'person': getattr(user, 'profile')}))
                     self.assertEqual(page, "[]")
