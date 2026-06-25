@@ -11,6 +11,7 @@ from django.utils.html import format_html
 from django.utils.safestring import SafeString, mark_safe
 
 from core.auth import PERM_SUPERVISOR, auth_log
+from core.utils import sort_by
 from hosting.gravatar import email_to_gravatar
 
 from ..models import PasportaServoUser, Profile, TrackingModel
@@ -77,15 +78,17 @@ def user_supervisor_of(user_or_profile, show_as: str = 'name'):
         auth_log.debug(
             "* searching supervised objects... [ %s %s]",
             user, "<~ '%s' " % user_or_profile if user != user_or_profile else "")
+    field = show_as or 'name'
     for backend in auth.get_backends():
         try:
-            return sorted(map(
-                lambda country: str(country),
-                backend.get_user_supervisor_of(  # type: ignore[attr-defined]
-                    user, code=show_as == 'code')
-            ))
+            countries = backend.get_user_supervisor_of(user)  # type: ignore[attr-defined]
         except Exception:
             pass
+        else:
+            return list(filter(None, map(
+                lambda country: getattr(country, field),
+                sort_by([field], countries)
+            )))
     return []
 
 
