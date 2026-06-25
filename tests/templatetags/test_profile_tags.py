@@ -1,8 +1,11 @@
+import locale
 import string
+from functools import partial
 from itertools import product
 from random import choice, sample
 from unittest.mock import patch
 
+from django.conf import settings
 from django.contrib.auth import get_backends
 from django.contrib.auth.models import AnonymousUser, Group
 from django.core.exceptions import FieldDoesNotExist
@@ -20,6 +23,7 @@ from django_webtest import WebTest
 from factory import Faker
 
 from hosting.models import PasportaServoUser, Profile
+from tests.assertions import AdditionalAsserts
 
 from ..factories import (
     PlaceFactory, ProfileFactory, ProfileSansAccountFactory, UserFactory,
@@ -827,7 +831,7 @@ class IsSupervisorOfFilterTests(TestCase):
 
 
 @tag('templatetags')
-class UserSupervisorOfTagTests(TestCase):
+class UserSupervisorOfTagTests(AdditionalAsserts, TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.template_string = string.Template(
@@ -845,14 +849,22 @@ class UserSupervisorOfTagTests(TestCase):
             ],
             UserFactory.create_batch(4)
         ))
-        cls.countries = sample(list(COUNTRIES), 3)
+        cls.countries = (
+            set(sample(list(COUNTRIES), 2))
+            # Ensure that the list contains countries whose Esperanto name
+            # starts with a diacritic-bearing letter.
+            | set(sample(['CL', 'CN', 'CZ', 'DJ', 'JE', 'TD'], 2))
+        )
         for c in cls.countries:
-            Group.objects.get_or_create(name=c)[0].user_set.add(
-                privileged_users['supervisor'], privileged_users['inactive supervisor'])
-        privileged_users['inactive supervisor'].is_active = False
-        privileged_users['superuser'].is_superuser = True
-        privileged_users['inactive superuser'].is_active = False
-        privileged_users['inactive superuser'].is_superuser = True
+            Group.objects.get_or_create(name=c)[0].user_set.add(*(
+                user for (user_tag, user) in privileged_users.items()
+                if 'supervisor' in user_tag
+            ))
+        for user_tag in privileged_users:
+            if 'inactive' in user_tag:
+                privileged_users[user_tag].is_active = False
+            if 'superuser' in user_tag:
+                privileged_users[user_tag].is_superuser = True
 
         cls.users: dict[str, PasportaServoUser | AnonymousUser | Profile] = {
             'anonymous': AnonymousUser(),     # Unauthenticated user.
@@ -873,22 +885,34 @@ class UserSupervisorOfTagTests(TestCase):
             self,
             user: PasportaServoUser | AnonymousUser | Profile,
             show_as_param: str | None,
-            expected_result: list[str],
+            expected_result: list[str] | type[Exception],
     ):
         template = Template(self.template_string.substitute(
             SHOW_AS=f'show_as="{show_as_param}"' if show_as_param is not None else '',
         ))
 
         with self.subTest(display=show_as_param if show_as_param is not None else 'default'):
+            expected_exception = isinstance(expected_result, type)
+            if expected_exception:
+                error_assertion = partial(
+                    self.assertRaises, expected_exception=expected_result)
+            else:
+                error_assertion = partial(
+                    self.assertNotRaises, expected_exception=AttributeError)
+
             with self.assertLogs('PasportaServo.auth', level='DEBUG') as cm:
                 # Verify for a User object.
-                page = template.render(Context({'person': user}))
-                self.assertEqual(page, str(expected_result))
+                with error_assertion():
+                    page = template.render(Context({'person': user}))
+                if not expected_exception:
+                    self.assertEqual(page, str(expected_result))
 
                 # Verify for a Profile object.
                 if not isinstance(user, Profile) and hasattr(user, 'profile'):
-                    page = template.render(Context({'person': getattr(user, 'profile')}))
-                    self.assertEqual(page, str(expected_result))
+                    with error_assertion():
+                        page = template.render(Context({'person': getattr(user, 'profile')}))
+                    if not expected_exception:
+                        self.assertEqual(page, str(expected_result))
 
             # Verify log.
             self.assertIn("searching supervised objects", cm.output[0])
@@ -896,19 +920,33 @@ class UserSupervisorOfTagTests(TestCase):
                 self.assertIn(user.username, cm.output[0])
 
             # Verify directly for the underlying auth backend's method.
-            if hasattr(self, 'auth_backend_method') and not isinstance(user, Profile):
-                self.assertEqual(
-                    set(self.auth_backend_method(user, code=show_as_param == 'code')),
-                    set(expected_result)
-                )
+            if hasattr(self, 'auth_backend_method'):
+                if not isinstance(user, Profile) and not expected_exception:
+                    self.assertEqual(
+                        set(map(
+                            lambda country: getattr(country, show_as_param or 'name'),
+                            self.auth_backend_method(user)
+                        )) - {''},
+                        set(expected_result)
+                    )
 
     def test_supervisor_backend(self):
+        locale.setlocale(locale.LC_ALL, settings.SYSTEM_LOCALE)
         selected_country_names = sorted(
-            all_countries.name(code) for code in self.countries)
+            (all_countries.name(code) for code in self.countries),
+            key=locale.strxfrm)
+        # Not all countries have an International Olympic Committee code; empty codes
+        # need to be filtered out manually.
+        selected_country_olympic_codes = sorted(
+            (ioc_code for code in self.countries
+             if (ioc_code := all_countries.ioc_code(code))))
         selected_country_codes = sorted(self.countries)
         all_country_names = sorted(
-            next(all_countries.translate_code(c)).name for c in COUNTRIES)
-        all_country_codes = sorted(COUNTRIES)
+            (next(all_countries.translate_code(c)).name for c in all_countries.countries),
+            key=locale.strxfrm)
+        # The `Countries.ioc_codes()` method performs the filtering automatically for us.
+        all_country_olympic_codes = sorted(all_countries.ioc_codes.values())
+        all_country_codes = sorted(all_countries.countries)
 
         for user_tag, user in self.users.items():
             match user_tag:
@@ -917,22 +955,31 @@ class UserSupervisorOfTagTests(TestCase):
                     # or codes, depending on the `show_as` tag parameter.
                     expected_name_result = all_country_names
                     expected_code_result = all_country_codes
+                    expected_olmc_result = all_country_olympic_codes
+                    expected_error_for_invalid_attribute = True
                 case supervisor_tag if 'supervisor' in supervisor_tag:
                     # The expected result for a supervisor is list of supervised by them
                     # country names or codes, depending on the `show_as` tag parameter.
                     expected_name_result = selected_country_names
                     expected_code_result = selected_country_codes
+                    expected_olmc_result = selected_country_olympic_codes
+                    expected_error_for_invalid_attribute = True
                 case _:
                     # The expected result for a non-authenticated user, a non-supervisor
                     # user, and a profile without account is empty list.
                     expected_name_result = []
                     expected_code_result = []
+                    expected_olmc_result = []
+                    expected_error_for_invalid_attribute = False
             with self.subTest(user=user_tag):
                 self.output_tests(user, None, expected_name_result)
                 self.output_tests(user, 'name', expected_name_result)
                 self.output_tests(user, 'code', expected_code_result)
                 self.output_tests(user, '', expected_name_result)
-                self.output_tests(user, 'bang', expected_name_result)
+                self.output_tests(
+                    user, 'bang',
+                    AttributeError if expected_error_for_invalid_attribute else [])
+                self.output_tests(user, 'ioc_code', expected_olmc_result)
 
     @override_settings(
         AUTHENTICATION_BACKENDS=['django.contrib.auth.backends.ModelBackend'])

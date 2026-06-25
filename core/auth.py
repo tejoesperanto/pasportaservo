@@ -128,7 +128,7 @@ class SupervisorAuthBackend(ModelBackend):
         """
         return True
 
-    def get_user_supervisor_of(self, user_obj: 'PasportaServoUser', obj=None, code=False):
+    def get_user_supervisor_of(self, user_obj: 'PasportaServoUser', obj=None):
         """
         Calculate responsibilities, globally or for an optional object.
         The given object may be an iterable of countries, a single country, or a profile.
@@ -166,7 +166,7 @@ class SupervisorAuthBackend(ModelBackend):
                     "\t\trequested: %s supervised: %s\n\t\tresult: %s",
                     set(countries), set(supervised), set(supervised) & set(countries))
             supervised = set(supervised) & set(countries)
-        return supervised if code else [cast(str, c.name) for c in supervised]
+        return supervised  # if code else [cast(str, c.name) for c in supervised]
 
     def is_user_supervisor_of(self, user_obj: 'PasportaServoUser', obj=None):
         """
@@ -174,7 +174,7 @@ class SupervisorAuthBackend(ModelBackend):
         The given object may be an iterable of countries, a single country, or a profile.
         """
         supervised = self.get_user_supervisor_of(
-            user_obj, obj if obj is not None else object(), code=True)
+            user_obj, obj if obj is not None else object())
         return any(supervised)
 
     def has_perm(self, user_obj: 'PasportaServoUser', perm: str, obj=None):
@@ -209,7 +209,7 @@ class SupervisorAuthBackend(ModelBackend):
         """
         perms = super().get_group_permissions(user_obj, obj)
         auth_log.debug("\tUser's built in perms:  %s", perms)
-        groups = set(self.get_user_supervisor_of(user_obj, code=True))
+        groups = set(self.get_user_supervisor_of(user_obj))
         if any(groups):
             auth_log.debug("\tUser's groups:  %s", groups)
             if obj is None:
@@ -225,7 +225,7 @@ class SupervisorAuthBackend(ModelBackend):
             if obj is None:
                 perms.update(getattr(user_obj, cache_name))
             else:
-                groups_for_obj = set(self.get_user_supervisor_of(user_obj, obj, code=True))
+                groups_for_obj = set(self.get_user_supervisor_of(user_obj, obj))
                 perms_for_obj = set("%s.%s" % (PERM_SUPERVISOR, g) for g in groups_for_obj)
                 auth_log.debug("\tUser's perms for object:  %s", perms_for_obj)
                 perms.update(getattr(user_obj, cache_name) & perms_for_obj)
