@@ -61,9 +61,12 @@
     {# PAGE-TOP INFORMATION ABOUT COUNTRIES SUPERVISED BY THIS USER #}
         <div class="row bg-warning top-notice">
             <p class="col-xs-12 text-center text-light">
-                {% blocktrans with countries=profile|supervisor_of|join:", " trimmed %}
-                    Supervisor of {{ countries }}
-                {% endblocktrans %}
+                {% with local_context=True %}
+                    {% user_supervisor_of profile as supervised_countries %}
+                    {% blocktrans with countries=supervised_countries|join:", " trimmed %}
+                        Supervisor of {{ countries }}
+                    {% endblocktrans %}
+                {% endwith %}
             </p>
         </div>
     {% endif %}

@@ -29,12 +29,13 @@ class CustomRequestPanel(RequestPanel):
             auth_stats['context_role'].update({'extra': view.get_debug_data()})
         if hasattr(request, 'user'):
             from core.auth import PERM_SUPERVISOR
-            from hosting.templatetags.profile import supervisor_of
+            from hosting.templatetags.profile import user_supervisor_of
             auth_stats['context_role'].update({
                 'is_supervisor': request.user.has_perm(PERM_SUPERVISOR),
                 'is_staff': request.user.is_staff,
                 'is_admin': request.user.is_superuser,
                 'perms':
-                    supervisor_of(request.user) if not request.user.is_superuser else ["-- ALL --"],
+                    user_supervisor_of(request.user) if not request.user.is_superuser
+                    else ["-- ALL --"],
             })
         self.record_stats(auth_stats)

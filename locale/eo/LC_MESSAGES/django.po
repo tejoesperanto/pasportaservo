@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Pasporta Servo pasportaservo\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-12-07 22:30+0000\n"
-"POT-Revision-Date: 2026-06-15 18:35+0000\n"
+"POT-Revision-Date: 2026-06-21 19:52+0000\n"
 "Last-Translator: Meir <interDist@users.noreply.github.com>\n"
 "Language-Team: EO <saluton@pasportaservo.org>\n"
 "Language: eo\n"
@@ -1008,6 +1008,21 @@ msgstr "Landaj organizantoj"
 #: core/templates/core/base.html
 msgid "World Esperanto Youth Organisation"
 msgstr "Tutmonda Esperantista Junulara Organizo"
+
+#: core/templates/core/base.html
+msgctxt "User raw role"
+msgid "ADMIN"
+msgstr "ADM"
+
+#: core/templates/core/base.html
+msgctxt "User raw role"
+msgid "GSV"
+msgstr "TO"
+
+#: core/templates/core/base.html
+msgctxt "User raw role"
+msgid "SV"
+msgstr "LO"
 
 #: core/templates/core/base.html
 msgid "Back to top of page"

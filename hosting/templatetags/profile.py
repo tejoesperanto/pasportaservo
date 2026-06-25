@@ -70,8 +70,8 @@ def is_supervisor_of(user_or_profile, profile_or_countries):
     return user.has_perm(PERM_SUPERVISOR, profile_or_countries)
 
 
-@register.filter
-def supervisor_of(user_or_profile):
+@register.simple_tag
+def user_supervisor_of(user_or_profile, show_as: str = 'name'):
     user = _convert_profile_to_user(user_or_profile)
     if auth_log.getEffectiveLevel() == logging.DEBUG:
         auth_log.debug(
@@ -79,7 +79,11 @@ def supervisor_of(user_or_profile):
             user, "<~ '%s' " % user_or_profile if user != user_or_profile else "")
     for backend in auth.get_backends():
         try:
-            return sorted(backend.get_user_supervisor_of(user))  # type: ignore[attr-defined]
+            return sorted(map(
+                lambda country: str(country),
+                backend.get_user_supervisor_of(  # type: ignore[attr-defined]
+                    user, code=show_as == 'code')
+            ))
         except Exception:
             pass
     return []

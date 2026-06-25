@@ -366,7 +366,7 @@ class ViewAsserts(with_type_hint(ViewTestingBase)):
             'privacy_policy': {'en': "Privacy", 'eo': "Privateco"},
             'faq': {'en': "FAQ", 'eo': "Oftaj demandoj"},
         }
-        test_users = []
+        test_users: list[PasportaServoUser | None] = []
         if not view_page.redirects_unauthenticated:
             test_users.append(None)
         if not view_page.redirects_logged_in:
@@ -378,16 +378,29 @@ class ViewAsserts(with_type_hint(ViewTestingBase)):
                     override_settings(LANGUAGE_CODE=lang),
                     self.subTest(user=user, lang=lang)
                 ):
+                    self.app.reset()
                     page = view_page.open(self, user=user, reuse_for_lang=lang)
                     for url in test_data:
                         with self.subTest(url=url):
                             general_link_element = page.get_footer_element(url)
                             self.assertLength(general_link_element, 1)
                             self.assertEqual(general_link_element.text(), test_data[url][lang])
-                    env_text = page.get_footer_element("env-info").text()
+                    env_text = cast(str, page.get_footer_element("env-info").text())
                     self.assertStartsWith(env_text, settings.ENVIRONMENT)
                     if user is not None:
-                        self.assertIn(user.username, env_text)
+                        username_index = env_text.find(user.username)
+                        self.assertGreater(username_index, 0,
+                                           msg="username not present in environment info")
+                        user_tag = ([
+                            key for key, defined_user in self.users.items()
+                            if defined_user is user
+                        ] or [None])[0]
+                        if user_tag and 'supervisor' in user_tag:
+                            self.assertGreater(
+                                env_text.find({'en': "SV", 'eo': "LO"}[lang], username_index),
+                                len(user.username),
+                                msg="supervisor status not present in environment info"
+                            )
                     else:
                         self.assertNotIn({'en': "user", 'eo': "uzanto"}[lang], env_text)
 
