@@ -3,9 +3,12 @@ from typing import cast
 
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.admin.views.main import ChangeList
 from django.db.models import Q, QuerySet
 from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
+
+from django_countries.fields import Country
 
 from core.utils import camel_case_split
 
@@ -16,7 +19,7 @@ class CountryMentionedOnlyFilter(admin.SimpleListFilter):
     title = _("country")
     parameter_name = 'country__in'
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request: HttpRequest, model_admin: admin.ModelAdmin):
         self.multicountry = hasattr(model_admin.model, 'countries')
         country_field = 'countries' if self.multicountry else 'country'
         qs = model_admin.get_queryset(request).only(country_field).select_related(None)
@@ -24,17 +27,18 @@ class CountryMentionedOnlyFilter(admin.SimpleListFilter):
         countries = [
             (country.code, country.name)
             for obj in qs
-            for country in (obj.countries if self.multicountry else [obj.country])
+            for country in
+            cast(list[Country], obj.countries if self.multicountry else [obj.country])
         ]
         return sorted(set(countries), key=lambda country: country[1])
 
     def values(self):
         values = []
-        if self.value():
-            values = self.value().split(",")
+        if single_value := self.value():
+            values = single_value.split(",")
         return values
 
-    def choices(self, changelist):
+    def choices(self, changelist: ChangeList):
         yield {
             'selected': not self.value(),
             'query_string': changelist.get_query_string({}, [self.parameter_name]),
@@ -94,7 +98,7 @@ class VisibilityTargetFilter(admin.SimpleListFilter):
         targets.sort(key=lambda target: target[1])
         return targets
 
-    def queryset(self, request, queryset):
+    def queryset(self, request: HttpRequest, queryset: QuerySet):
         return queryset.filter(model_type=self.value()) if self.value() else queryset
 
 
@@ -167,5 +171,5 @@ class ActiveStatusFilter(SimpleBooleanListFilter):
     title = _("active")
     parameter_name = 'is_active'
 
-    def perform_filter(self, queryset):
+    def perform_filter(self, queryset: QuerySet):
         return queryset.filter(is_active=not self.is_no())

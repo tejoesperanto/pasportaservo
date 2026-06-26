@@ -1,4 +1,4 @@
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from django.contrib import admin
 from django.contrib.auth.models import User
@@ -6,6 +6,8 @@ from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
 from django.core.cache import cache
 from django.db import models
+from django.forms.models import ModelForm
+from django.http import HttpRequest
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.text import format_lazy, get_text_list
@@ -48,7 +50,7 @@ class SiteSwitchAdmin(WaffleSwitchAdmin):
 
 
 @admin.register(Policy)
-class PolicyAdmin(admin.ModelAdmin):
+class PolicyAdmin(admin.ModelAdmin[Policy] if TYPE_CHECKING else admin.ModelAdmin):
     list_display = (
         'version', 'effective_date', 'requires_consent',
     )
@@ -60,7 +62,10 @@ class PolicyAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-    def save_model(self, request, obj, form, change):
+    def save_model(
+            self, request: HttpRequest, obj: Policy,
+            form: 'ModelForm[Policy]', change: bool,
+    ):
         super().save_model(request, obj, form, change)
         if 'version' in form.changed_data or 'effective_date' in form.changed_data:
             # Bust the cache of references to all policies;
@@ -69,7 +74,7 @@ class PolicyAdmin(admin.ModelAdmin):
 
 
 @admin.register(Agreement)
-class AgreementAdmin(admin.ModelAdmin):
+class AgreementAdmin(admin.ModelAdmin[Agreement] if TYPE_CHECKING else admin.ModelAdmin):
     list_display = (
         'id', 'policy_link', 'user_link', 'created', 'modified', 'withdrawn',
     )
@@ -142,7 +147,9 @@ class AgreementAdmin(admin.ModelAdmin):
 
 
 @admin.register(UserBrowser)
-class UserBrowserAdmin(admin.ModelAdmin):
+class UserBrowserAdmin(
+        admin.ModelAdmin[UserBrowser] if TYPE_CHECKING else admin.ModelAdmin
+):
     list_display = (
         'user',
         'os_name', 'os_version_display', 'browser_name', 'browser_version_display',
@@ -178,7 +185,9 @@ class UserBrowserAdmin(admin.ModelAdmin):
     )
     def user_link(self, obj: UserBrowser):
         try:
-            link = reverse('admin:auth_user_change', args=[obj.user.pk])
+            link = reverse(
+                'admin:auth_user_change',
+                args=[obj.user.pk])  # type: ignore[attr-defined]
             return format_html('<a href="{link}">{user}</a>', link=link, user=obj.user)
         except AttributeError:
             return format_html('&mdash; <sup>?</sup>')

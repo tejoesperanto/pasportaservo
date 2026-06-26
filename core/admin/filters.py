@@ -4,7 +4,7 @@ from typing import Any, Callable, Optional, TypedDict, cast
 from django.contrib import admin
 from django.db.models import F, Model, QuerySet
 from django.http import HttpRequest
-from django.utils.functional import lazy
+from django.utils.functional import Promise, lazy
 from django.utils.translation import gettext_lazy as _
 
 
@@ -38,20 +38,22 @@ class YearBracketFilter(admin.DateFieldListFilter):
             .only(field_path)
         )
         qs.query.annotations.clear()
-        all_years = list(dict.fromkeys(qs.values_list(field_path, flat=True)))
+        all_years: list[int | None] = list(
+            dict.fromkeys(qs.values_list(field_path, flat=True))
+        )
         if not hasattr(self, 'bracket'):
             self.bracket = self.Brackets.EXACT
-        self.links = (
+        self.links: tuple[tuple[str | Promise, dict[str, str]], ...] = (
             (_('Any year'), {}),
         )
-        lookup_kwarg = ''
+        lookup_kwarg: str = ''
         if self.bracket is self.Brackets.SINCE:
             label_string = _("from %(date)s")
-            self.lookup_kwarg_since = self.field_generic + 'gte'
+            self.lookup_kwarg_since: str = self.field_generic + 'gte'
             lookup_kwarg = self.lookup_kwarg_since
         if self.bracket is self.Brackets.UNTIL:
             label_string = _("until %(date)s")
-            self.lookup_kwarg_until = self.field_generic + 'lte'
+            self.lookup_kwarg_until: str = self.field_generic + 'lte'
             lookup_kwarg = self.lookup_kwarg_until
         if self.bracket is self.Brackets.EXACT:
             self.links += tuple(
@@ -62,10 +64,11 @@ class YearBracketFilter(admin.DateFieldListFilter):
                 for year in all_years if year is not None
             )
         else:
-            def label(year):
-                return lazy(
+            def label(year: int) -> Promise:
+                return cast(Promise, lazy(
                     lambda date=year: (str(label_string) % {'date': date}).capitalize(),
                     str)
+                )
             self.links += tuple(
                 (label(year), {lookup_kwarg: str(year)})
                 for year in all_years if year is not None
