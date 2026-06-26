@@ -288,7 +288,7 @@ class VisibilitySettings(models.Model):
         return self
 
     @classmethod
-    def specific_models(cls):
+    def specific_models(cls) -> dict[str, type['VisibilitySettings']]:
         """
         Returns a dictionary {name:class} of the available proxy models.
         """
@@ -1576,6 +1576,7 @@ class TravelAdvice(TimeStampedModel):
     active_until = models.DateField(
         _("advice valid until date"),
         null=True, blank=True)
+    is_active: bool
 
     objects: ClassVar[ActiveStatusManager[Self]] = ActiveStatusManager()
 

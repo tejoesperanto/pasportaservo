@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from django.contrib import admin
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
@@ -135,7 +135,9 @@ class CustomUserAdmin(UserAdmin):
     )
     def profile_link(self, obj: PasportaServoUser):
         try:
-            fullname = obj.profile if (obj.profile.first_name or obj.profile.last_name) else "--."
+            fullname = (
+                obj.profile if (obj.profile.first_name or obj.profile.last_name) else "--."
+            )
             return format_html(
                 '<a href="{url}">{name}</a>',
                 url=obj.profile.get_admin_url(), name=fullname)
@@ -206,18 +208,22 @@ class CustomGroupAdmin(GroupAdmin):
         def __str__(self):
             if len(self.name) != 2:
                 return self.name
-            return format_html('{country_code}&emsp;&ndash;&ensp;{country_name}',
-                               country_code=self.name, country_name=Country(self.name).name)
+            return format_html(
+                '{country_code}&emsp;&ndash;&ensp;{country_name}',
+                country_code=self.name, country_name=Country(self.name).name,
+            )
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('user_set__profile')
 
 
-class TrackingModelAdmin(ShowConfirmedMixin):
-    fields = (
+class TrackingModelAdmin(
+        ShowConfirmedMixin, admin.ModelAdmin if TYPE_CHECKING else object
+):
+    fields: ClassVar[tuple[str | tuple[str, ...], ...]] = (
         ('checked_on', 'checked_by'), 'display_confirmed', 'created', 'deleted_on',
     )
-    readonly_fields = ('display_confirmed', 'created')
+    readonly_fields: ClassVar[tuple[str, ...]] = ('display_confirmed', 'created')
 
     class InstanceApprover(PasportaServoUser):
         class Meta:
@@ -232,11 +238,13 @@ class TrackingModelAdmin(ShowConfirmedMixin):
 
     def get_field_queryset(self, db, db_field, request):
         if db_field.name == 'checked_by':
-            return (self.InstanceApprover.objects
-                    .filter(Q(is_superuser=True) | Q(groups__name__regex=r'[A-Z]{2}'))
-                    .distinct()
-                    .select_related('profile').defer('profile__description')
-                    .order_by('username'))
+            return (
+                self.InstanceApprover.objects
+                .filter(Q(is_superuser=True) | Q(groups__name__regex=r'[A-Z]{2}'))
+                .distinct()
+                .select_related('profile').defer('profile__description')
+                .order_by('username')
+            )
         return super().get_field_queryset(db, db_field, request)
 
 
@@ -268,13 +276,15 @@ class VisibilityAdmin(
     )
     def content_object_link(self, obj: VisibilitySettings):
         try:
-            link = reverse('admin:{content.app_label}_{content.model}_change'
-                           .format(content=obj.content_type),
-                           args=[obj.model_id])
+            link = reverse(
+                'admin:{content.app_label}_{content.model}_change'.format(
+                    content=obj.content_type),
+                args=[obj.model_id])
             return format_html(
                 '{pk}: <a href="{url}">{content}</a>',
                 url=link,
-                pk=obj.content_object.pk, content=obj.content_object,
+                pk=obj.content_object.pk,  # type: ignore[attr-defined]
+                content=obj.content_object,
             )
         except AttributeError:
             return '-'
@@ -293,8 +303,10 @@ class VisibilityAdmin(
 
 
 @admin.register(Profile)
-class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin,
-                   admin.ModelAdmin[Profile] if TYPE_CHECKING else admin.ModelAdmin):
+class ProfileAdmin(
+        TrackingModelAdmin, ShowDeletedMixin,
+        admin.ModelAdmin[Profile] if TYPE_CHECKING else admin.ModelAdmin
+):
     list_display = (
         'id', '__str__', 'title', 'first_name', 'last_name',
         'birth_date',
@@ -322,7 +334,7 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin,
         (_('Supervisors'), {'fields': ('supervisor',)}),
         (_('Important dates'), {'fields': TrackingModelAdmin.fields}),
     )
-    fields = None
+    fields: ClassVar[None] = None
     raw_id_fields = ('user',)
     radio_fields = {'title': admin.HORIZONTAL}
     readonly_fields = ('supervisor',) + TrackingModelAdmin.readonly_fields
@@ -348,7 +360,8 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin,
     )
     def user_link(self, obj: Profile):
         try:
-            link = reverse('admin:auth_user_change', args=[obj.user.pk])  # type: ignore[attr-defined]
+            link = reverse(
+                'admin:auth_user_change', args=[obj.user.pk])  # type: ignore[attr-defined]
             return format_html('<a href="{url}">{username}</a>', url=link, username=obj.user)
         except AttributeError:
             return '-'
@@ -376,17 +389,18 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin,
             return self.get_empty_value_display()
 
     def get_list_display(self, request):
-        death_date_filter = lambda param: (
-            param == 'death_date'
-            or (param.startswith('death_date')
-                and not (param == 'death_date__isnull' and request.GET[param] == 'True'))
-        )
+        def death_date_filter(param: str):
+            return (
+                param == 'death_date'
+                or (param.startswith('death_date')
+                    and not (param == 'death_date__isnull' and request.GET[param] == 'True'))
+            )
         if any(filter(death_date_filter, request.GET.keys())):
             birth_date_field_index = self.list_display.index('birth_date')
             return (
-                self.list_display[:birth_date_field_index + 1]
+                tuple(self.list_display[:birth_date_field_index + 1])
                 + ('death_date',)
-                + self.list_display[birth_date_field_index + 1:]
+                + tuple(self.list_display[birth_date_field_index + 1:])
             )
         return self.list_display
 
@@ -400,8 +414,10 @@ class ProfileAdmin(TrackingModelAdmin, ShowDeletedMixin,
 
 
 @admin.register(Place)
-class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin,
-                 admin.ModelAdmin[Place] if TYPE_CHECKING else admin.ModelAdmin):
+class PlaceAdmin(
+        TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin,
+        admin.ModelAdmin[Place] if TYPE_CHECKING else admin.ModelAdmin
+):
     list_display = (
         'id', 'city', 'postcode', 'state_province', 'display_country',
         'display_location',
@@ -418,8 +434,8 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin,
         'owner__first_name', 'owner__last_name', 'owner__user__email',
     )
     list_filter = (
-        'confirmed_on', 'checked_on', 'in_book', 'available', PlaceHasLocationFilter, 'deleted_on',
-        CountryMentionedOnlyFilter,
+        'confirmed_on', 'checked_on', 'in_book', 'available',
+        PlaceHasLocationFilter, 'deleted_on', CountryMentionedOnlyFilter,
     )
 
     fieldsets = (
@@ -437,7 +453,7 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin,
         (_('Permissions'), {'fields': ('authorized_users',)}),
         (_('Important dates'), {'fields': TrackingModelAdmin.fields}),
     )
-    fields = None
+    fields: ClassVar[None] = None
     formfield_overrides = {
         PointField: {'widget': AdminMapboxGlWidget},
     }
@@ -529,8 +545,10 @@ class PlaceAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin,
 
 
 @admin.register(Phone)
-class PhoneAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin,
-                 admin.ModelAdmin[Phone] if TYPE_CHECKING else admin.ModelAdmin):
+class PhoneAdmin(
+        TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin,
+        admin.ModelAdmin[Phone] if TYPE_CHECKING else admin.ModelAdmin
+):
     list_display = (
         'number_intl', 'profile_link', 'country_code', 'display_country', 'type',
         'is_deleted',
@@ -543,7 +561,7 @@ class PhoneAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin,
         (None, {'fields': ('profile', 'number', 'country', 'type', 'comments',)}),
         (_('Important dates'), {'fields': TrackingModelAdmin.fields}),
     )
-    fields = None
+    fields: ClassVar[None] = None
     raw_id_fields = ('profile',)
     radio_fields = {'type': admin.VERTICAL}
     inlines = [VisibilityInLine, ]
@@ -558,7 +576,8 @@ class PhoneAdmin(TrackingModelAdmin, ShowCountryMixin, ShowDeletedMixin,
     @admin.display(
         description=Phone._meta.get_field('profile').verbose_name,
         ordering=dbf.Concat(
-            'profile__first_name', V(","), 'profile__last_name', V(","), 'profile__user__username',
+            'profile__first_name', V(","), 'profile__last_name',
+            V(","), 'profile__user__username',
         )
     )
     def profile_link(self, obj: Phone):
@@ -623,7 +642,8 @@ class WebsiteAdmin(TrackingModelAdmin, admin.ModelAdmin):
     list_display = ('url', 'profile')
     search_fields = (
         'url',
-        'profile__first_name', 'profile__last_name', 'profile__user__email', 'profile__user__username',
+        'profile__first_name', 'profile__last_name',
+        'profile__user__email', 'profile__user__username',
     )
     fields = ('profile', 'url') + TrackingModelAdmin.fields
     raw_id_fields = ('profile',)
@@ -636,7 +656,9 @@ class ContactPreferenceAdmin(admin.ModelAdmin):
 
 @admin.register(TravelAdvice)
 class TravelAdviceAdmin(admin.ModelAdmin):
-    list_display = ('advice', 'countries_list', 'active_status', 'active_from', 'active_until')
+    list_display = (
+        'advice', 'countries_list', 'active_status', 'active_from', 'active_until'
+    )
     list_filter = (
         ActiveStatusFilter,
         CountryMentionedOnlyFilter,
