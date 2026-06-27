@@ -27,13 +27,17 @@ def escape_latex(value: str):
 
 @register.filter
 def cmd(value: Any, command: str):
-    r"""Latex command: \command{value}"""
+    r"""
+    Latex command: `\command{value}`
+    """
     return rf'\{command}{{{value}}}'
 
 
 @register.filter
 def ctx(value: Any, arg: str):
-    r"""Latex context: {\context value}"""
+    r"""
+    Latex context: `{\context value}`
+    """
     contexts = ''.join(rf'\{context}' for context in arg.split(','))
     return f'{{{contexts} {value}}}'
 
@@ -50,7 +54,9 @@ def color(value: Any, arg: str = 'gray'):
 
 @register.filter
 def full_name(profile: Profile):
-    r"""Returns \name{first}{last} or \eastname{first}{last}"""
+    r"""
+    Returns `\name{first}{last}` or `\eastname{first}{last}`
+    """
     cmd = 'eastname' if profile.names_inversed else 'name'
     return r'\{0}{{{1}}}{{{2}}}'.format(
         cmd,
@@ -61,15 +67,6 @@ def full_name(profile: Profile):
 
 @register.filter
 def supervisors(country: str):
-    group = Group.objects.get(name=country)
-    return sorted(
-        cast(PasportaServoUser, user).profile
-        for user in group.user_set.all()
-    )
-
-
-@register.filter
-def map_for(country: str):
     group = Group.objects.get(name=country)
     return sorted(
         cast(PasportaServoUser, user).profile

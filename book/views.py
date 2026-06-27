@@ -1,9 +1,10 @@
 import csv
 import tempfile
 from os.path import join
+from typing import Any
 
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Model, Q
 from django.http.response import HttpResponse
 from django.template.defaultfilters import yesno
 from django.utils.translation import gettext_lazy as _
@@ -49,18 +50,20 @@ class ContactExportView(AuthMixin, generic.ListView):
         response.write(csv_file)
         return response
 
-    def generate_csv(self, context):
+    def generate_csv(self, context: dict[str, Any]) -> str:
         with tempfile.TemporaryDirectory() as tempdir:
             with open(join(tempdir, 'contacts.csv'), 'w+') as f:
                 writer = csv.writer(f)
-                writer.writerow(self.user_fields + self.owner_fields + self.place_fields + self.other_fields)
+                writer.writerow(
+                    self.user_fields + self.owner_fields
+                    + self.place_fields + self.other_fields)
                 for place in context['place_list']:
                     row = self.get_row(place)
                     writer.writerow(row)
                 f.seek(0)
                 return f.read()
 
-    def get_row(self, place):
+    def get_row(self, place: Place) -> list[str]:
         from_user, from_owner, from_place = [], [], []
         from_user = self.build_row(place.owner.user, self.user_fields)
         from_owner = self.build_row(place.owner, self.owner_fields)
@@ -74,7 +77,7 @@ class ContactExportView(AuthMixin, generic.ListView):
         ]
         return from_user + from_owner + from_place + others
 
-    def build_row(self, obj, fields):
+    def build_row(self, obj: Model, fields: list[str]) -> list[str]:
         row = []
         for f in fields:
             value = getattr(obj, f)
@@ -84,15 +87,15 @@ class ContactExportView(AuthMixin, generic.ListView):
                 if isinstance(value, bool):
                     value = yesno(value, _("yes,no"))
                 if f == 'title':
-                    value = _(obj.title)
+                    value = _(obj.title)  # type: ignore[attr-defined]
                 if f == 'postcode':
-                    value = obj.get_postcode_display()
+                    value = obj.get_postcode_display()  # type: ignore[attr-defined]
                 if f == 'state_province':
-                    value = obj.subregion.latin_code
+                    value = obj.subregion.latin_code  # type: ignore[attr-defined]
                 if f == 'confirmed_on':
                     value = "01/01/1970"
                 row.append(value.strip() if isinstance(value, str) else value)
         return row
 
-    def get_url(self, place, action):
+    def get_url(self, place: Place, action: str) -> str:
         return create_unique_url({'place': place.pk, 'action': action})[0]
