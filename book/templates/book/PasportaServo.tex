@@ -9,7 +9,9 @@
 \usepackage{xcolor}
 \usepackage{polyglossia}
 \usepackage{needspace} % For avoiding orphan titles (country names)
+{% comment %}
 \usepackage{xunicode}  % For \textcolor{}
+{% endcomment %}
 \usepackage{xparse}    % For \NewDocumentCommand
 \usepackage{hyperref}  % For \url{} and \href{}
 \usepackage{titlesec}  % For \titleformat{}
@@ -34,7 +36,7 @@
 \newfontfamily\semibold{Fira Sans Medium}
 \newfontfamily\light{Fira Sans Light}
 \newfontfamily\lightitalic{Fira Sans Light Italic}
-\newfontfamily\Geotica[Scale=3]{Geotica Three}
+\newfontfamily\Geotica[Scale=3]{Geotica_Three.otf}
 \setlength\parindent{0pt}  % No paragraph indentation
 \definecolor{light-gray}{gray}{0.8}
 \hypersetup{colorlinks=true, citecolor=black, filecolor=black, linkcolor=black, urlcolor=black}
