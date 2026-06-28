@@ -4,7 +4,7 @@ from copy import copy
 from datetime import datetime, timedelta
 from itertools import batched
 from traceback import format_exception
-from typing import TYPE_CHECKING, Any, Collection, cast
+from typing import TYPE_CHECKING, Any, Collection, NamedTuple, cast
 
 from django.conf import settings
 from django.contrib import messages
@@ -32,7 +32,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.utils.functional import SimpleLazyObject, cached_property
+from django.utils.functional import Promise, SimpleLazyObject, cached_property
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.timezone import make_aware
@@ -55,7 +55,6 @@ from gql.transport.requests import RequestsHTTPTransport as GQLHttpTransport
 from graphql import GraphQLError
 
 from blog.models import Post
-from core.templatetags.utils import split as text_split
 from hosting.forms import SubregionForm
 from hosting.models import (
     PasportaServoUser, Phone, Place, Profile, ViewableTrackingModel,
@@ -935,7 +934,10 @@ class MassMailView(AuthMixin, generic.FormView):
         heading: str = form.cleaned_data['heading']
         category: str = form.cleaned_data['categories']
         default_from = f'Pasporta Servo <{self.mailing_address}>'
-        template = get_template('email/mass_email.html')
+        template = {
+            'text': get_template('email/mass_email.txt'),
+            'html': get_template('email/mass_email.html'),
+        }
 
         opening = make_aware(datetime(2014, 11, 24))
         profiles = Profile.objects_raw.none()
@@ -995,21 +997,25 @@ class MassMailView(AuthMixin, generic.FormView):
             self.nb_sent = 1 if category == 'test' else len(profiles)
             return super().form_valid(form)
 
-        message = (
+        message = NamedTuple('MassMessage', [
+            ('subject', str), ('content_text', str), ('content_html', str), ('sender', str),
+            ('customized_recipients', dict[str, dict[str, str | Promise]])
+        ])(
             subject,
-            "\n".join(text_split(body, 'NEWLINE~75')),
-            template.render({
+            template['text'].render({
+                'heading': heading, 'body': body,
+            }).strip(),
+            template['html'].render({
                 'preheader': preheader, 'heading': heading, 'body': mark_safe(md_body),
                 'body_alignment': form.cleaned_data.get('alignment'),
             }),
             default_from,
-            cast(dict[str, dict[str, str]], {}),
+            {},
         )
-        RECIPIENTS = -1
 
         if category == 'test':
             test_email: str = form.cleaned_data['test_email']
-            message[RECIPIENTS][test_email] = {
+            message.customized_recipients[test_email] = {
                 'nomo': test_email.partition('@')[0].capitalize(),
             }
         else:
@@ -1018,7 +1024,7 @@ class MassMailView(AuthMixin, generic.FormView):
                 user_clean_email = (
                     value_without_invalid_marker(cast('FullProfile', profile).user.email)
                 )
-                message[RECIPIENTS][user_clean_email] = {
+                message.customized_recipients[user_clean_email] = {
                     'nomo': profile.name or name_placeholder,
                 }
 
@@ -1032,10 +1038,10 @@ class MassMailView(AuthMixin, generic.FormView):
             # process will have its own local memory region - separate from the one of
             # the WSGI process...
             async_iter.sync = True
-        for recipient_batch in batched(message[RECIPIENTS].items(), 500):
+        for recipient_batch in batched(message.customized_recipients.items(), 500):
             async_iter.append(*message[:-1], dict(recipient_batch))
         self.async_task_id = async_iter.run()
-        self.nb_sent = len(message[RECIPIENTS])
+        self.nb_sent = len(message.customized_recipients)
         return super().form_valid(form)
 
 
@@ -1052,7 +1058,7 @@ class MassMailSentView(AuthMixin, generic.TemplateView):
         context = super().get_context_data(**kwargs)
         context['simulation'] = self.request.GET.get('sim')
         context['nb'] = (
-            int(self.request.GET['nb'])
+            int(self.request.GET['nb'])  # type: ignore[arg-type]
             if self.request.GET.get('nb', '').isdigit()
             else None
         )
