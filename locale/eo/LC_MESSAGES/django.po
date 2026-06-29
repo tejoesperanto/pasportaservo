@@ -339,7 +339,7 @@ msgstr ""
 
 #: core/forms.py
 msgid "Excluded users"
-msgstr "Eksterlasitaj uzantoj"
+msgstr "Eksterlasotaj uzantoj"
 
 #: core/forms.py
 msgid ""
@@ -1198,9 +1198,15 @@ msgstr "Bonege!"
 msgid ""
 "The identifier of the queue does not match any result (yet). If you just "
 "dispatched the emails, please wait a minute and refresh the page."
-msgstr ""
+msgid_plural ""
+"The identifier of the queue does not match any result (yet). If you just "
+"dispatched the emails, please wait a few minutes and refresh the page."
+msgstr[0] ""
 "La identigilo de la vico ne (jam) konformas al rezulto. Se vi ĵus transdonis "
 "la mesaĝojn, bonvole atendu minuton kaj tiam reŝargu la paĝon."
+msgstr[1] ""
+"La identigilo de la vico ne (jam) konformas al rezulto. Se vi ĵus transdonis "
+"la mesaĝojn, bonvole atendu kelkajn minutojn kaj tiam reŝargu la paĝon."
 
 #: core/templates/core/mass_mail_sent.html
 msgid "Result:"
