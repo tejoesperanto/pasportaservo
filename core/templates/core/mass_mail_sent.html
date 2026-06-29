@@ -41,9 +41,13 @@
         <hr>
         {% if not async_result.exists %}
             <p>
-                {% blocktrans trimmed %}
+                {% blocktrans count interval=num_batches trimmed %}
                     The identifier of the queue does not match any result (yet).
                     If you just dispatched the emails, please wait a minute
+                    and refresh the page.
+                {% plural %}
+                    The identifier of the queue does not match any result (yet).
+                    If you just dispatched the emails, please wait a few minutes
                     and refresh the page.
                 {% endblocktrans %}
             </p>

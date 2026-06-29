@@ -882,6 +882,7 @@ class MassMailView(AuthMixin, generic.FormView):
     form_class = MassMailForm
     display_permission_denied = False
     exact_role = AuthRole.ADMIN
+    batch_size = 500
     simulation = False
     # Keep the email address separate from the one used for transactional
     # emails, for better email sender reputation.
@@ -1038,7 +1039,7 @@ class MassMailView(AuthMixin, generic.FormView):
             # process will have its own local memory region - separate from the one of
             # the WSGI process...
             async_iter.sync = True
-        for recipient_batch in batched(message.customized_recipients.items(), 500):
+        for recipient_batch in batched(message.customized_recipients.items(), self.batch_size):
             async_iter.append(*message[:-1], dict(recipient_batch))
         self.async_task_id = async_iter.run()
         self.nb_sent = len(message.customized_recipients)
@@ -1057,11 +1058,13 @@ class MassMailSentView(AuthMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['simulation'] = self.request.GET.get('sim')
-        context['nb'] = (
-            int(self.request.GET['nb'])  # type: ignore[arg-type]
-            if self.request.GET.get('nb', '').isdigit()
-            else None
-        )
+        if self.request.GET.get('nb', '').isdigit():
+            from math import ceil
+            context['nb'] = int(self.request.GET['nb'])   # type: ignore[arg-type]
+            context['num_batches'] = ceil(context['nb'] / MassMailView.batch_size)
+        else:
+            context['nb'] = None
+            context['num_batches'] = 1
         if task_id := self.kwargs.get('task_id'):
             task = QueuedTask.get_task(task_id)
             context['async_result'] = cast(dict[str, bool | int | str | None], {
