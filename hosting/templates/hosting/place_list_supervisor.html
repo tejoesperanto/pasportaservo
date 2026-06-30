@@ -304,7 +304,7 @@
                                 {% endif %}
                                 {% spaceless %}
                                 <a href="{% url 'place_location_update' place.pk %}?{% next current_page_position %}"
-                                   class="action-edit-inline text-label-success"
+                                   class="action-inline action-edit text-label-success"
                                    title="{% trans "Edit location" %}" data-toggle="tooltip">
                                     <span class="fa fa-edit" aria-hidden="true"></span>
                                     <span class="sr-only">{% trans "Edit location" %}</span>
@@ -397,7 +397,7 @@
                                         </i>
                                         {% spaceless %}
                                         <a href="{% url 'phone_update' place.profile.pk phone.pk %}?{% next current_page_position %}"
-                                           class="action-edit-inline text-label-success"
+                                           class="action-inline action-edit text-label-success"
                                            title="{% trans "Update a phone number" %}" data-toggle="tooltip">
                                             <span class="fa fa-edit" aria-hidden="true"></span>
                                             <span class="sr-only">{% trans "Update a phone number" %}</span>

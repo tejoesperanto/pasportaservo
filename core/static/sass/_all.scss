@@ -65,15 +65,25 @@ body, .same-as-body {
     display: block;
 }
 
-.action-edit-inline {
+.action-inline {
     font-size: 0.9em;
     margin-left: 0.3ex;
     padding-left: 1px;
+    padding-right: 1px;
     position: relative;
-    bottom: 0.15ex;
     &:focus {
         outline-offset: 1px;
     }
+
+    &.action-edit {
+        bottom: 0.15ex;
+    }
+    &.action-remove {
+        bottom: 0.15ex;
+    }
+}
+.action-inline + .action-inline {
+    margin-left: -0.3ex;
 }
 
 html:not(.js-enabled) {
