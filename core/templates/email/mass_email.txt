@@ -1,0 +1,16 @@
+{% load utils %}
+
+{% for sentence in heading|split:'~75' %}
+{{ sentence.strip|safe }}{% endfor %}
+{% filter compact %}
+    {% with truncated_heading_length=heading|slice:':75'|length %}
+        {% if truncated_heading_length < 6 %}
+            {{ "~"|mult:6 }}
+        {% else %}
+            {{ "~"|mult:truncated_heading_length }}
+        {% endif %}
+    {% endwith %}
+{% endfilter %}
+
+{% for sentence in body|split:'NEWLINE~75' %}
+{{ sentence.strip|safe }}{% endfor %}

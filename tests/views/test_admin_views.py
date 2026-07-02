@@ -540,7 +540,13 @@ class MassMailViewTests(AdministratorUserSetupMixin, FormViewTestsMixin, BasicVi
             ]
             self.assertLength(recipient, 1)
             recipient_name = recipient[0].profile.first_name
-            self.assertEqual(mailitem.body, form_data['body'].format(nomo=recipient_name))
+            self.assertStartsWith(mailitem.body, form_data['heading'])
+            separator_index = mailitem.body.find("~~~~~")
+            self.assertGreater(separator_index, len(form_data['heading']))
+            content = form_data['body'].format(nomo=recipient_name)
+            content_index = mailitem.body.find(content)
+            self.assertEndsWith(mailitem.body, content)
+            self.assertGreater(content_index, separator_index + 5)
             self.assertLength(getattr(mailitem, 'alternatives', []), 1)
             mailitem_htmlbody = mailitem.alternatives[0][0]
             self.assertIn(f"<em>{form_data['heading']}</em>", mailitem_htmlbody)

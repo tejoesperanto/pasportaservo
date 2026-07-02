@@ -136,6 +136,7 @@ class SupervisorsView(generic.TemplateView):
         #  {'id': 10, 'user__groups__name': 'NZ'}]
         all_supervisors = Profile.objects_raw.filter(
             user__is_active=True,
+            death_date__isnull=True,
             user__groups__name__in=(
                 Place.objects_raw.filter(available=True).values_list('country', flat=True).distinct()
             )

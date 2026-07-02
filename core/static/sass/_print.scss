@@ -22,7 +22,7 @@ header #title .also-visible-print {
     display: inline !important;
 }
 
-section.messages, .control-buttons, .action-edit-inline, .place-settings-preview {
+section.messages, .control-buttons, .action-inline, .place-settings-preview {
     display: none;
 }
 a[href]:after {
