@@ -3,7 +3,7 @@ import re
 from datetime import datetime, timedelta
 from hashlib import md5
 from random import choice, randint, random, uniform as uniform_random
-from typing import TYPE_CHECKING, Callable, ClassVar, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Generic, TypeVar
 
 from django.conf import settings
 from django.contrib.gis.geos import LineString, Point
@@ -22,7 +22,7 @@ from core.models import Agreement, Policy, UserBrowser
 from hosting.countries import COUNTRIES_DATA, countries_with_mandatory_region
 from hosting.models import (
     Condition, CountryRegion, Gender, LocationType, PasportaServoUser,
-    Phone, Place, Profile, TravelAdvice, Whereabouts,
+    Phone, Place, Profile, TravelAdvice, VisibilitySettings, Whereabouts,
 )
 from maps import SRID
 from maps.data import COUNTRIES_GEO
@@ -169,6 +169,39 @@ if TYPE_CHECKING:
         _clean_email: str
 
 
+class VisibilityParamMixin(factory.Factory):
+    class Meta:
+        abstract = True
+
+    @staticmethod
+    def _update_visibility_values(instance, values_dict, **values_kwargs):
+        params: dict[str, Any] = {}
+        if isinstance(values_dict, dict):
+            params = params | values_dict
+        params = params | values_kwargs
+        field_name: str = params.pop('field_name', '')
+        visibility: VisibilitySettings = getattr(
+            instance,
+            (f'{field_name}_' if field_name and field_name != 'self' else '') + 'visibility')
+        visibility.refresh_from_db()
+        for venue, value in params.items():
+            visibility[venue] = value
+        visibility.save()
+
+    @factory.post_generation
+    def self_visibility(instance, create: bool, value, **kwargs):
+        if not create or not value and not kwargs:
+            return
+        kwargs['field_name'] = 'self'
+        VisibilityParamMixin._update_visibility_values(instance, value, **kwargs)
+
+    @factory.post_generation
+    def visibility_value(instance, create: bool, value, **kwargs):
+        if not create or not value and not kwargs:
+            return
+        VisibilityParamMixin._update_visibility_values(instance, value, **kwargs)
+
+
 class UserFactory(TypedDjangoModelFactory['PasportaServoFactoryUser']):
     class Meta:
         model = 'auth.User'
@@ -271,7 +304,7 @@ class UserBrowserFactory(TypedDjangoModelFactory[UserBrowser]):
         )
 
 
-class ProfileFactory(TypedDjangoModelFactory[Profile]):
+class ProfileFactory(VisibilityParamMixin, TypedDjangoModelFactory[Profile]):
     class Meta:
         model = 'hosting.Profile'
         django_get_or_create = ('user',)
@@ -345,7 +378,7 @@ class ProfileSansAccountFactory(ProfileFactory):
     user = None
 
 
-class PlaceFactory(TypedDjangoModelFactory[Place]):
+class PlaceFactory(VisibilityParamMixin, TypedDjangoModelFactory[Place]):
     class Meta:
         model = 'hosting.Place'
 
@@ -408,7 +441,7 @@ class PlaceFactory(TypedDjangoModelFactory[Place]):
             instance.postcode = value
 
 
-class PhoneFactory(TypedDjangoModelFactory[Phone]):
+class PhoneFactory(VisibilityParamMixin, TypedDjangoModelFactory[Phone]):
     class Meta:
         model = 'hosting.Phone'
 

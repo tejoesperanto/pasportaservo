@@ -1,4 +1,4 @@
-{% load latex %}{% autoescape off %}
+{% load book profile latex utils %}{% autoescape off %}
 {
   \titleformat{\section}[block]{}{}{0pt}{\centering\huge\textbf}
   \titlespacing{\section}{0pt}{4em}{1em}
@@ -20,16 +20,34 @@
       \vspace{.6em}\nopagebreak
       {% with country.grouper.code|supervisors as supervisors %}
         {% if supervisors %}
-            {\small
+          {\small
             {\semibold
-                {% if supervisors.length == 1 %}Landa Organizanto{% else %}Landaj Organizantoj{% endif %}
+              {% if supervisors|length == 1 %}Landa Organizanto{% else %}Landaj Organizantoj{% endif %}
             }\nopagebreak
-            {% for profile in supervisors %}
-                {{ profile|full_name }}
-                {{ profile.email|escape_latex|cmd:"texttt"|ctx:"footnotesize" }}
-            {% endfor %}
+            \begin{list}{}{
+              \leftmargin=0.75em
+              \rightmargin=0em
+              \topsep=.25em
+              \partopsep=0em
+              \itemsep=0em
             }
-        \vspace{.7em}
+            {% for supervisor_profile in supervisors %}
+              \item \raggedright {{ supervisor_profile|full_name }}
+              {% filter compact %}
+                {% if not supervisor_profile.email|is_invalid %}
+                  {{ supervisor_profile.email|escape_latex|cmd:"texttt"|ctx:"footnotesize" }}
+                {% endif %}
+                {% get_public_phone_numbers supervisor_profile as supervisor_public_phones %}
+                \mbox{\thinspace
+                  {{ supervisor_public_phones.0|latex_icon }}
+                  {{ supervisor_public_phones.0.number.as_international }}\relax
+                }
+                {{ supervisor_public_phones.0.comments|escape_latex|ctx:"lightitalic,footnotesize" }}
+              {% endfilter %}
+            {% endfor %}
+            \end{list}
+          }
+          \vspace{.5em}
         {% endif %}
       {% endwith %}
 

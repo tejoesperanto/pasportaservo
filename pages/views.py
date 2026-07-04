@@ -1,4 +1,5 @@
 import re
+from typing import Iterable
 
 from django.contrib.flatpages.models import FlatPage
 from django.core.cache import cache
@@ -145,7 +146,7 @@ class SupervisorsView(generic.TemplateView):
 
         # Convert the list into a dictionary with keys = country codes, and values = sets of
         # supervisor profile IDs:  {'CA': {10}, 'NZ: {38, 10}}
-        supervisors_per_country = {
+        supervisors_per_country: dict[str, Iterable[int | Profile]] = {
             country_code: set(
                 sv['id'] for sv in per_country if sv['user__groups__name'] == country_code
             )
