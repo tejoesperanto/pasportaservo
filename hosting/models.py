@@ -726,9 +726,9 @@ class Profile(ViewableModel, TrackingModel, TimeStampedModel):
             return '{} ({})'.format(str(self.INCOGNITO), self.user.username)
         return '--'
 
-    def __lt__(self, other):
+    def __lt__(self, other: 'Profile'):
         return (
-            (self.last_name < other.last_name)
+            (self.last_name < other.last_name)  # TODO: locale-aware comparison
             or (self.last_name == other.last_name and self.first_name < other.first_name)
         )
 

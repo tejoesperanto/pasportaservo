@@ -1,9 +1,6 @@
-from typing import Any, cast
+from typing import Any
 
 from django import template
-from django.contrib.auth.models import Group
-
-from hosting.models import PasportaServoUser, Profile
 
 register = template.Library()
 
@@ -50,25 +47,3 @@ def bracket(value: Any):
 @register.filter
 def color(value: Any, arg: str = 'gray'):
     return rf'\textcolor{{{arg}}}{{{value}}}'
-
-
-@register.filter
-def full_name(profile: Profile):
-    r"""
-    Returns `\name{first}{last}` or `\eastname{first}{last}`
-    """
-    cmd = 'eastname' if profile.names_inversed else 'name'
-    return r'\{0}{{{1}}}{{{2}}}'.format(
-        cmd,
-        escape_latex(profile.first_name),
-        escape_latex(profile.last_name)
-    )
-
-
-@register.filter
-def supervisors(country: str):
-    group = Group.objects.get(name=country)
-    return sorted(
-        cast(PasportaServoUser, user).profile
-        for user in group.user_set.all()
-    )
