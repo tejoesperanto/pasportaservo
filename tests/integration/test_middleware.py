@@ -1,4 +1,5 @@
 import time
+from typing import NotRequired as NotRequiredDictItem, TypedDict
 from unittest.mock import patch
 
 from django.conf import settings
@@ -8,9 +9,13 @@ from django.urls import reverse
 from django.utils import timezone
 
 from django_webtest import WebTest
+from faker import Faker
+from postman.api import pm_write
 
 from core.models import Policy, UserBrowser
+from hosting.models import PasportaServoUser
 
+from .. import DjangoWebtestResponse, UserTag
 from ..assertions import AdditionalAsserts
 from ..factories import PolicyFactory, UserFactory
 
@@ -70,6 +75,111 @@ class MiddlewareTests(AdditionalAsserts, WebTest):
         page = self.app.get(self.protected_url, user=user, status='*')
         self.assertEqual(page.status_code, 302)
         self.assertStartsWith(page.location, reverse('agreement'))
+
+
+@tag('integration', 'middleware')
+class PostmanMiddlewareTests(AdditionalAsserts, WebTest):
+    csrf_checks = False
+
+    def chat_access_tests(
+            self,
+            url: str, method: str,
+            user: PasportaServoUser, user_tag: UserTag,
+            template: str,
+            warnings: tuple[str, ...],
+    ):
+        expected_allowed = user_tag.matches_any('superuser', 'profile:true')
+        expected_status = 200 if expected_allowed else 403
+
+        response: DjangoWebtestResponse = (
+            getattr(self.app, method)(url, user=user, status='*')
+        )
+        # Only a user with a profile or an administrator user is expected to be allowed
+        # access to the chat endpoints.
+        self.assertEqual(response.status_code, expected_status,
+                         msg=title.text if (title := response.html.title) else None)
+        # The response is expected to be a page indicating the requirement to create a
+        # profile, in case the access is disallowed.
+        self.assertTemplateUsed(
+            response,
+            'registration/profile_create.html' if not expected_allowed else template)
+        assertion = self.assertNotContains if expected_allowed else self.assertContains
+        for warning in warnings:
+            assertion(response, warning, status_code=expected_status)
+
+    def test_access_to_chat(self):
+        test_users = {
+            UserTag('regular', 'profile:false'):
+                UserFactory.create(profile=None),
+            UserTag('regular', 'profile:true'):
+                UserFactory.create(),
+            UserTag('staff', 'profile:false'):
+                UserFactory.create(is_staff=True, profile=None),
+            UserTag('staff', 'profile:true'):
+                UserFactory.create(is_staff=True),
+            UserTag('superuser', 'profile:false'):
+                UserFactory.create(is_superuser=True, profile=None),
+        }
+        counterparty = UserFactory.create()
+
+        class PageDef(TypedDict):
+            view_name: str
+            kwargs: NotRequiredDictItem[bool]
+            method: str
+            template: str
+        pages: list[PageDef] = [
+            {
+                'view_name': 'postman:inbox', 'method': 'get',
+                'template': 'postman/inbox.html',
+            }, {
+                'view_name': 'postman:sent', 'method': 'get',
+                'template': 'postman/sent.html',
+            }, {
+                'view_name': 'postman:write', 'method': 'get',
+                'template': 'postman/write.html',
+            }, {
+                'view_name': 'postman:write', 'method': 'post',
+                'template': 'postman/write.html',
+            }, {
+                'view_name': 'postman:view', 'kwargs': True, 'method': 'get',
+                'template': 'postman/view.html',
+            }, {
+                'view_name': 'postman:reply', 'kwargs': True, 'method': 'get',
+                'template': 'postman/reply.html',
+            }
+        ]
+        warning = {
+            'en': (
+                "Profile required",
+                "To be able to communicate with other members of the PS community,"
+                " you need to create a profile.",
+            ),
+            'eo': (
+                "Profilo estas necesa",
+                "Por havi la eblecon komuniki kun aliaj PS-anoj,"
+                " vi devas krei kaj agordi vian profilon.",
+            ),
+        }
+
+        faker = Faker()
+        for user_tag, user in test_users.items():
+            for lang in warning:
+                for page in pages:
+                    with override_settings(LANGUAGE_CODE=lang):
+                        message = pm_write(
+                            counterparty, user, faker.sentence(), faker.paragraph())
+                        url = reverse(
+                            page['view_name'],
+                            kwargs={'message_id': message.pk} if page.get('kwargs') else {})
+                        with self.subTest(
+                                user=user_tag,
+                                url=f"{page['method'].upper()} {url}",
+                                lang=lang,
+                        ):
+                            self.chat_access_tests(
+                                url, page['method'], user, user_tag,
+                                page['template'], warning[lang],
+                            )
 
 
 @tag('integration', 'middleware')
