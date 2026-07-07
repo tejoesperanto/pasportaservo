@@ -51,10 +51,13 @@
         {% endif %}
       {% endwith %}
 
-      {% regroup country.list by state_province as places_by_region %}
+      {% regroup country.list by subregion as places_by_region %}
       {% for region in places_by_region %}
-        {% if country.grouper.code in COUNTRIES_WITH_REGIONS and region.grouper %}{{ region.grouper|safe|cmd:"subsection*" }}{% endif %}{# TODO: display region's Esperanto or latin name #}
-        {% regroup region.list by closest_city as places_by_city %}{% for city in places_by_city %}
+        {% if country.grouper.code in COUNTRIES_WITH_REGIONS and region.grouper %}
+          {{ region.grouper.translated_or_latin_name|safe|escape_latex|cmd:"subsection*" }}
+        {% endif %}
+        {% regroup region.list by closest_city as places_by_city %}
+        {% for city in places_by_city %}
           {{ city.grouper|safe|cmd:"subsubsection" }}
             {% for place in city.list %}
               \begin{minipage}{\textwidth} {# Address block won't break with minipage #}
@@ -72,11 +75,12 @@
               \vspace{.5em}
               \end{minipage}
             {% endfor %}
-          {% endfor %}
+        {% endfor %}
       {% endfor %}
       {% if country.grouper.code == 'SE' %}
         {% include "book/pages/SE_esperanto_gastigejo.tex" %}
       {% endif %}
+
   {% endfor %}
 {% endautoescape %}
 }
