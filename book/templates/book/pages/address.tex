@@ -1,4 +1,4 @@
-{% load book profile latex utils %}{% autoescape off %}
+{% load book profile latex variable utils %}{% autoescape off %}
 {
   \titleformat{\section}[block]{}{}{0pt}{\centering\huge\textbf}
   \titlespacing{\section}{0pt}{4em}{1em}
@@ -62,15 +62,32 @@
             {% for place in city.list %}
               \begin{minipage}{\textwidth} {# Address block won't break with minipage #}
               {\small
-                {{ place.owner.get_title_display|ctx:"light" }}{# TODO: display also the gender; show only non-deleted (and non-hidden) family members. #}
-                {{ place.owner|full_name }}~{{ place.owner.birth_date.year|bracket|ctx:"light" }}{% for member in place.family_members.all %}, {{ member.first_name }}{% if member.birth_date %}~{{ member.birth_date.year|bracket|ctx:"light" }}{% endif %}{% if forloop.last %}:{% endif %}{% endfor %}
+                {% filter compact %}
+                  {% asvar owner_personal_details trimmed %}
+                    {{ place.owner.birth_date.year }}
+                    {% if place.owner.gender %}, {{ place.owner.gender }} {% endif %}
+                  {% endasvar %}
+                  {% asvar place_family_members trimmed %}
+                    {% for member in place.family_members.all %}
+                      , {{ member.first_name }}
+                      {% if member.birth_date %}~{{ member.birth_date.year|bracket|ctx:"light" }}{% endif %}
+                    {% endfor %}
+                  {% endasvar %}
+                  {{ place.owner.get_title_display|ctx:"light" }}{# TODO: show only non-deleted (and non-hidden) family members. #}
+                  {% filter compact:"tight" %}
+                    {{ place.owner|full_name }}~{{ owner_personal_details|bracket|ctx:"light" }}
+                    {% if place_family_members %}{{ place_family_members }}:{% endif %}
+                  {% endfilter %}
                   {% if place.postcode %}{{ place.get_postcode_display|escape_latex }}~{% endif %}{{ place.city|escape_latex|ctx:"semibold" }}
                   {{ place.address|escape_latex }} {% for phone in place.owner.phones.all %}{# TODO: show non-deleted phone numbers according to visibility settings and sorted by importance. #}
                   {{ phone.latex }} {{ phone.comments|escape_latex|ctx:"lightitalic,footnotesize" }} {% endfor %}{% if place.owner.email and INVALID_PREFIX not in place.owner.email %}
-                {{ place.owner.email|escape_latex|cmd:"texttt"|ctx:"footnotesize" }}{% endif %}
-                  {% if place.max_guest %}{{ place.max_guest }}g\,{% endif %}{% if place.max_night %}\,{{ place.max_night }}n\,{% endif %}{% if place.contact_before %}\,{{ place.contact_before }}t{% endif %}
+                  {{ place.owner.email|escape_latex|cmd:"texttt"|ctx:"footnotesize" }}{% endif %}
+                  {% if place.max_guest %}{{ place.max_guest }}g{% endif %}
+                  {% if place.max_night %}{{ place.max_night }}n{% endif %}
+                  {% if place.contact_before %}{{ place.contact_before }}t{% endif %}
                   {{ place.short_description|escape_latex|cmd:"light" }}
-                {{ place.conditions.all|join:" " }}
+                  {{ place.conditions.all|join:" " }}
+                {% endfilter %}
               }
               \vspace{.5em}
               \end{minipage}

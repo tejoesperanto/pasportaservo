@@ -416,9 +416,15 @@ class AllFilterTests(TestCase):
 class CompactFilterTests(TestCase):
     def test_single_line(self):
         content = "  \t Nam  pretium\vturpis  et\tarcu.   \f"
-        template = Template("{% load compact from utils %}[{{ my_var|compact }}]")
-        page = template.render(Context({'my_var': content}))
-        self.assertEqual(page, "[Nam pretium turpis et arcu.]")
+        template_string = string.Template(
+            "{% load compact from utils %}[{{ my_var|compact$MODE }}]"
+        )
+        for mode_value in (None, 'None', 'False', 'True', '"tight"'):
+            with self.subTest(mode=mode_value):
+                template = Template(template_string.substitute(
+                    MODE=f':{mode_value}' if mode_value is not None else ''))
+                page = template.render(Context({'my_var': content}))
+                self.assertEqual(page, "[Nam pretium turpis et arcu.]")
 
     def test_multiple_lines(self):
         content = """
@@ -427,13 +433,21 @@ class CompactFilterTests(TestCase):
             sem quam\rsemper libero,  \r
             sit amet  adipiscing   sem\n\n\nneque sed\xA0ipsum.
         """
-        template = Template("{% load compact from utils %}[{{ my_var|compact }}]")
-        page = template.render(Context({'my_var': content}))
-        self.assertEqual(
-            page,
-            "[Maecenas tempus, tellus eget condimentum rhoncus,"
-            " sem quam semper libero, sit amet adipiscing sem neque sed ipsum.]"
+        template_string = string.Template(
+            "{% load compact from utils %}[{{ my_var|compact$MODE }}]"
         )
+        for mode_value in (None, 'None', 'False', 'True', '"default"', '"tight"'):
+            with self.subTest(mode=mode_value):
+                template = Template(template_string.substitute(
+                    MODE=f':{mode_value}' if mode_value is not None else ''))
+                page = template.render(Context({'my_var': content}))
+                expected_space = " " if mode_value in (None, 'None') else ""
+                self.assertEqual(
+                    page,
+                    f"[Maecenas tempus,{expected_space}tellus eget condimentum rhoncus,"
+                    f"{expected_space}sem quam semper libero,{expected_space}sit amet"
+                    f" adipiscing sem{expected_space}neque sed ipsum.]"
+                )
 
     def test_autoescape(self):
         content = "\nPraesent <nonummy   mi> \"in\fodio\".\r\n\t"
