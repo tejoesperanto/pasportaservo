@@ -106,13 +106,16 @@ def mult(value, by):
 
 @register.filter(is_safe=True)
 @template.defaultfilters.stringfilter
-def compact(value: str):
+def compact(value: str, remove_newlines=None):
     """
     A template filter that removes all extra whitespace from the value it is applied to, and strips any whitespace
     at the beginning and at the end of the resulting string. Any characters that can role as whitespace (including
     new lines) are replaced by a space and collapsed.
     """
-    return ' '.join(value.split())
+    if remove_newlines is not None:
+        return "".join(" ".join(part.split()) for part in value.split("\n"))
+    else:
+        return " ".join(value.split())
 
 
 @register.simple_tag
