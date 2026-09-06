@@ -68,12 +68,21 @@
                     {% if place.owner.gender %}, {{ place.owner.gender }} {% endif %}
                   {% endasvar %}
                   {% asvar place_family_members trimmed %}
-                    {% for member in place.family_members.all %}
-                      , {{ member.first_name }}
-                      {% if member.birth_date %}~{{ member.birth_date.year|bracket|ctx:"light" }}{% endif %}
-                    {% endfor %}
+                    {% if place.family_members_visibility.visible_in_book and not place.family_is_anonymous %}
+                      {% for member in place.family_members_cache %} {# Already ordered by birth date #}
+                        {% if not member.deleted and member.full_name %}
+                          ,{ }
+                          {% if member.last_name and member.last_name.lower != place.owner.last_name.lower %}
+                            {{ member|full_name }}
+                          {% else %}
+                            {{ member.first_name|escape_latex }}
+                          {% endif %}
+                          {% if member.birth_date %}~{{ member.birth_date.year|bracket|ctx:"light" }}{% endif %}
+                        {% endif %}
+                      {% endfor %}
+                    {% endif %}
                   {% endasvar %}
-                  {{ place.owner.get_title_display|ctx:"light" }}{# TODO: show only non-deleted (and non-hidden) family members. #}
+                  {{ place.owner.get_title_display|ctx:"light" }}
                   {% filter compact:"tight" %}
                     {{ place.owner|full_name }}~{{ owner_personal_details|bracket|ctx:"light" }}
                     {% if place_family_members %}{{ place_family_members }}:{% endif %}
