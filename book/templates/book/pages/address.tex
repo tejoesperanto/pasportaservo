@@ -63,6 +63,8 @@
               \begin{minipage}{\textwidth} {# Address block won't break with minipage #}
               {\small
                 {% filter compact %}
+
+                  {# Names and details of the host and family members #}
                   {% asvar owner_personal_details trimmed %}
                     {{ place.owner.birth_date.year }}
                     {% if place.owner.gender %}, {{ place.owner.gender }} {% endif %}
@@ -87,15 +89,39 @@
                     {{ place.owner|full_name }}~{{ owner_personal_details|bracket|ctx:"light" }}
                     {% if place_family_members %}{{ place_family_members }}:{% endif %}
                   {% endfilter %}
-                  {% if place.postcode %}{{ place.get_postcode_display|escape_latex }}~{% endif %}{{ place.city|escape_latex|ctx:"semibold" }}
-                  {{ place.address|escape_latex }} {% for phone in place.owner.phones.all %}{# TODO: show non-deleted phone numbers according to visibility settings and sorted by importance. #}
-                  {{ phone.latex }} {{ phone.comments|escape_latex|ctx:"lightitalic,footnotesize" }} {% endfor %}{% if place.owner.email and INVALID_PREFIX not in place.owner.email %}
-                  {{ place.owner.email|escape_latex|cmd:"texttt"|ctx:"footnotesize" }}{% endif %}
+
+                  {# Address #}
+                  {% filter compact:"tight" %}
+                    {% if place.postcode %}{{ place.get_postcode_display|escape_latex }}~{% endif %}
+                    {{ place.city|escape_latex|ctx:"semibold" }}
+                  {% endfilter %}
+                  {{ place.address.strip|escape_latex }}
+
+                  {# Contact details: phone numbers and public email address #}
+                  {% for phone in place.owner.phones.all %}
+                    {# TODO: show non-deleted phone numbers according to visibility settings and sorted by importance. #}
+                    {{ phone.latex }} {{ phone.comments|escape_latex|ctx:"lightitalic,footnotesize" }}
+                  {% endfor %}
+                  {% if place.owner.email and not place.owner.email|is_invalid %}
+                    {{ place.owner.email|escape_latex|cmd:"texttt"|ctx:"footnotesize" }}
+                  {% endif %}
+
+                  {# Basic conditions #}
                   {% if place.max_guest %}{{ place.max_guest }}g{% endif %}
                   {% if place.max_night %}{{ place.max_night }}n{% endif %}
                   {% if place.contact_before %}{{ place.contact_before }}t{% endif %}
-                  {{ place.short_description|escape_latex|cmd:"light" }}
-                  {{ place.conditions.all|join:" " }}
+                  {% if place.short_description.strip %}
+                    \thinspace{{ place.short_description|escape_latex|cmd:"light" }}
+                  {% endif %}
+
+                  {# Additional conditions #}
+                  {\light
+                    {% for cond in place.conditions_cache %}
+                      {% firstof cond.abbr cond.name as host_condition %}
+                      {{ host_condition }}{% if host_condition|slice:"-1:" != "." %}. {% endif %}
+                    {% endfor %}
+                  }
+
                 {% endfilter %}
               }
               \vspace{.5em}
