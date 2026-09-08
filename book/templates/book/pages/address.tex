@@ -95,12 +95,15 @@
                     {% if place.postcode %}{{ place.get_postcode_display|escape_latex }}~{% endif %}
                     {{ place.city|escape_latex|ctx:"semibold" }}
                   {% endfilter %}
-                  {{ place.address.strip|escape_latex }}
+                  {{ place.address.strip|escape_latex }}\enspace
 
                   {# Contact details: phone numbers and public email address #}
                   {% for phone in place.owner.phones.all %}
-                    {# TODO: show non-deleted phone numbers according to visibility settings and sorted by importance. #}
-                    {{ phone.latex }} {{ phone.comments|escape_latex|ctx:"lightitalic,footnotesize" }}
+                    {% if not phone.deleted and phone.visibility.visible_in_book %}
+                      \thinspace{{ phone|latex_icon }}
+                      {{ phone.number.as_international }}
+                      {{ phone.comments|escape_latex|ctx:"lightitalic,footnotesize" }}
+                    {% endif %}
                   {% endfor %}
                   {% if place.owner.email and not place.owner.email|is_invalid %}
                     {{ place.owner.email|escape_latex|cmd:"texttt"|ctx:"footnotesize" }}
