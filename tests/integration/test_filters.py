@@ -19,10 +19,10 @@ class SearchFilterSetTests(TestCase):
         filterset = SearchFilterSet()
 
         # Verify that the expected filters are part of the filterset.
-        expected_filters = """
-            max_guest max_night contact_before tour_guide have_a_drink
-            owner__first_name owner__last_name available conditions
-        """.split()
+        expected_filters = [
+            'max_guest', 'max_night', 'contact_before', 'tour_guide', 'have_a_drink',
+            'owner__first_name', 'owner__last_name', 'available', 'conditions',
+        ]
         self.assertEqual(set(expected_filters), set(filterset.filters))
 
         # Verify that the correct filter classes are applied to the filters.
@@ -73,103 +73,93 @@ class SearchFilterSetTests(TestCase):
 class PlaceFilterTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.profile_one = ProfileFactory()
-        cls._setUpPlace(
+        cls.profile_one = ProfileFactory.create()
+        PlaceFactory.create(
             owner=cls.profile_one,
             available=True, tour_guide=False, have_a_drink=False, in_book=False,
-            visibility={'online_public': True, 'in_book': False})
-        cls._setUpPlace(
+            visibility_value={'online_public': True, 'in_book': False})
+        PlaceFactory.create(
             owner=cls.profile_one,
             available=True, tour_guide=True, have_a_drink=True, in_book=True,
             deleted_on=timezone.now(),
-            visibility={'online_public': True, 'in_book': True})
-        cls._setUpPlace(
+            visibility_value={'online_public': True, 'in_book': True})
+        PlaceFactory.create(
             owner=cls.profile_one,
             available=False, tour_guide=False, have_a_drink=False, in_book=True,
-            visibility={'online_public': True, 'in_book': True})
-        cls._setUpPlace(
+            visibility_value={'online_public': True, 'in_book': True})
+        PlaceFactory.create(
             owner=cls.profile_one,
             available=True, tour_guide=False, have_a_drink=False, in_book=False,
-            visibility={'online_public': False, 'in_book': False})
-        cls._setUpPlace(
+            visibility_value={'online_public': False, 'in_book': False})
+        PlaceFactory.create(
             owner=cls.profile_one,
             available=True, tour_guide=True, have_a_drink=False, in_book=False,
-            visibility={'online_public': False, 'in_book': True})
-        cls._setUpPlace(
+            visibility_value={'online_public': False, 'in_book': True})
+        PlaceFactory.create(
             owner=cls.profile_one,
             available=True, tour_guide=False, have_a_drink=True, in_book=False,
-            visibility={'online_public': False, 'in_book': True})
-        cls._setUpPlace(
+            visibility_value={'online_public': False, 'in_book': True})
+        PlaceFactory.create(
             owner=cls.profile_one,
             available=False, tour_guide=True, have_a_drink=False, in_book=False,
-            visibility={'online_public': False, 'in_book': False})
-        cls._setUpPlace(
+            visibility_value={'online_public': False, 'in_book': False})
+        PlaceFactory.create(
             owner=cls.profile_one,
             available=False, tour_guide=False, have_a_drink=True, in_book=False,
-            visibility={'online_public': False, 'in_book': False})
-        cls._setUpPlace(
+            visibility_value={'online_public': False, 'in_book': False})
+        PlaceFactory.create(
             owner=cls.profile_one,
             available=True, tour_guide=False, have_a_drink=False, in_book=True,
-            visibility={'online_public': False, 'in_book': False})
-        cls._setUpPlace(
+            visibility_value={'online_public': False, 'in_book': False})
+        PlaceFactory.create(
             owner=cls.profile_one,
             available=True, tour_guide=False, have_a_drink=False, in_book=True,
-            visibility={'online_public': False, 'in_book': True})
+            visibility_value={'online_public': False, 'in_book': True})
 
-        cls.profile_two = ProfileFactory()
-        cls._setUpPlace(
+        cls.profile_two = ProfileFactory.create()
+        PlaceFactory.create(
             owner=cls.profile_two,
             available=True, in_book=True, confirmed_on=None, checked_on=None,
-            visibility={'in_book': True})
-        cls._setUpPlace(
+            visibility_value={'in_book': True})
+        PlaceFactory.create(
             owner=cls.profile_two,
             available=True, in_book=True, confirmed_on=timezone.now(), checked_on=None,
-            visibility={'in_book': True})
-        cls._setUpPlace(
+            visibility_value={'in_book': True})
+        PlaceFactory.create(
             owner=cls.profile_two,
             available=True, in_book=True, confirmed_on=timezone.now(), checked_on=None,
             deleted_on=timezone.now(),
-            visibility={'in_book': True})
-        cls._setUpPlace(
+            visibility_value={'in_book': True})
+        PlaceFactory.create(
             owner=cls.profile_two,
             available=True, in_book=True, confirmed_on=timezone.now(), checked_on=timezone.now(),
-            visibility={'in_book': True})
-        cls._setUpPlace(
+            visibility_value={'in_book': True})
+        PlaceFactory.create(
             owner=cls.profile_two,
             available=True, in_book=True, confirmed_on=None, checked_on=timezone.now(),
-            visibility={'in_book': True})
-        cls._setUpPlace(
+            visibility_value={'in_book': True})
+        PlaceFactory.create(
             owner=cls.profile_two,
             available=True, in_book=True, confirmed_on=None, checked_on=timezone.now(),
-            visibility={'in_book': True})
-        cls._setUpPlace(
+            visibility_value={'in_book': True})
+        PlaceFactory.create(
             owner=cls.profile_two,
             available=True, in_book=True, confirmed_on=None, checked_on=timezone.now(),
             deleted_on=timezone.now(),
-            visibility={'in_book': True})
-
-    @classmethod
-    def _setUpPlace(cls, **kwargs):
-        visibility = kwargs.pop('visibility', {})
-        place = PlaceFactory(**kwargs)
-        place.visibility.refresh_from_db()
-        for key, value in visibility.items():
-            place.visibility[key] = value
-        place.visibility.save()
-        return place
+            visibility_value={'in_book': True})
 
     def test_invalid_attribute(self):
         with self.assertRaises(AttributeError) as cm:
-            self.profile_one.gerrit()
+            self.profile_one.gerrit()  # type: ignore[valid-type]
         self.assertEqual(str(cm.exception), "Attribute gerrit does not exist on model Profile")
 
     def test_invalid_lookup(self):
         with self.assertRaises(AttributeError) as cm:
-            self.profile_one.is_quacking()
+            self.profile_one.is_quacking()  # type: ignore[valid-type]
         self.assertEqual(str(cm.exception), "Query 'quacking' is not implemented for model Profile")
 
         with self.assertRaises(AttributeError) as cm:
-            self.profile_one.has_places_for_quacking()
+            self.profile_one.has_places_for_quacking()  # type: ignore[valid-type]
         self.assertEqual(str(cm.exception), "Query 'quacking' is not implemented for model Profile")
 
     def test_hosting_filter(self):

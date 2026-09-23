@@ -4,6 +4,8 @@ from django.contrib.auth.models import AnonymousUser
 from django.template import Context, Template, TemplateSyntaxError
 from django.test import TestCase, tag
 
+from hosting.models import Place
+
 from ..factories import PlaceFactory, UserFactory
 
 
@@ -22,47 +24,26 @@ class IfVisibleTagTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserFactory(profile=None)
-        cls.trusted_user = UserFactory(profile=None)
+        cls.user = UserFactory.create(profile=None)
+        cls.trusted_user = UserFactory.create(profile=None)
 
-        cls.public_place = PlaceFactory()
-        cls.public_place.visibility.refresh_from_db()
-        cls.public_place.visibility['online_public'] = True
-        cls.public_place.visibility['online_authed'] = True
-        cls.public_place.visibility.save()
-        cls.public_place.family_members_visibility.refresh_from_db()
-        cls.public_place.family_members_visibility['online_public'] = True
-        cls.public_place.family_members_visibility['online_authed'] = True
-        cls.public_place.family_members_visibility.save()
-
-        cls.restricted_place = PlaceFactory()
-        cls.restricted_place.visibility.refresh_from_db()
-        cls.restricted_place.visibility['online_public'] = False
-        cls.restricted_place.visibility['online_authed'] = True
-        cls.restricted_place.visibility.save()
-        cls.restricted_place.family_members_visibility.refresh_from_db()
-        cls.restricted_place.family_members_visibility['online_public'] = False
-        cls.restricted_place.family_members_visibility['online_authed'] = True
-        cls.restricted_place.family_members_visibility.save()
-
-        cls.private_place = PlaceFactory()
-        cls.private_place.visibility.refresh_from_db()
-        cls.private_place.visibility['online_public'] = False
-        cls.private_place.visibility['online_authed'] = False
-        cls.private_place.visibility.save()
-        cls.private_place.family_members_visibility.refresh_from_db()
-        cls.private_place.family_members_visibility['online_public'] = False
-        cls.private_place.family_members_visibility['online_authed'] = False
-        cls.private_place.family_members_visibility.save()
-
-        cls.all_places = {
-            'public': cls.public_place,
-            'restricted': cls.restricted_place,
-            'private': cls.private_place,
-        }
+        test_data = [
+            ('public', {'online_public': True, 'online_authed': True}),
+            ('restricted', {'online_public': False, 'online_authed': True}),
+            ('private', {'online_public': False, 'online_authed': False}),
+        ]
+        cls.public_place: Place         # noqa: B032
+        cls.restricted_place: Place     # noqa: B032
+        cls.private_place: Place        # noqa: B032
+        cls.all_places: dict[str, Place] = {}
+        for place_type, place_vis in test_data:
+            place = PlaceFactory.create(
+                self_visibility=place_vis,
+                visibility_value__field_name='family_members', visibility_value=place_vis)
+            setattr(cls, f'{place_type}_place', place)
+            cls.all_places[place_type] = place
 
     def test_invalid_syntax(self):
-        template = "{% load if-visible from privacy %}{% if-visible %}"
         with self.assertRaises(TemplateSyntaxError) as cm:
             Template("{% load if-visible from privacy %}{% if-visible %}")
         self.assertEqual(
@@ -81,7 +62,7 @@ class IfVisibleTagTests(TestCase):
                     Template("{% load if-visible from privacy %}" + template)
                 self.assertIn("Incorrectly provided arguments", str(cm.exception))
 
-    def test_any_object_unauthenticated(self, subobject=None):
+    def test_any_object_unauthenticated(self, subobject: str | None = None):
         # When rendering context does not contain a user object or the user is not
         # authenticated (anonymous), the `if` is expected to always result in False.
         template = Template(self.template_string.substitute(
@@ -99,7 +80,9 @@ class IfVisibleTagTests(TestCase):
             context['user'] = AnonymousUser()
 
     def object_visibility_tests(
-            self, parent_object, sub_object, expected_public, expected_restricted):
+            self, parent_object, sub_object: str | None,
+            expected_public: bool, expected_restricted: bool,
+    ):
         template = Template(self.template_string.substitute(
             SUBOBJ='' if not sub_object else f'[{sub_object}]'
         ))
@@ -119,17 +102,17 @@ class IfVisibleTagTests(TestCase):
         }))
         self.assertEqual(page.strip(), "Yes" if expected_restricted else "")
 
-    def test_public_object_authenticated(self, subobject=None):
+    def test_public_object_authenticated(self, subobject: str | None = None):
         # For a publicly visible object, the `if` is expected to result in True.
         self.object_visibility_tests(self.public_place, subobject, True, True)
 
-    def test_restricted_object_authenticated(self, subobject=None):
+    def test_restricted_object_authenticated(self, subobject: str | None = None):
         # For a privately visible object, the `if` is expected to result in False
         # when the user is not authorized; in True when the user has a privilege
         # (e.g., authorized, supervisor, etc.)
         self.object_visibility_tests(self.restricted_place, subobject, False, True)
 
-    def test_private_object_authenticated(self, subobject=None):
+    def test_private_object_authenticated(self, subobject: str | None = None):
         # For a hidden object, the `if` is expected to result in False when the
         # user is not authorized and the same even when the user has a privilege.
         self.object_visibility_tests(self.private_place, subobject, False, False)
@@ -176,7 +159,7 @@ class IfVisibleTagTests(TestCase):
     def test_private_subobject_authenticated(self):
         self.test_private_object_authenticated('family_members')
 
-    def test_object_result_memo(self, subobject=None):
+    def test_object_result_memo(self, subobject: str | None = None):
         varname = 'place' if not subobject else subobject
         template = Template(self.memo_template_string.substitute(
             SUBOBJ='' if not subobject else f'[{subobject}]',
