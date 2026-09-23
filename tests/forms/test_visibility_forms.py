@@ -303,12 +303,9 @@ class VisibilityFormTests(AdditionalAsserts, TestCase):
         self.assertTrue(self.place.visibility.visible_online_authed)
         self.assertTrue(self.place.visibility.visible_in_book)
 
-        place2stay = PlaceFactory.create(available=True, in_book=True)
-        place2stay.visibility.refresh_from_db()
-        place2stay.visibility.visible_online_public = False
-        place2stay.visibility.visible_online_authed = False
-        place2stay.visibility.visible_in_book = True
-        place2stay.visibility.save()
+        place2stay = PlaceFactory.create(
+            available=True, in_book=True, visibility_value=dict(
+                online_public=False, online_authed=False, in_book=True))
 
         # Setting `in_book` to False is expected to update the visibility object.
         form = VisibilityForm(

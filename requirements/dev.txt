@@ -10,5 +10,5 @@ factory-boy==3.3.3
 flake8==7.3.0
 isort==7.0.0
 pre-commit==4.5.1
-pyquery==2.0.1
+pyquery==2.0.2
 sqlparse>=0.2.4

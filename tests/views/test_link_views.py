@@ -164,9 +164,8 @@ class UniqueLinkViewTests(ViewAsserts, HeroViewAsserts, ViewTestingBase):
             timedelta(weeks=25), 3600, 'test-pepper',
         )
         place_listed = PlaceFactory.create(owner=self.user.profile)
-        place_hidden = PlaceFactory.create(owner=self.user.profile)
-        place_hidden.visibility.visible_online_public = False
-        place_hidden.visibility.save()
+        place_hidden = PlaceFactory.create(owner=self.user.profile,
+                                           visibility_value__online_public=False)
         phone_listed = PhoneFactory.create(profile=self.user.profile)
         phone_deleted = PhoneFactory.create(profile=self.user.profile, deleted=True)
         listed_objects: list[TrackingModel] = [

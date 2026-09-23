@@ -87,7 +87,7 @@ class LatexIconFilterTests(TestCase):
     )
 
     def test_unexpected_object(self):
-        page = self.template.render(Context({'object': ProfileFactory.create()}))
+        page = self.template.render(Context({'object': ProfileFactory.build()}))
         self.assertEqual(page, "")
 
     def test_phone_object(self):
@@ -98,7 +98,7 @@ class LatexIconFilterTests(TestCase):
             PhoneFactory._meta.model.PhoneType.FAX: r"{\faFax}",
             'xyz': r"{\faPhone*}",
         }
-        phone = PhoneFactory.create()
+        phone = PhoneFactory.build()
         for phone_type, expected_icon in test_data.items():
             with self.subTest(type=phone_type):
                 phone.type = phone_type
@@ -165,3 +165,28 @@ class PublicPhoneNumbersTagTests(TestCase):
             "count=2; "
             f"{phones[1].number.as_international}; {phones[0].number.as_international}; "
         )
+
+
+@tag('templatetags')
+class FullNameFilterTests(TestCase):
+    template = Template(
+        "{% load full_name from book %}"
+        "{% autoescape off %}{{ object|full_name }}{% endautoescape %}"
+    )
+
+    def test_output(self):
+        profile = ProfileFactory.build(
+            first_name="Ada & Bob",
+            last_name="Love'lace {S!%}",
+            names_inversed=False,
+        )
+        page = self.template.render(Context({'object': profile}))
+        self.assertEqual(page, r"\name{Ada \& Bob}{Love'lace \{S!\%\}}")
+
+        profile = ProfileFactory.build(
+            first_name="Ada {B.}",
+            last_name="Lovelace & <Sons>",
+            names_inversed=True,
+        )
+        page = self.template.render(Context({'object': profile}))
+        self.assertEqual(page, r"\eastname{Ada \{B.\}}{Lovelace \& <Sons>}")
