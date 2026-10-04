@@ -17,7 +17,7 @@ class GenderModelTests(WebTest):
         self.assertTrue(gender._meta.get_field('name_en').unique)
         self.assertTrue(gender._meta.get_field('name').unique)
 
-    def test_eqality(self):
+    def test_equality(self):
         gender = GenderFactory.build(name="forrest", name_en="gump")
         self.assertEqual(gender, GenderFactory.build(name="forrest"))
         self.assertEqual(gender, GenderFactory.build(name="forrest", name_en="curran"))

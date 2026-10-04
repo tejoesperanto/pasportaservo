@@ -1,3 +1,4 @@
+from copy import copy
 from itertools import product
 from unittest.mock import PropertyMock, patch
 
@@ -40,55 +41,70 @@ class CountryRegionModelTests(TestCase):
         region_without_eo_with_name = CountryRegionFactory.build(short_code=False, esperanto_name="")
 
         with override_settings(LANGUAGE_CODE='eo'):
-            # For region with an Esperanto name, value is expected to be that name for Esperanto locale.
+            # For region with an Esperanto name,
+            # value is expected to be that name for Esperanto locale.
             self.assertEqual(
-                region_with_eo_and_code.translated_or_latin_name, region_with_eo_and_code.esperanto_name)
+                region_with_eo_and_code.translated_or_latin_name,
+                region_with_eo_and_code.esperanto_name)
             self.assertEqual(
-                region_with_eo_and_name.translated_or_latin_name, region_with_eo_and_name.esperanto_name)
+                region_with_eo_and_name.translated_or_latin_name,
+                region_with_eo_and_name.esperanto_name)
             # For region with no Esperanto name,
             # value is expected to be the latin name or code for Esperanto locale.
             self.assertEqual(
-                region_without_eo_with_code.translated_or_latin_name, region_without_eo_with_code.latin_name)
+                region_without_eo_with_code.translated_or_latin_name,
+                region_without_eo_with_code.latin_name)
             self.assertEqual(
-                region_without_eo_with_name.translated_or_latin_name, region_without_eo_with_name.latin_code)
+                region_without_eo_with_name.translated_or_latin_name,
+                region_without_eo_with_name.latin_code)
         with override_settings(LANGUAGE_CODE='en'):
             # For region with an Esperanto name,
             # value is expected to be the latin name or code for non-Esperanto locale.
             self.assertEqual(
-                region_with_eo_and_code.translated_or_latin_name, region_with_eo_and_code.latin_name)
+                region_with_eo_and_code.translated_or_latin_name,
+                region_with_eo_and_code.latin_name)
             self.assertEqual(
-                region_with_eo_and_name.translated_or_latin_name, region_with_eo_and_name.latin_code)
+                region_with_eo_and_name.translated_or_latin_name,
+                region_with_eo_and_name.latin_code)
             # For region with no Esperanto name,
             # value is expected to be the latin name or code for non-Esperanto locale.
             self.assertEqual(
-                region_without_eo_with_code.translated_or_latin_name, region_without_eo_with_code.latin_name)
+                region_without_eo_with_code.translated_or_latin_name,
+                region_without_eo_with_code.latin_name)
             self.assertEqual(
-                region_without_eo_with_name.translated_or_latin_name, region_without_eo_with_name.latin_code)
+                region_without_eo_with_name.translated_or_latin_name,
+                region_without_eo_with_name.latin_code)
 
     def test_display_value(self):
         test_data = [
             (
-                # For region with latin code and latin name, value is expected to be the latin name.
+                # For region with latin code and latin name,
+                # value is expected to be the latin name.
                 dict(latin_code="ABC", latin_name="Appa Balwant Chowk"),
                 "Appa Balwant Chowk"
             ), (
-                # For region with only latin code and no latin name, value is expected to be the latin code.
+                # For region with only latin code and no latin name,
+                # value is expected to be the latin code.
                 dict(latin_code="Shaniwar Peth", latin_name=""),
                 "Shaniwar Peth"
             ), (
-                # For region with latin code equal to the local code, value is expected to be only one of them.
+                # For region with latin code equal to the local code,
+                # value is expected to be only one of them.
                 dict(latin_code="Aundh", latin_name="", local_code="Aundh"),
                 "Aundh"
             ), (
-                # For region with local code similar to the latin code, value is expected to be the local code.
+                # For region with local code similar to the latin code,
+                # value is expected to be the local code.
                 dict(latin_code="Balewadi", latin_name="", local_code="Báłěwàďı"),
                 "Báłěwàďı"
             ), (
-                # For region with local code, value is expected to be latin code with the local code.
+                # For region with local code,
+                # value is expected to be latin code with the local code.
                 dict(latin_code="Baner", latin_name="", local_code="बाणेर"),
                 "Baner (बाणेर)"
             ), (
-                # For region with both local code and name, value is expected to be latin code with the local name.
+                # For region with both local code and name,
+                # value is expected to be latin code with the local name.
                 dict(latin_code="Baner", latin_name="", local_code="BNR", local_name="बाणेर"),
                 "Baner (बाणेर)"
             ), (
@@ -118,13 +134,18 @@ class CountryRegionModelTests(TestCase):
                 "Bhosari (भोसरी)"
             )
         ]
+        esperanto_test_settings = list(product((False, True), ("", "Najbarejo", "Bavdhan")))
         for kwargs, expected_value in test_data:
-            for esperanto_on, esperanto_name in product((False, True), ("", "Najbarejo", "Bavdhan")):
-                with self.subTest(**kwargs, esperanto=esperanto_name, include_esperanto=esperanto_on):
+            for esperanto_on, esperanto_name in esperanto_test_settings:
+                with self.subTest(
+                        **kwargs,
+                        esperanto=esperanto_name, include_esperanto=esperanto_on,
+                ):
                     region = CountryRegionFactory.build(**kwargs, esperanto_name=esperanto_name)
                     self.assertEqual(
                         region.get_display_value(with_esperanto=esperanto_on),
-                        f"{esperanto_name} \xa0\u2013\xa0 {expected_value}" if esperanto_on and esperanto_name
+                        f"{esperanto_name} \xa0\u2013\xa0 {expected_value}"
+                        if esperanto_on and esperanto_name
                         else expected_value
                     )
 
@@ -144,6 +165,29 @@ class CountryRegionModelTests(TestCase):
             result4 = region.get_display_value(with_esperanto=True)
             mock_name.assert_called_once()
             self.assertNotEqual(id(result1), id(result4))
+
+    def test_equality(self):
+        region = CountryRegionFactory.build()
+        self.assertEqual(region, copy(region))
+        region_other = CountryRegionFactory.build(
+            country=region.country, iso_code=region.iso_code, latin_code=region.latin_code)
+        self.assertEqual(region, region_other)
+        self.assertEqual(region_other, region)
+        region_other = CountryRegionFactory.build(
+            exclude_countries=[region.country],
+            iso_code=region.iso_code, latin_code=region.latin_code)
+        self.assertNotEqual(region, region_other)
+        region_other = CountryRegionFactory.build(
+            country=region.country, iso_code=region.iso_code, latin_code="%$#!")
+        self.assertNotEqual(region, region_other)
+        region_other = CountryRegionFactory.build(
+            country=region.country, iso_code="%$#!", latin_code=region.latin_code)
+        self.assertNotEqual(region, region_other)
+        self.assertNotEqual(region, region.iso_code)
+        self.assertNotEqual(region, region.latin_code)
+        self.assertNotEqual(f"{region.latin_code}, {region.country.code}", region)
+        self.assertFalse(region == id(region))
+        self.assertFalse(region == region.iso_code)
 
     def test_str(self):
         region = CountryRegionFactory.build(short_code=False)

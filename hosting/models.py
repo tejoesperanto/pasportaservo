@@ -1390,6 +1390,16 @@ class CountryRegion(models.Model):
 
     get_display_value_with_esperanto = partialmethod(get_display_value, with_esperanto=True)
 
+    def __eq__(self, other):
+        if isinstance(other, CountryRegion):
+            return all([
+                self.country == other.country,
+                self.iso_code == other.iso_code,
+                self.latin_code == other.latin_code,
+            ])
+        else:
+            return NotImplemented
+
     def __str__(self):
         return "{}: {}".format(
             self.country.code,
