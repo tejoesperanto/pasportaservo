@@ -53,14 +53,15 @@
 
       {% regroup country.list by subregion as places_by_region %}
       {% for region in places_by_region %}
-        {% if country.grouper.code in COUNTRIES_WITH_REGIONS and region.grouper %}
+        {% if country.grouper.code in COUNTRIES_WITH_REGIONS and region.grouper.latin_code %}
           {{ region.grouper.translated_or_latin_name|safe|escape_latex|cmd:"subsection*" }}
         {% endif %}
-        {% regroup region.list by closest_city as places_by_city %}
+        {% regroup region.list by closest_city.upper as places_by_city %}
         {% for city in places_by_city %}
           {{ city.grouper|safe|cmd:"subsubsection" }}
             {% for place in city.list %}
               \begin{minipage}{\textwidth} {# Address block won't break with minipage #}
+              \vspace{.5em}
               {\small
                 {% filter compact %}
 
@@ -92,6 +93,10 @@
 
                   {# Address #}
                   {% filter compact:"tight" %}
+                    {% if place.closest_city_distance %}
+                      {% asvar distance_to_city %}{{ place.closest_city_distance }}km{% endasvar %}
+                      ${{ distance_to_city|ctx:"light"|cmd:"text"|cmd:"xmapsto"|cmd:"smash" }}$~
+                    {% endif %}
                     {% if place.postcode %}{{ place.get_postcode_display|escape_latex }}~{% endif %}
                     {{ place.city|escape_latex|ctx:"semibold" }}
                   {% endfilter %}
