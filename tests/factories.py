@@ -1,9 +1,10 @@
 # https://faker.readthedocs.io/en/latest/providers/faker.providers.person.html
 import re
+import typing as t
 from datetime import datetime, timedelta
 from hashlib import md5
 from random import choice, randint, random, uniform as uniform_random
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Generic, TypeVar
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.contrib.gis.geos import LineString, Point
@@ -63,17 +64,17 @@ class OptionalProvider(faker.providers.BaseProvider):
 Faker.add_provider(OptionalProvider)
 
 
-ModelType = TypeVar('ModelType', bound=Model)
+ModelType = t.TypeVar('ModelType', bound=Model)
 
 
-class TypedFactoryOptions(factory.base.FactoryOptions, Generic[ModelType]):
+class TypedFactoryOptions(factory.base.FactoryOptions, t.Generic[ModelType]):
     model: ModelType
 
-    get_model_class: Callable[[], ModelType]
+    get_model_class: t.Callable[[], ModelType]
 
 
-class TypedDjangoModelFactory(DjangoModelFactory, Generic[ModelType]):
-    _meta: ClassVar[TypedFactoryOptions[ModelType]]
+class TypedDjangoModelFactory(DjangoModelFactory, t.Generic[ModelType]):
+    _meta: t.ClassVar[TypedFactoryOptions[ModelType]]
 
     @classmethod
     def build(cls, **kwargs) -> ModelType:
@@ -175,7 +176,7 @@ class VisibilityParamMixin(factory.Factory):
 
     @staticmethod
     def _update_visibility_values(instance, values_dict, **values_kwargs):
-        params: dict[str, Any] = {}
+        params: dict[str, t.Any] = {}
         if isinstance(values_dict, dict):
             params = params | values_dict
         params = params | values_kwargs
@@ -520,8 +521,12 @@ class CountryRegionFactory(TypedDjangoModelFactory[CountryRegion]):
 
     class Params:
         short_code = factory.LazyFunction(lambda: random() < 0.20)
+        exclude_countries: t.ClassVar[t.Iterable[str]] = set()
 
-    country = Faker('random_element', elements=COUNTRIES.keys())
+    country = factory.LazyAttribute(
+        lambda obj:
+            Faker._get_faker().random_element(elements=set(COUNTRIES.keys()) - set(obj.exclude_countries))
+    )
     iso_code = Faker('pystr_format', string_format='???#', letters='ABCDEFGHJKLMNPQRSTUVWXYZ')
     latin_code = factory.Maybe(
         'short_code',
