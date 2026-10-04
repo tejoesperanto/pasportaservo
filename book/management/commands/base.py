@@ -1,20 +1,26 @@
 import csv
+import math
 from distutils.dir_util import copy_tree
 from os.path import isfile, join
 from subprocess import call
 from tempfile import mkdtemp
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeGuard, cast
 
 from django.conf import settings
+from django.contrib.gis.geos import Point
+from django.contrib.gis.measure import Distance
 from django.core.management.base import BaseCommand, CommandError
+from django.db.models import QuerySet
 from django.template import Context, Template
 from django.utils import translation
 
+import utm
 from django_countries import countries
+from django_countries.fields import Country
 
 from core.utils import sort_by
 from hosting.countries import countries_with_mandatory_region
-from hosting.models import Place
+from hosting.models import LocationType, Place, Whereabouts
 
 COUNTRIES_WITH_REGIONS = (
     countries_with_mandatory_region() | {'BE', 'BR', 'CA', 'DE', 'FR', 'GB', 'US'}
@@ -97,10 +103,97 @@ class LatexCommand(BaseCommand if TYPE_CHECKING else object):
         if self.address_only:
             print("  for", self.country)
             places = places.filter(country=self.country)
+        self._annotate_objects(places)
+
         return sort_by(
             ['closest_city', 'subregion.translated_or_latin_name', 'country.name'],
             places
         )
+
+    def _annotate_objects(self, places: QuerySet[Place]):
+        if TYPE_CHECKING:
+            class TransformedWhereabouts(Whereabouts):
+                utm_srid: int
+
+        class NOT_CODED:  # TODO: Change to sentinel() in Python 3.15.
+            def __bool__(self):
+                return False
+
+            def __repr__(self):
+                return "NOT-CODED"
+
+        def is_coded(
+                value: 'TransformedWhereabouts | NOT_CODED | None'
+        ) -> TypeGuard['TransformedWhereabouts']:
+            return bool(value)
+
+        locations_cache: dict[
+            Country, dict[str, dict[str, 'TransformedWhereabouts | NOT_CODED']]
+        ] = {}
+
+        for place in places:
+            closest_city_name = place.closest_city.upper()
+            state = place.state_province.upper()
+            if place.city.upper() == closest_city_name or not closest_city_name:
+                # No need to calculate the distance to closest city.
+                continue
+            closest_city_location = (
+                locations_cache.get(place.country, {})
+                .get(state, {})
+                .get(closest_city_name)
+            )
+            if closest_city_location is None:
+                # Attempt reading from cache without the subregion.
+                closest_city_location = (
+                    locations_cache.get(place.country, {})
+                    .get("", {})
+                    .get(closest_city_name)
+                )
+            if closest_city_location is None:
+                # Not cached yet, retrieve from database.
+                positions = cast(
+                    'QuerySet[TransformedWhereabouts]',
+                    Whereabouts.objects.filter(
+                        type=LocationType.CITY,
+                        name=closest_city_name, country=place.country,
+                    )
+                )
+                closest_city_location = positions.first() or NOT_CODED()
+                locations_cache.setdefault(place.country, {})
+                locations_cache[place.country].setdefault("", {})[
+                    closest_city_name
+                ] = closest_city_location
+                # When the database holds multiple cities with the same name,
+                # we must filter by the subregion.
+                if len(positions) > 1:
+                    closest_city_location = (
+                        positions.filter(state=state).first() or NOT_CODED()
+                    )
+                    locations_cache[place.country].setdefault(state, {})[
+                        closest_city_name
+                    ] = closest_city_location
+                # Transform the city's center point to a localized SRID
+                # (Spatial Reference Identifier) so that distances can be
+                # calculated in meters.
+                if not isinstance(closest_city_location, NOT_CODED):
+                    _, _, zone_number, zone_letter = utm.from_latlon(
+                        closest_city_location.center.y, closest_city_location.center.x)
+                    # The SRIDs based on UTM (Universal Transverse Mercator)
+                    # coordinates are
+                    # 327xx for the Southern hemisphere (zone letters A to M)
+                    # 326xx for the Northern hemisphere (zone letter N to Z)
+                    utm_srid = (32600 if zone_letter >= 'N' else 32700) + zone_number
+                    closest_city_location.center.transform(utm_srid)
+                    closest_city_location.utm_srid = utm_srid
+
+            if not is_coded(closest_city_location) or not place.location:
+                continue
+            place_location: Point = (
+                place.location.transform(closest_city_location.utm_srid, clone=True)
+            )
+            place.closest_city_distance = math.ceil(
+                Distance(m=place_location.distance(closest_city_location.center)).km
+            )
 
     def get_context_data(self):
         return {
