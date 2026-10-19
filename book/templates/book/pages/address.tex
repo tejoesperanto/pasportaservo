@@ -51,7 +51,7 @@
         {% endif %}
       {% endwith %}
 
-      {% regroup country.list by subregion as places_by_region %}
+      {% regroup country.list by associated_region as places_by_region %}
       {% for region in places_by_region %}
         {% if country.grouper.code in COUNTRIES_WITH_REGIONS and region.grouper.latin_code %}
           {{ region.grouper.translated_or_latin_name|safe|escape_latex|cmd:"subsection*" }}
@@ -92,13 +92,31 @@
                   {% endfilter %}
 
                   {# Address #}
+                  {% asvar place_subregion_name trimmed %}
+                    {% comment %}
+                      TODO:  test for proper display of the associated and the place's own
+                      subregion when closest_city is converted to a City object reference.
+                      (including a place in a country with subregions associated with city
+                      in a neighbouring country without subregions, and vice versa.)
+                    {% endcomment %}
+                    {% if country.grouper.code in COUNTRIES_WITH_MANDATORY_REGIONS %}
+                      {% if place.subregion != place.associated_region %}
+                        {{ place.subregion.translated_or_latin_name|safe|escape_latex }}
+                      {% endif %}
+                    {% endif %}
+                  {% endasvar %}
                   {% filter compact:"tight" %}
                     {% if place.closest_city_distance %}
                       {% asvar distance_to_city %}{{ place.closest_city_distance }}km{% endasvar %}
                       ${{ distance_to_city|ctx:"light"|cmd:"text"|cmd:"xmapsto"|cmd:"smash" }}$~
                     {% endif %}
-                    {% if place.postcode %}{{ place.get_postcode_display|escape_latex }}~{% endif %}
+                    {% if place.postcode %}
+                      {{ place.get_postcode_display|escape_latex }}~
+                    {% endif %}
                     {{ place.city|escape_latex|ctx:"semibold" }}
+                    {% if place_subregion_name %}
+                      , {{ place_subregion_name|ctx:"semibold" }}
+                    {% endif %}
                   {% endfilter %}
                   {{ place.address.strip|escape_latex }}\enspace
 

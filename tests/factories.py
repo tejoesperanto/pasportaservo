@@ -1,6 +1,8 @@
 # https://faker.readthedocs.io/en/latest/providers/faker.providers.person.html
+import locale as pylocale
 import re
 import typing as t
+import unicodedata
 from datetime import datetime, timedelta
 from hashlib import md5
 from random import choice, randint, random, uniform as uniform_random
@@ -17,7 +19,9 @@ import rstr
 from django_countries.data import COUNTRIES
 from factory import Faker
 from factory.django import DjangoModelFactory
+from faker.config import AVAILABLE_LOCALES
 from phonenumber_field.phonenumber import PhoneNumber
+from unidecode import unidecode_expect_nonascii
 
 from core.models import Agreement, Policy, UserBrowser
 from hosting.countries import COUNTRIES_DATA, countries_with_mandatory_region
@@ -32,10 +36,17 @@ from .constants import PERSON_LOCALES
 
 
 class LocaleFaker(Faker):
-    _FAKER_REGISTRY = {}
+    _FAKER_REGISTRY: t.ClassVar[dict[str, faker.Faker]] = {}
+    _UNICODE_LETTER_CACHE: t.ClassVar[dict[str, bool]] = {}
+
+    @staticmethod
+    def available_locale(locale: str) -> str | None:
+        locale = locale.replace('-', '_')
+        locale = pylocale.normalize(locale).split('.')[0]
+        return locale in AVAILABLE_LOCALES and locale or None
 
     @classmethod
-    def _get_faker(cls, locale=None):
+    def _get_faker(cls, locale: t.Optional[str] = None):
         if locale is None:
             locale = choice(PERSON_LOCALES)
         if locale not in cls._FAKER_REGISTRY:
@@ -46,6 +57,16 @@ class LocaleFaker(Faker):
                 ],
             )
         return cls._FAKER_REGISTRY[locale]
+
+    @classmethod
+    def convert_to_latin(cls, string: str):
+        if string[0] not in cls._UNICODE_LETTER_CACHE:
+            letter_name = unicodedata.name(string[0], '')
+            cls._UNICODE_LETTER_CACHE[string[0]] = letter_name.startswith('LATIN ')
+        if not cls._UNICODE_LETTER_CACHE[string[0]]:
+            # First letter is not a latin one, convert the given string to latin.
+            string = unidecode_expect_nonascii(string)
+        return string
 
 
 class OptionalProvider(faker.providers.BaseProvider):
@@ -382,6 +403,7 @@ class ProfileSansAccountFactory(ProfileFactory):
 class PlaceFactory(VisibilityParamMixin, TypedDjangoModelFactory[Place]):
     class Meta:
         model = 'hosting.Place'
+        exclude = ('_locale',)
 
     class Params:
         deleted = False
@@ -391,13 +413,27 @@ class PlaceFactory(VisibilityParamMixin, TypedDjangoModelFactory[Place]):
         'tests.factories.ProfileFactory',
         deleted=factory.SelfAttribute('..deleted_profile'))
     country = Faker('random_element', elements=COUNTRIES.keys())
-    city = Faker('city')
-    address = Faker('address')
+    _locale = factory.LazyAttribute(
+        lambda obj:
+            LocaleFaker.available_locale(COUNTRIES_DATA[obj.country]['languages'][0])
+    )
+    city = factory.LazyAttribute(
+        lambda obj:
+            LocaleFaker.convert_to_latin(Faker._get_faker(obj._locale).city())
+    )
+    address = factory.LazyAttribute(
+        lambda obj:
+            LocaleFaker.convert_to_latin(Faker._get_faker(obj._locale).address())
+    )
 
     @factory.lazy_attribute
     def state_province(self):
         if self.country in countries_with_mandatory_region():
-            region = CountryRegionFactory(country=self.country)
+            # A `CountryRegion` object is necessarily 'created', also when the strategy
+            # of generation is 'build'. Since we maintain only a weak reference (via a
+            # text field) to the object, just 'building' it will cause various issues
+            # in logic dependent on it existing in the database.
+            region = CountryRegionFactory(country=self.country, locale=self._locale)
             return region.iso_code
         else:
             return ""
@@ -520,6 +556,7 @@ class CountryRegionFactory(TypedDjangoModelFactory[CountryRegion]):
         model = 'hosting.CountryRegion'
 
     class Params:
+        locale: str | None = None
         short_code = factory.LazyFunction(lambda: random() < 0.20)
         exclude_countries: t.ClassVar[t.Iterable[str]] = set()
 
@@ -531,15 +568,19 @@ class CountryRegionFactory(TypedDjangoModelFactory[CountryRegion]):
     latin_code = factory.Maybe(
         'short_code',
         yes_declaration=Faker('pystr_format', string_format='??', letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-        no_declaration=Faker('sentence', nb_words=3))
+        no_declaration=factory.LazyAttribute(
+            lambda obj:
+                LocaleFaker.convert_to_latin(Faker._get_faker(obj.locale).sentence(nb_words=3))))
     latin_name = factory.Maybe(
         'short_code',
-        yes_declaration=Faker('sentence', nb_words=3),
+        yes_declaration=factory.LazyAttribute(
+            lambda obj:
+                LocaleFaker.convert_to_latin(Faker._get_faker(obj.locale).sentence(nb_words=3))),
         no_declaration="")
 
     @factory.lazy_attribute
     def esperanto_name(self):
-        latin_region = self.latin_name or self.latin_code
+        latin_region = t.cast(str, self.latin_name or self.latin_code)
         replacements = [
             ('Q', 'Kv'), ('q', 'kv'),
             ('W', 'V'), ('w', 'v'),
@@ -558,21 +599,28 @@ class CountryRegionFactory(TypedDjangoModelFactory[CountryRegion]):
 class WhereaboutsFactory(TypedDjangoModelFactory[Whereabouts]):
     class Meta:
         model = 'hosting.Whereabouts'
+        exclude = ('_locale',)
 
     type = Faker('random_element', elements=[ch.value for ch in LocationType])
+    country = Faker('random_element', elements=COUNTRIES.keys())
+    _locale = factory.LazyAttribute(
+        lambda obj:
+            LocaleFaker.available_locale(COUNTRIES_DATA[obj.country]['languages'][0])
+    )
 
     @factory.lazy_attribute
     def name(self):
-        return Faker._get_faker().city().upper()
+        return (
+            LocaleFaker.convert_to_latin(Faker._get_faker(self._locale).city())
+            .upper().strip()
+        )
 
     @factory.lazy_attribute
     def state(self):
         if self.country in countries_with_mandatory_region():
-            return CountryRegionFactory(country=self.country).iso_code
+            return CountryRegionFactory(country=self.country, locale=self._locale).iso_code
         else:
             return ""
-
-    country = Faker('random_element', elements=COUNTRIES.keys())
 
     @factory.lazy_attribute
     def bbox(self):

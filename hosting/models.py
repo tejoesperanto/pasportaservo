@@ -1440,6 +1440,25 @@ class Whereabouts(models.Model):
         verbose_name = pgettext_lazy("name::singular", "whereabouts")
         verbose_name_plural = pgettext_lazy("name::plural", "whereabouts")
 
+    @cached_property
+    def subregion(self):
+        try:
+            region = CountryRegion.objects.get(
+                country=self.country, iso_code=self.state)
+        except CountryRegion.DoesNotExist:
+            region = CountryRegion(
+                country=self.country, iso_code='X-00', latin_code=self.state)
+        region.save = lambda *args, **kwargs: None  # Read-only instance.
+        return region
+
+    def __setattr__(self, name, value):
+        if name == 'state':
+            try:
+                del self.subregion
+            except AttributeError:
+                pass
+        super().__setattr__(name, value)
+
     def __str__(self):
         return str(_("Location of {landmark} ({state})")).format(
             landmark=self.name,

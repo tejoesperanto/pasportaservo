@@ -1,5 +1,5 @@
 from datetime import date
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Protocol, cast
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -7,6 +7,7 @@ from django.db.models import Prefetch
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
+from django_countries.fields import Country
 from factory import Faker
 
 from hosting.models import CountryRegion, FamilyMember, Place, Profile
@@ -14,10 +15,11 @@ from hosting.models import CountryRegion, FamilyMember, Place, Profile
 if TYPE_CHECKING:
     from hosting.models import FullProfile
 
+from .. import with_type_hint
 from ..assertions import AdditionalAsserts
 from ..factories import (
     ConditionFactory, CountryRegionFactory, PhoneFactory, PlaceFactory,
-    ProfileFactory, ProfileSansAccountFactory, UserFactory,
+    ProfileFactory, ProfileSansAccountFactory, UserFactory, WhereaboutsFactory,
 )
 
 
@@ -422,8 +424,56 @@ class FamilyMemberModelIntegrationTests(AdditionalAsserts, TestCase):
         self.assertEqual(profile_with_account.owner.pk, self.profile_with_account.pk)
 
 
+class SubregionIntegrationTest(with_type_hint(TestCase)):
+    class HasToponyms(Protocol):
+        country: Country
+        subregion: CountryRegion
+
+    def subregion_property_tests(
+            self,
+            parent_object: HasToponyms, reference_name: str,
+            associate_region: CountryRegion,
+    ):
+        # An existing subregion object's type is expected to be CountryRegion
+        # and its `iso_code` is expected to equal the textual reference value
+        # of the parent object.
+        subregion = parent_object.subregion
+        self.assertIsInstance(subregion, CountryRegion)
+        self.assertEqual(subregion.pk, associate_region.pk)
+        self.assertEqual(subregion.iso_code, getattr(parent_object, reference_name))
+        self.assertEqual(subregion.country, parent_object.country)
+        # Saving the object is expected to be disabled.
+        current_name = subregion.latin_name
+        subregion.latin_name = "SUBSTITUTE"
+        subregion.save()
+        subregion.refresh_from_db()
+        self.assertEqual(subregion.latin_name, current_name)
+
+        # Modifying the textual reference within the parent object is expected
+        # to result in a new subregion object. This object's type is expected
+        # to be CountryRegion.
+        # SIDE EFFECT: the textual reference field is altered but not saved
+        #              to the database; this shouldn't affect other tests.
+        faker = Faker._get_faker(locale='zh-CN')
+        setattr(parent_object, reference_name, faker.word())
+        subregion, previous_subregion = parent_object.subregion, subregion
+        self.assertIsNot(subregion, previous_subregion)
+        self.assertIsInstance(subregion, CountryRegion)
+        self.assertNotEqual(subregion.pk, previous_subregion.pk)
+
+        # A non-existing subregion object's `latin_code` is expected to equal
+        # the textual reference value of the parent object.
+        self.assertNotEqual(subregion.pk, associate_region.pk)
+        self.assertEqual(subregion.latin_code, getattr(parent_object, reference_name))
+        self.assertEqual(subregion.country, parent_object.country)
+        # Saving the object is expected to be disabled.
+        self.assertIsNone(subregion.pk)
+        subregion.save()
+        self.assertIsNone(subregion.pk)
+
+
 @tag('integration')
-class PlaceModelIntegrationTests(TestCase):
+class PlaceModelIntegrationTests(SubregionIntegrationTest, TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.region = CountryRegionFactory.create()
@@ -558,39 +608,17 @@ class PlaceModelIntegrationTests(TestCase):
 
     @tag('subregions')
     def test_subregion(self):
-        # An existing subregion object's type is expected to be CountryRegion
-        # and its `iso_code` is expected to equal the `state_province` value
-        # of the place.
-        subregion = self.place.subregion
-        self.assertIsInstance(subregion, CountryRegion)
-        self.assertEqual(subregion.pk, self.region.pk)
-        self.assertEqual(subregion.iso_code, self.place.state_province)
-        self.assertEqual(subregion.country, self.place.country)
-        # Saving the object is expected to be disabled.
-        current_name = subregion.latin_name
-        subregion.latin_name = "SUBSTITUTE"
-        subregion.save()
-        subregion.refresh_from_db()
-        self.assertEqual(subregion.latin_name, current_name)
+        self.subregion_property_tests(self.place, 'state_province', self.region)
 
-        # Modifying the `state_province` field of the place is expected to
-        # result in a new subregion object.
-        # This object's type is expected to be CountryRegion.
-        # SIDE EFFECT: self.place.state_province is altered but not saved
-        #              to the database; this shouldn't affect other tests.
-        faker = Faker._get_faker(locale='zh-CN')
-        self.place.state_province = faker.word()
-        subregion, old_subregion = self.place.subregion, subregion
-        self.assertIsNot(subregion, old_subregion)
-        self.assertIsInstance(subregion, CountryRegion)
-        self.assertNotEqual(subregion.pk, old_subregion.pk)
 
-        # A non-existing subregion object's `latin_code` is expected to equal
-        # the `state_province` value of the place.
-        self.assertNotEqual(subregion.pk, self.region.pk)
-        self.assertEqual(subregion.latin_code, self.place.state_province)
-        self.assertEqual(subregion.country, self.place.country)
-        # Saving the object is expected to be disabled.
-        self.assertIsNone(subregion.pk)
-        subregion.save()
-        self.assertIsNone(subregion.pk)
+@tag('integration')
+class WhereaboutsModelIntegrationTests(SubregionIntegrationTest, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.region = CountryRegionFactory.create()
+
+    @tag('subregions')
+    def test_subregion(self):
+        whereabouts = WhereaboutsFactory.create(
+            country=self.region.country, state=self.region.iso_code)
+        self.subregion_property_tests(whereabouts, 'state', self.region)
