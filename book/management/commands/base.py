@@ -106,7 +106,11 @@ class LatexCommand(BaseCommand if TYPE_CHECKING else object):
         self._annotate_objects(places)
 
         return sort_by(
-            ['closest_city', 'subregion.translated_or_latin_name', 'country.name'],
+            [
+                'closest_city',
+                'associated_region.translated_or_latin_name',
+                'country.name',
+            ],
             places
         )
 
@@ -132,10 +136,15 @@ class LatexCommand(BaseCommand if TYPE_CHECKING else object):
         ] = {}
 
         for place in places:
+            if place.country.code not in COUNTRIES_WITH_REGIONS:
+                # When the 'state / province' value is not mandatory, some places might
+                # indicate it while others not. Normalize to an empty value for cleaner
+                # output, to avoid splitting places into several blocks.
+                place.state_province = ""
+
             closest_city_name = place.closest_city.upper()
             state = place.state_province.upper()
-            if place.city.upper() == closest_city_name or not closest_city_name:
-                # No need to calculate the distance to closest city.
+            if not closest_city_name:
                 continue
             closest_city_location = (
                 locations_cache.get(place.country, {})
@@ -186,7 +195,17 @@ class LatexCommand(BaseCommand if TYPE_CHECKING else object):
                     closest_city_location.center.transform(utm_srid)
                     closest_city_location.utm_srid = utm_srid
 
-            if not is_coded(closest_city_location) or not place.location:
+            if not is_coded(closest_city_location):
+                # Not possible to calculate the distance to closest city.
+                place.associated_region = place.subregion
+                continue
+            place.associated_region = (
+                closest_city_location.subregion
+                if place.country.code in COUNTRIES_WITH_REGIONS
+                else place.subregion
+            )
+            if place.city.upper() == closest_city_name or not place.location:
+                # No need to calculate the distance to closest city.
                 continue
             place_location: Point = (
                 place.location.transform(closest_city_location.utm_srid, clone=True)
@@ -201,6 +220,7 @@ class LatexCommand(BaseCommand if TYPE_CHECKING else object):
             'places': self.get_objects(),
             'INVALID_PREFIX': settings.INVALID_PREFIX,
             'ADDRESS_ONLY': self.address_only,
+            'COUNTRIES_WITH_MANDATORY_REGIONS': countries_with_mandatory_region(),
             'COUNTRIES_WITH_REGIONS': COUNTRIES_WITH_REGIONS,
         }
 
