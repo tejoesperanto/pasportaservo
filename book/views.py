@@ -11,13 +11,14 @@ from django.utils.translation import gettext_lazy as _
 from django.views import generic
 
 from core.auth import AuthMixin, AuthRole
+from core.templatetags.domain import domain
 from hosting.models import Place
 from links.utils import create_unique_url
 
 
 class ContactExportView(AuthMixin, generic.ListView):
     response_class = HttpResponse
-    content_type = 'text/csv'
+    content_type = 'text/csv; charset=utf-8'
     display_permission_denied = False
     exact_role = AuthRole.ADMIN
 
@@ -36,10 +37,17 @@ class ContactExportView(AuthMixin, generic.ListView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        places = Place.objects.prefetch_related('owner__user')
-        places = places.filter(available=True).exclude(
-            Q(owner__user__email__startswith=settings.INVALID_PREFIX)
-            | Q(owner__death_date__isnull=False)
+        places = (
+            Place.objects.prefetch_related('owner__user')
+            .filter(owner__user__is_active=True, available=True)
+            .filter(
+                Q(visibility__visible_online_public=True)
+                | Q(visibility__visible_in_book=True)
+            )
+            .exclude(
+                Q(owner__user__email__startswith=settings.INVALID_PREFIX)
+                | Q(owner__death_date__isnull=False)
+            )
         )
         return places
 
@@ -98,4 +106,4 @@ class ContactExportView(AuthMixin, generic.ListView):
         return row
 
     def get_url(self, place: Place, action: str) -> str:
-        return create_unique_url({'place': place.pk, 'action': action})[0]
+        return domain({}, create_unique_url({'place': place.pk, 'action': action})[0])
