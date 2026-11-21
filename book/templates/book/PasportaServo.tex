@@ -2,8 +2,10 @@
 \usepackage[left=12mm, right=10mm, twoside, top=10mm, bottom=8mm, includeheadfoot]{geometry}
 {% if not ADDRESS_ONLY %}\usepackage[cam, center, width=118mm, height=159mm]{crop}{% endif %}
 
+{% comment %}
 \usepackage[sfdefault]{FiraSans}
 \usepackage{FiraMono}
+{% endcomment %}
 \usepackage{fontspec}
 \usepackage{graphicx}
 \usepackage{xcolor}
@@ -18,7 +20,7 @@
 \usepackage{pgffor}    % For \foreach{}
 \usepackage{mathtools}
 \usepackage[document]{ragged2e}  % For left-justified
-\usepackage{fontawesome5}
+\usepackage{fontawesome7}
 \usepackage{fancyhdr}  % For fancy headers
 \usepackage[section]{placeins}
 
@@ -33,11 +35,12 @@
 \titleformat{\part}[hang]{}{}{0pt}{\centering\Geotica\large}
 \assignpagestyle{\part}{empty}
 \setmainfont{Fira Sans}
+\setmonofont{Fira Mono}[UprightFont=*-Regular, ItalicFont=*-Oblique]
 
 \newfontfamily\semibold{Fira Sans Medium}
 \newfontfamily\light{Fira Sans Light}
 \newfontfamily\lightitalic{Fira Sans Light Italic}
-\newfontfamily\Geotica[Scale=3]{Geotica_Three.otf}
+\newfontfamily\Geotica[Scale=3]{Geotica Three}
 \setlength\parindent{0pt}  % No paragraph indentation
 \definecolor{light-gray}{gray}{0.8}
 \hypersetup{colorlinks=true, citecolor=black, filecolor=black, linkcolor=black, urlcolor=black}
