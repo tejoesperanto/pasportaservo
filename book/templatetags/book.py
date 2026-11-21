@@ -32,11 +32,11 @@ def latex_icon(object):
     if isinstance(object, Phone):
         match object.type:
             case Phone.PhoneType.MOBILE:
-                icon = r"\raisebox{-0.10em}{\faMobile*}"
+                icon = r"\raisebox{-0.08em}{\faMobileScreen}"
             case Phone.PhoneType.FAX:
                 icon = r"\raisebox{-0.08em}{\faFax}"
             case _:
-                icon = r"\raisebox{-0.15em}{\faPhone*}"
+                icon = r"\raisebox{-0.10em}{\faPhone}"
     return icon
 
 

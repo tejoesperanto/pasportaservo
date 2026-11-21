@@ -80,7 +80,10 @@ class LatexCommand(BaseCommand if TYPE_CHECKING else object):
             if not isfile(join(tempdir, 'PasportaServo.pdf')):
                 print("\nCould not generate the PDF")
             else:
-                call(['evince', 'PasportaServo.pdf'], cwd=tempdir)
+                try:
+                    call(['evince', 'PasportaServo.pdf'], cwd=tempdir)
+                except Exception:
+                    pass
             print("\n", tempdir)
 
     def export_latlng(self, tempdir: str):

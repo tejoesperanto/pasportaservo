@@ -92,11 +92,11 @@ class LatexIconFilterTests(TestCase):
 
     def test_phone_object(self):
         test_data = {
-            PhoneFactory._meta.model.PhoneType.MOBILE: r"{\faMobile*}",
-            PhoneFactory._meta.model.PhoneType.HOME: r"{\faPhone*}",
-            PhoneFactory._meta.model.PhoneType.WORK: r"{\faPhone*}",
+            PhoneFactory._meta.model.PhoneType.MOBILE: r"{\faMobileScreen}",
+            PhoneFactory._meta.model.PhoneType.HOME: r"{\faPhone}",
+            PhoneFactory._meta.model.PhoneType.WORK: r"{\faPhone}",
             PhoneFactory._meta.model.PhoneType.FAX: r"{\faFax}",
-            'xyz': r"{\faPhone*}",
+            'xyz': r"{\faPhone}",
         }
         phone = PhoneFactory.build()
         for phone_type, expected_icon in test_data.items():
